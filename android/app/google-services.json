@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "939322594123",
+    "project_id": "devkom-dfdca",
+    "storage_bucket": "devkom-dfdca.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:939322594123:android:c98290e31dd82025250ece",
+        "android_client_info": {
+          "package_name": "com.example.devkom_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDK99DURN7CnHOAj45tMMt0ntcCQYvjlw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

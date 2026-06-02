@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockly Workspace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        #blocklyDiv {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="blocklyDiv"></div>
+
+    <!-- Blockly Core -->
+    <script src="https://unpkg.com/blockly@11.0.0/blockly.min.js"></script>
+
+    <!-- Blockly Dil Desteği - Türkçe -->
+    <script src="https://unpkg.com/blockly@11.0.0/msg/tr.js"></script>
+
+    <script>
+        // ========================================
+        // SCRATCH TEMASI
+        // ========================================
+        const scratchTheme = Blockly.Theme.defineTheme('scratch', {
+            'base': Blockly.Themes.Classic,
+            'blockStyles': {
+                'motion_blocks': {
+                    'colourPrimary': '#4C97FF',
+                    'colourSecondary': '#3373CC',
+                    'colourTertiary': '#2E5F9E'
+                },
+                'looks_blocks': {
+                    'colourPrimary': '#9966FF',
+                    'colourSecondary': '#774DCB',
+                    'colourTertiary': '#5C3A99'
+                },
+                'control_blocks': {
+                    'colourPrimary': '#FFAB19',
+                    'colourSecondary': '#CF8B17',
+                    'colourTertiary': '#9D6A12'
+                },
+                'event_blocks': {
+                    'colourPrimary': '#FFD500',
+                    'colourSecondary': '#CCAA00',
+                    'colourTertiary': '#998000'
+                }
+            },
+            'categoryStyles': {
+                'motion_category': {
+                    'colour': '#4C97FF'
+                },
+                'looks_category': {
+                    'colour': '#9966FF'
+                },
+                'control_category': {
+                    'colour': '#FFAB19'
+                },
+                'event_category': {
+                    'colour': '#FFD500'
+                }
+            },
+            'componentStyles': {
+                'workspaceBackgroundColour': '#F9F9F9',
+                'toolboxBackgroundColour': '#FFFFFF',
+                'toolboxForegroundColour': '#575E75',
+                'flyoutBackgroundColour': '#FFFFFF',
+                'flyoutForegroundColour': '#575E75',
+                'flyoutOpacity': 0.95,
+                'scrollbarColour': '#CECDCE',
+                'scrollbarOpacity': 0.5,
+                'insertionMarkerColour': '#000000',
+                'insertionMarkerOpacity': 0.3
+            },
+            'fontStyle': {
+                'family': 'Helvetica Neue, Arial, sans-serif',
+                'weight': 'bold',
+                'size': 12
+            }
+        });
+
+        // ========================================
+        // CUSTOM BLOKLAR - TÜRKÇE
+        // ========================================
+
+        // 1. İLERLE BLOĞU
+        Blockly.Blocks['scratch_move_forward'] = {
+            init: function() {
+                this.appendValueInput("STEPS")
+                    .setCheck("Number")
+                    .appendField("ilerle");
+                this.appendDummyInput()
+                    .appendField("adım");
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour('#4C97FF');
+                this.setTooltip("Karakteri belirtilen adım kadar ileri götürür");
+                this.setHelpUrl("");
+                this.setStyle('motion_blocks');
+            }
+        };
+
+        // 2. SAĞA DÖN BLOĞU
+        Blockly.Blocks['scratch_turn_right'] = {
+            init: function() {
+                this.appendValueInput("DEGREES")
+                    .setCheck("Number")
+                    .appendField("sağa dön");
+                this.appendDummyInput()
+                    .appendField("derece");
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour('#4C97FF');
+                this.setTooltip("Karakteri sağa döndürür");
+                this.setHelpUrl("");
+                this.setStyle('motion_blocks');
+            }
+        };
+
+        // 3. KONUŞ BLOĞU
+        Blockly.Blocks['scratch_say'] = {
+            init: function() {
+                this.appendValueInput("MESSAGE")
+                    .setCheck("String")
+                    .appendField("konuş");
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour('#9966FF');
+                this.setTooltip("Karakter bir şey söyler");
+                this.setHelpUrl("");
+                this.setStyle('looks_blocks');
+            }
+        };
+
+        // 4. BEKLE BLOĞU
+        Blockly.Blocks['scratch_wait'] = {
+            init: function() {
+                this.appendValueInput("DURATION")
+                    .setCheck("Number")
+                    .appendField("bekle");
+                this.appendDummyInput()
+                    .appendField("saniye");
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour('#FFAB19');
+                this.setTooltip("Belirtilen süre kadar bekler");
+                this.setHelpUrl("");
+                this.setStyle('control_blocks');
+            }
+        };
+
+        // 5. TEKRAR ET BLOĞU (C-Block)
+        Blockly.Blocks['scratch_repeat'] = {
+            init: function() {
+                this.appendValueInput("TIMES")
+                    .setCheck("Number")
+                    .appendField("tekrar et");
+                this.appendDummyInput()
+                    .appendField("kere");
+                this.appendStatementInput("DO")
+                    .setCheck(null);
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour('#FFAB19');
+                this.setTooltip("İçindeki blokları belirtilen sayıda tekrarlar");
+                this.setHelpUrl("");
+                this.setStyle('control_blocks');
+            }
+        };
+
+        // 6. YEŞIL BAYRAK (BAŞLAT)
+        Blockly.Blocks['scratch_when_flag_clicked'] = {
+            init: function() {
+                this.appendDummyInput()
+                    .appendField("🏁 yeşil bayrağa tıklandığında");
+                this.setNextStatement(true, null);
+                this.setColour('#FFD500');
+                this.setTooltip("Program başladığında çalışır");
+                this.setHelpUrl("");
+                this.setStyle('event_blocks');
+            }
+        };
+
+        // ========================================
+        // KOD ÜRETİCİLERİ (JavaScript)
+        // ========================================
+
+        Blockly.JavaScript['scratch_move_forward'] = function(block) {
+            const steps = Blockly.JavaScript.valueToCode(block, 'STEPS', Blockly.JavaScript.ORDER_ATOMIC) || '10';
+            return 'moveForward(' + steps + ');\n';
+        };
+
+        Blockly.JavaScript['scratch_turn_right'] = function(block) {
+            const degrees = Blockly.JavaScript.valueToCode(block, 'DEGREES', Blockly.JavaScript.ORDER_ATOMIC) || '90';
+            return 'turnRight(' + degrees + ');\n';
+        };
+
+        Blockly.JavaScript['scratch_say'] = function(block) {
+            const message = Blockly.JavaScript.valueToCode(block, 'MESSAGE', Blockly.JavaScript.ORDER_ATOMIC) || '""';
+            return 'say(' + message + ');\n';
+        };
+
+        Blockly.JavaScript['scratch_wait'] = function(block) {
+            const duration = Blockly.JavaScript.valueToCode(block, 'DURATION', Blockly.JavaScript.ORDER_ATOMIC) || '1';
+            return 'wait(' + duration + ');\n';
+        };
+
+        Blockly.JavaScript['scratch_repeat'] = function(block) {
+            const times = Blockly.JavaScript.valueToCode(block, 'TIMES', Blockly.JavaScript.ORDER_ATOMIC) || '10';
+            const branch = Blockly.JavaScript.statementToCode(block, 'DO');
+            return 'repeat(' + times + ', function() {\n' + branch + '});\n';
+        };
+
+        Blockly.JavaScript['scratch_when_flag_clicked'] = function(block) {
+            const branch = Blockly.JavaScript.statementToCode(block, 'DO');
+            return 'whenFlagClicked(function() {\n' + branch + '});\n';
+        };
+
+        // ========================================
+        // TOOLBOX YAPISI
+        // ========================================
+        const toolbox = {
+            'kind': 'categoryToolbox',
+            'contents': [
+                {
+                    'kind': 'category',
+                    'name': '🚀 Hareket',
+                    'categorystyle': 'motion_category',
+                    'contents': [
+                        {
+                            'kind': 'block',
+                            'type': 'scratch_move_forward',
+                            'inputs': {
+                                'STEPS': {
+                                    'shadow': {
+                                        'type': 'math_number',
+                                        'fields': {
+                                            'NUM': 10
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'scratch_turn_right',
+                            'inputs': {
+                                'DEGREES': {
+                                    'shadow': {
+                                        'type': 'math_number',
+                                        'fields': {
+                                            'NUM': 90
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    'kind': 'category',
+                    'name': '💬 Görünüm',
+                    'categorystyle': 'looks_category',
+                    'contents': [
+                        {
+                            'kind': 'block',
+                            'type': 'scratch_say',
+                            'inputs': {
+                                'MESSAGE': {
+                                    'shadow': {
+                                        'type': 'text',
+                                        'fields': {
+                                            'TEXT': 'Merhaba!'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    'kind': 'category',
+                    'name': '🔁 Kontrol',
+                    'categorystyle': 'control_category',
+                    'contents': [
+                        {
+                            'kind': 'block',
+                            'type': 'scratch_repeat',
+                            'inputs': {
+                                'TIMES': {
+                                    'shadow': {
+                                        'type': 'math_number',
+                                        'fields': {
+                                            'NUM': 4
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'scratch_wait',
+                            'inputs': {
+                                'DURATION': {
+                                    'shadow': {
+                                        'type': 'math_number',
+                                        'fields': {
+                                            'NUM': 1
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    'kind': 'category',
+                    'name': '🏁 Olaylar',
+                    'categorystyle': 'event_category',
+                    'contents': [
+                        {
+                            'kind': 'block',
+                            'type': 'scratch_when_flag_clicked'
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // ========================================
+        // WORKSPACE BAŞLATMA
+        // ========================================
+        const workspace = Blockly.inject('blocklyDiv', {
+            toolbox: toolbox,
+            theme: scratchTheme,
+            grid: {
+                spacing: 20,
+                length: 3,
+                colour: '#E0E0E0',
+                snap: true
+            },
+            zoom: {
+                controls: true,
+                wheel: true,
+                startScale: 1.0,
+                maxScale: 3,
+                minScale: 0.3,
+                scaleSpeed: 1.2
+            },
+            trashcan: true,
+            move: {
+                scrollbars: {
+                    horizontal: true,
+                    vertical: true
+                },
+                drag: true,
+                wheel: true
+            },
+            sounds: false
+        });
+
+        // ========================================
+        // FLUTTER İLETİŞİMİ
+        // ========================================
+
+        // Bloklar değiştiğinde Flutter'a bildir
+        workspace.addChangeListener(function(event) {
+            if (event.type === Blockly.Events.BLOCK_CHANGE ||
+                event.type === Blockly.Events.BLOCK_CREATE ||
+                event.type === Blockly.Events.BLOCK_DELETE ||
+                event.type === Blockly.Events.BLOCK_MOVE) {
+
+                const code = Blockly.JavaScript.workspaceToCode(workspace);
+                const xml = Blockly.Xml.workspaceToDom(workspace);
+                const xmlText = Blockly.Xml.domToText(xml);
+
+                // Flutter'a mesaj gönder
+                if (window.FlutterChannel && window.FlutterChannel.postMessage) {
+                    window.FlutterChannel.postMessage(JSON.stringify({
+                        type: 'workspace_changed',
+                        code: code,
+                        xml: xmlText
+                    }));
+                }
+            }
+        });
+
+        // Kodu çalıştır butonu için
+        function runCode() {
+            const code = Blockly.JavaScript.workspaceToCode(workspace);
+            if (window.FlutterChannel && window.FlutterChannel.postMessage) {
+                window.FlutterChannel.postMessage(JSON.stringify({
+                    type: 'run_code',
+                    code: code
+                }));
+            }
+        }
+
+        // Workspace'i temizle
+        function clearWorkspace() {
+            workspace.clear();
+        }
+
+        // XML'den workspace yükle
+        function loadWorkspace(xmlText) {
+            try {
+                const xml = Blockly.Xml.textToDom(xmlText);
+                workspace.clear();
+                Blockly.Xml.domToWorkspace(xml, workspace);
+            } catch (error) {
+                console.error('XML yükleme hatası:', error);
+            }
+        }
+
+        // Hazır bildir
+        window.addEventListener('load', function() {
+            if (window.FlutterChannel && window.FlutterChannel.postMessage) {
+                window.FlutterChannel.postMessage(JSON.stringify({
+                    type: 'ready'
+                }));
+            }
+        });
+    </script>
+</body>
+</html>

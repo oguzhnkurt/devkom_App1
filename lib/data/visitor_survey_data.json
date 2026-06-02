@@ -1,0 +1,49 @@
+{
+  "title": "Uygulama Değerlendirme Anketi",
+  "description": "Değerli kullanıcımız, uygulamamızı geliştirmemize yardımcı olmak için lütfen aşağıdaki soruları yanıtlayın. Görüşleriniz bizim için çok değerli!",
+  "createdBy": "system",
+  "createdByName": "Sistem Yöneticisi",
+  "isActive": true,
+  "targetRoles": ["visitor"],
+  "questions": [
+    {
+      "question": "Uygulamamızı nasıl değerlendirirsiniz?",
+      "type": "rating",
+      "isRequired": true
+    },
+    {
+      "question": "Uygulamanın kullanım kolaylığını nasıl buluyorsunuz?",
+      "type": "multipleChoice",
+      "options": [
+        "Çok kolay",
+        "Kolay",
+        "Orta",
+        "Zor",
+        "Çok zor"
+      ],
+      "isRequired": true
+    },
+    {
+      "question": "Hangi özellikler sizin için en faydalı?",
+      "type": "multipleChoice",
+      "options": [
+        "Robotik oyunlar",
+        "Eğitim içerikleri",
+        "Müşteri desteği",
+        "Kullanıcı arayüzü",
+        "Diğer"
+      ],
+      "isRequired": true
+    },
+    {
+      "question": "Uygulamayı bir arkadaşınıza tavsiye eder misiniz?",
+      "type": "yesNo",
+      "isRequired": true
+    },
+    {
+      "question": "Eklemek istediğiniz özellik veya öneriniz var mı?",
+      "type": "text",
+      "isRequired": false
+    }
+  ]
+}

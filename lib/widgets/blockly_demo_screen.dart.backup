@@ -1,0 +1,158 @@
+import 'package:flutter/material.dart';
+import 'blockly_workspace_widget.dart';
+import 'block_animation_player.dart';
+
+/// Demo screen to test Blockly integration
+class BlocklyDemoScreen extends StatefulWidget {
+  const BlocklyDemoScreen({super.key});
+
+  @override
+  State<BlocklyDemoScreen> createState() => _BlocklyDemoScreenState();
+}
+
+class _BlocklyDemoScreenState extends State<BlocklyDemoScreen> {
+  final GlobalKey<BlocklyWorkspaceWidgetState> _blocklyKey = GlobalKey();
+  List<String> _currentActions = [];
+  String _currentCode = '';
+  bool _isRunning = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Blockly Demo'),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        actions: [
+          // Clear button
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            onPressed: () async {
+              await _blocklyKey.currentState?.clearWorkspace();
+              setState(() {
+                _currentActions = [];
+                _currentCode = '';
+              });
+            },
+            tooltip: 'Temizle',
+          ),
+
+          // Run button
+          IconButton(
+            icon: const Icon(Icons.play_arrow),
+            onPressed: _isRunning ? null : () async {
+              await _blocklyKey.currentState?.runCode();
+            },
+            tooltip: 'Çalıştır',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Blockly Workspace
+          Expanded(
+            flex: 3,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.blue.shade200, width: 2),
+              ),
+              child: BlocklyWorkspaceWidget(
+                key: _blocklyKey,
+                onCodeChanged: (code) {
+                  setState(() {
+                    _currentCode = code;
+                  });
+                  print('📝 Code updated: ${code.length} characters');
+                },
+                onRunCode: (actions) {
+                  setState(() {
+                    _currentActions = actions;
+                    _isRunning = true;
+                  });
+                  print('▶️ Running ${actions.length} actions: $actions');
+                },
+              ),
+            ),
+          ),
+
+          // Animation Preview
+          if (_isRunning && _currentActions.isNotEmpty)
+            Expanded(
+              flex: 2,
+              child: Container(
+                color: Colors.grey.shade100,
+                child: BlockAnimationPlayer(
+                  key: ValueKey(_currentActions.hashCode),
+                  blockIds: _currentActions,
+                  size: 50,
+                  onComplete: () {
+                    setState(() {
+                      _isRunning = false;
+                    });
+                    print('✅ Animation complete!');
+                  },
+                ),
+              ),
+            )
+          else
+            Expanded(
+              flex: 2,
+              child: Container(
+                color: Colors.grey.shade100,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 48,
+                        color: Colors.blue.shade300,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _currentActions.isEmpty
+                            ? 'Blokları birleştir ve çalıştır!'
+                            : 'Hazır! Çalıştır butonuna bas.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      if (_currentActions.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          '${_currentActions.length} eylem hazır',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          // Code Preview (Debug)
+          if (_currentCode.isNotEmpty)
+            Container(
+              height: 120,
+              color: Colors.black87,
+              padding: const EdgeInsets.all(12),
+              child: SingleChildScrollView(
+                child: Text(
+                  _currentCode,
+                  style: const TextStyle(
+                    color: Colors.greenAccent,
+                    fontFamily: 'monospace',
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}

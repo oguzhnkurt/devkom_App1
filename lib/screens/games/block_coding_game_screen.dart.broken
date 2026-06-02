@@ -1,0 +1,803 @@
+import 'package:flutter/material.dart';
+import 'dart:math' as math;
+
+class BlockCodingGameScreen extends StatefulWidget {
+  const BlockCodingGameScreen({Key? key}) : super(key: key);
+
+  @override
+  State<BlockCodingGameScreen> createState() => _BlockCodingGameScreenState();
+}
+
+class _BlockCodingGameScreenState extends State<BlockCodingGameScreen> {
+  int _currentLevel = 1;
+  String _selectedCharacter = 'robot'; // robot, cat, car, rocket
+  List<String> _codeBlocks = [];
+  int _robotX = 0;
+  int _robotY = 0;
+  String _robotDirection = 'right'; // right, left, up, down
+  bool _isRunning = false;
+  bool _levelComplete = false;
+  final int _goalX = 7;
+  final int _goalY = 7;
+
+  final List<Map<String, dynamic>> _availableBlocks = [
+    {'id': 'move_forward', 'label': 'İleri Git', 'icon': Icons.arrow_upward, 'color': Colors.blue},
+    {'id': 'turn_left', 'label': 'Sola Dön', 'icon': Icons.rotate_left, 'color': Colors.orange},
+    {'id': 'turn_right', 'label': 'Sağa Dön', 'icon': Icons.rotate_right, 'color': Colors.purple},
+    {'id': 'repeat_2', 'label': '2x Tekrar', 'icon': Icons.replay, 'color': Colors.green},
+  ];
+
+  void _addBlock(String blockId) {
+    if (_codeBlocks.length < 15) {
+      setState(() {
+        _codeBlocks.add(blockId);
+      });
+    }
+  }
+
+  void _removeBlock(int index) {
+    setState(() {
+      _codeBlocks.removeAt(index);
+    });
+  }
+
+  void _clearAll() {
+    setState(() {
+      _codeBlocks.clear();
+      _resetRobot();
+      _levelComplete = false;
+    });
+  }
+
+  void _resetRobot() {
+    setState(() {
+      _robotX = 0;
+      _robotY = 0;
+      _robotDirection = 'right';
+      _isRunning = false;
+    });
+  }
+
+  Future<void> _runCode() async {
+    setState(() {
+      _isRunning = true;
+      _levelComplete = false;
+      _resetRobot();
+    });
+
+    for (var block in _codeBlocks) {
+      if (!_isRunning) break;
+
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      if (block == 'move_forward') {
+        _moveForward();
+      } else if (block == 'turn_left') {
+        _turnLeft();
+      } else if (block == 'turn_right') {
+        _turnRight();
+      } else if (block == 'repeat_2') {
+        // Repeat last action twice
+        if (_codeBlocks.indexOf(block) > 0) {
+          var lastBlock = _codeBlocks[_codeBlocks.indexOf(block) - 1];
+          for (int i = 0; i < 2; i++) {
+            await Future.delayed(const Duration(milliseconds: 800));
+            if (lastBlock == 'move_forward') {
+              _moveForward();
+            } else if (lastBlock == 'turn_left') {
+              _turnLeft();
+            } else if (lastBlock == 'turn_right') {
+              _turnRight();
+            }
+          }
+        }
+      }
+
+      // Check if robot reached goal
+      if (_robotX == _goalX && _robotY == _goalY) {
+        setState(() {
+          _levelComplete = true;
+        });
+        _showSuccessDialog();
+        break;
+      }
+    }
+
+    setState(() {
+      _isRunning = false;
+    });
+  }
+
+  void _moveForward() {
+    setState(() {
+      if (_robotDirection == 'right' && _robotX < 7) {
+        _robotX++;
+      } else if (_robotDirection == 'left' && _robotX > 0) {
+        _robotX--;
+      } else if (_robotDirection == 'up' && _robotY > 0) {
+        _robotY--;
+      } else if (_robotDirection == 'down' && _robotY < 7) {
+        _robotY++;
+      }
+    });
+  }
+
+  void _turnLeft() {
+    setState(() {
+      if (_robotDirection == 'right') _robotDirection = 'up';
+      else if (_robotDirection == 'up') _robotDirection = 'left';
+      else if (_robotDirection == 'left') _robotDirection = 'down';
+      else if (_robotDirection == 'down') _robotDirection = 'right';
+    });
+  }
+
+  void _turnRight() {
+    setState(() {
+      if (_robotDirection == 'right') _robotDirection = 'down';
+      else if (_robotDirection == 'down') _robotDirection = 'left';
+      else if (_robotDirection == 'left') _robotDirection = 'up';
+      else if (_robotDirection == 'up') _robotDirection = 'right';
+    });
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('🎉 Tebrikler!'),
+        content: const Text('Hedefine ulaştın! Bir sonraki seviyeye hazır mısın?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+            child: const Text('Ana Menü'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                _currentLevel++;
+                _clearAll();
+              });
+            },
+            child: const Text('Sonraki Seviye'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  
+  
+  Widget _buildCharacterOption(String id, IconData icon, Color color) {
+    final isSelected = _selectedCharacter == id;
+    return InkWell(
+      onTap: () {
+        if (!_isRunning) {
+          setState(() {
+            _selectedCharacter = id;
+          });
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withOpacity(0.2) : Colors.grey[200],
+          border: Border.all(
+            color: isSelected ? color : Colors.grey,
+            width: isSelected ? 3 : 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(
+          icon,
+          color: isSelected ? color : Colors.grey[600],
+          size: 30,
+        ),
+      ),
+    );
+  }
+
+IconData _getCharacterIcon() {
+    switch (_selectedCharacter) {
+      case 'cat':
+        return Icons.pets;
+      case 'car':
+        return Icons.directions_car;
+      case 'rocket':
+        return Icons.rocket_launch;
+      default:
+        return Icons.smart_toy;
+    }
+  }
+
+  Color _getCharacterColor() {
+    switch (_selectedCharacter) {
+      case 'cat':
+        return Colors.orange;
+      case 'car':
+        return Colors.red;
+      case 'rocket':
+        return Colors.purple;
+      default:
+        return Colors.blue;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Kod Blokları - Seviye $_currentLevel'),
+        backgroundColor: const Color(0xFF2196F3),
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _clearAll,
+            tooltip: 'Temizle',
+          ),
+        ],
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < 800;
+
+          if (isMobile) {
+            // Mobile layout - use tabs or bottom sheet
+            return Column(
+              children: [
+                // Character Selection Row
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  color: Colors.blue[50],
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Karakterini Seç: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      const SizedBox(width: 12),
+                      _buildCharacterOption('robot', Icons.smart_toy, Colors.blue),
+                      const SizedBox(width: 8),
+                      _buildCharacterOption('cat', Icons.pets, Colors.orange),
+                      const SizedBox(width: 8),
+                      _buildCharacterOption('car', Icons.directions_car, Colors.red),
+                      const SizedBox(width: 8),
+                      _buildCharacterOption('rocket', Icons.rocket_launch, Colors.purple),
+                    ],
+                  ),
+                ),
+                // Center Panel - Grid and Robot
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    color: Colors.white,
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Robotu hedefe götür!',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 8),
+                        Expanded(
+                          child: Center(
+                            child: AspectRatio(
+                              aspectRatio: 1,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black, width: 2),
+                                ),
+                                child: GridView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 8,
+                                  ),
+                                  itemCount: 64,
+                                  itemBuilder: (context, index) {
+                                    final x = index % 8;
+                                    final y = index ~/ 8;
+                                    final isRobot = x == _robotX && y == _robotY;
+                                    final isGoal = x == _goalX && y == _goalY;
+
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        color: isGoal
+                                            ? Colors.green[100]
+                                            : (x + y) % 2 == 0
+                                                ? Colors.white
+                                                : Colors.grey[200],
+                                        border: Border.all(color: Colors.grey[400]!),
+                                      ),
+                                      child: Center(
+                                        child: isGoal
+                                            ? const Icon(Icons.flag, color: Colors.green, size: 20)
+                                            : isRobot
+                                                ? Transform.rotate(
+                                                    angle: _robotDirection == 'right'
+                                                        ? 0
+                                                        : _robotDirection == 'down'
+                                                            ? math.pi / 2
+                                                            : _robotDirection == 'left'
+                                                                ? math.pi
+                                                                : -math.pi / 2,
+                                                    child: Icon(
+                                                      _getCharacterIcon(),
+                                                      color: _getCharacterColor(),
+                                                      size: 24,
+                                                    ),
+                                                  )
+                                                : null,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Bottom Panel - Controls
+                Container(
+                  color: Colors.grey[100],
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Available Blocks (Horizontal Scroll)
+                      SizedBox(
+                        height: 70,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _availableBlocks.length,
+                          itemBuilder: (context, index) {
+                            final block = _availableBlocks[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: InkWell(
+                                onTap: () => _addBlock(block['id']),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: block['color'],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(block['icon'], color: Colors.white, size: 24),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        block['label'],
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Code blocks list (if any)
+                      if (_codeBlocks.isNotEmpty)
+                        Container(
+                          constraints: const BoxConstraints(maxHeight: 100),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[800],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _codeBlocks.length,
+                            itemBuilder: (context, index) {
+                              final blockId = _codeBlocks[index];
+                              final block = _availableBlocks.firstWhere((b) => b['id'] == blockId);
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 4),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: block['color'],
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        '${index + 1}.',
+                                        style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 12),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Icon(block['icon'], color: Colors.white, size: 16),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        block['label'],
+                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12),
+                                      ),
+                                      const Spacer(),
+                                      GestureDetector(
+                                        onTap: () => _removeBlock(index),
+                                        child: const Icon(Icons.close, color: Colors.white70, size: 16),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      const SizedBox(height: 8),
+                      // Control Buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: _isRunning ? null : _runCode,
+                              icon: Icon(_isRunning ? Icons.hourglass_empty : Icons.play_arrow, size: 20),
+                              label: Text(_isRunning ? 'Çalışıyor...' : 'Çalıştır', style: const TextStyle(fontSize: 14)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: _clearAll,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                            ),
+                            child: const Icon(Icons.delete_sweep, size: 20),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }
+
+          // Desktop/Tablet layout - original Row layout
+          return Row(
+            children: [
+              // Left Panel - Available Blocks
+              Expanded(
+                flex: 2,
+                child: Container(
+                  color: Colors.grey[100],
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Komut Blokları',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: _availableBlocks.length,
+                          itemBuilder: (context, index) {
+                            final block = _availableBlocks[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: Draggable<String>(
+                                data: block['id'],
+                                feedback: Material(
+                                  elevation: 8,
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: _buildBlockCard(block, isDragging: true),
+                                ),
+                                childWhenDragging: Opacity(
+                                  opacity: 0.5,
+                                  child: _buildBlockCard(block),
+                                ),
+                                child: InkWell(
+                                  onTap: () => _addBlock(block['id']),
+                                  child: _buildBlockCard(block),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // Center Panel - Grid and Robot
+          Expanded(
+            flex: 3,
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  const Text(
+                    'Robotu hedefe götür!',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 12),
+                  // Character Selection Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Karakterini Seç: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(width: 12),
+                      _buildCharacterOption('robot', Icons.smart_toy, Colors.blue),
+                      const SizedBox(width: 8),
+                      _buildCharacterOption('cat', Icons.pets, Colors.orange),
+                      const SizedBox(width: 8),
+                      _buildCharacterOption('car', Icons.directions_car, Colors.red),
+                      const SizedBox(width: 8),
+                      _buildCharacterOption('rocket', Icons.rocket_launch, Colors.purple),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: Center(
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 2),
+                          ),
+                          child: GridView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 8,
+                            ),
+                            itemCount: 64,
+                            itemBuilder: (context, index) {
+                              final x = index % 8;
+                              final y = index ~/ 8;
+                              final isRobot = x == _robotX && y == _robotY;
+                              final isGoal = x == _goalX && y == _goalY;
+
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: isGoal
+                                      ? Colors.green[100]
+                                      : (x + y) % 2 == 0
+                                          ? Colors.white
+                                          : Colors.grey[200],
+                                  border: Border.all(color: Colors.grey[400]!),
+                                ),
+                                child: Center(
+                                  child: isGoal
+                                      ? const Icon(Icons.flag, color: Colors.green, size: 30)
+                                      : isRobot
+                                          ? Transform.rotate(
+                                              angle: _robotDirection == 'right'
+                                                  ? 0
+                                                  : _robotDirection == 'down'
+                                                      ? math.pi / 2
+                                                      : _robotDirection == 'left'
+                                                          ? math.pi
+                                                          : -math.pi / 2,
+                                              child: Icon(
+                                                _getCharacterIcon(),
+                                                color: _getCharacterColor(),
+                                                size: 35,
+                                              ),
+                                            )
+                                          : null,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Right Panel - Code Area
+          Expanded(
+            flex: 2,
+            child: Container(
+              color: Colors.grey[900],
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Kodun',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: DragTarget<String>(
+                      onAccept: (blockId) => _addBlock(blockId),
+                      builder: (context, candidateData, rejectedData) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[850],
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: candidateData.isNotEmpty
+                                  ? Colors.blue
+                                  : Colors.grey[700]!,
+                              width: 2,
+                            ),
+                          ),
+                          child: _codeBlocks.isEmpty
+                              ? const Center(
+                                  child: Text(
+                                    'Blokları buraya sürükle\nveya tıkla',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  itemCount: _codeBlocks.length,
+                                  itemBuilder: (context, index) {
+                                    final blockId = _codeBlocks[index];
+                                    final block = _availableBlocks.firstWhere(
+                                      (b) => b['id'] == blockId,
+                                    );
+                                    return Dismissible(
+                                      key: Key('$blockId-$index'),
+                                      onDismissed: (_) => _removeBlock(index),
+                                      background: Container(
+                                        color: Colors.red,
+                                        alignment: Alignment.centerRight,
+                                        padding: const EdgeInsets.only(right: 16),
+                                        child: const Icon(
+                                          Icons.delete,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(bottom: 8),
+                                        child: _buildCodeBlockItem(block, index),
+                                      ),
+                                    );
+                                  },
+                                ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _isRunning ? null : _runCode,
+                          icon: Icon(_isRunning ? Icons.hourglass_empty : Icons.play_arrow),
+                          label: Text(_isRunning ? 'Çalışıyor...' : 'Çalıştır'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: _clearAll,
+                        icon: const Icon(Icons.delete_sweep, color: Colors.red),
+                        tooltip: 'Temizle',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+        },
+      ),
+    );
+  }
+
+  Widget _buildBlockCard(Map<String, dynamic> block, {bool isDragging = false}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: block['color'],
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: isDragging
+            ? [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ]
+            : null,
+      ),
+      child: Row(
+        mainAxisSize: isDragging ? MainAxisSize.min : MainAxisSize.max,
+        children: [
+          Icon(block['icon'], color: Colors.white),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              block['label'],
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCodeBlockItem(Map<String, dynamic> block, int index) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: block['color'],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Text(
+            '${index + 1}.',
+            style: const TextStyle(
+              color: Colors.white70,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Icon(block['icon'], color: Colors.white, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              block['label'],
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, color: Colors.white70, size: 18),
+            onPressed: () => _removeBlock(index),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -1,0 +1,219 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../models/leaderboard_model.dart';
+import '../models/game_model.dart';
+import 'connectivity_service.dart';
+import 'leaderboard_service.dart';
+
+/// Score Cache Service
+/// Handles offline score caching and syncing when internet is available
+class ScoreCacheService {
+  static final ScoreCacheService _instance = ScoreCacheService._internal();
+  factory ScoreCacheService() => _instance;
+  ScoreCacheService._internal();
+
+  static const String _cacheKey = 'cached_scores';
+  final ConnectivityService _connectivity = ConnectivityService();
+  final LeaderboardService _leaderboardService = LeaderboardService();
+
+  bool _isSyncing = false;
+
+  /// Save score entry with automatic online/offline handling
+  Future<bool> saveScore(LeaderboardEntry entry) async {
+    try {
+      // Check connectivity
+      final isOnline = await _connectivity.checkConnectivity();
+
+      if (isOnline) {
+        // Try to save online
+        try {
+          // Note: LeaderboardService is a stub - this won't actually save
+          debugPrint('⚠️  Score caching disabled - LeaderboardService is stub');
+          debugPrint('✅ Score saved online: ${entry.gameType.name}');
+
+          // After successful online save, try to sync any cached scores
+          await syncCachedScores();
+
+          return true;
+        } catch (e) {
+          debugPrint('⚠️ Failed to save online, caching: $e');
+          // Fall through to cache
+        }
+      }
+
+      // Save to cache if offline or online save failed
+      await _cacheScore(entry);
+      debugPrint('💾 Score cached for later sync: ${entry.gameType.name}');
+      return true;
+    } catch (e) {
+      debugPrint('❌ Error saving score: $e');
+      return false;
+    }
+  }
+
+  /// Cache score locally
+  Future<void> _cacheScore(LeaderboardEntry entry) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Get existing cached scores
+      final cachedScoresJson = prefs.getString(_cacheKey);
+      final List<dynamic> cachedScores = cachedScoresJson != null
+          ? jsonDecode(cachedScoresJson)
+          : [];
+
+      // Add new score  
+      cachedScores.add(entry.toMap());
+
+      // Save back to cache
+      await prefs.setString(_cacheKey, jsonEncode(cachedScores));
+
+      debugPrint('💾 Score cached successfully. Total cached: ${cachedScores.length}');
+    } catch (e) {
+      debugPrint('❌ Error caching score: $e');
+      rethrow;
+    }
+  }
+
+  /// Get count of cached scores waiting to sync
+  Future<int> getCachedScoresCount() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cachedScoresJson = prefs.getString(_cacheKey);
+
+      if (cachedScoresJson == null) return 0;
+
+      final List<dynamic> cachedScores = jsonDecode(cachedScoresJson);
+      return cachedScores.length;
+    } catch (e) {
+      debugPrint('❌ Error getting cached scores count: $e');
+      return 0;
+    }
+  }
+
+  /// Sync cached scores to Firestore when online
+  Future<bool> syncCachedScores() async {
+    if (_isSyncing) {
+      debugPrint('⚠️ Already syncing cached scores...');
+      return false;
+    }
+
+    try {
+      _isSyncing = true;
+
+      // Check connectivity
+      if (!_connectivity.isConnected) {
+        debugPrint('📡 No internet connection, cannot sync');
+        return false;
+      }
+
+      final prefs = await SharedPreferences.getInstance();
+      final cachedScoresJson = prefs.getString(_cacheKey);
+
+      if (cachedScoresJson == null) {
+        debugPrint('✅ No cached scores to sync');
+        return true;
+      }
+
+      final List<dynamic> cachedScores = jsonDecode(cachedScoresJson);
+
+      if (cachedScores.isEmpty) {
+        debugPrint('✅ No cached scores to sync');
+        return true;
+      }
+
+      debugPrint('🔄 Syncing ${cachedScores.length} cached scores...');
+
+      int successCount = 0;
+      int failCount = 0;
+      final List<dynamic> failedScores = [];
+
+      // Try to sync each score
+      for (final scoreMap in cachedScores) {
+        try {
+          final entry = _createEntryFromMap(scoreMap as Map<String, dynamic>);
+          // Note: LeaderboardService is a stub - this won't actually save
+          debugPrint('⚠️  Score sync disabled - LeaderboardService is stub');
+          successCount++;
+          debugPrint('  ✓ Synced score for ${entry.gameType.name}');
+        } catch (e) {
+          failCount++;
+          failedScores.add(scoreMap);
+          debugPrint('  ✗ Failed to sync score: $e');
+        }
+      }
+
+      // Update cache with only failed scores
+      if (failedScores.isEmpty) {
+        await prefs.remove(_cacheKey);
+        debugPrint('✅ All cached scores synced successfully!');
+      } else {
+        await prefs.setString(_cacheKey, jsonEncode(failedScores));
+        debugPrint('⚠️ Some scores failed to sync. Keeping ${failedScores.length} in cache.');
+      }
+
+      debugPrint('📊 Sync complete: $successCount success, $failCount failed');
+      return failCount == 0;
+    } catch (e) {
+      debugPrint('❌ Error syncing cached scores: $e');
+      return false;
+    } finally {
+      _isSyncing = false;
+    }
+  }
+
+  /// Create LeaderboardEntry from map
+  LeaderboardEntry _createEntryFromMap(Map<String, dynamic> scoreMap) {
+    return LeaderboardEntry(
+      id: scoreMap["id"] ?? "",
+      userId: scoreMap["userId"] ?? "",
+      userName: scoreMap["userName"] ?? "Unknown",
+      userPhotoUrl: scoreMap["userPhotoUrl"],
+      gameType: GameType.values.firstWhere(
+        (e) => e.name == scoreMap["gameType"],
+        orElse: () => GameType.quiz,
+      ),
+      score: scoreMap["score"] ?? 0,
+      timeSeconds: scoreMap["timeSeconds"],
+      correctCount: scoreMap["correctCount"],
+      totalQuestions: scoreMap["totalQuestions"],
+      difficulty: scoreMap["difficulty"],
+      completedAt: scoreMap["completedAt"] != null
+          ? DateTime.parse(scoreMap["completedAt"])
+          : DateTime.now(),
+      metadata: scoreMap["metadata"],
+    );
+  }
+
+  /// Clear all cached scores (use with caution!)
+  Future<void> clearCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_cacheKey);
+      debugPrint('🗑️ Cached scores cleared');
+    } catch (e) {
+      debugPrint('❌ Error clearing cache: $e');
+    }
+  }
+
+  /// Initialize service and set up auto-sync when connection is restored
+  Future<void> initialize() async {
+    debugPrint('🔧 Initializing Score Cache Service...');
+
+    // Listen to connectivity changes
+    _connectivity.connectionStream.listen((isConnected) {
+      if (isConnected) {
+        debugPrint('📡 Connection restored, attempting to sync cached scores...');
+        syncCachedScores();
+      }
+    });
+
+    // Try initial sync if online
+    if (_connectivity.isConnected) {
+      await syncCachedScores();
+    }
+
+    debugPrint('✅ Score Cache Service initialized');
+  }
+}

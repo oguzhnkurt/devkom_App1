@@ -1,0 +1,13 @@
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const BlocklyDemoScreen(),
+            ),
+          );
+        },
+        backgroundColor: widget.course.primaryColor,
+        icon: const Icon(Icons.code),
+        label: const Text('Blockly Test'),
+      ),

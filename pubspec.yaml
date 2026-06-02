@@ -1,0 +1,92 @@
+name: devkom_app
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # Environment variables
+  flutter_dotenv: ^5.2.1
+
+  # File handling
+  file_picker: ^8.1.4
+  image_picker: ^1.1.2
+  cached_network_image: ^3.4.1
+  flutter_image_compress: ^2.3.0
+  path_provider: ^2.1.4
+  path: ^1.9.0
+
+  # Video player
+  video_player: ^2.9.2
+  youtube_player_flutter: ^9.0.3
+
+  # Animations
+  lottie: ^3.2.0
+
+  # Fonts & UI
+  google_fonts: ^6.2.1
+  provider: ^6.1.5+1
+  rxdart: ^0.28.0
+  flutter_vlc_player: ^7.4.2
+
+  # Chess game
+  chess: ^0.7.0
+  flutter_chess_board: ^1.0.1
+  stockfish_chess_engine: ^0.6.0
+
+  # Flame 2D game engine
+  flame: ^1.20.0
+
+  # Additional utilities
+  intl: ^0.19.0
+  uuid: ^4.5.1
+  timeago: ^3.7.0
+  confetti: ^0.7.0
+  url_launcher: ^6.3.1
+  permission_handler: ^11.3.1
+  shared_preferences: ^2.3.3
+  fl_chart: ^0.69.0
+  connectivity_plus: ^6.0.5
+  carousel_slider: ^5.0.0
+  webview_flutter: ^4.10.0
+  table_calendar: ^3.1.2
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.9.4
+  any_link_preview: ^3.0.2
+  flutter_sound: ^9.2.13
+  audioplayers: ^5.2.1
+  google_generative_ai: ^0.2.2
+  sign_in_with_apple: ^6.1.2
+  adapty_flutter: ^3.3.0
+  mixpanel_flutter: ^2.3.1
+
+  # Backend & Database
+  http: ^1.2.1
+  shimmer: ^3.0.0
+  supabase_flutter: ^2.10.3
+  get_it: ^9.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - .env
+    - assets/images/
+    - assets/videos/
+    - assets/sounds/
+    - assets/html/
