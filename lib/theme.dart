@@ -488,7 +488,7 @@ class AppTheme {
       ),
 
       // Tab bar theme
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: primaryBlue,
         unselectedLabelColor: mediumGray,
         indicatorColor: primaryBlue,
