@@ -369,9 +369,9 @@ class AuthProvider extends ChangeNotifier {
       await supabase
           .from('users')
           .update({
-        'role': role.name,
-        'has_selected_purpose': true,
-      })
+            'role': role.name,
+            'has_selected_purpose': true,
+          })
           .eq('id', _currentUser!.uid);
 
       // Update local user
