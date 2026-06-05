@@ -257,6 +257,21 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // Sign out
+  Future<void> deleteAccount() async {
+    try {
+      await _authService.deleteAccount();
+      _currentUser = null;
+      _userProgress = null;
+      _errorMessage = null;
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   Future<void> signOut() async {
     try {
       debugPrint('signOut: START');

@@ -57,19 +57,6 @@ class _ScratchCourseScreenState extends State<ScratchCourseScreen> {
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const CodePlaygroundScreen(),
-            ),
-          );
-        },
-        backgroundColor: widget.course.primaryColor,
-        icon: const Icon(Icons.code),
-        label: const Text('Blockly Test'),
-      ),
     );
   }
 

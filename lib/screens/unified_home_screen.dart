@@ -59,19 +59,6 @@ class _UnifiedHomeScreenState extends State<UnifiedHomeScreen> {
 
     return Scaffold(
       body: screens[_selectedIndex],
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const CodePlaygroundScreen(),
-            ),
-          );
-        },
-        backgroundColor: Colors.orange,
-        icon: const Icon(Icons.code),
-        label: const Text('Blockly Test'),
-      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (index) {

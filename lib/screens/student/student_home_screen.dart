@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import '../messaging/conversations_screen.dart'; // Temporarily disabled
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../providers/auth_provider.dart';
@@ -18,9 +17,8 @@ import '../social/enhanced_feed_screen_v2.dart';
 import '../games/millionaire_game_screen.dart';
 import '../shared/general_curriculum_screen.dart';
 import '../unified_home_screen.dart';
-import '../messaging/enhanced_chat_screen.dart';
-
-import '../devchat_screen.dart'; // DevAiChat Screen
+import '../../courses/screens/course_catalog_screen.dart';
+import '../devchat_screen.dart';
 import '../worksheets_screen.dart';
 import '../../utils/app_localizations.dart';
 
@@ -41,10 +39,10 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
 
-    // 5 tab navigation: Ana Sayfa, Mesajlar, Sosyal Akış, DevAiChat, Profil
+    // 5 tab navigation: Ana Sayfa, Kurslar, Sosyal Akış, DevAiChat, Profil
     final List<Widget> _screens = const [
-      UnifiedDashboard(), // Using new unified dashboard design
-      RoboticsGamesScreen(), // Temporarily replaced ConversationsScreen
+      UnifiedDashboard(),
+      CourseCatalogScreen(),
       EnhancedFeedScreenV2(),
       DevAiChatScreen(),
       ProfileScreen(),
@@ -76,7 +74,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
             label: loc.home,
           ),
           NavigationDestination(
-            icon: Icon(Icons.message_outlined, color: Colors.green.shade400),
+            icon: Icon(Icons.school_outlined, color: Colors.green.shade400),
             selectedIcon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -85,9 +83,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.message, color: Colors.white, size: 20),
+              child: const Icon(Icons.school, color: Colors.white, size: 20),
             ),
-            label: loc.messages,
+            label: 'Kurslar',
           ),
           NavigationDestination(
             icon: Icon(Icons.add_circle_outline, color: Colors.orange.shade400),

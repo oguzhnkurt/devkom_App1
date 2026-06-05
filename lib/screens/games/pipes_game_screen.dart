@@ -147,8 +147,10 @@ class PipeTile {
 }
 
 class PipesGame extends FlameGame with TapCallbacks {
-  static const double tileSize = 60.0;
-  static const double spacing = 4.0;
+  static const double spacing = 3.0;
+  static const double uiHeight = 110.0;
+
+  double tileSize = 56.0;
 
   late List<List<PipeTile>> grid;
   late Vector2 gridOffset;
@@ -163,23 +165,41 @@ class PipesGame extends FlameGame with TapCallbacks {
   late TextComponent scoreText;
   late NewGameButton newGameButton;
 
-  // Seviye bazlı grid boyutu
+  // Kademeli grid boyutu: seviye arttıkça yavaşça büyür
   int get gridSize {
-    if (currentLevel <= 3) return 4;  // Seviye 1-3: 4x4 (kolay)
-    if (currentLevel <= 6) return 6;  // Seviye 4-6: 6x6 (orta)
-    return 8;                         // Seviye 7+: 8x8 (zor)
+    if (currentLevel <= 2) return 4;
+    if (currentLevel <= 5) return 5;
+    if (currentLevel <= 8) return 6;
+    if (currentLevel <= 12) return 7;
+    return 8;
+  }
+
+  // Seviyeye göre sahte boru yoğunluğu
+  double get _decoyFillRate {
+    return (0.15 + currentLevel * 0.04).clamp(0.15, 0.60);
+  }
+
+  void _computeTileSize() {
+    final availableW = size.x - 24;
+    final availableH = size.y - uiHeight - 24;
+    final maxTile = min(availableW / gridSize, availableH / gridSize);
+    tileSize = min(maxTile, 64.0).floorToDouble();
+  }
+
+  void _computeGridOffset() {
+    final totalSize = gridSize * (tileSize + spacing) - spacing;
+    gridOffset = Vector2(
+      (size.x - totalSize) / 2,
+      uiHeight + (size.y - uiHeight - totalSize) / 2,
+    );
   }
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // Grid'i ekranın ortasına yerleştir
-    final totalSize = gridSize * (tileSize + spacing) - spacing;
-    gridOffset = Vector2(
-      (size.x - totalSize) / 2,
-      (size.y - totalSize) / 2 - 50,
-    );
+    _computeTileSize();
+    _computeGridOffset();
 
     // UI elementleri
     // Seviye göstergesi
@@ -258,16 +278,17 @@ class PipesGame extends FlameGame with TapCallbacks {
   }
 
   void resetGame() {
-    // Sadece mevcut seviyeyi sıfırla (seviye değişmeden)
     moveCount = 0;
     gameWon = false;
     moveCountText.text = 'Hamle: 0';
     statusText.text = '';
 
-    // Mevcut tile'ları temizle
+    // Grid boyutu değişince tile size yeniden hesapla
+    _computeTileSize();
+    _computeGridOffset();
+
     children.whereType<PipeTileComponent>().forEach((tile) => tile.removeFromParent());
 
-    // Yeni grid oluştur
     _generateGrid();
     _renderGrid();
     _checkConnections();
@@ -296,10 +317,10 @@ class PipesGame extends FlameGame with TapCallbacks {
     // Çözülebilir yol oluştur
     _createPath(sourceX, sourceY, sinkX, sinkY);
 
-    // Rastgele pipe'lar ekle (boş alanlara)
+    // Rastgele pipe'lar ekle — seviyeye göre yoğunluk artar
     for (int i = 0; i < gridSize; i++) {
       for (int j = 0; j < gridSize; j++) {
-        if (grid[i][j].type == PipeType.empty && random.nextDouble() < 0.3) {
+        if (grid[i][j].type == PipeType.empty && random.nextDouble() < _decoyFillRate) {
           grid[i][j] = PipeTile(
             type: random.nextBool() ? PipeType.straight : PipeType.corner,
             rotation: random.nextInt(4),
@@ -532,11 +553,11 @@ class PipeTileComponent extends PositionComponent with TapCallbacks {
   Future<void> onLoad() async {
     await super.onLoad();
 
-    size = Vector2.all(PipesGame.tileSize);
+    size = Vector2.all(game.tileSize);
     position = game.gridOffset +
         Vector2(
-          gridX * (PipesGame.tileSize + PipesGame.spacing),
-          gridY * (PipesGame.tileSize + PipesGame.spacing),
+          gridX * (game.tileSize + PipesGame.spacing),
+          gridY * (game.tileSize + PipesGame.spacing),
         );
 
     basePaint = Paint()
@@ -606,12 +627,12 @@ class PipeTileComponent extends PositionComponent with TapCallbacks {
         canvas.restore();
         canvas.drawCircle(
           Offset(center.x, center.y),
-          20,
+          size.x * 0.33,
           sourcePaint,
         );
         canvas.drawCircle(
           Offset(center.x, center.y),
-          8,
+          size.x * 0.13,
           Paint()..color = Colors.white,
         );
         canvas.save();
@@ -621,12 +642,12 @@ class PipeTileComponent extends PositionComponent with TapCallbacks {
         canvas.restore();
         canvas.drawCircle(
           Offset(center.x, center.y),
-          20,
+          size.x * 0.33,
           sinkPaint,
         );
         canvas.drawCircle(
           Offset(center.x, center.y),
-          8,
+          size.x * 0.13,
           Paint()..color = Colors.white,
         );
         canvas.save();

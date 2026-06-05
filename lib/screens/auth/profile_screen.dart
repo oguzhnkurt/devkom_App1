@@ -18,6 +18,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoggingOut = false;
+  bool _isDeletingAccount = false;
 
   @override
   Widget build(BuildContext context) {
@@ -266,8 +267,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       const SizedBox(height: 12),
 
-                      // Access Info Card
-                      _buildAccessInfoCard(context, user),
                       const SizedBox(height: 32),
 
                       // Settings Button
@@ -320,6 +319,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Delete Account Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: _isDeletingAccount
+                              ? null
+                              : () => _handleDeleteAccount(context, authProvider),
+                          icon: _isDeletingAccount
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Icon(Icons.delete_forever, color: Colors.red),
+                          label: Text(
+                            _isDeletingAccount ? 'Siliniyor...' : 'Hesabı Sil',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.red),
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                         ),
@@ -428,64 +453,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildAccessInfoCard(BuildContext context, UserModel user) {
-    final loc = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final hasLiveCameraAccess = user.hasLiveCameraAccess;
-
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      color: hasLiveCameraAccess
-          ? Colors.green.shade50
-          : Colors.orange.shade50,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: hasLiveCameraAccess
-                    ? Colors.green.withOpacity(0.2)
-                    : Colors.orange.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                hasLiveCameraAccess ? Icons.videocam : Icons.videocam_off,
-                color: hasLiveCameraAccess ? Colors.green : Colors.orange,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    loc.liveCameraAccess,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppTheme.lightGray,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    hasLiveCameraAccess ? loc.active : loc.inactive,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: hasLiveCameraAccess ? Colors.green : Colors.orange,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   String _getInitials(String name) {
     List<String> nameParts = name.trim().split(' ');
@@ -558,6 +525,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+
+  Future<void> _handleDeleteAccount(BuildContext context, AuthProvider authProvider) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Hesabı Sil'),
+        content: const Text(
+          'Hesabınız kalıcı olarak silinecek ve bu işlem geri alınamaz. Emin misiniz?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('İptal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Hesabı Sil'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      setState(() => _isDeletingAccount = true);
+      try {
+        await authProvider.deleteAccount();
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (route) => false,
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() => _isDeletingAccount = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Hesap silinemedi: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
 
   Future<void> _handleLogout(BuildContext context, AuthProvider authProvider) async {
     // Show confirmation dialog
