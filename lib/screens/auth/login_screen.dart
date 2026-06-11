@@ -168,12 +168,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     await PermissionSheet.show(
       context,
       permissions: permissions,
-      onComplete: () async {
-        // Request notification permission via NotificationService
-        if (permissions.contains(AppPermission.notification)) {
-          await notificationService.requestNotificationPermission();
-        }
-      },
+      onComplete: () async {},
       canSkip: true,
     );
   }
