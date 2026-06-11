@@ -4,7 +4,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/animated_tech_background.dart';
 import '../../widgets/permission_sheet.dart';
 import '../../services/permission_manager.dart';
-import '../../services/notification_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/user_model.dart';
 import '../role_based_home_screen.dart';
 import 'register_screen.dart';
@@ -158,12 +158,11 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
 
     if (permissions.isEmpty) return;
 
-    // Check if notification permission already granted
-    final notificationService = NotificationService();
-    final isGranted = await notificationService.isPermissionGranted();
-
-    // If already granted, no need to show sheet
-    if (isGranted) return;
+    // Check if permission sheet was already shown
+    final prefs = await SharedPreferences.getInstance();
+    final alreadyShown = prefs.getBool('permission_sheet_shown') ?? false;
+    if (alreadyShown) return;
+    await prefs.setBool('permission_sheet_shown', true);
 
     // Show permission sheet
     await PermissionSheet.show(
