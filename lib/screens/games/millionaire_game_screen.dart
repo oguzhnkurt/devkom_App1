@@ -65,15 +65,13 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
         _errorMessage = null;
       });
 
-      // Rastgele 15 soru çek
+      // Rastgele soru çek (uzak sunucu boşsa yerel soru bankasını kullan)
       final questions = await _firestoreService.getRandomQuestions();
 
-      if (questions.isEmpty) {
-        throw Exception('Veritabanında hiç soru bulunamadı. Lütfen admin panelden soru ekleyin.');
-      }
-
       setState(() {
-        _questions = questions.cast<MillionaireQuestion>();
+        _questions = questions.isNotEmpty
+            ? questions.cast<MillionaireQuestion>()
+            : MillionaireQuestionsService.getGameQuestions();
         _isLoading = false;
       });
     } catch (e) {

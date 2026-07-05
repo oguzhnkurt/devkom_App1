@@ -4,6 +4,7 @@ import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
 import '../data/scratch_lessons_data.dart';
 import '../data/python_lessons_data.dart';
+import '../data/arduino_lessons_data.dart';
 import 'interactive_lesson_screen.dart';
 
 /// Genel Interaktif Kurs Ekrani
@@ -49,40 +50,115 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
             emoji: '🚀',
             lessons: ScratchLessonsData.module3,
           ),
+          _ModuleInfo(
+            title: 'Degiskenler & Puan',
+            description: 'Bilgiyi sakla, puan tut',
+            emoji: '🔢',
+            lessons: ScratchLessonsData.module4,
+          ),
+          _ModuleInfo(
+            title: 'Klonlar',
+            description: 'Kuklalari cogalt',
+            emoji: '👯',
+            lessons: ScratchLessonsData.module5,
+          ),
+          _ModuleInfo(
+            title: 'Mesajlar & Yayinlar',
+            description: 'Kuklalar arasi iletisim',
+            emoji: '📢',
+            lessons: ScratchLessonsData.module6,
+          ),
+          _ModuleInfo(
+            title: 'Ses & Muzik',
+            description: 'Oyununa ses ekle',
+            emoji: '🎵',
+            lessons: ScratchLessonsData.module7,
+          ),
         ];
         break;
       case 'python':
-        final allLessons = PythonLessonsData.getPythonInteractiveLessons();
         _modules = [
           _ModuleInfo(
             title: 'Python Temelleri',
             description: 'print, degiskenler, matematik',
             emoji: '🐍',
-            lessons: [allLessons[0]],
+            lessons: PythonLessonsData.module1,
+          ),
+          _ModuleInfo(
+            title: 'Kullanici Etkilesimi',
+            description: 'input() ile veri al',
+            emoji: '⌨️',
+            lessons: PythonLessonsData.module2,
           ),
           _ModuleInfo(
             title: 'If-Else Kosullar',
             description: 'Programin karar vermesi',
             emoji: '🔀',
-            lessons: [allLessons[1]],
+            lessons: PythonLessonsData.module3,
           ),
           _ModuleInfo(
             title: 'Donguler',
             description: 'for ve while dongusu',
             emoji: '🔁',
-            lessons: [allLessons[2]],
+            lessons: PythonLessonsData.module4,
           ),
           _ModuleInfo(
             title: 'Listeler',
             description: 'Birden fazla veri',
             emoji: '📋',
-            lessons: [allLessons[3]],
+            lessons: PythonLessonsData.module5,
           ),
           _ModuleInfo(
             title: 'Fonksiyonlar',
             description: 'Kendi komutlarin',
             emoji: '⚡',
-            lessons: [allLessons[4]],
+            lessons: PythonLessonsData.module6,
+          ),
+          _ModuleInfo(
+            title: 'Sozlukler',
+            description: 'Anahtar-deger ciftleri',
+            emoji: '📖',
+            lessons: PythonLessonsData.module7,
+          ),
+          _ModuleInfo(
+            title: 'Dosya Islemleri',
+            description: 'Dosya oku ve yaz',
+            emoji: '📂',
+            lessons: PythonLessonsData.module8,
+          ),
+        ];
+        break;
+      case 'arduino':
+        _modules = [
+          _ModuleInfo(
+            title: 'Arduino\'ya Giris',
+            description: 'Elektronik + kod dunyasi',
+            emoji: '🤖',
+            lessons: ArduinoLessonsData.module1,
+          ),
+          _ModuleInfo(
+            title: 'Butonlar',
+            description: 'Dijital giris oku',
+            emoji: '🔘',
+            lessons: ArduinoLessonsData.module2,
+          ),
+          _ModuleInfo(
+            title: 'Analog & PWM',
+            description: 'Sensorler ve parlaklik',
+            emoji: '📊',
+            lessons: ArduinoLessonsData.module3,
+          ),
+          _ModuleInfo(
+            title: 'Servo Motor',
+            description: 'Hareket kontrolu',
+            emoji: '🦾',
+            lessons: ArduinoLessonsData.module4,
+          ),
+          _ModuleInfo(
+            title: 'Ses & Buzzer',
+            description: 'Melodi cal',
+            emoji: '🔊',
+            lessons: ArduinoLessonsData.module5,
           ),
         ];
         break;
@@ -105,6 +181,8 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         return '⚡';
       case 'python':
         return '🐍';
+      case 'arduino':
+        return '🤖';
       default:
         return '📚';
     }

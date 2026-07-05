@@ -1,0 +1,56 @@
+{
+  "title": "Uygulama Deðerlendirme Anketi",
+  "description": "Deðerli kullanýcýmýz, uygulamamýzý geliþtirmemize yardýmcý olmak için lütfen aþaðýdaki sorularý yanýtlayýn. Görüþleriniz bizim için çok deðerli!",
+  "createdBy": "system",
+  "createdByName": "Sistem Yöneticisi",
+  "createdAt": {
+    "_seconds": 1762348839,
+    "_nanoseconds": 0
+  },
+  "expiresAt": null,
+  "isActive": true,
+  "questions": [
+    {
+      "question": "Uygulamamýzý nasýl deðerlendirirsiniz?",
+      "type": "rating",
+      "isRequired": true
+    },
+    {
+      "question": "Uygulamanýn kullaným kolaylýðýný nasýl buluyorsunuz?",
+      "type": "multipleChoice",
+      "options": [
+        "Çok kolay",
+        "Kolay",
+        "Orta",
+        "Zor",
+        "Çok zor"
+      ],
+      "isRequired": true
+    },
+    {
+      "question": "Hangi özellikler sizin için en faydalý?",
+      "type": "multipleChoice",
+      "options": [
+        "Robotik oyunlar",
+        "Eðitim içerikleri",
+        "Müþteri desteði",
+        "Kullanýcý arayüzü",
+        "Diðer"
+      ],
+      "isRequired": true
+    },
+    {
+      "question": "Uygulamayý bir arkadaþýnýza tavsiye eder misiniz?",
+      "type": "yesNo",
+      "isRequired": true
+    },
+    {
+      "question": "Eklemek istediðiniz özellik veya öneriniz var mý?",
+      "type": "text",
+      "isRequired": false
+    }
+  ],
+  "targetRoles": [
+    "visitor"
+  ]
+}

@@ -46,3 +46,9 @@ app.*.map.json
 
 # Environment variables (API keys, secrets)
 .env.*
+
+# Node.js (seed/utility scripts)
+node_modules/
+
+# Windows reserved-name artifacts
+nul

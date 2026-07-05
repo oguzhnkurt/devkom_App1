@@ -11,11 +11,11 @@ class W3SampleData {
   /// Python course for kids (age 6-12)
   static final W3Course pythonForKids = W3Course(
     id: 'python_kids',
-    title: 'Python - Çocuklar İçin',
+    title: 'Python - Başlangıç',
     description: 'Python\'a eğlenceli örneklerle başla! Oyunlar yap, hikayeler anlat.',
     icon: '🐍',
     color: '#3776AB',
-    tags: ['Python', 'Başlangıç', 'Çocuklar'],
+    tags: ['Python', 'Başlangıç', 'Eğlenceli'],
     ageMin: 6,
     ageMax: 12,
     totalLessons: 7,

@@ -225,6 +225,81 @@ class ArduinoLessonsData {
         ),
       ],
     ),
+
+    // LESSON 2.2: Pull-up Direnç ve Buton Sayacı
+    InteractiveLesson(
+      id: 'arduino_2_2',
+      courseId: 'arduino',
+      title: 'Buton Sayaci Projesi',
+      subtitle: 'Basislari say, LED ile goster!',
+      order: 9,
+      xpReward: 70,
+      category: LessonCategory.project,
+      steps: [
+        IntroStep(
+          id: 'a2_2_intro',
+          mascotEmoji: '🧮',
+          mascotMessage: 'Butona kac kez basildigini sayan bir proje yapalim! Gercek cihazlarda cok kullanilir.',
+          highlights: [
+            'INPUT_PULLUP modu',
+            'Degisken ile sayma',
+            'Seri monitore yazdirma',
+          ],
+        ),
+
+        ExplanationStep(
+          id: 'a2_2_exp1',
+          title: 'INPUT_PULLUP Nedir?',
+          content: 'Buton devresinde direnc baglamak yerine Arduino\'nun icindeki pull-up direncini kullanabilirsin:\n\npinMode(2, INPUT_PULLUP);\n\nBu modda buton BASILINCA LOW, birakildiginda HIGH okunur. Yani mantik tersine doner!',
+          tipEmoji: '💡',
+          tip: 'INPUT_PULLUP ile harici dirence gerek kalmaz, devren sadelesir!',
+        ),
+
+        MultipleChoiceStep(
+          id: 'a2_2_q1',
+          question: 'INPUT_PULLUP modunda butona basildiginda digitalRead() ne dondurur?',
+          options: [
+            ChoiceOption(text: 'LOW', isCode: true),
+            ChoiceOption(text: 'HIGH', isCode: true),
+            ChoiceOption(text: '1023', isCode: true),
+            ChoiceOption(text: 'Hicbir sey'),
+          ],
+          correctIndex: 0,
+          explanation: 'Pull-up modunda mantik terstir: basilinca LOW, birakilinca HIGH okunur.',
+          xpReward: 10,
+        ),
+
+        ExplanationStep(
+          id: 'a2_2_exp2',
+          title: 'Sayac Degiskeni',
+          content: 'Basislari saymak icin bir degisken kullaniriz:\n\nint sayac = 0;\n\nvoid loop() {\n  if (digitalRead(2) == LOW) {\n    sayac = sayac + 1;\n    Serial.println(sayac);\n    delay(300); // ayni basisi tekrar saymamak icin\n  }\n}',
+          tipEmoji: '⏱️',
+          tip: 'delay(300) olmadan tek basis onlarca kez sayilir. Buna "debounce" denir!',
+        ),
+
+        MultipleChoiceStep(
+          id: 'a2_2_q2',
+          question: 'Serial.println(sayac) komutu ne yapar?',
+          options: [
+            ChoiceOption(text: 'Sayac degerini bilgisayara gonderir', emoji: '🖥️'),
+            ChoiceOption(text: 'LED yakar', emoji: '💡'),
+            ChoiceOption(text: 'Sayaci sifirlar', emoji: '0️⃣'),
+            ChoiceOption(text: 'Arduino\'yu yeniden baslatir', emoji: '🔄'),
+          ],
+          correctIndex: 0,
+          explanation: 'Serial.println() degeri USB uzerinden bilgisayardaki Seri Monitore gonderir. Hata ayiklamada cok kullanilir!',
+          xpReward: 10,
+        ),
+
+        ExplanationStep(
+          id: 'a2_2_summary',
+          title: 'Proje Tamam!',
+          content: '🧮 Buton sayacini tamamladin!\n\n✓ INPUT_PULLUP kullandin\n✓ Degisken ile sayma yaptin\n✓ Seri monitore veri gonderdin\n✓ Debounce mantigini ogrendin\n\nSonraki modul: Analog sinyaller!',
+          tipEmoji: '🏆',
+          tip: 'Asansor dugmeleri ve oyun kollari da ayni mantikla calisir!',
+        ),
+      ],
+    ),
   ];
 
   // ==========================================

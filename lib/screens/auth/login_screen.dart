@@ -10,7 +10,6 @@ import '../role_based_home_screen.dart';
 import 'register_screen.dart';
 import 'dart:math' as math;
 import '../../utils/app_localizations.dart';
-import '../../widgets/apple_sign_in_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

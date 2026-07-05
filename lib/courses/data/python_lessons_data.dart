@@ -722,6 +722,102 @@ class PythonLessonsData {
         ),
       ],
     ),
+
+    // LESSON 5.2: Liste Metotlari
+    InteractiveLesson(
+      id: 'python_5_2',
+      courseId: 'python',
+      title: 'Liste Metotlari',
+      subtitle: 'Ekle, cikar, sirala!',
+      order: 17,
+      xpReward: 100,
+      steps: [
+        IntroStep(
+          id: 'p5_2_intro',
+          mascotEmoji: '🛠️',
+          mascotMessage: 'Listeleri ogrendin, simdi onlari yonetmeyi ogren! Ekleme, cikarma, siralama...',
+          highlights: [
+            'append() ile ekle',
+            'remove() ile cikar',
+            'sort() ile sirala',
+          ],
+        ),
+
+        ExplanationStep(
+          id: 'p5_2_exp1',
+          title: 'Listeye Eleman Ekleme',
+          content: 'append() listenin SONUNA ekler:\n\nmeyveler = ["elma", "armut"]\nmeyveler.append("muz")\n# ["elma", "armut", "muz"]\n\ninsert() istedigin YERE ekler:\n\nmeyveler.insert(0, "kiraz")\n# ["kiraz", "elma", "armut", "muz"]',
+          tipEmoji: '💡',
+          tip: 'append her zaman sona ekler, insert ile yeri sen secersin!',
+        ),
+
+        MultipleChoiceStep(
+          id: 'p5_2_q1',
+          question: 'sayilar = [1, 2, 3]\nsayilar.append(4)\nprint(sayilar) ne yazdirir?',
+          options: [
+            ChoiceOption(text: '[1, 2, 3, 4]', isCode: true),
+            ChoiceOption(text: '[4, 1, 2, 3]', isCode: true),
+            ChoiceOption(text: '[1, 2, 3]', isCode: true),
+            ChoiceOption(text: 'Hata verir'),
+          ],
+          correctIndex: 0,
+          explanation: 'append() elemani listenin sonuna ekler: [1, 2, 3, 4]',
+          xpReward: 10,
+        ),
+
+        ExplanationStep(
+          id: 'p5_2_exp2',
+          title: 'Eleman Cikarma',
+          content: 'remove() degere gore cikarir:\n\nmeyveler.remove("elma")\n\npop() index\'e gore cikarir:\n\nmeyveler.pop(0)  # ilk elemani cikar\nmeyveler.pop()   # son elemani cikar',
+        ),
+
+        CodeCompleteStep(
+          id: 'p5_2_code1',
+          instruction: 'Listeye "kalem" ekle ve listeyi yazdir',
+          codeTemplate: 'canta = ["defter", "silgi"]\ncanta.___("kalem")\nprint(canta)',
+          blanks: [
+            CodeBlank(
+              index: 0,
+              correctAnswer: 'append',
+              hint: 'Sona eklemek icin kullanilan metot',
+            ),
+          ],
+          language: 'python',
+          expectedOutput: "['defter', 'silgi', 'kalem']",
+          xpReward: 15,
+        ),
+
+        ExplanationStep(
+          id: 'p5_2_exp3',
+          title: 'Siralama',
+          content: 'sort() listeyi kucukten buyuge siralar:\n\nsayilar = [3, 1, 2]\nsayilar.sort()\n# [1, 2, 3]\n\nTersten siralamak icin:\n\nsayilar.sort(reverse=True)\n# [3, 2, 1]',
+          tipEmoji: '🔤',
+          tip: 'sort() metinleri de alfabetik siralar!',
+        ),
+
+        MultipleChoiceStep(
+          id: 'p5_2_q2',
+          question: 'Bir listede kac eleman oldugunu nasil ogrenirsin?',
+          options: [
+            ChoiceOption(text: 'len(liste)', isCode: true),
+            ChoiceOption(text: 'liste.uzunluk()', isCode: true),
+            ChoiceOption(text: 'count(liste)', isCode: true),
+            ChoiceOption(text: 'liste.size', isCode: true),
+          ],
+          correctIndex: 0,
+          explanation: 'len() fonksiyonu listenin eleman sayisini verir.',
+          xpReward: 10,
+        ),
+
+        ExplanationStep(
+          id: 'p5_2_summary',
+          title: 'Liste Ustasi!',
+          content: '🛠️ Artik listeleri tam kontrol edebiliyorsun!\n\n✓ append() ve insert() ile ekleme\n✓ remove() ve pop() ile cikarma\n✓ sort() ile siralama\n✓ len() ile sayma\n\nSonraki modul: Fonksiyonlar!',
+          tipEmoji: '🏆',
+          tip: 'Listeler Python\'un en cok kullanilan veri yapisidir!',
+        ),
+      ],
+    ),
   ];
 
   // ==========================================

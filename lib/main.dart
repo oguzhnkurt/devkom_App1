@@ -44,7 +44,8 @@ void main() async {
     debugPrint('✅ Supabase initialized successfully');
   } catch (e) {
     debugPrint('❌ Supabase initialization failed: $e');
-    // Critical error - cannot continue without Supabase
+    // Critical error - show error screen instead of a blank screen
+    runApp(const _StartupErrorApp());
     return;
   }
 
@@ -54,6 +55,7 @@ void main() async {
     debugPrint('✅ Service locator initialized successfully');
   } catch (e) {
     debugPrint('❌ Service locator initialization failed: $e');
+    runApp(const _StartupErrorApp());
     return;
   }
 
@@ -93,6 +95,42 @@ void main() async {
 
 // Global Supabase accessor
 final supabase = Supabase.instance.client;
+
+/// Başlatma hatasında boş ekran yerine gösterilen basit hata ekranı
+class _StartupErrorApp extends StatelessWidget {
+  const _StartupErrorApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.wifi_off_rounded, size: 64, color: Colors.grey),
+                const SizedBox(height: 16),
+                const Text(
+                  'Bağlantı kurulamadı',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'İnternet bağlantınızı kontrol edip uygulamayı yeniden başlatın.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class DevkomApp extends StatelessWidget {
   const DevkomApp({super.key});

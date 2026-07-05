@@ -45,10 +45,8 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>com.apple.developer.applesignin</key>
-	<array>
-		<string>Default</string>
-	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>Devkom, proje ve profil fotoğrafı çekmek için kameraya erişim gerektirir.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

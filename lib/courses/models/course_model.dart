@@ -66,7 +66,7 @@ class Course {
   String get categoryText {
     switch (category) {
       case CourseCategory.kids:
-        return 'Cocuklar Icin';
+        return 'Gorsel Programlama';
       case CourseCategory.web:
         return 'Web Gelistirme';
       case CourseCategory.mobile:

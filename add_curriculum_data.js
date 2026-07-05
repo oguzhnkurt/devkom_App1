@@ -1,0 +1,335 @@
+const admin = require('firebase-admin');
+
+// Firebase'i başlat
+if (!admin.apps.length) {
+  admin.initializeApp({
+    projectId: 'devkom-dfdca',
+  });
+}
+
+const db = admin.firestore();
+
+const curricula = [
+  {
+    title: 'Talebot ile Robot Programlama',
+    description: 'Talebot eğitim robotu ile temel robotik ve programlama kavramlarını öğrenin. Çocukların mantıksal düşünme ve problem çözme becerilerini geliştiren eğlenceli robotik eğitim.',
+    subject: 'robotics',
+    level: 'beginner',
+    structure: {
+      totalModules: 8,
+      totalLessons: 24,
+      estimatedDurationWeeks: 8
+    },
+    learningOutcomes: [
+      'Robot hareketlerini programlama',
+      'Temel mantık ve algoritma kavramları',
+      'Sensör kullanımı ve tepki geliştirme',
+      'Problem çözme ve mantıksal düşünme'
+    ],
+    prerequisites: [],
+    targetAudience: {
+      minAge: 6,
+      maxAge: 9,
+      requiredSkills: []
+    },
+    status: 'published',
+    isPublished: true
+  },
+  {
+    title: 'Vincibot ile İleri Robot Programlama',
+    description: 'Vincibot eğitim robotu ile daha karmaşık robotik projeler geliştirin. Mekanik tasarım, sensör entegrasyonu ve gelişmiş programlama teknikleri.',
+    subject: 'robotics',
+    level: 'intermediate',
+    structure: {
+      totalModules: 10,
+      totalLessons: 30,
+      estimatedDurationWeeks: 10
+    },
+    learningOutcomes: [
+      'Gelişmiş robot hareketleri programlama',
+      'Çoklu sensör kullanımı ve entegrasyonu',
+      'Otonom robot davranışları oluşturma',
+      'Robot yarışmalarına hazırlık'
+    ],
+    prerequisites: [
+      'Temel robotik bilgisi',
+      'Basit programlama deneyimi'
+    ],
+    targetAudience: {
+      minAge: 9,
+      maxAge: 12,
+      requiredSkills: ['Temel robotik']
+    },
+    status: 'published',
+    isPublished: true
+  },
+  {
+    title: 'Scratch ile Görsel Programlama',
+    description: 'Scratch blok tabanlı programlama ortamı ile kodlamayı eğlenceli projelerle öğrenin. Oyunlar, animasyonlar ve interaktif hikayeler oluşturun.',
+    subject: 'programming',
+    level: 'beginner',
+    structure: {
+      totalModules: 12,
+      totalLessons: 36,
+      estimatedDurationWeeks: 12
+    },
+    learningOutcomes: [
+      'Blok tabanlı programlama mantığı',
+      'Oyun ve animasyon tasarımı',
+      'Değişkenler ve döngüler kullanımı',
+      'Koşullu ifadeler ve mantıksal operatörler',
+      'Proje tasarlama ve paylaşma'
+    ],
+    prerequisites: [],
+    targetAudience: {
+      minAge: 7,
+      maxAge: 12,
+      requiredSkills: []
+    },
+    status: 'published',
+    isPublished: true
+  },
+  {
+    title: 'Arduino ile Elektronik ve Kodlama',
+    description: 'Arduino mikrodenetleyici ile elektronik devre tasarımı ve programlama. LED kontrolü, sensör okuma, motor sürme ve IoT projeleri.',
+    subject: 'electronics',
+    level: 'intermediate',
+    structure: {
+      totalModules: 16,
+      totalLessons: 48,
+      estimatedDurationWeeks: 16
+    },
+    learningOutcomes: [
+      'Arduino programlama (C/C++)',
+      'Elektronik devre tasarımı',
+      'Sensör ve aktüatör kullanımı',
+      'Seri haberleşme protokolleri',
+      'IoT projesi geliştirme'
+    ],
+    prerequisites: [
+      'Temel programlama bilgisi',
+      'Basit matematik'
+    ],
+    targetAudience: {
+      minAge: 12,
+      maxAge: 16,
+      requiredSkills: ['Temel programlama']
+    },
+    status: 'published',
+    isPublished: true
+  },
+  {
+    title: 'Tinkercad ile 3D Tasarım',
+    description: 'Tinkercad online 3D tasarım platformu ile çizim ve tasarım yapın. Robot parçaları, oyuncaklar ve fonksiyonel objeler tasarlayın.',
+    subject: 'robotics',
+    level: 'beginner',
+    structure: {
+      totalModules: 8,
+      totalLessons: 24,
+      estimatedDurationWeeks: 8
+    },
+    learningOutcomes: [
+      '3D modelleme temel kavramları',
+      'Geometrik şekiller oluşturma',
+      'Tasarımları birleştirme ve düzenleme',
+      '3D yazıcı için dosya hazırlama',
+      'Yaratıcı problem çözme'
+    ],
+    prerequisites: [],
+    targetAudience: {
+      minAge: 8,
+      maxAge: 14,
+      requiredSkills: []
+    },
+    status: 'published',
+    isPublished: true
+  },
+  {
+    title: '3D Yazıcı ile Üretim',
+    description: '3D yazıcı teknolojisi ile kendi tasarımlarınızı fiziksel ürünlere dönüştürün. Tasarımdan baskıya tüm süreç.',
+    subject: 'robotics',
+    level: 'intermediate',
+    structure: {
+      totalModules: 6,
+      totalLessons: 18,
+      estimatedDurationWeeks: 6
+    },
+    learningOutcomes: [
+      '3D yazıcı çalışma prensipleri',
+      'Slicer yazılımı kullanımı',
+      'Baskı ayarları optimizasyonu',
+      'Malzeme seçimi ve özellikleri',
+      'Baskı sonrası işlemler'
+    ],
+    prerequisites: [
+      '3D modelleme bilgisi (Tinkercad vb.)'
+    ],
+    targetAudience: {
+      minAge: 10,
+      maxAge: 16,
+      requiredSkills: ['3D tasarım']
+    },
+    status: 'published',
+    isPublished: true
+  },
+  {
+    title: 'Satranç - Strateji ve Mantık',
+    description: 'Satranç oyunu ile stratejik düşünme, planlama ve problem çözme becerilerini geliştirin. Temel hamlelerden ileri taktiklere.',
+    subject: 'ai',
+    level: 'beginner',
+    structure: {
+      totalModules: 12,
+      totalLessons: 36,
+      estimatedDurationWeeks: 12
+    },
+    learningOutcomes: [
+      'Satranç taşları ve hamleleri',
+      'Açılış prensipleri',
+      'Orta oyun taktikleri',
+      'Mat teknikleri',
+      'Stratejik düşünme ve planlama'
+    ],
+    prerequisites: [],
+    targetAudience: {
+      minAge: 6,
+      maxAge: 18,
+      requiredSkills: []
+    },
+    status: 'published',
+    isPublished: true
+  },
+  {
+    title: 'Matematik ve Zeka Oyunları',
+    description: 'Eğlenceli matematik ve zeka oyunları ile problem çözme, mantıksal düşünme ve analitik becerilerinizi geliştirin.',
+    subject: 'ai',
+    level: 'beginner',
+    structure: {
+      totalModules: 10,
+      totalLessons: 30,
+      estimatedDurationWeeks: 10
+    },
+    learningOutcomes: [
+      'Mantıksal problem çözme',
+      'Sayısal muhakeme',
+      'Örüntü tanıma',
+      'Uzamsal düşünme',
+      'Stratejik planlama'
+    ],
+    prerequisites: [],
+    targetAudience: {
+      minAge: 7,
+      maxAge: 14,
+      requiredSkills: []
+    },
+    status: 'published',
+    isPublished: true
+  },
+  {
+    title: 'Python ile Temel Programlama',
+    description: 'Python programlama dili ile kodlamaya başlayın. Değişkenler, döngüler, fonksiyonlar ve temel algoritmaları öğrenin.',
+    subject: 'programming',
+    level: 'beginner',
+    structure: {
+      totalModules: 14,
+      totalLessons: 42,
+      estimatedDurationWeeks: 14
+    },
+    learningOutcomes: [
+      'Python söz dizimi ve temel kavramlar',
+      'Değişkenler ve veri tipleri',
+      'Kontrol yapıları (if, loops)',
+      'Fonksiyonlar ve modüller',
+      'Liste, tuple ve dictionary kullanımı',
+      'Basit projeler geliştirme'
+    ],
+    prerequisites: [],
+    targetAudience: {
+      minAge: 11,
+      maxAge: 16,
+      requiredSkills: []
+    },
+    status: 'published',
+    isPublished: true
+  },
+  {
+    title: 'Makey Makey ile Etkileşimli Projeler',
+    description: 'Makey Makey ile günlük nesneleri bilgisayar tuşlarına dönüştürün. Yaratıcı ve etkileşimli elektronik projeler geliştirin.',
+    subject: 'electronics',
+    level: 'intermediate',
+    structure: {
+      totalModules: 6,
+      totalLessons: 18,
+      estimatedDurationWeeks: 6
+    },
+    learningOutcomes: [
+      'İletkenlik kavramı',
+      'Makey Makey devre bağlantıları',
+      'Scratch ile Makey Makey entegrasyonu',
+      'Etkileşimli proje tasarımı',
+      'Yaratıcı problem çözme'
+    ],
+    prerequisites: [
+      'Temel elektronik bilgisi',
+      'Scratch veya temel programlama'
+    ],
+    targetAudience: {
+      minAge: 9,
+      maxAge: 14,
+      requiredSkills: ['Temel programlama']
+    },
+    status: 'published',
+    isPublished: true
+  },
+  {
+    title: 'mBlock ile Kodlamaya Giriş',
+    description: 'mBlock blok tabanlı programlama ortamı ile kodlamaya başlayın. Scratch benzeri arayüz ile Arduino programlama.',
+    subject: 'programming',
+    level: 'beginner',
+    structure: {
+      totalModules: 10,
+      totalLessons: 30,
+      estimatedDurationWeeks: 10
+    },
+    learningOutcomes: [
+      'Blok tabanlı programlama',
+      'mBot robot programlama',
+      'Sensör kullanımı',
+      'Arduino kodlarına geçiş',
+      'Robotik proje geliştirme'
+    ],
+    prerequisites: [],
+    targetAudience: {
+      minAge: 8,
+      maxAge: 12,
+      requiredSkills: []
+    },
+    status: 'published',
+    isPublished: true
+  }
+];
+
+async function addCurricula() {
+  try {
+    console.log('📚 Müfredat verileri ekleniyor...');
+
+    for (const curriculum of curricula) {
+      const docRef = await db.collection('curriculum').add({
+        ...curriculum,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdBy: 'system'
+      });
+      console.log(`✅ ${curriculum.title} eklendi (ID: ${docRef.id})`);
+    }
+
+    console.log('\n🎉 Tüm müfredat verileri başarıyla eklendi!');
+    console.log(`📊 Toplam ${curricula.length} müfredat eklendi.`);
+
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Hata:', error);
+    process.exit(1);
+  }
+}
+
+addCurricula();

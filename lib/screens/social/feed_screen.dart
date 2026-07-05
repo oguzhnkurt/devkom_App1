@@ -57,7 +57,7 @@ class _FeedScreenState extends State<FeedScreen> {
             'Tesla, 2026 yılında seri üretime geçmeyi hedefliyor. Robot, endüstriyel '
             'üretimden ev asistanlığına kadar geniş bir kullanım alanına sahip olacak.\n\n'
             'Kaynak: Tesla AI Day 2025',
-        imageUrl: 'assets/images/tesla_optimus.jpg',
+        imageUrl: null, // Asset kaldırıldı: tesla_optimus.jpg projede yok
         likes: ['user1', 'user2', 'user3', 'user4'],
         commentCount: 0,
         createdAt: now.subtract(const Duration(hours: 2)),

@@ -1,0 +1,469 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function userExists() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && userExists() && getUserData().role == 'admin';
+    }
+
+    function isParent() {
+      return isAuthenticated() && userExists() && getUserData().role == 'parent';
+    }
+
+    function isStudent() {
+      return isAuthenticated() && userExists() && getUserData().role == 'student';
+    }
+
+    function isTeacher() {
+      return isAuthenticated() && userExists() && getUserData().role == 'teacher';
+    }
+
+    function isParentOfStudent(studentId) {
+      return isAuthenticated() &&
+             getUserData().studentIds != null &&
+             studentId in getUserData().studentIds;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      // Authenticated users can read all users (needed for user search, parent-student linking)
+      allow read: if isAuthenticated();
+
+      // Users can update their own profile (except role, uid, email fields)
+      // Teachers and admins can update student profiles (including ageGroup, description, etc.)
+      allow update: if (isOwner(userId) &&
+                       !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'uid', 'email'])) ||
+                      (isAuthenticated() && (isTeacher() || isAdmin()) &&
+                       resource.data.role == 'student' &&
+                       !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'uid', 'email']));
+
+      // Allow user creation during registration (Auth service creates user then document)
+      // Users can create their own document
+      allow create: if isAuthenticated() &&
+                      request.auth.uid == userId;
+
+      // Only admins can delete users
+      allow delete: if isAdmin();
+    }
+
+    // Chess games collection
+    match /chess_games/{gameId} {
+      // Authenticated users can read all chess games
+      allow read: if isAuthenticated();
+
+      // Authenticated users can create chess games for themselves
+      allow create: if isAuthenticated() &&
+                      request.resource.data.playerId == request.auth.uid;
+
+      // Users can update their own games, admins can update any game
+      allow update: if isAuthenticated() &&
+                      (resource.data.playerId == request.auth.uid || isAdmin());
+
+      // Only admins can delete games
+      allow delete: if isAdmin();
+    }
+
+    // Games collection (general game library)
+    match /games/{gameId} {
+      // DEVELOPMENT MODE: Allow all users to read games
+      allow read: if true;  // Herkes oyunları görebilir
+
+      // DEVELOPMENT MODE: Allow authenticated users to create/update games
+      // TODO: Change to admin-only in production
+      allow create, update: if isAuthenticated();
+
+      // Only admins can delete games
+      allow delete: if isAdmin();
+    }
+
+    // Game results collection
+    match /game_results/{resultId} {
+      // Users can read their own results, parents can read their children's results, admins can read all
+      allow read: if isAuthenticated() &&
+                    (resource.data.playerId == request.auth.uid ||
+                     isAdmin() ||
+                     isParentOfStudent(resource.data.playerId));
+
+      // Users can create their own game results
+      allow create: if isAuthenticated() &&
+                      request.resource.data.playerId == request.auth.uid;
+
+      // Users can update their own results, admins can update any
+      allow update: if isAuthenticated() &&
+                      (resource.data.playerId == request.auth.uid || isAdmin());
+
+      // Only admins can delete
+      allow delete: if isAdmin();
+    }
+
+    // Homeworks collection
+    match /homeworks/{homeworkId} {
+      allow read: if true;  // Herkes ödevleri görebilir
+      allow create, update, delete: if isAdmin() || isTeacher();
+    }
+
+    // Homework submissions
+    match /homework_submissions/{submissionId} {
+      // Students can read their own submissions, parents can read their children's, teachers and admins can read all
+      allow read: if isAuthenticated() &&
+                    (resource.data.userId == request.auth.uid ||
+                     isAdmin() ||
+                     isTeacher() ||
+                     isParentOfStudent(resource.data.userId));
+
+      // Students can create their own submissions
+      allow create: if isAuthenticated() &&
+                      isStudent() &&
+                      request.resource.data.userId == request.auth.uid;
+
+      // Students can update their own submissions, teachers and admins can update any (for grading)
+      allow update: if isAuthenticated() &&
+                      ((resource.data.userId == request.auth.uid && isStudent()) ||
+                       isAdmin() ||
+                       isTeacher());
+
+      // Only admins can delete
+      allow delete: if isAdmin();
+    }
+
+    // Camera links collection
+    match /camera_links/{cameraId} {
+      // Parents and admins can read camera links
+      allow read: if isAuthenticated() && (isParent() || isAdmin());
+
+      // Only admins can create, update, or delete camera links
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Notifications collection
+    match /notifications/{notificationId} {
+      // Users can read their own notifications
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Users can update their own notifications (mark as read)
+      allow update: if isAuthenticated() &&
+                      resource.data.userId == request.auth.uid &&
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'readAt']);
+
+      // Only admins can create or delete notifications
+      allow create, delete: if isAdmin();
+    }
+
+    // Messages collection (Parent-Teacher messaging)
+    match /messages/{messageId} {
+      // Users can read messages where they are sender or receiver
+      allow read: if isAuthenticated() &&
+                    (resource.data.senderId == request.auth.uid ||
+                     resource.data.receiverId == request.auth.uid);
+
+      // Users can create messages where they are the sender
+      allow create: if isAuthenticated() &&
+                      request.resource.data.senderId == request.auth.uid;
+
+      // Users can update messages to mark as read (only if they are the receiver)
+      allow update: if isAuthenticated() &&
+                      resource.data.receiverId == request.auth.uid &&
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead', 'readAt']);
+
+      // Only admins can delete messages
+      allow delete: if isAdmin();
+    }
+
+    // Support Messages collection (for visitors to contact support)
+    match /support_messages/{messageId} {
+      // All authenticated users can read their own support messages
+      allow read: if isAuthenticated() &&
+                    (resource.data.userId == request.auth.uid || isAdmin());
+
+      // Authenticated users can create their own support messages
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid;
+
+      // Only admins can update support messages (to mark as replied)
+      allow update: if isAdmin();
+
+      // Only admins can delete support messages
+      allow delete: if isAdmin();
+    }
+
+    // Surveys collection
+    match /surveys/{surveyId} {
+      // All authenticated users can read surveys
+      allow read: if isAuthenticated();
+
+      // Only teachers and admins can create, update, or delete surveys
+      allow create, update, delete: if isAuthenticated() &&
+                                      userExists() &&
+                                      (getUserData().role == 'teacher' || isAdmin());
+    }
+
+    // Survey responses collection
+    match /survey_responses/{responseId} {
+      // Teachers and admins can read all responses
+      // Users can read their own responses
+      allow read: if isAuthenticated() &&
+                    ((userExists() && getUserData().role == 'teacher') ||
+                     isAdmin() ||
+                     resource.data.userId == request.auth.uid);
+
+      // Users can create their own survey responses
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid;
+
+      // Only admins can update or delete responses
+      allow update, delete: if isAdmin();
+    }
+
+    // Leaderboards collection
+    match /leaderboards/{entryId} {
+      // All authenticated users can read leaderboards
+      allow read: if isAuthenticated();
+
+      // Users can create their own leaderboard entries
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid;
+
+      // Only admins can update or delete leaderboard entries
+      allow update, delete: if isAdmin();
+    }
+
+    // Weekly Curriculums collection
+    match /weekly_curriculums/{curriculumId} {
+      // All authenticated users can read curriculums
+      allow read: if isAuthenticated();
+
+      // Teachers can create curriculums for themselves
+      allow create: if isAuthenticated() &&
+                      isTeacher() &&
+                      request.resource.data.teacherId == request.auth.uid;
+
+      // Teachers can update their own curriculums, admins can update any
+      allow update: if isAuthenticated() &&
+                      ((resource.data.teacherId == request.auth.uid && isTeacher()) ||
+                       isAdmin());
+
+      // Teachers can delete their own curriculums, admins can delete any
+      allow delete: if isAuthenticated() &&
+                      ((resource.data.teacherId == request.auth.uid && isTeacher()) ||
+                       isAdmin());
+    }
+
+    // Week Contents collection (standalone collection, not subcollection)
+    match /week_contents/{weekId} {
+      // All authenticated users can read week contents
+      allow read: if isAuthenticated();
+
+      // Teachers and admins can create week contents
+      allow create: if isAuthenticated() && (isTeacher() || isAdmin());
+
+      // Teachers and admins can update week contents
+      allow update: if isAuthenticated() && (isTeacher() || isAdmin());
+
+      // Teachers and admins can delete week contents
+      allow delete: if isAuthenticated() && (isTeacher() || isAdmin());
+    }
+
+    // Posts collection (Social Feed)
+    // Daily limit: 2 posts for regular users, unlimited for pro users
+    match /posts/{postId} {
+      // Everyone can read posts (including visitors)
+      allow read: if true;
+
+      // Helper function to check if user is pro
+      function isProUser() {
+        return getUserData().isPro == true;
+      }
+
+      // Helper function to count today's posts
+      function getTodayPostCount() {
+        let today = request.time.toMillis();
+        let startOfDay = timestamp.date(request.time).toMillis();
+        return request.firestore.exists(/databases/$(database)/documents/user_post_counts/$(request.auth.uid)) &&
+               get(/databases/$(database)/documents/user_post_counts/$(request.auth.uid)).data.date == startOfDay;
+      }
+
+      // Authenticated users can create posts
+      // Limit: 2 posts per day for regular users, unlimited for pro users
+      allow create: if isAuthenticated() &&
+                      userExists() &&
+                      (isProUser() ||
+                       !exists(/databases/$(database)/documents/user_post_counts/$(request.auth.uid)) ||
+                       get(/databases/$(database)/documents/user_post_counts/$(request.auth.uid)).data.count < 2);
+
+      // Post owner and admins can update posts
+      allow update: if isAuthenticated() &&
+                      (resource.data.userId == request.auth.uid || isAdmin());
+
+      // Post owner and admins can delete posts
+      allow delete: if isAuthenticated() &&
+                      (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // User post counts (for daily limit tracking)
+    // Document ID format: userId_dateKey (e.g., oZX5LETgeLRslUilgNo7NSPc7b43_2025-11-19)
+    match /user_post_counts/{countId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Comments collection (Social Feed) - Used by FeedService
+    match /comments/{commentId} {
+      // Everyone can read comments
+      allow read: if true;
+
+      // Authenticated users can create comments with their own userId
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid;
+
+      // Comment owner and admins can update comments
+      allow update: if isAuthenticated() &&
+                      (resource.data.userId == request.auth.uid || isAdmin());
+
+      // Comment owner and admins can delete comments
+      allow delete: if isAuthenticated() &&
+                      (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Post Comments collection (Social Feed) - Used by SocialFeedService
+    match /post_comments/{commentId} {
+      // Everyone can read comments
+      allow read: if true;
+
+      // Authenticated users can create comments with their own userId
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid;
+
+      // Comment owner and admins can update comments
+      allow update: if isAuthenticated() &&
+                      (resource.data.userId == request.auth.uid || isAdmin());
+
+      // Comment owner and admins can delete comments
+      allow delete: if isAuthenticated() &&
+                      (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Likes collection (for posts and comments)
+    match /likes/{likeId} {
+      // Everyone can read likes
+      allow read: if true;
+
+      // Even visitors can like posts (but not comment)
+      allow create: if isAuthenticated() &&
+                      userExists() &&
+                      request.resource.data.userId == request.auth.uid;
+
+      // Users can delete their own likes
+      allow delete: if isAuthenticated() &&
+                      resource.data.userId == request.auth.uid;
+    }
+
+    // Agenda Events collection
+    // DEVELOPMENT MODE - TODO: Secure before production!
+    match /agenda_events/{eventId} {
+      allow read, write: if true;  // TEMPORARY: Everyone can access
+    }
+
+    // Kim Milyoner Questions collection
+    match /millionaire_questions/{questionId} {
+      // Everyone can read questions (including visitors for the game)
+      allow read: if true;
+
+      // Only admins can create, update, or delete questions
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Analytics collection
+    match /analytics/{document=**} {
+      // Only admins can read analytics
+      allow read: if isAdmin();
+
+      // Only admins can write analytics
+      allow write: if isAdmin();
+    }
+
+    // Student Portfolio collection
+    match /student_portfolios/{portfolioId} {
+      // Teachers can read all portfolios
+      // Parents can read their children's portfolios
+      // Admins can read all portfolios
+      allow read: if isAuthenticated() &&
+                    (isTeacher() ||
+                     isAdmin() ||
+                     (isParent() && isParentOfStudent(resource.data.studentId)));
+
+      // Teachers can create portfolios for students
+      allow create: if isAuthenticated() &&
+                      isTeacher() &&
+                      request.resource.data.teacherId == request.auth.uid;
+
+      // Teachers can update their own portfolio items, admins can update any
+      allow update: if isAuthenticated() &&
+                      ((resource.data.teacherId == request.auth.uid && isTeacher()) ||
+                       isAdmin());
+
+      // Teachers can delete their own portfolio items, admins can delete any
+      allow delete: if isAuthenticated() &&
+                      ((resource.data.teacherId == request.auth.uid && isTeacher()) ||
+                       isAdmin());
+    }
+
+    // Portfolio Comments collection
+    match /portfolio_comments/{commentId} {
+      // Teachers, parents of the student, and admins can read comments
+      allow read: if isAuthenticated() &&
+                    (isTeacher() || isAdmin() || isParent());
+
+      // Parents, teachers, and admins can create comments
+      allow create: if isAuthenticated() &&
+                      (isParent() || isTeacher() || isAdmin()) &&
+                      request.resource.data.userId == request.auth.uid;
+
+      // Comment owner and admins can delete comments
+      allow delete: if isAuthenticated() &&
+                      (resource.data.userId == request.auth.uid || isAdmin());
+
+      // No one can update comments (except admins for moderation)
+      allow update: if isAdmin();
+    }
+
+    // Purchases collection (In-App Purchase records)
+    match /purchases/{purchaseId} {
+      // Users can read their own purchases, admins can read all
+      allow read: if isAuthenticated() &&
+                    (resource.data.userId == request.auth.uid || isAdmin());
+
+      // Only the subscription service (server-side or authenticated user) can create purchases
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid;
+
+      // No one can update purchases (immutable records)
+      allow update: if false;
+
+      // Only admins can delete purchases
+      allow delete: if isAdmin();
+    }
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

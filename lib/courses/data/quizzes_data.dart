@@ -8,9 +8,9 @@ class QuizzesData {
 
   static final Map<String, Quiz> _quizzes = {
     // HTML Quizzes
-    'html_1': Quiz(
+    'html_01': Quiz(
       id: 'quiz_html_1',
-      lessonId: 'html_1',
+      lessonId: 'html_01',
       questions: [
         const QuizQuestion(
           id: 'q1',
@@ -50,9 +50,9 @@ class QuizzesData {
       xpReward: 15,
     ),
 
-    'html_2': Quiz(
+    'html_02': Quiz(
       id: 'quiz_html_2',
-      lessonId: 'html_2',
+      lessonId: 'html_02',
       questions: [
         const QuizQuestion(
           id: 'q1',
@@ -87,9 +87,9 @@ class QuizzesData {
     ),
 
     // Python Quizzes
-    'python_1': Quiz(
+    'python_01': Quiz(
       id: 'quiz_python_1',
-      lessonId: 'python_1',
+      lessonId: 'python_01',
       questions: [
         const QuizQuestion(
           id: 'q1',
@@ -131,9 +131,9 @@ class QuizzesData {
       xpReward: 20,
     ),
 
-    'python_2': Quiz(
+    'python_02': Quiz(
       id: 'quiz_python_2',
-      lessonId: 'python_2',
+      lessonId: 'python_02',
       questions: [
         const QuizQuestion(
           id: 'q1',
@@ -170,9 +170,9 @@ class QuizzesData {
     ),
 
     // JavaScript Quizzes
-    'javascript_1': Quiz(
+    'js_01': Quiz(
       id: 'quiz_javascript_1',
-      lessonId: 'javascript_1',
+      lessonId: 'js_01',
       questions: [
         const QuizQuestion(
           id: 'q1',
@@ -202,9 +202,9 @@ class QuizzesData {
     ),
 
     // CSS Quizzes
-    'css_1': Quiz(
+    'css_01': Quiz(
       id: 'quiz_css_1',
-      lessonId: 'css_1',
+      lessonId: 'css_01',
       questions: [
         const QuizQuestion(
           id: 'q1',
@@ -245,9 +245,9 @@ class QuizzesData {
     ),
 
     // Dart Quizzes
-    'dart_1': Quiz(
+    'dart_01': Quiz(
       id: 'quiz_dart_1',
-      lessonId: 'dart_1',
+      lessonId: 'dart_01',
       questions: [
         const QuizQuestion(
           id: 'q1',
@@ -282,9 +282,9 @@ class QuizzesData {
     ),
 
     // Scratch Quizzes
-    'scratch_1': Quiz(
+    'scratch_01': Quiz(
       id: 'quiz_scratch_1',
-      lessonId: 'scratch_1',
+      lessonId: 'scratch_01',
       questions: [
         const QuizQuestion(
           id: 'q1',
@@ -307,7 +307,7 @@ class QuizzesData {
           type: QuestionType.multipleChoice,
           options: ['8-16 yas', 'Sadece yetiskinler', '0-3 yas', '50+ yas'],
           correctAnswer: 0,
-          explanation: 'Scratch ozellikle cocuklar ve gencler icin tasarlanmis bir egitim aracidir.',
+          explanation: 'Scratch ozellikle kodlamaya yeni baslayanlar icin tasarlanmis bir egitim aracidir.',
         ),
       ],
       passingScore: 60,
@@ -315,9 +315,9 @@ class QuizzesData {
     ),
 
     // Arduino Quizzes
-    'arduino_1': Quiz(
+    'arduino_01': Quiz(
       id: 'quiz_arduino_1',
-      lessonId: 'arduino_1',
+      lessonId: 'arduino_01',
       questions: [
         const QuizQuestion(
           id: 'q1',
@@ -348,9 +348,9 @@ class QuizzesData {
     ),
 
     // SQL Quizzes
-    'sql_1': Quiz(
+    'sql_01': Quiz(
       id: 'quiz_sql_1',
-      lessonId: 'sql_1',
+      lessonId: 'sql_01',
       questions: [
         const QuizQuestion(
           id: 'q1',
@@ -385,9 +385,9 @@ class QuizzesData {
     ),
 
     // C Quizzes
-    'c_1': Quiz(
+    'c_01': Quiz(
       id: 'quiz_c_1',
-      lessonId: 'c_1',
+      lessonId: 'c_01',
       questions: [
         const QuizQuestion(
           id: 'q1',
@@ -422,9 +422,9 @@ class QuizzesData {
     ),
 
     // Go Quizzes
-    'go_1': Quiz(
+    'go_01': Quiz(
       id: 'quiz_go_1',
-      lessonId: 'go_1',
+      lessonId: 'go_01',
       questions: [
         const QuizQuestion(
           id: 'q1',
@@ -454,9 +454,9 @@ class QuizzesData {
     ),
 
     // Rust Quizzes
-    'rust_1': Quiz(
+    'rust_01': Quiz(
       id: 'quiz_rust_1',
-      lessonId: 'rust_1',
+      lessonId: 'rust_01',
       questions: [
         const QuizQuestion(
           id: 'q1',
@@ -484,6 +484,161 @@ class QuizzesData {
           type: QuestionType.trueFalse,
           correctAnswer: false,
           explanation: 'Rust, ownership sistemi sayesinde garbage collector olmadan bellek yonetimi yapar.',
+        ),
+      ],
+      passingScore: 60,
+      xpReward: 15,
+    ),
+
+    // Python Quiz 3 - Degiskenler
+    'python_03': Quiz(
+      id: 'quiz_python_3',
+      lessonId: 'python_03',
+      questions: [
+        const QuizQuestion(
+          id: 'q1',
+          question: 'Python\'da degisken tanimlarken hangi isaret kullanilir?',
+          type: QuestionType.multipleChoice,
+          options: ['=', '==', ':=', '->'],
+          correctAnswer: 0,
+          explanation: '= isareti ile degiskene deger atanir. == ise karsilastirma icindir.',
+        ),
+        const QuizQuestion(
+          id: 'q2',
+          question: 'Asagidaki kodun ciktisi ne olur?',
+          codeSnippet: 'isim = "Ali"\nyas = 12\nprint(isim, yas)',
+          type: QuestionType.codeOutput,
+          options: ['Ali 12', 'isim yas', 'Ali12', 'Hata verir'],
+          correctAnswer: 0,
+          explanation: 'print() birden fazla degeri aralarina bosluk koyarak yazdirir.',
+        ),
+        const QuizQuestion(
+          id: 'q3',
+          question: 'Python\'da degisken adi rakamla baslayabilir.',
+          type: QuestionType.trueFalse,
+          correctAnswer: false,
+          explanation: 'Degisken adlari harf veya alt cizgi (_) ile baslamalidir. 1sayi gecersiz, sayi1 gecerlidir.',
+        ),
+      ],
+      passingScore: 60,
+      xpReward: 15,
+    ),
+
+    // Python Quiz 4 - If-Else
+    'python_04': Quiz(
+      id: 'quiz_python_4',
+      lessonId: 'python_04',
+      questions: [
+        const QuizQuestion(
+          id: 'q1',
+          question: 'Python\'da kosul bloklarini belirlemek icin ne kullanilir?',
+          type: QuestionType.multipleChoice,
+          options: [
+            'Girinti (indentation)',
+            'Suslu parantez { }',
+            'Noktali virgul ;',
+            'Koseli parantez [ ]',
+          ],
+          correctAnswer: 0,
+          explanation: 'Python\'da bloklar girinti (bosluk) ile belirlenir, suslu parantez kullanilmaz.',
+        ),
+        const QuizQuestion(
+          id: 'q2',
+          question: 'Asagidaki kodun ciktisi ne olur?',
+          codeSnippet: 'yas = 10\nif yas >= 18:\n    print("Yetiskin")\nelse:\n    print("Cocuk")',
+          type: QuestionType.codeOutput,
+          options: ['Cocuk', 'Yetiskin', 'Hicbir sey', 'Hata verir'],
+          correctAnswer: 0,
+          explanation: '10 >= 18 kosulu yanlis oldugu icin else blogu calisir ve "Cocuk" yazdirilir.',
+        ),
+        const QuizQuestion(
+          id: 'q3',
+          question: 'Birden fazla kosulu kontrol etmek icin if\'ten sonra hangi anahtar kelime kullanilir?',
+          type: QuestionType.fillInBlank,
+          correctAnswer: 'elif',
+          explanation: 'elif (else if), ilk kosul saglanmazsa yeni bir kosul kontrol eder.',
+        ),
+      ],
+      passingScore: 60,
+      xpReward: 15,
+    ),
+
+    // Python Quiz 5 - Donguler
+    'python_05': Quiz(
+      id: 'quiz_python_5',
+      lessonId: 'python_05',
+      questions: [
+        const QuizQuestion(
+          id: 'q1',
+          question: 'range(5) hangi sayilari uretir?',
+          type: QuestionType.multipleChoice,
+          options: [
+            '0, 1, 2, 3, 4',
+            '1, 2, 3, 4, 5',
+            '0, 1, 2, 3, 4, 5',
+            '5, 4, 3, 2, 1',
+          ],
+          correctAnswer: 0,
+          explanation: 'range(5), 0\'dan baslar ve 5\'e kadar (5 dahil degil) sayilari uretir.',
+        ),
+        const QuizQuestion(
+          id: 'q2',
+          question: 'Asagidaki kod kac kez "Merhaba" yazdirir?',
+          codeSnippet: 'for i in range(3):\n    print("Merhaba")',
+          type: QuestionType.codeOutput,
+          options: ['3', '2', '4', 'Sonsuz'],
+          correctAnswer: 0,
+          explanation: 'range(3) uc deger uretir (0, 1, 2), dongu 3 kez calisir.',
+        ),
+        const QuizQuestion(
+          id: 'q3',
+          question: 'while dongusu, kosul dogru oldugu surece calisir.',
+          type: QuestionType.trueFalse,
+          correctAnswer: true,
+          explanation: 'while dongusu kosul True oldugu surece tekrar eder. Kosul False olunca durur.',
+        ),
+      ],
+      passingScore: 60,
+      xpReward: 15,
+    ),
+
+    // Arduino Quiz 2 - LED Devresi
+    'arduino_02': Quiz(
+      id: 'quiz_arduino_2',
+      lessonId: 'arduino_02',
+      questions: [
+        const QuizQuestion(
+          id: 'q1',
+          question: 'LED\'i Arduino\'ya baglarken neden direnc kullanilir?',
+          type: QuestionType.multipleChoice,
+          options: [
+            'LED\'in bozulmasini onlemek icin',
+            'LED\'i daha parlak yapmak icin',
+            'Kablo tasarrufu icin',
+            'Direnc gerekli degildir',
+          ],
+          correctAnswer: 0,
+          explanation: 'Direnc, LED\'den gecen akimi sinirlar ve LED\'in zarar gormesini onler. Genelde 220 ohm kullanilir.',
+        ),
+        const QuizQuestion(
+          id: 'q2',
+          question: 'digitalWrite(13, HIGH) komutu ne yapar?',
+          type: QuestionType.multipleChoice,
+          options: [
+            '13 numarali pine elektrik verir (LED yanar)',
+            '13 numarali pini kapatir',
+            '13 saniye bekler',
+            'Pin 13\'u okur',
+          ],
+          correctAnswer: 0,
+          explanation: 'digitalWrite ile pin HIGH (5V) yapilir, bagli LED yanar. LOW ile soner.',
+        ),
+        const QuizQuestion(
+          id: 'q3',
+          question: 'delay(1000) komutu 1 saniye bekler.',
+          type: QuestionType.trueFalse,
+          correctAnswer: true,
+          explanation: 'delay() milisaniye cinsinden calisir. 1000 milisaniye = 1 saniye.',
         ),
       ],
       passingScore: 60,

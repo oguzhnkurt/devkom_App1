@@ -50,7 +50,7 @@ class ScratchLessonsData {
             ),
           ],
           tipEmoji: '💡',
-          tip: 'MIT universitesinde olusturuldu ve dunyada milyonlarca cocuk kullaniyor!',
+          tip: 'MIT universitesinde olusturuldu ve dunyada milyonlarca kisi kullaniyor!',
         ),
 
         // Step 3: Interactive - What can you make?
@@ -1070,6 +1070,87 @@ class ScratchLessonsData {
           content: '🎉🎮🎉 ILK OYUNUNU TAMAMLADIN!\n\n✓ Oyuncu kontrollu karakter\n✓ Rastgele hareket eden dusman\n✓ Puan sistemi\n\nSen artik bir oyun gelistiricisin!',
           tipEmoji: '🏆',
           tip: 'Oyun Gelistirici rozetini kazandin!',
+        ),
+      ],
+    ),
+
+    // LESSON 3.2: Oyununu Gelistir
+    InteractiveLesson(
+      id: 'scratch_3_2',
+      courseId: 'scratch',
+      title: 'Oyununu Gelistir',
+      subtitle: 'Zorluk, sure ve bitis ekrani',
+      order: 12,
+      xpReward: 80,
+      category: LessonCategory.practice,
+      steps: [
+        IntroStep(
+          id: 's3_2_intro',
+          mascotEmoji: '⭐',
+          mascotMessage: 'Oyunun calisiyor ama daha iyi olabilir! Sure, zorluk ve bitis ekrani ekleyelim.',
+          highlights: [
+            'Zamanlayici ekle',
+            'Oyunu zorlastir',
+            'Bitis ekrani yap',
+          ],
+        ),
+
+        ExplanationStep(
+          id: 's3_2_exp1',
+          title: 'Zamanlayici Ekleme',
+          content: 'Oyuna sure eklemek icin "sure" adinda bir degisken olustur:\n\n"sure" degiskenini 30 yap\nSurekli tekrarla:\n  1 saniye bekle\n  "sure" degiskenini -1 degistir\n  Eger sure = 0 ise: oyunu bitir',
+          tipEmoji: '⏰',
+          tip: 'Sure gosterildiginde oyuncular daha heyecanli oynar!',
+        ),
+
+        MultipleChoiceStep(
+          id: 's3_2_q1',
+          question: 'Oyun suresi her saniye azalmali. Hangi blok dogru?',
+          options: [
+            ChoiceOption(text: '"sure" degiskenini -1 degistir', emoji: '⏬'),
+            ChoiceOption(text: '"sure" degiskenini 0 yap', emoji: '0️⃣'),
+            ChoiceOption(text: '"sure" degiskenini 30 yap', emoji: '3️⃣'),
+            ChoiceOption(text: '"sure" degiskenini sil', emoji: '🗑️'),
+          ],
+          correctIndex: 0,
+          explanation: '"degistir" blogu mevcut degere ekler. -1 ile her seferinde bir azalir.',
+          xpReward: 10,
+        ),
+
+        ExplanationStep(
+          id: 's3_2_exp2',
+          title: 'Oyunu Zorlastir',
+          content: 'Puan arttikca fareyi hizlandirabilirsin:\n\nFare hizini "puan / 2 + 5" yap\n\nBoylece 10 puana ulasinca fare hizi 10 olur. Oyun gittikce zorlasir ve daha eglenceli olur!',
+          tipEmoji: '🔥',
+          tip: 'Iyi oyunlar basta kolay, sonra zorlasir. Buna "zorluk egrisi" denir!',
+        ),
+
+        MultipleChoiceStep(
+          id: 's3_2_q2',
+          question: 'Oyun bitince ne gosterilmeli?',
+          options: [
+            ChoiceOption(text: '"Oyun Bitti" yazisi ve toplam puan', emoji: '🏁'),
+            ChoiceOption(text: 'Bos ekran', emoji: '⬛'),
+            ChoiceOption(text: 'Hicbir sey, oyun donsun', emoji: '❄️'),
+            ChoiceOption(text: 'Sadece kirmizi ekran', emoji: '🟥'),
+          ],
+          correctIndex: 0,
+          explanation: 'Oyuncu sonucunu gormeli! "Oyun Bitti" sahnesi ve puan gostermek oyunu profesyonel yapar.',
+          xpReward: 10,
+        ),
+
+        ExplanationStep(
+          id: 's3_2_exp3',
+          title: 'Bitis Ekrani',
+          content: 'Bitis ekrani icin:\n\n1. "Oyun Bitti" yazili bir dekor ciz\n2. Sure 0 olunca "oyunBitti" mesajini yayinla\n3. Tum kuklalar bu mesaji alinca dursun\n4. Dekoru "Oyun Bitti" olarak degistir\n\nMesajlar ile tum kuklalari ayni anda durdurabilirsin!',
+        ),
+
+        ExplanationStep(
+          id: 's3_2_summary',
+          title: 'Usta Isi Oyun!',
+          content: '⭐ Oyunun artik cok daha profesyonel!\n\n✓ Zamanlayici ekledin\n✓ Zorluk egrisi olusturdun\n✓ Bitis ekrani yaptin\n\nSonraki modul: Degiskenleri derinlemesine ogren!',
+          tipEmoji: '🏆',
+          tip: 'Oyununu arkadaslarina oynat ve geri bildirim al!',
         ),
       ],
     ),

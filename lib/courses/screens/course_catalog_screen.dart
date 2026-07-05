@@ -157,7 +157,7 @@ class _CourseCatalogScreenState extends State<CourseCatalogScreen> {
   Widget _buildCategoryFilter(bool isDark) {
     final categories = [
       (null, 'Tumu', '🌟'),
-      (CourseCategory.kids, 'Cocuklar', '🧩'),
+      (CourseCategory.kids, 'Baslangic', '🧩'),
       (CourseCategory.web, 'Web', '🌐'),
       (CourseCategory.mobile, 'Mobil', '📱'),
       (CourseCategory.systems, 'Sistem', '⚙️'),
@@ -280,8 +280,8 @@ class _CourseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Scratch için InteractiveCourseScreen (eski etkileşimli sistem), diğerleri için CourseDetailScreen
-        if (course.id == 'scratch') {
+        // Scratch, Python ve Arduino için interaktif ders sistemi, diğerleri için CourseDetailScreen
+        if (course.id == 'scratch' || course.id == 'python' || course.id == 'arduino') {
           Navigator.push(
             context,
             MaterialPageRoute(

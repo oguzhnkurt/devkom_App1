@@ -1,0 +1,122 @@
+{
+  "instructions": "Bu dosyayı Firebase Console'da kullanarak test öğrencisi ve verileri ekleyebilirsiniz",
+
+  "student_user": {
+    "collection": "users",
+    "document_id": "AUTO_GENERATE",
+    "data": {
+      "name": "Ahmet Yılmaz",
+      "displayName": "Ahmet Yılmaz",
+      "email": "ahmet@test.com",
+      "role": "student",
+      "ageGroup": "7-9",
+      "classId": "class_001",
+      "className": "3-A",
+      "phoneNumber": "+905551234567",
+      "profilePictureUrl": null,
+      "isActive": true
+    }
+  },
+
+  "homework_submissions": [
+    {
+      "collection": "homework_submissions",
+      "data": {
+        "studentId": "STUDENT_ID_BURAYA",
+        "homeworkTitle": "Robotik Kodlama - Döngüler",
+        "status": "graded",
+        "grade": 95,
+        "feedback": "Harika bir çalışma! Döngüler konusunu çok iyi kavramışsın.",
+        "maxGrade": 100,
+        "submittedAt": "2025-11-13T10:00:00Z",
+        "gradedAt": "2025-11-14T15:30:00Z"
+      }
+    },
+    {
+      "collection": "homework_submissions",
+      "data": {
+        "studentId": "STUDENT_ID_BURAYA",
+        "homeworkTitle": "Arduino LED Kontrol",
+        "status": "graded",
+        "grade": 88,
+        "feedback": "İyi bir başlangıç, kod yapısı daha da geliştirilebilir.",
+        "maxGrade": 100,
+        "submittedAt": "2025-11-10T14:00:00Z",
+        "gradedAt": "2025-11-11T16:00:00Z"
+      }
+    },
+    {
+      "collection": "homework_submissions",
+      "data": {
+        "studentId": "STUDENT_ID_BURAYA",
+        "homeworkTitle": "Blok Kodlama - Koşullar",
+        "status": "graded",
+        "grade": 92,
+        "feedback": "Koşullu ifadeleri doğru kullanmışsın! Tebrikler.",
+        "maxGrade": 100,
+        "submittedAt": "2025-11-08T11:00:00Z",
+        "gradedAt": "2025-11-09T13:00:00Z"
+      }
+    },
+    {
+      "collection": "homework_submissions",
+      "data": {
+        "studentId": "STUDENT_ID_BURAYA",
+        "homeworkTitle": "Sensör Kullanımı",
+        "status": "graded",
+        "grade": 85,
+        "feedback": "Sensör entegrasyonu başarılı.",
+        "maxGrade": 100,
+        "submittedAt": "2025-11-05T09:00:00Z",
+        "gradedAt": "2025-11-06T10:00:00Z"
+      }
+    }
+  ],
+
+  "quiz_results": [
+    {
+      "collection": "quiz_results",
+      "data": {
+        "userId": "STUDENT_ID_BURAYA",
+        "quizTitle": "Robotik Temelleri Quiz",
+        "score": 8,
+        "totalQuestions": 10,
+        "percentage": 80,
+        "completedAt": "2025-11-12T10:00:00Z"
+      }
+    },
+    {
+      "collection": "quiz_results",
+      "data": {
+        "userId": "STUDENT_ID_BURAYA",
+        "quizTitle": "Arduino Başlangıç",
+        "score": 9,
+        "totalQuestions": 10,
+        "percentage": 90,
+        "completedAt": "2025-11-07T14:00:00Z"
+      }
+    },
+    {
+      "collection": "quiz_results",
+      "data": {
+        "userId": "STUDENT_ID_BURAYA",
+        "quizTitle": "Kodlama Mantığı",
+        "score": 7,
+        "totalQuestions": 10,
+        "percentage": 70,
+        "completedAt": "2025-11-05T11:00:00Z"
+      }
+    },
+    {
+      "collection": "quiz_results",
+      "data": {
+        "userId": "STUDENT_ID_BURAYA",
+        "quizTitle": "Temel Elektronik",
+        "score": 8,
+        "totalQuestions": 10,
+        "percentage": 80,
+        "completedAt": "2025-11-02T09:00:00Z"
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+# Düzeltilmesi gereken satırlar:
+
+ÖNCE (satır 199-203):
+    // Surveys collection
+    match /surveys/{surveyId} {
+      // All authenticated users can read surveys
+      allow read: if isAuthenticated();
+
+      // Only teachers and admins can create, update, or delete surveys
+      allow create, update, delete: if isAuthenticated() &&
+                                      (getUserData().role == 'teacher' || isAdmin());
+
+SONRA:
+    // Surveys collection
+    match /surveys/{surveyId} {
+      // All authenticated users can read surveys
+      allow read: if isAuthenticated();
+
+      // Only teachers and admins can create, update, or delete surveys
+      allow create, update, delete: if isAuthenticated() &&
+                                      userExists() &&
+                                      (getUserData().role == 'teacher' || isAdmin());
+
+--------------------------------
+
+ÖNCE (satır 209-215):
+    // Survey responses collection
+    match /survey_responses/{responseId} {
+      // Teachers and admins can read all responses
+      // Users can read their own responses
+      allow read: if isAuthenticated() &&
+                    (getUserData().role == 'teacher' ||
+                     isAdmin() ||
+                     resource.data.userId == request.auth.uid);
+
+SONRA:
+    // Survey responses collection
+    match /survey_responses/{responseId} {
+      // Teachers and admins can read all responses
+      // Users can read their own responses
+      allow read: if isAuthenticated() &&
+                    ((userExists() && getUserData().role == 'teacher') ||
+                     isAdmin() ||
+                     resource.data.userId == request.auth.uid);

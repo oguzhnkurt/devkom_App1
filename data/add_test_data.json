@@ -1,0 +1,20 @@
+{
+  "users": {
+    "test_student_001": {
+      "name": "Ahmet Yılmaz",
+      "displayName": "Ahmet Yılmaz",
+      "email": "ahmet.test@example.com",
+      "role": "student",
+      "parentId": "E0PzCzL6Y4R4IOjIdkIg6E0fIX43",
+      "classId": "test_class_001",
+      "className": "3-A",
+      "profilePictureUrl": null,
+      "createdAt": {
+        ".sv": "timestamp"
+      },
+      "updatedAt": {
+        ".sv": "timestamp"
+      }
+    }
+  }
+}

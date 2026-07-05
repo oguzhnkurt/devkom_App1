@@ -1,0 +1,8 @@
+
+      case StepType.animation:
+        return AnimationStepWidget(
+          step: step as AnimationStep,
+          course: widget.course,
+          isDark: isDark,
+          onComplete: () => _onStepCompleted(xpEarned: step.xpReward),
+        );

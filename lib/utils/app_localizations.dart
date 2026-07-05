@@ -231,7 +231,7 @@ class AppLocalizations {
 
   // OnboardingScreen
   String get onboarding1Title => _localizedValues[locale.languageCode]?['onboarding1_title'] ?? 'Güvenilir Eğitim Platformu';
-  String get onboarding1Description => _localizedValues[locale.languageCode]?['onboarding1_description'] ?? 'DEVKOM ile çocuklarınız güvenli bir ortamda, uzman eğitmenler eşliğinde robotik ve yazılım öğrenir. Her adımı takip edin, gelişimlerini izleyin.';
+  String get onboarding1Description => _localizedValues[locale.languageCode]?['onboarding1_description'] ?? 'DEVKOM ile öğrenciler güvenli bir ortamda, uzman eğitmenler eşliğinde robotik ve yazılım öğrenir. Her adımı takip edin, gelişimi izleyin.';
   String get onboarding2Title => _localizedValues[locale.languageCode]?['onboarding2_title'] ?? 'Kapsamlı Müfredat';
   String get onboarding2Description => _localizedValues[locale.languageCode]?['onboarding2_description'] ?? 'MEB onaylı müfredat ile uyumlu, yaş gruplarına özel tasarlanmış eğitim programları. Arduino, Python, Scratch ve daha fazlası profesyonel eğitmenlerle.';
   String get onboarding3Title => _localizedValues[locale.languageCode]?['onboarding3_title'] ?? 'Gelişimi Anlık Takip';
@@ -491,11 +491,11 @@ class AppLocalizations {
       'registration_success': 'Kayıt başarılı! Hoş geldiniz.',
       'already_have_account_question': 'Zaten hesabınız var mı?',
       'onboarding1_title': 'Güvenilir Eğitim Platformu',
-      'onboarding1_description': 'DEVKOM ile çocuklarınız güvenli bir ortamda, uzman eğitmenler eşliğinde robotik ve yazılım öğrenir. Her adımı takip edin, gelişimlerini izleyin.',
+      'onboarding1_description': 'DEVKOM ile öğrenciler güvenli bir ortamda, uzman eğitmenler eşliğinde robotik ve yazılım öğrenir. Her adımı takip edin, gelişimi izleyin.',
       'onboarding2_title': 'Kapsamlı Müfredat',
       'onboarding2_description': 'MEB onaylı müfredat ile uyumlu, yaş gruplarına özel tasarlanmış eğitim programları. Arduino, Python, Scratch ve daha fazlası profesyonel eğitmenlerle.',
       'onboarding3_title': 'Gelişimi Anlık Takip',
-      'onboarding3_description': 'Öğrenci ilerleme raporları, başarı rozetleri ve detaylı analizlerle çocuğunuzun gelişimini her an izleyin. Veli paneli ile tam kontrol.',
+      'onboarding3_description': 'Öğrenci ilerleme raporları, başarı rozetleri ve detaylı analizlerle öğrencinizin gelişimini her an izleyin. Veli paneli ile tam kontrol.',
       'user_info_load_error': 'Kullanıcı bilgileri yüklenemedi',
       'last_login': 'Son Giriş',
       'already_have_account_login': 'Zaten Hesabım Var',
@@ -748,11 +748,11 @@ class AppLocalizations {
       'registration_success': 'Registration successful! Welcome.',
       'already_have_account_question': 'Already have an account?',
       'onboarding1_title': 'Trusted Education Platform',
-      'onboarding1_description': 'With DEVKOM, your children learn robotics and software in a safe environment with expert instructors. Track every step and monitor their progress.',
+      'onboarding1_description': 'With DEVKOM, students learn robotics and software in a safe environment with expert instructors. Track every step and monitor their progress.',
       'onboarding2_title': 'Comprehensive Curriculum',
       'onboarding2_description': 'Education programs compatible with approved curriculum, specially designed for age groups. Arduino, Python, Scratch and more with professional instructors.',
       'onboarding3_title': 'Real-Time Progress Tracking',
-      'onboarding3_description': 'Track your child\'s progress at all times with student progress reports, achievement badges and detailed analyses. Full control with parent panel.',
+      'onboarding3_description': 'Track your student\'s progress at all times with progress reports, achievement badges and detailed analyses. Full control with parent panel.',
       'user_info_load_error': 'Failed to load user information',
       'last_login': 'Last Login',
       'already_have_account_login': 'Already Have an Account',

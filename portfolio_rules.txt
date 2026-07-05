@@ -1,0 +1,45 @@
+
+    // Student Portfolio collection
+    match /student_portfolios/{portfolioId} {
+      // Teachers can read all portfolios
+      // Parents can read their children's portfolios
+      // Admins can read all portfolios
+      allow read: if isAuthenticated() &&
+                    (isTeacher() ||
+                     isAdmin() ||
+                     (isParent() && isParentOfStudent(resource.data.studentId)));
+
+      // Teachers can create portfolios for students
+      allow create: if isAuthenticated() &&
+                      isTeacher() &&
+                      request.resource.data.teacherId == request.auth.uid;
+
+      // Teachers can update their own portfolio items, admins can update any
+      allow update: if isAuthenticated() &&
+                      ((resource.data.teacherId == request.auth.uid && isTeacher()) ||
+                       isAdmin());
+
+      // Teachers can delete their own portfolio items, admins can delete any
+      allow delete: if isAuthenticated() &&
+                      ((resource.data.teacherId == request.auth.uid && isTeacher()) ||
+                       isAdmin());
+    }
+
+    // Portfolio Comments collection
+    match /portfolio_comments/{commentId} {
+      // Teachers, parents of the student, and admins can read comments
+      allow read: if isAuthenticated() &&
+                    (isTeacher() || isAdmin() || isParent());
+
+      // Parents, teachers, and admins can create comments
+      allow create: if isAuthenticated() &&
+                      (isParent() || isTeacher() || isAdmin()) &&
+                      request.resource.data.userId == request.auth.uid;
+
+      // Comment owner and admins can delete comments
+      allow delete: if isAuthenticated() &&
+                      (resource.data.userId == request.auth.uid || isAdmin());
+
+      // No one can update comments (except admins for moderation)
+      allow update: if isAdmin();
+    }

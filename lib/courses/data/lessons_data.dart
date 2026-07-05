@@ -507,7 +507,7 @@ void loop() {
           LessonContent(
             id: 'scr01_3',
             type: ContentType.note,
-            content: 'Scratch, 8-16 yas arasi cocuklar icin ozellikle tasarlanmistir.',
+            content: 'Scratch, kodlamaya yeni baslayan herkes icin tasarlanmistir.',
           ),
         ],
       ),
@@ -781,6 +781,150 @@ func main() {
     println!("Yas: {}", yas);
 }''',
             language: 'rust',
+            isInteractive: true,
+          ),
+        ],
+      ),
+    ],
+
+    // ==========================================
+    // JAVA LESSONS
+    // ==========================================
+    'java': [
+      Lesson(
+        id: 'java_01',
+        courseId: 'java',
+        title: 'Java\'ya Giris',
+        description: 'Java nedir, nerede kullanilir?',
+        order: 1,
+        estimatedMinutes: 5,
+        type: LessonType.theory,
+        xpReward: 10,
+        contents: [
+          LessonContent(
+            id: 'java01_1',
+            type: ContentType.heading,
+            content: 'Java Nedir?',
+          ),
+          LessonContent(
+            id: 'java01_2',
+            type: ContentType.text,
+            content: 'Java, 1995\'te Sun Microsystems tarafindan gelistirilen, "bir kez yaz, her yerde calistir" felsefesine sahip guclu bir programlama dilidir.',
+          ),
+          LessonContent(
+            id: 'java01_3',
+            type: ContentType.text,
+            content: '• Android uygulamalari\n• Kurumsal yazilimlar\n• Web sunuculari\n• Buyuk veri sistemleri',
+          ),
+          LessonContent(
+            id: 'java01_4',
+            type: ContentType.note,
+            content: 'Minecraft oyunu Java ile yazilmistir!',
+          ),
+        ],
+      ),
+      Lesson(
+        id: 'java_02',
+        courseId: 'java',
+        title: 'Hello World',
+        description: 'Ilk Java programin',
+        order: 2,
+        estimatedMinutes: 8,
+        type: LessonType.practice,
+        xpReward: 15,
+        contents: [
+          LessonContent(
+            id: 'java02_1',
+            type: ContentType.text,
+            content: 'Java\'da her program bir sinif (class) icinde yazilir ve main metodundan baslar:',
+          ),
+          LessonContent(
+            id: 'java02_2',
+            type: ContentType.code,
+            content: '''public class Merhaba {
+    public static void main(String[] args) {
+        System.out.println("Merhaba Dunya!");
+
+        String isim = "DevKom";
+        int yas = 1;
+
+        System.out.println("Uygulama: " + isim);
+    }
+}''',
+            language: 'java',
+            isInteractive: true,
+          ),
+        ],
+      ),
+    ],
+
+    // ==========================================
+    // C# LESSONS
+    // ==========================================
+    'csharp': [
+      Lesson(
+        id: 'csharp_01',
+        courseId: 'csharp',
+        title: 'C#\'a Giris',
+        description: 'C# nedir, nerede kullanilir?',
+        order: 1,
+        estimatedMinutes: 5,
+        type: LessonType.theory,
+        xpReward: 10,
+        contents: [
+          LessonContent(
+            id: 'csharp01_1',
+            type: ContentType.heading,
+            content: 'C# Nedir?',
+          ),
+          LessonContent(
+            id: 'csharp01_2',
+            type: ContentType.text,
+            content: 'C# (si-sarp okunur), Microsoft tarafindan gelistirilen modern ve cok yonlu bir programlama dilidir.',
+          ),
+          LessonContent(
+            id: 'csharp01_3',
+            type: ContentType.text,
+            content: '• Unity ile oyun gelistirme\n• Windows uygulamalari\n• Web siteleri (ASP.NET)\n• Mobil uygulamalar (MAUI)',
+          ),
+          LessonContent(
+            id: 'csharp01_4',
+            type: ContentType.note,
+            content: 'Dunyadaki oyunlarin cogu Unity + C# ile yapiliyor!',
+          ),
+        ],
+      ),
+      Lesson(
+        id: 'csharp_02',
+        courseId: 'csharp',
+        title: 'Hello World',
+        description: 'Ilk C# programin',
+        order: 2,
+        estimatedMinutes: 8,
+        type: LessonType.practice,
+        xpReward: 15,
+        contents: [
+          LessonContent(
+            id: 'csharp02_1',
+            type: ContentType.text,
+            content: 'C#\'ta program Main metodundan baslar:',
+          ),
+          LessonContent(
+            id: 'csharp02_2',
+            type: ContentType.code,
+            content: '''using System;
+
+class Merhaba {
+    static void Main() {
+        Console.WriteLine("Merhaba Dunya!");
+
+        string isim = "DevKom";
+        int yas = 1;
+
+        Console.WriteLine("Uygulama: " + isim);
+    }
+}''',
+            language: 'csharp',
             isInteractive: true,
           ),
         ],

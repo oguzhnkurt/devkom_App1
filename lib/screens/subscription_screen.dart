@@ -25,7 +25,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     (Icons.smart_toy_outlined, 'Sinirsiz AI sohbet'),
     (Icons.school_outlined, 'Tum premium dersler'),
     (Icons.analytics_outlined, 'Gelismis ilerleme raporlari'),
-    (Icons.family_restroom, 'Aile paylasimi (2 cocuk)'),
+    (Icons.family_restroom, 'Aile paylasimi (2 ogrenci)'),
     (Icons.support_agent_outlined, '7/24 oncelikli destek'),
   ];
 

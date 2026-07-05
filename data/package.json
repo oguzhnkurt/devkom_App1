@@ -1,0 +1,22 @@
+{
+  "dependencies": {
+    "@supabase/supabase-js": "^2.86.0",
+    "firebase-admin": "^13.6.0",
+    "pg": "^8.16.3"
+  },
+  "name": "devkom_app",
+  "version": "1.0.0",
+  "description": "A new Flutter project.",
+  "main": "add_complete_test_data.js",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

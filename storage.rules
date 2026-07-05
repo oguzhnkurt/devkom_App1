@@ -1,0 +1,49 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Posts images and PDFs
+    match /posts/{type}/{userId}/{postId}/{fileName} {
+      // Anyone can read (public posts)
+      allow read: if true;
+      
+      // Only authenticated users who own the file can write
+      allow write: if isOwner(userId);
+      
+      // Only authenticated users who own the file can delete
+      allow delete: if isOwner(userId);
+    }
+    
+    // User profile images
+    match /users/{userId}/profile/{fileName} {
+      allow read: if true;
+      allow write: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
+
+    // Chat images
+    match /chat_images/{userId}/{fileName} {
+      // Anyone authenticated can read
+      allow read: if isAuthenticated();
+      // Only the owner can write/upload
+      allow write: if isOwner(userId);
+      // Only the owner can delete
+      allow delete: if isOwner(userId);
+    }
+
+    // Default deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
