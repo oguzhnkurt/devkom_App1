@@ -145,7 +145,7 @@ class DevkomApp extends StatelessWidget {
       child: Consumer<SettingsProvider>(
         builder: (context, settingsProvider, _) {
           return MaterialApp(
-            title: 'Devkom App',
+            title: 'DevKom',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme(),
             locale: settingsProvider.locale,
