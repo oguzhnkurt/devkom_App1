@@ -46,13 +46,21 @@ class AuthServiceSupabase {
     try {
       debugPrint('📝 Registering user: $email');
 
-      // Sign up with Supabase Auth
+      // Sign up with Supabase Auth.
+      // NOTE: all profile fields are also passed as user metadata so that
+      // the `handle_new_user` DB trigger (see supabase/migrations/18_*.sql)
+      // can create the public.users row server-side. This is required
+      // because when "Confirm email" is enabled in Supabase Auth, signUp()
+      // does not return an active session, so any client-side insert into
+      // users would fail RLS (auth.uid() is null without a session).
       final AuthResponse response = await _supabase.auth.signUp(
         email: email,
         password: password,
         data: {
           'display_name': displayName,
           'role': role.name,
+          'age_group': ageGroup?.toSupabaseValue(),
+          'parent_id': parentId,
         },
       );
 
@@ -63,24 +71,31 @@ class AuthServiceSupabase {
       final user = response.user!;
       debugPrint('✅ Supabase Auth user created: ${user.id}');
 
-      // Create user record in users table
+      // The users table row is created automatically by the
+      // `handle_new_user` trigger on auth.users (runs server-side,
+      // bypasses RLS). If a session is already active at this point
+      // (email confirmation disabled), also try to sync/complete the row
+      // client-side. This is best-effort: failures here are not fatal
+      // since the trigger has already created the row.
       final now = DateTime.now().toIso8601String();
-      final userData = {
-        'id': user.id,
-        'email': email,
-        'display_name': displayName,
-        'role': role.name,
-        'age_group': ageGroup?.toSupabaseValue(),
-        'parent_id': parentId,
-        'created_at': now,
-        'last_login_at': now,
-        'is_pro': false,
-        'has_used_trial': false,
-      };
-
-      await _supabase.from('users').insert(userData);
-
-      debugPrint('✅ User record created in Supabase');
+      if (response.session != null) {
+        try {
+          await _supabase.from('users').upsert({
+            'id': user.id,
+            'email': email,
+            'display_name': displayName,
+            'role': role.name,
+            'age_group': ageGroup?.toSupabaseValue(),
+            'parent_id': parentId,
+            'last_login_at': now,
+          });
+          debugPrint('✅ User record synced in Supabase');
+        } catch (e) {
+          debugPrint('⚠️ Could not sync user record (non-fatal, trigger already created it): $e');
+        }
+      } else {
+        debugPrint('ℹ️ No active session yet (email confirmation pending) - profile created by DB trigger');
+      }
 
       // Create UserModel
       final userModel = UserModel(
@@ -285,6 +300,11 @@ class AuthServiceSupabase {
   }
 
   /// Delete account
+  /// Calls the `delete-account` Edge Function, which removes both the
+  /// public.users row AND the actual Supabase Auth identity (email/password,
+  /// OAuth links). Deleting only the DB row (the old behavior) leaves the
+  /// login credential intact, which does not satisfy Apple/Google's account
+  /// deletion requirement — the user could still sign back in afterward.
   Future<void> deleteAccount() async {
     try {
       final user = _supabase.auth.currentUser;
@@ -292,13 +312,22 @@ class AuthServiceSupabase {
         throw Exception('Kullanıcı bulunamadı');
       }
 
-      // Delete user record from users table (CASCADE will handle related data)
-      await _supabase
-          .from('users')
-          .delete()
-          .eq('id', user.id);
+      final response = await _supabase.functions.invoke('delete-account');
 
-      debugPrint('✅ Account deleted');
+      final data = response.data;
+      final success = data is Map && data['success'] == true;
+      if (!success) {
+        final serverError = data is Map ? data['error'] : null;
+        throw Exception(serverError ?? 'Hesap silinemedi');
+      }
+
+      // Local session is now invalid since the auth user no longer exists.
+      await _supabase.auth.signOut();
+
+      debugPrint('✅ Account deleted (auth identity + data)');
+    } on FunctionException catch (e) {
+      debugPrint('❌ Delete account function error: ${e.details}');
+      throw Exception('Hesap silinemedi: ${e.details ?? e.reasonPhrase}');
     } on AuthException catch (e) {
       debugPrint('❌ Delete account error: ${e.message}');
       throw Exception(_getErrorMessage(e.message));
@@ -343,6 +372,7 @@ class AuthServiceSupabase {
           : null,
       classId: data['class_id'],
       description: data['description'],
+      isRoboAkademi: data['is_roboakademi'] ?? false,
       createdAt: DateTime.parse(data['created_at']),
       lastLoginAt: data['last_login_at'] != null
           ? DateTime.parse(data['last_login_at'])

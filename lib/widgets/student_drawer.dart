@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/user_model.dart';
-import '../screens/student/schedule_screen.dart';
-import '../screens/student/attendance_screen.dart';
-import '../screens/student/curriculum_screen.dart';
-import '../screens/student/agenda_screen.dart';
 import '../screens/student/achievement_analysis_screen.dart';
-import '../screens/student/surveys_screen.dart';
 import '../screens/auth/login_screen.dart';
+import '../screens/roboakademi/roboakademi_parent_screen.dart';
+import '../screens/roboakademi/roboakademi_curriculum_screen.dart';
+import '../screens/roboakademi/roboakademi_agenda_screen.dart';
+import '../screens/market_screen.dart';
 import '../utils/app_localizations.dart';
 
 class StudentDrawer extends StatelessWidget {
@@ -47,99 +46,170 @@ class StudentDrawer extends StatelessWidget {
                   ],
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   CircleAvatar(
-                    radius: 35,
+                    radius: 28,
                     backgroundColor: Colors.white,
                     child: Icon(
                       Icons.person,
-                      size: 40,
+                      size: 32,
                       color: Theme.of(context).primaryColor,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    user?.displayName ?? loc.student,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    user?.email ?? '',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          user?.displayName ?? loc.student,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          user?.email ?? '',
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                          ),
+                        ),
+                        if (user != null) ...[
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.18),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text('🪙', style: TextStyle(fontSize: 13)),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${authProvider.userProgress?.jetonBalance ?? 0}',
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
 
-            // Menu items
+            // Market — herkese açık, jeton harcayarak robot kılıfı/çerçeve/karakter alınır
             _buildDrawerItem(
               context,
-              icon: Icons.calendar_today,
-              title: loc.schedule,
+              icon: Icons.storefront_rounded,
+              title: 'Market',
+              iconColor: const Color(0xFF6C3CE0),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const ScheduleScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const MarketScreen()),
                 );
               },
             ),
+            const Divider(height: 24),
 
-            _buildDrawerItem(
-              context,
-              icon: Icons.event_available,
-              title: loc.attendance,
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AttendanceScreen(),
-                  ),
-                );
-              },
-            ),
+            // RoboAkademi shortcut — only shown to workshop-enrolled parents
+            if (user?.isRoboAkademi == true) ...[
+              _buildDrawerItem(
+                context,
+                icon: Icons.precision_manufacturing_rounded,
+                title: 'RoboAkademi Takip',
+                iconColor: const Color(0xFF00979D),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RoboAkademiParentScreen(),
+                    ),
+                  );
+                },
+              ),
+              const Divider(height: 24),
+            ],
 
-            _buildDrawerItem(
-              context,
-              icon: Icons.menu_book,
-              title: loc.curriculum,
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CurriculumScreen(),
-                  ),
-                );
-              },
-            ),
+            // Menu items — Ders Programı / Devamsızlık / Müfredat / Ajanda
+            // are RoboAkademi-backed screens now, so they're only shown to
+            // RoboAkademi-enrolled parents (no more empty placeholder pages
+            // for everyone else).
+            if (user?.isRoboAkademi == true) ...[
+              _buildDrawerItem(
+                context,
+                icon: Icons.calendar_today,
+                title: loc.schedule,
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RoboAkademiAgendaScreen(),
+                    ),
+                  );
+                },
+              ),
 
-            _buildDrawerItem(
-              context,
-              icon: Icons.event_note,
-              title: loc.agenda,
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AgendaScreen(),
-                  ),
-                );
-              },
-            ),
+              _buildDrawerItem(
+                context,
+                icon: Icons.event_available,
+                title: loc.attendance,
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RoboAkademiAgendaScreen(),
+                    ),
+                  );
+                },
+              ),
+
+              _buildDrawerItem(
+                context,
+                icon: Icons.menu_book,
+                title: loc.curriculum,
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RoboAkademiCurriculumScreen(),
+                    ),
+                  );
+                },
+              ),
+
+              _buildDrawerItem(
+                context,
+                icon: Icons.event_note,
+                title: loc.agenda,
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RoboAkademiAgendaScreen(),
+                    ),
+                  );
+                },
+              ),
+            ],
 
             _buildDrawerItem(
               context,
@@ -151,21 +221,6 @@ class StudentDrawer extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const AchievementAnalysisScreen(),
-                  ),
-                );
-              },
-            ),
-
-            _buildDrawerItem(
-              context,
-              icon: Icons.poll,
-              title: loc.surveys,
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SurveysScreen(),
                   ),
                 );
               },

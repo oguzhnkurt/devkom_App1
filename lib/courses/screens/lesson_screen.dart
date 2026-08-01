@@ -6,6 +6,7 @@ import '../data/lessons_data.dart';
 import '../data/quizzes_data.dart';
 import 'quiz_screen.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/user_progress_service.dart';
 
 /// Lesson Screen - Interactive learning experience
 class LessonScreen extends StatefulWidget {
@@ -63,6 +64,12 @@ class _LessonScreenState extends State<LessonScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.isAuthenticated) {
       await authProvider.addXP(widget.lesson.xpReward);
+      // Jeton ödülü (Market'te harcanabilir)
+      final userId = authProvider.currentUser?.uid;
+      if (userId != null) {
+        await UserProgressService().addJeton(userId, 8, source: 'lesson');
+        await authProvider.refreshProgress();
+      }
     }
 
     // Show completion dialog

@@ -280,8 +280,11 @@ class _CourseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Scratch, Python ve Arduino için interaktif ders sistemi, diğerleri için CourseDetailScreen
-        if (course.id == 'scratch' || course.id == 'python' || course.id == 'arduino') {
+        // Interaktif ders sistemi olan kurslar, diğerleri için CourseDetailScreen
+        const interactiveCourseIds = {
+          'scratch', 'python', 'arduino', 'html', 'css', 'java', 'csharp',
+        };
+        if (interactiveCourseIds.contains(course.id)) {
           Navigator.push(
             context,
             MaterialPageRoute(

@@ -6,6 +6,10 @@ class MillionaireQuestion {
   final int difficulty; // 1-15 arası soru seviyesi
   final int prize; // Bu sorunun para ödülü
   final String? imageUrl; // Soru görseli (varsa)
+  // İngilizce çeviri (varsa) - uygulama dili İngilizce'yken kullanılır.
+  // correctAnswerIndex her iki dil için de aynı sırayı korur.
+  final String? questionEn;
+  final List<String>? optionsEn;
 
   MillionaireQuestion({
     this.id,
@@ -15,7 +19,25 @@ class MillionaireQuestion {
     required this.difficulty,
     required this.prize,
     this.imageUrl,
+    this.questionEn,
+    this.optionsEn,
   });
+
+  /// Dile göre soru metnini döndürür (İngilizce çeviri yoksa Türkçe'ye düşer).
+  String questionFor(String languageCode) {
+    if (languageCode == 'en' && questionEn != null && questionEn!.isNotEmpty) {
+      return questionEn!;
+    }
+    return question;
+  }
+
+  /// Dile göre şık listesini döndürür (İngilizce çeviri yoksa Türkçe'ye düşer).
+  List<String> optionsFor(String languageCode) {
+    if (languageCode == 'en' && optionsEn != null && optionsEn!.length == options.length) {
+      return optionsEn!;
+    }
+    return options;
+  }
 
   factory MillionaireQuestion.fromMap(Map<String, dynamic> map) {
     return MillionaireQuestion(

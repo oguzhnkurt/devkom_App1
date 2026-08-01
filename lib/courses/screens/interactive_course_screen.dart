@@ -5,6 +5,10 @@ import '../models/interactive_lesson_model.dart';
 import '../data/scratch_lessons_data.dart';
 import '../data/python_lessons_data.dart';
 import '../data/arduino_lessons_data.dart';
+import '../data/html_lessons_data.dart';
+import '../data/css_lessons_data.dart';
+import '../data/java_lessons_data.dart';
+import '../data/csharp_lessons_data.dart';
 import 'interactive_lesson_screen.dart';
 
 /// Genel Interaktif Kurs Ekrani
@@ -76,6 +80,106 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
           ),
         ];
         break;
+      case 'html':
+        _modules = [
+          _ModuleInfo(
+            title: 'HTML\'e Giris',
+            description: 'Web sayfalarinin iskeleti',
+            emoji: '🌐',
+            lessons: HtmlLessonsData.module1,
+          ),
+          _ModuleInfo(
+            title: 'Metin Etiketleri',
+            description: 'Baslik ve paragraflar',
+            emoji: '📝',
+            lessons: HtmlLessonsData.module2,
+          ),
+        ];
+        break;
+      case 'css':
+        _modules = [
+          _ModuleInfo(
+            title: 'CSS\'e Giris',
+            description: 'Renkler, yazi tipleri, seciciler',
+            emoji: '🎨',
+            lessons: CssLessonsData.module1,
+          ),
+          _ModuleInfo(
+            title: 'Kutu Modeli',
+            description: 'Boyut, kenarlik, golge',
+            emoji: '📦',
+            lessons: CssLessonsData.module2,
+          ),
+          _ModuleInfo(
+            title: 'Yerlesim (Layout)',
+            description: 'Flexbox ile modern tasarim',
+            emoji: '📐',
+            lessons: CssLessonsData.module3,
+          ),
+          _ModuleInfo(
+            title: 'Tasarim ve Proje',
+            description: 'Hover, animasyon, final proje',
+            emoji: '🚀',
+            lessons: CssLessonsData.module4,
+          ),
+        ];
+        break;
+      case 'java':
+        _modules = [
+          _ModuleInfo(
+            title: 'Java\'ya Giris',
+            description: 'Degiskenler ve ilk programin',
+            emoji: '☕',
+            lessons: JavaLessonsData.module1,
+          ),
+          _ModuleInfo(
+            title: 'Kontrol Yapilari',
+            description: 'if-else, donguler, diziler',
+            emoji: '🔀',
+            lessons: JavaLessonsData.module2,
+          ),
+          _ModuleInfo(
+            title: 'Nesne Yonelimi',
+            description: 'Sinif, metod, kalitim',
+            emoji: '🏗️',
+            lessons: JavaLessonsData.module3,
+          ),
+          _ModuleInfo(
+            title: 'Projeler',
+            description: 'Gercek programlar yaz',
+            emoji: '🚀',
+            lessons: JavaLessonsData.module4,
+          ),
+        ];
+        break;
+      case 'csharp':
+        _modules = [
+          _ModuleInfo(
+            title: 'C#\'a Giris',
+            description: 'Degiskenler ve ilk programin',
+            emoji: '💜',
+            lessons: CSharpLessonsData.module1,
+          ),
+          _ModuleInfo(
+            title: 'Kontrol Yapilari',
+            description: 'if-else, donguler, diziler',
+            emoji: '🔀',
+            lessons: CSharpLessonsData.module2,
+          ),
+          _ModuleInfo(
+            title: 'Nesne Yonelimi',
+            description: 'Sinif, metod, kalitim',
+            emoji: '🏗️',
+            lessons: CSharpLessonsData.module3,
+          ),
+          _ModuleInfo(
+            title: 'Projeler',
+            description: 'Gercek programlar yaz',
+            emoji: '🚀',
+            lessons: CSharpLessonsData.module4,
+          ),
+        ];
+        break;
       case 'python':
         _modules = [
           _ModuleInfo(
@@ -138,26 +242,26 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
           ),
           _ModuleInfo(
             title: 'Butonlar',
-            description: 'Dijital giris oku',
+            description: 'Sayaç ve aç/kapa dugmesi',
             emoji: '🔘',
             lessons: ArduinoLessonsData.module2,
           ),
           _ModuleInfo(
-            title: 'Analog & PWM',
-            description: 'Sensorler ve parlaklik',
-            emoji: '📊',
+            title: 'Trafik Isigi & Potansiyometre',
+            description: 'Coklu LED ve analog giris',
+            emoji: '🚦',
             lessons: ArduinoLessonsData.module3,
           ),
           _ModuleInfo(
-            title: 'Servo Motor',
-            description: 'Hareket kontrolu',
-            emoji: '🦾',
+            title: 'Buzzer & LDR',
+            description: 'Melodi ve gece lambasi',
+            emoji: '🔊',
             lessons: ArduinoLessonsData.module4,
           ),
           _ModuleInfo(
-            title: 'Ses & Buzzer',
-            description: 'Melodi cal',
-            emoji: '🔊',
+            title: 'Sensorler & Final Proje',
+            description: 'Park sensoru ve cam sileceği',
+            emoji: '📏',
             lessons: ArduinoLessonsData.module5,
           ),
         ];
@@ -183,6 +287,10 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         return '🐍';
       case 'arduino':
         return '🤖';
+      case 'java':
+        return '☕';
+      case 'csharp':
+        return '💜';
       default:
         return '📚';
     }

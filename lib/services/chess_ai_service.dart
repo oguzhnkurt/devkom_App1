@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../models/chess_game_model.dart';
 
 // Conditional import for stockfish - use stub on web
-import 'package:stockfish_chess_engine/stockfish.dart'
+import 'package:stockfish_chess_engine/stockfish_chess_engine.dart'
     if (dart.library.js) 'chess_ai_web_stub.dart';
 
 /// Professional Chess AI Service using Stockfish Engine (when available)

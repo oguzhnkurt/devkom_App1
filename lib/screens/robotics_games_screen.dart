@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'dart:math' as math;
 import '../models/game_model.dart';
 import '../providers/auth_provider.dart';
+import '../providers/settings_provider.dart';
 import '../services/games_service.dart';
 import '../widgets/category_selector.dart';
 import 'game_play_screen.dart';
@@ -262,6 +263,8 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
               id: game.id,
               title: game.title,
               description: game.description,
+              titleEn: game.titleEn,
+              descriptionEn: game.descriptionEn,
               category: GameCategory.quiz,
               type: game.type,
               thumbnailUrl: quizThumbnail, // Tüm quizlere aynı güzel görseli ver
@@ -281,6 +284,8 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
               id: game.id,
               title: game.title,
               description: game.description,
+              titleEn: game.titleEn,
+              descriptionEn: game.descriptionEn,
               category: game.category,
               type: game.type,
               thumbnailUrl: game.thumbnailUrl,
@@ -319,17 +324,31 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
         games = games.where((game) => availableGameTypes.contains(game.type)).toList();
 
         if (_searchQuery.isNotEmpty) {
+          final q = _searchQuery.toLowerCase();
           games = games.where((game) {
-            return game.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                game.description.toLowerCase().contains(_searchQuery.toLowerCase());
+            return game.title.toLowerCase().contains(q) ||
+                game.description.toLowerCase().contains(q) ||
+                (game.titleEn?.toLowerCase().contains(q) ?? false) ||
+                (game.descriptionEn?.toLowerCase().contains(q) ?? false);
           }).toList();
         }
 
-        // Akıllı sıralama - Satranç her zaman en başta
+        // Akıllı sıralama - Satranç, Bilgi Yarışması ve Robot Simülatörü
+        // (en gelişmiş/görsel oyunlar) her zaman en başta gösterilir.
         games.sort((a, b) {
-          // Satranç önceliği
-          if (a.type == GameType.chess) return -1;
-          if (b.type == GameType.chess) return 1;
+          const featuredOrder = {
+            GameType.chess: 0,
+            GameType.quiz: 1,
+            GameType.robotSimulator: 2,
+          };
+          final aFeatured = featuredOrder[a.type];
+          final bFeatured = featuredOrder[b.type];
+          if (aFeatured != null || bFeatured != null) {
+            if (aFeatured != null && bFeatured != null) {
+              return aFeatured.compareTo(bFeatured);
+            }
+            return aFeatured != null ? -1 : 1;
+          }
 
           const categoryPriority = {
             GameCategory.age4to6: 1,
@@ -464,6 +483,8 @@ class _OptimizedGameCard extends StatefulWidget {
 class _OptimizedGameCardState extends State<_OptimizedGameCard> {
   bool _isPressed = false;
 
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+
   Color _getGameColor() {
     switch (widget.game.category) {
       case GameCategory.age4to6: return const Color(0xFF00F5FF);
@@ -491,6 +512,7 @@ class _OptimizedGameCardState extends State<_OptimizedGameCard> {
       case GameType.robotSimulator: return Icons.precision_manufacturing;
       case GameType.mazeExplorer: return Icons.explore;
       case GameType.colorCoding: return Icons.palette;
+      case GameType.matchingGame: return Icons.join_inner;
       default: return Icons.videogame_asset;
     }
   }
@@ -561,7 +583,7 @@ class _OptimizedGameCardState extends State<_OptimizedGameCard> {
                               MaterialPageRoute(
                                 builder: (context) => LeaderboardScreen(
                                   gameId: widget.game.id,
-                                  gameName: widget.game.title,
+                                  gameName: widget.game.titleFor(_lang),
                                   gameType: widget.game.type,
                                 ),
                               ),
@@ -672,7 +694,7 @@ class _OptimizedGameCardState extends State<_OptimizedGameCard> {
                 const Spacer(),
                 // Başlık
                 Text(
-                  widget.game.title,
+                  widget.game.titleFor(_lang),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -692,7 +714,7 @@ class _OptimizedGameCardState extends State<_OptimizedGameCard> {
                     border: Border.all(color: color.withOpacity(0.5)),
                   ),
                   child: Text(
-                    widget.game.getCategoryDisplayName(),
+                    widget.game.getCategoryDisplayNameFor(_lang),
                     style: TextStyle(
                       color: color,
                       fontSize: 11,

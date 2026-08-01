@@ -26,6 +26,7 @@ enum GameType {
   patternDetective, // Kod Dedektifi (Pattern Matching)
   variableMaster, // Değişken Ustası (Variable concepts)
   bugHunter, // Bug Hunter (Debugging)
+  matchingGame, // Eşleştirme Oyunu (Wordwall tarzı sürükle-bırak eşleştirme)
 }
 
 /// GameType extension for display names
@@ -66,6 +67,8 @@ extension GameTypeExtension on GameType {
         return 'Değişken Ustası';
       case GameType.bugHunter:
         return 'Bug Hunter';
+      case GameType.matchingGame:
+        return 'Eşleştirme Oyunu';
     }
   }
 }
@@ -75,6 +78,9 @@ class GameModel {
   final String id;
   final String title;
   final String description;
+  // İngilizce çeviri (varsa) - uygulama dili İngilizce'yken kullanılır.
+  final String? titleEn;
+  final String? descriptionEn;
   final GameCategory category;
   final GameType type;
   final String thumbnailUrl;
@@ -92,6 +98,8 @@ class GameModel {
     required this.id,
     required this.title,
     required this.description,
+    this.titleEn,
+    this.descriptionEn,
     required this.category,
     required this.type,
     required this.thumbnailUrl,
@@ -103,6 +111,18 @@ class GameModel {
     this.updatedAt,
     required this.gameData,
   });
+
+  /// Dile göre başlık döndürür (İngilizce çeviri yoksa Türkçe'ye düşer).
+  String titleFor(String languageCode) {
+    if (languageCode == 'en' && titleEn != null && titleEn!.isNotEmpty) return titleEn!;
+    return title;
+  }
+
+  /// Dile göre açıklama döndürür (İngilizce çeviri yoksa Türkçe'ye düşer).
+  String descriptionFor(String languageCode) {
+    if (languageCode == 'en' && descriptionEn != null && descriptionEn!.isNotEmpty) return descriptionEn!;
+    return description;
+  }
 
   // // REMOVED: Firebase-specific method
   // // factory GameModel.fromFirestore(DocumentSnapshot doc) { ... }
@@ -140,6 +160,27 @@ class GameModel {
         return 'Robotik';
       case GameCategory.software:
         return 'Yazılım';
+    }
+  }
+
+  /// Dile göre kategori adı (İngilizce'de yaş etiketleri de çevrilir).
+  String getCategoryDisplayNameFor(String languageCode) {
+    if (languageCode != 'en') return getCategoryDisplayName();
+    switch (category) {
+      case GameCategory.arduino:
+        return 'Arduino';
+      case GameCategory.python:
+        return 'Python';
+      case GameCategory.quiz:
+        return 'Quiz';
+      case GameCategory.age4to6:
+        return 'Ages 4-6';
+      case GameCategory.age7to9:
+        return 'Ages 7-9';
+      case GameCategory.robotics:
+        return 'Robotics';
+      case GameCategory.software:
+        return 'Software';
     }
   }
 
@@ -223,6 +264,8 @@ class GameModel {
         return 'Değişken Ustası';
       case GameType.bugHunter:
         return 'Bug Hunter';
+      case GameType.matchingGame:
+        return 'Eşleştirme Oyunu';
     }
   }
 }

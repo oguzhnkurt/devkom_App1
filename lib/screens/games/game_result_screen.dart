@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
+import 'package:provider/provider.dart';
 import 'dart:math';
 import '../../models/leaderboard_model.dart';
 import '../../models/game_model.dart';
 import '../../services/leaderboard_service.dart';
 import '../../services/achievement_service.dart';
+import '../../providers/settings_provider.dart';
 import '../../theme.dart';
 
 /// Game Result Screen
@@ -49,6 +51,9 @@ class _GameResultScreenState extends State<GameResultScreen> {
   List<LeaderboardEntry> _topEntries = [];
   int? _userRank;
   bool _isLoading = true;
+
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
 
   @override
   void initState() {
@@ -133,7 +138,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Oyun Sonucu'),
+        title: Text(_isEn ? 'Game Result' : 'Oyun Sonucu'),
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: AppTheme.white,
       ),
@@ -182,7 +187,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
 
           // Leaderboard Title
           Text(
-            widget.gameType.leaderboardTitle,
+            widget.gameType.leaderboardTitleFor(_lang),
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -279,7 +284,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
       return Column(
         children: [
           Text(
-            'Doğru: ${widget.correctCount}/${widget.totalQuestions}',
+            _isEn ? 'Correct: ${widget.correctCount}/${widget.totalQuestions}' : 'Doğru: ${widget.correctCount}/${widget.totalQuestions}',
             style: const TextStyle(
               fontSize: 18,
               color: AppTheme.white,
@@ -288,7 +293,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Süre: ${_formatTime(widget.timeSeconds ?? 0)}',
+            _isEn ? 'Time: ${_formatTime(widget.timeSeconds ?? 0)}' : 'Süre: ${_formatTime(widget.timeSeconds ?? 0)}',
             style: const TextStyle(
               fontSize: 16,
               color: AppTheme.white,
@@ -303,7 +308,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
       case LeaderboardType.highScore:
       case LeaderboardType.winRate:
         return Text(
-          'Puan: ${widget.score}',
+          _isEn ? 'Score: ${widget.score}' : 'Puan: ${widget.score}',
           style: const TextStyle(
             fontSize: 20,
             color: AppTheme.white,
@@ -312,7 +317,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
         );
       case LeaderboardType.fastestTime:
         return Text(
-          'Süre: ${_formatTime(widget.timeSeconds ?? 0)}',
+          _isEn ? 'Time: ${_formatTime(widget.timeSeconds ?? 0)}' : 'Süre: ${_formatTime(widget.timeSeconds ?? 0)}',
           style: const TextStyle(
             fontSize: 20,
             color: AppTheme.white,
@@ -332,20 +337,20 @@ class _GameResultScreenState extends State<GameResultScreen> {
   }
 
   String _getRankMessage() {
-    if (_userRank == null) return 'Harika bir performans!';
+    if (_userRank == null) return _isEn ? 'Great performance!' : 'Harika bir performans!';
 
     switch (_userRank) {
       case 1:
-        return 'Tebrikler! 🥇\n1. Oldunuz!';
+        return _isEn ? 'Congratulations! 🥇\nYou\'re #1!' : 'Tebrikler! 🥇\n1. Oldunuz!';
       case 2:
-        return 'Harika! 🥈\n2. Sıraya Yerleştiniz!';
+        return _isEn ? 'Awesome! 🥈\nYou Ranked #2!' : 'Harika! 🥈\n2. Sıraya Yerleştiniz!';
       case 3:
-        return 'Muhteşem! 🥉\n3. Sıraya Yerleştiniz!';
+        return _isEn ? 'Amazing! 🥉\nYou Ranked #3!' : 'Muhteşem! 🥉\n3. Sıraya Yerleştiniz!';
       default:
         if (_userRank! <= 10) {
-          return 'Çok İyi! 🎯\n${_userRank}. Sıraya Yerleştiniz!';
+          return _isEn ? 'Very Good! 🎯\nYou Ranked #$_userRank!' : 'Çok İyi! 🎯\n${_userRank}. Sıraya Yerleştiniz!';
         }
-        return 'Tebrikler! 🎮\nSkor Tabelasına Girdiniz!';
+        return _isEn ? 'Congratulations! 🎮\nYou Made the Leaderboard!' : 'Tebrikler! 🎮\nSkor Tabelasına Girdiniz!';
     }
   }
 
@@ -386,7 +391,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
             Icon(Icons.emoji_events_outlined, size: 80, color: AppTheme.mediumGray),
             const SizedBox(height: 16),
             Text(
-              'Henüz kimse bu oyunu oynamamış!',
+              _isEn ? 'No one has played this game yet!' : 'Henüz kimse bu oyunu oynamamış!',
               style: TextStyle(
                 fontSize: 18,
                 color: AppTheme.darkGray,
@@ -507,9 +512,9 @@ class _GameResultScreenState extends State<GameResultScreen> {
                           color: AppTheme.accentYellow,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Text(
-                          'SİZ',
-                          style: TextStyle(
+                        child: Text(
+                          _isEn ? 'YOU' : 'SİZ',
+                          style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                             color: AppTheme.white,
@@ -521,7 +526,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
                 ),
                 if (entry.difficulty != null)
                   Text(
-                    'Zorluk: ${entry.difficulty}',
+                    _isEn ? 'Difficulty: ${entry.difficulty}' : 'Zorluk: ${entry.difficulty}',
                     style: TextStyle(
                       fontSize: 12,
                       color: AppTheme.mediumGray,
@@ -544,7 +549,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
                 ),
               ),
               Text(
-                widget.gameType.scoreLabel,
+                widget.gameType.scoreLabelFor(_lang),
                 style: TextStyle(
                   fontSize: 12,
                   color: AppTheme.mediumGray,

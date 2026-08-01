@@ -120,11 +120,38 @@ class UserProgressService extends ChangeNotifier {
     }
   }
 
+  /// Jeton ekle (Market'te harcanabilir para birimi). XP'nin aksine bu
+  /// bakiye satın alma ile azalabilir; azaltma işlemi StoreService
+  /// üzerinden purchase_store_item RPC'si ile atomik yapılır.
+  Future<void> addJeton(String userId, int amount, {String? source}) async {
+    if (amount <= 0) return;
+    try {
+      if (_currentProgress == null) {
+        await loadUserProgress(userId);
+      }
+
+      final newBalance = (_currentProgress?.jetonBalance ?? 0) + amount;
+
+      await _supabase.from(_progressTable).update({
+        'jeton_balance': newBalance,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('user_id', userId);
+
+      _currentProgress = _currentProgress?.copyWith(jetonBalance: newBalance);
+      notifyListeners();
+      debugPrint('🪙 Jeton eklendi: +$amount (${source ?? 'bilinmiyor'}) -> $newBalance');
+    } catch (e) {
+      debugPrint('Error adding jeton: $e');
+    }
+  }
+
   /// Ders tamamlandığında
   Future<void> onLessonCompleted(String userId, String lessonId, int xpReward) async {
     try {
       // XP ekle
       await addXP(userId, xpReward, source: 'lesson');
+      // Jeton ödülü (Market'te harcanabilir)
+      await addJeton(userId, 8, source: 'lesson');
 
       // Günlük hedef güncelle
       final newCount = (_currentProgress?.dailyLessonsCompleted ?? 0) + 1;
@@ -164,6 +191,9 @@ class UserProgressService extends ChangeNotifier {
     try {
       // XP ekle
       await addXP(userId, xpReward, source: 'game');
+      // Jeton ödülü: skorla orantılı, en az 5
+      final jeton = (score / 20).round().clamp(5, 60);
+      await addJeton(userId, jeton, source: 'game');
 
       // Günlük hedef güncelle
       final newCount = (_currentProgress?.dailyGamesPlayed ?? 0) + 1;
@@ -195,6 +225,8 @@ class UserProgressService extends ChangeNotifier {
     try {
       // XP ekle
       await addXP(userId, xpReward, source: 'quiz');
+      // Jeton ödülü: doğru cevap başına 3 jeton
+      await addJeton(userId, correctAnswers * 3, source: 'quiz');
 
       // Günlük hedef güncelle
       final newCount = (_currentProgress?.dailyQuizzesCompleted ?? 0) + 1;

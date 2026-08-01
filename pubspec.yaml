@@ -42,7 +42,7 @@ dependencies:
   # Chess game
   chess: ^0.7.0
   flutter_chess_board: ^1.0.1
-  stockfish_chess_engine: ^0.6.0
+  stockfish_chess_engine: ^0.8.2
 
   # Flame 2D game engine
   flame: ^1.20.0

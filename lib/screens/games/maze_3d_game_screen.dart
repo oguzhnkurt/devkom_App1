@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 // TODO: Migrate to Supabase
 // import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../theme.dart';
+import '../../providers/settings_provider.dart';
 
 /// 3D First-Person Maze Explorer Game
 /// Uses ray-casting technique for pseudo-3D rendering
@@ -40,6 +42,9 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
 
   // Collected coins tracker
   Set<String> _collectedCoins = {};
+
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
 
   // Movement constants
   static const double _moveSpeed = 0.15;
@@ -167,7 +172,7 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
               _maze[mapY][mapX] = 0;
               _coinsCollected++;
               _score += 10;
-              _showMessage('🪙 Altın topladın! +10 puan');
+              _showMessage(_isEn ? '🪙 You collected gold! +10 points' : '🪙 Altın topladın! +10 puan');
             }
           }
 
@@ -244,23 +249,23 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
             children: [
               Icon(Icons.emoji_events, color: AppTheme.successGreen, size: 32),
               const SizedBox(width: 12),
-              const Text('🎉 Tebrikler!'),
+              Text(_isEn ? '🎉 Congratulations!' : '🎉 Tebrikler!'),
             ],
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Labirenti başarıyla tamamladın!',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              Text(
+                _isEn ? 'You successfully completed the maze!' : 'Labirenti başarıyla tamamladın!',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-              _buildStatRow('🏆 Toplam Puan', finalScore.toString()),
-              _buildStatRow('🪙 Altınlar', '$_coinsCollected / $_totalCoins'),
-              _buildStatRow('👣 Adım Sayısı', _moves.toString()),
-              _buildStatRow('⏱️ Süre', '${duration}s'),
-              _buildStatRow('⭐ Bonus', '+$bonusScore (altın) +$timeBonus (zaman)'),
+              _buildStatRow(_isEn ? '🏆 Total Score' : '🏆 Toplam Puan', finalScore.toString()),
+              _buildStatRow(_isEn ? '🪙 Gold' : '🪙 Altınlar', '$_coinsCollected / $_totalCoins'),
+              _buildStatRow(_isEn ? '👣 Step Count' : '👣 Adım Sayısı', _moves.toString()),
+              _buildStatRow(_isEn ? '⏱️ Time' : '⏱️ Süre', '${duration}s'),
+              _buildStatRow(_isEn ? '⭐ Bonus' : '⭐ Bonus', _isEn ? '+$bonusScore (gold) +$timeBonus (time)' : '+$bonusScore (altın) +$timeBonus (zaman)'),
             ],
           ),
           actions: [
@@ -269,7 +274,7 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
                 Navigator.pop(context);
                 Navigator.pop(context);
               },
-              child: const Text('Ana Menü'),
+              child: Text(_isEn ? 'Main Menu' : 'Ana Menü'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -291,7 +296,7 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
                 backgroundColor: AppTheme.successGreen,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Yeni Oyun'),
+              child: Text(_isEn ? 'New Game' : 'Yeni Oyun'),
             ),
           ],
         ),
@@ -364,7 +369,7 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
                 child: Column(
                   children: [
                     // Forward
-                    _buildControlButton(Icons.arrow_upward, _moveForward, 'İleri'),
+                    _buildControlButton(Icons.arrow_upward, _moveForward, _isEn ? 'Forward' : 'İleri'),
                     const SizedBox(height: 4),
                     // Left/Right movement and rotation
                     Row(

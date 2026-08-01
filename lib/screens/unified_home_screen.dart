@@ -23,6 +23,8 @@ import 'math_games_screen.dart';
 import 'w3_courses_screen.dart';
 import '../widgets/visitor_cta_widget.dart';
 import '../widgets/code_playground_screen.dart';
+import '../widgets/student_drawer.dart';
+import 'market_screen.dart';
 
 /// Unified Home Screen - Minimal, modern dashboard for all ages
 class UnifiedHomeScreen extends StatefulWidget {
@@ -234,6 +236,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA),
+      drawer: const StudentDrawer(),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -276,6 +279,24 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            Builder(
+              builder: (context) => GestureDetector(
+                onTap: () => Scaffold.of(context).openDrawer(),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white.withOpacity(0.08) : Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.menu_rounded,
+                    color: isDark ? Colors.white : Colors.grey.shade800,
+                    size: 24,
+                  ),
+                ),
+              ),
+            ),
             Expanded(
               child: Text(
                 isVisitor ? 'Merhaba, Kasif!' : 'Hosgeldin, ${user.displayName}',
@@ -675,6 +696,21 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Basarilar sayfasi yakinda!')),
+            );
+          },
+        ),
+        _buildThemedCard(
+          context: context,
+          icon: Icons.storefront_rounded,
+          title: 'Market',
+          subtitle: 'Jeton harca',
+          colors: [const Color(0xFF3D2B1F), const Color(0xFF6C3CE0), const Color(0xFF9C6ADE)],
+          isDark: isDark,
+          showStars: true,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const MarketScreen()),
             );
           },
         ),

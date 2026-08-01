@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:provider/provider.dart';
 import '../../theme.dart';
 import '../../models/game_model.dart';
 import '../../utils/score_calculator.dart';
 import '../../services/sound_service.dart';
+import '../../providers/settings_provider.dart';
 
 /// Renkli Kodlar Oyunu
 /// Renk kodları ile programlama öğretir
@@ -26,22 +28,25 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
   bool isShowingSequence = false; // Dizi gösterilme durumu
   int currentShowingIndex = 0; // Şu an gösterilen renk index'i
 
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
+
   // Renk-Komut mapping
   Map<String, Map<String, dynamic>> get colorCommands {
     // Seviye 10'dan sonra 5. renk (turuncu) ekle
     // Seviye 15'ten sonra 6. renk (mor) ekle
     final baseColors = {
-      'red': {'name': 'İleri Git', 'icon': Icons.arrow_upward, 'color': Colors.red},
-      'blue': {'name': 'Sağa Dön', 'icon': Icons.arrow_forward, 'color': Colors.blue},
-      'green': {'name': 'Sola Dön', 'icon': Icons.arrow_back, 'color': Colors.green},
-      'yellow': {'name': 'Topla', 'icon': Icons.star, 'color': Colors.amber},
+      'red': {'name': _isEn ? 'Move Forward' : 'İleri Git', 'icon': Icons.arrow_upward, 'color': Colors.red},
+      'blue': {'name': _isEn ? 'Turn Right' : 'Sağa Dön', 'icon': Icons.arrow_forward, 'color': Colors.blue},
+      'green': {'name': _isEn ? 'Turn Left' : 'Sola Dön', 'icon': Icons.arrow_back, 'color': Colors.green},
+      'yellow': {'name': _isEn ? 'Collect' : 'Topla', 'icon': Icons.star, 'color': Colors.amber},
     };
 
     if (currentLevel >= 15) {
-      baseColors['orange'] = {'name': 'Zıpla', 'icon': Icons.trending_up, 'color': Colors.orange};
-      baseColors['purple'] = {'name': 'Bekle', 'icon': Icons.pause, 'color': Colors.purple};
+      baseColors['orange'] = {'name': _isEn ? 'Jump' : 'Zıpla', 'icon': Icons.trending_up, 'color': Colors.orange};
+      baseColors['purple'] = {'name': _isEn ? 'Wait' : 'Bekle', 'icon': Icons.pause, 'color': Colors.purple};
     } else if (currentLevel >= 10) {
-      baseColors['orange'] = {'name': 'Zıpla', 'icon': Icons.trending_up, 'color': Colors.orange};
+      baseColors['orange'] = {'name': _isEn ? 'Jump' : 'Zıpla', 'icon': Icons.trending_up, 'color': Colors.orange};
     }
 
     return baseColors;
@@ -159,8 +164,8 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
 
       _showMessage(
         isPracticeMode
-            ? 'Harika! Doğru! 🎉'
-            : 'Harika! +$levelScore puan! 🎉',
+            ? (_isEn ? 'Great! Correct! 🎉' : 'Harika! Doğru! 🎉')
+            : (_isEn ? 'Great! +$levelScore points! 🎉' : 'Harika! +$levelScore puan! 🎉'),
         AppTheme.successGreen,
       );
 
@@ -170,7 +175,7 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
     } else {
       // Yanlış cevap sesi
       SoundService.playWrong();
-      _showMessage('Yanlış sıralama. Tekrar dene!', AppTheme.errorRed);
+      _showMessage(_isEn ? 'Wrong order. Try again!' : 'Yanlış sıralama. Tekrar dene!', AppTheme.errorRed);
       setState(() {
         selectedSequence.clear();
       });
@@ -200,7 +205,9 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(isPracticeMode ? 'Renkli Kodlar (Pratik)' : 'Renkli Kodlar'),
+        title: Text(isPracticeMode
+            ? (_isEn ? 'Color Codes (Practice)' : 'Renkli Kodlar (Pratik)')
+            : (_isEn ? 'Color Codes' : 'Renkli Kodlar')),
         actions: [
           // Pratik Modu Toggle
           IconButton(
@@ -209,7 +216,9 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
               color: isPracticeMode ? Colors.blue : AppTheme.warningOrange,
             ),
             onPressed: _togglePracticeMode,
-            tooltip: isPracticeMode ? 'Yarışma Moduna Geç' : 'Pratik Moduna Geç',
+            tooltip: isPracticeMode
+                ? (_isEn ? 'Switch to Competition Mode' : 'Yarışma Moduna Geç')
+                : (_isEn ? 'Switch to Practice Mode' : 'Pratik Moduna Geç'),
           ),
           if (!isPracticeMode)
             Center(
@@ -220,7 +229,7 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
                     Icon(Icons.star, color: AppTheme.warningOrange),
                     const SizedBox(width: 4),
                     Text(
-                      'Skor: $score',
+                      _isEn ? 'Score: $score' : 'Skor: $score',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -244,19 +253,21 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
                 child: Column(
                   children: [
                     Text(
-                      'Seviye $currentLevel',
+                      _isEn ? 'Level $currentLevel' : 'Seviye $currentLevel',
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: AppTheme.primaryBlue,
                           ),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
-                      'Hedef Renk Dizilimini Hatırla:',
-                      style: TextStyle(fontSize: 16),
+                    Text(
+                      _isEn ? 'Remember the Target Color Sequence:' : 'Hedef Renk Dizilimini Hatırla:',
+                      style: const TextStyle(fontSize: 16),
                     ),
                     const SizedBox(height: 16),
                     // Hedef renk dizilimi - animasyonlu gösterim
+                    // Sadece o an sırası gelen renk kısaca açığa çıkar, geri kalanı
+                    // gizli kalır ki öğrenci diziyi ezberlemeye çalışsın (Simon Says mantığı).
                     Wrap(
                       spacing: 8,
                       children: targetSequence.asMap().entries.map((entry) {
@@ -270,7 +281,7 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
                           width: 50,
                           height: 50,
                           decoration: BoxDecoration(
-                            color: cmd['color'],
+                            color: isHighlighted ? cmd['color'] : Colors.grey.shade300,
                             shape: BoxShape.circle,
                             boxShadow: isHighlighted
                                 ? [
@@ -285,26 +296,33 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
                           transform: isHighlighted
                               ? (Matrix4.identity()..scale(1.2))
                               : Matrix4.identity(),
-                          child: Icon(
-                            cmd['icon'],
-                            color: Colors.white,
-                            size: isHighlighted ? 32 : 24,
-                          ),
+                          child: isHighlighted
+                              ? Icon(
+                                  cmd['icon'],
+                                  color: Colors.white,
+                                  size: 32,
+                                )
+                              : Icon(
+                                  Icons.question_mark_rounded,
+                                  color: Colors.grey.shade500,
+                                  size: 20,
+                                ),
                         );
                       }).toList(),
                     ),
-                    if (isShowingSequence)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: Text(
-                          'Dikkatle izle...',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                            fontStyle: FontStyle.italic,
-                          ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Text(
+                        isShowingSequence
+                            ? (_isEn ? 'Watch closely...' : 'Dikkatle izle...')
+                            : (_isEn ? 'Try to remember the sequence!' : 'Diziyi aklında tutmaya çalış!'),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
+                    ),
                   ],
                 ),
               ),
@@ -319,18 +337,18 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    const Text(
-                      'Senin Seçimin:',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    Text(
+                      _isEn ? 'Your Selection:' : 'Senin Seçimin:',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 12),
                     SizedBox(
                       height: 60,
                       child: selectedSequence.isEmpty
-                          ? const Center(
+                          ? Center(
                               child: Text(
-                                'Renkleri sırayla seç',
-                                style: TextStyle(color: Colors.grey),
+                                _isEn ? 'Select the colors in order' : 'Renkleri sırayla seç',
+                                style: const TextStyle(color: Colors.grey),
                               ),
                             )
                           : Wrap(
@@ -358,7 +376,9 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
 
             // Renk butonları
             Text(
-              isShowingSequence ? 'Dikkatle İzle...' : 'Renkleri Seç:',
+              isShowingSequence
+                  ? (_isEn ? 'Watch Closely...' : 'Dikkatle İzle...')
+                  : (_isEn ? 'Select the Colors:' : 'Renkleri Seç:'),
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -421,7 +441,7 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
                   ElevatedButton.icon(
                     onPressed: _showSequenceAnimation,
                     icon: const Icon(Icons.replay),
-                    label: const Text('Tekrar Göster'),
+                    label: Text(_isEn ? 'Show Again' : 'Tekrar Göster'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryBlue,
                       padding: const EdgeInsets.symmetric(
@@ -441,7 +461,7 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
                       });
                     },
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Temizle'),
+                    label: Text(_isEn ? 'Clear' : 'Temizle'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.errorRed,
                       padding: const EdgeInsets.symmetric(

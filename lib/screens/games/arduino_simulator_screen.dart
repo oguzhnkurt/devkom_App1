@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:provider/provider.dart';
+import '../../providers/settings_provider.dart';
 
 class ArduinoSimulatorScreen extends StatefulWidget {
   final Map<String, dynamic> gameData;
@@ -21,6 +23,9 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
   List<String> errors = [];
   List<String> activeLEDs = [];
   double arduinoScale = 1.0;
+
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
 
   @override
   void initState() {
@@ -89,17 +94,23 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
       if (component.component['type'] == 'led') {
         bool hasResistor = _hasResistorInSeries(component.id);
         if (!hasResistor) {
-          errors.add('${component.id}: LED direnç olmadan bağlanmış! LED yanabilir.');
+          errors.add(_isEn
+              ? '${component.id}: LED connected without a resistor! The LED may burn out.'
+              : '${component.id}: LED direnç olmadan bağlanmış! LED yanabilir.');
         }
 
         bool hasGround = _isConnectedToGround(component.id);
         if (!hasGround) {
-          errors.add('${component.id}: LED GND\'ye bağlanmalı.');
+          errors.add(_isEn
+              ? '${component.id}: LED must be connected to GND.'
+              : '${component.id}: LED GND\'ye bağlanmalı.');
         }
 
         bool hasPower = _isConnectedToPower(component.id);
         if (!hasPower) {
-          errors.add('${component.id}: LED güç kaynağına bağlanmalı.');
+          errors.add(_isEn
+              ? '${component.id}: LED must be connected to a power source.'
+              : '${component.id}: LED güç kaynağına bağlanmalı.');
         }
       }
     }
@@ -190,7 +201,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Arduino Simülatörü'),
+        title: Text(_isEn ? 'Arduino Simulator' : 'Arduino Simülatörü'),
         backgroundColor: const Color(0xFF00979D),
         foregroundColor: Colors.white,
         actions: [
@@ -204,7 +215,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                 }
               });
             },
-            tooltip: 'Küçült',
+            tooltip: _isEn ? 'Zoom Out' : 'Küçült',
           ),
           // Zoom Reset
           IconButton(
@@ -214,7 +225,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                 arduinoScale = 1.0;
               });
             },
-            tooltip: 'Normal Boyut',
+            tooltip: _isEn ? 'Normal Size' : 'Normal Boyut',
           ),
           // Zoom In
           IconButton(
@@ -226,18 +237,18 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                 }
               });
             },
-            tooltip: 'Büyüt',
+            tooltip: _isEn ? 'Zoom In' : 'Büyüt',
           ),
           const VerticalDivider(width: 1, thickness: 1, color: Colors.white30),
           IconButton(
             icon: Icon(isSimulating ? Icons.stop : Icons.play_arrow),
             onPressed: isSimulating ? _stopSimulation : _runSimulation,
-            tooltip: isSimulating ? 'Durdur' : 'Çalıştır',
+            tooltip: isSimulating ? (_isEn ? 'Stop' : 'Durdur') : (_isEn ? 'Run' : 'Çalıştır'),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
             onPressed: _clearAll,
-            tooltip: 'Temizle',
+            tooltip: _isEn ? 'Clear' : 'Temizle',
           ),
         ],
       ),
@@ -251,9 +262,9 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '⚠️ Hatalı Bağlantılar:',
-                    style: TextStyle(
+                  Text(
+                    _isEn ? '⚠️ Faulty Connections:' : '⚠️ Hatalı Bağlantılar:',
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.red,
                     ),
@@ -355,11 +366,11 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Bileşenler (Tıklayarak Ekle)',
-                    style: TextStyle(
+                    _isEn ? 'Components (Tap to Add)' : 'Bileşenler (Tıklayarak Ekle)',
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
                     ),
@@ -498,16 +509,18 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                   // Eğer görsel yüklenemezse placeholder göster
                   return Container(
                     color: const Color(0xFF00979D),
-                    child: const Center(
+                    child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.image_not_supported, size: 50, color: Colors.white),
-                          SizedBox(height: 10),
+                          const Icon(Icons.image_not_supported, size: 50, color: Colors.white),
+                          const SizedBox(height: 10),
                           Text(
-                            'Arduino Uno görselini\nassets/images/arduino_uno.png\nolarak kaydedin',
+                            _isEn
+                                ? 'Save the Arduino Uno image as\nassets/images/arduino_uno.png'
+                                : 'Arduino Uno görselini\nassets/images/arduino_uno.png\nolarak kaydedin',
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           ),
                         ],
                       ),

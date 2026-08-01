@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // TODO: Migrate to Supabase - import 'package:cloud_firestore/cloud_firestore.dart';
 import '../providers/auth_provider.dart';
 import '../providers/settings_provider.dart';
@@ -10,6 +11,7 @@ import '../constants/app_constants.dart';
 import '../services/input_validator.dart';
 import '../services/logger_service.dart';
 import '../utils/app_localizations.dart';
+import 'auth/register_screen.dart';
 
 /// DevAiChat - AI Chatbot Screen with Google Gemini AI
 /// Following Clean Code principles with proper validation and logging
@@ -29,6 +31,13 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
   bool _isTyping = false;
   GenerativeModel? _model;
   ChatSession? _chat;
+
+  // Misafir (giriş yapmamış) kullanıcılar için günlük soru hakkı.
+  // Misafirlerin backend'de kullanıcı kaydı olmadığından bu sayaç cihazda
+  // (SharedPreferences) tutulur ve her gün sıfırlanır.
+  static const int _visitorDailyLimit = 3;
+  static const String _visitorCountKey = 'visitor_ai_question_count';
+  static const String _visitorDateKey = 'visitor_ai_question_date';
 
   @override
   void initState() {
@@ -153,12 +162,18 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
     final user = authProvider.currentUser;
 
     if (user == null) {
-      _logger.warning('User not authenticated', tag: 'DEVAICHAT');
-      return;
-    }
-
-    // Günlük soru limiti kontrolü ve sayaç artırma
-    if (!user.isPro) {
+      // Misafir modu: hesabı olmayan kullanıcılar günde 3 soru sorabilir.
+      final guestCount = await _getGuestQuestionCountToday();
+      if (guestCount >= _visitorDailyLimit) {
+        _logger.info('Guest daily limit exceeded ($guestCount/$_visitorDailyLimit)', tag: 'DEVAICHAT');
+        _showGuestLimitDialog();
+        return;
+      }
+      await _incrementGuestQuestionCount();
+      if (mounted) setState(() {});
+      _logger.info('Guest question count incremented', tag: 'DEVAICHAT');
+    } else if (!user.isPro) {
+      // Günlük soru limiti kontrolü ve sayaç artırma
       final canAsk = await _checkDailyLimit(user.uid);
       if (!canAsk) {
         _logger.info('Daily limit exceeded for user: ${user.uid}', tag: 'DEVAICHAT');
@@ -387,6 +402,101 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
     } catch (e, stackTrace) {
       _logger.error('Question counter update error', tag: 'DEVAICHAT', error: e, stackTrace: stackTrace);
     }
+  }
+
+  /// Misafir kullanıcının bugün kaç soru sorduğunu döndürür.
+  /// Gün değiştiyse sayaç otomatik olarak sıfırlanır.
+  Future<int> _getGuestQuestionCountToday() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final todayKey = _todayKey();
+      final storedDate = prefs.getString(_visitorDateKey);
+
+      if (storedDate != todayKey) {
+        // Yeni gün: sayaç sıfırlanır
+        await prefs.setString(_visitorDateKey, todayKey);
+        await prefs.setInt(_visitorCountKey, 0);
+        return 0;
+      }
+
+      return prefs.getInt(_visitorCountKey) ?? 0;
+    } catch (e) {
+      _logger.error('Guest limit read error', tag: 'DEVAICHAT', error: e);
+      return 0;
+    }
+  }
+
+  /// Misafir soru sayacını 1 artırır.
+  Future<void> _incrementGuestQuestionCount() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final current = await _getGuestQuestionCountToday();
+      await prefs.setString(_visitorDateKey, _todayKey());
+      await prefs.setInt(_visitorCountKey, current + 1);
+    } catch (e) {
+      _logger.error('Guest limit increment error', tag: 'DEVAICHAT', error: e);
+    }
+  }
+
+  String _todayKey() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month}-${now.day}';
+  }
+
+  void _showGuestLimitDialog() {
+    _logger.userAction('Show guest limit dialog');
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.lock_clock, color: Colors.amber[700]),
+            const SizedBox(width: 8),
+            const Text('Günlük Misafir Limiti Doldu'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Misafir olarak günde $_visitorDailyLimit soru sorabilirsiniz.',
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              '✨ Ücretsiz hesap oluşturarak:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            const Text('• Daha fazla günlük soru hakkı'),
+            const Text('• İlerlemeni kaydet'),
+            const Text('• Oyunlara ve ödevlere eriş'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('İptal'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const RegisterScreen()),
+              );
+            },
+            icon: const Icon(Icons.person_add, color: Colors.white),
+            label: const Text('Hesap Oluştur'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryBlue,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showProDialog() {
@@ -829,7 +939,25 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
     final user = authProvider.currentUser;
 
     if (user == null) {
-      return const SizedBox.shrink();
+      // Misafir modu: hesabı olmayan kullanıcılar için günlük 3 soru hakkı.
+      // (Eskiden burada input tamamen gizleniyordu, misafirler hiç soru
+      // soramıyordu - bu artık düzeltildi.)
+      return FutureBuilder<int>(
+        future: _getGuestQuestionCountToday(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return _buildNormalMessageInput();
+          }
+
+          final guestCount = snapshot.data ?? 0;
+          final remaining = _visitorDailyLimit - guestCount;
+
+          if (remaining <= 0) {
+            return _buildGuestLimitReachedButton();
+          }
+          return _buildNormalMessageInput(guestRemaining: remaining);
+        },
+      );
     }
 
     // Pro kullanıcılar için direkt mesaj girişi göster
@@ -856,7 +984,7 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
     );
   }
 
-  Widget _buildNormalMessageInput() {
+  Widget _buildNormalMessageInput({int? guestRemaining}) {
     final loc = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
@@ -871,51 +999,131 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
         ],
       ),
       child: SafeArea(
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: TextField(
-                controller: _messageController,
-                decoration: InputDecoration(
-                  hintText: loc.writeYourMessage,
-                  hintStyle: TextStyle(color: Colors.grey[400]),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: const BorderSide(color: AppTheme.primaryBlue),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
+            if (guestRemaining != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'Misafir modu: bugün $guestRemaining soru hakkınız kaldı',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w600),
+                ),
+              ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+                    decoration: InputDecoration(
+                      hintText: loc.writeYourMessage,
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: const BorderSide(color: AppTheme.primaryBlue),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                    ),
+                    maxLines: null,
+                    textInputAction: TextInputAction.send,
+                    onSubmitted: (_) => _sendMessage(),
                   ),
                 ),
-                maxLines: null,
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) => _sendMessage(),
-              ),
+                const SizedBox(width: 8),
+                Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppTheme.primaryBlue, AppTheme.accentTeal],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.send, color: Colors.white),
+                    onPressed: _sendMessage,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppTheme.primaryBlue, AppTheme.accentTeal],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuestLimitReachedButton() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.amber[50],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.info_outline, color: Colors.amber[900], size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Misafir olarak günlük $_visitorDailyLimit soru hakkınızı kullandınız',
+                    style: TextStyle(
+                      color: Colors.amber[900],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.send, color: Colors.white),
-                onPressed: _sendMessage,
+              ],
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                  );
+                },
+                icon: const Icon(Icons.person_add, color: Colors.white),
+                label: const Text(
+                  'Hesap Oluştur - Devam Et',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryBlue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ),
           ],

@@ -12,9 +12,12 @@ import '../../services/chess_ai_service.dart';
 import '../../services/chess_firestore_service.dart';
 import '../../services/leaderboard_service.dart';
 import '../../services/auth_service.dart';
+import '../../services/user_progress_service.dart';
 import '../../theme.dart';
 import 'game_result_screen.dart';
 import 'dart:ui' as ui;
+import 'package:provider/provider.dart';
+import '../../providers/settings_provider.dart';
 
 class ChessGameScreen extends StatefulWidget {
   final ChessDifficulty? initialDifficulty;
@@ -58,6 +61,9 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
   // User data
   UserModel? _currentUser;
 
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
+
   @override
   void initState() {
     super.initState();
@@ -98,10 +104,10 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     // Show loading indicator while initializing
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Row(
             children: [
-              SizedBox(
+              const SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
@@ -109,11 +115,11 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                   color: Colors.white,
                 ),
               ),
-              SizedBox(width: 16),
-              Text('Satranç motoru başlatılıyor...'),
+              const SizedBox(width: 16),
+              Text(_isEn ? 'Starting chess engine...' : 'Satranç motoru başlatılıyor...'),
             ],
           ),
-          duration: Duration(seconds: 3),
+          duration: const Duration(seconds: 3),
         ),
       );
     }
@@ -147,10 +153,10 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Oyun başladı! İyi şanslar!'),
+          SnackBar(
+            content: Text(_isEn ? 'Game started! Good luck!' : 'Oyun başladı! İyi şanslar!'),
             backgroundColor: AppTheme.successGreen,
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -162,7 +168,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Oyun başlatılamadı: $e'),
+            content: Text(_isEn ? 'Failed to start game: $e' : 'Oyun başlatılamadı: $e'),
             backgroundColor: AppTheme.errorRed,
             duration: const Duration(seconds: 4),
           ),
@@ -248,7 +254,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
       debugPrint('❌ AI move error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('AI hareketi başarısız: $e')),
+          SnackBar(content: Text(_isEn ? 'AI move failed: $e' : 'AI hareketi başarısız: $e')),
         );
       }
     } finally {
@@ -340,6 +346,10 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
 
           await _leaderboardService.addEntry(leaderboardEntry);
           debugPrint('✅ Added to leaderboard with score: $score');
+
+          // Jeton ödülü: skorla orantılı (Market'te harcanabilir)
+          final jeton = (score / 60).round().clamp(15, 120);
+          await UserProgressService().addJeton(_currentUser!.uid, jeton, source: 'chess');
         } catch (e) {
           debugPrint('❌ Error adding to leaderboard: $e');
         }
@@ -347,8 +357,8 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Oyun kaydedildi!'),
+          SnackBar(
+            content: Text(_isEn ? 'Game saved!' : 'Oyun kaydedildi!'),
             backgroundColor: AppTheme.successGreen,
           ),
         );
@@ -357,7 +367,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
       debugPrint('❌ Error saving game: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Oyun kaydedilemedi: $e')),
+          SnackBar(content: Text(_isEn ? 'Failed to save game: $e' : 'Oyun kaydedilemedi: $e')),
         );
       }
     } finally {
@@ -387,18 +397,24 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     ui.Color color;
 
     if (_gameResult == GameResult.win) {
-      title = '🎉 Tebrikler!';
-      message = 'Şah mat ettiniz! Harika bir oyun sergileyerek yapay zekayı yendiniz.';
+      title = _isEn ? '🎉 Congratulations!' : '🎉 Tebrikler!';
+      message = _isEn
+          ? 'Checkmate! You beat the AI with a great game.'
+          : 'Şah mat ettiniz! Harika bir oyun sergileyerek yapay zekayı yendiniz.';
       icon = Icons.emoji_events;
       color = AppTheme.successGreen;
     } else if (_gameResult == GameResult.loss) {
-      title = '😔 Mat Oldunuz';
-      message = 'Yapay zeka şah mat yaptı. Daha fazla pratik yaparak gelişebilirsiniz!';
+      title = _isEn ? '😔 You Were Checkmated' : '😔 Mat Oldunuz';
+      message = _isEn
+          ? 'The AI delivered checkmate. Keep practicing to improve!'
+          : 'Yapay zeka şah mat yaptı. Daha fazla pratik yaparak gelişebilirsiniz!';
       icon = Icons.psychology;
       color = AppTheme.errorRed;
     } else {
-      title = '🤝 Berabere';
-      message = 'Oyun berabere bitti. İyi bir savunma sergileyerek yapay zekayı durdurdunuz.';
+      title = _isEn ? '🤝 Draw' : '🤝 Berabere';
+      message = _isEn
+          ? 'The game ended in a draw. You held off the AI with a solid defense.'
+          : 'Oyun berabere bitti. İyi bir savunma sergileyerek yapay zekayı durdurdunuz.';
       icon = Icons.handshake;
       color = AppTheme.accentTeal;
     }
@@ -440,13 +456,13 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               ),
               child: Column(
                 children: [
-                  _buildStatRow('⏱️ Süre', _formatDuration(_elapsedSeconds)),
+                  _buildStatRow(_isEn ? '⏱️ Duration' : '⏱️ Süre', _formatDuration(_elapsedSeconds)),
                   const SizedBox(height: 8),
-                  _buildStatRow('🎯 Hamle Sayısı', '${_moveHistory.length}'),
+                  _buildStatRow(_isEn ? '🎯 Move Count' : '🎯 Hamle Sayısı', '${_moveHistory.length}'),
                   const SizedBox(height: 8),
-                  _buildStatRow('🏆 Puan', score.toString()),
+                  _buildStatRow(_isEn ? '🏆 Score' : '🏆 Puan', score.toString()),
                   const SizedBox(height: 8),
-                  _buildStatRow('📊 Zorluk', _selectedDifficulty?.displayName ?? ''),
+                  _buildStatRow(_isEn ? '📊 Difficulty' : '📊 Zorluk', _selectedDifficulty?.displayNameFor(_lang) ?? ''),
                 ],
               ),
             ),
@@ -458,7 +474,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               Navigator.of(context).pop();
               Navigator.of(context).pop(); // Go back to games list
             },
-            child: const Text('Oyunlara Dön'),
+            child: Text(_isEn ? 'Back to Games' : 'Oyunlara Dön'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -468,7 +484,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryBlue,
             ),
-            child: const Text('Yeni Oyun'),
+            child: Text(_isEn ? 'New Game' : 'Yeni Oyun'),
           ),
           if (_gameResult != GameResult.loss)
             ElevatedButton(
@@ -491,7 +507,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.successGreen,
               ),
-              child: const Text('Skor Tablosu'),
+              child: Text(_isEn ? 'Leaderboard' : 'Skor Tablosu'),
             ),
         ],
       ),
@@ -554,7 +570,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Satranç Oyunu'),
+        title: Text(_isEn ? 'Chess Game' : 'Satranç Oyunu'),
         actions: [
           if (_isGameStarted) ...[
             Center(
@@ -572,7 +588,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () => _showResetConfirmation(),
-              tooltip: 'Yeni Oyun',
+              tooltip: _isEn ? 'New Game' : 'Yeni Oyun',
             ),
           ],
         ],
@@ -595,7 +611,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Zorluk Seviyesi Seçin',
+              _isEn ? 'Select Difficulty Level' : 'Zorluk Seviyesi Seçin',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -661,14 +677,14 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        difficulty.displayName,
+                        difficulty.displayNameFor(_lang),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        difficulty.description,
+                        difficulty.descriptionFor(_lang),
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: 8),
@@ -718,7 +734,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'AI düşünüyor...',
+                  _isEn ? 'AI is thinking...' : 'AI düşünüyor...',
                   style: TextStyle(
                     color: AppTheme.darkBlue,
                     fontWeight: FontWeight.w500,
@@ -743,7 +759,9 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Rakip hamle: ${_convertMoveToTurkish(_lastAIMove!)}',
+                  _isEn
+                      ? 'Opponent move: ${_lastAIMove!}'
+                      : 'Rakip hamle: ${_convertMoveToTurkish(_lastAIMove!)}',
                   style: TextStyle(
                     color: AppTheme.darkBlue,
                     fontWeight: FontWeight.bold,
@@ -869,11 +887,11 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               ),
               _buildInfoChip(
                 icon: Icons.swap_horiz,
-                label: '${_moveHistory.length} hamle',
+                label: _isEn ? '${_moveHistory.length} moves' : '${_moveHistory.length} hamle',
               ),
               _buildInfoChip(
                 icon: Icons.psychology,
-                label: _selectedDifficulty?.displayName ?? '',
+                label: _selectedDifficulty?.displayNameFor(_lang) ?? '',
               ),
             ],
           ),
@@ -917,30 +935,30 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Tema Seçin',
-                  style: TextStyle(
+                Text(
+                  _isEn ? 'Select Theme' : 'Tema Seçin',
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 24),
-                _buildThemeOption(BoardColor.brown, 'Klasik Kahverengi', setDialogState),
+                _buildThemeOption(BoardColor.brown, _isEn ? 'Classic Brown' : 'Klasik Kahverengi', setDialogState),
                 const SizedBox(height: 12),
-                _buildThemeOption(BoardColor.darkBrown, 'Koyu Kahverengi', setDialogState),
+                _buildThemeOption(BoardColor.darkBrown, _isEn ? 'Dark Brown' : 'Koyu Kahverengi', setDialogState),
                 const SizedBox(height: 12),
-                _buildThemeOption(BoardColor.orange, 'Turuncu', setDialogState),
+                _buildThemeOption(BoardColor.orange, _isEn ? 'Orange' : 'Turuncu', setDialogState),
                 const SizedBox(height: 12),
-                _buildThemeOption(BoardColor.green, 'Yeşil', setDialogState),
+                _buildThemeOption(BoardColor.green, _isEn ? 'Green' : 'Yeşil', setDialogState),
                 const SizedBox(height: 32),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text(
-                        'İptal',
-                        style: TextStyle(fontSize: 16),
+                      child: Text(
+                        _isEn ? 'Cancel' : 'İptal',
+                        style: const TextStyle(fontSize: 16),
                       ),
                     ),
                     ElevatedButton(
@@ -949,9 +967,9 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                         backgroundColor: AppTheme.successGreen,
                         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                       ),
-                      child: const Text(
-                        'Başlat',
-                        style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                      child: Text(
+                        _isEn ? 'Start' : 'Başlat',
+                        style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -1069,19 +1087,19 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Oyunu Sıfırla'),
-        content: const Text('Mevcut oyun kaybolacak. Emin misiniz?'),
+        title: Text(_isEn ? 'Reset Game' : 'Oyunu Sıfırla'),
+        content: Text(_isEn ? 'The current game will be lost. Are you sure?' : 'Mevcut oyun kaybolacak. Emin misiniz?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('İptal'),
+            child: Text(_isEn ? 'Cancel' : 'İptal'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorRed,
             ),
-            child: const Text('Sıfırla'),
+            child: Text(_isEn ? 'Reset' : 'Sıfırla'),
           ),
         ],
       ),

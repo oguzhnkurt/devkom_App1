@@ -9,6 +9,7 @@ import '../../models/leaderboard_model.dart';
 import '../../models/game_model.dart';
 import '../../services/leaderboard_service.dart';
 import '../../widgets/animated_rank_display.dart';
+import '../../providers/settings_provider.dart';
 
 class WordMatchGameScreen extends StatefulWidget {
   final Map<String, dynamic> gameData;
@@ -52,6 +53,9 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
     Colors.indigo,
     Colors.deepOrange,
   ];
+
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
 
   @override
   void initState() {
@@ -260,7 +264,9 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          isCorrect ? '✅ Doğru eşleştirme! +10 puan' : '❌ Yanlış eşleştirme! -3 puan',
+          isCorrect
+              ? (_isEn ? '✅ Correct match! +10 points' : '✅ Doğru eşleştirme! +10 puan')
+              : (_isEn ? '❌ Wrong match! -3 points' : '❌ Yanlış eşleştirme! -3 puan'),
         ),
         backgroundColor: isCorrect ? Colors.green : Colors.red,
         duration: const Duration(seconds: 1),
@@ -276,30 +282,32 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text(isLastLevel ? '🏆 Oyunu Tamamladın!' : '🎉 Seviye Tamamlandı!'),
+        title: Text(isLastLevel
+            ? (_isEn ? '🏆 Game Complete!' : '🏆 Oyunu Tamamladın!')
+            : (_isEn ? '🎉 Level Complete!' : '🎉 Seviye Tamamlandı!')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               isLastLevel
-                  ? 'Tüm seviyeleri başarıyla tamamladın!'
-                  : '$levelName seviyesini tamamladın!',
+                  ? (_isEn ? 'You successfully completed all levels!' : 'Tüm seviyeleri başarıyla tamamladın!')
+                  : (_isEn ? 'You completed the $levelName level!' : '$levelName seviyesini tamamladın!'),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
-              'Puan: $_score',
+              _isEn ? 'Score: $_score' : 'Puan: $_score',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.green,
               ),
             ),
-            Text('Deneme Sayısı: $_attempts'),
+            Text(_isEn ? 'Attempts: $_attempts' : 'Deneme Sayısı: $_attempts'),
             if (!isLastLevel) ...[
               const SizedBox(height: 16),
               Text(
-                'Sonraki: ${_getLevelName(_currentLevel + 1)}',
+                _isEn ? 'Next: ${_getLevelName(_currentLevel + 1)}' : 'Sonraki: ${_getLevelName(_currentLevel + 1)}',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -316,14 +324,14 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                 Navigator.pop(context);
                 _resetGame();
               },
-              child: const Text('Bu Seviyeyi Tekrar Oyna'),
+              child: Text(_isEn ? 'Replay This Level' : 'Bu Seviyeyi Tekrar Oyna'),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
                 _advanceToNextLevel();
               },
-              child: const Text('Sonraki Seviye'),
+              child: Text(_isEn ? 'Next Level' : 'Sonraki Seviye'),
             ),
           ] else ...[
             TextButton(
@@ -331,7 +339,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                 Navigator.pop(context);
                 _resetToFirstLevel();
               },
-              child: const Text('Baştan Oyna'),
+              child: Text(_isEn ? 'Play From Start' : 'Baştan Oyna'),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -343,7 +351,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                   }
                 });
               },
-              child: const Text('Skoru Kaydet'),
+              child: Text(_isEn ? 'Save Score' : 'Skoru Kaydet'),
             ),
           ],
         ],
@@ -354,13 +362,13 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
   String _getLevelName(int level) {
     switch (level) {
       case 1:
-        return 'Robotik';
+        return _isEn ? 'Robotics' : 'Robotik';
       case 2:
         return 'Scratch';
       case 3:
         return 'Arduino';
       default:
-        return 'Seviye $level';
+        return _isEn ? 'Level $level' : 'Seviye $level';
     }
   }
 
@@ -415,9 +423,11 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Kelime Eşleştirme'),
+            Text(_isEn ? 'Word Match' : 'Kelime Eşleştirme'),
             Text(
-              '${_getLevelName(_currentLevel)} - Seviye $_currentLevel/$_totalLevels',
+              _isEn
+                  ? '${_getLevelName(_currentLevel)} - Level $_currentLevel/$_totalLevels'
+                  : '${_getLevelName(_currentLevel)} - Seviye $_currentLevel/$_totalLevels',
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.normal,
@@ -430,7 +440,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Center(
               child: Text(
-                'Puan: $_score',
+                _isEn ? 'Score: $_score' : 'Puan: $_score',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -447,7 +457,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                 children: [
                   const CircularProgressIndicator(),
                   const SizedBox(height: 16),
-                  Text('Seviye ${_currentLevel} yükleniyor...'),
+                  Text(_isEn ? 'Loading level $_currentLevel...' : 'Seviye ${_currentLevel} yükleniyor...'),
                 ],
               ),
             )
@@ -462,14 +472,16 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                       color: Colors.blue.shade50,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.info_outline, color: Colors.blue),
-                        SizedBox(width: 12),
+                        const Icon(Icons.info_outline, color: Colors.blue),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Sol taraftaki yuvarlağa tıkla, sonra sağ taraftaki doğru kelimeyi eşleştir!',
-                            style: TextStyle(fontSize: 14),
+                            _isEn
+                                ? 'Tap the circle on the left, then match it with the correct word on the right!'
+                                : 'Sol taraftaki yuvarlağa tıkla, sonra sağ taraftaki doğru kelimeyi eşleştir!',
+                            style: const TextStyle(fontSize: 14),
                           ),
                         ),
                       ],
@@ -486,7 +498,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                   OutlinedButton.icon(
                     onPressed: _resetGame,
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Yeniden Başlat'),
+                    label: Text(_isEn ? 'Restart' : 'Yeniden Başlat'),
                   ),
                 ],
               ),
@@ -525,8 +537,8 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                           color: Colors.purple.shade100,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Text(
-                          'İngilizce',
+                        child: Text(
+                          _isEn ? 'English' : 'İngilizce',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -552,8 +564,8 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                           color: Colors.orange.shade100,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Text(
-                          'Türkçe',
+                        child: Text(
+                          _isEn ? 'Turkish' : 'Türkçe',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -751,7 +763,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
       final entry = LeaderboardEntry(
         id: '',
         userId: user.id!,
-        userName: user.name ?? 'Oyuncu',
+        userName: user.name ?? (_isEn ? 'Player' : 'Oyuncu'),
         userPhotoUrl: user.profilePictureUrl,
         gameType: GameType.wordMatch,
         score: _score,
@@ -786,7 +798,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
           builder: (context) => AnimatedRankDisplay(
             rank: userRank,
             totalScore: _score,
-            userName: user.name ?? 'Oyuncu',
+            userName: user.name ?? (_isEn ? 'Player' : 'Oyuncu'),
             isNewRecord: false,
             onClose: () {
               Navigator.pop(context);
@@ -806,14 +818,14 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.lock, color: Colors.orange, size: 32),
-            SizedBox(width: 12),
+            const Icon(Icons.lock, color: Colors.orange, size: 32),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Devam Etmek İçin Giriş Yapın',
-                style: TextStyle(fontSize: 20),
+                _isEn ? 'Sign In to Continue' : 'Devam Etmek İçin Giriş Yapın',
+                style: const TextStyle(fontSize: 20),
               ),
             ),
           ],
@@ -823,20 +835,20 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
           children: [
             const Icon(Icons.emoji_events, size: 64, color: Colors.amber),
             const SizedBox(height: 16),
-            const Text(
-              'İlk seviyeyi tamamladınız!',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              _isEn ? 'You completed the first level!' : 'İlk seviyeyi tamamladınız!',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              'Skor: $_score',
+              _isEn ? 'Score: $_score' : 'Skor: $_score',
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Devam etmek ve tüm seviyelere erişmek için giriş yapın.',
+            Text(
+              _isEn ? 'Sign in to continue and access all levels.' : 'Devam etmek ve tüm seviyelere erişmek için giriş yapın.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ],
         ),
@@ -846,7 +858,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text('Ana Sayfa'),
+            child: Text(_isEn ? 'Home' : 'Ana Sayfa'),
           ),
           ElevatedButton.icon(
             onPressed: () async {
@@ -861,7 +873,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
               );
             },
             icon: const Icon(Icons.login),
-            label: const Text('Giriş Yap'),
+            label: Text(_isEn ? 'Sign In' : 'Giriş Yap'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2196F3),
               foregroundColor: Colors.white,

@@ -9,6 +9,7 @@ import '../../services/sound_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/score_calculator.dart';
 import '../../widgets/play_time_gate.dart';
+import '../../providers/settings_provider.dart';
 
 /// Kod Dedektifi Oyunu
 /// Pattern matching ve dizi tamamlama yeteneklerini geliştiren oyun
@@ -17,8 +18,9 @@ class PatternDetectiveGameScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = Provider.of<SettingsProvider>(context, listen: false).locale.languageCode == 'en';
     return PlayTimeGate(
-      gameName: 'Kod Dedektifi',
+      gameName: isEn ? 'Code Detective' : 'Kod Dedektifi',
       child: const _PatternDetectiveGameContent(),
     );
   }
@@ -49,6 +51,9 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
   bool gameOver = false;
   DateTime? startTime;
   int? finalTimeSeconds;
+
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
 
   // Pattern türleri
   final List<String> patternTypes = [
@@ -346,11 +351,11 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
           children: [
             Icon(Icons.close, color: AppTheme.errorRed),
             const SizedBox(width: 8),
-            const Text('Yanlış Cevap'),
+            Text(_isEn ? 'Wrong Answer' : 'Yanlış Cevap'),
           ],
         ),
         content: Text(
-          'Doğru cevap: $correctAnswer\nKalan can: $lives',
+          _isEn ? 'Correct answer: $correctAnswer\nLives left: $lives' : 'Doğru cevap: $correctAnswer\nKalan can: $lives',
           style: const TextStyle(fontSize: 16),
         ),
         actions: [
@@ -366,7 +371,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
               backgroundColor: AppTheme.primaryBlue,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Devam Et'),
+            child: Text(_isEn ? 'Continue' : 'Devam Et'),
           ),
         ],
       ),
@@ -413,7 +418,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
     final entry = LeaderboardEntry(
       id: '',
       userId: userId,
-      userName: authProvider.currentUser?.displayName ?? 'Oyuncu',
+      userName: authProvider.currentUser?.displayName ?? (_isEn ? 'Player' : 'Oyuncu'),
       score: score.round(),
       difficulty: currentLevel,
       gameType: GameType.patternDetective,
@@ -426,25 +431,48 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
   void _showHintDialog() {
     String hintText = '';
 
-    switch (currentPatternType) {
-      case 'numeric':
-        hintText = 'İpucu: Sayılar arasındaki farkı bul!';
-        break;
-      case 'arithmetic':
-        hintText = 'İpucu: Hangi işlem tekrar ediyor?';
-        break;
-      case 'geometric':
-        hintText = 'İpucu: Şekillerin sırası tekrar ediyor!';
-        break;
-      case 'color':
-        hintText = 'İpucu: Renk sırası tekrar ediyor!';
-        break;
-      case 'letter':
-        hintText = 'İpucu: Alfabede kaç harf atlıyor?';
-        break;
-      case 'symbol':
-        hintText = 'İpucu: Sembol sırası tekrar ediyor!';
-        break;
+    if (_isEn) {
+      switch (currentPatternType) {
+        case 'numeric':
+          hintText = 'Hint: Find the difference between the numbers!';
+          break;
+        case 'arithmetic':
+          hintText = 'Hint: Which operation is repeating?';
+          break;
+        case 'geometric':
+          hintText = 'Hint: The order of shapes is repeating!';
+          break;
+        case 'color':
+          hintText = 'Hint: The color order is repeating!';
+          break;
+        case 'letter':
+          hintText = 'Hint: How many letters does it skip in the alphabet?';
+          break;
+        case 'symbol':
+          hintText = 'Hint: The symbol order is repeating!';
+          break;
+      }
+    } else {
+      switch (currentPatternType) {
+        case 'numeric':
+          hintText = 'İpucu: Sayılar arasındaki farkı bul!';
+          break;
+        case 'arithmetic':
+          hintText = 'İpucu: Hangi işlem tekrar ediyor?';
+          break;
+        case 'geometric':
+          hintText = 'İpucu: Şekillerin sırası tekrar ediyor!';
+          break;
+        case 'color':
+          hintText = 'İpucu: Renk sırası tekrar ediyor!';
+          break;
+        case 'letter':
+          hintText = 'İpucu: Alfabede kaç harf atlıyor?';
+          break;
+        case 'symbol':
+          hintText = 'İpucu: Sembol sırası tekrar ediyor!';
+          break;
+      }
     }
 
     showDialog(
@@ -454,7 +482,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
           children: [
             Icon(Icons.lightbulb, color: AppTheme.warningOrange),
             const SizedBox(width: 8),
-            const Text('İpucu'),
+            Text(_isEn ? 'Hint' : 'İpucu'),
           ],
         ),
         content: Text(hintText, style: const TextStyle(fontSize: 16)),
@@ -468,7 +496,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
               backgroundColor: AppTheme.primaryBlue,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Tamam'),
+            child: Text(_isEn ? 'OK' : 'Tamam'),
           ),
         ],
       ),
@@ -486,12 +514,12 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
         elevation: 3,
-        title: const Text('Kod Dedektifi', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(_isEn ? 'Code Detective' : 'Kod Dedektifi', style: const TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             icon: const Icon(Icons.lightbulb_outline),
             onPressed: _showHintDialog,
-            tooltip: 'İpucu',
+            tooltip: _isEn ? 'Hint' : 'İpucu',
           ),
         ],
       ),
@@ -546,8 +574,8 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem('Seviye', '$currentLevel/$maxLevels', Icons.trending_up, AppTheme.primaryBlue),
-          _buildStatItem('Skor', '$score', Icons.stars, AppTheme.warningOrange),
+          _buildStatItem(_isEn ? 'Level' : 'Seviye', '$currentLevel/$maxLevels', Icons.trending_up, AppTheme.primaryBlue),
+          _buildStatItem(_isEn ? 'Score' : 'Skor', '$score', Icons.stars, AppTheme.warningOrange),
           _buildLivesIndicator(),
         ],
       ),
@@ -592,7 +620,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
         ),
         const SizedBox(height: 4),
         Text(
-          'Can',
+          _isEn ? 'Lives' : 'Can',
           style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         ),
       ],
@@ -602,25 +630,48 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
   Widget _buildInstructionCard() {
     String instruction = '';
 
-    switch (currentPatternType) {
-      case 'numeric':
-        instruction = 'Sayı dizisini tamamla';
-        break;
-      case 'arithmetic':
-        instruction = 'İşlem desenini bul';
-        break;
-      case 'geometric':
-        instruction = 'Şekil sırasını tamamla';
-        break;
-      case 'color':
-        instruction = 'Renk desenini tamamla';
-        break;
-      case 'letter':
-        instruction = 'Harf dizisini tamamla';
-        break;
-      case 'symbol':
-        instruction = 'Sembol desenini tamamla';
-        break;
+    if (_isEn) {
+      switch (currentPatternType) {
+        case 'numeric':
+          instruction = 'Complete the number sequence';
+          break;
+        case 'arithmetic':
+          instruction = 'Find the operation pattern';
+          break;
+        case 'geometric':
+          instruction = 'Complete the shape order';
+          break;
+        case 'color':
+          instruction = 'Complete the color pattern';
+          break;
+        case 'letter':
+          instruction = 'Complete the letter sequence';
+          break;
+        case 'symbol':
+          instruction = 'Complete the symbol pattern';
+          break;
+      }
+    } else {
+      switch (currentPatternType) {
+        case 'numeric':
+          instruction = 'Sayı dizisini tamamla';
+          break;
+        case 'arithmetic':
+          instruction = 'İşlem desenini bul';
+          break;
+        case 'geometric':
+          instruction = 'Şekil sırasını tamamla';
+          break;
+        case 'color':
+          instruction = 'Renk desenini tamamla';
+          break;
+        case 'letter':
+          instruction = 'Harf dizisini tamamla';
+          break;
+        case 'symbol':
+          instruction = 'Sembol desenini tamamla';
+          break;
+      }
     }
 
     return Card(
@@ -651,7 +702,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Deseni tamamlayan değeri seç',
+                    _isEn ? 'Select the value that completes the pattern' : 'Deseni tamamlayan değeri seç',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
@@ -824,7 +875,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
       appBar: AppBar(
         backgroundColor: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
         foregroundColor: Colors.white,
-        title: Text(gameWon ? 'Tebrikler!' : 'Oyun Bitti'),
+        title: Text(gameWon ? (_isEn ? 'Congratulations!' : 'Tebrikler!') : (_isEn ? 'Game Over' : 'Oyun Bitti')),
       ),
       body: Center(
         child: Padding(
@@ -839,7 +890,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
               ),
               const SizedBox(height: 24),
               Text(
-                gameWon ? 'Harika İş!' : 'Tekrar Dene!',
+                gameWon ? (_isEn ? 'Great Job!' : 'Harika İş!') : (_isEn ? 'Try Again!' : 'Tekrar Dene!'),
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -847,10 +898,10 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
                 ),
               ),
               const SizedBox(height: 16),
-              _buildResultCard('Seviye', '$currentLevel/$maxLevels', Icons.trending_up),
-              _buildResultCard('Skor', '$score', Icons.stars),
+              _buildResultCard(_isEn ? 'Level' : 'Seviye', '$currentLevel/$maxLevels', Icons.trending_up),
+              _buildResultCard(_isEn ? 'Score' : 'Skor', '$score', Icons.stars),
               if (finalTimeSeconds != null)
-                _buildResultCard('Süre', '$finalTimeSeconds saniye', Icons.timer),
+                _buildResultCard(_isEn ? 'Duration' : 'Süre', _isEn ? '$finalTimeSeconds seconds' : '$finalTimeSeconds saniye', Icons.timer),
               const SizedBox(height: 32),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -858,7 +909,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
                   ElevatedButton.icon(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.home),
-                    label: const Text('Ana Menü'),
+                    label: Text(_isEn ? 'Main Menu' : 'Ana Menü'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryBlue,
                       foregroundColor: Colors.white,
@@ -878,7 +929,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
                       });
                     },
                     icon: const Icon(Icons.replay),
-                    label: const Text('Tekrar Oyna'),
+                    label: Text(_isEn ? 'Play Again' : 'Tekrar Oyna'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.successGreen,
                       foregroundColor: Colors.white,

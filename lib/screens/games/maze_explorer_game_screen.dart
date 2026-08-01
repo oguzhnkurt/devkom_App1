@@ -1,4 +1,7 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/settings_provider.dart';
 
 class MazeExplorerGameScreen extends StatefulWidget {
   final Map<String, dynamic> gameData;
@@ -23,6 +26,9 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
   // 0 = path, 1 = wall, 2 = coin
   List<List<int>> _maze = [];
 
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
+
   @override
   void initState() {
     super.initState();
@@ -30,19 +36,55 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
   }
 
   void _generateMaze() {
-    // Simple maze generation
-    _maze = List.generate(8, (y) => List.generate(8, (x) {
-      // Start and goal positions
-      if ((x == 0 && y == 0) || (x == 7 && y == 7)) return 0;
+    // ÖNEMLİ: Eski üretim yalnızca (x + y) % 3 == 0 formülüyle duvar
+    // koyuyordu. Bu formül x+y=6 ve x+y=9 köşegenlerinde IZGARA GENİŞLİĞİ
+    // KADAR ARALIKSIZ (boşluksuz) duvar satırları oluşturuyordu, yani
+    // labirentin çözülmesi matematiksel olarak imkansızdı - kukla her
+    // yönde siyah bloklara (duvarlara) takılıp kalıyordu.
+    //
+    // Düzeltme: önce başlangıçtan hedefe rastgele ama garanti açık bir yol
+    // oyuyoruz (staircase/basamak yolu), sonra duvarları ve paraları sadece
+    // bu garanti yolun DIŞINDAKİ hücrelere rastgele dağıtıyoruz. Böylece
+    // labirent her zaman çözülebilir oluyor.
+    final rng = Random();
+    _maze = List.generate(8, (_) => List.generate(8, (_) => 0));
 
-      // Create some walls
-      if ((x + y) % 3 == 0 && (x != _goalX || y != _goalY)) return 1;
+    // 1) Başlangıçtan hedefe garanti bir yol oy (sadece sağa/aşağı hareket)
+    final Set<String> guaranteedPath = {};
+    int cx = 0, cy = 0;
+    guaranteedPath.add('$cx,$cy');
+    while (cx != _goalX || cy != _goalY) {
+      final canRight = cx < _goalX;
+      final canDown = cy < _goalY;
+      if (canRight && (!canDown || rng.nextBool())) {
+        cx++;
+      } else if (canDown) {
+        cy++;
+      }
+      guaranteedPath.add('$cx,$cy');
+    }
 
-      // Random coins
-      if ((x * y) % 5 == 0 && x > 0 && y > 0) return 2;
+    // 2) Duvarları sadece garanti yolun dışındaki hücrelere rastgele dağıt
+    for (int y = 0; y < 8; y++) {
+      for (int x = 0; x < 8; x++) {
+        if (guaranteedPath.contains('$x,$y')) continue;
+        if (rng.nextDouble() < 0.3) {
+          _maze[y][x] = 1; // wall
+        }
+      }
+    }
 
-      return 0;
-    }));
+    // 3) Kalan açık hücrelere (duvar olmayan, başlangıç/hedef olmayan) para dağıt
+    for (int y = 0; y < 8; y++) {
+      for (int x = 0; x < 8; x++) {
+        if (_maze[y][x] == 1) continue;
+        if (x == 0 && y == 0) continue;
+        if (x == _goalX && y == _goalY) continue;
+        if (rng.nextDouble() < 0.15) {
+          _maze[y][x] = 2; // coin
+        }
+      }
+    }
   }
 
   void _movePlayer(int dx, int dy) {
@@ -54,7 +96,7 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
 
     // Check walls
     if (_maze[newY][newX] == 1) {
-      _showMessage('❌ Duvara çarptın!');
+      _showMessage(_isEn ? '❌ You hit a wall!' : '❌ Duvara çarptın!');
       return;
     }
 
@@ -67,7 +109,7 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
       if (_maze[newY][newX] == 2) {
         _maze[newY][newX] = 0;
         _score += 10;
-        _showMessage('🪙 +10 puan!');
+        _showMessage(_isEn ? '🪙 +10 points!' : '🪙 +10 puan!');
       }
 
       // Check goal
@@ -91,17 +133,17 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('🎉 Tebrikler!'),
+        title: Text(_isEn ? '🎉 Congratulations!' : '🎉 Tebrikler!'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Labirenti tamamladın!'),
+            Text(_isEn ? 'You completed the maze!' : 'Labirenti tamamladın!'),
             const SizedBox(height: 16),
             Text(
-              'Puan: $_score',
+              _isEn ? 'Score: $_score' : 'Puan: $_score',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Text('Hamle: $_moves'),
+            Text(_isEn ? 'Moves: $_moves' : 'Hamle: $_moves'),
           ],
         ),
         actions: [
@@ -116,14 +158,14 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
                 _generateMaze();
               });
             },
-            child: const Text('Yeni Oyun'),
+            child: Text(_isEn ? 'New Game' : 'Yeni Oyun'),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text('Bitir'),
+            child: Text(_isEn ? 'Finish' : 'Bitir'),
           ),
         ],
       ),
@@ -134,13 +176,13 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Labirent Kaşifi'),
+        title: Text(_isEn ? 'Maze Explorer' : 'Labirent Kaşifi'),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Center(
               child: Text(
-                'Puan: $_score | Hamle: $_moves',
+                _isEn ? 'Score: $_score | Moves: $_moves' : 'Puan: $_score | Hamle: $_moves',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -153,14 +195,16 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             color: Colors.blue.shade50,
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline, color: Colors.blue),
-                SizedBox(width: 12),
+                const Icon(Icons.info_outline, color: Colors.blue),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Ok tuşları ile hareket et, paraları topla ve hedefe ulaş!',
-                    style: TextStyle(fontSize: 14),
+                    _isEn
+                        ? 'Move with the arrow keys, collect coins, and reach the goal!'
+                        : 'Ok tuşları ile hareket et, paraları topla ve hedefe ulaş!',
+                    style: const TextStyle(fontSize: 14),
                   ),
                 ),
               ],

@@ -12,6 +12,10 @@ class UserProgress {
   final DateTime? lastGoalResetDate;
   final List<String> completedLessonIds;
   final List<String> earnedBadgeIds;
+  /// Harcanabilir mağaza para birimi (jeton). XP'den ayrı: XP seviyeyi
+  /// belirler ve asla azalmaz, jeton ise Market'te harcanabilir.
+  /// Bkz. supabase/migrations/23_store_and_jeton_economy.sql
+  final int jetonBalance;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -27,6 +31,7 @@ class UserProgress {
     this.lastGoalResetDate,
     this.completedLessonIds = const [],
     this.earnedBadgeIds = const [],
+    this.jetonBalance = 0,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -151,6 +156,7 @@ class UserProgress {
       earnedBadgeIds: data['earned_badge_ids'] != null
           ? List<String>.from(data['earned_badge_ids'])
           : [],
+      jetonBalance: data['jeton_balance'] ?? 0,
       createdAt: data['created_at'] != null
           ? DateTime.parse(data['created_at'])
           : DateTime.now(),
@@ -173,6 +179,7 @@ class UserProgress {
       'last_goal_reset_date': lastGoalResetDate?.toIso8601String(),
       'completed_lesson_ids': completedLessonIds,
       'earned_badge_ids': earnedBadgeIds,
+      'jeton_balance': jetonBalance,
       'updated_at': DateTime.now().toIso8601String(),
     };
   }
@@ -203,6 +210,7 @@ class UserProgress {
     DateTime? lastGoalResetDate,
     List<String>? completedLessonIds,
     List<String>? earnedBadgeIds,
+    int? jetonBalance,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -218,6 +226,7 @@ class UserProgress {
       lastGoalResetDate: lastGoalResetDate ?? this.lastGoalResetDate,
       completedLessonIds: completedLessonIds ?? this.completedLessonIds,
       earnedBadgeIds: earnedBadgeIds ?? this.earnedBadgeIds,
+      jetonBalance: jetonBalance ?? this.jetonBalance,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

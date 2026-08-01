@@ -356,7 +356,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // Update user role
-  Future<void> updateUserRole(UserRole role) async {
+  Future<void> updateUserRole(UserRole role, {bool isRoboAkademi = false}) async {
     if (_currentUser == null) {
       throw Exception('No user logged in');
     }
@@ -371,11 +371,16 @@ class AuthProvider extends ChangeNotifier {
           .update({
             'role': role.name,
             'has_selected_purpose': true,
+            'is_roboakademi': isRoboAkademi,
           })
           .eq('id', _currentUser!.uid);
 
       // Update local user
-      _currentUser = _currentUser!.copyWith(role: role, hasSelectedPurpose: true);
+      _currentUser = _currentUser!.copyWith(
+        role: role,
+        hasSelectedPurpose: true,
+        isRoboAkademi: isRoboAkademi,
+      );
       _errorMessage = null;
     } catch (e) {
       _errorMessage = e.toString();

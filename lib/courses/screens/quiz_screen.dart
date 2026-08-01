@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/course_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/user_progress_service.dart';
 
 /// Quiz Screen - Interactive quiz experience
 class QuizScreen extends StatefulWidget {
@@ -469,6 +470,12 @@ class _QuizScreenState extends State<QuizScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       if (authProvider.isAuthenticated) {
         await authProvider.addXP(widget.quiz.xpReward);
+        // Jeton ödülü: doğru cevap başına (Market'te harcanabilir)
+        final userId = authProvider.currentUser?.uid;
+        if (userId != null) {
+          await UserProgressService().addJeton(userId, correctAnswers * 3, source: 'quiz');
+          await authProvider.refreshProgress();
+        }
       }
     }
 

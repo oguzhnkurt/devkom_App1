@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:provider/provider.dart';
+import '../../providers/settings_provider.dart';
 
 /// Daily Maze - Günlük labirent bulmacası
 /// Her gün yeni labirent seviyeleri çöz
@@ -19,6 +21,9 @@ class _MazePlanetGameScreenState extends State<MazePlanetGameScreen> {
   bool _isSkippingAd = false;
   int _adSkipCountdown = 20;
   Timer? _adSkipTimer;
+
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
 
   @override
   void initState() {
@@ -269,10 +274,10 @@ class _MazePlanetGameScreenState extends State<MazePlanetGameScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Daily Maze',
               style: TextStyle(
                 fontSize: 18,
@@ -280,8 +285,8 @@ class _MazePlanetGameScreenState extends State<MazePlanetGameScreen> {
               ),
             ),
             Text(
-              'Günlük Labirent Bulmacası',
-              style: TextStyle(
+              _isEn ? 'Daily Maze Puzzle' : 'Günlük Labirent Bulmacası',
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.normal,
               ),
@@ -299,7 +304,7 @@ class _MazePlanetGameScreenState extends State<MazePlanetGameScreen> {
                 _hasError = false;
               });
             },
-            tooltip: 'Yenile',
+            tooltip: _isEn ? 'Refresh' : 'Yenile',
           ),
           // Bilgi butonu
           IconButton(
@@ -307,7 +312,7 @@ class _MazePlanetGameScreenState extends State<MazePlanetGameScreen> {
             onPressed: () {
               _showGameInfo(context);
             },
-            tooltip: 'Oyun Bilgisi',
+            tooltip: _isEn ? 'Game Info' : 'Oyun Bilgisi',
           ),
         ],
       ),
@@ -332,16 +337,16 @@ class _MazePlanetGameScreenState extends State<MazePlanetGameScreen> {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'Oyun yükleniyor...',
-                      style: TextStyle(
+                      _isEn ? 'Loading game...' : 'Oyun yükleniyor...',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Bu biraz zaman alabilir',
-                      style: TextStyle(
+                      _isEn ? 'This may take a moment' : 'Bu biraz zaman alabilir',
+                      style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 12,
                       ),
@@ -383,9 +388,9 @@ class _MazePlanetGameScreenState extends State<MazePlanetGameScreen> {
                       ],
                     ),
                     const SizedBox(height: 32),
-                    const Text(
-                      'Reklam atlanıyor...',
-                      style: TextStyle(
+                    Text(
+                      _isEn ? 'Skipping ad...' : 'Reklam atlanıyor...',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -393,7 +398,9 @@ class _MazePlanetGameScreenState extends State<MazePlanetGameScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Oyun ${_adSkipCountdown} saniye içinde başlayacak',
+                      _isEn
+                          ? 'Game will start in $_adSkipCountdown seconds'
+                          : 'Oyun ${_adSkipCountdown} saniye içinde başlayacak',
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 14,
@@ -409,7 +416,7 @@ class _MazePlanetGameScreenState extends State<MazePlanetGameScreen> {
                         _trySkipAd();
                       },
                       icon: const Icon(Icons.skip_next),
-                      label: const Text('Hemen Atla'),
+                      label: Text(_isEn ? 'Skip Now' : 'Hemen Atla'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,
@@ -441,9 +448,9 @@ class _MazePlanetGameScreenState extends State<MazePlanetGameScreen> {
                 size: 64,
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Oyun Yüklenemedi',
-                style: TextStyle(
+              Text(
+                _isEn ? 'Failed to Load Game' : 'Oyun Yüklenemedi',
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -453,7 +460,7 @@ class _MazePlanetGameScreenState extends State<MazePlanetGameScreen> {
               Text(
                 _errorMessage.isNotEmpty
                     ? _errorMessage
-                    : 'İnternet bağlantınızı kontrol edin',
+                    : (_isEn ? 'Check your internet connection' : 'İnternet bağlantınızı kontrol edin'),
                 style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 14,
@@ -470,7 +477,7 @@ class _MazePlanetGameScreenState extends State<MazePlanetGameScreen> {
                   });
                 },
                 icon: const Icon(Icons.refresh),
-                label: const Text('Tekrar Dene'),
+                label: Text(_isEn ? 'Try Again' : 'Tekrar Dene'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,
@@ -495,67 +502,69 @@ class _MazePlanetGameScreenState extends State<MazePlanetGameScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Oyun Hakkında',
-                style: TextStyle(
+              Text(
+                _isEn ? 'About the Game' : 'Oyun Hakkında',
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Her gün yeni labirent bulmacaları çöz! '
-                'Başlangıç noktasından bitiş noktasına kadar yolu bul. '
-                'Günlük yeni seviyeler ve zorluklarla eğlenceli bir deneyim.',
+              Text(
+                _isEn
+                    ? 'Solve new maze puzzles every day! Find the path from the start point to the finish point. A fun experience with new levels and challenges daily.'
+                    : 'Her gün yeni labirent bulmacaları çöz! '
+                        'Başlangıç noktasından bitiş noktasına kadar yolu bul. '
+                        'Günlük yeni seviyeler ve zorluklarla eğlenceli bir deneyim.',
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Nasıl Oynanır?',
-                style: TextStyle(
+              Text(
+                _isEn ? 'How to Play?' : 'Nasıl Oynanır?',
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
               ),
               const SizedBox(height: 8),
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.touch_app, size: 20, color: Colors.blue),
-                  SizedBox(width: 8),
+                  const Icon(Icons.touch_app, size: 20, color: Colors.blue),
+                  const SizedBox(width: 8),
                   Expanded(
-                    child: Text('Ekrana dokunarak yol çizin'),
+                    child: Text(_isEn ? 'Draw the path by touching the screen' : 'Ekrana dokunarak yol çizin'),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.calendar_today, size: 20, color: Colors.green),
-                  SizedBox(width: 8),
+                  const Icon(Icons.calendar_today, size: 20, color: Colors.green),
+                  const SizedBox(width: 8),
                   Expanded(
-                    child: Text('Her gün yeni labirent seviyeleri'),
+                    child: Text(_isEn ? 'New maze levels every day' : 'Her gün yeni labirent seviyeleri'),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Özellikler',
-                style: TextStyle(
+              Text(
+                _isEn ? 'Features' : 'Özellikler',
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
               ),
               const SizedBox(height: 8),
-              _buildFeatureItem('📅', 'Günlük Yeni Seviyeler'),
-              _buildFeatureItem('🧩', 'Akıl ve Strateji'),
-              _buildFeatureItem('📱', 'Mobil Uyumlu'),
-              _buildFeatureItem('⭐', 'Eğlenceli Bulmacalar'),
+              _buildFeatureItem('📅', _isEn ? 'New Levels Daily' : 'Günlük Yeni Seviyeler'),
+              _buildFeatureItem('🧩', _isEn ? 'Mind and Strategy' : 'Akıl ve Strateji'),
+              _buildFeatureItem('📱', _isEn ? 'Mobile Friendly' : 'Mobil Uyumlu'),
+              _buildFeatureItem('⭐', _isEn ? 'Fun Puzzles' : 'Eğlenceli Bulmacalar'),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Tamam'),
+            child: Text(_isEn ? 'OK' : 'Tamam'),
           ),
         ],
       ),

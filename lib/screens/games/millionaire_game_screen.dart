@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:provider/provider.dart';
 import '../../models/millionaire_question.dart';
 import '../../services/millionaire_questions_service.dart';
 import '../../services/millionaire_firestore_service.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/settings_provider.dart';
+import '../../services/user_progress_service.dart';
+import '../../widgets/pro_paywall.dart';
+
+/// Ücretsiz kullanıcıların Pro'ya geçmeden oynayabileceği soru sayısı.
+/// Bu sayıya ulaşınca (doğru cevapladıktan sonra) oyunu devam ettirmek
+/// için Pro paywall gösterilir.
+const int kMillionaireFreeQuestionLimit = 3;
 
 class MillionaireGameScreen extends StatefulWidget {
   const MillionaireGameScreen({super.key});
@@ -33,6 +43,10 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
   String? _phoneAnswer;
 
   MillionaireQuestion get _currentQuestion => _questions[_currentQuestionIndex];
+
+  /// Uygulamanın o an ayarlı dili ('tr' veya 'en').
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
 
   @override
   void initState() {
@@ -77,7 +91,7 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Sorular yüklenirken hata oluştu: $e';
+        _errorMessage = _isEn ? 'An error occurred while loading questions: $e' : 'Sorular yüklenirken hata oluştu: $e';
       });
     }
   }
@@ -88,19 +102,19 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
       return Scaffold(
         backgroundColor: const Color(0xFF0D1B2A),
         appBar: AppBar(
-          title: const Text('Kim Milyoner Olmak İster?'),
+          title: Text(_isEn ? 'Knowledge Quiz 🎯' : 'Bilgi Yarışması 🎯'),
           centerTitle: true,
           backgroundColor: const Color(0xFF1B263B),
         ),
-        body: const Center(
+        body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(color: Colors.amber),
-              SizedBox(height: 20),
+              const CircularProgressIndicator(color: Colors.amber),
+              const SizedBox(height: 20),
               Text(
-                'Sorular yükleniyor...',
-                style: TextStyle(color: Colors.white, fontSize: 18),
+                _isEn ? 'Loading questions...' : 'Sorular yükleniyor...',
+                style: const TextStyle(color: Colors.white, fontSize: 18),
               ),
             ],
           ),
@@ -112,7 +126,7 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
       return Scaffold(
         backgroundColor: const Color(0xFF0D1B2A),
         appBar: AppBar(
-          title: const Text('Kim Milyoner Olmak İster?'),
+          title: Text(_isEn ? 'Knowledge Quiz 🎯' : 'Bilgi Yarışması 🎯'),
           centerTitle: true,
           backgroundColor: const Color(0xFF1B263B),
         ),
@@ -131,7 +145,7 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
               ElevatedButton(
                 onPressed: _loadQuestions,
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
-                child: const Text('Tekrar Dene', style: TextStyle(color: Colors.black)),
+                child: Text(_isEn ? 'Try Again' : 'Tekrar Dene', style: const TextStyle(color: Colors.black)),
               ),
             ],
           ),
@@ -143,7 +157,7 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
       return Scaffold(
         backgroundColor: const Color(0xFF0D1B2A),
         appBar: AppBar(
-          title: const Text('Kim Milyoner Olmak İster?'),
+          title: Text(_isEn ? 'Knowledge Quiz 🎯' : 'Bilgi Yarışması 🎯'),
           centerTitle: true,
           backgroundColor: const Color(0xFF1B263B),
         ),
@@ -153,15 +167,15 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
             children: [
               const Icon(Icons.quiz, color: Colors.amber, size: 80),
               const SizedBox(height: 20),
-              const Text(
-                'Henüz soru eklenmemiş',
-                style: TextStyle(color: Colors.white, fontSize: 18),
+              Text(
+                _isEn ? 'No questions added yet' : 'Henüz soru eklenmemiş',
+                style: const TextStyle(color: Colors.white, fontSize: 18),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
-                child: const Text('Geri Dön', style: TextStyle(color: Colors.black)),
+                child: Text(_isEn ? 'Go Back' : 'Geri Dön', style: const TextStyle(color: Colors.black)),
               ),
             ],
           ),
@@ -172,7 +186,7 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0D1B2A),
       appBar: AppBar(
-        title: const Text('Kim Milyoner Olmak İster?'),
+        title: Text(_isEn ? 'Knowledge Quiz 🎯' : 'Bilgi Yarışması 🎯'),
         centerTitle: true,
         backgroundColor: const Color(0xFF1B263B),
       ),
@@ -220,7 +234,7 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
                 ),
                 child: Center(
                   child: Text(
-                    MillionaireQuestionsService.formatPrize(prize),
+                    MillionaireQuestionsService.formatPrize(prize, lang: _lang),
                     style: TextStyle(
                       color: isCurrent ? Colors.black : Colors.white,
                       fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
@@ -252,8 +266,8 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
                   child: Column(
                     children: [
                       Text(
-                        'Soru ${_currentQuestionIndex + 1}',
-                        style: TextStyle(
+                        _isEn ? 'Question ${_currentQuestionIndex + 1}' : 'Soru ${_currentQuestionIndex + 1}',
+                        style: const TextStyle(
                           color: Colors.amber,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -261,7 +275,7 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        _currentQuestion.question,
+                        _currentQuestion.questionFor(_lang),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 20,
@@ -327,7 +341,7 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
 
                 // Seçenekler
                 ...List.generate(4, (index) {
-                  final option = _currentQuestion.options[index];
+                  final option = _currentQuestion.optionsFor(_lang)[index];
                   final letter = String.fromCharCode(65 + index); // A, B, C, D
                   final isHidden = _hiddenOptions.contains(index);
                   final isSelected = _selectedAnswer == index;
@@ -431,14 +445,14 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
                           borderRadius: BorderRadius.circular(15),
                         ),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.check_circle, color: Colors.black),
-                          SizedBox(width: 8),
+                          const Icon(Icons.check_circle, color: Colors.black),
+                          const SizedBox(width: 8),
                           Text(
-                            'FİNAL CEVAP',
-                            style: TextStyle(
+                            _isEn ? 'FINAL ANSWER' : 'FİNAL CEVAP',
+                            style: const TextStyle(
                               color: Colors.black,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -463,13 +477,13 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
                     ),
                     _buildJokerButton(
                       JokerType.phone,
-                      'Telefon',
+                      _isEn ? 'Phone' : 'Telefon',
                       Icons.phone,
                       Colors.blue,
                     ),
                     _buildJokerButton(
                       JokerType.audience,
-                      'Seyirci',
+                      _isEn ? 'Audience' : 'Seyirci',
                       Icons.people,
                       Colors.purple,
                     ),
@@ -538,8 +552,8 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
             const SizedBox(height: 20),
             Text(
               _currentPrize >= 10000000
-                ? 'TEBRİKLER!'
-                : 'OYUN BİTTİ',
+                ? (_isEn ? 'CONGRATULATIONS!' : 'TEBRİKLER!')
+                : (_isEn ? 'GAME OVER' : 'OYUN BİTTİ'),
               style: const TextStyle(
                 color: Colors.amber,
                 fontSize: 32,
@@ -548,16 +562,16 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Kazandığınız Para:',
-              style: TextStyle(
+              _isEn ? 'Prize Won:' : 'Kazandığınız Para:',
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
               ),
             ),
             const SizedBox(height: 10),
             Text(
-              MillionaireQuestionsService.formatPrize(_currentPrize),
-              style: TextStyle(
+              MillionaireQuestionsService.formatPrize(_currentPrize, lang: _lang),
+              style: const TextStyle(
                 color: Colors.amber,
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
@@ -570,7 +584,7 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
                 ElevatedButton.icon(
                   onPressed: _restartGame,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Yeniden Oyna'),
+                  label: Text(_isEn ? 'Play Again' : 'Yeniden Oyna'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.amber,
                     foregroundColor: Colors.black,
@@ -580,7 +594,7 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
                 ElevatedButton.icon(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.exit_to_app),
-                  label: const Text('Çıkış'),
+                  label: Text(_isEn ? 'Exit' : 'Çıkış'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[700],
                     foregroundColor: Colors.white,
@@ -614,16 +628,26 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
     });
 
     Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
       if (!isCorrect) {
         // Yanlış cevap - Oyun bitti
         setState(() {
           _gameOver = true;
         });
+        _awardProgress();
       } else if (_currentQuestionIndex >= _questions.length - 1) {
         // Son soruya doğru cevap - Oyunu kazandı!
         setState(() {
           _gameOver = true;
         });
+        _awardProgress();
+      } else if (!_isPro && _currentQuestionIndex >= kMillionaireFreeQuestionLimit - 1) {
+        // Ücretsiz soru hakkı doldu (ilk 3 soru) - oyunu durdur ve Pro paywall göster
+        setState(() {
+          _gameOver = true;
+        });
+        _awardProgress();
+        _showFreeLimitPaywall();
       } else {
         // Sonraki soruya geç
         setState(() {
@@ -641,6 +665,42 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
         });
       }
     });
+  }
+
+  bool get _isPro => Provider.of<AuthProvider>(context, listen: false).currentUser?.isPro ?? false;
+
+  void _showFreeLimitPaywall() {
+    ProPaywall.show(
+      context: context,
+      title: _isEn
+          ? '🎉 You completed the first $kMillionaireFreeQuestionLimit questions!'
+          : '🎉 İlk $kMillionaireFreeQuestionLimit Soruyu Tamamladın!',
+      message: _isEn
+          ? 'Go Pro to continue the Knowledge Quiz and win bigger prizes.'
+          : 'Bilgi Yarışması\'na devam etmek ve daha büyük ödülleri kazanmak için Pro\'ya geç.',
+      featureDescription: _isEn
+          ? 'With Pro you get unlimited questions in the Knowledge Quiz, full access to all games, and more!'
+          : 'Pro ile Bilgi Yarışması\'nda sınırsız soru, tüm oyunlarda tam erişim ve daha fazlası seni bekliyor!',
+    );
+  }
+
+  /// Oyun bitince (kazanma/kaybetme/ücretsiz limit) ulaşılan seviyeye göre
+  /// kalıcı XP ve jeton kazandırır (Market'te harcanabilir). Bilgi Yarışması
+  /// skoru önceden hiç kaydedilmiyordu.
+  Future<void> _awardProgress() async {
+    final questionsAnswered = _currentQuestionIndex + (_isCorrect ? 1 : 0);
+    if (questionsAnswered <= 0) return;
+    try {
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      final userId = auth.currentUser?.uid;
+      if (userId == null) return;
+      final jeton = questionsAnswered * 5;
+      await auth.addXP(questionsAnswered * 8);
+      await UserProgressService().addJeton(userId, jeton, source: 'millionaire_quiz');
+      await auth.refreshProgress();
+    } catch (e) {
+      debugPrint('❌ Bilgi Yarışması ödül hatası: $e');
+    }
   }
 
   void _useJoker(JokerType type) {
@@ -691,7 +751,9 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
     final letter = String.fromCharCode(65 + suggestedIndex);
 
     setState(() {
-      _phoneAnswer = 'Arkadaşınız: "Bence cevap $letter şıkkı olmalı, %${willBeCorrect ? 80 : 50} eminim."';
+      _phoneAnswer = _isEn
+          ? 'Your friend: "I think the answer is $letter, I\'m ${willBeCorrect ? 80 : 50}% sure."'
+          : 'Arkadaşınız: "Bence cevap $letter şıkkı olmalı, %${willBeCorrect ? 80 : 50} eminim."';
     });
   }
 

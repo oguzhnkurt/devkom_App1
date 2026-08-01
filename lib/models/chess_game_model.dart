@@ -203,6 +203,18 @@ extension ChessDifficultyExtension on ChessDifficulty {
     }
   }
 
+  String displayNameFor(String languageCode) {
+    if (languageCode != 'en') return displayName;
+    switch (this) {
+      case ChessDifficulty.beginner:
+        return 'Beginner';
+      case ChessDifficulty.intermediate:
+        return 'Intermediate';
+      case ChessDifficulty.advanced:
+        return 'Advanced';
+    }
+  }
+
   String get description {
     switch (this) {
       case ChessDifficulty.beginner:
@@ -211,6 +223,18 @@ extension ChessDifficultyExtension on ChessDifficulty {
         return 'Orta seviye oyuncular için';
       case ChessDifficulty.advanced:
         return 'İleri seviye oyuncular için';
+    }
+  }
+
+  String descriptionFor(String languageCode) {
+    if (languageCode != 'en') return description;
+    switch (this) {
+      case ChessDifficulty.beginner:
+        return 'For beginners';
+      case ChessDifficulty.intermediate:
+        return 'For intermediate players';
+      case ChessDifficulty.advanced:
+        return 'For advanced players';
     }
   }
 

@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:provider/provider.dart';
 import '../../utils/score_calculator.dart';
 import '../../models/game_model.dart';
 import '../../services/sound_service.dart';
+import '../../providers/settings_provider.dart';
 
 /// Pipes Puzzle Game - Boruları döndürerek bağlantı yap
 class PipesGameScreen extends StatelessWidget {
@@ -31,49 +33,62 @@ class PipesGameScreen extends StatelessWidget {
         ],
       ),
       body: GameWidget(
-        game: PipesGame(),
+        game: PipesGame(
+          isEnglish: Provider.of<SettingsProvider>(context, listen: false).locale.languageCode == 'en',
+        ),
       ),
     );
   }
 
   void _showGameInfo(BuildContext context) {
+    final isEn = Provider.of<SettingsProvider>(context, listen: false).locale.languageCode == 'en';
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('🎮 Pipes Puzzle'),
-        content: const SingleChildScrollView(
+        content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Nasıl Oynanır?',
-                style: TextStyle(
+                isEn ? 'How to Play?' : 'Nasıl Oynanır?',
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
-                '• Yeşil noktadan (kaynak) kırmızı noktaya (hedef) boru hattı oluşturun\n'
-                '• Boru parçalarına dokunarak döndürün\n'
-                '• Tüm boruları bağlayarak hedefe ulaşın\n'
-                '• En az hamleyle tamamlamaya çalışın!',
+                isEn
+                    ? '• Build a pipeline from the green dot (source) to the red dot (target)\n'
+                      '• Tap pipe pieces to rotate them\n'
+                      '• Connect all the pipes to reach the target\n'
+                      '• Try to finish with as few moves as possible!'
+                    : '• Yeşil noktadan (kaynak) kırmızı noktaya (hedef) boru hattı oluşturun\n'
+                      '• Boru parçalarına dokunarak döndürün\n'
+                      '• Tüm boruları bağlayarak hedefe ulaşın\n'
+                      '• En az hamleyle tamamlamaya çalışın!',
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
-                'Boru Türleri',
-                style: TextStyle(
+                isEn ? 'Pipe Types' : 'Boru Türleri',
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
-                '🟢 Yeşil: Başlangıç noktası\n'
-                '🔴 Kırmızı: Hedef noktası\n'
-                '━ Düz boru: İki yönlü bağlantı\n'
-                '┛ Köşe boru: 90 derece dönüş',
+                isEn
+                    ? '🟢 Green: Starting point\n'
+                      '🔴 Red: Target point\n'
+                      '━ Straight pipe: Two-way connection\n'
+                      '┛ Corner pipe: 90 degree turn'
+                    : '🟢 Yeşil: Başlangıç noktası\n'
+                      '🔴 Kırmızı: Hedef noktası\n'
+                      '━ Düz boru: İki yönlü bağlantı\n'
+                      '┛ Köşe boru: 90 derece dönüş',
               ),
             ],
           ),
@@ -81,7 +96,7 @@ class PipesGameScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Tamam'),
+            child: Text(isEn ? 'OK' : 'Tamam'),
           ),
         ],
       ),
@@ -147,6 +162,11 @@ class PipeTile {
 }
 
 class PipesGame extends FlameGame with TapCallbacks {
+  PipesGame({this.isEnglish = false});
+
+  /// Uygulama dili İngilizce'yse canvas üzerindeki metinler İngilizce olur.
+  final bool isEnglish;
+
   static const double spacing = 3.0;
   static const double uiHeight = 110.0;
 
@@ -204,7 +224,7 @@ class PipesGame extends FlameGame with TapCallbacks {
     // UI elementleri
     // Seviye göstergesi
     levelText = TextComponent(
-      text: 'Seviye: $currentLevel',
+      text: isEnglish ? 'Level: $currentLevel' : 'Seviye: $currentLevel',
       position: Vector2(20, 20),
       textRenderer: TextPaint(
         style: const TextStyle(
@@ -218,7 +238,7 @@ class PipesGame extends FlameGame with TapCallbacks {
 
     // Skor göstergesi
     scoreText = TextComponent(
-      text: 'Skor: $score',
+      text: isEnglish ? 'Score: $score' : 'Skor: $score',
       position: Vector2(size.x - 20, 20),
       anchor: Anchor.topRight,
       textRenderer: TextPaint(
@@ -232,7 +252,7 @@ class PipesGame extends FlameGame with TapCallbacks {
     add(scoreText);
 
     moveCountText = TextComponent(
-      text: 'Hamle: 0',
+      text: isEnglish ? 'Moves: 0' : 'Hamle: 0',
       position: Vector2(20, 50),
       textRenderer: TextPaint(
         style: const TextStyle(
@@ -272,15 +292,15 @@ class PipesGame extends FlameGame with TapCallbacks {
     // Tüm oyunu sıfırla (seviye 1'den başla)
     currentLevel = 1;
     score = 0;
-    levelText.text = 'Seviye: $currentLevel';
-    scoreText.text = 'Skor: $score';
+    levelText.text = isEnglish ? 'Level: $currentLevel' : 'Seviye: $currentLevel';
+    scoreText.text = isEnglish ? 'Score: $score' : 'Skor: $score';
     resetGame();
   }
 
   void resetGame() {
     moveCount = 0;
     gameWon = false;
-    moveCountText.text = 'Hamle: 0';
+    moveCountText.text = isEnglish ? 'Moves: 0' : 'Hamle: 0';
     statusText.text = '';
 
     // Grid boyutu değişince tile size yeniden hesapla
@@ -496,13 +516,13 @@ class PipesGame extends FlameGame with TapCallbacks {
       // Skor kazanma sesi
       SoundService.playScore();
 
-      statusText.text = '🎉 Tebrikler! +$levelScore puan!';
-      scoreText.text = 'Skor: $score';
+      statusText.text = isEnglish ? '🎉 Congratulations! +$levelScore points!' : '🎉 Tebrikler! +$levelScore puan!';
+      scoreText.text = isEnglish ? 'Score: $score' : 'Skor: $score';
 
       // 2 saniye sonra sonraki seviyeye geç
       Future.delayed(const Duration(seconds: 2), () {
         currentLevel++;
-        levelText.text = 'Seviye: $currentLevel';
+        levelText.text = isEnglish ? 'Level: $currentLevel' : 'Seviye: $currentLevel';
         resetGame();
       });
     }
@@ -524,7 +544,7 @@ class PipesGame extends FlameGame with TapCallbacks {
 
     tile.rotate();
     moveCount++;
-    moveCountText.text = 'Hamle: $moveCount';
+    moveCountText.text = isEnglish ? 'Moves: $moveCount' : 'Hamle: $moveCount';
 
     _checkConnections();
   }

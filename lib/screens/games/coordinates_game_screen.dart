@@ -7,6 +7,7 @@ import '../../models/leaderboard_model.dart';
 import '../../services/leaderboard_service.dart';
 import '../../services/sound_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../utils/score_calculator.dart';
 import '../leaderboard/leaderboard_screen.dart';
 
@@ -42,6 +43,9 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
   DateTime? levelStartTime;
   int? remainingTime;
   bool timeExpired = false;
+
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
 
   // Seviye bazlı grid boyutu (6x6 → 8x8 → 10x10)
   int get gridSize {
@@ -101,7 +105,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
   void _handleTimeExpired() {
     // Oyun bitti sesi
     SoundService.playGameOver();
-    _showMessage('Süre doldu! Oyun bitti.', AppTheme.errorRed);
+    _showMessage(_isEn ? 'Time\'s up! Game over.' : 'Süre doldu! Oyun bitti.', AppTheme.errorRed);
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         Navigator.pop(context);
@@ -122,7 +126,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
 
   void _checkAnswer() {
     if (selectedX == null || selectedY == null) {
-      _showMessage('Lütfen bir nokta seç!', Colors.orange);
+      _showMessage(_isEn ? 'Please select a point!' : 'Lütfen bir nokta seç!', Colors.orange);
       return;
     }
 
@@ -141,7 +145,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
         score += levelScore;
         gameWon = true;
       });
-      _showMessage('Harika! +$levelScore puan! 🎉', AppTheme.successGreen);
+      _showMessage(_isEn ? 'Great! +$levelScore points! 🎉' : 'Harika! +$levelScore puan! 🎉', AppTheme.successGreen);
 
       // Oyun tamamlandı mı kontrol et
       if (currentLevel >= maxLevels) {
@@ -168,7 +172,10 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
     } else {
       // Yanlış cevap sesi
       SoundService.playWrong();
-      _showMessage('Tekrar dene! İpucu için yardım butonuna bas.', AppTheme.errorRed);
+      _showMessage(
+        _isEn ? 'Try again! Tap the hint button for help.' : 'Tekrar dene! İpucu için yardım butonuna bas.',
+        AppTheme.errorRed,
+      );
     }
   }
 
@@ -248,7 +255,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Koordinat Macerası'),
+        title: Text(_isEn ? 'Coordinate Adventure' : 'Koordinat Macerası'),
         actions: [
           Center(
             child: Padding(
@@ -258,7 +265,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                   Icon(Icons.star, color: AppTheme.warningOrange),
                   const SizedBox(width: 4),
                   Text(
-                    'Skor: $score',
+                    _isEn ? 'Score: $score' : 'Skor: $score',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -285,7 +292,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Seviye $currentLevel',
+                          _isEn ? 'Level $currentLevel' : 'Seviye $currentLevel',
                           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: AppTheme.primaryBlue,
@@ -325,7 +332,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                             Icon(Icons.timer, color: _getTimeColor(), size: 20),
                             const SizedBox(width: 8),
                             Text(
-                              'Kalan Süre: $remainingTime saniye',
+                              _isEn ? 'Time Left: $remainingTime sec' : 'Kalan Süre: $remainingTime saniye',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -337,7 +344,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                       ),
                     const SizedBox(height: 12),
                     Text(
-                      'Hedef Koordinat:',
+                      _isEn ? 'Target Coordinate:' : 'Hedef Koordinat:',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 8),
@@ -379,9 +386,9 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Seçtiğin Koordinat: ',
-                        style: TextStyle(fontSize: 16),
+                      Text(
+                        _isEn ? 'Your Coordinate: ' : 'Seçtiğin Koordinat: ',
+                        style: const TextStyle(fontSize: 16),
                       ),
                       Text(
                         '($selectedX, $selectedY)',
@@ -405,7 +412,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                 ElevatedButton.icon(
                   onPressed: () => setState(() => showHint = !showHint),
                   icon: const Icon(Icons.lightbulb),
-                  label: const Text('İpucu'),
+                  label: Text(_isEn ? 'Hint' : 'İpucu'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.warningOrange,
                     padding: const EdgeInsets.symmetric(
@@ -417,7 +424,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                 ElevatedButton.icon(
                   onPressed: _checkAnswer,
                   icon: const Icon(Icons.check_circle),
-                  label: const Text('Kontrol Et'),
+                  label: Text(_isEn ? 'Check' : 'Kontrol Et'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.successGreen,
                     padding: const EdgeInsets.symmetric(
@@ -442,9 +449,9 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                         children: [
                           const Icon(Icons.info_outline, color: AppTheme.warningOrange),
                           const SizedBox(width: 8),
-                          const Text(
-                            'İpucu:',
-                            style: TextStyle(
+                          Text(
+                            _isEn ? 'Hint:' : 'İpucu:',
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),
@@ -453,8 +460,11 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'X koordinatı ${targetX < gridSize ~/ 2 ? "soldadır" : "sağdadır"}.\n'
-                        'Y koordinatı ${targetY < gridSize ~/ 2 ? "alttadır" : "üsttedir"}.',
+                        _isEn
+                            ? 'The X coordinate is on the ${targetX < gridSize ~/ 2 ? "left" : "right"}.\n'
+                              'The Y coordinate is at the ${targetY < gridSize ~/ 2 ? "bottom" : "top"}.'
+                            : 'X koordinatı ${targetX < gridSize ~/ 2 ? "soldadır" : "sağdadır"}.\n'
+                              'Y koordinatı ${targetY < gridSize ~/ 2 ? "alttadır" : "üsttedir"}.',
                         style: const TextStyle(fontSize: 14),
                       ),
                     ],
@@ -600,9 +610,9 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
               children: [
                 Icon(Icons.school, color: AppTheme.primaryBlue),
                 const SizedBox(width: 8),
-                const Text(
-                  'Nasıl Oynanır?',
-                  style: TextStyle(
+                Text(
+                  _isEn ? 'How to Play?' : 'Nasıl Oynanır?',
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -612,19 +622,19 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
             const SizedBox(height: 12),
             _buildInstructionItem(
               '1',
-              'Yukarıda verilen koordinatı bul',
+              _isEn ? 'Find the coordinate given above' : 'Yukarıda verilen koordinatı bul',
             ),
             _buildInstructionItem(
               '2',
-              'Izgara üzerinde doğru noktaya tıkla',
+              _isEn ? 'Tap the correct point on the grid' : 'Izgara üzerinde doğru noktaya tıkla',
             ),
             _buildInstructionItem(
               '3',
-              'X (yatay) ve Y (dikey) değerlerini kontrol et',
+              _isEn ? 'Check the X (horizontal) and Y (vertical) values' : 'X (yatay) ve Y (dikey) değerlerini kontrol et',
             ),
             _buildInstructionItem(
               '4',
-              '"Kontrol Et" butonuna bas',
+              _isEn ? 'Tap the "Check" button' : '"Kontrol Et" butonuna bas',
             ),
             const SizedBox(height: 12),
             Container(
@@ -633,10 +643,13 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                 color: AppTheme.accentTeal.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
-                '💡 İpucu: (X, Y) formatında X yatay, Y dikeydir. '
-                'Örneğin (3, 5) → X=3 sağa, Y=5 yukarı',
-                style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+              child: Text(
+                _isEn
+                    ? '💡 Hint: In (X, Y) format, X is horizontal, Y is vertical. '
+                      'For example (3, 5) → X=3 right, Y=5 up'
+                    : '💡 İpucu: (X, Y) formatında X yatay, Y dikeydir. '
+                      'Örneğin (3, 5) → X=3 sağa, Y=5 yukarı',
+                style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
               ),
             ),
           ],
@@ -681,7 +694,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
   Widget _buildCompletionScreen() {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Oyun Tamamlandı!'),
+        title: Text(_isEn ? 'Game Complete!' : 'Oyun Tamamlandı!'),
         automaticallyImplyLeading: false,
       ),
       body: Container(
@@ -708,19 +721,19 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                   const SizedBox(height: 24),
 
                   // Congratulations Text
-                  const Text(
-                    'Tebrikler!',
-                    style: TextStyle(
+                  Text(
+                    _isEn ? 'Congratulations!' : 'Tebrikler!',
+                    style: const TextStyle(
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Koordinat Macerasını Tamamladın!',
+                  Text(
+                    _isEn ? 'You completed the Coordinate Adventure!' : 'Koordinat Macerasını Tamamladın!',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       color: Colors.white70,
                     ),
@@ -740,21 +753,21 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                         children: [
                           _buildStatRow(
                             Icons.star,
-                            'Toplam Puan',
+                            _isEn ? 'Total Score' : 'Toplam Puan',
                             '$score',
                             AppTheme.warningOrange,
                           ),
                           const Divider(height: 24),
                           _buildStatRow(
                             Icons.timer,
-                            'Süre',
+                            _isEn ? 'Time' : 'Süre',
                             _formatTime(finalTimeSeconds ?? 0),
                             AppTheme.primaryBlue,
                           ),
                           const Divider(height: 24),
                           _buildStatRow(
                             Icons.trending_up,
-                            'Tamamlanan Seviye',
+                            _isEn ? 'Levels Completed' : 'Tamamlanan Seviye',
                             '$maxLevels / $maxLevels',
                             AppTheme.successGreen,
                           ),
@@ -783,9 +796,9 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                             );
                           },
                           icon: const Icon(Icons.emoji_events, size: 28),
-                          label: const Text(
-                            'Liderlik Tablosunu Gör',
-                            style: TextStyle(fontSize: 18),
+                          label: Text(
+                            _isEn ? 'View Leaderboard' : 'Liderlik Tablosunu Gör',
+                            style: const TextStyle(fontSize: 18),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFFD700),
@@ -803,9 +816,9 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                         child: ElevatedButton.icon(
                           onPressed: _restartGame,
                           icon: const Icon(Icons.refresh, size: 28),
-                          label: const Text(
-                            'Tekrar Oyna',
-                            style: TextStyle(fontSize: 18),
+                          label: Text(
+                            _isEn ? 'Play Again' : 'Tekrar Oyna',
+                            style: const TextStyle(fontSize: 18),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
@@ -823,9 +836,9 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                         child: OutlinedButton.icon(
                           onPressed: () => Navigator.pop(context),
                           icon: const Icon(Icons.home, size: 28),
-                          label: const Text(
-                            'Ana Menüye Dön',
-                            style: TextStyle(fontSize: 18),
+                          label: Text(
+                            _isEn ? 'Back to Main Menu' : 'Ana Menüye Dön',
+                            style: const TextStyle(fontSize: 18),
                           ),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.white,

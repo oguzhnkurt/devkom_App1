@@ -177,6 +177,7 @@ extension GameTypeLeaderboard on GameType {
       case GameType.patternDetective:
       case GameType.variableMaster:
       case GameType.bugHunter:
+      case GameType.matchingGame:
         return LeaderboardType.highScore;
       case GameType.chess:
         return LeaderboardType.winRate;
@@ -224,6 +225,8 @@ extension GameTypeLeaderboard on GameType {
         return 'Değişken Ustası Liderleri';
       case GameType.bugHunter:
         return 'Bug Hunter Uzmanları';
+      case GameType.matchingGame:
+        return 'Eşleştirme Şampiyonları';
     }
   }
 
@@ -240,6 +243,63 @@ extension GameTypeLeaderboard on GameType {
         return 'Süre';
       case LeaderboardType.winRate:
         return 'Kazanma Oranı';
+    }
+  }
+
+  String leaderboardTitleFor(String languageCode) {
+    if (languageCode != 'en') return leaderboardTitle;
+    switch (this) {
+      case GameType.quiz:
+        return 'Quiz Champions';
+      case GameType.chess:
+        return 'Chess Masters';
+      case GameType.blockCoding:
+        return 'Coding Heroes';
+      case GameType.wordMatch:
+        return 'Word Experts';
+      case GameType.sequencing:
+        return 'Sequencing Masters';
+      case GameType.coordinates:
+        return 'Coordinate Kings';
+      case GameType.puzzle:
+        return 'Puzzle Geniuses';
+      case GameType.simulation:
+        return 'Simulation Leaders';
+      case GameType.mazeExplorer:
+        return 'Maze Explorers';
+      case GameType.colorCoding:
+        return 'Color Code Experts';
+      case GameType.robotSimulator:
+        return 'Robot Simulator Champions';
+      case GameType.leftRightCoding:
+        return 'Left-Right Coding Champions';
+      case GameType.arduinoSimulator:
+        return 'Arduino Simulator Experts';
+      case GameType.pipesPuzzle:
+        return 'Pipe Puzzle Masters';
+      case GameType.patternDetective:
+        return 'Code Detective Champions';
+      case GameType.variableMaster:
+        return 'Variable Master Leaders';
+      case GameType.bugHunter:
+        return 'Bug Hunter Experts';
+      case GameType.matchingGame:
+        return 'Matching Champions';
+    }
+  }
+
+  String scoreLabelFor(String languageCode) {
+    if (languageCode != 'en') return scoreLabel;
+    if (this == GameType.quiz) {
+      return 'Correct/Time';
+    }
+    switch (leaderboardType) {
+      case LeaderboardType.highScore:
+        return 'Score';
+      case LeaderboardType.fastestTime:
+        return 'Time';
+      case LeaderboardType.winRate:
+        return 'Win Rate';
     }
   }
 }

@@ -5,6 +5,7 @@ import '../../models/user_model.dart';
 import '../../utils/app_localizations.dart';
 import '../../theme.dart';
 import '../role_based_home_screen.dart';
+import '../roboakademi/add_workshop_child_screen.dart';
 
 /// Purpose Selection Screen - Shown after registration
 /// User selects their purpose: Learn (Student), Track Child (Parent), or Visit (Visitor)
@@ -51,7 +52,7 @@ class _PurposeSelectionScreenState extends State<PurposeSelectionScreen>
     super.dispose();
   }
 
-  Future<void> _selectPurpose(BuildContext context, UserRole role) async {
+  Future<void> _selectPurpose(BuildContext context, UserRole role, {bool isRoboAkademi = false}) async {
     if (_isLoading) return;
 
     setState(() {
@@ -62,13 +63,16 @@ class _PurposeSelectionScreenState extends State<PurposeSelectionScreen>
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
       // Update user role in Firestore
-      await authProvider.updateUserRole(role);
+      await authProvider.updateUserRole(role, isRoboAkademi: isRoboAkademi);
 
-      // Navigate to home screen
+      // Navigate to home screen (RoboAkademi parents go via the
+      // add-child screen first so they can register their child right away)
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const RoleBasedHomeScreen(),
+          builder: (context) => isRoboAkademi
+              ? const AddWorkshopChildScreen()
+              : const RoleBasedHomeScreen(),
         ),
       );
     } catch (e) {
@@ -168,6 +172,21 @@ class _PurposeSelectionScreenState extends State<PurposeSelectionScreen>
 
                     const SizedBox(height: 14),
 
+                    // RoboAkademi Workshop Parent Option Card
+                    _buildPurposeCard(
+                      context: context,
+                      icon: Icons.precision_manufacturing_rounded,
+                      title: 'RoboAkademi Atölye Öğrencim Var',
+                      subtitle: 'Çocuğumun robotik kodlama atölyesindeki yoklama, puan ve ödeme durumunu takip etmek istiyorum',
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF00979D), Color(0xFF00BCD4)],
+                      ),
+                      onTap: () => _selectPurpose(context, UserRole.parent, isRoboAkademi: true),
+                      badge: 'Atölye takip paneli',
+                    ),
+
+                    const SizedBox(height: 14),
+
                     // Visitor Option Card (NEW!)
                     _buildPurposeCard(
                       context: context,
@@ -215,7 +234,26 @@ class _PurposeSelectionScreenState extends State<PurposeSelectionScreen>
                       ),
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 20),
+
+                    // Skip option: default to student role so undecided users
+                    // aren't blocked from entering the app. They can still
+                    // change their role later from profile settings.
+                    TextButton(
+                      onPressed: _isLoading
+                          ? null
+                          : () => _selectPurpose(context, UserRole.student),
+                      child: Text(
+                        'Şimdilik atla, öğrenci olarak devam et',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
                     ],
                   ),
                 ),

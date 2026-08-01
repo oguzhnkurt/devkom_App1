@@ -4,6 +4,7 @@ import '../models/game_model.dart';
 import '../services/games_service.dart';
 import '../services/achievement_service.dart';
 import '../providers/auth_provider.dart';
+import '../providers/settings_provider.dart';
 import 'games/chess_game_screen.dart';
 import 'games/coordinates_game_screen.dart';
 import 'games/block_coding_game_screen.dart';
@@ -18,6 +19,9 @@ import 'games/color_coding_screen.dart';
 import 'games/pattern_detective_game_screen.dart';
 import 'games/variable_master_game_screen.dart';
 import 'games/bug_hunter_game_screen.dart';
+import 'games/robot_simulator_game_screen.dart';
+import 'games/matching_game_screen.dart';
+import 'games/millionaire_game_screen.dart';
 
 class GamePlayScreen extends StatefulWidget {
   final GameModel game;
@@ -39,6 +43,8 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
   DateTime? _startTime;
   bool _resultsSaved = false;
 
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+
   @override
   void initState() {
     super.initState();
@@ -57,7 +63,10 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
     // Route to specific game screens based on game type
     switch (widget.game.type) {
       case GameType.quiz:
-        return _buildQuizGame();
+        // "Bilgi Yarışması" artık "Kim Milyoner Olmak İster?" tarzı,
+        // para ağacı + 50:50/telefon/seyirci jokerli özel ekranda oynanıyor
+        // (eski _buildQuizGame() düz/basit ekranı artık kullanılmıyor).
+        return const MillionaireGameScreen();
       case GameType.chess:
         return const ChessGameScreen();
       case GameType.coordinates:
@@ -89,6 +98,9 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
       case GameType.bugHunter:
         return const BugHunterGameScreen();
       case GameType.robotSimulator:
+        return RobotSimulatorGameScreen(gameData: widget.game.gameData);
+      case GameType.matchingGame:
+        return MatchingGameScreen(gameData: widget.game.gameData);
       case GameType.puzzle:
       case GameType.simulation:
         return _buildComingSoon();
@@ -101,7 +113,7 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
     if (questions.isEmpty) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(widget.game.title),
+          title: Text(widget.game.titleFor(_lang)),
           backgroundColor: const Color(0xFF2196F3),
           foregroundColor: Colors.white,
         ),
@@ -119,7 +131,7 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.game.title),
+        title: Text(widget.game.titleFor(_lang)),
         backgroundColor: const Color(0xFF2196F3),
         foregroundColor: Colors.white,
         actions: [
@@ -622,7 +634,7 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
   Widget _buildComingSoon() {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.game.title),
+        title: Text(widget.game.titleFor(_lang)),
         backgroundColor: const Color(0xFF2196F3),
         foregroundColor: Colors.white,
       ),

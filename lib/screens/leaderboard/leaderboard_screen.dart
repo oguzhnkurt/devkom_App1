@@ -140,6 +140,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         return 'Değişken Ustası';
       case GameType.bugHunter:
         return 'Bug Hunter';
+      case GameType.matchingGame:
+        return 'Eşleştirme';
     }
   }
 

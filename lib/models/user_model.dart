@@ -19,6 +19,7 @@ class UserModel {
   final List<String>? studentIds; // For parents - links to their students
   final String? classId; // For students - links to their class
   final String? description; // For students - additional notes
+  final bool isRoboAkademi; // True for parent accounts enrolled in the RoboAkademi workshop
   final DateTime createdAt;
   final DateTime? lastLoginAt;
 
@@ -51,6 +52,7 @@ class UserModel {
     this.studentIds,
     this.classId,
     this.description,
+    this.isRoboAkademi = false,
     required this.createdAt,
     this.lastLoginAt,
     this.isPro = false,
@@ -80,6 +82,7 @@ class UserModel {
       'studentIds': studentIds,
       'classId': classId,
       'description': description,
+      'isRoboAkademi': isRoboAkademi,
       'createdAt': createdAt.toIso8601String(),
       'lastLoginAt': lastLoginAt?.toIso8601String(),
       'isPro': isPro,
@@ -110,6 +113,7 @@ class UserModel {
       'student_ids': studentIds,
       'class_id': classId,
       'description': description,
+      'is_roboakademi': isRoboAkademi,
       'created_at': createdAt.toIso8601String(),
       'last_login_at': lastLoginAt?.toIso8601String(),
       'is_pro': isPro,
@@ -143,6 +147,7 @@ class UserModel {
       studentIds: data['student_ids'] != null ? List<String>.from(data['student_ids']) : null,
       classId: data['class_id'],
       description: data['description'],
+      isRoboAkademi: data['is_roboakademi'] ?? false,
       createdAt: data['created_at'] != null ? DateTime.parse(data['created_at']) : DateTime.now(),
       lastLoginAt: data['last_login_at'] != null ? DateTime.parse(data['last_login_at']) : null,
       isPro: data['is_pro'] ?? false,
@@ -173,6 +178,7 @@ class UserModel {
       studentIds: map['studentIds'] != null ? List<String>.from(map['studentIds']) : null,
       classId: map['classId'],
       description: map['description'],
+      isRoboAkademi: map['isRoboAkademi'] ?? false,
       createdAt: map['createdAt'] is String ? DateTime.parse(map['createdAt']) : DateTime.now(),
       lastLoginAt: map['lastLoginAt'] is String ? DateTime.parse(map['lastLoginAt']) : null,
       isPro: map['isPro'] ?? false,
@@ -310,6 +316,7 @@ class UserModel {
     List<String>? studentIds,
     String? classId,
     String? description,
+    bool? isRoboAkademi,
     DateTime? createdAt,
     DateTime? lastLoginAt,
     bool? isPro,
@@ -336,6 +343,7 @@ class UserModel {
       studentIds: studentIds ?? this.studentIds,
       classId: classId ?? this.classId,
       description: description ?? this.description,
+      isRoboAkademi: isRoboAkademi ?? this.isRoboAkademi,
       createdAt: createdAt ?? this.createdAt,
       lastLoginAt: lastLoginAt ?? this.lastLoginAt,
       isPro: isPro ?? this.isPro,

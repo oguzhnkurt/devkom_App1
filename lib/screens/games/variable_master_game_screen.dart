@@ -7,6 +7,7 @@ import '../../models/leaderboard_model.dart';
 import '../../services/leaderboard_service.dart';
 import '../../services/sound_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../utils/score_calculator.dart';
 import '../../widgets/play_time_gate.dart';
 
@@ -17,8 +18,9 @@ class VariableMasterGameScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = Provider.of<SettingsProvider>(context, listen: false).locale.languageCode == 'en';
     return PlayTimeGate(
-      gameName: 'Değişken Ustası',
+      gameName: isEn ? 'Variable Master' : 'Değişken Ustası',
       child: const _VariableMasterGameContent(),
     );
   }
@@ -56,6 +58,9 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
   final List<String> variableNames = [
     'x', 'y', 'z', 'a', 'b', 'c', 'n', 'm', 'k', 'i', 'j', 'p', 'q', 'r', 's', 't'
   ];
+
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
 
   @override
   void initState() {
@@ -208,19 +213,19 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
           children: [
             Icon(Icons.close, color: AppTheme.errorRed),
             const SizedBox(width: 8),
-            const Text('Yanlış Cevap'),
+            Text(_isEn ? 'Wrong Answer' : 'Yanlış Cevap'),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Doğru cevap: $correctAnswer',
+              _isEn ? 'Correct answer: $correctAnswer' : 'Doğru cevap: $correctAnswer',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Text(
-              'Kalan can: $lives',
+              _isEn ? 'Lives left: $lives' : 'Kalan can: $lives',
               style: const TextStyle(fontSize: 16),
             ),
           ],
@@ -235,7 +240,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
               backgroundColor: AppTheme.primaryBlue,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Devam Et'),
+            child: Text(_isEn ? 'Continue' : 'Devam Et'),
           ),
         ],
       ),
@@ -282,7 +287,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
     final entry = LeaderboardEntry(
       id: '',
       userId: userId,
-      userName: authProvider.currentUser?.displayName ?? 'Oyuncu',
+      userName: authProvider.currentUser?.displayName ?? (_isEn ? 'Player' : 'Oyuncu'),
       score: score.round(),
       difficulty: currentLevel,
       gameType: GameType.variableMaster,
@@ -300,16 +305,16 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
           children: [
             Icon(Icons.lightbulb, color: AppTheme.warningOrange),
             const SizedBox(width: 8),
-            const Text('İpucu'),
+            Text(_isEn ? 'Hint' : 'İpucu'),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Değişken Değerlerini Takip Et:',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            Text(
+              _isEn ? 'Track the Variable Values:' : 'Değişken Değerlerini Takip Et:',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 12),
             ...currentVariables.entries.map((entry) {
@@ -362,7 +367,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
               backgroundColor: AppTheme.primaryBlue,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Tamam'),
+            child: Text(_isEn ? 'OK' : 'Tamam'),
           ),
         ],
       ),
@@ -380,12 +385,12 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
         elevation: 3,
-        title: const Text('Değişken Ustası', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(_isEn ? 'Variable Master' : 'Değişken Ustası', style: const TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             icon: const Icon(Icons.lightbulb_outline),
             onPressed: _showHintDialog,
-            tooltip: 'İpucu',
+            tooltip: _isEn ? 'Hint' : 'İpucu',
           ),
         ],
       ),
@@ -442,8 +447,8 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem('Seviye', '$currentLevel/$maxLevels', Icons.trending_up, AppTheme.primaryBlue),
-          _buildStatItem('Skor', '$score', Icons.stars, AppTheme.warningOrange),
+          _buildStatItem(_isEn ? 'Level' : 'Seviye', '$currentLevel/$maxLevels', Icons.trending_up, AppTheme.primaryBlue),
+          _buildStatItem(_isEn ? 'Score' : 'Skor', '$score', Icons.stars, AppTheme.warningOrange),
           _buildLivesIndicator(),
         ],
       ),
@@ -488,7 +493,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
         ),
         const SizedBox(height: 4),
         Text(
-          'Can',
+          _isEn ? 'Lives' : 'Can',
           style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         ),
       ],
@@ -515,16 +520,16 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Kod Yürütme',
-                    style: TextStyle(
+                  Text(
+                    _isEn ? 'Code Execution' : 'Kod Yürütme',
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Kodu takip et ve değişken değerini bul',
+                    _isEn ? 'Follow the code and find the variable value' : 'Kodu takip et ve değişken değerini bul',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
@@ -657,9 +662,9 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
               children: [
                 Icon(Icons.help_outline, color: AppTheme.warningOrange, size: 28),
                 const SizedBox(width: 12),
-                const Text(
-                  'Soru',
-                  style: TextStyle(
+                Text(
+                  _isEn ? 'Question' : 'Soru',
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -760,7 +765,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
       appBar: AppBar(
         backgroundColor: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
         foregroundColor: Colors.white,
-        title: Text(gameWon ? 'Tebrikler!' : 'Oyun Bitti'),
+        title: Text(gameWon ? (_isEn ? 'Congratulations!' : 'Tebrikler!') : (_isEn ? 'Game Over' : 'Oyun Bitti')),
       ),
       body: Center(
         child: Padding(
@@ -775,7 +780,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
               ),
               const SizedBox(height: 24),
               Text(
-                gameWon ? 'Harika İş!' : 'Tekrar Dene!',
+                gameWon ? (_isEn ? 'Great Job!' : 'Harika İş!') : (_isEn ? 'Try Again!' : 'Tekrar Dene!'),
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -783,10 +788,10 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
                 ),
               ),
               const SizedBox(height: 16),
-              _buildResultCard('Seviye', '$currentLevel/$maxLevels', Icons.trending_up),
-              _buildResultCard('Skor', '$score', Icons.stars),
+              _buildResultCard(_isEn ? 'Level' : 'Seviye', '$currentLevel/$maxLevels', Icons.trending_up),
+              _buildResultCard(_isEn ? 'Score' : 'Skor', '$score', Icons.stars),
               if (finalTimeSeconds != null)
-                _buildResultCard('Süre', '$finalTimeSeconds saniye', Icons.timer),
+                _buildResultCard(_isEn ? 'Duration' : 'Süre', _isEn ? '$finalTimeSeconds seconds' : '$finalTimeSeconds saniye', Icons.timer),
               const SizedBox(height: 32),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -794,7 +799,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
                   ElevatedButton.icon(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.home),
-                    label: const Text('Ana Menü'),
+                    label: Text(_isEn ? 'Main Menu' : 'Ana Menü'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryBlue,
                       foregroundColor: Colors.white,
@@ -814,7 +819,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
                       });
                     },
                     icon: const Icon(Icons.replay),
-                    label: const Text('Tekrar Oyna'),
+                    label: Text(_isEn ? 'Play Again' : 'Tekrar Oyna'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.successGreen,
                       foregroundColor: Colors.white,

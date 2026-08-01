@@ -75,8 +75,8 @@ class CoursesData {
       category: CourseCategory.mobile,
       difficulty: DifficultyLevel.intermediate,
       tags: ['android', 'kurumsal', 'jvm'],
-      totalLessons: 2,
-      estimatedMinutes: 30,
+      totalLessons: 12,
+      estimatedMinutes: 240,
       sortOrder: 4,
     ),
 
@@ -94,8 +94,8 @@ class CoursesData {
       category: CourseCategory.web,
       difficulty: DifficultyLevel.beginner,
       tags: ['web', 'frontend', 'stil', 'tasarim'],
-      totalLessons: 2,
-      estimatedMinutes: 30,
+      totalLessons: 12,
+      estimatedMinutes: 240,
       sortOrder: 5,
     ),
 
@@ -132,8 +132,8 @@ class CoursesData {
       category: CourseCategory.mobile,
       difficulty: DifficultyLevel.intermediate,
       tags: ['unity', 'windows', 'microsoft', '.net'],
-      totalLessons: 2,
-      estimatedMinutes: 30,
+      totalLessons: 12,
+      estimatedMinutes: 240,
       sortOrder: 7,
     ),
 

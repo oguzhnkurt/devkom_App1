@@ -13,6 +13,7 @@ import '../auth/login_screen.dart';
 import '../../widgets/animated_rank_display.dart';
 import '../../services/leaderboard_service.dart';
 import '../../models/game_model.dart';
+import '../../providers/settings_provider.dart';
 
 /// Puppet types for character selection
 enum PuppetType {
@@ -53,6 +54,22 @@ extension PuppetTypeExtension on PuppetType {
         return '🐶';
     }
   }
+
+  String nameFor(String languageCode) {
+    if (languageCode != 'en') return name;
+    switch (this) {
+      case PuppetType.fox:
+        return 'Fox';
+      case PuppetType.lion:
+        return 'Lion';
+      case PuppetType.crocodile:
+        return 'Crocodile';
+      case PuppetType.cat:
+        return 'Cat';
+      case PuppetType.dog:
+        return 'Dog';
+    }
+  }
 }
 
 /// Sağım-Solum Kodlama Oyunu (Flame 2D)
@@ -77,6 +94,9 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
   bool _showingQuestion = false;
   PuppetType? _selectedPuppet;
 
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
+
   @override
   void initState() {
     super.initState();
@@ -95,6 +115,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
       onBonusSquare: _handleBonusSquare,
       onUnansweredQuestions: _handleUnansweredQuestions,
       puppetType: _selectedPuppet!,
+      isEnglish: _isEn,
     );
   }
 
@@ -116,7 +137,9 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '⚠️ Hedefe ulaştın ama $unansweredCount soru cevaplanmadı!\nKırmızı yanan karelerdeki soruları cevapla.',
+          _isEn
+              ? '⚠️ You reached the goal but $unansweredCount question(s) were not answered!\nAnswer the questions in the red flashing squares.'
+              : '⚠️ Hedefe ulaştın ama $unansweredCount soru cevaplanmadı!\nKırmızı yanan karelerdeki soruları cevapla.',
           textAlign: TextAlign.center,
         ),
         duration: const Duration(seconds: 3),
@@ -130,18 +153,18 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text(
-          '🎭 Kukla Seç',
+        title: Text(
+          _isEn ? '🎭 Choose a Character' : '🎭 Kukla Seç',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Oyunda kullanmak istediğin kuklayı seç:',
+            Text(
+              _isEn ? 'Choose the character you want to use in the game:' : 'Oyunda kullanmak istediğin kuklayı seç:',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 20),
             Wrap(
@@ -168,7 +191,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          puppet.name,
+                          puppet.nameFor(_lang),
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -222,7 +245,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
     if (level < 10) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('🎉 Level $level Tamamlandı! +$score puan'),
+          content: Text(_isEn ? '🎉 Level $level Complete! +$score points' : '🎉 Level $level Tamamlandı! +$score puan'),
           duration: const Duration(seconds: 2),
           backgroundColor: Colors.green,
         ),
@@ -256,7 +279,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
         _totalScore += points;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('✅ Doğru! +$points puan'),
+            content: Text(_isEn ? '✅ Correct! +$points points' : '✅ Doğru! +$points puan'),
             duration: const Duration(seconds: 2),
             backgroundColor: Colors.green,
           ),
@@ -265,7 +288,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
         _totalScore = (_totalScore - points).clamp(0, 999999);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Yanlış! -$points puan'),
+            content: Text(_isEn ? '❌ Wrong! -$points points' : '❌ Yanlış! -$points puan'),
             duration: const Duration(seconds: 2),
             backgroundColor: Colors.red,
           ),
@@ -281,19 +304,19 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('💥 Engele Çarptın!', textAlign: TextAlign.center),
+        title: Text(_isEn ? '💥 You Hit an Obstacle!' : '💥 Engele Çarptın!', textAlign: TextAlign.center),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.dangerous, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             Text(
-              'Level: $_currentLevel',
+              _isEn ? 'Level: $_currentLevel' : 'Level: $_currentLevel',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text('Toplam Skor: $_totalScore'),
-            Text('Hamle: $_moves'),
+            Text(_isEn ? 'Total Score: $_totalScore' : 'Toplam Skor: $_totalScore'),
+            Text(_isEn ? 'Moves: $_moves' : 'Hamle: $_moves'),
           ],
         ),
         actions: [
@@ -302,7 +325,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text('Ana Sayfa'),
+            child: Text(_isEn ? 'Home' : 'Ana Sayfa'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -313,7 +336,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
               backgroundColor: const Color(0xFFFF5722),
               foregroundColor: Colors.white,
             ),
-            child: const Text('Tekrar Dene'),
+            child: Text(_isEn ? 'Try Again' : 'Tekrar Dene'),
           ),
         ],
       ),
@@ -332,17 +355,17 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('🏆 Oyun Tamamlandı!', textAlign: TextAlign.center),
+        title: Text(_isEn ? '🏆 Game Complete!' : '🏆 Oyun Tamamlandı!', textAlign: TextAlign.center),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Toplam Skor: $_totalScore',
+              _isEn ? 'Total Score: $_totalScore' : 'Toplam Skor: $_totalScore',
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text('Hamle: $_moves'),
-            Text('Süre: $duration saniye'),
+            Text(_isEn ? 'Moves: $_moves' : 'Hamle: $_moves'),
+            Text(_isEn ? 'Duration: $duration seconds' : 'Süre: $duration saniye'),
           ],
         ),
         actions: [
@@ -351,7 +374,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text('Ana Sayfa'),
+            child: Text(_isEn ? 'Home' : 'Ana Sayfa'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -362,7 +385,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
               backgroundColor: const Color(0xFF2196F3),
               foregroundColor: Colors.white,
             ),
-            child: const Text('Sıralama Gör'),
+            child: Text(_isEn ? 'View Ranking' : 'Sıralama Gör'),
           ),
         ],
       ),
@@ -430,14 +453,14 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.lock, color: Colors.orange, size: 32),
-            SizedBox(width: 12),
+            const Icon(Icons.lock, color: Colors.orange, size: 32),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Devam Etmek İçin Giriş Yapın',
-                style: TextStyle(fontSize: 20),
+                _isEn ? 'Sign In to Continue' : 'Devam Etmek İçin Giriş Yapın',
+                style: const TextStyle(fontSize: 20),
               ),
             ),
           ],
@@ -448,19 +471,19 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
             const Icon(Icons.emoji_events, size: 64, color: Colors.amber),
             const SizedBox(height: 16),
             Text(
-              'İlk 3 seviyeyi tamamladınız!',
+              _isEn ? 'You completed the first 3 levels!' : 'İlk 3 seviyeyi tamamladınız!',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              'Toplam Skor: $_totalScore',
+              _isEn ? 'Total Score: $_totalScore' : 'Toplam Skor: $_totalScore',
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Devam etmek ve tüm seviyelere erişmek için giriş yapın.',
+            Text(
+              _isEn ? 'Sign in to continue and access all levels.' : 'Devam etmek ve tüm seviyelere erişmek için giriş yapın.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ],
         ),
@@ -470,7 +493,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text('Ana Sayfa'),
+            child: Text(_isEn ? 'Home' : 'Ana Sayfa'),
           ),
           ElevatedButton.icon(
             onPressed: () async {
@@ -487,7 +510,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
               );
             },
             icon: const Icon(Icons.login),
-            label: const Text('Giriş Yap'),
+            label: Text(_isEn ? 'Sign In' : 'Giriş Yap'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2196F3),
               foregroundColor: Colors.white,
@@ -543,6 +566,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
         onBonusSquare: _handleBonusSquare,
         onUnansweredQuestions: _handleUnansweredQuestions,
         puppetType: _selectedPuppet!,
+        isEnglish: _isEn,
       );
     });
   }
@@ -581,9 +605,9 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Sağım-Solum',
-                          style: TextStyle(
+                        Text(
+                          _isEn ? 'Left-Right Coding' : 'Sağım-Solum',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -591,7 +615,9 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
                         ),
                         if (_gameStarted)
                           Text(
-                            'Level $_currentLevel • Skor: $_totalScore • Hamle: $_moves',
+                            _isEn
+                                ? 'Level $_currentLevel • Score: $_totalScore • Moves: $_moves'
+                                : 'Level $_currentLevel • Skor: $_totalScore • Hamle: $_moves',
                             style: const TextStyle(color: Colors.white70, fontSize: 12),
                           ),
                       ],
@@ -625,7 +651,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
                   // Up Button
                   _buildControlButton(
                     icon: Icons.arrow_upward,
-                    label: 'YUKARI',
+                    label: _isEn ? 'UP' : 'YUKARI',
                     color: Colors.blue,
                     onPressed: () => _game.moveUp(),
                   ),
@@ -637,21 +663,21 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
                       // Left Button
                       _buildControlButton(
                         icon: Icons.arrow_back,
-                        label: 'SOL',
+                        label: _isEn ? 'LEFT' : 'SOL',
                         color: Colors.orange,
                         onPressed: () => _game.moveLeft(),
                       ),
                       // Down Button
                       _buildControlButton(
                         icon: Icons.arrow_downward,
-                        label: 'AŞAĞI',
+                        label: _isEn ? 'DOWN' : 'AŞAĞI',
                         color: Colors.red,
                         onPressed: () => _game.moveDown(),
                       ),
                       // Right Button
                       _buildControlButton(
                         icon: Icons.arrow_forward,
-                        label: 'SAĞ',
+                        label: _isEn ? 'RIGHT' : 'SAĞ',
                         color: Colors.green,
                         onPressed: () => _game.moveRight(),
                       ),
@@ -715,6 +741,9 @@ class _QuestionDialogContent extends StatefulWidget {
 class _QuestionDialogContentState extends State<_QuestionDialogContent> {
   int? _selectedAnswerIndex;
   bool _answered = false;
+
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
 
   Future<void> _selectAnswer(int index) async {
     if (_answered) return;
@@ -819,10 +848,10 @@ class _QuestionDialogContentState extends State<_QuestionDialogContent> {
         children: [
           Icon(Icons.help_outline, color: Colors.purple.shade700, size: 32),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Bonus Soru!',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              _isEn ? 'Bonus Question!' : 'Bonus Soru!',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -900,33 +929,41 @@ class _QuestionDialogContentState extends State<_QuestionDialogContent> {
 
 /// Scratch Question Bank organized by difficulty
 class ScratchQuestions {
-  static List<Map<String, dynamic>> getQuestionsByDifficulty(int difficulty) {
+  static List<Map<String, dynamic>> getQuestionsByDifficulty(int difficulty, {bool isEnglish = false}) {
     final allQuestions = [
       // Easy Questions (Difficulty 1)
       {
         'question': 'Bir karakteri hareket ettirmek için hangi blok kullanılır?',
+        'questionEn': 'Which block is used to move a character?',
         'options': ['Adım At', 'Döndür', 'Bekle', 'Ses Çıkar'],
+        'optionsEn': ['Move Steps', 'Turn', 'Wait', 'Play Sound'],
         'correctAnswer': 0,
         'points': 50,
         'difficulty': 1,
       },
       {
         'question': 'Yeşil bayrak neyi başlatır?',
+        'questionEn': 'What does the green flag start?',
         'options': ['Programı', 'Oyunu', 'Projeyi', 'Hepsini'],
+        'optionsEn': ['The program', 'The game', 'The project', 'All of them'],
         'correctAnswer': 3,
         'points': 50,
         'difficulty': 1,
       },
       {
         'question': 'Ekrandaki karaktere ne denir?',
+        'questionEn': 'What is the character on the screen called?',
         'options': ['Kukla', 'Kutu', 'Şekil', 'Figür'],
+        'optionsEn': ['Sprite', 'Box', 'Shape', 'Figure'],
         'correctAnswer': 0,
         'points': 50,
         'difficulty': 1,
       },
       {
         'question': 'Sahneye arka plan eklemek için ne kullanılır?',
+        'questionEn': 'What is used to add a background to the stage?',
         'options': ['Fon', 'Arkaplan', 'Kukla', 'Kostüm'],
+        'optionsEn': ['Backdrop', 'Background', 'Sprite', 'Costume'],
         'correctAnswer': 0,
         'points': 50,
         'difficulty': 1,
@@ -935,28 +972,36 @@ class ScratchQuestions {
       // Medium Questions (Difficulty 2)
       {
         'question': 'Bir işlemi 10 kez tekrarlamak için hangi blok kullanılır?',
+        'questionEn': 'Which block is used to repeat an action 10 times?',
         'options': ['Sürekli Tekrarla', '10 Kez Tekrarla', 'Eğer Koşul', 'Bekle'],
+        'optionsEn': ['Forever', 'Repeat 10 Times', 'If Condition', 'Wait'],
         'correctAnswer': 1,
         'points': 75,
         'difficulty': 2,
       },
       {
         'question': 'Değişken oluşturmak ne işe yarar?',
+        'questionEn': 'What is a variable used for?',
         'options': ['Veri saklamak', 'Ses eklemek', 'Renk değiştirmek', 'Döndürmek'],
+        'optionsEn': ['Storing data', 'Adding sound', 'Changing color', 'Turning'],
         'correctAnswer': 0,
         'points': 75,
         'difficulty': 2,
       },
       {
         'question': 'Koşullu ifade için hangi blok kullanılır?',
+        'questionEn': 'Which block is used for a conditional statement?',
         'options': ['Eğer-O zaman', 'Tekrarla', 'Bekle', 'Gönder'],
+        'optionsEn': ['If-Then', 'Repeat', 'Wait', 'Broadcast'],
         'correctAnswer': 0,
         'points': 75,
         'difficulty': 2,
       },
       {
         'question': 'İki kukla arasında mesaj göndermek için ne kullanılır?',
+        'questionEn': 'What is used to send a message between two sprites?',
         'options': ['Mesaj Gönder', 'Konuş', 'Ses Çal', 'Değişken'],
+        'optionsEn': ['Broadcast', 'Say', 'Play Sound', 'Variable'],
         'correctAnswer': 0,
         'points': 75,
         'difficulty': 2,
@@ -965,35 +1010,51 @@ class ScratchQuestions {
       // Hard Questions (Difficulty 3)
       {
         'question': 'Klon oluşturmak ne işe yarar?',
+        'questionEn': 'What does creating a clone do?',
         'options': ['Kukla kopyası yaratır', 'Proje kaydeder', 'Ses kopyalar', 'Renk değiştirir'],
+        'optionsEn': ['Creates a copy of the sprite', 'Saves the project', 'Copies a sound', 'Changes the color'],
         'correctAnswer': 0,
         'points': 100,
         'difficulty': 3,
       },
       {
         'question': 'Sürekli tekrarla bloğunun içindeki kodlar ne zaman durur?',
+        'questionEn': 'When does the code inside a forever block stop?',
         'options': ['Program durdurulunca', '10 saniye sonra', 'Otomatik durur', 'Asla çalışmaz'],
+        'optionsEn': ['When the program is stopped', 'After 10 seconds', 'It stops automatically', 'It never runs'],
         'correctAnswer': 0,
         'points': 100,
         'difficulty': 3,
       },
       {
         'question': 'Algılayıcı blokları ne yapar?',
+        'questionEn': 'What do sensing blocks do?',
         'options': ['Çevreden veri alır', 'Ses çalar', 'Renk değiştirir', 'Hareket ettirir'],
+        'optionsEn': ['Get data from the environment', 'Play sound', 'Change color', 'Move'],
         'correctAnswer': 0,
         'points': 100,
         'difficulty': 3,
       },
       {
         'question': 'İşlemci blokları hangi kategoridedir?',
+        'questionEn': 'What category do operator blocks belong to?',
         'options': ['Matematiksel işlemler', 'Hareket', 'Görünüm', 'Ses'],
+        'optionsEn': ['Mathematical operations', 'Motion', 'Looks', 'Sound'],
         'correctAnswer': 0,
         'points': 100,
         'difficulty': 3,
       },
     ];
 
-    return allQuestions.where((q) => q['difficulty'] == difficulty).toList();
+    final filtered = allQuestions.where((q) => q['difficulty'] == difficulty).toList();
+    if (!isEnglish) return filtered;
+
+    return filtered.map((q) {
+      final copy = Map<String, dynamic>.from(q);
+      if (copy['questionEn'] != null) copy['question'] = copy['questionEn'];
+      if (copy['optionsEn'] != null) copy['options'] = copy['optionsEn'];
+      return copy;
+    }).toList();
   }
 }
 
@@ -1006,6 +1067,7 @@ class LeftRightCodingGame extends FlameGame {
   final Function(Map<String, dynamic>) onBonusSquare;
   final Function(int unansweredCount) onUnansweredQuestions;
   final PuppetType puppetType;
+  final bool isEnglish;
 
   late RobotPlayer robot;
   late TargetStar target;
@@ -1028,6 +1090,7 @@ class LeftRightCodingGame extends FlameGame {
     required this.onBonusSquare,
     required this.onUnansweredQuestions,
     required this.puppetType,
+    this.isEnglish = false,
   });
 
   @override
@@ -1148,7 +1211,7 @@ class LeftRightCodingGame extends FlameGame {
 
       if (!isRobotPos && !isTargetPos && !isObstaclePos && !isBonusOccupied) {
         // Get a random question of appropriate difficulty
-        final availableQuestions = ScratchQuestions.getQuestionsByDifficulty(questionDifficulty);
+        final availableQuestions = ScratchQuestions.getQuestionsByDifficulty(questionDifficulty, isEnglish: isEnglish);
         if (availableQuestions.isNotEmpty) {
           // Filter out already used questions
           final unusedQuestions = availableQuestions.where((q) =>

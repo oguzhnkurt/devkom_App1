@@ -9,6 +9,7 @@ import '../../services/sound_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/score_calculator.dart';
 import '../../widgets/play_time_gate.dart';
+import '../../providers/settings_provider.dart';
 
 /// Bug Hunter Oyunu
 /// Koddaki hataları bulma ve debug yapma yeteneklerini geliştiren oyun
@@ -51,6 +52,9 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
   bool gameOver = false;
   DateTime? startTime;
   int? finalTimeSeconds;
+
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
 
   // Bug türleri
   final List<String> bugTypes = [
@@ -115,131 +119,218 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
   }
 
   void _generateSyntaxBug() {
-    final bugs = [
-      'Noktalı virgül eksik',
-      'Parantez kapanmamış',
-      'Süslü parantez eksik',
-      'Tırnak işareti kapanmamış',
-    ];
+    final bugs = _isEn
+        ? [
+            'Missing semicolon',
+            'Unclosed parenthesis',
+            'Missing curly brace',
+            'Unclosed quotation mark',
+          ]
+        : [
+            'Noktalı virgül eksik',
+            'Parantez kapanmamış',
+            'Süslü parantez eksik',
+            'Tırnak işareti kapanmamış',
+          ];
 
     final bugIndex = _random.nextInt(bugs.length);
     bugDescription = bugs[bugIndex];
 
-    codeLines = [
-      CodeLine('int x = 10;', false),
-      CodeLine('int y = 20;', false),
-      CodeLine('int toplam = x + y', bugIndex == 0), // Noktalı virgül eksik
-      CodeLine('print(toplam;', bugIndex == 1),      // Parantez kapanmamış
-      CodeLine('if (toplam > 25) {', false),
-      CodeLine('  print("Büyük")', bugIndex == 0),   // Noktalı virgül eksik
-      CodeLine(bugIndex == 2 ? '// Eksik }' : '}', bugIndex == 2), // Süslü parantez eksik
-    ];
+    codeLines = _isEn
+        ? [
+            CodeLine('int x = 10;', false),
+            CodeLine('int y = 20;', false),
+            CodeLine('int total = x + y', bugIndex == 0), // Missing semicolon
+            CodeLine('print(total;', bugIndex == 1), // Unclosed parenthesis
+            CodeLine('if (total > 25) {', false),
+            CodeLine('  print("Big")', bugIndex == 0), // Missing semicolon
+            CodeLine(bugIndex == 2 ? '// Missing }' : '}', bugIndex == 2), // Missing curly brace
+          ]
+        : [
+            CodeLine('int x = 10;', false),
+            CodeLine('int y = 20;', false),
+            CodeLine('int toplam = x + y', bugIndex == 0), // Noktalı virgül eksik
+            CodeLine('print(toplam;', bugIndex == 1),      // Parantez kapanmamış
+            CodeLine('if (toplam > 25) {', false),
+            CodeLine('  print("Büyük")', bugIndex == 0),   // Noktalı virgül eksik
+            CodeLine(bugIndex == 2 ? '// Eksik }' : '}', bugIndex == 2), // Süslü parantez eksik
+          ];
 
     bugLineIndex = codeLines.indexWhere((line) => line.hasBug);
   }
 
   void _generateOperatorBug() {
-    final bugs = [
-      'Yanlış operatör kullanımı',
-      'Çarpma yerine toplama',
-      'Bölme yerine çarpma',
-    ];
+    final bugs = _isEn
+        ? [
+            'Wrong operator used',
+            'Addition instead of multiplication',
+            'Multiplication instead of division',
+          ]
+        : [
+            'Yanlış operatör kullanımı',
+            'Çarpma yerine toplama',
+            'Bölme yerine çarpma',
+          ];
 
     bugDescription = bugs[_random.nextInt(bugs.length)];
 
-    codeLines = [
-      CodeLine('int fiyat = 100;', false),
-      CodeLine('int adet = 5;', false),
-      CodeLine('int toplam = fiyat + adet;', true),  // + yerine * olmalı
-      CodeLine('print(toplam);', false),
-      CodeLine('// Toplam = 500 olmalı', false),
-    ];
+    codeLines = _isEn
+        ? [
+            CodeLine('int price = 100;', false),
+            CodeLine('int quantity = 5;', false),
+            CodeLine('int total = price + quantity;', true), // should be * instead of +
+            CodeLine('print(total);', false),
+            CodeLine('// Total should be 500', false),
+          ]
+        : [
+            CodeLine('int fiyat = 100;', false),
+            CodeLine('int adet = 5;', false),
+            CodeLine('int toplam = fiyat + adet;', true),  // + yerine * olmalı
+            CodeLine('print(toplam);', false),
+            CodeLine('// Toplam = 500 olmalı', false),
+          ];
 
     bugLineIndex = 2;
   }
 
   void _generateComparisonBug() {
-    final bugs = [
-      'Karşılaştırma operatörü yanlış',
-      '= yerine == kullanılmalı',
-      '> yerine < kullanılmalı',
-    ];
+    final bugs = _isEn
+        ? [
+            'Wrong comparison operator',
+            'Should use == instead of =',
+            'Should use < instead of >',
+          ]
+        : [
+            'Karşılaştırma operatörü yanlış',
+            '= yerine == kullanılmalı',
+            '> yerine < kullanılmalı',
+          ];
 
     bugDescription = bugs[_random.nextInt(bugs.length)];
 
-    codeLines = [
-      CodeLine('int yas = 15;', false),
-      CodeLine('if (yas = 18) {', true),             // = yerine == olmalı
-      CodeLine('  print("Yetişkin");', false),
-      CodeLine('} else {', false),
-      CodeLine('  print("Çocuk");', false),
-      CodeLine('}', false),
-    ];
+    codeLines = _isEn
+        ? [
+            CodeLine('int age = 15;', false),
+            CodeLine('if (age = 18) {', true), // should be == instead of =
+            CodeLine('  print("Adult");', false),
+            CodeLine('} else {', false),
+            CodeLine('  print("Child");', false),
+            CodeLine('}', false),
+          ]
+        : [
+            CodeLine('int yas = 15;', false),
+            CodeLine('if (yas = 18) {', true),             // = yerine == olmalı
+            CodeLine('  print("Yetişkin");', false),
+            CodeLine('} else {', false),
+            CodeLine('  print("Çocuk");', false),
+            CodeLine('}', false),
+          ];
 
     bugLineIndex = 1;
   }
 
   void _generateVariableBug() {
-    final bugs = [
-      'Değişken tanımlanmamış',
-      'Değişken ismi yanlış',
-      'Değişken kullanılmadan önce atanmamış',
-    ];
+    final bugs = _isEn
+        ? [
+            'Variable not defined',
+            'Variable name is wrong',
+            'Variable used before being assigned',
+          ]
+        : [
+            'Değişken tanımlanmamış',
+            'Değişken ismi yanlış',
+            'Değişken kullanılmadan önce atanmamış',
+          ];
 
     bugDescription = bugs[_random.nextInt(bugs.length)];
 
-    codeLines = [
-      CodeLine('int sayi1 = 10;', false),
-      CodeLine('int sayi2 = 20;', false),
-      CodeLine('int sonuc = sayi1 + sayi3;', true), // sayi3 tanımlı değil
-      CodeLine('print(sonuc);', false),
-    ];
+    codeLines = _isEn
+        ? [
+            CodeLine('int num1 = 10;', false),
+            CodeLine('int num2 = 20;', false),
+            CodeLine('int result = num1 + num3;', true), // num3 is not defined
+            CodeLine('print(result);', false),
+          ]
+        : [
+            CodeLine('int sayi1 = 10;', false),
+            CodeLine('int sayi2 = 20;', false),
+            CodeLine('int sonuc = sayi1 + sayi3;', true), // sayi3 tanımlı değil
+            CodeLine('print(sonuc);', false),
+          ];
 
     bugLineIndex = 2;
   }
 
   void _generateLogicBug() {
-    bugDescription = 'Mantık hatası - Yanlış hesaplama';
+    bugDescription = _isEn ? 'Logic error - Wrong calculation' : 'Mantık hatası - Yanlış hesaplama';
 
-    codeLines = [
-      CodeLine('int not1 = 80;', false),
-      CodeLine('int not2 = 90;', false),
-      CodeLine('int not3 = 70;', false),
-      CodeLine('double ortalama = (not1 + not2) / 3;', true), // not3 eksik
-      CodeLine('print(ortalama);', false),
-      CodeLine('// Ortalama = 80 olmalı', false),
-    ];
+    codeLines = _isEn
+        ? [
+            CodeLine('int grade1 = 80;', false),
+            CodeLine('int grade2 = 90;', false),
+            CodeLine('int grade3 = 70;', false),
+            CodeLine('double average = (grade1 + grade2) / 3;', true), // grade3 missing
+            CodeLine('print(average);', false),
+            CodeLine('// Average should be 80', false),
+          ]
+        : [
+            CodeLine('int not1 = 80;', false),
+            CodeLine('int not2 = 90;', false),
+            CodeLine('int not3 = 70;', false),
+            CodeLine('double ortalama = (not1 + not2) / 3;', true), // not3 eksik
+            CodeLine('print(ortalama);', false),
+            CodeLine('// Ortalama = 80 olmalı', false),
+          ];
 
     bugLineIndex = 3;
   }
 
   void _generateConditionBug() {
-    bugDescription = 'Koşul hatası - Yanlış karşılaştırma';
+    bugDescription = _isEn ? 'Condition error - Wrong comparison' : 'Koşul hatası - Yanlış karşılaştırma';
 
-    codeLines = [
-      CodeLine('int puan = 85;', false),
-      CodeLine('if (puan > 90) {', false),
-      CodeLine('  print("Mükemmel");', false),
-      CodeLine('} else if (puan < 80) {', true),     // < yerine >= olmalı
-      CodeLine('  print("İyi");', false),
-      CodeLine('} else {', false),
-      CodeLine('  print("Orta");', false),
-      CodeLine('}', false),
-    ];
+    codeLines = _isEn
+        ? [
+            CodeLine('int score = 85;', false),
+            CodeLine('if (score > 90) {', false),
+            CodeLine('  print("Excellent");', false),
+            CodeLine('} else if (score < 80) {', true), // should be >= instead of <
+            CodeLine('  print("Good");', false),
+            CodeLine('} else {', false),
+            CodeLine('  print("Average");', false),
+            CodeLine('}', false),
+          ]
+        : [
+            CodeLine('int puan = 85;', false),
+            CodeLine('if (puan > 90) {', false),
+            CodeLine('  print("Mükemmel");', false),
+            CodeLine('} else if (puan < 80) {', true),     // < yerine >= olmalı
+            CodeLine('  print("İyi");', false),
+            CodeLine('} else {', false),
+            CodeLine('  print("Orta");', false),
+            CodeLine('}', false),
+          ];
 
     bugLineIndex = 3;
   }
 
   void _generateLoopBug() {
-    bugDescription = 'Döngü hatası - Sonsuz döngü riski';
+    bugDescription = _isEn ? 'Loop error - Infinite loop risk' : 'Döngü hatası - Sonsuz döngü riski';
 
-    codeLines = [
-      CodeLine('int i = 0;', false),
-      CodeLine('while (i < 10) {', false),
-      CodeLine('  print(i);', false),
-      CodeLine('  // i++; eksik', true),             // i++ eksik - sonsuz döngü
-      CodeLine('}', false),
-    ];
+    codeLines = _isEn
+        ? [
+            CodeLine('int i = 0;', false),
+            CodeLine('while (i < 10) {', false),
+            CodeLine('  print(i);', false),
+            CodeLine('  // i++; missing', true), // i++ missing - infinite loop
+            CodeLine('}', false),
+          ]
+        : [
+            CodeLine('int i = 0;', false),
+            CodeLine('while (i < 10) {', false),
+            CodeLine('  print(i);', false),
+            CodeLine('  // i++; eksik', true),             // i++ eksik - sonsuz döngü
+            CodeLine('}', false),
+          ];
 
     bugLineIndex = 3;
   }
@@ -296,14 +387,14 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
           children: [
             Icon(Icons.close, color: AppTheme.errorRed),
             const SizedBox(width: 8),
-            const Text('Yanlış Satır'),
+            Text(_isEn ? 'Wrong Line' : 'Yanlış Satır'),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Doğru satır: ${bugLineIndex! + 1}',
+              _isEn ? 'Correct line: ${bugLineIndex! + 1}' : 'Doğru satır: ${bugLineIndex! + 1}',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -314,7 +405,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Kalan can: $lives',
+              _isEn ? 'Lives left: $lives' : 'Kalan can: $lives',
               style: const TextStyle(fontSize: 16),
             ),
           ],
@@ -332,7 +423,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
               backgroundColor: AppTheme.primaryBlue,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Devam Et'),
+            child: Text(_isEn ? 'Continue' : 'Devam Et'),
           ),
         ],
       ),
@@ -379,7 +470,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
     final entry = LeaderboardEntry(
       id: '',
       userId: userId,
-      userName: authProvider.currentUser?.displayName ?? 'Oyuncu',
+      userName: authProvider.currentUser?.displayName ?? (_isEn ? 'Player' : 'Oyuncu'),
       score: score.round(),
       difficulty: currentLevel,
       gameType: GameType.bugHunter,
@@ -392,28 +483,54 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
   void _showHintDialog() {
     String hintText = '';
 
-    switch (bugType) {
-      case 'syntax':
-        hintText = 'İpucu: Noktalama işaretlerini ve parantezleri kontrol et!';
-        break;
-      case 'operator':
-        hintText = 'İpucu: İşlem operatörü doğru mu?';
-        break;
-      case 'comparison':
-        hintText = 'İpucu: Atama (=) ile karşılaştırma (==) farklıdır!';
-        break;
-      case 'variable':
-        hintText = 'İpucu: Tüm değişkenler tanımlandı mı?';
-        break;
-      case 'logic':
-        hintText = 'İpucu: Hesaplama formülü doğru mu?';
-        break;
-      case 'condition':
-        hintText = 'İpucu: Karşılaştırma operatörü mantıklı mı?';
-        break;
-      case 'loop':
-        hintText = 'İpucu: Döngü değişkeni güncelleniyor mu?';
-        break;
+    if (_isEn) {
+      switch (bugType) {
+        case 'syntax':
+          hintText = 'Hint: Check the punctuation and parentheses!';
+          break;
+        case 'operator':
+          hintText = 'Hint: Is the operator correct?';
+          break;
+        case 'comparison':
+          hintText = 'Hint: Assignment (=) and comparison (==) are different!';
+          break;
+        case 'variable':
+          hintText = 'Hint: Are all variables defined?';
+          break;
+        case 'logic':
+          hintText = 'Hint: Is the calculation formula correct?';
+          break;
+        case 'condition':
+          hintText = 'Hint: Does the comparison operator make sense?';
+          break;
+        case 'loop':
+          hintText = 'Hint: Is the loop variable being updated?';
+          break;
+      }
+    } else {
+      switch (bugType) {
+        case 'syntax':
+          hintText = 'İpucu: Noktalama işaretlerini ve parantezleri kontrol et!';
+          break;
+        case 'operator':
+          hintText = 'İpucu: İşlem operatörü doğru mu?';
+          break;
+        case 'comparison':
+          hintText = 'İpucu: Atama (=) ile karşılaştırma (==) farklıdır!';
+          break;
+        case 'variable':
+          hintText = 'İpucu: Tüm değişkenler tanımlandı mı?';
+          break;
+        case 'logic':
+          hintText = 'İpucu: Hesaplama formülü doğru mu?';
+          break;
+        case 'condition':
+          hintText = 'İpucu: Karşılaştırma operatörü mantıklı mı?';
+          break;
+        case 'loop':
+          hintText = 'İpucu: Döngü değişkeni güncelleniyor mu?';
+          break;
+      }
     }
 
     showDialog(
@@ -423,7 +540,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
           children: [
             Icon(Icons.lightbulb, color: AppTheme.warningOrange),
             const SizedBox(width: 8),
-            const Text('İpucu'),
+            Text(_isEn ? 'Hint' : 'İpucu'),
           ],
         ),
         content: Column(
@@ -442,7 +559,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'Hata Türü: $bugDescription',
+                _isEn ? 'Bug Type: $bugDescription' : 'Hata Türü: $bugDescription',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -461,7 +578,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
               backgroundColor: AppTheme.primaryBlue,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Tamam'),
+            child: Text(_isEn ? 'OK' : 'Tamam'),
           ),
         ],
       ),
@@ -484,7 +601,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
           IconButton(
             icon: const Icon(Icons.lightbulb_outline),
             onPressed: _showHintDialog,
-            tooltip: 'İpucu',
+            tooltip: _isEn ? 'Hint' : 'İpucu',
           ),
         ],
       ),
@@ -539,8 +656,8 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem('Seviye', '$currentLevel/$maxLevels', Icons.trending_up, AppTheme.primaryBlue),
-          _buildStatItem('Skor', '$score', Icons.stars, AppTheme.warningOrange),
+          _buildStatItem(_isEn ? 'Level' : 'Seviye', '$currentLevel/$maxLevels', Icons.trending_up, AppTheme.primaryBlue),
+          _buildStatItem(_isEn ? 'Score' : 'Skor', '$score', Icons.stars, AppTheme.warningOrange),
           _buildLivesIndicator(),
         ],
       ),
@@ -585,7 +702,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Can',
+          _isEn ? 'Lives' : 'Can',
           style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         ),
       ],
@@ -612,16 +729,16 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Hata Avcılığı',
-                    style: TextStyle(
+                  Text(
+                    _isEn ? 'Bug Hunting' : 'Hata Avcılığı',
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Koddaki hatayı içeren satırı bul',
+                    _isEn ? 'Find the line containing the bug in the code' : 'Koddaki hatayı içeren satırı bul',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
@@ -694,7 +811,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Hatalı satırı tıkla',
+                    _isEn ? 'Tap the faulty line' : 'Hatalı satırı tıkla',
                     style: TextStyle(fontSize: 12, color: Colors.grey[700]),
                   ),
                 ],
@@ -822,7 +939,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
       appBar: AppBar(
         backgroundColor: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
         foregroundColor: Colors.white,
-        title: Text(gameWon ? 'Tebrikler!' : 'Oyun Bitti'),
+        title: Text(gameWon ? (_isEn ? 'Congratulations!' : 'Tebrikler!') : (_isEn ? 'Game Over' : 'Oyun Bitti')),
       ),
       body: Center(
         child: Padding(
@@ -837,7 +954,9 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
               ),
               const SizedBox(height: 24),
               Text(
-                gameWon ? 'Harika Bir Hata Avcısısın!' : 'Tekrar Dene!',
+                gameWon
+                    ? (_isEn ? 'You\'re a Great Bug Hunter!' : 'Harika Bir Hata Avcısısın!')
+                    : (_isEn ? 'Try Again!' : 'Tekrar Dene!'),
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -846,10 +965,10 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              _buildResultCard('Seviye', '$currentLevel/$maxLevels', Icons.trending_up),
-              _buildResultCard('Skor', '$score', Icons.stars),
+              _buildResultCard(_isEn ? 'Level' : 'Seviye', '$currentLevel/$maxLevels', Icons.trending_up),
+              _buildResultCard(_isEn ? 'Score' : 'Skor', '$score', Icons.stars),
               if (finalTimeSeconds != null)
-                _buildResultCard('Süre', '$finalTimeSeconds saniye', Icons.timer),
+                _buildResultCard(_isEn ? 'Duration' : 'Süre', _isEn ? '$finalTimeSeconds seconds' : '$finalTimeSeconds saniye', Icons.timer),
               const SizedBox(height: 32),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -857,7 +976,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
                   ElevatedButton.icon(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.home),
-                    label: const Text('Ana Menü'),
+                    label: Text(_isEn ? 'Main Menu' : 'Ana Menü'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryBlue,
                       foregroundColor: Colors.white,
@@ -877,7 +996,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
                       });
                     },
                     icon: const Icon(Icons.replay),
-                    label: const Text('Tekrar Oyna'),
+                    label: Text(_isEn ? 'Play Again' : 'Tekrar Oyna'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.successGreen,
                       foregroundColor: Colors.white,

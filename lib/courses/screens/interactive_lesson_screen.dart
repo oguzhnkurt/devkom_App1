@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/user_progress_service.dart';
 import 'widgets/step_widgets.dart';
 
 /// Modern, Interactive Lesson Screen
@@ -100,6 +101,12 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
 
     if (authProvider.isAuthenticated) {
       await authProvider.addXP(totalXp);
+      // Jeton ödülü (Market'te harcanabilir)
+      final userId = authProvider.currentUser?.uid;
+      if (userId != null) {
+        await UserProgressService().addJeton(userId, 8, source: 'interactive_lesson');
+        await authProvider.refreshProgress();
+      }
     }
 
     // Show completion dialog

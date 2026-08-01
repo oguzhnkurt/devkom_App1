@@ -9,6 +9,7 @@ import '../../models/leaderboard_model.dart';
 import '../../models/game_model.dart';
 import '../../services/leaderboard_service.dart';
 import '../../widgets/animated_rank_display.dart';
+import '../../providers/settings_provider.dart';
 
 // Block types
 enum BlockType {
@@ -82,6 +83,9 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
 
   // Animation
   late AnimationController _animationController;
+
+  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  bool get _isEn => _lang == 'en';
 
   @override
   void initState() {
@@ -175,10 +179,10 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
       if (_playerX == _goalX && _playerY == _goalY) {
         _showLevelCompleteDialog();
       } else {
-        _showMessage('❌ Hedefe ulaşamadın. Tekrar dene!');
+        _showMessage(_isEn ? '❌ You did not reach the goal. Try again!' : '❌ Hedefe ulaşamadın. Tekrar dene!');
       }
     } catch (e) {
-      _showMessage('❌ Hata: $e');
+      _showMessage(_isEn ? '❌ Error: $e' : '❌ Hata: $e');
     }
 
     setState(() {
@@ -285,7 +289,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
       final entry = LeaderboardEntry(
         id: '',
         userId: user.id!,
-        userName: user.name ?? 'Oyuncu',
+        userName: user.name ?? (_isEn ? 'Player' : 'Oyuncu'),
         userPhotoUrl: user.profilePictureUrl,
         gameType: GameType.blockCoding,
         score: finalScore,
@@ -321,7 +325,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
           builder: (context) => AnimatedRankDisplay(
             rank: userRank,
             totalScore: finalScore,
-            userName: user.name ?? 'Oyuncu',
+            userName: user.name ?? (_isEn ? 'Player' : 'Oyuncu'),
             isNewRecord: false,
             onClose: () {
               Navigator.pop(context);
@@ -344,14 +348,14 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
           children: [
             Icon(Icons.emoji_events, color: Colors.amber[600], size: 32),
             const SizedBox(width: 12),
-            const Text('🎉 Hedefe Ulaştınız!'),
+            Text(_isEn ? '🎉 You Reached the Goal!' : '🎉 Hedefe Ulaştınız!'),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Seviye $_currentLevel Tamamlandı!',
+              _isEn ? 'Level $_currentLevel Complete!' : 'Seviye $_currentLevel Tamamlandı!',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -367,7 +371,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                   const Icon(Icons.star, color: Colors.amber),
                   const SizedBox(width: 8),
                   Text(
-                    'Puan: $_score',
+                    _isEn ? 'Score: $_score' : 'Puan: $_score',
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -387,7 +391,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                 _loadLevel(_currentLevel);
               });
             },
-            child: const Text('Tekrar Oyna'),
+            child: Text(_isEn ? 'Play Again' : 'Tekrar Oyna'),
           ),
           if (_currentLevel < 10)
             ElevatedButton(
@@ -403,7 +407,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
-              child: const Text('Sonraki Seviye'),
+              child: Text(_isEn ? 'Next Level' : 'Sonraki Seviye'),
             ),
           if (_currentLevel >= 3)
             ElevatedButton(
@@ -421,7 +425,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
-              child: const Text('Skoru Kaydet'),
+              child: Text(_isEn ? 'Save Score' : 'Skoru Kaydet'),
             ),
         ],
       ),
@@ -432,7 +436,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kod Blokları'),
+        title: Text(_isEn ? 'Code Blocks' : 'Kod Blokları'),
             backgroundColor: const Color(0xFF0FBD8C),  // Scratch green
         foregroundColor: Colors.white,
         actions: [
@@ -440,7 +444,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Center(
               child: Text(
-                'Seviye $_currentLevel | Puan: $_score',
+                _isEn ? 'Level $_currentLevel | Score: $_score' : 'Seviye $_currentLevel | Puan: $_score',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
             ),
@@ -486,7 +490,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
       children: [
         Expanded(flex: 3, child: _buildGameGrid()),
         Container(
-          height: 100,
+          height: 148,
           color: Colors.grey[100],
           child: _buildBlockPaletteHorizontal(),
         ),
@@ -502,8 +506,8 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
         Container(
           padding: const EdgeInsets.all(12),
           color: const Color(0xFF4CAF50),
-          child: const Text(
-            'Bloklar',
+          child: Text(
+            _isEn ? 'Blocks' : 'Bloklar',
             style: TextStyle(
               color: Colors.white,
               fontSize: 16,
@@ -530,18 +534,24 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
   }
 
   Widget _buildBlockPaletteHorizontal() {
-    return ListView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.all(8),
-      children: [
-        _buildDraggableBlock(BlockType.moveForward),
-        const SizedBox(width: 8),
-        _buildDraggableBlock(BlockType.turnRight),
-        const SizedBox(width: 8),
-        _buildDraggableBlock(BlockType.turnLeft),
-        const SizedBox(width: 8),
-        _buildDraggableBlock(BlockType.repeat),
-      ],
+    // Not: yatay kaydırılan bir ListView içine Draggable koymak, dokunma
+    // hareketlerinin (sürükleme vs kaydırma) birbiriyle çakışmasına ve
+    // blokların kaymaması / sağda kesik görünmesine yol açıyordu.
+    // Bunun yerine tüm bloklar Wrap ile iki satıra sığdırılıyor, böylece
+    // kaydırmaya gerek kalmadan hepsi görünür ve sürüklenebilir olur.
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          _buildDraggableBlock(BlockType.moveForward),
+          _buildDraggableBlock(BlockType.turnRight),
+          _buildDraggableBlock(BlockType.turnLeft),
+          _buildDraggableBlock(BlockType.repeat),
+        ],
+      ),
     );
   }
 
@@ -571,28 +581,24 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
 
     switch (type) {
       case BlockType.moveForward:
-        color = const Color(0xFF4C97FF);  // Scratch Motion color
         color = Colors.blue;
         icon = Icons.arrow_upward;
-        label = '10 adım git';  // Scratch: move 10 steps
+        label = _isEn ? 'Move 1 Step' : '1 Adım Git'; // Grid'de tek kare ileri gider
         break;
       case BlockType.turnRight:
-        color = const Color(0xFF4C97FF);  // Scratch Motion color
         color = Colors.orange;
         icon = Icons.rotate_right;
-        label = '15° sağa dön';  // Scratch: turn right 15 degrees
+        label = _isEn ? 'Turn Right' : 'Sağa Dön'; // Grid'de 90° sağa döner
         break;
       case BlockType.turnLeft:
-        color = const Color(0xFF4C97FF);  // Scratch Motion color
         color = Colors.purple;
         icon = Icons.rotate_left;
-        label = '15° sola dön';  // Scratch: turn left 15 degrees
+        label = _isEn ? 'Turn Left' : 'Sola Dön'; // Grid'de 90° sola döner
         break;
       case BlockType.repeat:
-        color = const Color(0xFFFFAB19);  // Scratch Control color
         color = Colors.green;
         icon = Icons.repeat;
-        label = '2 kez tekrarla';  // Scratch: repeat 2
+        label = _isEn ? 'Repeat' : 'Tekrarla';
         break;
     }
 
@@ -743,8 +749,8 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Kodun',
+                  Text(
+                    _isEn ? 'Your Code' : 'Kodun',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Flexible(
@@ -762,7 +768,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                                   },
                             icon: const Icon(Icons.delete, size: 18),
                             color: Colors.red,
-                            tooltip: 'Temizle',
+                            tooltip: _isEn ? 'Clear' : 'Temizle',
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                           ),
@@ -777,7 +783,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                             color: Colors.white,
                           ),
                           label: Text(
-                            _isRunning ? 'Çalışıyor...' : 'Çalıştır',
+                            _isRunning ? (_isEn ? 'Running...' : 'Çalışıyor...') : (_isEn ? 'Run' : 'Çalıştır'),
                             style: const TextStyle(fontSize: 12),
                           ),
                           style: ElevatedButton.styleFrom(
@@ -805,7 +811,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                                 size: 48, color: Colors.grey[400]),
                             const SizedBox(height: 8),
                             Text(
-                              'Blokları buraya sürükle',
+                              _isEn ? 'Drag blocks here' : 'Blokları buraya sürükle',
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 14,
@@ -845,28 +851,24 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
 
     switch (block.type) {
       case BlockType.moveForward:
-        color = const Color(0xFF4C97FF);  // Scratch Motion color
         color = Colors.blue;
         icon = Icons.arrow_upward;
-        label = '10 adım git';  // Scratch: move 10 steps
+        label = _isEn ? 'Move 1 Step' : '1 Adım Git';
         break;
       case BlockType.turnRight:
-        color = const Color(0xFF4C97FF);  // Scratch Motion color
         color = Colors.orange;
         icon = Icons.rotate_right;
-        label = '15° sağa dön';  // Scratch: turn right 15 degrees
+        label = _isEn ? 'Turn Right' : 'Sağa Dön';
         break;
       case BlockType.turnLeft:
-        color = const Color(0xFF4C97FF);  // Scratch Motion color
         color = Colors.purple;
         icon = Icons.rotate_left;
-        label = '15° sola dön';  // Scratch: turn left 15 degrees
+        label = _isEn ? 'Turn Left' : 'Sola Dön';
         break;
       case BlockType.repeat:
-        color = const Color(0xFFFFAB19);  // Scratch Control color
         color = Colors.green;
         icon = Icons.repeat;
-        label = 'Tekrarla ${block.repeatCount}x';
+        label = _isEn ? 'Repeat ${block.repeatCount}x' : 'Tekrarla ${block.repeatCount}x';
         break;
     }
 
