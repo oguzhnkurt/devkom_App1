@@ -1,0 +1,175 @@
+PODS:
+  - Adapty (3.15.7):
+    - AdaptyLogger (= 3.15.7)
+    - AdaptyUIBuilder (= 3.15.7)
+  - adapty_flutter (3.15.5):
+    - Adapty (= 3.15.7)
+    - AdaptyPlugin (= 3.15.7)
+    - AdaptyUI (= 3.15.7)
+    - Flutter
+  - AdaptyLogger (3.15.7)
+  - AdaptyPlugin (3.15.7):
+    - Adapty (= 3.15.7)
+    - AdaptyLogger (= 3.15.7)
+    - AdaptyUI (= 3.15.7)
+    - AdaptyUIBuilder (= 3.15.7)
+  - AdaptyUI (3.15.7):
+    - Adapty (= 3.15.7)
+    - AdaptyLogger (= 3.15.7)
+    - AdaptyUIBuilder (= 3.15.7)
+  - AdaptyUIBuilder (3.15.7):
+    - AdaptyLogger (= 3.15.7)
+  - audioplayers_darwin (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+  - flutter_image_compress_common (1.0.0):
+    - Flutter
+    - Mantle
+    - SDWebImage
+    - SDWebImageWebPCoder
+  - flutter_inappwebview_ios (0.0.1):
+    - Flutter
+    - flutter_inappwebview_ios/Core (= 0.0.1)
+    - OrderedSet (~> 6.0.3)
+  - flutter_inappwebview_ios/Core (0.0.1):
+    - Flutter
+    - OrderedSet (~> 6.0.3)
+  - flutter_local_notifications (0.0.1):
+    - Flutter
+  - flutter_sound (9.28.0):
+    - Flutter
+    - flutter_sound_core (= 9.28.0)
+  - flutter_sound_core (9.28.0)
+  - flutter_vlc_player (3.0.3):
+    - Flutter
+    - MobileVLCKit (~> 3.6.0b12)
+  - json-enum (1.2.3)
+  - jsonlogic (1.2.4):
+    - json-enum (~> 1.2.3)
+  - libwebp (1.5.0):
+    - libwebp/demux (= 1.5.0)
+    - libwebp/mux (= 1.5.0)
+    - libwebp/sharpyuv (= 1.5.0)
+    - libwebp/webp (= 1.5.0)
+  - libwebp/demux (1.5.0):
+    - libwebp/webp
+  - libwebp/mux (1.5.0):
+    - libwebp/demux
+  - libwebp/sharpyuv (1.5.0)
+  - libwebp/webp (1.5.0):
+    - libwebp/sharpyuv
+  - Mantle (2.2.0):
+    - Mantle/extobjc (= 2.2.0)
+  - Mantle/extobjc (2.2.0)
+  - Mixpanel-swift (6.4.0):
+    - jsonlogic (~> 1.2.0)
+    - Mixpanel-swift/Complete (= 6.4.0)
+    - MixpanelSwiftCommon (~> 1.0.0)
+  - Mixpanel-swift/Complete (6.4.0):
+    - jsonlogic (~> 1.2.0)
+    - MixpanelSwiftCommon (~> 1.0.0)
+  - mixpanel_flutter (2.8.0):
+    - Flutter
+    - Mixpanel-swift (= 6.4.0)
+  - MixpanelSwiftCommon (1.0.1)
+  - MobileVLCKit (3.6.1b1)
+  - OrderedSet (6.0.3)
+  - permission_handler_apple (9.3.0):
+    - Flutter
+  - SDWebImage (5.21.7):
+    - SDWebImage/Core (= 5.21.7)
+  - SDWebImage/Core (5.21.7)
+  - SDWebImageWebPCoder (0.15.0):
+    - libwebp (~> 1.0)
+    - SDWebImage/Core (~> 5.17)
+  - sign_in_with_apple (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - adapty_flutter (from `.symlinks/plugins/adapty_flutter/ios`)
+  - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/ios`)
+  - Flutter (from `Flutter`)
+  - flutter_image_compress_common (from `.symlinks/plugins/flutter_image_compress_common/ios`)
+  - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
+  - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
+  - flutter_sound (from `.symlinks/plugins/flutter_sound/ios`)
+  - flutter_vlc_player (from `.symlinks/plugins/flutter_vlc_player/ios`)
+  - mixpanel_flutter (from `.symlinks/plugins/mixpanel_flutter/ios`)
+  - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
+
+SPEC REPOS:
+  trunk:
+    - Adapty
+    - AdaptyLogger
+    - AdaptyPlugin
+    - AdaptyUI
+    - AdaptyUIBuilder
+    - flutter_sound_core
+    - json-enum
+    - jsonlogic
+    - libwebp
+    - Mantle
+    - Mixpanel-swift
+    - MixpanelSwiftCommon
+    - MobileVLCKit
+    - OrderedSet
+    - SDWebImage
+    - SDWebImageWebPCoder
+
+EXTERNAL SOURCES:
+  adapty_flutter:
+    :path: ".symlinks/plugins/adapty_flutter/ios"
+  audioplayers_darwin:
+    :path: ".symlinks/plugins/audioplayers_darwin/ios"
+  Flutter:
+    :path: Flutter
+  flutter_image_compress_common:
+    :path: ".symlinks/plugins/flutter_image_compress_common/ios"
+  flutter_inappwebview_ios:
+    :path: ".symlinks/plugins/flutter_inappwebview_ios/ios"
+  flutter_local_notifications:
+    :path: ".symlinks/plugins/flutter_local_notifications/ios"
+  flutter_sound:
+    :path: ".symlinks/plugins/flutter_sound/ios"
+  flutter_vlc_player:
+    :path: ".symlinks/plugins/flutter_vlc_player/ios"
+  mixpanel_flutter:
+    :path: ".symlinks/plugins/mixpanel_flutter/ios"
+  permission_handler_apple:
+    :path: ".symlinks/plugins/permission_handler_apple/ios"
+  sign_in_with_apple:
+    :path: ".symlinks/plugins/sign_in_with_apple/ios"
+
+SPEC CHECKSUMS:
+  Adapty: abebbbc8f0b3c5bb5fee60b56370157d1eb6f0fc
+  adapty_flutter: 842c70387c2aa9440bdb79c597efbf3514db831b
+  AdaptyLogger: 0aa2decd92c377035ef68bf8455ae9fb9a1896e8
+  AdaptyPlugin: 4613933dd9d1f5676bfd64d2cf413972be60513b
+  AdaptyUI: 4cde24413c1a424eda3669c1580e4622c1e55e4a
+  AdaptyUIBuilder: 50ddeffc81a5bcf3b1fe06b2a2eda24944cd3a03
+  audioplayers_darwin: ccf9c770ee768abb07e26d90af093f7bab1c12ab
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_image_compress_common: 1697a328fd72bfb335507c6bca1a65fa5ad87df1
+  flutter_inappwebview_ios: b89ba3482b96fb25e00c967aae065701b66e9b99
+  flutter_local_notifications: 395056b3175ba4f08480a7c5de30cd36d69827e4
+  flutter_sound: b9236a5875299aaa4cef1690afd2f01d52a3f890
+  flutter_sound_core: 427465f72d07ab8c3edbe8ffdde709ddacd3763c
+  flutter_vlc_player: adffbf4816d69407ca712e4cc1ff1d257b4fd0a9
+  json-enum: 57ad746d2f0d7852796e9aa50267bd84a778222e
+  jsonlogic: 006f892470384401b8ca5b5d8d4cdadb3a0d5c9b
+  libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
+  Mantle: c5aa8794a29a022dfbbfc9799af95f477a69b62d
+  Mixpanel-swift: 9eb2ea2d0463970687c984e07040669f787b7a49
+  mixpanel_flutter: 259e1ad9a46a6013e74a979e47b25271989ef5fd
+  MixpanelSwiftCommon: 6fc461403945422a2e1d0989d712c0db2c26ecdb
+  MobileVLCKit: 2d9c7c373393ae43086aeeff890bf0b1afc15c5c
+  OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
+  permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
+  SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
+  SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
+  sign_in_with_apple: c5dcc141574c8c54d5ac99dd2163c0c72ad22418
+
+PODFILE CHECKSUM: 3c63482e143d1b91d2d2560aee9fb04ecc74ac7e
+
+COCOAPODS: 1.16.2
