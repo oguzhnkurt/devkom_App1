@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../providers/settings_provider.dart';
 import '../../theme.dart';
 import '../../utils/app_localizations.dart';
@@ -185,6 +186,31 @@ class SettingsScreen extends StatelessWidget {
                 icon: Icons.analytics,
                 value: settings.shareDataForImprovement,
                 onChanged: (value) => settings.setShareDataForImprovement(value),
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryBlue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.description_outlined, color: AppTheme.primaryBlue),
+                ),
+                title: Text(
+                  settings.locale.languageCode == 'en' ? 'Privacy Policy' : 'Gizlilik Politikası',
+                ),
+                subtitle: Text(
+                  settings.locale.languageCode == 'en'
+                      ? 'View our privacy policy and account deletion'
+                      : 'Gizlilik politikamızı ve hesap silmeyi görüntüle',
+                ),
+                trailing: const Icon(Icons.open_in_new, size: 18),
+                onTap: () async {
+                  final uri = Uri.parse(
+                    'https://oguzhnkurt.github.io/devkom_App1/privacy-policy.html',
+                  );
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                },
               ),
               const Divider(),
 

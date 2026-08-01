@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevKom - Hesabı Sil / Delete Account</title>
+<style>
+  :root {
+    --primary-blue: #1565C0;
+    --dark-blue: #0D47A1;
+    --accent-teal: #26C6DA;
+    --success-green: #66BB6A;
+    --warning-orange: #FF9800;
+    --error-red: #EF5350;
+    --text-dark: #263238;
+    --text-gray: #607D8B;
+    --bg-light: #F5F8FC;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  header {
+    background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+    color: #fff;
+    padding: 28px 20px 36px;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 4px; font-size: 22px; }
+  header p { margin: 0; opacity: 0.9; font-size: 13.5px; }
+  .lang-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 6px;
+  }
+  .lang-toggle button {
+    border: 1px solid rgba(255,255,255,0.6);
+    background: transparent;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .lang-toggle button.active { background: #fff; color: var(--primary-blue); }
+  main {
+    max-width: 480px;
+    margin: -20px auto 60px;
+    padding: 0 20px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px 26px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+  }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--text-gray); margin: 14px 0 6px; }
+  input[type=email], input[type=password] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #CFD8DC;
+    border-radius: 10px;
+    font-size: 15px;
+  }
+  input:focus { outline: none; border-color: var(--primary-blue); }
+  button.primary {
+    width: 100%;
+    margin-top: 20px;
+    padding: 13px;
+    border: none;
+    border-radius: 24px;
+    background: var(--primary-blue);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button.primary:disabled { opacity: 0.6; cursor: not-allowed; }
+  button.danger { background: var(--error-red); }
+  button.secondary {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    border: 1.5px solid #CFD8DC;
+    border-radius: 24px;
+    background: #fff;
+    color: var(--text-dark);
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .msg { font-size: 13.5px; padding: 10px 14px; border-radius: 8px; margin-top: 14px; }
+  .msg.error { background: #FFEBEE; color: #C62828; }
+  .msg.success { background: #E8F5E9; color: #2E7D32; }
+  .msg.info { background: #E3F2FD; color: #1565C0; }
+  .warn-box {
+    background: #FFF3E0;
+    border-left: 4px solid var(--warning-orange);
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    margin-bottom: 16px;
+  }
+  .checkbox-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 16px; font-size: 13.5px; }
+  .checkbox-row input { margin-top: 3px; }
+  .account-email { font-weight: 700; color: var(--dark-blue); }
+  a.back-link { display: block; text-align: center; margin-top: 6px; font-size: 13px; color: var(--text-gray); text-decoration: none; }
+  .hidden { display: none !important; }
+  .lang-block { display: none; }
+  .lang-block.active { display: inline; }
+  footer { text-align: center; font-size: 12px; color: var(--text-gray); padding: 10px 20px 30px; }
+  .spinner {
+    width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.5);
+    border-top-color: #fff; border-radius: 50%; display: inline-block;
+    animation: spin 0.7s linear infinite; vertical-align: -3px; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="lang-toggle">
+    <button id="btn-tr" class="active" onclick="setLang('tr')">TR</button>
+    <button id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+  <h1><span class="lang-block active" data-lang="tr">Hesabını Sil</span><span class="lang-block" data-lang="en">Delete Your Account</span></h1>
+  <p>
+    <span class="lang-block active" data-lang="tr">Uygulamayı yüklemeden DevKom hesabını buradan kalıcı olarak silebilirsin.</span>
+    <span class="lang-block" data-lang="en">Permanently delete your DevKom account here, without installing the app.</span>
+  </p>
+</header>
+
+<main>
+
+  <!-- STEP 1: LOGIN -->
+  <div class="card" id="step-login">
+    <div class="warn-box">
+      <span class="lang-block active" data-lang="tr">Devam etmek için hesabına ait e-posta ve şifreyle giriş yap. Bu bilgiler doğrudan Supabase'e (kimlik doğrulama servisimiz) gönderilir, bizim sunucumuzda saklanmaz.</span>
+      <span class="lang-block" data-lang="en">Sign in with your account email and password to continue. These credentials are sent directly to Supabase (our authentication service) and are not stored on our servers.</span>
+    </div>
+
+    <label for="email">
+      <span class="lang-block active" data-lang="tr">E-posta</span>
+      <span class="lang-block" data-lang="en">Email</span>
+    </label>
+    <input type="email" id="email" placeholder="ornek@eposta.com" autocomplete="username">
+
+    <label for="password">
+      <span class="lang-block active" data-lang="tr">Şifre</span>
+      <span class="lang-block" data-lang="en">Password</span>
+    </label>
+    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+
+    <button class="primary" id="login-btn" onclick="doLogin()">
+      <span class="lang-block active" data-lang="tr">Giriş Yap</span>
+      <span class="lang-block" data-lang="en">Sign In</span>
+    </button>
+
+    <div id="login-msg"></div>
+
+    <p style="font-size:12.5px; color:var(--text-gray); margin-top:18px;">
+      <span class="lang-block active" data-lang="tr">Şifreni unuttuysan ya da Apple ile giriş yapıyorsan, hesabını e-posta ile buradan sildirebilirsin:</span>
+      <span class="lang-block" data-lang="en">If you forgot your password or you sign in with Apple, you can request deletion by email instead:</span>
+      <a href="mailto:info@devkom.com.tr?subject=Hesap%20Silme%20Talebi">info@devkom.com.tr</a>
+    </p>
+  </div>
+
+  <!-- STEP 2: CONFIRM -->
+  <div class="card hidden" id="step-confirm">
+    <p>
+      <span class="lang-block active" data-lang="tr">Giriş yapıldı: <span class="account-email" id="account-email-tr"></span></span>
+      <span class="lang-block" data-lang="en">Signed in as: <span class="account-email" id="account-email-en"></span></span>
+    </p>
+    <div class="warn-box">
+      <strong><span class="lang-block active" data-lang="tr">Bu işlem geri alınamaz.</span><span class="lang-block" data-lang="en">This action cannot be undone.</span></strong><br>
+      <span class="lang-block active" data-lang="tr">Hesabın, ilerlemen, skorların ve tüm uygulama verilerin kalıcı olarak silinecek. Giriş kimliğin (e-posta/şifre) de tamamen kaldırılacak.</span>
+      <span class="lang-block" data-lang="en">Your account, progress, scores, and all app data will be permanently deleted. Your login identity (email/password) will also be completely removed.</span>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="confirm-check">
+      <label for="confirm-check" style="margin:0; font-weight:400; color:var(--text-dark);">
+        <span class="lang-block active" data-lang="tr">Anladım, hesabımı ve tüm verilerimi kalıcı olarak silmek istiyorum.</span>
+        <span class="lang-block" data-lang="en">I understand, and I want to permanently delete my account and all my data.</span>
+      </label>
+    </div>
+    <button class="primary danger" id="delete-btn" onclick="doDelete()" disabled>
+      <span class="lang-block active" data-lang="tr">Hesabımı Kalıcı Olarak Sil</span>
+      <span class="lang-block" data-lang="en">Permanently Delete My Account</span>
+    </button>
+    <button class="secondary" onclick="cancelFlow()">
+      <span class="lang-block active" data-lang="tr">Vazgeç</span>
+      <span class="lang-block" data-lang="en">Cancel</span>
+    </button>
+    <div id="delete-msg"></div>
+  </div>
+
+  <!-- STEP 3: DONE -->
+  <div class="card hidden" id="step-done">
+    <div class="msg success" style="font-size:15px;">
+      <span class="lang-block active" data-lang="tr">✅ Hesabın ve tüm verilerin kalıcı olarak silindi.</span>
+      <span class="lang-block" data-lang="en">✅ Your account and all your data have been permanently deleted.</span>
+    </div>
+  </div>
+
+  <a class="back-link" href="./privacy-policy.html">
+    <span class="lang-block active" data-lang="tr">← Gizlilik Politikasına dön</span>
+    <span class="lang-block" data-lang="en">← Back to Privacy Policy</span>
+  </a>
+
+</main>
+
+<footer>DevKom &copy; 2026 &middot; info@devkom.com.tr</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://swhldeonfravztafsfof.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_jR-NeqU_7Zaj4psIHqMqKw_61PlbIQ8';
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let currentSession = null;
+
+  function setLang(lang) {
+    document.querySelectorAll('.lang-block').forEach(el => {
+      el.classList.toggle('active', el.dataset.lang === lang);
+    });
+    document.getElementById('btn-tr').classList.toggle('active', lang === 'tr');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    try { localStorage.setItem('devkom_lang', lang); } catch(e) {}
+  }
+  (function() {
+    try {
+      var saved = localStorage.getItem('devkom_lang');
+      if (saved === 'en') setLang('en');
+    } catch(e) {}
+  })();
+
+  function showMsg(elId, text, type) {
+    const el = document.getElementById(elId);
+    el.innerHTML = '<div class="msg ' + type + '">' + text + '</div>';
+  }
+
+  document.getElementById('confirm-check').addEventListener('change', function() {
+    document.getElementById('delete-btn').disabled = !this.checked;
+  });
+
+  async function doLogin() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('login-btn');
+    const isEn = document.getElementById('btn-en').classList.contains('active');
+
+    if (!email || !password) {
+      showMsg('login-msg', isEn ? 'Please enter both email and password.' : 'Lütfen e-posta ve şifreni gir.', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>' + (isEn ? 'Signing in...' : 'Giriş yapılıyor...');
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+    btn.disabled = false;
+    btn.innerHTML = isEn ? 'Sign In' : 'Giriş Yap';
+
+    if (error) {
+      showMsg('login-msg', isEn
+        ? 'Sign-in failed: incorrect email or password.'
+        : 'Giriş başarısız: e-posta veya şifre hatalı.', 'error');
+      return;
+    }
+
+    currentSession = data.session;
+    document.getElementById('account-email-tr').textContent = email;
+    document.getElementById('account-email-en').textContent = email;
+    document.getElementById('step-login').classList.add('hidden');
+    document.getElementById('step-confirm').classList.remove('hidden');
+  }
+
+  function cancelFlow() {
+    supabaseClient.auth.signOut();
+    currentSession = null;
+    document.getElementById('confirm-check').checked = false;
+    document.getElementById('delete-btn').disabled = true;
+    document.getElementById('step-confirm').classList.add('hidden');
+    document.getElementById('step-login').classList.remove('hidden');
+    document.getElementById('email').value = '';
+    document.getElementById('password').value = '';
+  }
+
+  async function doDelete() {
+    const isEn = document.getElementById('btn-en').classList.contains('active');
+    const btn = document.getElementById('delete-btn');
+    if (!currentSession) {
+      showMsg('delete-msg', isEn ? 'Session expired, please sign in again.' : 'Oturum süresi doldu, tekrar giriş yap.', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>' + (isEn ? 'Deleting...' : 'Siliniyor...');
+
+    try {
+      const res = await fetch(SUPABASE_URL + '/functions/v1/delete-account', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + currentSession.access_token,
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        }
+      });
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || 'Unknown error');
+      }
+
+      document.getElementById('step-confirm').classList.add('hidden');
+      document.getElementById('step-done').classList.remove('hidden');
+    } catch (e) {
+      btn.disabled = false;
+      btn.innerHTML = isEn ? 'Permanently Delete My Account' : 'Hesabımı Kalıcı Olarak Sil';
+      showMsg('delete-msg', (isEn ? 'Deletion failed: ' : 'Silme başarısız: ') + e.message, 'error');
+    }
+  }
+</script>
+
+</body>
+</html>
