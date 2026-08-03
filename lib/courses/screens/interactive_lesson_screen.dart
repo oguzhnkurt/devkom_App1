@@ -189,7 +189,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.lesson.title,
+                  widget.lesson.titleFor(lessonLang(context)),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -197,7 +197,9 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
                   ),
                 ),
                 Text(
-                  'Adim ${_currentStepIndex + 1} / ${widget.lesson.steps.length}',
+                  lessonLang(context) == 'en'
+                      ? 'Step ${_currentStepIndex + 1} / ${widget.lesson.steps.length}'
+                      : 'Adim ${_currentStepIndex + 1} / ${widget.lesson.steps.length}',
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
@@ -548,9 +550,9 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
                 shaderCallback: (bounds) => LinearGradient(
                   colors: [widget.course.primaryColor, widget.course.secondaryColor],
                 ).createShader(bounds),
-                child: const Text(
-                  'TEBRIKLER!',
-                  style: TextStyle(
+                child: Text(
+                  lessonLang(context) == 'en' ? 'CONGRATULATIONS!' : 'TEBRIKLER!',
+                  style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -560,7 +562,9 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
               const SizedBox(height: 8),
 
               Text(
-                '"${widget.lesson.title}" tamamlandi!',
+                lessonLang(context) == 'en'
+                    ? '"${widget.lesson.titleFor('en')}" completed!'
+                    : '"${widget.lesson.title}" tamamlandi!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,

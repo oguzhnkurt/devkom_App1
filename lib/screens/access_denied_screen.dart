@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 
 class AccessDeniedScreen extends StatelessWidget {
@@ -216,13 +217,30 @@ class AccessDeniedScreen extends StatelessWidget {
 
                 // Contact Support Button
                 OutlinedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement contact support
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Destek ile iletişim yakında eklenecek'),
-                      ),
+                  onPressed: () async {
+                    final uri = Uri(
+                      scheme: 'mailto',
+                      path: 'info@devkom.com.tr',
+                      query: 'subject=DevKom Destek Talebi',
                     );
+                    try {
+                      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      if (!launched && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('E-posta uygulaması açılamadı. info@devkom.com.tr adresinden bize ulaşabilirsiniz.'),
+                          ),
+                        );
+                      }
+                    } catch (_) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('E-posta uygulaması açılamadı. info@devkom.com.tr adresinden bize ulaşabilirsiniz.'),
+                          ),
+                        );
+                      }
+                    }
                   },
                   icon: const Icon(Icons.support_agent),
                   label: const Text('Destek İle İletişime Geç'),

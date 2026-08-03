@@ -113,8 +113,8 @@ class CoursesData {
       category: CourseCategory.web,
       difficulty: DifficultyLevel.beginner,
       tags: ['web', 'frontend', 'markup'],
-      totalLessons: 3,
-      estimatedMinutes: 45,
+      totalLessons: 10,
+      estimatedMinutes: 220,
       sortOrder: 6,
     ),
 

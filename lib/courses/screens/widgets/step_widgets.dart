@@ -2,13 +2,27 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../models/course_model.dart';
 import '../../models/interactive_lesson_model.dart';
+import '../../../providers/settings_provider.dart';
 import 'catch_block_game.dart';
 import 'coordinate_tap_game.dart';
 import '../../../widgets/scratch_block_widget.dart';
 import '../../../widgets/walking_cat_widget.dart';
 import '../../../widgets/block_animation_player.dart';
+
+/// Current app language code ('tr' | 'en') for lesson content.
+/// Listens so that switching the language rebuilds lesson content in place.
+/// Call this from build().
+String lessonLang(BuildContext context) =>
+    context.watch<SettingsProvider>().locale.languageCode;
+
+/// Same value without subscribing - safe to call from helper methods that are
+/// invoked during build (the enclosing build() already subscribes via
+/// [lessonLang], so rebuilds still propagate).
+String lessonLangRead(BuildContext context) =>
+    Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
 
 // ==========================================
 // INTRO STEP WIDGET
@@ -55,6 +69,8 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
 
   @override
   Widget build(BuildContext context) {
+    final lang = lessonLang(context);
+    final highlights = widget.step.highlightsFor(lang);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -106,7 +122,7 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
           child: Column(
             children: [
               Text(
-                widget.step.mascotMessage,
+                widget.step.mascotMessageFor(lang),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 18,
@@ -114,9 +130,9 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (widget.step.highlights.isNotEmpty) ...[
+              if (highlights.isNotEmpty) ...[
                 const SizedBox(height: 24),
-                ...widget.step.highlights.map((highlight) => Padding(
+                ...highlights.map((highlight) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Row(
                     children: [
@@ -170,12 +186,14 @@ class ExplanationStepWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = lessonLang(context);
+    final tipText = step.tipFor(lang);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Title
         Text(
-          step.title,
+          step.titleFor(lang),
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -186,7 +204,7 @@ class ExplanationStepWidget extends StatelessWidget {
 
         // Content
         Text(
-          step.content,
+          step.contentFor(lang),
           style: TextStyle(
             fontSize: 16,
             height: 1.7,
@@ -201,9 +219,9 @@ class ExplanationStepWidget extends StatelessWidget {
         ],
 
         // Tip box
-        if (step.tip != null) ...[
+        if (tipText != null) ...[
           const SizedBox(height: 24),
-          _buildTipBox(),
+          _buildTipBox(tipText),
         ],
       ],
     );
@@ -304,7 +322,7 @@ class ExplanationStepWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTipBox() {
+  Widget _buildTipBox(String tipText) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -319,7 +337,7 @@ class ExplanationStepWidget extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              step.tip!,
+              tipText,
               style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
@@ -377,6 +395,8 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = lessonLang(context);
+    final isEn = lang == 'en';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -398,7 +418,7 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
               const Text('🤔', style: TextStyle(fontSize: 40)),
               const SizedBox(height: 16),
               Text(
-                widget.step.question,
+                widget.step.questionFor(lang),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
@@ -479,7 +499,7 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
                   ],
                   Expanded(
                     child: Text(
-                      option.text,
+                      option.textFor(lang),
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -528,7 +548,9 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _isCorrect ? 'Dogru!' : 'Yanlis!',
+                        _isCorrect
+                            ? (isEn ? 'Correct!' : 'Dogru!')
+                            : (isEn ? 'Wrong!' : 'Yanlis!'),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: _isCorrect ? Colors.green : Colors.orange,
@@ -536,7 +558,7 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        widget.step.explanation,
+                        widget.step.explanationFor(lang),
                         style: TextStyle(
                           fontSize: 14,
                           color: widget.isDark ? Colors.grey.shade300 : Colors.grey.shade700,
@@ -612,12 +634,13 @@ class _DragDropStepWidgetState extends State<DragDropStepWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = lessonLang(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Instruction
         Text(
-          widget.step.instruction,
+          widget.step.instructionFor(lang),
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -662,7 +685,7 @@ class _DragDropStepWidgetState extends State<DragDropStepWidget> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    widget.step.successMessage,
+                    widget.step.successMessageFor(lang),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.green,
@@ -713,16 +736,16 @@ class _DragDropStepWidgetState extends State<DragDropStepWidget> {
           child: Column(
             children: [
               Text(
-                zone.label,
+                zone.labelFor(lessonLangRead(context)),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: widget.course.primaryColor,
                 ),
               ),
-              if (zone.hint != null) ...[
+              if (zone.hintFor(lessonLangRead(context)) != null) ...[
                 const SizedBox(height: 4),
                 Text(
-                  zone.hint!,
+                  zone.hintFor(lessonLangRead(context))!,
                   style: TextStyle(
                     fontSize: 11,
                     color: widget.isDark ? Colors.grey.shade500 : Colors.grey.shade600,
@@ -770,7 +793,7 @@ class _DragDropStepWidgetState extends State<DragDropStepWidget> {
             : null,
       ),
       child: Text(
-        item.content,
+        item.contentFor(lessonLangRead(context)),
         style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.w600,
@@ -798,7 +821,7 @@ class _DragDropStepWidgetState extends State<DragDropStepWidget> {
           children: [
             Flexible(
               child: Text(
-                item.content,
+                item.contentFor(lessonLangRead(context)),
                 style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
@@ -887,12 +910,14 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = lessonLang(context);
+    final goalLabel = lang == 'en' ? 'Goal' : 'Hedef';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Instruction
         Text(
-          widget.step.instruction,
+          widget.step.instructionFor(lang),
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -914,7 +939,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Hedef: ${widget.step.goal}',
+                  '$goalLabel: ${widget.step.goalFor(lang)}',
                   style: TextStyle(
                     color: widget.isDark ? Colors.blue.shade200 : Colors.blue.shade700,
                   ),
@@ -1137,11 +1162,12 @@ class _OrderingStepWidgetState extends State<OrderingStepWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = lessonLang(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.step.instruction,
+          widget.step.instructionFor(lang),
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -1150,7 +1176,7 @@ class _OrderingStepWidgetState extends State<OrderingStepWidget> {
         ),
         const SizedBox(height: 8),
         Text(
-          widget.step.context,
+          widget.step.contextFor(lang),
           style: TextStyle(
             color: widget.isDark ? Colors.grey.shade400 : Colors.grey.shade600,
           ),
@@ -1222,7 +1248,7 @@ class _OrderingStepWidgetState extends State<OrderingStepWidget> {
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  item.content,
+                                  item.contentFor(lang),
                                   style: TextStyle(
                                     fontFamily: item.isCode ? 'monospace' : null,
                                     color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
@@ -1231,7 +1257,7 @@ class _OrderingStepWidgetState extends State<OrderingStepWidget> {
                               ],
                             )
                           : Text(
-                              item.content,
+                              item.contentFor(lang),
                               style: TextStyle(
                                 fontFamily: item.isCode ? 'monospace' : null,
                                 color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
@@ -1378,13 +1404,14 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = lessonLang(context);
     final rightItems = List<MatchPair>.from(_shuffledPairs)..shuffle();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.step.instruction,
+          widget.step.instructionFor(lang),
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -1486,7 +1513,7 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
-                                    pair.left,
+                                    pair.leftFor(lang),
                                     style: TextStyle(
                                       fontFamily: pair.isLeftCode ? 'monospace' : null,
                                       fontSize: 15,
@@ -1611,7 +1638,7 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
-                                    pair.right,
+                                    pair.rightFor(lang),
                                     style: TextStyle(
                                       fontFamily: pair.isRightCode ? 'monospace' : null,
                                       fontSize: 15,
@@ -1754,6 +1781,7 @@ class _MiniGameStepWidgetState extends State<MiniGameStepWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = lessonLang(context);
     if (!_gameStarted) {
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -1762,7 +1790,7 @@ class _MiniGameStepWidgetState extends State<MiniGameStepWidget> {
           const Text('🎮', style: TextStyle(fontSize: 80)),
           const SizedBox(height: 24),
           Text(
-            widget.step.title,
+            widget.step.titleFor(lang),
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -1773,7 +1801,7 @@ class _MiniGameStepWidgetState extends State<MiniGameStepWidget> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              widget.step.instruction,
+              widget.step.instructionFor(lang),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: widget.isDark ? Colors.grey.shade400 : Colors.grey.shade600,
@@ -1788,7 +1816,7 @@ class _MiniGameStepWidgetState extends State<MiniGameStepWidget> {
               });
             },
             icon: const Icon(Icons.play_arrow),
-            label: const Text('Oyunu Baslat'),
+            label: Text(lang == 'en' ? 'Start Game' : 'Oyunu Baslat'),
             style: ElevatedButton.styleFrom(
               backgroundColor: widget.course.primaryColor,
               foregroundColor: Colors.white,
@@ -1855,7 +1883,7 @@ class _MiniGameStepWidgetState extends State<MiniGameStepWidget> {
             ),
             const SizedBox(height: 24),
             Text(
-              widget.step.title,
+              widget.step.titleFor(lang),
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -1865,7 +1893,7 @@ class _MiniGameStepWidgetState extends State<MiniGameStepWidget> {
             ),
             const SizedBox(height: 12),
             Text(
-              widget.step.instruction,
+              widget.step.instructionFor(lang),
               style: TextStyle(
                 fontSize: 16,
                 color: widget.isDark ? Colors.grey.shade300 : Colors.grey.shade700,
@@ -1880,7 +1908,9 @@ class _MiniGameStepWidgetState extends State<MiniGameStepWidget> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                'Oyun yakinda eklenecek! Simdilik devam edebilirsin.',
+                lang == 'en'
+                    ? 'This game is coming soon! You can continue for now.'
+                    : 'Oyun yakinda eklenecek! Simdilik devam edebilirsin.',
                 style: TextStyle(
                   fontSize: 14,
                   color: widget.isDark ? Colors.grey.shade300 : Colors.grey.shade700,
@@ -1933,6 +1963,9 @@ class ProjectStepWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = lessonLang(context);
+    final isEn = lang == 'en';
+    final hints = step.hintsFor(lang);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1953,16 +1986,16 @@ class ProjectStepWidget extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'PROJE',
-                      style: TextStyle(
+                    Text(
+                      isEn ? 'PROJECT' : 'PROJE',
+                      style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 12,
                         letterSpacing: 2,
                       ),
                     ),
                     Text(
-                      step.title,
+                      step.titleFor(lang),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -1979,7 +2012,7 @@ class ProjectStepWidget extends StatelessWidget {
 
         // Description
         Text(
-          step.description,
+          step.descriptionFor(lang),
           style: TextStyle(
             fontSize: 16,
             height: 1.6,
@@ -1990,7 +2023,7 @@ class ProjectStepWidget extends StatelessWidget {
 
         // Requirements
         Text(
-          'Gereksinimler:',
+          isEn ? 'Requirements:' : 'Gereksinimler:',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -1998,7 +2031,7 @@ class ProjectStepWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        ...step.requirements.map((req) => Padding(
+        ...step.requirementsFor(lang).map((req) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
             children: [
@@ -2021,12 +2054,12 @@ class ProjectStepWidget extends StatelessWidget {
         )),
 
         // Hints
-        if (step.hints.isNotEmpty) ...[
+        if (hints.isNotEmpty) ...[
           const SizedBox(height: 24),
           ExpansionTile(
-            title: const Text('Ipuclari'),
+            title: Text(isEn ? 'Hints' : 'Ipuclari'),
             leading: const Icon(Icons.lightbulb_outline),
-            children: step.hints.map((hint) => ListTile(
+            children: hints.map((hint) => ListTile(
               leading: const Text('💡'),
               title: Text(hint),
             )).toList(),
@@ -2041,7 +2074,7 @@ class ProjectStepWidget extends StatelessWidget {
           child: ElevatedButton.icon(
             onPressed: onComplete,
             icon: const Icon(Icons.check),
-            label: const Text('Projeyi Tamamladim!'),
+            label: Text(isEn ? 'I Finished the Project!' : 'Projeyi Tamamladim!'),
             style: ElevatedButton.styleFrom(
               backgroundColor: course.primaryColor,
               foregroundColor: Colors.white,
@@ -2077,12 +2110,13 @@ class AnimationStepWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = lessonLang(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Title
         Text(
-          step.title,
+          step.titleFor(lang),
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -2093,7 +2127,7 @@ class AnimationStepWidget extends StatelessWidget {
 
         // Description
         Text(
-          step.description,
+          step.descriptionFor(lang),
           style: TextStyle(
             fontSize: 16,
             color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
@@ -2120,7 +2154,7 @@ class AnimationStepWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('Devam', style: TextStyle(fontSize: 16)),
+            child: Text(lang == 'en' ? 'Continue' : 'Devam', style: const TextStyle(fontSize: 16)),
           ),
         ),
       ],

@@ -10,6 +10,7 @@ import '../data/css_lessons_data.dart';
 import '../data/java_lessons_data.dart';
 import '../data/csharp_lessons_data.dart';
 import 'interactive_lesson_screen.dart';
+import 'widgets/step_widgets.dart' show lessonLang;
 
 /// Genel Interaktif Kurs Ekrani
 /// Tum kurslar icin kullanilabilir
@@ -84,15 +85,51 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         _modules = [
           _ModuleInfo(
             title: 'HTML\'e Giris',
+            titleEn: 'Getting Started with HTML',
             description: 'Web sayfalarinin iskeleti',
+            descriptionEn: 'The skeleton of web pages',
             emoji: '🌐',
             lessons: HtmlLessonsData.module1,
           ),
           _ModuleInfo(
             title: 'Metin Etiketleri',
+            titleEn: 'Text Tags',
             description: 'Baslik ve paragraflar',
+            descriptionEn: 'Headings and paragraphs',
             emoji: '📝',
             lessons: HtmlLessonsData.module2,
+          ),
+          _ModuleInfo(
+            title: 'Baglanti ve Gorseller',
+            titleEn: 'Links and Images',
+            description: 'Sayfalari birbirine bagla',
+            descriptionEn: 'Connect pages together',
+            emoji: '🔗',
+            lessons: HtmlLessonsData.module3,
+          ),
+          _ModuleInfo(
+            title: 'Listeler ve Tablolar',
+            titleEn: 'Lists and Tables',
+            description: 'Veriyi duzenli goster',
+            descriptionEn: 'Present data in an organized way',
+            emoji: '📋',
+            lessons: HtmlLessonsData.module4,
+          ),
+          _ModuleInfo(
+            title: 'Formlar',
+            titleEn: 'Forms',
+            description: 'Kullanicidan veri al',
+            descriptionEn: 'Collect data from users',
+            emoji: '📮',
+            lessons: HtmlLessonsData.module5,
+          ),
+          _ModuleInfo(
+            title: 'Semantik HTML ve Proje',
+            titleEn: 'Semantic HTML and Project',
+            description: 'Anlamli yapi ve final proje',
+            descriptionEn: 'Meaningful structure and a final project',
+            emoji: '🚀',
+            lessons: HtmlLessonsData.module6,
           ),
         ];
         break;
@@ -303,8 +340,10 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
     if (_modules.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: Text(widget.course.name)),
-        body: const Center(
-          child: Text('Bu kurs icin interaktif icerik henuz hazir degil.'),
+        body: Center(
+          child: Text(lessonLang(context) == 'en'
+              ? 'Interactive content for this course is not ready yet.'
+              : 'Bu kurs icin interaktif icerik henuz hazir degil.'),
         ),
       );
     }
@@ -600,7 +639,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Modul ${index + 1}',
+                    lessonLang(context) == 'en' ? 'Module ${index + 1}' : 'Modul ${index + 1}',
                     style: TextStyle(
                       fontSize: 11,
                       color: isSelected
@@ -609,7 +648,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                     ),
                   ),
                   Text(
-                    module.title,
+                    module.titleFor(lessonLang(context)),
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -648,7 +687,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      module.title,
+                      module.titleFor(lessonLang(context)),
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -656,7 +695,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                       ),
                     ),
                     Text(
-                      module.description,
+                      module.descriptionFor(lessonLang(context)),
                       style: TextStyle(
                         fontSize: 14,
                         color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
@@ -776,7 +815,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          lesson.title,
+                          lesson.titleFor(lessonLang(context)),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -787,7 +826,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          lesson.subtitle,
+                          lesson.subtitleFor(lessonLang(context)),
                           style: TextStyle(
                             fontSize: 13,
                             color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
@@ -878,12 +917,21 @@ class _ModuleInfo {
   final String emoji;
   final List<InteractiveLesson> lessons;
 
+  // Bilingual (optional - falls back to TR)
+  final String? titleEn;
+  final String? descriptionEn;
+
   const _ModuleInfo({
     required this.title,
     required this.description,
     required this.emoji,
     required this.lessons,
+    this.titleEn,
+    this.descriptionEn,
   });
+
+  String titleFor(String lang) => pickLang(title, titleEn, lang);
+  String descriptionFor(String lang) => pickLang(description, descriptionEn, lang);
 }
 
 /// Animated Emoji Widget

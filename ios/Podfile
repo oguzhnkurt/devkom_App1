@@ -1,5 +1,7 @@
-# Uncomment this line to define a global platform for your project
-# platform :ios, '13.0'
+# Global platform. Must stay >= 13.0: adapty_flutter, sign_in_with_apple and
+# flutter_sound all require iOS 13+. Leaving this commented makes CocoaPods
+# fall back to an older default and the pod install fails.
+platform :ios, '13.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'

@@ -2,6 +2,33 @@ import 'package:flutter/material.dart';
 
 /// Modern, FreeCodeCamp-inspired interactive lesson model
 /// Focused on engagement, not Wikipedia-style reading
+///
+/// BILINGUAL SUPPORT (TR/EN)
+/// -------------------------
+/// Every user-facing text field has an optional `...En` counterpart.
+/// Content authored before bilingual support simply leaves them null and
+/// keeps working exactly as before: the `...For(lang)` helpers fall back to
+/// the Turkish text whenever the English one is missing. This means EN can
+/// be filled in incrementally, lesson by lesson, without a big-bang refactor.
+
+/// Picks the English value when the app language is English AND a translation
+/// actually exists; otherwise returns the original (Turkish) value.
+String pickLang(String tr, String? en, String lang) {
+  if (lang == 'en' && en != null && en.trim().isNotEmpty) return en;
+  return tr;
+}
+
+/// Nullable variant of [pickLang] - used for optional fields like tips.
+String? pickLangNullable(String? tr, String? en, String lang) {
+  if (lang == 'en' && en != null && en.trim().isNotEmpty) return en;
+  return tr;
+}
+
+/// List variant of [pickLang] - falls back when the EN list is missing/empty.
+List<String> pickLangList(List<String> tr, List<String>? en, String lang) {
+  if (lang == 'en' && en != null && en.isNotEmpty) return en;
+  return tr;
+}
 
 // ==========================================
 // STEP-BASED LESSON STRUCTURE
@@ -19,6 +46,10 @@ class InteractiveLesson {
   final String? badge; // Badge earned on completion
   final LessonCategory category;
 
+  // Bilingual (optional - falls back to TR when absent)
+  final String? titleEn;
+  final String? subtitleEn;
+
   const InteractiveLesson({
     required this.id,
     required this.courseId,
@@ -29,7 +60,12 @@ class InteractiveLesson {
     this.xpReward = 50,
     this.badge,
     this.category = LessonCategory.learn,
+    this.titleEn,
+    this.subtitleEn,
   });
+
+  String titleFor(String lang) => pickLang(title, titleEn, lang);
+  String subtitleFor(String lang) => pickLang(subtitle, subtitleEn, lang);
 
   int get totalSteps => steps.length;
   int get estimatedMinutes => (steps.length * 2).clamp(5, 30);
@@ -95,13 +131,22 @@ class IntroStep extends LessonStep {
   final String? backgroundAnimation;
   final List<String> highlights;
 
+  // Bilingual
+  final String? mascotMessageEn;
+  final List<String>? highlightsEn;
+
   const IntroStep({
     required super.id,
     required this.mascotMessage,
     this.mascotEmoji = '🤖',
     this.backgroundAnimation,
     this.highlights = const [],
+    this.mascotMessageEn,
+    this.highlightsEn,
   }) : super(type: StepType.intro, xpReward: 0);
+
+  String mascotMessageFor(String lang) => pickLang(mascotMessage, mascotMessageEn, lang);
+  List<String> highlightsFor(String lang) => pickLangList(highlights, highlightsEn, lang);
 }
 
 /// Explanation with visuals - NOT boring text
@@ -112,6 +157,11 @@ class ExplanationStep extends LessonStep {
   final String? tipEmoji;
   final String? tip;
 
+  // Bilingual
+  final String? titleEn;
+  final String? contentEn;
+  final String? tipEn;
+
   const ExplanationStep({
     required super.id,
     required this.title,
@@ -119,7 +169,14 @@ class ExplanationStep extends LessonStep {
     this.visuals = const [],
     this.tipEmoji,
     this.tip,
+    this.titleEn,
+    this.contentEn,
+    this.tipEn,
   }) : super(type: StepType.explanation, xpReward: 5);
+
+  String titleFor(String lang) => pickLang(title, titleEn, lang);
+  String contentFor(String lang) => pickLang(content, contentEn, lang);
+  String? tipFor(String lang) => pickLangNullable(tip, tipEn, lang);
 }
 
 /// Visual element in explanation
@@ -159,6 +216,10 @@ class MultipleChoiceStep extends LessonStep {
   final String? codeContext;
   final String? imageContext;
 
+  // Bilingual
+  final String? questionEn;
+  final String? explanationEn;
+
   const MultipleChoiceStep({
     required super.id,
     required this.question,
@@ -167,8 +228,13 @@ class MultipleChoiceStep extends LessonStep {
     required this.explanation,
     this.codeContext,
     this.imageContext,
+    this.questionEn,
+    this.explanationEn,
     super.xpReward = 10,
   }) : super(type: StepType.multipleChoice);
+
+  String questionFor(String lang) => pickLang(question, questionEn, lang);
+  String explanationFor(String lang) => pickLang(explanation, explanationEn, lang);
 }
 
 class ChoiceOption {
@@ -176,11 +242,17 @@ class ChoiceOption {
   final String? emoji;
   final bool isCode;
 
+  // Bilingual
+  final String? textEn;
+
   const ChoiceOption({
     required this.text,
     this.emoji,
     this.isCode = false,
+    this.textEn,
   });
+
+  String textFor(String lang) => pickLang(text, textEn, lang);
 }
 
 /// Drag and drop - arrange items
@@ -191,6 +263,10 @@ class DragDropStep extends LessonStep {
   final Map<String, String> correctMapping; // itemId -> zoneId
   final String successMessage;
 
+  // Bilingual
+  final String? instructionEn;
+  final String? successMessageEn;
+
   const DragDropStep({
     required super.id,
     required this.instruction,
@@ -198,8 +274,13 @@ class DragDropStep extends LessonStep {
     required this.dropZones,
     required this.correctMapping,
     this.successMessage = 'Harika! Dogru eslestirdin!',
+    this.instructionEn,
+    this.successMessageEn,
     super.xpReward = 15,
   }) : super(type: StepType.dragAndDrop);
+
+  String instructionFor(String lang) => pickLang(instruction, instructionEn, lang);
+  String successMessageFor(String lang) => pickLang(successMessage, successMessageEn, lang);
 }
 
 class DraggableItem {
@@ -208,12 +289,18 @@ class DraggableItem {
   final Color? color;
   final bool isBlock; // Scratch block style
 
+  // Bilingual
+  final String? contentEn;
+
   const DraggableItem({
     required this.id,
     required this.content,
     this.color,
     this.isBlock = false,
+    this.contentEn,
   });
+
+  String contentFor(String lang) => pickLang(content, contentEn, lang);
 }
 
 class DropZone {
@@ -221,11 +308,20 @@ class DropZone {
   final String label;
   final String? hint;
 
+  // Bilingual
+  final String? labelEn;
+  final String? hintEn;
+
   const DropZone({
     required this.id,
     required this.label,
     this.hint,
+    this.labelEn,
+    this.hintEn,
   });
+
+  String labelFor(String lang) => pickLang(label, labelEn, lang);
+  String? hintFor(String lang) => pickLangNullable(hint, hintEn, lang);
 }
 
 /// Code completion - fill in the blanks
@@ -236,6 +332,9 @@ class CodeCompleteStep extends LessonStep {
   final String language;
   final String? expectedOutput;
 
+  // Bilingual
+  final String? instructionEn;
+
   const CodeCompleteStep({
     required super.id,
     required this.instruction,
@@ -243,8 +342,11 @@ class CodeCompleteStep extends LessonStep {
     required this.blanks,
     required this.language,
     this.expectedOutput,
+    this.instructionEn,
     super.xpReward = 15,
   }) : super(type: StepType.codeComplete);
+
+  String instructionFor(String lang) => pickLang(instruction, instructionEn, lang);
 }
 
 class CodeBlank {
@@ -253,12 +355,18 @@ class CodeBlank {
   final List<String>? acceptableAlternatives;
   final String hint;
 
+  // Bilingual
+  final String? hintEn;
+
   const CodeBlank({
     required this.index,
     required this.correctAnswer,
     this.acceptableAlternatives,
     required this.hint,
+    this.hintEn,
   });
+
+  String hintFor(String lang) => pickLang(hint, hintEn, lang);
 }
 
 /// Scratch Block Builder - visual programming
@@ -269,6 +377,10 @@ class BlockBuilderStep extends LessonStep {
   final List<String> correctSequence; // Block IDs in order
   final String? previewAnimation;
 
+  // Bilingual
+  final String? instructionEn;
+  final String? goalEn;
+
   const BlockBuilderStep({
     required super.id,
     required this.instruction,
@@ -276,8 +388,13 @@ class BlockBuilderStep extends LessonStep {
     required this.availableBlocks,
     required this.correctSequence,
     this.previewAnimation,
+    this.instructionEn,
+    this.goalEn,
     super.xpReward = 20,
   }) : super(type: StepType.blockBuilder);
+
+  String instructionFor(String lang) => pickLang(instruction, instructionEn, lang);
+  String goalFor(String lang) => pickLang(goal, goalEn, lang);
 }
 
 class ScratchBlock {
@@ -290,6 +407,9 @@ class ScratchBlock {
   final bool hasOutput;  // Çıktı veriri mi (reporter block)
   final String? defaultValue;  // Varsayılan değer
 
+  // Bilingual
+  final String? labelEn;
+
   const ScratchBlock({
     required this.id,
     required this.blockType,
@@ -299,7 +419,10 @@ class ScratchBlock {
     this.inputs,
     this.hasOutput = false,
     this.defaultValue,
+    this.labelEn,
   });
+
+  String labelFor(String lang) => pickLang(label, labelEn, lang);
 }
 
 /// Blok input tanımı (yapboz girdileri)
@@ -354,13 +477,19 @@ class MatchingStep extends LessonStep {
   final List<MatchPair> pairs;
   final MatchingMode mode;
 
+  // Bilingual
+  final String? instructionEn;
+
   const MatchingStep({
     required super.id,
     required this.instruction,
     required this.pairs,
     this.mode = MatchingMode.drawLines,
+    this.instructionEn,
     super.xpReward = 15,
   }) : super(type: StepType.matching);
+
+  String instructionFor(String lang) => pickLang(instruction, instructionEn, lang);
 }
 
 class MatchPair {
@@ -370,13 +499,22 @@ class MatchPair {
   final bool isLeftCode;
   final bool isRightCode;
 
+  // Bilingual
+  final String? leftEn;
+  final String? rightEn;
+
   const MatchPair({
     required this.id,
     required this.left,
     required this.right,
     this.isLeftCode = false,
     this.isRightCode = false,
+    this.leftEn,
+    this.rightEn,
   });
+
+  String leftFor(String lang) => pickLang(left, leftEn, lang);
+  String rightFor(String lang) => pickLang(right, rightEn, lang);
 }
 
 enum MatchingMode {
@@ -391,14 +529,23 @@ class OrderingStep extends LessonStep {
   final List<String> correctOrder; // Item IDs
   final String context; // What are we ordering?
 
+  // Bilingual
+  final String? instructionEn;
+  final String? contextEn;
+
   const OrderingStep({
     required super.id,
     required this.instruction,
     required this.items,
     required this.correctOrder,
     required this.context,
+    this.instructionEn,
+    this.contextEn,
     super.xpReward = 15,
   }) : super(type: StepType.ordering);
+
+  String instructionFor(String lang) => pickLang(instruction, instructionEn, lang);
+  String contextFor(String lang) => pickLang(context, contextEn, lang);
 }
 
 class OrderItem {
@@ -406,11 +553,17 @@ class OrderItem {
   final String content;
   final bool isCode;
 
+  // Bilingual
+  final String? contentEn;
+
   const OrderItem({
     required this.id,
     required this.content,
     this.isCode = false,
+    this.contentEn,
   });
+
+  String contentFor(String lang) => pickLang(content, contentEn, lang);
 }
 
 /// Find the bug/error
@@ -423,6 +576,11 @@ class SpotErrorStep extends LessonStep {
   final String correctCode;
   final String explanation;
 
+  // Bilingual
+  final String? instructionEn;
+  final String? errorDescriptionEn;
+  final String? explanationEn;
+
   const SpotErrorStep({
     required super.id,
     required this.instruction,
@@ -432,8 +590,15 @@ class SpotErrorStep extends LessonStep {
     required this.errorDescription,
     required this.correctCode,
     required this.explanation,
+    this.instructionEn,
+    this.errorDescriptionEn,
+    this.explanationEn,
     super.xpReward = 20,
   }) : super(type: StepType.spotTheError);
+
+  String instructionFor(String lang) => pickLang(instruction, instructionEn, lang);
+  String errorDescriptionFor(String lang) => pickLang(errorDescription, errorDescriptionEn, lang);
+  String explanationFor(String lang) => pickLang(explanation, explanationEn, lang);
 }
 
 /// Type the code yourself
@@ -445,6 +610,10 @@ class TypeCodeStep extends LessonStep {
   final List<String> hints;
   final String? expectedOutput;
 
+  // Bilingual (code itself is language-neutral, only prose is translated)
+  final String? instructionEn;
+  final List<String>? hintsEn;
+
   const TypeCodeStep({
     required super.id,
     required this.instruction,
@@ -453,8 +622,13 @@ class TypeCodeStep extends LessonStep {
     this.starterCode,
     this.hints = const [],
     this.expectedOutput,
+    this.instructionEn,
+    this.hintsEn,
     super.xpReward = 25,
   }) : super(type: StepType.typeTheCode);
+
+  String instructionFor(String lang) => pickLang(instruction, instructionEn, lang);
+  List<String> hintsFor(String lang) => pickLangList(hints, hintsEn, lang);
 }
 
 // ==========================================
@@ -469,6 +643,10 @@ class AnimationStep extends LessonStep {
   final Map<String, dynamic> animationData;
   final bool autoPlay;
 
+  // Bilingual
+  final String? titleEn;
+  final String? descriptionEn;
+
   const AnimationStep({
     required super.id,
     required this.title,
@@ -476,7 +654,12 @@ class AnimationStep extends LessonStep {
     required this.animationType,
     required this.animationData,
     this.autoPlay = true,
+    this.titleEn,
+    this.descriptionEn,
   }) : super(type: StepType.animation, xpReward: 5);
+
+  String titleFor(String lang) => pickLang(title, titleEn, lang);
+  String descriptionFor(String lang) => pickLang(description, descriptionEn, lang);
 }
 
 enum AnimationType {
@@ -494,14 +677,23 @@ class SimulationStep extends LessonStep {
   final SimulationType simulationType;
   final Map<String, dynamic> config;
 
+  // Bilingual
+  final String? titleEn;
+  final String? instructionEn;
+
   const SimulationStep({
     required super.id,
     required this.title,
     required this.instruction,
     required this.simulationType,
     required this.config,
+    this.titleEn,
+    this.instructionEn,
     super.xpReward = 15,
   }) : super(type: StepType.simulation);
+
+  String titleFor(String lang) => pickLang(title, titleEn, lang);
+  String instructionFor(String lang) => pickLang(instruction, instructionEn, lang);
 }
 
 enum SimulationType {
@@ -523,6 +715,10 @@ class MiniGameStep extends LessonStep {
   final Map<String, dynamic> gameConfig;
   final int targetScore;
 
+  // Bilingual
+  final String? titleEn;
+  final String? instructionEn;
+
   const MiniGameStep({
     required super.id,
     required this.title,
@@ -530,8 +726,13 @@ class MiniGameStep extends LessonStep {
     required this.gameType,
     required this.gameConfig,
     this.targetScore = 100,
+    this.titleEn,
+    this.instructionEn,
     super.xpReward = 30,
   }) : super(type: StepType.miniGame);
+
+  String titleFor(String lang) => pickLang(title, titleEn, lang);
+  String instructionFor(String lang) => pickLang(instruction, instructionEn, lang);
 }
 
 enum MiniGameType {
@@ -553,6 +754,12 @@ class ProjectStep extends LessonStep {
   final String language;
   final ProjectValidation validation;
 
+  // Bilingual
+  final String? titleEn;
+  final String? descriptionEn;
+  final List<String>? requirementsEn;
+  final List<String>? hintsEn;
+
   const ProjectStep({
     required super.id,
     required this.title,
@@ -562,8 +769,17 @@ class ProjectStep extends LessonStep {
     required this.starterCode,
     required this.language,
     required this.validation,
+    this.titleEn,
+    this.descriptionEn,
+    this.requirementsEn,
+    this.hintsEn,
     super.xpReward = 50,
   }) : super(type: StepType.project);
+
+  String titleFor(String lang) => pickLang(title, titleEn, lang);
+  String descriptionFor(String lang) => pickLang(description, descriptionEn, lang);
+  List<String> requirementsFor(String lang) => pickLangList(requirements, requirementsEn, lang);
+  List<String> hintsFor(String lang) => pickLangList(hints, hintsEn, lang);
 }
 
 class ProjectValidation {
@@ -590,6 +806,10 @@ class LessonBadge {
   final BadgeRarity rarity;
   final BadgeCategory category;
 
+  // Bilingual
+  final String? nameEn;
+  final String? descriptionEn;
+
   const LessonBadge({
     required this.id,
     required this.name,
@@ -597,7 +817,12 @@ class LessonBadge {
     required this.emoji,
     this.rarity = BadgeRarity.common,
     required this.category,
+    this.nameEn,
+    this.descriptionEn,
   });
+
+  String nameFor(String lang) => pickLang(name, nameEn, lang);
+  String descriptionFor(String lang) => pickLang(description, descriptionEn, lang);
 }
 
 enum BadgeRarity {

@@ -4,6 +4,7 @@ import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
 import '../data/scratch_lessons_data.dart';
 import 'interactive_lesson_screen.dart';
+import 'widgets/step_widgets.dart' show lessonLang;
 import '../../widgets/code_playground_screen.dart';
 
 /// Modern Scratch Course Screen
@@ -515,7 +516,7 @@ class _ScratchCourseScreenState extends State<ScratchCourseScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          lesson.title,
+                          lesson.titleFor(lessonLang(context)),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -526,7 +527,7 @@ class _ScratchCourseScreenState extends State<ScratchCourseScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          lesson.subtitle,
+                          lesson.subtitleFor(lessonLang(context)),
                           style: TextStyle(
                             fontSize: 13,
                             color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
