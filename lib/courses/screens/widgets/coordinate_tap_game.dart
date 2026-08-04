@@ -140,7 +140,7 @@ class _CoordinateTapGameState extends State<CoordinateTapGame> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: widget.course.primaryColor.withOpacity(0.1),
+            color: widget.course.primaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -176,7 +176,7 @@ class _CoordinateTapGameState extends State<CoordinateTapGame> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: widget.course.secondaryColor.withOpacity(0.2),
+                  color: widget.course.secondaryColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: widget.course.secondaryColor,
@@ -231,8 +231,8 @@ class _CoordinateTapGameState extends State<CoordinateTapGame> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: _wasCorrect
-                  ? Colors.green.withOpacity(0.2)
-                  : Colors.red.withOpacity(0.2),
+                  ? Colors.green.withValues(alpha: 0.2)
+                  : Colors.red.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: _wasCorrect ? Colors.green : Colors.red,
@@ -307,8 +307,8 @@ class _CoordinateTapGameState extends State<CoordinateTapGame> {
                 decoration: BoxDecoration(
                   color: _showFeedback && isTarget
                       ? (_wasCorrect
-                          ? Colors.green.withOpacity(0.3)
-                          : Colors.red.withOpacity(0.3))
+                          ? Colors.green.withValues(alpha: 0.3)
+                          : Colors.red.withValues(alpha: 0.3))
                       : Colors.transparent,
                   border: Border.all(
                     color: Colors.transparent,

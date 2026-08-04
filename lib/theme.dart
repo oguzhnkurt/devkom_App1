@@ -55,7 +55,7 @@ class AppTheme {
         outline: mediumGray,
         outlineVariant: Color(0xFFE0E0E0),
 
-        shadow: Colors.black.withOpacity(0.15),
+        shadow: Colors.black.withValues(alpha: 0.15),
       ),
 
       // Text theme with Nunito font (SF Pro Rounded alternative)
@@ -166,7 +166,7 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
         scrolledUnderElevation: 4,
-        shadowColor: Colors.black.withOpacity(0.2),
+        shadowColor: Colors.black.withValues(alpha: 0.2),
         titleTextStyle: GoogleFonts.nunito(
           fontSize: 20,
           fontWeight: FontWeight.w700,
@@ -182,7 +182,7 @@ class AppTheme {
       // Card theme
       cardTheme: CardThemeData(
         elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.1),
+        shadowColor: Colors.black.withValues(alpha: 0.1),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -196,7 +196,7 @@ class AppTheme {
           backgroundColor: primaryBlue,
           foregroundColor: white,
           elevation: 2,
-          shadowColor: Colors.black.withOpacity(0.2),
+          shadowColor: Colors.black.withValues(alpha: 0.2),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -268,11 +268,11 @@ class AppTheme {
         // Border styles
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: mediumGray.withOpacity(0.3), width: 1),
+          borderSide: BorderSide(color: mediumGray.withValues(alpha: 0.3), width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: mediumGray.withOpacity(0.3), width: 1),
+          borderSide: BorderSide(color: mediumGray.withValues(alpha: 0.3), width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -300,7 +300,7 @@ class AppTheme {
         ),
         hintStyle: GoogleFonts.nunito(
           fontSize: 14,
-          color: mediumGray.withOpacity(0.6),
+          color: mediumGray.withValues(alpha: 0.6),
           fontWeight: FontWeight.w400,
         ),
         helperStyle: GoogleFonts.nunito(
@@ -324,7 +324,7 @@ class AppTheme {
       // Navigation bar theme
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: white,
-        indicatorColor: primaryBlue.withOpacity(0.15),
+        indicatorColor: primaryBlue.withValues(alpha: 0.15),
         elevation: 3,
         labelTextStyle: WidgetStateProperty.all(
           GoogleFonts.nunito(
@@ -401,8 +401,8 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: lightGray,
         deleteIconColor: mediumGray,
-        selectedColor: primaryBlue.withOpacity(0.15),
-        secondarySelectedColor: accentTeal.withOpacity(0.15),
+        selectedColor: primaryBlue.withValues(alpha: 0.15),
+        secondarySelectedColor: accentTeal.withValues(alpha: 0.15),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         labelStyle: GoogleFonts.nunito(
           fontSize: 14,
@@ -428,8 +428,8 @@ class AppTheme {
           return mediumGray;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return primaryBlue.withOpacity(0.5);
-          return mediumGray.withOpacity(0.3);
+          if (states.contains(WidgetState.selected)) return primaryBlue.withValues(alpha: 0.5);
+          return mediumGray.withValues(alpha: 0.3);
         }),
       ),
 
@@ -455,7 +455,7 @@ class AppTheme {
 
       // Divider theme
       dividerTheme: DividerThemeData(
-        color: mediumGray.withOpacity(0.2),
+        color: mediumGray.withValues(alpha: 0.2),
         thickness: 1,
         space: 16,
       ),
@@ -469,7 +469,7 @@ class AppTheme {
       // List tile theme
       listTileTheme: ListTileThemeData(
         tileColor: white,
-        selectedTileColor: primaryBlue.withOpacity(0.1),
+        selectedTileColor: primaryBlue.withValues(alpha: 0.1),
         iconColor: mediumGray,
         textColor: darkGray,
         titleTextStyle: GoogleFonts.nunito(

@@ -242,6 +242,7 @@ class _RoboAkademiAgendaScreenState extends State<RoboAkademiAgendaScreen> {
     );
 
     if (confirmed != true || pickedDate == null || pickedTime == null) return;
+    if (!mounted) return;
 
     final timeStr =
         '${pickedTime!.hour.toString().padLeft(2, '0')}:${pickedTime!.minute.toString().padLeft(2, '0')}';

@@ -82,13 +82,13 @@ class _SplashScreenState extends State<SplashScreen>
                             borderRadius: BorderRadius.circular(40),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.cyan.withOpacity(0.3),
+                                color: Colors.cyan.withValues(alpha: 0.3),
                                 blurRadius: 40,
                                 spreadRadius: 5,
                                 offset: const Offset(0, 10),
                               ),
                               BoxShadow(
-                                color: Colors.blue.withOpacity(0.2),
+                                color: Colors.blue.withValues(alpha: 0.2),
                                 blurRadius: 60,
                                 spreadRadius: 10,
                                 offset: const Offset(0, 20),
@@ -110,13 +110,13 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: Colors.cyan.withOpacity(0.3),
+                              color: Colors.cyan.withValues(alpha: 0.3),
                               width: 2,
                             ),
                             borderRadius: BorderRadius.circular(30),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.cyan.withOpacity(0.1),
+                                color: Colors.cyan.withValues(alpha: 0.1),
                                 blurRadius: 20,
                                 spreadRadius: 2,
                               ),

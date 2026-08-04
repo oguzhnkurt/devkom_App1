@@ -1,5 +1,7 @@
 /// W3Schools-style Lesson Detail Screen
 /// The main learning screen - scrolls through content items
+library;
+
 import 'package:flutter/material.dart';
 import '../models/w3_lesson_model.dart';
 import '../widgets/w3_widgets.dart';
@@ -12,11 +14,11 @@ class W3LessonDetailScreen extends StatefulWidget {
   final W3Lesson lesson;
 
   const W3LessonDetailScreen({
-    Key? key,
+    super.key,
     required this.course,
     required this.chapter,
     required this.lesson,
-  }) : super(key: key);
+  });
 
   @override
   State<W3LessonDetailScreen> createState() => _W3LessonDetailScreenState();
@@ -157,7 +159,7 @@ class _W3LessonDetailScreenState extends State<W3LessonDetailScreen> {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: W3Colors.primary.withOpacity(0.1),
+              color: W3Colors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(

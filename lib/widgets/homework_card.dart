@@ -8,12 +8,12 @@ class HomeworkCard extends StatelessWidget {
   final VoidCallback onViewDetails;
 
   const HomeworkCard({
-    Key? key,
+    super.key,
     required this.homework,
     this.submission,
     required this.onSubmit,
     required this.onViewDetails,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,7 @@ class HomeworkCard extends StatelessWidget {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: _getStatusColor(isSubmitted, isLate, isUrgent)
-                            .withOpacity(0.2),
+                            .withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(

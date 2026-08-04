@@ -7,7 +7,7 @@ import '../../theme.dart';
 class LeaderboardScreen extends StatefulWidget {
   final GameType? initialGameType;
 
-  const LeaderboardScreen({Key? key, this.initialGameType}) : super(key: key);
+  const LeaderboardScreen({super.key, this.initialGameType});
 
   @override
   State<LeaderboardScreen> createState() => _LeaderboardScreenState();
@@ -247,7 +247,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           height: 60,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             border: Border.all(color: color, width: 3),
           ),
           child: Center(
@@ -285,7 +285,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           width: 100,
           height: height,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             border: Border.all(color: color, width: 2),
           ),
@@ -321,7 +321,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -356,7 +356,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             height: 40,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.primaryBlue.withOpacity(0.2),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.2),
             ),
             child: Center(
               child: Text(

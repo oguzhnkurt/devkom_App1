@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 // TODO: Migrate to Supabase
 // import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../models/user_model.dart';
 import '../../models/homework_model.dart' show AgeGroup;
 
 class CreateStudentScreen extends StatefulWidget {
-  const CreateStudentScreen({Key? key}) : super(key: key);
+  const CreateStudentScreen({super.key});
 
   @override
   State<CreateStudentScreen> createState() => _CreateStudentScreenState();
@@ -223,7 +222,7 @@ class _CreateStudentScreenState extends State<CreateStudentScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4CAF50).withOpacity(0.1),
+                    color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: const Color(0xFF4CAF50),

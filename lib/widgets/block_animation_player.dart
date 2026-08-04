@@ -33,13 +33,13 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
   }
 
   void _startAnimation() {
-    print('🎬 Starting animation with blocks: ${widget.blockIds}');
+    debugPrint('🎬 Starting animation with blocks: ${widget.blockIds}');
     _executeNextBlock();
   }
 
   void _executeNextBlock() {
     if (_currentBlockIndex >= widget.blockIds.length) {
-      print('✅ Animation complete!');
+      debugPrint('✅ Animation complete!');
       setState(() {
         _animationComplete = true;
       });
@@ -48,20 +48,20 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
     }
 
     final blockId = widget.blockIds[_currentBlockIndex];
-    print('🎬 Executing block ${_currentBlockIndex + 1}/${widget.blockIds.length}: $blockId');
+    debugPrint('🎬 Executing block ${_currentBlockIndex + 1}/${widget.blockIds.length}: $blockId');
 
     // Bloğun eylemini belirle ve simüle et
     if (blockId.startsWith('say_')) {
-      print('💬 Say block detected: $blockId');
+      debugPrint('💬 Say block detected: $blockId');
       _executeSayBlock(blockId);
     } else if (blockId.startsWith('move_')) {
-      print('🚶 Move block detected: $blockId');
+      debugPrint('🚶 Move block detected: $blockId');
       _executeMoveBlock(blockId);
     } else if (blockId.startsWith('repeat_')) {
-      print('🔁 Repeat block detected: $blockId');
+      debugPrint('🔁 Repeat block detected: $blockId');
       _executeRepeatBlock(blockId);
     } else {
-      print('⏭️ Skipping non-action block: $blockId');
+      debugPrint('⏭️ Skipping non-action block: $blockId');
       // Diğer bloklar (green_flag, vb) - direk geç
       _currentBlockIndex++;
       _executeNextBlock();
@@ -85,7 +85,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
       message = blockId.replaceAll('say_', '').replaceAll('_', ' ');
     }
 
-    print('💬 Showing speech bubble: "$message"');
+    debugPrint('💬 Showing speech bubble: "$message"');
 
     setState(() {
       _speechBubbleText = message;
@@ -94,7 +94,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
     // 1.5 saniye sonra konuşma balonunu kaldır ve sıradaki bloğa geç
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) {
-        print('💬 Hiding speech bubble');
+        debugPrint('💬 Hiding speech bubble');
         setState(() {
           _speechBubbleText = null;
           _currentBlockIndex++;
@@ -125,7 +125,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
       }
     }
 
-    print('🚶 Walking $steps steps');
+    debugPrint('🚶 Walking $steps steps');
 
     setState(() {
       _walkSteps = steps;
@@ -136,7 +136,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
     final duration = Duration(milliseconds: steps * 600);
     Future.delayed(duration, () {
       if (mounted) {
-        print('🚶 Finished walking');
+        debugPrint('🚶 Finished walking');
         setState(() {
           _isWalking = false;
           _currentBlockIndex++;
@@ -151,25 +151,25 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
     // Parse tekrar sayısını
     final match = RegExp(r'repeat_(\d+)').firstMatch(blockId);
     if (match == null) {
-      print('⚠️ Invalid repeat block: $blockId');
+      debugPrint('⚠️ Invalid repeat block: $blockId');
       _currentBlockIndex++;
       _executeNextBlock();
       return;
     }
 
     final repeatCount = int.tryParse(match.group(1) ?? '1') ?? 1;
-    print('🔁 Repeat $repeatCount times');
+    debugPrint('🔁 Repeat $repeatCount times');
 
     // Sonraki blok döngü içindeki blok
     if (_currentBlockIndex + 1 >= widget.blockIds.length) {
-      print('⚠️ No block inside repeat loop');
+      debugPrint('⚠️ No block inside repeat loop');
       _currentBlockIndex++;
       _executeNextBlock();
       return;
     }
 
     final nestedBlockId = widget.blockIds[_currentBlockIndex + 1];
-    print('🔁 Nested block: $nestedBlockId');
+    debugPrint('🔁 Nested block: $nestedBlockId');
 
     // Döngüyü çalıştır
     _executeLoop(nestedBlockId, repeatCount, 0);
@@ -177,7 +177,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
 
   void _executeLoop(String blockId, int totalCount, int currentIteration) {
     if (currentIteration >= totalCount) {
-      print('🔁 Loop complete!');
+      debugPrint('🔁 Loop complete!');
       // Döngü bitti, hem repeat bloğunu hem de içindeki bloğu atla
       setState(() {
         _currentBlockIndex += 2;
@@ -186,7 +186,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
       return;
     }
 
-    print('🔁 Loop iteration ${currentIteration + 1}/$totalCount');
+    debugPrint('🔁 Loop iteration ${currentIteration + 1}/$totalCount');
 
     // İç bloğu çalıştır
     if (blockId.startsWith('say_')) {
@@ -219,7 +219,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
       message = blockId.replaceAll('say_', '').replaceAll('_', ' ');
     }
 
-    print('💬 Showing speech bubble: "$message" (iteration ${currentIteration + 1}/$totalCount)');
+    debugPrint('💬 Showing speech bubble: "$message" (iteration ${currentIteration + 1}/$totalCount)');
 
     setState(() {
       _speechBubbleText = message;
@@ -228,7 +228,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
     // 1.5 saniye sonra konuşma balonunu kaldır ve bir sonraki iterasyona geç
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) {
-        print('💬 Hiding speech bubble');
+        debugPrint('💬 Hiding speech bubble');
         setState(() {
           _speechBubbleText = null;
         });
@@ -257,7 +257,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
       }
     }
 
-    print('🚶 Walking $steps steps (iteration ${currentIteration + 1}/$totalCount)');
+    debugPrint('🚶 Walking $steps steps (iteration ${currentIteration + 1}/$totalCount)');
 
     setState(() {
       _walkSteps = steps;
@@ -267,7 +267,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
     final duration = Duration(milliseconds: steps * 600);
     Future.delayed(duration, () {
       if (mounted) {
-        print('🚶 Finished walking');
+        debugPrint('🚶 Finished walking');
         setState(() {
           _isWalking = false;
         });
@@ -282,7 +282,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50.withOpacity(0.3),
+        color: Colors.blue.shade50.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.blue.shade200, width: 2),
       ),
@@ -314,7 +314,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
                       border: Border.all(color: Colors.blue, width: 3),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
+                          color: Colors.black.withValues(alpha: 0.15),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),

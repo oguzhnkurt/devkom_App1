@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart';
 
 class VoiceRecordingService {
   final FlutterSoundRecorder _audioRecorder = FlutterSoundRecorder();
@@ -23,9 +24,9 @@ class VoiceRecordingService {
     try {
       await _audioRecorder.openRecorder();
       _isInitialized = true;
-      print('Voice recorder initialized');
+      debugPrint('Voice recorder initialized');
     } catch (e) {
-      print('Error initializing recorder: $e');
+      debugPrint('Error initializing recorder: $e');
     }
   }
 
@@ -43,13 +44,13 @@ class VoiceRecordingService {
 
       // Check and request permission
       if (!await requestPermission()) {
-        print('Microphone permission denied');
+        debugPrint('Microphone permission denied');
         return false;
       }
 
       // Check if already recording
       if (_isRecording) {
-        print('Already recording');
+        debugPrint('Already recording');
         return false;
       }
 
@@ -66,10 +67,10 @@ class VoiceRecordingService {
 
       _isRecording = true;
       _startTime = DateTime.now();
-      print('Recording started: $_recordingPath');
+      debugPrint('Recording started: $_recordingPath');
       return true;
     } catch (e) {
-      print('Error starting recording: $e');
+      debugPrint('Error starting recording: $e');
       return false;
     }
   }
@@ -78,7 +79,7 @@ class VoiceRecordingService {
   Future<String?> stopRecording() async {
     try {
       if (!_isRecording) {
-        print('Not currently recording');
+        debugPrint('Not currently recording');
         return null;
       }
 
@@ -86,10 +87,10 @@ class VoiceRecordingService {
       _isRecording = false;
       _startTime = null;
 
-      print('Recording stopped: $path');
+      debugPrint('Recording stopped: $path');
       return path;
     } catch (e) {
-      print('Error stopping recording: $e');
+      debugPrint('Error stopping recording: $e');
       _isRecording = false;
       _startTime = null;
       return null;
@@ -106,7 +107,7 @@ class VoiceRecordingService {
         _recordingPath = null;
       }
     } catch (e) {
-      print('Error canceling recording: $e');
+      debugPrint('Error canceling recording: $e');
     }
   }
 
@@ -124,7 +125,7 @@ class VoiceRecordingService {
         _isInitialized = false;
       }
     } catch (e) {
-      print('Error disposing recorder: $e');
+      debugPrint('Error disposing recorder: $e');
     }
   }
 }

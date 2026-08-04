@@ -104,10 +104,10 @@ class _InteractiveLessonsListScreenState
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: widget.courseColor.withOpacity(0.1),
+        color: widget.courseColor.withValues(alpha: 0.1),
         border: Border(
           bottom: BorderSide(
-            color: widget.courseColor.withOpacity(0.2),
+            color: widget.courseColor.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -150,10 +150,10 @@ class _InteractiveLessonsListScreenState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: widget.courseColor.withOpacity(0.2),
+        color: widget.courseColor.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: widget.courseColor.withOpacity(0.3),
+          color: widget.courseColor.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -203,7 +203,7 @@ class _InteractiveLessonsListScreenState
         color: const Color(0xFF1A1F3A),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: widget.courseColor.withOpacity(0.2),
+          color: widget.courseColor.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -225,7 +225,7 @@ class _InteractiveLessonsListScreenState
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: widget.courseColor.withOpacity(0.2),
+                        color: widget.courseColor.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: widget.courseColor,
@@ -284,10 +284,10 @@ class _InteractiveLessonsListScreenState
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.amber.withOpacity(0.2),
+                        color: Colors.amber.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.amber.withOpacity(0.3),
+                          color: Colors.amber.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -360,10 +360,10 @@ class _InteractiveLessonsListScreenState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
         ),
       ),
       child: Text(

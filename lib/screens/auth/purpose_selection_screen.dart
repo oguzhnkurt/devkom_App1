@@ -99,7 +99,7 @@ class _PurposeSelectionScreenState extends State<PurposeSelectionScreen>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.primaryBlue.withOpacity(0.1),
+              AppTheme.primaryBlue.withValues(alpha: 0.1),
               Colors.white,
             ],
             begin: Alignment.topLeft,
@@ -284,7 +284,7 @@ class _PurposeSelectionScreenState extends State<PurposeSelectionScreen>
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: gradient.colors.first.withOpacity(0.3),
+              color: gradient.colors.first.withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -298,7 +298,7 @@ class _PurposeSelectionScreenState extends State<PurposeSelectionScreen>
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -320,7 +320,7 @@ class _PurposeSelectionScreenState extends State<PurposeSelectionScreen>
                 else
                   Icon(
                     Icons.arrow_forward_ios_rounded,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     size: 20,
                   ),
               ],
@@ -341,7 +341,7 @@ class _PurposeSelectionScreenState extends State<PurposeSelectionScreen>
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 height: 1.3,
               ),
             ),
@@ -353,7 +353,7 @@ class _PurposeSelectionScreenState extends State<PurposeSelectionScreen>
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(

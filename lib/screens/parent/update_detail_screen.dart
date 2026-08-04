@@ -39,7 +39,7 @@ class UpdateDetailScreen extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 35,
-                      backgroundColor: iconColor.withOpacity(0.1),
+                      backgroundColor: iconColor.withValues(alpha: 0.1),
                       child: Icon(
                         icon,
                         size: 40,
@@ -144,7 +144,7 @@ class UpdateDetailScreen extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Card(
-          color: AppTheme.successGreen.withOpacity(0.1),
+          color: AppTheme.successGreen.withValues(alpha: 0.1),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -220,7 +220,7 @@ class UpdateDetailScreen extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Card(
-          color: AppTheme.primaryBlue.withOpacity(0.1),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.1),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -295,7 +295,7 @@ class UpdateDetailScreen extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Card(
-          color: AppTheme.warningOrange.withOpacity(0.1),
+          color: AppTheme.warningOrange.withValues(alpha: 0.1),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -333,7 +333,7 @@ class UpdateDetailScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Card(
-          color: AppTheme.successGreen.withOpacity(0.1),
+          color: AppTheme.successGreen.withValues(alpha: 0.1),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -412,7 +412,7 @@ class UpdateDetailScreen extends StatelessWidget {
         child: Row(
           children: [
             CircleAvatar(
-              backgroundColor: color.withOpacity(0.1),
+              backgroundColor: color.withValues(alpha: 0.1),
               child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(width: 16),

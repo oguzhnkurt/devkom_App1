@@ -330,7 +330,7 @@ class _WebRtcCameraPlayerState extends State<WebRtcCameraPlayer> {
       left: 16,
       right: 16,
       child: Card(
-        color: Colors.black.withOpacity(0.8),
+        color: Colors.black.withValues(alpha: 0.8),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -342,7 +342,7 @@ class _WebRtcCameraPlayerState extends State<WebRtcCameraPlayer> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppTheme.accentTeal.withOpacity(0.2),
+                      color: AppTheme.accentTeal.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -438,7 +438,7 @@ class _WebRtcCameraPlayerState extends State<WebRtcCameraPlayer> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.8),
+          color: Colors.black.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(

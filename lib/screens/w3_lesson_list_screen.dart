@@ -1,5 +1,7 @@
 /// W3Schools-style Lesson List Screen
 /// Shows lessons in a chapter with progress indicators
+library;
+
 import 'package:flutter/material.dart';
 import '../models/w3_lesson_model.dart';
 import '../widgets/w3_widgets.dart';
@@ -10,10 +12,10 @@ class W3LessonListScreen extends StatefulWidget {
   final W3Chapter chapter;
 
   const W3LessonListScreen({
-    Key? key,
+    super.key,
     required this.course,
     required this.chapter,
-  }) : super(key: key);
+  });
 
   @override
   State<W3LessonListScreen> createState() => _W3LessonListScreenState();
@@ -97,7 +99,7 @@ class _W3LessonListScreenState extends State<W3LessonListScreen> {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: W3Colors.primary.withOpacity(0.1),
+                    color: W3Colors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(
@@ -180,7 +182,7 @@ class _W3LessonListScreenState extends State<W3LessonListScreen> {
                                   width: 32,
                                   height: 32,
                                   decoration: BoxDecoration(
-                                    color: statusColor.withOpacity(0.1),
+                                    color: statusColor.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Center(

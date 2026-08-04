@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SurveyCreateScreen extends StatelessWidget {
-  const SurveyCreateScreen({Key? key}) : super(key: key);
+  const SurveyCreateScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

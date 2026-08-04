@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/game_model.dart';
 import 'embedded_games_service.dart';
+import 'package:flutter/foundation.dart';
 
 class GamesServiceSupabase {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -27,7 +28,7 @@ class GamesServiceSupabase {
               try {
                 return GameModel.fromSupabase(item);
               } catch (e) {
-                print('Error parsing game ${item['id']}: $e');
+                debugPrint('Error parsing game ${item['id']}: $e');
                 return null;
               }
             })
@@ -40,7 +41,7 @@ class GamesServiceSupabase {
       }
     } catch (error) {
       // If Supabase fails, return only local games
-      print('Error fetching Supabase games: $error');
+      debugPrint('Error fetching Supabase games: $error');
       yield [...embeddedGames, ...demoGames];
     }
   }
@@ -84,7 +85,7 @@ class GamesServiceSupabase {
               try {
                 return GameModel.fromSupabase(item);
               } catch (e) {
-                print('Error parsing game ${item['id']}: $e');
+                debugPrint('Error parsing game ${item['id']}: $e');
                 return null;
               }
             })
@@ -97,7 +98,7 @@ class GamesServiceSupabase {
       }
     } catch (error) {
       // If Supabase fails, return only local games
-      print('Error fetching category games: $error');
+      debugPrint('Error fetching category games: $error');
       yield [...embeddedGames, ...demoGames];
     }
   }
@@ -177,7 +178,7 @@ class GamesServiceSupabase {
   // Initialize default robotics games in Supabase
   Future<void> initializeDefaultRoboticsGames() async {
     try {
-      print('🎮 Robotik oyunları kontrol ediliyor...');
+      debugPrint('🎮 Robotik oyunları kontrol ediliyor...');
 
       // Check for each specific game by title and update/create as needed
       final games = {
@@ -221,7 +222,7 @@ class GamesServiceSupabase {
                 'updated_at': DateTime.now().toIso8601String(),
               })
               .eq('id', existing['id']);
-          print('🔄 $title güncellendi');
+          debugPrint('🔄 $title güncellendi');
           updatedCount++;
         } else {
           // Create new game
@@ -230,21 +231,21 @@ class GamesServiceSupabase {
             ...gameData,
             'created_at': DateTime.now().toIso8601String(),
           });
-          print('✅ $title eklendi');
+          debugPrint('✅ $title eklendi');
           createdCount++;
         }
       }
 
-      print('🎉 Tamamlandı: $createdCount yeni, $updatedCount güncellendi');
+      debugPrint('🎉 Tamamlandı: $createdCount yeni, $updatedCount güncellendi');
     } catch (e) {
-      print('❌ Robotik oyunlar eklenirken hata: $e');
+      debugPrint('❌ Robotik oyunlar eklenirken hata: $e');
     }
   }
 
   // Delete duplicate chess games from Supabase
   Future<void> deleteDuplicateChessGames() async {
     try {
-      print('🗑️ Duplicate satranç oyunları siliniyor...');
+      debugPrint('🗑️ Duplicate satranç oyunları siliniyor...');
 
       // Get all games
       final allGames = await _supabase.from(_gamesTable).select();
@@ -260,16 +261,16 @@ class GamesServiceSupabase {
             (title.toLowerCase().contains('satranç') ||
                 title.toLowerCase().contains('chess') ||
                 type == 'chess')) {
-          print('  🗑️ Siliniyor: $title (ID: ${data['id']})');
+          debugPrint('  🗑️ Siliniyor: $title (ID: ${data['id']})');
           await _supabase.from(_gamesTable).delete().eq('id', data['id']);
           deletedCount++;
         }
       }
 
-      print('✅ $deletedCount duplicate satranç oyunu silindi!');
-      print('👉 Sadece embedded_chess (kod içinde) kalacak.');
+      debugPrint('✅ $deletedCount duplicate satranç oyunu silindi!');
+      debugPrint('👉 Sadece embedded_chess (kod içinde) kalacak.');
     } catch (e) {
-      print('❌ Satranç oyunları silinirken hata: $e');
+      debugPrint('❌ Satranç oyunları silinirken hata: $e');
       rethrow;
     }
   }

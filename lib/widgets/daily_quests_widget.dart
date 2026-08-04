@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/daily_quest_model.dart';
 import '../services/daily_quest_service.dart';
-import '../theme.dart';
 
 /// Günlük Görevler Widget'ı
 /// Ana ekranda görevleri görsel olarak gösterir
@@ -10,9 +9,9 @@ class DailyQuestsWidget extends StatelessWidget {
   final DailyQuestService _questService = DailyQuestService();
 
   DailyQuestsWidget({
-    Key? key,
+    super.key,
     required this.userId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +157,7 @@ class DailyQuestsWidget extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 5,
             spreadRadius: 1,
           ),
@@ -175,7 +174,7 @@ class DailyQuestsWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isCompleted
                       ? Colors.green.shade100
-                      : _getQuestColor(quest.type).withOpacity(0.1),
+                      : _getQuestColor(quest.type).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -316,7 +315,7 @@ class DailyQuestsWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.green.withOpacity(0.3),
+            color: Colors.green.withValues(alpha: 0.3),
             blurRadius: 10,
             spreadRadius: 2,
           ),
@@ -327,7 +326,7 @@ class DailyQuestsWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
               shape: BoxShape.circle,
             ),
             child: const Icon(

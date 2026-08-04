@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import '../../models/agenda_event.dart';
 import '../../services/agenda_service.dart';
 import '../../providers/auth_provider.dart';
@@ -20,7 +19,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
-  Map<DateTime, List<AgendaEvent>> _events = {};
+  final Map<DateTime, List<AgendaEvent>> _events = {};
 
   @override
   void initState() {
@@ -106,7 +105,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
                 ),
                 calendarStyle: CalendarStyle(
                   todayDecoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withOpacity(0.5),
+                    color: Theme.of(context).primaryColor.withValues(alpha: 0.5),
                     shape: BoxShape.circle,
                   ),
                   selectedDecoration: BoxDecoration(
@@ -300,8 +299,8 @@ class _AgendaScreenState extends State<AgendaScreen> {
       ),
     floatingActionButton: FloatingActionButton(
           onPressed: () => _showAddEventDialog(context, userId),
-          child: const Icon(Icons.add),
           tooltip: loc.addEvent,
+          child: const Icon(Icons.add),
         ),
     );
   }
@@ -326,7 +325,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
                   TextField(controller: descController, decoration: InputDecoration(labelText: loc.descriptionOptional, border: const OutlineInputBorder()), maxLines: 3),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<EventType>(
-                    value: selectedType,
+                    initialValue: selectedType,
                     decoration: InputDecoration(labelText: loc.type, border: const OutlineInputBorder()),
                     items: [EventType.note, EventType.reminder, EventType.task].map((type) {
                       String label = type == EventType.note ? '📋 ${loc.note}' : type == EventType.reminder ? '🔔 ${loc.reminder}' : '✅ ${loc.task}';

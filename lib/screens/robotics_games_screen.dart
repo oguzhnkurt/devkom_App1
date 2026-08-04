@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
 import '../models/game_model.dart';
-import '../providers/auth_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/games_service.dart';
 import '../widgets/category_selector.dart';
@@ -10,7 +9,7 @@ import 'game_play_screen.dart';
 import 'leaderboard_screen.dart';
 
 class RoboticsGamesScreen extends StatefulWidget {
-  const RoboticsGamesScreen({Key? key}) : super(key: key);
+  const RoboticsGamesScreen({super.key});
 
   @override
   State<RoboticsGamesScreen> createState() => _RoboticsGamesScreenState();
@@ -105,7 +104,7 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
       flexibleSpace: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0A0E27).withOpacity(0.95), Color(0xFF1A1D3F).withOpacity(0.95)],
+            colors: [Color(0xFF0A0E27).withValues(alpha: 0.95), Color(0xFF1A1D3F).withValues(alpha: 0.95)],
           ),
         ),
       ),
@@ -149,7 +148,7 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
                     height: size,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                     ),
                   ),
                 );
@@ -165,7 +164,7 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        Color(0xFF7B2FFF).withOpacity(0.3),
+                        Color(0xFF7B2FFF).withValues(alpha: 0.3),
                         Colors.transparent,
                       ],
                     ),
@@ -182,7 +181,7 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        Color(0xFF00F5FF).withOpacity(0.3),
+                        Color(0xFF00F5FF).withValues(alpha: 0.3),
                         Colors.transparent,
                       ],
                     ),
@@ -206,17 +205,17 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
+            Colors.white.withValues(alpha: 0.1),
+            Colors.white.withValues(alpha: 0.05),
           ],
         ),
         border: Border.all(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white.withValues(alpha: 0.15),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -368,7 +367,7 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.videogame_asset_off, size: 64, color: Colors.white.withOpacity(0.3)),
+                Icon(Icons.videogame_asset_off, size: 64, color: Colors.white.withValues(alpha: 0.3)),
                 const SizedBox(height: 16),
                 Text(
                   _searchQuery.isEmpty ? 'Henüz oyun eklenmemiş' : 'Arama sonucu bulunamadı',
@@ -413,7 +412,7 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
         backgroundColor: const Color(0xFF1A1D3F),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: Color(0xFF00F5FF).withOpacity(0.5), width: 2),
+          side: BorderSide(color: Color(0xFF00F5FF).withValues(alpha: 0.5), width: 2),
         ),
         title: const Text('Oyun Ara', style: TextStyle(color: Colors.white)),
         content: TextField(
@@ -422,11 +421,11 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
           style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             hintText: 'Oyun adı...',
-            hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+            hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
             prefixIcon: const Icon(Icons.search, color: Color(0xFF00F5FF)),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Color(0xFF00F5FF).withOpacity(0.3)),
+              borderSide: BorderSide(color: Color(0xFF00F5FF).withValues(alpha: 0.3)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
@@ -494,7 +493,6 @@ class _OptimizedGameCardState extends State<_OptimizedGameCard> {
       case GameCategory.python: return const Color(0xFFFFD700);
       case GameCategory.robotics: return const Color(0xFFFF6B35);
       case GameCategory.software: return const Color(0xFF4ECDC4);
-      default: return const Color(0xFF00F5FF);
     }
   }
 
@@ -530,19 +528,25 @@ class _OptimizedGameCardState extends State<_OptimizedGameCard> {
       onTapCancel: () => setState(() => _isPressed = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        transform: Matrix4.identity()..scale(_isPressed ? 0.95 : 1.0),
+        transform: Matrix4.identity()
+          ..scaleByDouble(
+            _isPressed ? 0.95 : 1.0,
+            _isPressed ? 0.95 : 1.0,
+            _isPressed ? 0.95 : 1.0,
+            1.0,
+          ),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [color.withOpacity(0.3), color.withOpacity(0.1)],
+              colors: [color.withValues(alpha: 0.3), color.withValues(alpha: 0.1)],
             ),
-            border: Border.all(color: color.withOpacity(0.5), width: 2),
+            border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.4),
+                color: color.withValues(alpha: 0.4),
                 blurRadius: 20,
                 spreadRadius: 2,
               ),
@@ -562,7 +566,7 @@ class _OptimizedGameCardState extends State<_OptimizedGameCard> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: color.withOpacity(0.3),
+                            color: color.withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: color),
                           ),
@@ -592,7 +596,7 @@ class _OptimizedGameCardState extends State<_OptimizedGameCard> {
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFD700).withOpacity(0.2),
+                              color: const Color(0xFFFFD700).withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: const Color(0xFFFFD700), width: 1.5),
                             ),
@@ -608,17 +612,17 @@ class _OptimizedGameCardState extends State<_OptimizedGameCard> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.access_time, size: 12, color: Colors.white.withOpacity(0.8)),
+                          Icon(Icons.access_time, size: 12, color: Colors.white.withValues(alpha: 0.8)),
                           const SizedBox(width: 4),
                           Text(
                             '${widget.game.estimatedMinutes}dk',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
                             ),
@@ -638,7 +642,7 @@ class _OptimizedGameCardState extends State<_OptimizedGameCard> {
                       borderRadius: BorderRadius.circular(15),
                       boxShadow: [
                         BoxShadow(
-                          color: color.withOpacity(0.6),
+                          color: color.withValues(alpha: 0.6),
                           blurRadius: 20,
                           spreadRadius: 3,
                         ),
@@ -646,15 +650,15 @@ class _OptimizedGameCardState extends State<_OptimizedGameCard> {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(15),
-                      child: widget.game.thumbnailUrl != null && widget.game.thumbnailUrl!.isNotEmpty
+                      child: widget.game.thumbnailUrl.isNotEmpty
                           ? Image.network(
-                              widget.game.thumbnailUrl!,
+                              widget.game.thumbnailUrl,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
                                   decoration: BoxDecoration(
                                     gradient: RadialGradient(
-                                      colors: [color, color.withOpacity(0.5)],
+                                      colors: [color, color.withValues(alpha: 0.5)],
                                     ),
                                   ),
                                   child: Icon(_getGameIcon(), color: Colors.white, size: 35),
@@ -665,7 +669,7 @@ class _OptimizedGameCardState extends State<_OptimizedGameCard> {
                                 return Container(
                                   decoration: BoxDecoration(
                                     gradient: RadialGradient(
-                                      colors: [color, color.withOpacity(0.5)],
+                                      colors: [color, color.withValues(alpha: 0.5)],
                                     ),
                                   ),
                                   child: Center(
@@ -683,7 +687,7 @@ class _OptimizedGameCardState extends State<_OptimizedGameCard> {
                           : Container(
                               decoration: BoxDecoration(
                                 gradient: RadialGradient(
-                                  colors: [color, color.withOpacity(0.5)],
+                                  colors: [color, color.withValues(alpha: 0.5)],
                                 ),
                               ),
                               child: Icon(_getGameIcon(), color: Colors.white, size: 35),
@@ -709,9 +713,9 @@ class _OptimizedGameCardState extends State<_OptimizedGameCard> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.2),
+                    color: color.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: color.withOpacity(0.5)),
+                    border: Border.all(color: color.withValues(alpha: 0.5)),
                   ),
                   child: Text(
                     widget.game.getCategoryDisplayNameFor(_lang),

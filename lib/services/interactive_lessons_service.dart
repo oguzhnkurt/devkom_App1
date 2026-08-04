@@ -1,5 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../config/supabase_config.dart';
+import 'package:flutter/foundation.dart';
 
 /// Service to fetch interactive lessons from Supabase
 class InteractiveLessonsService {
@@ -19,7 +19,7 @@ class InteractiveLessonsService {
 
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      print('Error fetching course lessons: $e');
+      debugPrint('Error fetching course lessons: $e');
       return [];
     }
   }
@@ -33,9 +33,9 @@ class InteractiveLessonsService {
           .eq('id', lessonId)
           .single();
 
-      return response as Map<String, dynamic>;
+      return response;
     } catch (e) {
-      print('Error fetching lesson: $e');
+      debugPrint('Error fetching lesson: $e');
       return null;
     }
   }
@@ -56,7 +56,7 @@ class InteractiveLessonsService {
 
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      print('Error fetching lessons by type: $e');
+      debugPrint('Error fetching lessons by type: $e');
       return [];
     }
   }
@@ -93,7 +93,7 @@ class InteractiveLessonsService {
 
       return availableLessons;
     } catch (e) {
-      print('Error fetching next lessons: $e');
+      debugPrint('Error fetching next lessons: $e');
       return [];
     }
   }
@@ -127,7 +127,7 @@ class InteractiveLessonsService {
         'lesson_types': typeCount,
       };
     } catch (e) {
-      print('Error fetching course stats: $e');
+      debugPrint('Error fetching course stats: $e');
       return {};
     }
   }
@@ -146,7 +146,7 @@ class InteractiveLessonsService {
             return List<Map<String, dynamic>>.from(filtered);
           });
     } catch (e) {
-      print('Error streaming lessons: $e');
+      debugPrint('Error streaming lessons: $e');
       return Stream.value([]);
     }
   }

@@ -8,9 +8,9 @@ class WorksheetDetailScreen extends StatefulWidget {
   final Map<String, dynamic> worksheet;
 
   const WorksheetDetailScreen({
-    Key? key,
+    super.key,
     required this.worksheet,
-  }) : super(key: key);
+  });
 
   @override
   State<WorksheetDetailScreen> createState() => _WorksheetDetailScreenState();
@@ -19,7 +19,7 @@ class WorksheetDetailScreen extends StatefulWidget {
 class _WorksheetDetailScreenState extends State<WorksheetDetailScreen> {
   late ConfettiController _confettiController;
   int _currentQuestionIndex = 0;
-  Map<int, String> _userAnswers = {};
+  final Map<int, String> _userAnswers = {};
   bool _isCompleted = false;
   int _score = 0;
 
@@ -102,13 +102,13 @@ class _WorksheetDetailScreenState extends State<WorksheetDetailScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [color, color.withOpacity(0.7)],
+          colors: [color, color.withValues(alpha: 0.7)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
@@ -141,28 +141,28 @@ class _WorksheetDetailScreenState extends State<WorksheetDetailScreen> {
                         Icon(
                           Icons.signal_cellular_alt,
                           size: 14,
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           widget.worksheet['difficulty'] ?? 'Orta',
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                           ),
                         ),
                         const SizedBox(width: 16),
                         Icon(
                           Icons.access_time,
                           size: 14,
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           '${widget.worksheet['duration'] ?? 15}dk',
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                           ),
                         ),
                       ],
@@ -178,7 +178,7 @@ class _WorksheetDetailScreenState extends State<WorksheetDetailScreen> {
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(
                 value: (_currentQuestionIndex + 1) / _questions.length,
-                backgroundColor: Colors.white.withOpacity(0.3),
+                backgroundColor: Colors.white.withValues(alpha: 0.3),
                 valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                 minHeight: 8,
               ),
@@ -222,7 +222,7 @@ class _WorksheetDetailScreenState extends State<WorksheetDetailScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 15,
                   offset: const Offset(0, 4),
                 ),
@@ -234,7 +234,7 @@ class _WorksheetDetailScreenState extends State<WorksheetDetailScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -280,7 +280,7 @@ class _WorksheetDetailScreenState extends State<WorksheetDetailScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: isSelected ? color.withOpacity(0.1) : Colors.white,
+                    color: isSelected ? color.withValues(alpha: 0.1) : Colors.white,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: isSelected ? color : Colors.grey.shade300,
@@ -289,7 +289,7 @@ class _WorksheetDetailScreenState extends State<WorksheetDetailScreen> {
                     boxShadow: [
                       if (!isSelected)
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 2),
                         ),
@@ -333,7 +333,7 @@ class _WorksheetDetailScreenState extends State<WorksheetDetailScreen> {
                 ),
               ),
             );
-          }).toList(),
+          }),
 
           const SizedBox(height: 32),
 
@@ -420,12 +420,12 @@ class _WorksheetDetailScreenState extends State<WorksheetDetailScreen> {
             height: 150,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [color, color.withOpacity(0.7)],
+                colors: [color, color.withValues(alpha: 0.7)],
               ),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: color.withOpacity(0.3),
+                  color: color.withValues(alpha: 0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -447,7 +447,7 @@ class _WorksheetDetailScreenState extends State<WorksheetDetailScreen> {
                     '$_score/${_questions.length}',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                     ),
                   ),
                 ],
@@ -487,7 +487,7 @@ class _WorksheetDetailScreenState extends State<WorksheetDetailScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 15,
                   offset: const Offset(0, 4),
                 ),
@@ -565,7 +565,7 @@ class _WorksheetDetailScreenState extends State<WorksheetDetailScreen> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color, size: 20),

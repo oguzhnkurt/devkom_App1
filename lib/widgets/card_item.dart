@@ -44,7 +44,7 @@ class CardItem extends StatelessWidget {
                     end: Alignment.bottomRight,
                     colors: [
                       accentColor ?? theme.colorScheme.primary,
-                      (accentColor ?? theme.colorScheme.primary).withOpacity(0.7),
+                      (accentColor ?? theme.colorScheme.primary).withValues(alpha: 0.7),
                     ],
                   ),
                 ),
@@ -62,7 +62,7 @@ class CardItem extends StatelessWidget {
                               return Icon(
                                 Icons.image_not_supported,
                                 size: 64,
-                                color: Colors.white.withOpacity(0.5),
+                                color: Colors.white.withValues(alpha: 0.5),
                               );
                             },
                             loadingBuilder: (context, child, loadingProgress) {
@@ -182,7 +182,7 @@ class MenuCard extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: [
                 color ?? theme.colorScheme.primary,
-                (color ?? theme.colorScheme.primary).withOpacity(0.7),
+                (color ?? theme.colorScheme.primary).withValues(alpha: 0.7),
               ],
             ),
           ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import '../models/w3_lesson_model.dart';
 import 'interactive_lessons_service.dart';
+import 'package:flutter/foundation.dart';
 
 /// Converts Supabase interactive_lessons data to W3Lesson models
 /// This allows us to use existing W3 UI components with new database content
@@ -13,7 +14,7 @@ class InteractiveLessonsConverter {
       final lessons = await _service.getCourseLessons(courseId);
 
       if (lessons.isEmpty) {
-        print('⚠️  No lessons found for course: $courseId');
+        debugPrint('⚠️  No lessons found for course: $courseId');
         return null;
       }
 
@@ -34,7 +35,7 @@ class InteractiveLessonsConverter {
         estimatedHours: _calculateEstimatedHours(lessons),
       );
     } catch (e) {
-      print('❌ Error converting course: $e');
+      debugPrint('❌ Error converting course: $e');
       return null;
     }
   }
@@ -222,7 +223,7 @@ class InteractiveLessonsConverter {
         try {
           return jsonDecode(field);
         } catch (e) {
-          print('⚠️  Failed to parse JSON field: $e');
+          debugPrint('⚠️  Failed to parse JSON field: $e');
           return null;
         }
       }

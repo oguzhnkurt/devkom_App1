@@ -79,13 +79,13 @@ class _LoadingScreenState extends State<LoadingScreen>
                             borderRadius: BorderRadius.circular(30),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.cyan.withOpacity(0.3),
+                                color: Colors.cyan.withValues(alpha: 0.3),
                                 blurRadius: 30,
                                 spreadRadius: 3,
                                 offset: const Offset(0, 8),
                               ),
                               BoxShadow(
-                                color: Colors.blue.withOpacity(0.2),
+                                color: Colors.blue.withValues(alpha: 0.2),
                                 blurRadius: 50,
                                 spreadRadius: 8,
                                 offset: const Offset(0, 15),
@@ -122,10 +122,10 @@ class _LoadingScreenState extends State<LoadingScreen>
                           vertical: 12,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: Colors.cyan.withOpacity(0.3),
+                            color: Colors.cyan.withValues(alpha: 0.3),
                             width: 1,
                           ),
                         ),
@@ -166,7 +166,7 @@ class LoadingOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withOpacity(0.7),
+      color: Colors.black.withValues(alpha: 0.7),
       child: Center(
         child: Container(
           padding: const EdgeInsets.all(32),
@@ -174,12 +174,12 @@ class LoadingOverlay extends StatelessWidget {
             color: const Color(0xFF1a1a2e),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.cyan.withOpacity(0.3),
+              color: Colors.cyan.withValues(alpha: 0.3),
               width: 2,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.cyan.withOpacity(0.2),
+                color: Colors.cyan.withValues(alpha: 0.2),
                 blurRadius: 30,
                 spreadRadius: 5,
               ),

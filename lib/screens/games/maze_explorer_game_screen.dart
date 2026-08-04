@@ -7,9 +7,9 @@ class MazeExplorerGameScreen extends StatefulWidget {
   final Map<String, dynamic> gameData;
 
   const MazeExplorerGameScreen({
-    Key? key,
+    super.key,
     required this.gameData,
-  }) : super(key: key);
+  });
 
   @override
   State<MazeExplorerGameScreen> createState() => _MazeExplorerGameScreenState();

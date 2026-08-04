@@ -99,10 +99,14 @@ class _PlayTimeGateState extends State<PlayTimeGate> {
     }
 
     // Oyun oynamaya izin var
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
         await _endSessionIfActive();
-        return true;
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
       },
       child: widget.child,
     );
@@ -135,7 +139,7 @@ class _PlayTimeGateState extends State<PlayTimeGate> {
         break;
       default:
         title = 'Limit Aşıldı';
-        message = _checkResult!.message ?? 'Oyun süreniz doldu';
+        message = _checkResult!.message;
         icon = Icons.block;
         color = AppTheme.errorRed;
     }
@@ -155,7 +159,7 @@ class _PlayTimeGateState extends State<PlayTimeGate> {
               Container(
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -317,10 +321,10 @@ class PlayTimeWarningBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppTheme.warningOrange.withOpacity(0.9),
+        color: AppTheme.warningOrange.withValues(alpha: 0.9),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

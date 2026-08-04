@@ -86,8 +86,8 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      widget.course.primaryColor.withOpacity(0.2),
-                      widget.course.secondaryColor.withOpacity(0.2),
+                      widget.course.primaryColor.withValues(alpha: 0.2),
+                      widget.course.secondaryColor.withValues(alpha: 0.2),
                     ],
                   ),
                   shape: BoxShape.circle,
@@ -113,7 +113,7 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: widget.course.primaryColor.withOpacity(0.1),
+                color: widget.course.primaryColor.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -253,7 +253,7 @@ class ExplanationStepWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: (visual.color ?? course.primaryColor).withOpacity(0.3),
+                  color: (visual.color ?? course.primaryColor).withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -328,7 +328,7 @@ class ExplanationStepWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF2D2A1A) : const Color(0xFFFFF8E1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.amber.withOpacity(0.3)),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -408,7 +408,7 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
               ),
             ],
@@ -462,10 +462,10 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
 
           if (_answered) {
             if (isCorrectAnswer) {
-              backgroundColor = Colors.green.withOpacity(0.15);
+              backgroundColor = Colors.green.withValues(alpha: 0.15);
               borderColor = Colors.green;
             } else if (isSelected && !isCorrectAnswer) {
-              backgroundColor = Colors.red.withOpacity(0.15);
+              backgroundColor = Colors.red.withValues(alpha: 0.15);
               borderColor = Colors.red;
             } else {
               backgroundColor = widget.isDark ? const Color(0xFF1E1E2E) : Colors.white;
@@ -473,7 +473,7 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
             }
           } else {
             backgroundColor = isSelected
-                ? widget.course.primaryColor.withOpacity(0.1)
+                ? widget.course.primaryColor.withValues(alpha: 0.1)
                 : (widget.isDark ? const Color(0xFF1E1E2E) : Colors.white);
             borderColor = isSelected
                 ? widget.course.primaryColor
@@ -526,13 +526,13 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: _isCorrect
-                  ? Colors.green.withOpacity(0.1)
-                  : Colors.orange.withOpacity(0.1),
+                  ? Colors.green.withValues(alpha: 0.1)
+                  : Colors.orange.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _isCorrect
-                    ? Colors.green.withOpacity(0.3)
-                    : Colors.orange.withOpacity(0.3),
+                    ? Colors.green.withValues(alpha: 0.3)
+                    : Colors.orange.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -675,9 +675,9 @@ class _DragDropStepWidgetState extends State<DragDropStepWidget> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.15),
+              color: Colors.green.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.green.withOpacity(0.3)),
+              border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
@@ -722,7 +722,7 @@ class _DragDropStepWidgetState extends State<DragDropStepWidget> {
           constraints: const BoxConstraints(minHeight: 150),
           decoration: BoxDecoration(
             color: isHovering
-                ? widget.course.primaryColor.withOpacity(0.1)
+                ? widget.course.primaryColor.withValues(alpha: 0.1)
                 : (widget.isDark ? const Color(0xFF1E1E2E) : Colors.grey.shade100),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
@@ -785,7 +785,7 @@ class _DragDropStepWidgetState extends State<DragDropStepWidget> {
         boxShadow: isDragging
             ? [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
@@ -930,7 +930,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.1),
+            color: Colors.blue.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -1031,7 +1031,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.15),
+                color: Colors.green.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Row(
@@ -1223,7 +1223,7 @@ class _OrderingStepWidgetState extends State<OrderingStepWidget> {
                       width: 28,
                       height: 28,
                       decoration: BoxDecoration(
-                        color: widget.course.primaryColor.withOpacity(0.1),
+                        color: widget.course.primaryColor.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Center(
@@ -1276,7 +1276,7 @@ class _OrderingStepWidgetState extends State<OrderingStepWidget> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.15),
+              color: Colors.green.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Row(
@@ -1436,7 +1436,7 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: widget.course.primaryColor.withOpacity(0.15),
+                            color: widget.course.primaryColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -1471,10 +1471,10 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                             decoration: BoxDecoration(
                               color: isMatched
                                   ? (isCorrect
-                                      ? Colors.green.withOpacity(0.1)
-                                      : Colors.red.withOpacity(0.1))
+                                      ? Colors.green.withValues(alpha: 0.1)
+                                      : Colors.red.withValues(alpha: 0.1))
                                   : (isSelected
-                                      ? widget.course.primaryColor.withOpacity(0.1)
+                                      ? widget.course.primaryColor.withValues(alpha: 0.1)
                                       : (widget.isDark ? const Color(0xFF1E1E2E) : Colors.white)),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
@@ -1552,7 +1552,7 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: widget.course.secondaryColor.withOpacity(0.15),
+                            color: widget.course.secondaryColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -1592,9 +1592,9 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                             decoration: BoxDecoration(
                               color: isMatched
                                   ? (isCorrect == true
-                                      ? Colors.green.withOpacity(0.1)
+                                      ? Colors.green.withValues(alpha: 0.1)
                                       : (isCorrect == false
-                                          ? Colors.red.withOpacity(0.1)
+                                          ? Colors.red.withValues(alpha: 0.1)
                                           : (widget.isDark ? const Color(0xFF1E1E2E) : Colors.white)))
                                   : (widget.isDark ? const Color(0xFF1E1E2E) : Colors.white),
                               borderRadius: BorderRadius.circular(12),
@@ -1604,7 +1604,7 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                                         ? Colors.green
                                         : (isCorrect == false ? Colors.red : Colors.grey.shade300))
                                     : (_selectedLeft != null && !isMatched
-                                        ? widget.course.primaryColor.withOpacity(0.3)
+                                        ? widget.course.primaryColor.withValues(alpha: 0.3)
                                         : Colors.grey.shade300),
                                 width: isMatched ? 2 : 1,
                               ),
@@ -1671,10 +1671,10 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: widget.course.primaryColor.withOpacity(0.1),
+              color: widget.course.primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: widget.course.primaryColor.withOpacity(0.3),
+                color: widget.course.primaryColor.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -1703,8 +1703,8 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Colors.green.withOpacity(0.2),
-                  Colors.green.withOpacity(0.1),
+                  Colors.green.withValues(alpha: 0.2),
+                  Colors.green.withValues(alpha: 0.1),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
@@ -1879,7 +1879,7 @@ class _MiniGameStepWidgetState extends State<MiniGameStepWidget> {
             Icon(
               Icons.videogame_asset,
               size: 80,
-              color: widget.course.primaryColor.withOpacity(0.5),
+              color: widget.course.primaryColor.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 24),
             Text(
@@ -2231,7 +2231,7 @@ class AnimationStepWidget extends StatelessWidget {
               color: isDark ? const Color(0xFF2A2A3E) : Colors.grey.shade100,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: course.primaryColor.withOpacity(0.5),
+                color: course.primaryColor.withValues(alpha: 0.5),
                 width: 2,
               ),
             ),
@@ -2295,12 +2295,12 @@ class LoopCalculatorGame extends StatefulWidget {
   final Function(int score) onComplete;
 
   const LoopCalculatorGame({
-    Key? key,
+    super.key,
     required this.step,
     required this.course,
     required this.isDark,
     required this.onComplete,
-  }) : super(key: key);
+  });
 
   @override
   State<LoopCalculatorGame> createState() => _LoopCalculatorGameState();
@@ -2384,7 +2384,7 @@ class _LoopCalculatorGameState extends State<LoopCalculatorGame> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: widget.course.primaryColor.withOpacity(0.1),
+              color: widget.course.primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -2498,7 +2498,7 @@ class _LoopCalculatorGameState extends State<LoopCalculatorGame> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),

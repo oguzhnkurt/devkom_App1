@@ -117,7 +117,7 @@ class ParentGamesScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: AppTheme.white.withOpacity(0.3), shape: BoxShape.circle),
+                  color: AppTheme.white.withValues(alpha: 0.3), shape: BoxShape.circle),
                 child: Icon(icon, size: 24, color: AppTheme.white),
               ),
               const SizedBox(height: 2),
@@ -125,12 +125,12 @@ class ParentGamesScreen extends StatelessWidget {
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.white, height: 1.2)),
               // const SizedBox(height: 2),
               Text(description, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 10, color: AppTheme.white.withOpacity(0.9))),
+                style: TextStyle(fontSize: 10, color: AppTheme.white.withValues(alpha: 0.9))),
               const SizedBox(height: 2),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppTheme.white.withOpacity(0.3), borderRadius: BorderRadius.circular(20)),
+                  color: AppTheme.white.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(20)),
                 child: const Text('OYNA',
                   style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.white, letterSpacing: 1.2)),
               ),

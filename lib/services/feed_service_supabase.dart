@@ -5,6 +5,7 @@ import 'package:path/path.dart' as path;
 import 'dart:io';
 import '../models/post_model.dart';
 import '../constants/post_limits.dart';
+import 'package:flutter/foundation.dart';
 
 class FeedServiceSupabase {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -242,7 +243,7 @@ class FeedServiceSupabase {
             await _supabase.storage.from('posts').remove([storagePath]);
           }
         } catch (e) {
-          print('Failed to delete image: $e');
+          debugPrint('Failed to delete image: $e');
         }
       }
 

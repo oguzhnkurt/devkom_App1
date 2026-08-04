@@ -11,11 +11,11 @@ class LeaderboardScreen extends StatefulWidget {
   final GameType? gameType;
 
   const LeaderboardScreen({
-    Key? key,
+    super.key,
     this.gameId,
     this.gameName,
     this.gameType,
-  }) : super(key: key);
+  });
 
   @override
   State<LeaderboardScreen> createState() => _LeaderboardScreenState();
@@ -228,8 +228,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> with SingleTicker
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFFFFD700).withOpacity(0.3),
-            const Color(0xFFFFD700).withOpacity(0.1),
+            const Color(0xFFFFD700).withValues(alpha: 0.3),
+            const Color(0xFFFFD700).withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(15),
@@ -269,8 +269,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> with SingleTicker
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF7B2FFF).withOpacity(0.3),
-            const Color(0xFF7B2FFF).withOpacity(0.1),
+            const Color(0xFF7B2FFF).withValues(alpha: 0.3),
+            const Color(0xFF7B2FFF).withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(15),
@@ -313,11 +313,11 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> with SingleTicker
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isCurrentUser
-            ? const Color(0xFF00F5FF).withOpacity(0.2)
-            : Colors.white.withOpacity(0.05),
+            ? const Color(0xFF00F5FF).withValues(alpha: 0.2)
+            : Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: isCurrentUser ? const Color(0xFF00F5FF) : Colors.white.withOpacity(0.1),
+          color: isCurrentUser ? const Color(0xFF00F5FF) : Colors.white.withValues(alpha: 0.1),
           width: isCurrentUser ? 2 : 1,
         ),
       ),
@@ -328,7 +328,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> with SingleTicker
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: rankColor.withOpacity(0.2),
+              color: rankColor.withValues(alpha: 0.2),
               shape: BoxShape.circle,
               border: Border.all(color: rankColor, width: 2),
             ),
@@ -360,7 +360,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> with SingleTicker
                 Text(
                   _formatTimestamp(entry.completedAt),
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.6),
                     fontSize: 12,
                   ),
                 ),
@@ -373,8 +373,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> with SingleTicker
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFFFFD700).withOpacity(0.3),
-                  const Color(0xFFFFD700).withOpacity(0.1),
+                  const Color(0xFFFFD700).withValues(alpha: 0.3),
+                  const Color(0xFFFFD700).withValues(alpha: 0.1),
                 ],
               ),
               borderRadius: BorderRadius.circular(10),
@@ -406,11 +406,11 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> with SingleTicker
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isCurrentUser
-            ? const Color(0xFF7B2FFF).withOpacity(0.2)
-            : Colors.white.withOpacity(0.05),
+            ? const Color(0xFF7B2FFF).withValues(alpha: 0.2)
+            : Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: isCurrentUser ? const Color(0xFF7B2FFF) : Colors.white.withOpacity(0.1),
+          color: isCurrentUser ? const Color(0xFF7B2FFF) : Colors.white.withValues(alpha: 0.1),
           width: isCurrentUser ? 2 : 1,
         ),
       ),
@@ -421,7 +421,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> with SingleTicker
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: rankColor.withOpacity(0.2),
+              color: rankColor.withValues(alpha: 0.2),
               shape: BoxShape.circle,
               border: Border.all(color: rankColor, width: 2),
             ),
@@ -454,8 +454,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> with SingleTicker
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF7B2FFF).withOpacity(0.3),
-                  const Color(0xFF7B2FFF).withOpacity(0.1),
+                  const Color(0xFF7B2FFF).withValues(alpha: 0.3),
+                  const Color(0xFF7B2FFF).withValues(alpha: 0.1),
                 ],
               ),
               borderRadius: BorderRadius.circular(10),

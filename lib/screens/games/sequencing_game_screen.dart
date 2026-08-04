@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart' as app_auth;
-import '../../models/user_model.dart';
 import '../auth/login_screen.dart';
 import '../../providers/settings_provider.dart';
 
@@ -10,9 +9,9 @@ class SequencingGameScreen extends StatefulWidget {
   final Map<String, dynamic> gameData;
 
   const SequencingGameScreen({
-    Key? key,
+    super.key,
     required this.gameData,
-  }) : super(key: key);
+  });
 
   @override
   State<SequencingGameScreen> createState() => _SequencingGameScreenState();
@@ -21,7 +20,7 @@ class SequencingGameScreen extends StatefulWidget {
 class _SequencingGameScreenState extends State<SequencingGameScreen> {
   int _currentLevel = 0;
   List<Map<String, dynamic>> _levels = [];
-  List<String> _userSequence = [];
+  final List<String> _userSequence = [];
   List<String> _correctSequence = [];
   List<Map<String, dynamic>> _shuffledCommands = [];
   bool _isChecking = false;
@@ -297,7 +296,7 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
                     ],
                   ),
                 );
-              }).toList(),
+              }),
             ],
           ],
         ),
@@ -870,7 +869,7 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
               final authProvider = Provider.of<app_auth.AuthProvider>(context, listen: false);
               await authProvider.signOut();
 
-              if (!mounted) return;
+              if (!context.mounted) return;
 
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => const LoginScreen()),

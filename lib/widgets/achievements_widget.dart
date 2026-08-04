@@ -9,9 +9,9 @@ class AchievementsWidget extends StatelessWidget {
   final AchievementBadgeService _achievementService = AchievementBadgeService();
 
   AchievementsWidget({
-    Key? key,
+    super.key,
     required this.userId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -209,12 +209,12 @@ class AchievementsWidget extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            achievement.color.withOpacity(0.1),
+            achievement.color.withValues(alpha: 0.1),
             Colors.white,
           ],
         ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: achievement.color.withOpacity(0.3), width: 2),
+        border: Border.all(color: achievement.color.withValues(alpha: 0.3), width: 2),
       ),
       child: Row(
         children: [
@@ -222,7 +222,7 @@ class AchievementsWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: achievement.color.withOpacity(0.2),
+              color: achievement.color.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -370,10 +370,10 @@ class _AllAchievementsScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isLocked ? Colors.grey[100] : achievement.color.withOpacity(0.1),
+        color: isLocked ? Colors.grey[100] : achievement.color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: isLocked ? Colors.grey.shade300 : achievement.color.withOpacity(0.5),
+          color: isLocked ? Colors.grey.shade300 : achievement.color.withValues(alpha: 0.5),
           width: 2,
         ),
       ),
@@ -388,7 +388,7 @@ class _AllAchievementsScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isLocked
                       ? Colors.grey[300]
-                      : achievement.color.withOpacity(0.2),
+                      : achievement.color.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

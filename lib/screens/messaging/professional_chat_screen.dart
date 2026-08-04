@@ -118,6 +118,7 @@ class _ProfessionalChatScreenState extends State<ProfessionalChatScreen> {
       // Get file size
       final file = File(image.path);
       final fileSize = await file.length();
+      if (!mounted) return;
 
       Navigator.pop(context); // Close loading dialog
 
@@ -139,6 +140,7 @@ class _ProfessionalChatScreenState extends State<ProfessionalChatScreen> {
       await _messagingService.sendMessage(message);
       _scrollToBottom();
     } catch (e) {
+      if (!mounted) return;
       Navigator.pop(context); // Close loading dialog
       _showErrorDialog('Resim gönderilemedi: $e');
     }
@@ -162,6 +164,7 @@ class _ProfessionalChatScreenState extends State<ProfessionalChatScreen> {
 
       final file = File(result.files.single.path!);
       final fileUrl = await _storageService.uploadFile(file.path, currentUser.id);
+      if (!mounted) return;
 
       Navigator.pop(context); // Close loading dialog
 
@@ -182,6 +185,7 @@ class _ProfessionalChatScreenState extends State<ProfessionalChatScreen> {
       await _messagingService.sendMessage(message);
       _scrollToBottom();
     } catch (e) {
+      if (!mounted) return;
       Navigator.pop(context);
       _showErrorDialog('Dosya gönderilemedi: $e');
     }
@@ -232,6 +236,7 @@ class _ProfessionalChatScreenState extends State<ProfessionalChatScreen> {
       _showLoadingDialog('Ses kaydı gönderiliyor...');
 
       final voiceUrl = await _storageService.uploadVoice(filePath, currentUser.id);
+      if (!mounted) return;
 
       Navigator.pop(context);
 
@@ -251,6 +256,7 @@ class _ProfessionalChatScreenState extends State<ProfessionalChatScreen> {
       await _messagingService.sendMessage(message);
       _scrollToBottom();
     } catch (e) {
+      if (!mounted) return;
       Navigator.pop(context);
       _showErrorDialog('Ses kaydı gönderilemedi: $e');
     }
@@ -356,7 +362,7 @@ class _ProfessionalChatScreenState extends State<ProfessionalChatScreen> {
             children: [
               CircleAvatar(
                 radius: 18,
-                backgroundColor: AppTheme.primaryBlue.withOpacity(0.2),
+                backgroundColor: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 child: Text(
                   widget.receiverName.substring(0, 1).toUpperCase(),
                   style: const TextStyle(
@@ -581,7 +587,7 @@ class _ProfessionalChatScreenState extends State<ProfessionalChatScreen> {
       width: 200,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isSent ? AppTheme.primaryBlue.withOpacity(0.1) : Colors.grey[200],
+        color: isSent ? AppTheme.primaryBlue.withValues(alpha: 0.1) : Colors.grey[200],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey[300]!),
       ),
@@ -714,7 +720,7 @@ class _ProfessionalChatScreenState extends State<ProfessionalChatScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -768,7 +774,7 @@ class _ProfessionalChatScreenState extends State<ProfessionalChatScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

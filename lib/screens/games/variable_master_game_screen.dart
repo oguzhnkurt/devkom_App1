@@ -14,7 +14,7 @@ import '../../widgets/play_time_gate.dart';
 /// Değişken Ustası Oyunu
 /// Değişken kavramını, atama işlemlerini ve değişken değerlerini takip etmeyi öğreten oyun
 class VariableMasterGameScreen extends StatelessWidget {
-  const VariableMasterGameScreen({Key? key}) : super(key: key);
+  const VariableMasterGameScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class VariableMasterGameScreen extends StatelessWidget {
 }
 
 class _VariableMasterGameContent extends StatefulWidget {
-  const _VariableMasterGameContent({Key? key}) : super(key: key);
+  const _VariableMasterGameContent({super.key});
 
   @override
   State<_VariableMasterGameContent> createState() => _VariableMasterGameContentState();
@@ -326,8 +326,8 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: entry.key == questionVariable
-                            ? AppTheme.warningOrange.withOpacity(0.2)
-                            : AppTheme.primaryBlue.withOpacity(0.1),
+                            ? AppTheme.warningOrange.withValues(alpha: 0.2)
+                            : AppTheme.primaryBlue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -354,7 +354,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
         actions: [
@@ -400,7 +400,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppTheme.primaryBlue.withOpacity(0.05),
+              AppTheme.primaryBlue.withValues(alpha: 0.05),
               Colors.white,
             ],
           ),
@@ -438,7 +438,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -510,7 +510,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.code, color: AppTheme.primaryBlue, size: 28),
@@ -576,7 +576,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
               final index = entry.key;
               final op = entry.value;
               return _buildCodeLine(index + 1, op);
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -652,7 +652,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
   Widget _buildQuestionCard() {
     return Card(
       elevation: 4,
-      color: AppTheme.warningOrange.withOpacity(0.1),
+      color: AppTheme.warningOrange.withValues(alpha: 0.1),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -740,7 +740,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
               end: Alignment.bottomRight,
               colors: [
                 Colors.white,
-                AppTheme.primaryBlue.withOpacity(0.05),
+                AppTheme.primaryBlue.withValues(alpha: 0.05),
               ],
             ),
           ),

@@ -8,7 +8,7 @@ import '../../models/user_model.dart';
 import '../../constants/post_limits.dart';
 
 class CreatePostScreen extends StatefulWidget {
-  const CreatePostScreen({Key? key}) : super(key: key);
+  const CreatePostScreen({super.key});
 
   @override
   State<CreatePostScreen> createState() => _CreatePostScreenState();
@@ -164,7 +164,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
     // Check daily post limit
     final userRole = currentUser.role.toString().split('.').last;
-    final canPost = await _feedService.canCreatePost(currentUser.id!, userRole);
+    final canPost = await _feedService.canCreatePost(currentUser.id, userRole);
 
     if (!canPost) {
       final limit = PostLimits.getMaxPostsPerDayForRole(userRole);
@@ -197,8 +197,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
     try {
       await _feedService.createPost(
-        userId: currentUser.id!,
-        userName: currentUser.name ?? 'Kullanıcı',
+        userId: currentUser.id,
+        userName: currentUser.name,
         userPhotoUrl: currentUser.profilePictureUrl,
         userRole: currentUser.role.toString().split('.').last,
         description: description,
@@ -276,7 +276,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     : null,
                 child: currentUser?.profilePictureUrl == null
                     ? Text(
-                        currentUser?.name?[0].toUpperCase() ?? 'U',
+                        currentUser?.name[0].toUpperCase() ?? 'U',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       )
                     : null,

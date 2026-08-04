@@ -22,7 +22,7 @@ import '../../providers/settings_provider.dart';
 class ChessGameScreen extends StatefulWidget {
   final ChessDifficulty? initialDifficulty;
 
-  const ChessGameScreen({Key? key, this.initialDifficulty}) : super(key: key);
+  const ChessGameScreen({super.key, this.initialDifficulty});
 
   @override
   State<ChessGameScreen> createState() => _ChessGameScreenState();
@@ -666,7 +666,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: cardColor.withOpacity(0.2),
+                    color: cardColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, color: cardColor, size: 32),
@@ -720,7 +720,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
         if (_isAIThinking)
           Container(
             padding: const EdgeInsets.all(12),
-            color: AppTheme.accentTeal.withOpacity(0.2),
+            color: AppTheme.accentTeal.withValues(alpha: 0.2),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -748,7 +748,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
         if (!_isAIThinking && _lastAIMove != null && _lastAIMove!.isNotEmpty)
           Container(
             padding: const EdgeInsets.all(12),
-            color: AppTheme.primaryBlue.withOpacity(0.1),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -872,7 +872,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
             color: AppTheme.lightGray,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 4,
                 offset: const Offset(0, -2),
               ),
@@ -1131,9 +1131,9 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               child: IgnorePointer(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.yellow.withOpacity(0.15),
+                    color: Colors.yellow.withValues(alpha: 0.15),
                     border: Border.all(
-                      color: Colors.yellow.withOpacity(0.4),
+                      color: Colors.yellow.withValues(alpha: 0.4),
                       width: 2,
                     ),
                   ),
@@ -1149,9 +1149,9 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               child: IgnorePointer(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.yellow.withOpacity(0.2),
+                    color: Colors.yellow.withValues(alpha: 0.2),
                     border: Border.all(
-                      color: Colors.yellow.withOpacity(0.5),
+                      color: Colors.yellow.withValues(alpha: 0.5),
                       width: 2,
                     ),
                   ),

@@ -26,7 +26,7 @@ class GameResultScreen extends StatefulWidget {
   final int? difficulty;
 
   const GameResultScreen({
-    Key? key,
+    super.key,
     required this.userId,
     required this.userName,
     required this.gameType,
@@ -35,7 +35,7 @@ class GameResultScreen extends StatefulWidget {
     this.correctCount,
     this.totalQuestions,
     this.difficulty,
-  }) : super(key: key);
+  });
 
   @override
   State<GameResultScreen> createState() => _GameResultScreenState();
@@ -215,14 +215,14 @@ class _GameResultScreenState extends State<GameResultScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [rankColor.withOpacity(0.8), rankColor],
+          colors: [rankColor.withValues(alpha: 0.8), rankColor],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: rankColor.withOpacity(0.3),
+            color: rankColor.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -235,7 +235,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppTheme.white.withOpacity(0.3),
+              color: AppTheme.white.withValues(alpha: 0.3),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -269,7 +269,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: AppTheme.white.withOpacity(0.2),
+              color: AppTheme.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: _buildScoreDetails(),
@@ -423,7 +423,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isCurrentUser
-            ? AppTheme.accentYellow.withOpacity(0.2)
+            ? AppTheme.accentYellow.withValues(alpha: 0.2)
             : AppTheme.white,
         borderRadius: BorderRadius.circular(12),
         border: isCurrentUser
@@ -432,8 +432,8 @@ class _GameResultScreenState extends State<GameResultScreen> {
         boxShadow: [
           BoxShadow(
             color: isCurrentUser
-                ? AppTheme.accentYellow.withOpacity(0.3)
-                : Colors.black.withOpacity(0.05),
+                ? AppTheme.accentYellow.withValues(alpha: 0.3)
+                : Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -469,8 +469,8 @@ class _GameResultScreenState extends State<GameResultScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isCurrentUser
-                  ? AppTheme.accentYellow.withOpacity(0.3)
-                  : AppTheme.primaryBlue.withOpacity(0.2),
+                  ? AppTheme.accentYellow.withValues(alpha: 0.3)
+                  : AppTheme.primaryBlue.withValues(alpha: 0.2),
             ),
             child: Center(
               child: Text(

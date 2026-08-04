@@ -53,6 +53,7 @@ class ProFeatureGuard {
     String? featureName,
   }) async {
     final hasPro = await hasAccess();
+    if (!context.mounted) return false;
 
     if (hasPro) {
       await onAllowed();
@@ -61,6 +62,7 @@ class ProFeatureGuard {
       // Track Pro feature block
       if (featureName != null) {
         await _analytics.logProFeatureBlocked(featureName);
+        if (!context.mounted) return false;
       }
       _showUpgradeDialog(context, featureName: featureName);
       return false;
@@ -120,6 +122,7 @@ class ProFeatureGuard {
     String? featureName,
   }) async {
     final hasPro = await hasAccess();
+    if (!context.mounted) return;
 
     if (hasPro) {
       Navigator.push(
@@ -130,6 +133,7 @@ class ProFeatureGuard {
       // Track Pro feature block
       if (featureName != null) {
         await _analytics.logProFeatureBlocked(featureName);
+        if (!context.mounted) return;
       }
       _showUpgradeDialog(context, featureName: featureName);
     }
@@ -376,7 +380,7 @@ class ProFeatureGuard {
 class ProFeaturesCard extends StatelessWidget {
   final VoidCallback? onUpgradePressed;
 
-  const ProFeaturesCard({Key? key, this.onUpgradePressed}) : super(key: key);
+  const ProFeaturesCard({super.key, this.onUpgradePressed});
 
   @override
   Widget build(BuildContext context) {
@@ -401,7 +405,7 @@ class ProFeaturesCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(Icons.star, color: Colors.amber, size: 32),

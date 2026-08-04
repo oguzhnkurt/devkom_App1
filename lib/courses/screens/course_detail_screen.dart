@@ -54,7 +54,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
             shape: BoxShape.circle,
           ),
           child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
@@ -113,7 +113,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -168,10 +168,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: course.primaryColor.withOpacity(0.1),
+                  color: course.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: course.primaryColor.withOpacity(0.3),
+                    color: course.primaryColor.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
@@ -238,7 +238,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 24),
@@ -275,8 +275,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            widget.course.primaryColor.withOpacity(0.8),
-            widget.course.secondaryColor.withOpacity(0.8),
+            widget.course.primaryColor.withValues(alpha: 0.8),
+            widget.course.secondaryColor.withValues(alpha: 0.8),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -292,7 +292,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 CircularProgressIndicator(
                   value: progress,
                   strokeWidth: 6,
-                  backgroundColor: Colors.white.withOpacity(0.3),
+                  backgroundColor: Colors.white.withValues(alpha: 0.3),
                   valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
                 Center(
@@ -326,7 +326,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 Text(
                   '$completedLessons / $totalLessons ders tamamlandi',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 13,
                   ),
                 ),
@@ -443,7 +443,7 @@ class _LessonTile extends StatelessWidget {
       onTap: isLocked
           ? null
           : () {
-              print('🎯 Lesson tapped: ${lesson.title}');
+              debugPrint('🎯 Lesson tapped: ${lesson.title}');
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -465,7 +465,7 @@ class _LessonTile extends StatelessWidget {
               : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -482,7 +482,7 @@ class _LessonTile extends StatelessWidget {
                     ? Colors.green
                     : (isLocked
                         ? Colors.grey.shade400
-                        : course.primaryColor.withOpacity(0.1)),
+                        : course.primaryColor.withValues(alpha: 0.1)),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -580,7 +580,7 @@ class _StarsPainter extends CustomPainter {
       final y = random.nextDouble() * size.height;
       final starSize = random.nextDouble() * 2 + 0.5;
 
-      paint.color = Colors.white.withOpacity(random.nextDouble() * 0.4 + 0.1);
+      paint.color = Colors.white.withValues(alpha: random.nextDouble() * 0.4 + 0.1);
       canvas.drawCircle(Offset(x, y), starSize, paint);
     }
   }

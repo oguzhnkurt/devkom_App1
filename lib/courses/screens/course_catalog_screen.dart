@@ -116,7 +116,7 @@ class _CourseCatalogScreenState extends State<CourseCatalogScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -192,7 +192,7 @@ class _CourseCatalogScreenState extends State<CourseCatalogScreen> {
                 setState(() => _selectedCategory = category);
               },
               backgroundColor: isDark ? const Color(0xFF1E1E2E) : Colors.white,
-              selectedColor: const Color(0xFF667eea).withOpacity(0.2),
+              selectedColor: const Color(0xFF667eea).withValues(alpha: 0.2),
               checkmarkColor: const Color(0xFF667eea),
               labelStyle: TextStyle(
                 color: isSelected
@@ -306,14 +306,14 @@ class _CourseCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              course.primaryColor.withOpacity(0.9),
-              course.secondaryColor.withOpacity(0.8),
+              course.primaryColor.withValues(alpha: 0.9),
+              course.secondaryColor.withValues(alpha: 0.8),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: course.primaryColor.withOpacity(0.3),
+              color: course.primaryColor.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -340,7 +340,7 @@ class _CourseCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -363,7 +363,7 @@ class _CourseCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -447,7 +447,7 @@ class _StarsPainter extends CustomPainter {
       final starSize = random.nextDouble() * 2 + 0.5;
       final opacity = random.nextDouble() * 0.5 + 0.2;
 
-      paint.color = (isDark ? Colors.white : const Color(0xFF667eea)).withOpacity(opacity);
+      paint.color = (isDark ? Colors.white : const Color(0xFF667eea)).withValues(alpha: opacity);
       canvas.drawCircle(Offset(x, y), starSize, paint);
     }
   }
@@ -470,7 +470,7 @@ class _MiniStarsPainter extends CustomPainter {
       final y = random.nextDouble() * size.height;
       final starSize = random.nextDouble() * 1.5 + 0.3;
 
-      paint.color = Colors.white.withOpacity(random.nextDouble() * 0.3 + 0.1);
+      paint.color = Colors.white.withValues(alpha: random.nextDouble() * 0.3 + 0.1);
       canvas.drawCircle(Offset(x, y), starSize, paint);
     }
   }

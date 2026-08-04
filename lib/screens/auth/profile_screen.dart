@@ -174,7 +174,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       end: Alignment.bottomRight,
                       colors: [
                         AppTheme.darkBlue,
-                        AppTheme.darkBlue.withOpacity(0.8),
+                        AppTheme.darkBlue.withValues(alpha: 0.8),
                       ],
                     ),
                   ),
@@ -193,7 +193,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: CircleAvatar(
                           radius: 60,
-                          backgroundColor: AppTheme.accentTeal.withOpacity(0.2),
+                          backgroundColor: AppTheme.accentTeal.withValues(alpha: 0.2),
                           child: Text(
                             _getInitials(user.displayName),
                             style: theme.textTheme.headlineLarge?.copyWith(
@@ -369,7 +369,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: _getRoleColor(role).withOpacity(0.4),
+            color: _getRoleColor(role).withValues(alpha: 0.4),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -417,7 +417,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
+                color: iconColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(

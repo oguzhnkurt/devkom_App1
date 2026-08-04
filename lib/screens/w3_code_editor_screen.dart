@@ -1,5 +1,7 @@
 /// W3Schools-style Code Editor Screen
 /// "Try it Yourself" interactive code editor
+library;
+
 import 'package:flutter/material.dart';
 import '../widgets/w3_widgets.dart';
 
@@ -9,11 +11,11 @@ class W3CodeEditorScreen extends StatefulWidget {
   final String? expectedOutput;
 
   const W3CodeEditorScreen({
-    Key? key,
+    super.key,
     required this.code,
     required this.language,
     this.expectedOutput,
-  }) : super(key: key);
+  });
 
   @override
   State<W3CodeEditorScreen> createState() => _W3CodeEditorScreenState();

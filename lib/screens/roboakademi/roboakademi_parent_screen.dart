@@ -299,7 +299,7 @@ class _RoboAkademiParentScreenState extends State<RoboAkademiParentScreen> {
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundColor: Colors.white.withOpacity(0.25),
+            backgroundColor: Colors.white.withValues(alpha: 0.25),
             child: Text(
               student.firstName.isNotEmpty ? student.firstName[0].toUpperCase() : '?',
               style: const TextStyle(fontSize: 26, color: Colors.white, fontWeight: FontWeight.bold),

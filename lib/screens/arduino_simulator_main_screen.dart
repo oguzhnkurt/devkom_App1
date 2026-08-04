@@ -5,7 +5,7 @@ import '../theme.dart';
 /// Arduino Projeleri Eğitim Ekranı
 /// Başlangıç seviyesinden başlayan Arduino projeleri ve eğitimleri
 class ArduinoSimulatorMainScreen extends StatefulWidget {
-  const ArduinoSimulatorMainScreen({Key? key}) : super(key: key);
+  const ArduinoSimulatorMainScreen({super.key});
 
   @override
   State<ArduinoSimulatorMainScreen> createState() => _ArduinoSimulatorMainScreenState();
@@ -541,7 +541,7 @@ void loop() {
           _selectedCategory = category;
         });
       },
-      backgroundColor: Colors.white.withOpacity(0.2),
+      backgroundColor: Colors.white.withValues(alpha: 0.2),
       selectedColor: Colors.white,
       labelStyle: TextStyle(
         color: isSelected ? const Color(0xFF00979D) : Colors.white,
@@ -576,7 +576,7 @@ void loop() {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [project.color, project.color.withOpacity(0.7)],
+                  colors: [project.color, project.color.withValues(alpha: 0.7)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -587,7 +587,7 @@ void loop() {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
@@ -614,7 +614,7 @@ void loop() {
                           project.description,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                           ),
                         ),
                       ],
@@ -684,9 +684,9 @@ void loop() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -747,7 +747,7 @@ void loop() {
 class ArduinoProjectDetailScreen extends StatefulWidget {
   final ArduinoProject project;
 
-  const ArduinoProjectDetailScreen({Key? key, required this.project}) : super(key: key);
+  const ArduinoProjectDetailScreen({super.key, required this.project});
 
   @override
   State<ArduinoProjectDetailScreen> createState() => _ArduinoProjectDetailScreenState();

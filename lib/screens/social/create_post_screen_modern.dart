@@ -35,7 +35,7 @@ class _CreatePostScreenModernState extends State<CreatePostScreenModern>
   final _socialFeedService = SocialFeedService();
   final _imagePicker = ImagePicker();
 
-  List<File> _selectedImages = [];
+  final List<File> _selectedImages = [];
   File? _selectedPDF;
   List<String> _tags = [];
   bool _isLoading = false;
@@ -151,7 +151,7 @@ class _CreatePostScreenModernState extends State<CreatePostScreenModern>
 
       await _socialFeedService.createPost(
         userId: user.uid,
-        userName: user.displayName ?? 'User',
+        userName: user.displayName,
         userPhotoUrl: user.profilePictureUrl,
         userRole: 'student', // Get from user data
         description: _textController.text.trim(),
@@ -180,7 +180,9 @@ class _CreatePostScreenModernState extends State<CreatePostScreenModern>
         );
       }
     } catch (e) {
-      _showError('${AppLocalizations.of(context).failedToCreatePost}: $e');
+      if (mounted) {
+        _showError('${AppLocalizations.of(context).failedToCreatePost}: $e');
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -203,8 +205,6 @@ class _CreatePostScreenModernState extends State<CreatePostScreenModern>
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    final l10n = AppLocalizations.of(context);
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.currentUser;
 
@@ -241,7 +241,7 @@ class _CreatePostScreenModernState extends State<CreatePostScreenModern>
                     // User Avatar
                     CircleAvatar(
                       radius: 20,
-                      backgroundColor: AppTheme.primaryBlue.withOpacity(0.1),
+                      backgroundColor: AppTheme.primaryBlue.withValues(alpha: 0.1),
                       child: user?.profilePictureUrl != null
                           ? ClipOval(
                               child: Image.network(
@@ -252,7 +252,7 @@ class _CreatePostScreenModernState extends State<CreatePostScreenModern>
                               ),
                             )
                           : Text(
-                              user?.displayName?.substring(0, 1).toUpperCase() ?? 'U',
+                              user?.displayName.substring(0, 1).toUpperCase() ?? 'U',
                               style: const TextStyle(
                                 color: AppTheme.primaryBlue,
                                 fontWeight: FontWeight.bold,
@@ -302,12 +302,12 @@ class _CreatePostScreenModernState extends State<CreatePostScreenModern>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: _remainingPosts > 0
-                          ? [const Color(0xFF4A90E2).withOpacity(0.1), const Color(0xFF9B59B6).withOpacity(0.1)]
-                          : [Colors.orange.withOpacity(0.1), Colors.red.withOpacity(0.1)],
+                          ? [const Color(0xFF4A90E2).withValues(alpha: 0.1), const Color(0xFF9B59B6).withValues(alpha: 0.1)]
+                          : [Colors.orange.withValues(alpha: 0.1), Colors.red.withValues(alpha: 0.1)],
                     ),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: _remainingPosts > 0 ? const Color(0xFF4A90E2).withOpacity(0.3) : Colors.orange.withOpacity(0.3),
+                      color: _remainingPosts > 0 ? const Color(0xFF4A90E2).withValues(alpha: 0.3) : Colors.orange.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
@@ -338,10 +338,10 @@ class _CreatePostScreenModernState extends State<CreatePostScreenModern>
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Colors.purple.withOpacity(0.1), Colors.amber.withOpacity(0.1)],
+                      colors: [Colors.purple.withValues(alpha: 0.1), Colors.amber.withValues(alpha: 0.1)],
                     ),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.purple.withOpacity(0.3)),
+                    border: Border.all(color: Colors.purple.withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     children: [
@@ -487,7 +487,7 @@ class _CreatePostScreenModernState extends State<CreatePostScreenModern>
                                       borderRadius: BorderRadius.circular(12),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
+                                          color: Colors.black.withValues(alpha: 0.1),
                                           blurRadius: 8,
                                           offset: const Offset(0, 2),
                                         ),
@@ -599,7 +599,7 @@ class _CreatePostScreenModernState extends State<CreatePostScreenModern>
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, -2),
                     ),
@@ -640,7 +640,7 @@ class _CreatePostScreenModernState extends State<CreatePostScreenModern>
                           boxShadow: [
                             if (_remainingPosts > 0 || _isPro)
                               BoxShadow(
-                                color: const Color(0xFF4A90E2).withOpacity(0.3),
+                                color: const Color(0xFF4A90E2).withValues(alpha: 0.3),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -728,10 +728,10 @@ class _MediaButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: isEnabled ? color.withOpacity(0.1) : Colors.grey[200],
+            color: isEnabled ? color.withValues(alpha: 0.1) : Colors.grey[200],
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isEnabled ? color.withOpacity(0.3) : Colors.grey[300]!,
+              color: isEnabled ? color.withValues(alpha: 0.3) : Colors.grey[300]!,
             ),
           ),
           child: Row(

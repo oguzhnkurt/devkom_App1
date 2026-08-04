@@ -269,7 +269,7 @@ class _CatchBlockGameState extends State<CatchBlockGame> with TickerProviderStat
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: widget.course.primaryColor.withOpacity(0.1),
+            color: widget.course.primaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -426,7 +426,7 @@ class _BlockWidget extends StatelessWidget {
           border: isSelected ? Border.all(color: Colors.white, width: 3) : null,
           boxShadow: [
             BoxShadow(
-              color: block.color.withOpacity(0.3),
+              color: block.color.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -467,7 +467,7 @@ class _CategoryButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: color, width: 2),
         ),

@@ -13,7 +13,7 @@ import 'create_post_screen.dart';
 import 'comments_screen.dart';
 
 class FeedScreen extends StatefulWidget {
-  const FeedScreen({Key? key}) : super(key: key);
+  const FeedScreen({super.key});
 
   @override
   State<FeedScreen> createState() => _FeedScreenState();
@@ -321,11 +321,11 @@ class PostCard extends StatefulWidget {
   final FeedService feedService;
 
   const PostCard({
-    Key? key,
+    super.key,
     required this.post,
     required this.currentUser,
     required this.feedService,
-  }) : super(key: key);
+  });
 
   @override
   State<PostCard> createState() => _PostCardState();
@@ -340,7 +340,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
     _isLiked = widget.currentUser != null &&
-        widget.post.isLikedBy(widget.currentUser!.id!);
+        widget.post.isLikedBy(widget.currentUser!.id);
 
     _likeAnimationController = AnimationController(
       vsync: this,
@@ -380,7 +380,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
     try {
       await widget.feedService.toggleLike(
         widget.post.id,
-        widget.currentUser!.id!,
+        widget.currentUser!.id,
       );
     } catch (e) {
       setState(() {
@@ -471,14 +471,14 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                   widget.post.id,
                   {'description': controller.text},
                 );
-                if (mounted) {
+                if (context.mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Paylaşım güncellendi')),
                   );
                 }
               } catch (e) {
-                if (mounted) {
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Hata: $e')),
                   );
@@ -508,14 +508,14 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
               try {
                 // TODO: Migrate to Supabase - deletePost signature changed
                 await widget.feedService.deletePost(widget.post.id);
-                if (mounted) {
+                if (context.mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Paylaşım silindi')),
                   );
                 }
               } catch (e) {
-                if (mounted) {
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Hata: $e')),
                   );
@@ -718,7 +718,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                     border: Border.all(color: Colors.grey[300]!, width: 1),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
+                        color: Colors.black.withValues(alpha: 0.08),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),

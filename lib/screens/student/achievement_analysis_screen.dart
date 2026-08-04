@@ -39,7 +39,7 @@ class _AchievementAnalysisScreenState extends State<AchievementAnalysisScreen> {
       final gameStats = await _achievementService.getGameStatistics(userId);
 
       setState(() {
-        _overallStats = overallStats != null ? overallStats as OverallStatistics : null;
+        _overallStats = overallStats as OverallStatistics;
         _gameStats = gameStats.cast<GameStatistics>();
         _isLoading = false;
       });
@@ -254,7 +254,7 @@ class _AchievementAnalysisScreenState extends State<AchievementAnalysisScreen> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: _getSuccessColor(stat.averageSuccessRate).withOpacity(0.2),
+                    color: _getSuccessColor(stat.averageSuccessRate).withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -336,7 +336,7 @@ class _AchievementAnalysisScreenState extends State<AchievementAnalysisScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 28),

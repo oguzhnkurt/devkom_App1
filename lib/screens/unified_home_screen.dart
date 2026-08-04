@@ -1,28 +1,19 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import '../providers/auth_provider.dart';
 import '../models/user_model.dart';
-import '../theme.dart';
 import '../models/user_progress_model.dart';
 import '../services/user_progress_service.dart';
-import 'auth/login_screen.dart';
-import 'messaging/chat_screen.dart';
-import 'social/feed_screen.dart';
 import 'social/enhanced_feed_screen_v2.dart';
 // import 'messaging/conversations_screen.dart'; // Temporarily disabled
 
 import 'devchat_screen.dart'; // DevAiChat Screen
 import 'auth/profile_screen.dart';
 import 'robotics_games_screen.dart';
-import 'games/millionaire_game_screen.dart';
-import 'arduino_simulator_main_screen.dart';
 import 'worksheets_screen.dart';
-import 'math_games_screen.dart';
 import 'w3_courses_screen.dart';
 import '../widgets/visitor_cta_widget.dart';
-import '../widgets/code_playground_screen.dart';
 import '../widgets/student_drawer.dart';
 import 'market_screen.dart';
 
@@ -286,7 +277,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                   padding: const EdgeInsets.all(8),
                   margin: const EdgeInsets.only(right: 12),
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.white.withOpacity(0.08) : Colors.grey.shade100,
+                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -370,7 +361,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF667eea).withOpacity(0.4),
+              color: const Color(0xFF667eea).withValues(alpha: 0.4),
               blurRadius: 15,
               offset: const Offset(0, 6),
             ),
@@ -388,20 +379,20 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      Colors.white.withOpacity(0.95),
-                      const Color(0xFFB8B5FF).withOpacity(0.7),
-                      const Color(0xFF667eea).withOpacity(0.4),
+                      Colors.white.withValues(alpha: 0.95),
+                      const Color(0xFFB8B5FF).withValues(alpha: 0.7),
+                      const Color(0xFF667eea).withValues(alpha: 0.4),
                     ],
                     stops: const [0.0, 0.5, 1.0],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                       blurRadius: 25,
                       spreadRadius: 5,
                     ),
                     BoxShadow(
-                      color: const Color(0xFF667eea).withOpacity(0.3),
+                      color: const Color(0xFF667eea).withValues(alpha: 0.3),
                       blurRadius: 15,
                       spreadRadius: 2,
                     ),
@@ -418,7 +409,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: const Color(0xFF667eea).withOpacity(0.3),
+                            color: const Color(0xFF667eea).withValues(alpha: 0.3),
                             width: 1.5,
                           ),
                         ),
@@ -467,7 +458,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                         child: Icon(
                           Icons.auto_awesome,
                           size: 12,
-                          color: const Color(0xFF667eea).withOpacity(0.8),
+                          color: const Color(0xFF667eea).withValues(alpha: 0.8),
                         ),
                       ),
                     ],
@@ -494,7 +485,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                     '$queriesLeft/$queriesTotal Soru Hakki',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -503,7 +494,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                     child: LinearProgressIndicator(
                       value: 1 - queryProgress,
                       minHeight: 6,
-                      backgroundColor: Colors.white.withOpacity(0.3),
+                      backgroundColor: Colors.white.withValues(alpha: 0.3),
                       valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   ),
@@ -548,7 +539,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -742,7 +733,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: colors.last.withOpacity(0.3),
+              color: colors.last.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -768,11 +759,11 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             blurRadius: 8,
                             spreadRadius: 1,
                           ),
@@ -814,7 +805,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -842,7 +833,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -937,7 +928,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 5,
                     offset: const Offset(0, 2),
                   ),
@@ -985,7 +976,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                 ],
               ),
             );
-          }).toList(),
+          }),
       ],
     );
   }
@@ -1057,7 +1048,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 5,
                         offset: const Offset(0, 2),
                       ),
@@ -1165,7 +1156,7 @@ class _SpaceStarsPainter extends CustomPainter {
       canvas.drawCircle(
         Offset(x, y),
         starSize,
-        paint..color = Colors.white.withOpacity(random.nextDouble() * 0.5 + 0.3),
+        paint..color = Colors.white.withValues(alpha: random.nextDouble() * 0.5 + 0.3),
       );
     }
 
@@ -1178,12 +1169,12 @@ class _SpaceStarsPainter extends CustomPainter {
       canvas.drawCircle(
         Offset(x, y),
         3,
-        paint..color = Colors.cyan.withOpacity(0.2),
+        paint..color = Colors.cyan.withValues(alpha: 0.2),
       );
       canvas.drawCircle(
         Offset(x, y),
         1.5,
-        paint..color = Colors.white.withOpacity(0.8),
+        paint..color = Colors.white.withValues(alpha: 0.8),
       );
     }
   }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart' as app_auth;
-import '../../models/user_model.dart';
 import '../auth/login_screen.dart';
 import '../../services/score_cache_service.dart';
 import '../../models/leaderboard_model.dart';
@@ -15,9 +14,9 @@ class WordMatchGameScreen extends StatefulWidget {
   final Map<String, dynamic> gameData;
 
   const WordMatchGameScreen({
-    Key? key,
+    super.key,
     required this.gameData,
-  }) : super(key: key);
+  });
 
   @override
   State<WordMatchGameScreen> createState() => _WordMatchGameScreenState();
@@ -29,9 +28,9 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
   List<Map<String, String>> _rightWords = [];
 
   // Connection tracking
-  Map<String, String> _userMatches = {}; // english -> turkish
-  Map<String, GlobalKey> _leftKeys = {};
-  Map<String, GlobalKey> _rightKeys = {};
+  final Map<String, String> _userMatches = {}; // english -> turkish
+  final Map<String, GlobalKey> _leftKeys = {};
+  final Map<String, GlobalKey> _rightKeys = {};
   String? _selectedLeft;
   String? _selectedRight;
 
@@ -40,7 +39,6 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
   int _currentLevel = 1;
   final int _totalLevels = 5;
   DateTime? _startTime;
-  DateTime? _levelStartTime;
 
   // Color palette
   final List<Color> _colors = [
@@ -61,7 +59,6 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
   void initState() {
     super.initState();
     _startTime = DateTime.now();
-    _levelStartTime = DateTime.now();
     _loadWords();
   }
 
@@ -346,7 +343,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                 Navigator.pop(context);
                 await _saveScoreAndShowRank();
                 Future.delayed(const Duration(milliseconds: 500), () {
-                  if (mounted) {
+                  if (context.mounted) {
                     Navigator.pop(context);
                   }
                 });
@@ -379,7 +376,6 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
       _selectedLeft = null;
       _selectedRight = null;
       _attempts = 0;
-      _levelStartTime = DateTime.now();
       _loadWords();
     });
   }
@@ -393,7 +389,6 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
       _score = 0;
       _attempts = 0;
       _startTime = DateTime.now();
-      _levelStartTime = DateTime.now();
       _loadWords();
     });
   }
@@ -405,7 +400,6 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
       _selectedRight = null;
       _score = 0;
       _attempts = 0;
-      _levelStartTime = DateTime.now();
       _loadWords();
     });
   }
@@ -457,7 +451,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                 children: [
                   const CircularProgressIndicator(),
                   const SizedBox(height: 16),
-                  Text(_isEn ? 'Loading level $_currentLevel...' : 'Seviye ${_currentLevel} yükleniyor...'),
+                  Text(_isEn ? 'Loading level $_currentLevel...' : 'Seviye $_currentLevel yükleniyor...'),
                 ],
               ),
             )
@@ -606,13 +600,13 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                 shape: BoxShape.circle,
                 color: isMatched ? color : (isSelected ? Colors.purple.shade400 : Colors.purple.shade200),
                 border: Border.all(
-                  color: isMatched ? color.withOpacity(0.8) : Colors.purple.shade700,
+                  color: isMatched ? color.withValues(alpha: 0.8) : Colors.purple.shade700,
                   width: isSelected ? 3 : 2,
                 ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: Colors.purple.withOpacity(0.5),
+                          color: Colors.purple.withValues(alpha: 0.5),
                           blurRadius: 8,
                           spreadRadius: 2,
                         )
@@ -635,7 +629,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isMatched ? color.withOpacity(0.2) : Colors.white,
+                color: isMatched ? color.withValues(alpha: 0.2) : Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isMatched ? color : Colors.purple.shade200,
@@ -643,7 +637,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -684,7 +678,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isMatched ? color.withOpacity(0.2) : Colors.white,
+                color: isMatched ? color.withValues(alpha: 0.2) : Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isMatched ? color : Colors.orange.shade200,
@@ -692,7 +686,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -722,13 +716,13 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                 shape: BoxShape.circle,
                 color: isMatched ? color : (isSelected ? Colors.orange.shade400 : Colors.orange.shade200),
                 border: Border.all(
-                  color: isMatched ? color.withOpacity(0.8) : Colors.orange.shade700,
+                  color: isMatched ? color.withValues(alpha: 0.8) : Colors.orange.shade700,
                   width: isSelected ? 3 : 2,
                 ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: Colors.orange.withOpacity(0.5),
+                          color: Colors.orange.withValues(alpha: 0.5),
                           blurRadius: 8,
                           spreadRadius: 2,
                         )
@@ -762,8 +756,8 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
 
       final entry = LeaderboardEntry(
         id: '',
-        userId: user.id!,
-        userName: user.name ?? (_isEn ? 'Player' : 'Oyuncu'),
+        userId: user.id,
+        userName: user.name,
         userPhotoUrl: user.profilePictureUrl,
         gameType: GameType.wordMatch,
         score: _score,
@@ -798,7 +792,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
           builder: (context) => AnimatedRankDisplay(
             rank: userRank,
             totalScore: _score,
-            userName: user.name ?? (_isEn ? 'Player' : 'Oyuncu'),
+            userName: user.name,
             isNewRecord: false,
             onClose: () {
               Navigator.pop(context);
@@ -865,7 +859,7 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
               final authProvider = Provider.of<app_auth.AuthProvider>(context, listen: false);
               await authProvider.signOut();
 
-              if (!mounted) return;
+              if (!context.mounted) return;
 
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => const LoginScreen()),

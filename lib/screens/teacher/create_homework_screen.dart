@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 // TODO: Migrate to Supabase
 // import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 import 'dart:io';
-import '../../providers/auth_provider.dart';
 import '../../models/user_model.dart';
 
 class CreateHomeworkScreen extends StatefulWidget {
-  const CreateHomeworkScreen({Key? key}) : super(key: key);
+  const CreateHomeworkScreen({super.key});
 
   @override
   State<CreateHomeworkScreen> createState() => _CreateHomeworkScreenState();
@@ -23,7 +21,6 @@ class _CreateHomeworkScreenState extends State<CreateHomeworkScreen> {
 
   DateTime? _dueDate;
   File? _selectedImage;
-  String? _imageUrl;
   final List<UserModel> _selectedStudents = [];
   bool _isLoading = false;
 
@@ -69,10 +66,10 @@ class _CreateHomeworkScreenState extends State<CreateHomeworkScreen> {
       */
 
       // Placeholder - TODO: Implement Supabase storage upload
-      print('Image upload pending Supabase migration');
+      debugPrint('Image upload pending Supabase migration');
       return null;
     } catch (e) {
-      print('Error uploading image: $e');
+      debugPrint('Error uploading image: $e');
       return null;
     }
   }
@@ -143,10 +140,10 @@ class _CreateHomeworkScreenState extends State<CreateHomeworkScreen> {
       */
 
       // Placeholder - TODO: Implement with Supabase
-      print('Fetch students pending Supabase migration');
+      debugPrint('Fetch students pending Supabase migration');
       return [];
     } catch (e) {
-      print('Error fetching students: $e');
+      debugPrint('Error fetching students: $e');
       return [];
     }
   }
@@ -173,12 +170,8 @@ class _CreateHomeworkScreenState extends State<CreateHomeworkScreen> {
     try {
       // Upload image if selected
       if (_selectedImage != null) {
-        _imageUrl = await _uploadImage();
+        await _uploadImage();
       }
-
-      final authProvider = context.read<AuthProvider>();
-      final teacherId = authProvider.currentUser?.uid;
-      final teacherName = authProvider.currentUser?.displayName ?? 'Teacher';
 
       // TODO: Migrate to Supabase
       // Replace Firestore with Supabase
@@ -202,7 +195,7 @@ class _CreateHomeworkScreenState extends State<CreateHomeworkScreen> {
       */
 
       // Placeholder - TODO: Implement with Supabase
-      print('Create homework pending Supabase migration');
+      debugPrint('Create homework pending Supabase migration');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

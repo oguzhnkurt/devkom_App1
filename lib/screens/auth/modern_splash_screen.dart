@@ -120,11 +120,11 @@ class _ModernSplashScreenState extends State<ModernSplashScreen>
                         width: 120,
                         height: 120,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(30),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 20,
                               offset: const Offset(0, 10),
                             ),
@@ -162,7 +162,7 @@ class _ModernSplashScreenState extends State<ModernSplashScreen>
                         'AI • Robotik • Kodlama',
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           letterSpacing: 1.5,
                           fontWeight: FontWeight.w300,
                         ),
@@ -174,7 +174,7 @@ class _ModernSplashScreenState extends State<ModernSplashScreen>
                         height: 40,
                         child: CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white.withOpacity(0.7),
+                            Colors.white.withValues(alpha: 0.7),
                           ),
                           strokeWidth: 3,
                         ),

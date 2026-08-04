@@ -5,7 +5,7 @@ import 'package:confetti/confetti.dart';
 /// Math Games Screen
 /// Collection of interactive math games for students
 class MathGamesScreen extends StatelessWidget {
-  const MathGamesScreen({Key? key}) : super(key: key);
+  const MathGamesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +99,7 @@ class MathGamesScreen extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
@@ -140,7 +140,7 @@ class MathGamesScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -177,7 +177,7 @@ class MathGamesScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 15,
               offset: const Offset(0, 4),
             ),
@@ -192,7 +192,7 @@ class MathGamesScreen extends StatelessWidget {
                 gradient: LinearGradient(
                   colors: [
                     game['color'] as Color,
-                    (game['color'] as Color).withOpacity(0.7),
+                    (game['color'] as Color).withValues(alpha: 0.7),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -242,7 +242,7 @@ class MathGamesScreen extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: (game['color'] as Color).withOpacity(0.1),
+                        color: (game['color'] as Color).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -272,11 +272,11 @@ class MathGamePlayScreen extends StatefulWidget {
   final Color color;
 
   const MathGamePlayScreen({
-    Key? key,
+    super.key,
     required this.title,
     required this.type,
     required this.color,
-  }) : super(key: key);
+  });
 
   @override
   State<MathGamePlayScreen> createState() => _MathGamePlayScreenState();
@@ -420,7 +420,7 @@ class _MathGamePlayScreenState extends State<MathGamePlayScreen> {
                 height: 80,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [widget.color, widget.color.withOpacity(0.7)],
+                    colors: [widget.color, widget.color.withValues(alpha: 0.7)],
                   ),
                   shape: BoxShape.circle,
                 ),
@@ -541,7 +541,7 @@ class _MathGamePlayScreenState extends State<MathGamePlayScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [widget.color, widget.color.withOpacity(0.7)],
+          colors: [widget.color, widget.color.withValues(alpha: 0.7)],
         ),
       ),
       child: Column(
@@ -566,7 +566,7 @@ class _MathGamePlayScreenState extends State<MathGamePlayScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -590,7 +590,7 @@ class _MathGamePlayScreenState extends State<MathGamePlayScreen> {
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
               value: _questionCount / 10,
-              backgroundColor: Colors.white.withOpacity(0.3),
+              backgroundColor: Colors.white.withValues(alpha: 0.3),
               valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
               minHeight: 8,
             ),
@@ -621,7 +621,7 @@ class _MathGamePlayScreenState extends State<MathGamePlayScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 15,
               offset: const Offset(0, 4),
             ),
@@ -693,8 +693,8 @@ class _MathGamePlayScreenState extends State<MathGamePlayScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 decoration: BoxDecoration(
                   color: _isCorrect
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.red.withOpacity(0.1),
+                      ? Colors.green.withValues(alpha: 0.1)
+                      : Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -742,8 +742,8 @@ class _MathGamePlayScreenState extends State<MathGamePlayScreen> {
 
         Color getColor() {
           if (!shouldHighlight) return Colors.white;
-          if (isCorrectOption) return Colors.green.withOpacity(0.1);
-          if (isSelected && !isCorrectOption) return Colors.red.withOpacity(0.1);
+          if (isCorrectOption) return Colors.green.withValues(alpha: 0.1);
+          if (isSelected && !isCorrectOption) return Colors.red.withValues(alpha: 0.1);
           return Colors.white;
         }
 
@@ -768,7 +768,7 @@ class _MathGamePlayScreenState extends State<MathGamePlayScreen> {
               boxShadow: [
                 if (!shouldHighlight)
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),

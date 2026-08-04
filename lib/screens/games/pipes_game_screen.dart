@@ -5,7 +5,6 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:provider/provider.dart';
 import '../../utils/score_calculator.dart';
-import '../../models/game_model.dart';
 import '../../services/sound_service.dart';
 import '../../providers/settings_provider.dart';
 

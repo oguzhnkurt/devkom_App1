@@ -68,7 +68,7 @@ class _LiveCameraScreenState extends State<LiveCameraScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppTheme.darkBlue.withOpacity(0.9),
+                  AppTheme.darkBlue.withValues(alpha: 0.9),
                   AppTheme.darkBlue,
                 ],
               ),
@@ -85,7 +85,7 @@ class _LiveCameraScreenState extends State<LiveCameraScreen> {
                         Container(
                           padding: const EdgeInsets.all(32),
                           decoration: BoxDecoration(
-                            color: AppTheme.accentTeal.withOpacity(0.1),
+                            color: AppTheme.accentTeal.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: AppTheme.accentTeal,
@@ -130,7 +130,7 @@ class _LiveCameraScreenState extends State<LiveCameraScreen> {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.2),
+                            color: Colors.red.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
                               color: Colors.red,
@@ -168,7 +168,7 @@ class _LiveCameraScreenState extends State<LiveCameraScreen> {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: AppTheme.darkGray.withOpacity(0.5),
+                    color: AppTheme.darkGray.withValues(alpha: 0.5),
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(24),
                       topRight: Radius.circular(24),
@@ -225,7 +225,7 @@ class _LiveCameraScreenState extends State<LiveCameraScreen> {
                         Text(
                           'Kamera entegrasyonu geliştirme aşamasındadır',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: AppTheme.lightGray.withOpacity(0.7),
+                            color: AppTheme.lightGray.withValues(alpha: 0.7),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -251,7 +251,7 @@ class _LiveCameraScreenState extends State<LiveCameraScreen> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: AppTheme.accentTeal.withOpacity(0.1),
+            color: AppTheme.accentTeal.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: IconButton(

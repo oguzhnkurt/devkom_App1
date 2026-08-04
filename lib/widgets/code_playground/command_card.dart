@@ -17,11 +17,11 @@ class CommandCard extends StatelessWidget {
   final bool isSmall;
 
   const CommandCard({
-    Key? key,
+    super.key,
     required this.type,
     this.onTap,
     this.isSmall = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class CommandCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: _getGradientColors()[0].withOpacity(0.4),
+              color: _getGradientColors()[0].withValues(alpha: 0.4),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -126,10 +126,10 @@ class DraggableCommandCard extends StatelessWidget {
   final bool isSmall;
 
   const DraggableCommandCard({
-    Key? key,
+    super.key,
     required this.type,
     this.isSmall = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -162,17 +162,17 @@ class CommandSlot extends StatelessWidget {
   final int index;
 
   const CommandSlot({
-    Key? key,
+    super.key,
     this.command,
     required this.onAccept,
     this.onRemove,
     required this.index,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return DragTarget<CommandType>(
-      onAccept: onAccept,
+      onAcceptWithDetails: (details) => onAccept(details.data),
       builder: (context, candidateData, rejectedData) {
         final isDraggingOver = candidateData.isNotEmpty;
 

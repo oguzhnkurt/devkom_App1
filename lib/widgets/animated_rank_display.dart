@@ -13,14 +13,14 @@ class AnimatedRankDisplay extends StatefulWidget {
   final VoidCallback onClose;
 
   const AnimatedRankDisplay({
-    Key? key,
+    super.key,
     required this.rank,
     required this.totalScore,
     required this.userName,
     this.isNewRecord = false,
     this.previousRank,
     required this.onClose,
-  }) : super(key: key);
+  });
 
   @override
   State<AnimatedRankDisplay> createState() => _AnimatedRankDisplayState();
@@ -126,7 +126,7 @@ class _AnimatedRankDisplayState extends State<AnimatedRankDisplay>
   String _getRankMessage() {
     if (widget.isNewRecord && widget.previousRank != null) {
       final improvement = widget.previousRank! - widget.rank;
-      return 'Yeni Rekor! ${improvement} sıra yükseldin!';
+      return 'Yeni Rekor! $improvement sıra yükseldin!';
     }
     if (widget.rank == 1) return 'Birinci Oldun!';
     if (widget.rank <= 3) return 'Harika! İlk 3\'tesin!';
@@ -175,8 +175,8 @@ class _AnimatedRankDisplayState extends State<AnimatedRankDisplay>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    _getRankColor().withOpacity(0.1),
-                    _getRankColor().withOpacity(0.05),
+                    _getRankColor().withValues(alpha: 0.1),
+                    _getRankColor().withValues(alpha: 0.05),
                   ],
                 ),
               ),
@@ -197,7 +197,7 @@ class _AnimatedRankDisplayState extends State<AnimatedRankDisplay>
                             color: _getRankColor(),
                             boxShadow: [
                               BoxShadow(
-                                color: _getRankColor().withOpacity(0.5),
+                                color: _getRankColor().withValues(alpha: 0.5),
                                 blurRadius: 20,
                                 spreadRadius: 5,
                               ),

@@ -73,6 +73,7 @@ class _MarketScreenState extends State<MarketScreen> {
       }
     } else {
       final result = await _storeService.purchaseItem(item.id);
+      if (!mounted) return;
       if (result['success'] == true) {
         await Provider.of<AuthProvider>(context, listen: false).refreshProgress();
         if (mounted) {
@@ -146,7 +147,7 @@ class _MarketScreenState extends State<MarketScreen> {
             margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.18),
+              color: Colors.white.withValues(alpha: 0.18),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -238,7 +239,7 @@ class _MarketScreenState extends State<MarketScreen> {
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: equipped ? color : Colors.grey.shade200, width: equipped ? 2 : 1),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 3)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 3)),
         ],
       ),
       child: Column(
@@ -251,10 +252,10 @@ class _MarketScreenState extends State<MarketScreen> {
                   width: 72,
                   height: 72,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
+                    color: color.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                     boxShadow: item.requiresPro
-                        ? [BoxShadow(color: color.withOpacity(0.4), blurRadius: 14, spreadRadius: 2)]
+                        ? [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 14, spreadRadius: 2)]
                         : null,
                   ),
                   child: Center(child: Text(item.iconEmoji, style: const TextStyle(fontSize: 34))),

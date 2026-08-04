@@ -117,7 +117,7 @@ class GeneralCurriculumScreen extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBlue,
-                AppTheme.darkBlue.withOpacity(0.8),
+                AppTheme.darkBlue.withValues(alpha: 0.8),
               ],
             ),
           ),
@@ -145,7 +145,7 @@ class GeneralCurriculumScreen extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.3),
+                        color: Colors.green.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.green, width: 1),
                       ),
@@ -172,13 +172,13 @@ class GeneralCurriculumScreen extends StatelessWidget {
                 // Sınıf adı
                 Row(
                   children: [
-                    Icon(Icons.class_, size: 18, color: Colors.white.withOpacity(0.9)),
+                    Icon(Icons.class_, size: 18, color: Colors.white.withValues(alpha: 0.9)),
                     const SizedBox(width: 8),
                     Text(
                       curriculum.className,
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                       ),
                     ),
                   ],
@@ -191,7 +191,7 @@ class GeneralCurriculumScreen extends StatelessWidget {
                     curriculum.description,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -219,7 +219,7 @@ class GeneralCurriculumScreen extends StatelessWidget {
                   'Başlangıç: ${_formatDate(curriculum.startDate)}',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -234,7 +234,7 @@ class GeneralCurriculumScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

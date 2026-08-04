@@ -4,7 +4,7 @@ import '../../models/survey_model.dart';
 class SurveyResultsScreen extends StatelessWidget {
   final SurveyModel survey;
 
-  const SurveyResultsScreen({Key? key, required this.survey}) : super(key: key);
+  const SurveyResultsScreen({super.key, required this.survey});
 
   @override
   Widget build(BuildContext context) {

@@ -20,7 +20,7 @@ enum RobotDirection { up, right, down, left }
 class RobotSimulatorGameScreen extends StatefulWidget {
   final Map<String, dynamic>? gameData;
 
-  const RobotSimulatorGameScreen({Key? key, this.gameData}) : super(key: key);
+  const RobotSimulatorGameScreen({super.key, this.gameData});
 
   @override
   State<RobotSimulatorGameScreen> createState() => _RobotSimulatorGameScreenState();
@@ -330,7 +330,7 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.18),
+                  color: Colors.white.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -347,7 +347,7 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(14),
-            color: const Color(0xFF6C63FF).withOpacity(0.08),
+            color: const Color(0xFF6C63FF).withValues(alpha: 0.08),
             child: Row(
               children: [
                 const Icon(Icons.sensors, color: Color(0xFF6C63FF)),
@@ -375,7 +375,7 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4)),
+                        BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4)),
                       ],
                     ),
                     child: GridView.builder(
@@ -491,8 +491,8 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
                   child: Stack(
                     children: [
                       Positioned(top: 0, left: 18, child: Icon(Icons.auto_awesome, size: 9, color: animatedColor)),
-                      Positioned(bottom: 0, right: 2, child: Icon(Icons.auto_awesome, size: 7, color: animatedColor.withOpacity(0.7))),
-                      Positioned(bottom: 2, left: 0, child: Icon(Icons.auto_awesome, size: 6, color: animatedColor.withOpacity(0.5))),
+                      Positioned(bottom: 0, right: 2, child: Icon(Icons.auto_awesome, size: 7, color: animatedColor.withValues(alpha: 0.7))),
+                      Positioned(bottom: 2, left: 0, child: Icon(Icons.auto_awesome, size: 6, color: animatedColor.withValues(alpha: 0.5))),
                     ],
                   ),
                 ),
@@ -504,7 +504,7 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: animatedColor.withOpacity(0.6), blurRadius: (10 + (tier * 2)).toDouble(), spreadRadius: (1 + tier).toDouble()),
+                    BoxShadow(color: animatedColor.withValues(alpha: 0.6), blurRadius: (10 + (tier * 2)).toDouble(), spreadRadius: (1 + tier).toDouble()),
                   ],
                 ),
               ),
@@ -534,7 +534,7 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
           iconSize: primary ? 40 : 32,
           onPressed: onTap,
           style: IconButton.styleFrom(
-            backgroundColor: primary ? const Color(0xFF6C63FF) : const Color(0xFF6C63FF).withOpacity(0.15),
+            backgroundColor: primary ? const Color(0xFF6C63FF) : const Color(0xFF6C63FF).withValues(alpha: 0.15),
             foregroundColor: primary ? Colors.white : const Color(0xFF6C63FF),
             padding: const EdgeInsets.all(16),
           ),

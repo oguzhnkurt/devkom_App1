@@ -162,7 +162,7 @@ class _SwipeWelcomeScreenState extends State<SwipeWelcomeScreen> with TickerProv
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF667eea).withOpacity(0.4 + _glowAnimation.value * 0.3),
+                                  color: const Color(0xFF667eea).withValues(alpha: 0.4 + _glowAnimation.value * 0.3),
                                   blurRadius: 40 + _glowAnimation.value * 20,
                                   spreadRadius: 10,
                                 ),
@@ -224,7 +224,7 @@ class _SwipeWelcomeScreenState extends State<SwipeWelcomeScreen> with TickerProv
                             loc.smartEducationPlatform,
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.white.withOpacity(0.7),
+                              color: Colors.white.withValues(alpha: 0.7),
                               letterSpacing: 2,
                             ),
                             textAlign: TextAlign.center,
@@ -257,14 +257,14 @@ class _SwipeWelcomeScreenState extends State<SwipeWelcomeScreen> with TickerProv
       height: 70,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(35),
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha: 0.1),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 20,
             spreadRadius: 5,
           ),
@@ -308,13 +308,13 @@ class _SwipeWelcomeScreenState extends State<SwipeWelcomeScreen> with TickerProv
                   children: [
                     Icon(
                       Icons.keyboard_double_arrow_right,
-                      color: Colors.white.withOpacity(0.4),
+                      color: Colors.white.withValues(alpha: 0.4),
                       size: 28,
                     ),
                     const SizedBox(width: 4),
                     Icon(
                       Icons.keyboard_double_arrow_right,
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       size: 28,
                     ),
                   ],
@@ -348,8 +348,8 @@ class _SwipeWelcomeScreenState extends State<SwipeWelcomeScreen> with TickerProv
                   boxShadow: [
                     BoxShadow(
                       color: _isUnlocked
-                        ? const Color(0xFF00FF87).withOpacity(0.6)
-                        : const Color(0xFF667eea).withOpacity(0.4),
+                        ? const Color(0xFF00FF87).withValues(alpha: 0.6)
+                        : const Color(0xFF667eea).withValues(alpha: 0.4),
                       blurRadius: 20,
                       spreadRadius: 5,
                     ),
@@ -375,7 +375,7 @@ class _SwipeWelcomeScreenState extends State<SwipeWelcomeScreen> with TickerProv
                   child: Text(
                     AppLocalizations.of(context).swipeToStart,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 1,

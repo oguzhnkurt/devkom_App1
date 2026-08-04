@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/daily_quest_model.dart';
+import 'package:flutter/foundation.dart';
 
 /// Günlük Görev Servisi - Supabase
 /// Görevleri yönetir, ilerlemeyi takip eder ve ödülleri dağıtır
@@ -88,7 +89,7 @@ class DailyQuestServiceSupabase {
         }
       }
     } catch (e) {
-      print('Quest progress update error: $e');
+      debugPrint('Quest progress update error: $e');
     }
   }
 
@@ -110,7 +111,7 @@ class DailyQuestServiceSupabase {
         'last_xp_earned': DateTime.now().toIso8601String(),
       }).eq('id', userId);
     } catch (e) {
-      print('XP award error: $e');
+      debugPrint('XP award error: $e');
     }
   }
 
@@ -126,7 +127,7 @@ class DailyQuestServiceSupabase {
           .eq('id', questId)
           .eq('user_id', userId);
     } catch (e) {
-      print('Claim quest error: $e');
+      debugPrint('Claim quest error: $e');
     }
   }
 
@@ -139,7 +140,7 @@ class DailyQuestServiceSupabase {
           .eq('user_id', userId)
           .lt('expires_at', DateTime.now().toIso8601String());
     } catch (e) {
-      print('Cleanup error: $e');
+      debugPrint('Cleanup error: $e');
     }
   }
 

@@ -14,7 +14,7 @@ import '../leaderboard/leaderboard_screen.dart';
 /// Koordinat Macerası Oyunu
 /// X-Y koordinat sistemini öğreten interaktif oyun
 class CoordinatesGameScreen extends StatefulWidget {
-  const CoordinatesGameScreen({Key? key}) : super(key: key);
+  const CoordinatesGameScreen({super.key});
 
   @override
   State<CoordinatesGameScreen> createState() => _CoordinatesGameScreenState();
@@ -302,7 +302,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryBlue.withOpacity(0.2),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -322,7 +322,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
-                          color: _getTimeColor().withOpacity(0.2),
+                          color: _getTimeColor().withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: _getTimeColor(), width: 2),
                         ),
@@ -354,7 +354,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.accentTeal.withOpacity(0.2),
+                        color: AppTheme.accentTeal.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -380,7 +380,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
             // Seçili koordinat
             if (selectedX != null && selectedY != null)
               Card(
-                color: AppTheme.lightBlue.withOpacity(0.3),
+                color: AppTheme.lightBlue.withValues(alpha: 0.3),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
@@ -440,7 +440,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
             if (showHint) ...[
               const SizedBox(height: 16),
               Card(
-                color: AppTheme.warningOrange.withOpacity(0.2),
+                color: AppTheme.warningOrange.withValues(alpha: 0.2),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -640,7 +640,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.accentTeal.withOpacity(0.1),
+                color: AppTheme.accentTeal.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -866,7 +866,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: color, size: 24),

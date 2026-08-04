@@ -133,8 +133,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              theme.colorScheme.primary.withOpacity(0.1),
-              theme.colorScheme.secondary.withOpacity(0.1),
+              theme.colorScheme.primary.withValues(alpha: 0.1),
+              theme.colorScheme.secondary.withValues(alpha: 0.1),
             ],
           ),
         ),
@@ -151,7 +151,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: theme.colorScheme.primary.withOpacity(_breathingAnimation.value * 0.5),
+                          color: theme.colorScheme.primary.withValues(alpha: _breathingAnimation.value * 0.5),
                           blurRadius: 20,
                           spreadRadius: 2,
                         ),
@@ -166,7 +166,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: theme.colorScheme.primary.withOpacity(_breathingAnimation.value),
+                            color: theme.colorScheme.primary.withValues(alpha: _breathingAnimation.value),
                             width: 2,
                           ),
                         ),

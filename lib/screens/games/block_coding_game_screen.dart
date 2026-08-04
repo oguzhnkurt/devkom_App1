@@ -47,9 +47,9 @@ class BlockCodingGameScreen extends StatefulWidget {
   final Map<String, dynamic>? gameData;
 
   const BlockCodingGameScreen({
-    Key? key,
+    super.key,
     this.gameData,
-  }) : super(key: key);
+  });
 
   @override
   State<BlockCodingGameScreen> createState() => _BlockCodingGameScreenState();
@@ -606,7 +606,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
       width: isDragging ? 140 : null,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         border: Border.all(color: color, width: 2),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -643,7 +643,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -876,7 +876,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
       key: ValueKey(block.id),
       margin: const EdgeInsets.only(bottom: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         border: Border.all(color: color, width: 2),
         borderRadius: BorderRadius.circular(8),
       ),

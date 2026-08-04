@@ -42,7 +42,7 @@ class ParentWeekDetailScreen extends StatelessWidget {
                         : AppTheme.darkBlue,
                     weekContent.isCompleted
                         ? Colors.green.shade700
-                        : AppTheme.darkBlue.withOpacity(0.8),
+                        : AppTheme.darkBlue.withValues(alpha: 0.8),
                   ],
                 ),
               ),
@@ -55,7 +55,7 @@ class ParentWeekDetailScreen extends StatelessWidget {
                       curriculumTitle,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -77,7 +77,7 @@ class ParentWeekDetailScreen extends StatelessWidget {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.3),
+                              color: Colors.white.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Row(
@@ -108,7 +108,7 @@ class ParentWeekDetailScreen extends StatelessWidget {
                         'Tamamlanma Tarihi: ${_formatDate(weekContent.completedAt!)}',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                         ),
                       ),
                     ],
@@ -182,7 +182,7 @@ class ParentWeekDetailScreen extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppTheme.accentTeal.withOpacity(0.1),
+                            color: AppTheme.accentTeal.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: AppTheme.accentTeal,
@@ -401,7 +401,7 @@ class ParentWeekDetailScreen extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppTheme.accentTeal.withOpacity(0.1),
+                            color: AppTheme.accentTeal.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: AppTheme.accentTeal,
@@ -433,7 +433,7 @@ class ParentWeekDetailScreen extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.accentTeal.withOpacity(0.1),
+                                    color: AppTheme.accentTeal.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Icon(

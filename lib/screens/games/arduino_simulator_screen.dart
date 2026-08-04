@@ -6,8 +6,7 @@ import '../../providers/settings_provider.dart';
 class ArduinoSimulatorScreen extends StatefulWidget {
   final Map<String, dynamic> gameData;
 
-  const ArduinoSimulatorScreen({Key? key, required this.gameData})
-      : super(key: key);
+  const ArduinoSimulatorScreen({super.key, required this.gameData});
 
   @override
   State<ArduinoSimulatorScreen> createState() => _ArduinoSimulatorScreenState();
@@ -447,7 +446,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
           boxShadow: isDragging
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   )
@@ -490,7 +489,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -644,7 +643,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                   margin: const EdgeInsets.only(top: 2),
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: Colors.white, width: 1),
                   ),
@@ -793,7 +792,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                 border: Border.all(color: Colors.black, width: 1),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     blurRadius: 2,
                     offset: const Offset(0, 1),
                   ),
@@ -984,7 +983,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                           decoration: BoxDecoration(
-                            color: isActive ? Colors.green : Colors.white.withOpacity(0.9),
+                            color: isActive ? Colors.green : Colors.white.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(2),
                           ),
                           child: Text(
@@ -1052,7 +1051,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                           decoration: BoxDecoration(
-                            color: isActive ? Colors.green : Colors.white.withOpacity(0.9),
+                            color: isActive ? Colors.green : Colors.white.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(2),
                           ),
                           child: Text(
@@ -1130,7 +1129,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                           decoration: BoxDecoration(
-                            color: isActive ? Colors.green : Colors.white.withOpacity(0.9),
+                            color: isActive ? Colors.green : Colors.white.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(2),
                           ),
                           child: Text(
@@ -1227,27 +1226,27 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                       radius: 0.8,
                       colors: isActive
                           ? [
-                              ledColor.withOpacity(0.95),
+                              ledColor.withValues(alpha: 0.95),
                               ledColor,
-                              ledColor.withOpacity(0.7),
+                              ledColor.withValues(alpha: 0.7),
                             ]
                           : [
-                              offColor.withOpacity(0.5),
-                              offColor.withOpacity(0.3),
-                              offColor.withOpacity(0.2),
+                              offColor.withValues(alpha: 0.5),
+                              offColor.withValues(alpha: 0.3),
+                              offColor.withValues(alpha: 0.2),
                             ],
                     ),
                     boxShadow: isActive
                         ? [
                             // Dış glow
                             BoxShadow(
-                              color: ledColor.withOpacity(0.8),
+                              color: ledColor.withValues(alpha: 0.8),
                               blurRadius: 25,
                               spreadRadius: 8,
                             ),
                             // İç glow
                             BoxShadow(
-                              color: ledColor.withOpacity(0.6),
+                              color: ledColor.withValues(alpha: 0.6),
                               blurRadius: 15,
                               spreadRadius: 3,
                             ),
@@ -1255,7 +1254,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                         : [
                             // Kapalı LED gölgesi
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 4,
                               offset: const Offset(2, 2),
                             ),
@@ -1274,8 +1273,8 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                Colors.white.withOpacity(isActive ? 0.9 : 0.3),
-                                Colors.white.withOpacity(0),
+                                Colors.white.withValues(alpha: isActive ? 0.9 : 0.3),
+                                Colors.white.withValues(alpha: 0),
                               ],
                             ),
                           ),
@@ -1289,7 +1288,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                             height: 25,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.white.withOpacity(0.7),
+                              color: Colors.white.withValues(alpha: 0.7),
                               boxShadow: [
                                 BoxShadow(
                                   color: ledColor,
@@ -1458,7 +1457,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 3,
                         offset: const Offset(0, 2),
                       ),
@@ -1478,7 +1477,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                             decoration: BoxDecoration(
                               color: colorBands[index],
                               border: Border.all(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 width: 0.5,
                               ),
                             ),
@@ -1706,12 +1705,12 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 3,
             offset: const Offset(0, 1),
           ),
@@ -1727,7 +1726,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
             child: Container(
               height: 22,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
               child: Column(
@@ -1775,7 +1774,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                     borderRadius: BorderRadius.circular(1),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 2,
                         offset: const Offset(0, 1),
                       ),
@@ -1803,7 +1802,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
             child: Container(
               height: 22,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
               child: Column(
@@ -1841,9 +1840,9 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  color.withOpacity(0.7),
+                  color.withValues(alpha: 0.7),
                   color,
-                  color.withOpacity(0.7),
+                  color.withValues(alpha: 0.7),
                 ],
               ),
             ),
@@ -1869,7 +1868,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.4),
+                    color: Colors.black.withValues(alpha: 0.4),
                     blurRadius: 1,
                     offset: const Offset(0, 0.5),
                   ),
@@ -1899,7 +1898,7 @@ class _ArduinoSimulatorScreenState extends State<ArduinoSimulatorScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             blurRadius: 1.5,
             spreadRadius: 0.5,
           ),
@@ -2029,7 +2028,7 @@ class WirePainter extends CustomPainter {
 
     // Draw wire shadow (for 3D effect)
     final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.3)
+      ..color = Colors.black.withValues(alpha: 0.3)
       ..strokeWidth = 6
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -2039,7 +2038,7 @@ class WirePainter extends CustomPainter {
 
     // Draw darker underside of wire (3D effect)
     final undersidePaint = Paint()
-      ..color = color.withOpacity(isDashed ? 0.5 : 0.7)
+      ..color = color.withValues(alpha: isDashed ? 0.5 : 0.7)
       ..strokeWidth = 5
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -2053,14 +2052,14 @@ class WirePainter extends CustomPainter {
         end: Alignment.bottomCenter,
         colors: isDashed
             ? [
-                color.withOpacity(0.5),
-                color.withOpacity(0.7),
-                color.withOpacity(0.5),
+                color.withValues(alpha: 0.5),
+                color.withValues(alpha: 0.7),
+                color.withValues(alpha: 0.5),
               ]
             : [
-                color.withOpacity(0.9),
+                color.withValues(alpha: 0.9),
                 color,
-                color.withOpacity(0.8),
+                color.withValues(alpha: 0.8),
               ],
       ).createShader(Rect.fromPoints(from, to))
       ..strokeWidth = 4
@@ -2071,7 +2070,7 @@ class WirePainter extends CustomPainter {
 
     // Draw highlight on wire (plastic sheen)
     final highlightPaint = Paint()
-      ..color = Colors.white.withOpacity(isDashed ? 0.2 : 0.4)
+      ..color = Colors.white.withValues(alpha: isDashed ? 0.2 : 0.4)
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -2101,7 +2100,7 @@ class WirePainter extends CustomPainter {
   void _drawMetallicPin(Canvas canvas, Offset position, Color wireColor) {
     // Pin shadow
     final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.4)
+      ..color = Colors.black.withValues(alpha: 0.4)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
     canvas.drawCircle(position.translate(0.5, 0.5), 6, shadowPaint);
 
@@ -2124,7 +2123,7 @@ class WirePainter extends CustomPainter {
         colors: [
           Colors.grey.shade300,
           Colors.grey.shade400,
-          Colors.grey.shade600.withOpacity(0),
+          Colors.grey.shade600.withValues(alpha: 0),
         ],
       ).createShader(Rect.fromCircle(center: position, radius: 6))
       ..style = PaintingStyle.fill;
@@ -2139,7 +2138,7 @@ class WirePainter extends CustomPainter {
 
     // Plastic insulator ring (colored part)
     final insulatorPaint = Paint()
-      ..color = wireColor.withOpacity(0.8)
+      ..color = wireColor.withValues(alpha: 0.8)
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
     canvas.drawCircle(position, 7, insulatorPaint);

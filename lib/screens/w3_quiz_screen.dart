@@ -1,5 +1,7 @@
 /// W3Schools-style Quiz Screen
 /// Quiz at the end of lessons with instant feedback
+library;
+
 import 'package:flutter/material.dart';
 import '../models/w3_lesson_model.dart';
 import '../widgets/w3_widgets.dart';
@@ -10,11 +12,11 @@ class W3QuizScreen extends StatefulWidget {
   final Function(int score, int earnedXP) onQuizComplete;
 
   const W3QuizScreen({
-    Key? key,
+    super.key,
     required this.lesson,
     required this.quiz,
     required this.onQuizComplete,
-  }) : super(key: key);
+  });
 
   @override
   State<W3QuizScreen> createState() => _W3QuizScreenState();
@@ -204,14 +206,14 @@ class _W3QuizScreenState extends State<W3QuizScreen> {
 
                       if (_hasAnswered) {
                         if (isCorrectOption) {
-                          backgroundColor = W3Colors.successGreen.withOpacity(0.1);
+                          backgroundColor = W3Colors.successGreen.withValues(alpha: 0.1);
                           borderColor = W3Colors.successGreen;
                         } else if (isSelected && !isCorrectOption) {
-                          backgroundColor = W3Colors.errorRed.withOpacity(0.1);
+                          backgroundColor = W3Colors.errorRed.withValues(alpha: 0.1);
                           borderColor = W3Colors.errorRed;
                         }
                       } else if (isSelected) {
-                        backgroundColor = W3Colors.primary.withOpacity(0.1);
+                        backgroundColor = W3Colors.primary.withValues(alpha: 0.1);
                         borderColor = W3Colors.primary;
                       }
 
@@ -272,7 +274,7 @@ class _W3QuizScreenState extends State<W3QuizScreen> {
                           ),
                         ),
                       );
-                    }).toList(),
+                    }),
 
                   // Explanation (shown after answering)
                   if (_hasAnswered) ...[
@@ -281,7 +283,7 @@ class _W3QuizScreenState extends State<W3QuizScreen> {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: isCorrect
-                            ? W3Colors.successGreen.withOpacity(0.1)
+                            ? W3Colors.successGreen.withValues(alpha: 0.1)
                             : W3Colors.warningBackground,
                         border: Border(
                           left: BorderSide(
@@ -387,14 +389,14 @@ class _QuizResultScreen extends StatelessWidget {
   final VoidCallback onComplete;
 
   const _QuizResultScreen({
-    Key? key,
+    super.key,
     required this.quiz,
     required this.score,
     required this.correctAnswers,
     required this.totalQuestions,
     required this.earnedXP,
     required this.onComplete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -463,7 +465,7 @@ class _QuizResultScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: W3Colors.primary.withOpacity(0.1),
+                        color: W3Colors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(

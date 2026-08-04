@@ -77,7 +77,7 @@ extension PuppetTypeExtension on PuppetType {
 class LeftRightCodingGameScreen extends StatefulWidget {
   final Map<String, dynamic>? gameData;
 
-  const LeftRightCodingGameScreen({Key? key, this.gameData}) : super(key: key);
+  const LeftRightCodingGameScreen({super.key, this.gameData});
 
   @override
   State<LeftRightCodingGameScreen> createState() => _LeftRightCodingGameScreenState();
@@ -639,7 +639,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
                 color: Colors.grey.shade100,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 4,
                     offset: const Offset(0, -2),
                   ),
@@ -1509,7 +1509,7 @@ class RobotPlayer extends PositionComponent with HasGameRef<LeftRightCodingGame>
 
     // Shadow for all puppets
     final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.2)
+      ..color = Colors.black.withValues(alpha: 0.2)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
     canvas.drawCircle(Offset(center.x, center.y + size.y * 0.45), size.x * 0.35, shadowPaint);
 
@@ -1621,7 +1621,7 @@ class RobotPlayer extends PositionComponent with HasGameRef<LeftRightCodingGame>
     canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromCenter(center: Offset(center.x, center.y + size.y * 0.15), width: size.x * 0.45, height: size.y * 0.55), Radius.circular(size.x * 0.1)), Paint()..color = secondaryColor);
 
     // Scale lines
-    final scalePaint = Paint()..color = primaryColor.withOpacity(0.3)..style = PaintingStyle.stroke..strokeWidth = 1;
+    final scalePaint = Paint()..color = primaryColor.withValues(alpha: 0.3)..style = PaintingStyle.stroke..strokeWidth = 1;
     for (int i = 0; i < 5; i++) {
       final y = center.y - size.y * 0.05 + i * size.y * 0.12;
       canvas.drawLine(Offset(center.x - size.x * 0.18, y), Offset(center.x + size.x * 0.18, y), scalePaint);
@@ -1694,7 +1694,7 @@ class RobotPlayer extends PositionComponent with HasGameRef<LeftRightCodingGame>
     canvas.drawPath(Path()..moveTo(center.x, center.y - size.y * 0.05)..lineTo(center.x - size.x * 0.03, center.y - size.y * 0.08)..lineTo(center.x + size.x * 0.03, center.y - size.y * 0.08)..close(), Paint()..color = Colors.pink.shade300);
 
     // Whiskers
-    final whiskerPaint = Paint()..color = Colors.black.withOpacity(0.6)..style = PaintingStyle.stroke..strokeWidth = 1;
+    final whiskerPaint = Paint()..color = Colors.black.withValues(alpha: 0.6)..style = PaintingStyle.stroke..strokeWidth = 1;
     canvas.drawLine(Offset(center.x - size.x * 0.22, center.y - size.y * 0.08), Offset(center.x - size.x * 0.38, center.y - size.y * 0.12), whiskerPaint);
     canvas.drawLine(Offset(center.x - size.x * 0.22, center.y - size.y * 0.05), Offset(center.x - size.x * 0.4, center.y - size.y * 0.05), whiskerPaint);
     canvas.drawLine(Offset(center.x - size.x * 0.22, center.y - size.y * 0.02), Offset(center.x - size.x * 0.38, center.y + size.y * 0.02), whiskerPaint);
@@ -2079,7 +2079,7 @@ class BonusSquare extends PositionComponent with HasGameRef<LeftRightCodingGame>
 
       // If answered, make it transparent
       if (_answered) {
-        squareColor = squareColor.withOpacity(0.3);
+        squareColor = squareColor.withValues(alpha: 0.3);
       }
     }
 
@@ -2138,7 +2138,7 @@ class BonusSquare extends PositionComponent with HasGameRef<LeftRightCodingGame>
     } else {
       // Draw checkmark
       final checkPaint = Paint()
-        ..color = Colors.white.withOpacity(0.5)
+        ..color = Colors.white.withValues(alpha: 0.5)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 4
         ..strokeCap = StrokeCap.round;
@@ -2161,7 +2161,7 @@ class BonusSquare extends PositionComponent with HasGameRef<LeftRightCodingGame>
 
   void _drawSparkles(Canvas canvas, Vector2 center) {
     final sparklePaint = Paint()
-      ..color = Colors.white.withOpacity(0.8)
+      ..color = Colors.white.withValues(alpha: 0.8)
       ..style = PaintingStyle.fill;
 
     final sparklePositions = [

@@ -11,14 +11,14 @@ import '../theme.dart';
 /// Setup Instructions:
 /// 1. Add flutter_vlc_player to pubspec.yaml (already added)
 /// 2. For Android: Add permissions to AndroidManifest.xml:
-///    <uses-permission android:name="android.permission.INTERNET"/>
-///    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+///    `<uses-permission android:name="android.permission.INTERNET"/>`
+///    `<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>`
 /// 3. For iOS: Add permissions to Info.plist:
-///    <key>NSAppTransportSecurity</key>
-///    <dict>
-///      <key>NSAllowsArbitraryLoads</key>
-///      <true/>
-///    </dict>
+///    `<key>NSAppTransportSecurity</key>`
+///    `<dict>`
+///      `<key>NSAllowsArbitraryLoads</key>`
+///      `<true/>`
+///    `</dict>`
 ///
 /// RTSP URL Format:
 /// - Standard: rtsp://username:password@ip:port/path
@@ -271,7 +271,7 @@ class _VlcCameraPlayerState extends State<VlcCameraPlayer> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.7),
+          color: Colors.black.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Column(
@@ -375,7 +375,7 @@ class _VlcCameraPlayerState extends State<VlcCameraPlayer> {
       child: FloatingActionButton(
         mini: true,
         onPressed: _isPlaying ? _pause : _play,
-        backgroundColor: Colors.black.withOpacity(0.7),
+        backgroundColor: Colors.black.withValues(alpha: 0.7),
         child: Icon(
           _isPlaying ? Icons.pause : Icons.play_arrow,
           color: AppTheme.accentTeal,

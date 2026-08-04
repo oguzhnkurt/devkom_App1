@@ -1,11 +1,13 @@
 /// W3Schools-style Profile Screen
 /// User progress, achievements, and statistics
+library;
+
 import 'package:flutter/material.dart';
 import '../models/w3_lesson_model.dart';
 import '../widgets/w3_widgets.dart';
 
 class W3ProfileScreen extends StatefulWidget {
-  const W3ProfileScreen({Key? key}) : super(key: key);
+  const W3ProfileScreen({super.key});
 
   @override
   State<W3ProfileScreen> createState() => _W3ProfileScreenState();
@@ -61,7 +63,7 @@ class _W3ProfileScreenState extends State<W3ProfileScreen> {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [W3Colors.primary, W3Colors.primary.withOpacity(0.7)],
+                  colors: [W3Colors.primary, W3Colors.primary.withValues(alpha: 0.7)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),

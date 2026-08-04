@@ -1,5 +1,7 @@
 /// W3Schools-style Chapter List Screen
 /// Shows chapters in a course with progress
+library;
+
 import 'package:flutter/material.dart';
 import '../models/w3_lesson_model.dart';
 import '../widgets/w3_widgets.dart';
@@ -9,9 +11,9 @@ class W3ChapterListScreen extends StatefulWidget {
   final W3Course course;
 
   const W3ChapterListScreen({
-    Key? key,
+    super.key,
     required this.course,
-  }) : super(key: key);
+  });
 
   @override
   State<W3ChapterListScreen> createState() => _W3ChapterListScreenState();
@@ -144,7 +146,7 @@ class _W3ChapterListScreenState extends State<W3ChapterListScreen> {
                               decoration: BoxDecoration(
                                 color: isLocked
                                     ? Colors.grey.shade200
-                                    : W3Colors.primary.withOpacity(0.1),
+                                    : W3Colors.primary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Center(
@@ -173,7 +175,7 @@ class _W3ChapterListScreenState extends State<W3ChapterListScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '$lessonCount ders • ~${estimatedMinutes} dakika',
+                                    '$lessonCount ders • ~$estimatedMinutes dakika',
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: Colors.grey.shade600,

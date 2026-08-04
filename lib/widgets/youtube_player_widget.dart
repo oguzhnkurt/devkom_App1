@@ -5,9 +5,9 @@ class YouTubePlayerWidget extends StatefulWidget {
   final String videoUrl;
 
   const YouTubePlayerWidget({
-    Key? key,
+    super.key,
     required this.videoUrl,
-  }) : super(key: key);
+  });
 
   @override
   State<YouTubePlayerWidget> createState() => _YouTubePlayerWidgetState();
@@ -86,7 +86,7 @@ class _YouTubePlayerWidgetState extends State<YouTubePlayerWidget> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

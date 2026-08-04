@@ -20,7 +20,7 @@ class PresenceService {
     try {
       await _updatePresenceInDatabase(userId, isOnline: true);
       _presenceChannel = _supabase.channel('presence');
-      await _presenceChannel!.subscribe((status, [error]) {
+      _presenceChannel!.subscribe((status, [error]) {
         if (status == RealtimeSubscribeStatus.subscribed) {
           debugPrint('Presence tracking started for user $userId');
           _presenceChannel!.track({
@@ -161,7 +161,7 @@ class PresenceService {
       return statusMap;
     } catch (e) {
       debugPrint('Error getting bulk online status: $e');
-      return Map.fromIterable(userIds, key: (id) => id, value: (_) => false);
+      return {for (final id in userIds) id: false};
     }
   }
 

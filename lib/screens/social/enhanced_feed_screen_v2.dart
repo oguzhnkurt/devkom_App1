@@ -66,7 +66,6 @@ class _EnhancedFeedScreenV2State extends State<EnhancedFeedScreenV2>
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.currentUser;
     final isVisitor = user == null;
-    final loc = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
@@ -147,10 +146,10 @@ class _EnhancedFeedScreenV2State extends State<EnhancedFeedScreenV2>
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.orange.withOpacity(0.1), Colors.amber.withOpacity(0.1)],
+                    colors: [Colors.orange.withValues(alpha: 0.1), Colors.amber.withValues(alpha: 0.1)],
                   ),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
@@ -267,7 +266,7 @@ class _EnhancedFeedScreenV2State extends State<EnhancedFeedScreenV2>
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF4A90E2).withOpacity(0.4),
+                      color: const Color(0xFF4A90E2).withValues(alpha: 0.4),
                       blurRadius: 16,
                       offset: const Offset(0, 8),
                     ),
@@ -323,9 +322,11 @@ class _EnhancedFeedScreenV2State extends State<EnhancedFeedScreenV2>
         await _socialFeedService.likePost(post.id, user.uid);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     }
   }
 
@@ -352,7 +353,6 @@ class _EnhancedFeedScreenV2State extends State<EnhancedFeedScreenV2>
   }
 
   Future<void> _handleShare(Post post) async {
-    final loc = AppLocalizations.of(context);
     HapticFeedback.mediumImpact();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(AppLocalizations.of(context).shareFunctionalityComingSoon)),
@@ -360,7 +360,6 @@ class _EnhancedFeedScreenV2State extends State<EnhancedFeedScreenV2>
   }
 
   Future<void> _handleDelete(Post post) async {
-    final loc = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -381,6 +380,7 @@ class _EnhancedFeedScreenV2State extends State<EnhancedFeedScreenV2>
     );
 
     if (confirmed != true) return;
+    if (!mounted) return;
 
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -484,7 +484,7 @@ class _PostCardState extends State<_PostCard> with SingleTickerProviderStateMixi
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -498,7 +498,7 @@ class _PostCardState extends State<_PostCard> with SingleTickerProviderStateMixi
             contentPadding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
             leading: CircleAvatar(
               radius: 20,
-              backgroundColor: AppTheme.primaryBlue.withOpacity(0.1),
+              backgroundColor: AppTheme.primaryBlue.withValues(alpha: 0.1),
               backgroundImage: widget.post.userPhotoUrl != null
                   ? CachedNetworkImageProvider(widget.post.userPhotoUrl!)
                   : null,
@@ -535,7 +535,6 @@ class _PostCardState extends State<_PostCard> with SingleTickerProviderStateMixi
             trailing: widget.onDelete != null
                 ? Builder(
                     builder: (context) {
-                      final loc = AppLocalizations.of(context);
                       return PopupMenuButton(
                         icon: const Icon(Icons.more_vert),
                         itemBuilder: (context) => [
@@ -623,7 +622,6 @@ class _PostCardState extends State<_PostCard> with SingleTickerProviderStateMixi
               ),
               child: Builder(
                 builder: (context) {
-                  final loc = AppLocalizations.of(context);
                   return Row(
                     children: [
                       const Icon(Icons.picture_as_pdf, color: Colors.red, size: 32),
@@ -763,7 +761,7 @@ class _PostCardState extends State<_PostCard> with SingleTickerProviderStateMixi
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: AppTheme.primaryBlue.withOpacity(0.1),
+        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(

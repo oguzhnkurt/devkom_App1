@@ -14,9 +14,9 @@ class Maze3DGameScreen extends StatefulWidget {
   final Map<String, dynamic> gameData;
 
   const Maze3DGameScreen({
-    Key? key,
+    super.key,
     required this.gameData,
-  }) : super(key: key);
+  });
 
   @override
   State<Maze3DGameScreen> createState() => _Maze3DGameScreenState();
@@ -362,7 +362,7 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
               // Controls at bottom
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                 ),
                 padding: const EdgeInsets.all(12),
@@ -400,7 +400,7 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
+                    color: Colors.black.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.amber, width: 2),
                   ),
@@ -424,7 +424,7 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
+                    color: Colors.black.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.amber, width: 2),
                   ),
@@ -460,7 +460,7 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withValues(alpha: 0.5),
                     blurRadius: 8,
                   ),
                 ],
@@ -488,7 +488,7 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
               icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
               onPressed: () => Navigator.pop(context),
               style: IconButton.styleFrom(
-                backgroundColor: Colors.black.withOpacity(0.6),
+                backgroundColor: Colors.black.withValues(alpha: 0.6),
                 padding: const EdgeInsets.all(12),
               ),
             ),
@@ -512,7 +512,7 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -563,7 +563,7 @@ class _Maze3DPainter extends CustomPainter {
       end: Alignment.center,
       colors: [
         _Maze3DGameScreenState._ceilingColor,
-        _Maze3DGameScreenState._ceilingColor.withOpacity(0.8),
+        _Maze3DGameScreenState._ceilingColor.withValues(alpha: 0.8),
       ],
     );
     canvas.drawRect(
@@ -576,7 +576,7 @@ class _Maze3DPainter extends CustomPainter {
       begin: Alignment.center,
       end: Alignment.bottomCenter,
       colors: [
-        _Maze3DGameScreenState._floorColor.withOpacity(0.9),
+        _Maze3DGameScreenState._floorColor.withValues(alpha: 0.9),
         _Maze3DGameScreenState._floorColor,
       ],
     );
@@ -648,13 +648,13 @@ class _Maze3DPainter extends CustomPainter {
         canvas.drawCircle(
           coinCenter,
           coinRadius + 5,
-          Paint()..color = _Maze3DGameScreenState._coinColor.withOpacity(0.3),
+          Paint()..color = _Maze3DGameScreenState._coinColor.withValues(alpha: 0.3),
         );
 
         // Coin body with gradient
         final coinGradient = RadialGradient(
           colors: [
-            _Maze3DGameScreenState._coinColor.withOpacity(0.9),
+            _Maze3DGameScreenState._coinColor.withValues(alpha: 0.9),
             _Maze3DGameScreenState._coinColor,
             Colors.orange[900]!,
           ],
@@ -697,9 +697,9 @@ class _Maze3DPainter extends CustomPainter {
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
         colors: [
-          wallColor.withOpacity(0.8),
+          wallColor.withValues(alpha: 0.8),
           wallColor,
-          wallColor.withOpacity(0.8),
+          wallColor.withValues(alpha: 0.8),
         ],
       );
 

@@ -43,8 +43,8 @@ class _AnimatedTechBackgroundState extends State<AnimatedTechBackground>
       speed: _random.nextDouble() * 0.5 + 0.2,
       opacity: _random.nextDouble() * 0.5 + 0.3,
       color: _random.nextBool()
-          ? Colors.blue.withOpacity(0.6)
-          : Colors.cyan.withOpacity(0.6),
+          ? Colors.blue.withValues(alpha: 0.6)
+          : Colors.cyan.withValues(alpha: 0.6),
     );
   }
 
@@ -141,7 +141,7 @@ class ParticlePainter extends CustomPainter {
 
       // Draw particle
       final paint = Paint()
-        ..color = particle.color.withOpacity(particle.opacity)
+        ..color = particle.color.withValues(alpha: particle.opacity)
         ..style = PaintingStyle.fill;
 
       canvas.drawCircle(
@@ -152,7 +152,7 @@ class ParticlePainter extends CustomPainter {
 
       // Draw glow effect
       final glowPaint = Paint()
-        ..color = particle.color.withOpacity(particle.opacity * 0.3)
+        ..color = particle.color.withValues(alpha: particle.opacity * 0.3)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
 
       canvas.drawCircle(
@@ -181,7 +181,7 @@ class ParticlePainter extends CustomPainter {
         if (distance < 150) {
           final opacity = (1 - distance / 150) * 0.3;
           final linePaint = Paint()
-            ..color = Colors.cyan.withOpacity(opacity)
+            ..color = Colors.cyan.withValues(alpha: opacity)
             ..strokeWidth = 1;
 
           canvas.drawLine(
@@ -203,7 +203,7 @@ class GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.cyan.withOpacity(0.05)
+      ..color = Colors.cyan.withValues(alpha: 0.05)
       ..strokeWidth = 1;
 
     const gridSize = 50.0;
@@ -309,12 +309,12 @@ class CircuitPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.cyan.withOpacity(0.3)
+      ..color = Colors.cyan.withValues(alpha: 0.3)
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
     final glowPaint = Paint()
-      ..color = Colors.cyan.withOpacity(0.5 * animation)
+      ..color = Colors.cyan.withValues(alpha: 0.5 * animation)
       ..strokeWidth = 4
       ..style = PaintingStyle.stroke
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
@@ -339,7 +339,7 @@ class CircuitPainter extends CustomPainter {
 
     // Draw circuit nodes
     final nodePaint = Paint()
-      ..color = Colors.cyan.withOpacity(0.8)
+      ..color = Colors.cyan.withValues(alpha: 0.8)
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(Offset(size.width * 0.3, size.height * 0.3), 4, nodePaint);

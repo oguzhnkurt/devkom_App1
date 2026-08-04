@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 
 /// Oyun sesleri için merkezi servis
 ///
@@ -38,7 +39,7 @@ class SoundService {
       // await _player.play(AssetSource('sounds/correct.mp3'), volume: _volume);
     } catch (e) {
       // Sessiz başarısızlık - ses çalmasa da uygulama çalışmaya devam eder
-      print('Sound play error: $e');
+      debugPrint('Sound play error: $e');
     }
   }
 
@@ -54,7 +55,7 @@ class SoundService {
       // Asset varsa kullan
       // await _player.play(AssetSource('sounds/wrong.mp3'), volume: _volume);
     } catch (e) {
-      print('Sound play error: $e');
+      debugPrint('Sound play error: $e');
     }
   }
 
@@ -70,7 +71,7 @@ class SoundService {
       // Asset varsa kullan
       // await _player.play(AssetSource('sounds/level_complete.mp3'), volume: _volume);
     } catch (e) {
-      print('Sound play error: $e');
+      debugPrint('Sound play error: $e');
     }
   }
 
@@ -86,7 +87,7 @@ class SoundService {
       // Asset varsa kullan
       // await _player.play(AssetSource('sounds/game_over.mp3'), volume: _volume);
     } catch (e) {
-      print('Sound play error: $e');
+      debugPrint('Sound play error: $e');
     }
   }
 
@@ -114,7 +115,7 @@ class SoundService {
       await SystemSound.play(SystemSoundType.click);
       await HapticFeedback.lightImpact();
     } catch (e) {
-      print('Sound play error: $e');
+      debugPrint('Sound play error: $e');
     }
   }
 
@@ -129,7 +130,7 @@ class SoundService {
       // Asset varsa kullan
       // await _player.play(AssetSource('sounds/score.mp3'), volume: _volume);
     } catch (e) {
-      print('Sound play error: $e');
+      debugPrint('Sound play error: $e');
     }
   }
 
@@ -141,7 +142,7 @@ class SoundService {
       await _player.stop();
       await _player.play(AssetSource(assetPath), volume: _volume);
     } catch (e) {
-      print('Sound play error: $e');
+      debugPrint('Sound play error: $e');
     }
   }
 
@@ -150,7 +151,7 @@ class SoundService {
     try {
       await _player.stop();
     } catch (e) {
-      print('Sound stop error: $e');
+      debugPrint('Sound stop error: $e');
     }
   }
 

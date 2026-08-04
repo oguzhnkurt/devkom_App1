@@ -21,7 +21,7 @@ class SurveysScreen extends StatelessWidget {
             Icon(
               Icons.poll,
               size: 100,
-              color: Theme.of(context).primaryColor.withOpacity(0.5),
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 24),
             Text(

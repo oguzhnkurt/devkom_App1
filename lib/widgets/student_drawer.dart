@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../models/user_model.dart';
 import '../screens/student/achievement_analysis_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/roboakademi/roboakademi_parent_screen.dart';
@@ -26,7 +25,7 @@ class StudentDrawer extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Theme.of(context).primaryColor.withOpacity(0.1),
+              Theme.of(context).primaryColor.withValues(alpha: 0.1),
               Colors.white,
             ],
           ),
@@ -42,7 +41,7 @@ class StudentDrawer extends StatelessWidget {
                   end: Alignment.bottomRight,
                   colors: [
                     Theme.of(context).primaryColor,
-                    Theme.of(context).primaryColor.withOpacity(0.7),
+                    Theme.of(context).primaryColor.withValues(alpha: 0.7),
                   ],
                 ),
               ),
@@ -86,7 +85,7 @@ class StudentDrawer extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.18),
+                              color: Colors.white.withValues(alpha: 0.18),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Row(
@@ -244,6 +243,7 @@ class StudentDrawer extends StatelessWidget {
 
                   // Wait for drawer to close
                   await Future.delayed(const Duration(milliseconds: 200));
+                  if (!navigator.context.mounted) return;
 
                   // Show confirmation dialog
                   final loc = AppLocalizations.of(navigator.context);
@@ -274,6 +274,7 @@ class StudentDrawer extends StatelessWidget {
                     try {
                       debugPrint('🔴 Çıkış Yap: signOut çağrılıyor...');
                       await authProvider.signOut();
+                      if (!navigator.context.mounted) return;
 
                       debugPrint('🔴 Çıkış Yap: Navigation yapılıyor...');
                       // Navigate directly to LoginScreen and clear all routes
@@ -314,7 +315,7 @@ class StudentDrawer extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: (iconColor ?? Theme.of(context).primaryColor).withOpacity(0.1),
+          color: (iconColor ?? Theme.of(context).primaryColor).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
@@ -336,7 +337,7 @@ class StudentDrawer extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),
-      hoverColor: Theme.of(context).primaryColor.withOpacity(0.05),
+      hoverColor: Theme.of(context).primaryColor.withValues(alpha: 0.05),
     );
   }
 }

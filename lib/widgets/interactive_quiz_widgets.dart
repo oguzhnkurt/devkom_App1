@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 /// Drag and Drop Matching Question Widget
 class DragDropMatchingQuestion extends StatefulWidget {
@@ -7,10 +6,10 @@ class DragDropMatchingQuestion extends StatefulWidget {
   final Function(bool) onComplete;
 
   const DragDropMatchingQuestion({
-    Key? key,
+    super.key,
     required this.pairs,
     required this.onComplete,
-  }) : super(key: key);
+  });
 
   @override
   State<DragDropMatchingQuestion> createState() => _DragDropMatchingQuestionState();
@@ -251,7 +250,7 @@ class _DragDropMatchingQuestionState extends State<DragDropMatchingQuestion>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withOpacity(0.3),
+            color: Colors.blue.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -276,11 +275,11 @@ class LiveCodeEditor extends StatefulWidget {
   final Function(bool) onValidate;
 
   const LiveCodeEditor({
-    Key? key,
+    super.key,
     required this.initialCode,
     required this.expectedOutput,
     required this.onValidate,
-  }) : super(key: key);
+  });
 
   @override
   State<LiveCodeEditor> createState() => _LiveCodeEditorState();
@@ -345,7 +344,7 @@ class _LiveCodeEditorState extends State<LiveCodeEditor>
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -517,11 +516,11 @@ class XPProgressWidget extends StatefulWidget {
   final int level;
 
   const XPProgressWidget({
-    Key? key,
+    super.key,
     required this.currentXP,
     required this.requiredXP,
     required this.level,
-  }) : super(key: key);
+  });
 
   @override
   State<XPProgressWidget> createState() => _XPProgressWidgetState();
@@ -566,7 +565,7 @@ class _XPProgressWidgetState extends State<XPProgressWidget>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.purple.withOpacity(0.3),
+            color: Colors.purple.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -582,7 +581,7 @@ class _XPProgressWidgetState extends State<XPProgressWidget>
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -635,7 +634,7 @@ class _XPProgressWidgetState extends State<XPProgressWidget>
                     child: LinearProgressIndicator(
                       value: _animation.value,
                       minHeight: 12,
-                      backgroundColor: Colors.white.withOpacity(0.2),
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
                       valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   ),

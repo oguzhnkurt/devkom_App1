@@ -133,7 +133,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen> {
         _scrollToBottom();
       }
     } catch (e) {
-      print('Error picking file: $e');
+      debugPrint('Error picking file: $e');
     }
   }
 
@@ -181,8 +181,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final user = authProvider.currentUser;
+    Provider.of<AuthProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -544,7 +543,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -592,7 +591,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

@@ -619,10 +619,10 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -652,7 +652,7 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: (_model != null ? Colors.greenAccent : Colors.orangeAccent).withOpacity(0.8),
+                            color: (_model != null ? Colors.greenAccent : Colors.orangeAccent).withValues(alpha: 0.8),
                             blurRadius: 6,
                             spreadRadius: 2,
                           ),
@@ -824,7 +824,7 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 5,
                         offset: const Offset(0, 2),
                       ),
@@ -854,7 +854,7 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
             const SizedBox(width: 8),
             CircleAvatar(
               radius: 16,
-              backgroundColor: AppTheme.primaryBlue.withOpacity(0.2),
+              backgroundColor: AppTheme.primaryBlue.withValues(alpha: 0.2),
               child: const Icon(
                 Icons.person,
                 color: AppTheme.primaryBlue,
@@ -893,7 +893,7 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 5,
                   offset: const Offset(0, 2),
                 ),
@@ -992,7 +992,7 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -1073,7 +1073,7 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
         color: Colors.amber[50],
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -1139,7 +1139,7 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
         color: Colors.amber[50],
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

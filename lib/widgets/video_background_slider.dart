@@ -11,12 +11,12 @@ class VideoBackgroundSlider extends StatefulWidget {
   final Widget? overlayWidget;
 
   const VideoBackgroundSlider({
-    Key? key,
+    super.key,
     required this.items,
     this.autoPlayInterval = const Duration(seconds: 5),
     this.opacity = 0.3,
     this.overlayWidget,
-  }) : super(key: key);
+  });
 
   @override
   State<VideoBackgroundSlider> createState() => _VideoBackgroundSliderState();
@@ -141,8 +141,8 @@ class _VideoBackgroundSliderState extends State<VideoBackgroundSlider> {
                     shape: BoxShape.circle,
                     color: (_currentIndex == entry.key
                             ? Colors.white
-                            : Colors.white.withOpacity(0.4))
-                        .withOpacity(0.8),
+                            : Colors.white.withValues(alpha: 0.4))
+                        .withValues(alpha: 0.8),
                   ),
                 );
               }).toList(),
@@ -178,7 +178,7 @@ class _VideoBackgroundSliderState extends State<VideoBackgroundSlider> {
 
         // Semi-transparent overlay
         Container(
-          color: Colors.black.withOpacity(widget.opacity),
+          color: Colors.black.withValues(alpha: widget.opacity),
         ),
 
         // Content

@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/leaderboard_model.dart';
 import '../models/game_model.dart';
 import 'connectivity_service.dart';
-import 'leaderboard_service.dart';
 
 /// Score Cache Service
 /// Handles offline score caching and syncing when internet is available
@@ -15,7 +14,6 @@ class ScoreCacheService {
 
   static const String _cacheKey = 'cached_scores';
   final ConnectivityService _connectivity = ConnectivityService();
-  final LeaderboardService _leaderboardService = LeaderboardService();
 
   bool _isSyncing = false;
 

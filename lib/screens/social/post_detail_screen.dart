@@ -97,10 +97,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         }
       });
     } catch (e) {
-      final loc = AppLocalizations.of(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${loc.errorPostingComment}: $e')),
-      );
+      if (mounted) {
+        final loc = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${loc.errorPostingComment}: $e')),
+        );
+      }
     } finally {
       setState(() {
         _isSubmitting = false;
@@ -161,7 +163,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
+                                    color: Colors.black.withValues(alpha: 0.05),
                                     blurRadius: 10,
                                     offset: const Offset(0, 2),
                                   ),
@@ -175,7 +177,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                     children: [
                                       CircleAvatar(
                                         radius: 24,
-                                        backgroundColor: AppTheme.primaryBlue.withOpacity(0.1),
+                                        backgroundColor: AppTheme.primaryBlue.withValues(alpha: 0.1),
                                         backgroundImage: _post!.userPhotoUrl != null
                                             ? CachedNetworkImageProvider(_post!.userPhotoUrl!)
                                             : null,
@@ -399,7 +401,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, -2),
                           ),
@@ -411,13 +413,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           // User avatar
                           CircleAvatar(
                             radius: 18,
-                            backgroundColor: AppTheme.primaryBlue.withOpacity(0.1),
+                            backgroundColor: AppTheme.primaryBlue.withValues(alpha: 0.1),
                             backgroundImage: user?.profilePictureUrl != null
                                 ? CachedNetworkImageProvider(user!.profilePictureUrl!)
                                 : null,
                             child: user?.profilePictureUrl == null
                                 ? Text(
-                                    user?.displayName?.substring(0, 1).toUpperCase() ?? 'U',
+                                    user?.displayName.substring(0, 1).toUpperCase() ?? 'U',
                                     style: const TextStyle(
                                       color: AppTheme.primaryBlue,
                                       fontWeight: FontWeight.bold,
@@ -477,7 +479,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               borderRadius: BorderRadius.circular(24),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF4A90E2).withOpacity(0.3),
+                                  color: const Color(0xFF4A90E2).withValues(alpha: 0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -539,7 +541,7 @@ class _CommentCard extends StatelessWidget {
           // User avatar
           CircleAvatar(
             radius: 16,
-            backgroundColor: AppTheme.primaryBlue.withOpacity(0.1),
+            backgroundColor: AppTheme.primaryBlue.withValues(alpha: 0.1),
             backgroundImage: comment.userPhotoUrl != null
                 ? CachedNetworkImageProvider(comment.userPhotoUrl!)
                 : null,

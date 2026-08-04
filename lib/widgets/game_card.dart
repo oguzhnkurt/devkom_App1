@@ -8,11 +8,11 @@ class GameCard extends StatefulWidget {
   final bool isLocked;
 
   const GameCard({
-    Key? key,
+    super.key,
     required this.game,
     required this.onTap,
     this.isLocked = false,
-  }) : super(key: key);
+  });
 
   @override
   State<GameCard> createState() => _GameCardState();
@@ -59,7 +59,7 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: _getCategoryColors().first.withOpacity(0.3),
+                color: _getCategoryColors().first.withValues(alpha: 0.3),
                 blurRadius: _isHovered ? 25 : 15,
                 offset: const Offset(0, 10),
                 spreadRadius: _isHovered ? 3 : 0,
@@ -99,7 +99,7 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
                     Positioned.fill(
                       child: CustomPaint(
                         painter: _ParticleBackgroundPainter(
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withValues(alpha: 0.1),
                         ),
                       ),
                     ),
@@ -113,7 +113,7 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
                           flex: 3,
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.15),
+                              color: Colors.black.withValues(alpha: 0.15),
                             ),
                             child: Stack(
                               children: [
@@ -129,7 +129,7 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
                                         end: Alignment.bottomCenter,
                                         colors: [
                                           Colors.transparent,
-                                          Colors.black.withOpacity(0.3),
+                                          Colors.black.withValues(alpha: 0.3),
                                         ],
                                       ),
                                     ),
@@ -172,8 +172,8 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Colors.black.withOpacity(0.4),
-                                  Colors.black.withOpacity(0.6),
+                                  Colors.black.withValues(alpha: 0.4),
+                                  Colors.black.withValues(alpha: 0.6),
                                 ],
                               ),
                             ),
@@ -186,7 +186,7 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
                                     Icon(
                                       _getCategoryIcon(),
                                       size: 20,
-                                      color: Colors.white.withOpacity(0.9),
+                                      color: Colors.white.withValues(alpha: 0.9),
                                     ),
                                     const SizedBox(width: 8),
                                     Expanded(
@@ -211,7 +211,7 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
                                   child: Text(
                                     widget.game.description,
                                     style: TextStyle(
-                                      color: Colors.white.withOpacity(0.85),
+                                      color: Colors.white.withValues(alpha: 0.85),
                                       fontSize: 12,
                                       height: 1.4,
                                     ),
@@ -232,7 +232,7 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.15),
+                                        color: Colors.white.withValues(alpha: 0.15),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Row(
@@ -241,13 +241,13 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
                                           Icon(
                                             Icons.timer_outlined,
                                             size: 14,
-                                            color: Colors.white.withOpacity(0.9),
+                                            color: Colors.white.withValues(alpha: 0.9),
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
                                             '${widget.game.estimatedMinutes} dk',
                                             style: TextStyle(
-                                              color: Colors.white.withOpacity(0.9),
+                                              color: Colors.white.withValues(alpha: 0.9),
                                               fontSize: 11,
                                               fontWeight: FontWeight.w600,
                                             ),
@@ -263,14 +263,14 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
                                       decoration: BoxDecoration(
                                         gradient: LinearGradient(
                                           colors: [
-                                            Colors.white.withOpacity(0.3),
-                                            Colors.white.withOpacity(0.2),
+                                            Colors.white.withValues(alpha: 0.3),
+                                            Colors.white.withValues(alpha: 0.2),
                                           ],
                                         ),
                                         shape: BoxShape.circle,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.white.withOpacity(0.2),
+                                            color: Colors.white.withValues(alpha: 0.2),
                                             blurRadius: 8,
                                             spreadRadius: 1,
                                           ),
@@ -296,7 +296,7 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
                       Positioned.fill(
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.75),
+                            color: Colors.black.withValues(alpha: 0.75),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Column(
@@ -305,7 +305,7 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
                               Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.1),
+                                  color: Colors.white.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -337,7 +337,7 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
                                   borderRadius: BorderRadius.circular(25),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFFFF6B35).withOpacity(0.4),
+                                      color: const Color(0xFFFF6B35).withValues(alpha: 0.4),
                                       blurRadius: 12,
                                       offset: const Offset(0, 4),
                                     ),
@@ -366,42 +366,18 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildQuizThumbnail() {
-    return Image.network(
-      'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400',
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: double.infinity,
-      errorBuilder: (context, error, stackTrace) {
-        return _buildIconThumbnail();
-      },
-    );
-  }
-
-  Widget _buildNetworkThumbnail() {
-    return Image.network(
-      widget.game.thumbnailUrl,
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: double.infinity,
-      errorBuilder: (context, error, stackTrace) {
-        return _buildIconThumbnail();
-      },
-    );
-  }
-
   Widget _buildIconThumbnail() {
     return Center(
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white.withValues(alpha: 0.15),
           shape: BoxShape.circle,
         ),
         child: Icon(
           _getCategoryIcon(),
           size: 60,
-          color: Colors.white.withOpacity(0.9),
+          color: Colors.white.withValues(alpha: 0.9),
         ),
       ),
     );
@@ -411,10 +387,10 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.6),
+        color: Colors.black.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -444,10 +420,10 @@ class _GameCardState extends State<GameCard> with SingleTickerProviderStateMixin
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.6),
+        color: Colors.black.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 1,
         ),
       ),

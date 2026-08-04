@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:file_picker/file_picker.dart';
 import '../models/homework_model.dart';
-import '../services/homework_service.dart';
-import '../services/file_upload_service.dart';
 import '../providers/auth_provider.dart';
-import '../widgets/youtube_player_widget.dart';
 
 class HomeworkScreen extends StatefulWidget {
-  const HomeworkScreen({Key? key}) : super(key: key);
+  const HomeworkScreen({super.key});
 
   @override
   State<HomeworkScreen> createState() => _HomeworkScreenState();
 }
 
 class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProviderStateMixin {
-  final HomeworkService _homeworkService = HomeworkService();
-  final FileUploadService _fileUploadService = FileUploadService();
   late TabController _tabController;
 
   @override
@@ -48,8 +42,6 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
         ),
       );
     }
-
-    final userAgeGroup = user.ageGroup ?? AgeGroup.age7to9;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FE),
@@ -389,7 +381,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: gradientColors[0].withOpacity(0.3),
+              color: gradientColors[0].withValues(alpha: 0.3),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),
@@ -410,7 +402,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
@@ -439,7 +431,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.3),
+                                color: Colors.white.withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -460,7 +452,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
                   Text(
                     homework.description,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 15,
                       height: 1.4,
                     ),
@@ -576,7 +568,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
                       gradient: LinearGradient(
                         colors: [
                           scoreColor,
-                          scoreColor.withOpacity(0.7),
+                          scoreColor.withValues(alpha: 0.7),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -584,7 +576,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: scoreColor.withOpacity(0.3),
+                          color: scoreColor.withValues(alpha: 0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -605,7 +597,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
                           Text(
                             '/$maxScore',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                               fontSize: 14,
                             ),
                           ),
@@ -704,7 +696,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.3),
+        color: Colors.white.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -753,7 +745,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -776,7 +768,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
                 'Aklındaki soruyu buradan sorabilirsin!',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -809,7 +801,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
                       onPressed: () => Navigator.pop(context),
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        backgroundColor: Colors.white.withOpacity(0.3),
+                        backgroundColor: Colors.white.withValues(alpha: 0.3),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -925,10 +917,10 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF6C63FF).withOpacity(0.1),
+                          color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: const Color(0xFF6C63FF).withOpacity(0.3),
+                            color: const Color(0xFF6C63FF).withValues(alpha: 0.3),
                           ),
                         ),
                         child: Column(
@@ -1005,7 +997,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF667EEA).withOpacity(0.3),
+                                  color: const Color(0xFF667EEA).withValues(alpha: 0.3),
                                   blurRadius: 15,
                                   offset: const Offset(0, 8),
                                 ),
@@ -1058,9 +1050,9 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1097,7 +1089,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -1149,7 +1141,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF6C63FF).withOpacity(0.1),
+                        color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
@@ -1412,25 +1404,4 @@ class _HomeworkScreenState extends State<HomeworkScreen> with SingleTickerProvid
     }
   }
   */ // End of TODO: Migrate to Supabase comment
-
-  String _formatDate(DateTime date) {
-    final months = [
-      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
-    ];
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
-  }
-
-  String _getStatusLabel(HomeworkStatus status) {
-    switch (status) {
-      case HomeworkStatus.pending:
-        return 'Beklemede';
-      case HomeworkStatus.submitted:
-        return 'Teslim Edildi';
-      case HomeworkStatus.graded:
-        return 'Puanlandı';
-      case HomeworkStatus.late:
-        return 'Geç Teslim';
-    }
-  }
 }

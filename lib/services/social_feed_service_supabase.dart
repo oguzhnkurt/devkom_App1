@@ -3,8 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../models/post_model.dart';
+import 'package:flutter/foundation.dart';
 
 /// Comprehensive service for managing social feed posts with Supabase
 /// Handles posts, likes, comments, media uploads, and daily limits
@@ -64,7 +64,7 @@ class SocialFeedServiceSupabase {
         'isPro': false,
       };
     } catch (e) {
-      print('Error checking daily post limit: $e');
+      debugPrint('Error checking daily post limit: $e');
       return {
         'canPost': false,
         'remaining': 0,
@@ -134,7 +134,7 @@ class SocialFeedServiceSupabase {
 
       return publicUrl;
     } catch (e) {
-      print('Error uploading media: $e');
+      debugPrint('Error uploading media: $e');
       throw Exception('Failed to upload media: $e');
     }
   }
@@ -157,7 +157,7 @@ class SocialFeedServiceSupabase {
 
       return result != null ? File(result.path) : file;
     } catch (e) {
-      print('Error compressing image: $e');
+      debugPrint('Error compressing image: $e');
       return file;
     }
   }
@@ -196,7 +196,7 @@ class SocialFeedServiceSupabase {
         };
       }
     } catch (e) {
-      print('Error fetching link preview: $e');
+      debugPrint('Error fetching link preview: $e');
     }
 
     return {
@@ -304,7 +304,7 @@ class SocialFeedServiceSupabase {
 
       return postId;
     } catch (e) {
-      print('Error creating post: $e');
+      debugPrint('Error creating post: $e');
       rethrow;
     }
   }
@@ -328,7 +328,7 @@ class SocialFeedServiceSupabase {
           .update({'likes': likes})
           .eq('id', postId);
     } catch (e) {
-      print('Error liking post: $e');
+      debugPrint('Error liking post: $e');
       rethrow;
     }
   }
@@ -350,7 +350,7 @@ class SocialFeedServiceSupabase {
           .update({'likes': likes})
           .eq('id', postId);
     } catch (e) {
-      print('Error unliking post: $e');
+      debugPrint('Error unliking post: $e');
       rethrow;
     }
   }
@@ -390,7 +390,7 @@ class SocialFeedServiceSupabase {
           .update({'comment_count': currentCount + 1})
           .eq('id', postId);
     } catch (e) {
-      print('Error adding comment: $e');
+      debugPrint('Error adding comment: $e');
       rethrow;
     }
   }
@@ -436,14 +436,14 @@ class SocialFeedServiceSupabase {
             await _supabase.storage.from('posts').remove([storagePath]);
           }
         } catch (e) {
-          print('Error deleting media: $e');
+          debugPrint('Error deleting media: $e');
         }
       }
 
       // Delete the post
       await _supabase.from(_postsTable).delete().eq('id', postId);
     } catch (e) {
-      print('Error deleting post: $e');
+      debugPrint('Error deleting post: $e');
       rethrow;
     }
   }
@@ -459,7 +459,7 @@ class SocialFeedServiceSupabase {
         'created_at': DateTime.now().toIso8601String(),
       });
     } catch (e) {
-      print('Error reporting post: $e');
+      debugPrint('Error reporting post: $e');
       rethrow;
     }
   }
@@ -509,7 +509,7 @@ class SocialFeedServiceSupabase {
 
       return Post.fromSupabase(response);
     } catch (e) {
-      print('Error getting post: $e');
+      debugPrint('Error getting post: $e');
       return null;
     }
   }
@@ -553,7 +553,7 @@ class SocialFeedServiceSupabase {
 
       return posts;
     } catch (e) {
-      print('Error getting paginated posts: $e');
+      debugPrint('Error getting paginated posts: $e');
       rethrow;
     }
   }
@@ -577,7 +577,7 @@ class SocialFeedServiceSupabase {
           .map((item) => Post.fromSupabase(item))
           .toList();
     } catch (e) {
-      print('Error getting paginated user posts: $e');
+      debugPrint('Error getting paginated user posts: $e');
       rethrow;
     }
   }
@@ -600,7 +600,7 @@ class SocialFeedServiceSupabase {
           .map((item) => PostComment.fromSupabase(item))
           .toList();
     } catch (e) {
-      print('Error getting paginated comments: $e');
+      debugPrint('Error getting paginated comments: $e');
       rethrow;
     }
   }
@@ -625,7 +625,7 @@ class SocialFeedServiceSupabase {
 
       return posts.where((post) => post.tags.contains(tag)).toList();
     } catch (e) {
-      print('Error searching posts by tag: $e');
+      debugPrint('Error searching posts by tag: $e');
       rethrow;
     }
   }

@@ -14,7 +14,7 @@ import '../../providers/settings_provider.dart';
 /// Bug Hunter Oyunu
 /// Koddaki hataları bulma ve debug yapma yeteneklerini geliştiren oyun
 class BugHunterGameScreen extends StatelessWidget {
-  const BugHunterGameScreen({Key? key}) : super(key: key);
+  const BugHunterGameScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class BugHunterGameScreen extends StatelessWidget {
 }
 
 class _BugHunterGameContent extends StatefulWidget {
-  const _BugHunterGameContent({Key? key}) : super(key: key);
+  const _BugHunterGameContent({super.key});
 
   @override
   State<_BugHunterGameContent> createState() => _BugHunterGameContentState();
@@ -555,7 +555,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.warningOrange.withOpacity(0.1),
+                color: AppTheme.warningOrange.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -611,7 +611,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppTheme.errorRed.withOpacity(0.05),
+              AppTheme.errorRed.withValues(alpha: 0.05),
               Colors.white,
             ],
           ),
@@ -647,7 +647,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -719,7 +719,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.errorRed.withOpacity(0.1),
+                color: AppTheme.errorRed.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.bug_report, color: AppTheme.errorRed, size: 28),
@@ -790,7 +790,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
 
     return Card(
       elevation: 3,
-      color: color.withOpacity(0.1),
+      color: color.withValues(alpha: 0.1),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -873,10 +873,10 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
     Color? backgroundColor;
     if (showResult) {
       backgroundColor = isCorrect
-          ? AppTheme.successGreen.withOpacity(0.2)
-          : AppTheme.errorRed.withOpacity(0.2);
+          ? AppTheme.successGreen.withValues(alpha: 0.2)
+          : AppTheme.errorRed.withValues(alpha: 0.2);
     } else if (isSelected) {
-      backgroundColor = AppTheme.primaryBlue.withOpacity(0.1);
+      backgroundColor = AppTheme.primaryBlue.withValues(alpha: 0.1);
     }
 
     return InkWell(

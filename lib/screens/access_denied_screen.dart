@@ -23,7 +23,7 @@ class AccessDeniedScreen extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppTheme.darkBlue.withOpacity(0.9),
+              AppTheme.darkBlue.withValues(alpha: 0.9),
               AppTheme.darkBlue,
             ],
           ),
@@ -46,10 +46,10 @@ class AccessDeniedScreen extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(40),
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.1),
+                          color: Colors.red.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.red.withOpacity(0.5),
+                            color: Colors.red.withValues(alpha: 0.5),
                             width: 3,
                           ),
                         ),
@@ -107,7 +107,7 @@ class AccessDeniedScreen extends StatelessWidget {
 
                         // Divider
                         Divider(
-                          color: AppTheme.lightGray.withOpacity(0.3),
+                          color: AppTheme.lightGray.withValues(alpha: 0.3),
                           thickness: 1,
                         ),
                         const SizedBox(height: 16),
@@ -127,10 +127,10 @@ class AccessDeniedScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.1),
+                            color: Colors.orange.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Colors.orange.withOpacity(0.3),
+                              color: Colors.orange.withValues(alpha: 0.3),
                               width: 1,
                             ),
                           ),
@@ -163,10 +163,10 @@ class AccessDeniedScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppTheme.darkGray.withOpacity(0.5),
+                    color: AppTheme.darkGray.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: AppTheme.accentTeal.withOpacity(0.2),
+                      color: AppTheme.accentTeal.withValues(alpha: 0.2),
                       width: 1,
                     ),
                   ),

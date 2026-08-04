@@ -150,7 +150,7 @@ class _PremiumOnboardingScreenState extends State<PremiumOnboardingScreen>
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -163,7 +163,7 @@ class _PremiumOnboardingScreenState extends State<PremiumOnboardingScreen>
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
@@ -204,10 +204,10 @@ class _PremiumOnboardingScreenState extends State<PremiumOnboardingScreen>
                                   height: 140,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.white.withOpacity(0.2),
+                                        color: Colors.white.withValues(alpha: 0.2),
                                         blurRadius: 30,
                                         spreadRadius: 10,
                                       ),
@@ -222,7 +222,7 @@ class _PremiumOnboardingScreenState extends State<PremiumOnboardingScreen>
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -239,7 +239,7 @@ class _PremiumOnboardingScreenState extends State<PremiumOnboardingScreen>
                           const SizedBox(height: 16),
                           Text(
                             data.description,
-                            style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 15, height: 1.5),
+                            style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 15, height: 1.5),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 24),
@@ -250,16 +250,16 @@ class _PremiumOnboardingScreenState extends State<PremiumOnboardingScreen>
                             children: data.features.map((f) => Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
+                                color: Colors.white.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.white.withOpacity(0.3)),
+                                border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.check_circle, color: Colors.white.withOpacity(0.9), size: 14),
+                                  Icon(Icons.check_circle, color: Colors.white.withValues(alpha: 0.9), size: 14),
                                   const SizedBox(width: 6),
-                                  Text(f, style: TextStyle(color: Colors.white.withOpacity(0.95), fontSize: 12)),
+                                  Text(f, style: TextStyle(color: Colors.white.withValues(alpha: 0.95), fontSize: 12)),
                                 ],
                               ),
                             )).toList(),
@@ -283,7 +283,7 @@ class _PremiumOnboardingScreenState extends State<PremiumOnboardingScreen>
                     width: i == _currentPage ? 28 : 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: i == _currentPage ? Colors.white : Colors.white.withOpacity(0.4),
+                      color: i == _currentPage ? Colors.white : Colors.white.withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   )),
@@ -327,7 +327,7 @@ class _PremiumOnboardingScreenState extends State<PremiumOnboardingScreen>
                       onPressed: _navigateToEmailLogin,
                       child: Text(
                         'Zaten hesabin var mi? Giris yap',
-                        style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14),
                       ),
                     ),
                   ],

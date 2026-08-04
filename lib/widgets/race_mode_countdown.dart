@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:confetti/confetti.dart';
 
 /// Race Mode Countdown Widget
 /// Shows animated countdown before game starts
@@ -10,11 +9,11 @@ class RaceModeCountdown extends StatefulWidget {
   final String? title;
 
   const RaceModeCountdown({
-    Key? key,
+    super.key,
     this.countdownSeconds = 3,
     required this.onCountdownComplete,
     this.title,
-  }) : super(key: key);
+  });
 
   @override
   State<RaceModeCountdown> createState() => _RaceModeCountdownState();
@@ -74,7 +73,7 @@ class _RaceModeCountdownState extends State<RaceModeCountdown>
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withOpacity(0.8),
+      color: Colors.black.withValues(alpha: 0.8),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -109,7 +108,7 @@ class _RaceModeCountdownState extends State<RaceModeCountdown>
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.orange.withOpacity(0.5),
+                          color: Colors.orange.withValues(alpha: 0.5),
                           blurRadius: 30,
                           spreadRadius: 10,
                         ),
@@ -152,10 +151,10 @@ class LiveScoreTicker extends StatelessWidget {
   final Duration displayDuration;
 
   const LiveScoreTicker({
-    Key? key,
+    super.key,
     required this.scoresStream,
     this.displayDuration = const Duration(seconds: 3),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +171,7 @@ class LiveScoreTicker extends StatelessWidget {
           margin: const EdgeInsets.all(8),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.7),
+            color: Colors.black.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.orange, width: 2),
           ),
@@ -233,10 +232,10 @@ class LiveLeaderboardMini extends StatelessWidget {
   final String? currentUserId;
 
   const LiveLeaderboardMini({
-    Key? key,
+    super.key,
     required this.leaderboardStream,
     this.currentUserId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -253,7 +252,7 @@ class LiveLeaderboardMini extends StatelessWidget {
           margin: const EdgeInsets.all(8),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.8),
+            color: Colors.black.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.blue, width: 2),
           ),
@@ -285,7 +284,7 @@ class LiveLeaderboardMini extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: isCurrentUser
-                        ? Colors.blue.withOpacity(0.3)
+                        ? Colors.blue.withValues(alpha: 0.3)
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(4),
                   ),

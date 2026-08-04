@@ -10,9 +10,9 @@ class LessonDetailScreen extends StatefulWidget {
   final LessonModel lesson;
 
   const LessonDetailScreen({
-    Key? key,
+    super.key,
     required this.lesson,
-  }) : super(key: key);
+  });
 
   @override
   State<LessonDetailScreen> createState() => _LessonDetailScreenState();
@@ -31,7 +31,7 @@ class _LessonDetailScreenState extends State<LessonDetailScreen>
 
   // Quiz state
   int _currentQuestionIndex = 0;
-  Map<int, dynamic> _userAnswers = {};
+  final Map<int, dynamic> _userAnswers = {};
   bool _showResults = false;
   int _correctAnswers = 0;
   bool _showFeedback = false;
@@ -46,10 +46,10 @@ class _LessonDetailScreenState extends State<LessonDetailScreen>
 
   // Streak & Achievements
   int _currentStreak = 0;
-  List<String> _earnedBadges = [];
+  final List<String> _earnedBadges = [];
 
   // Expandable sections
-  Map<int, bool> _expandedSections = {};
+  final Map<int, bool> _expandedSections = {};
 
   @override
   void initState() {
@@ -478,7 +478,7 @@ print(type(dogru))     # <class 'bool'>''',
                           end: Alignment.bottomRight,
                           colors: [
                             categoryColor,
-                            categoryColor.withOpacity(0.7),
+                            categoryColor.withValues(alpha: 0.7),
                           ],
                         ),
                       ),
@@ -570,11 +570,11 @@ print(type(dogru))     # <class 'bool'>''',
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.9),
+              color: Colors.orange.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.orange.withOpacity(0.4),
+                  color: Colors.orange.withValues(alpha: 0.4),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -599,25 +599,6 @@ print(type(dogru))     # <class 'bool'>''',
         );
       },
     );
-  }
-
-  IconData _getCategoryIcon(String category) {
-    switch (category.toLowerCase()) {
-      case 'python':
-        return Icons.code;
-      case 'java':
-        return Icons.coffee;
-      case 'asp.net core':
-      case 'asp.net':
-        return Icons.web;
-      case 'ai':
-      case 'yapay zeka':
-        return Icons.psychology;
-      case 'web':
-        return Icons.language;
-      default:
-        return Icons.school;
-    }
   }
 
   Widget _buildContentTab() {
@@ -690,7 +671,7 @@ print(type(dogru))     # <class 'bool'>''',
         boxShadow: earned
             ? [
                 BoxShadow(
-                  color: Colors.amber.withOpacity(0.4),
+                  color: Colors.amber.withValues(alpha: 0.4),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -818,7 +799,7 @@ print(type(dogru))     # <class 'bool'>''',
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -837,7 +818,7 @@ print(type(dogru))     # <class 'bool'>''',
                   gradient: LinearGradient(
                     colors: [
                       _getCategoryColor(_lesson.category),
-                      _getCategoryColor(_lesson.category).withOpacity(0.8),
+                      _getCategoryColor(_lesson.category).withValues(alpha: 0.8),
                     ],
                   ),
                   borderRadius: const BorderRadius.only(
@@ -942,13 +923,13 @@ print(type(dogru))     # <class 'bool'>''',
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            _getCategoryColor(_lesson.category).withOpacity(0.1),
-            _getCategoryColor(_lesson.category).withOpacity(0.05),
+            _getCategoryColor(_lesson.category).withValues(alpha: 0.1),
+            _getCategoryColor(_lesson.category).withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: _getCategoryColor(_lesson.category).withOpacity(0.3),
+          color: _getCategoryColor(_lesson.category).withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -1002,7 +983,7 @@ print(type(dogru))     # <class 'bool'>''',
                           gradient: LinearGradient(
                             colors: [
                               _getCategoryColor(_lesson.category),
-                              _getCategoryColor(_lesson.category).withOpacity(0.6),
+                              _getCategoryColor(_lesson.category).withValues(alpha: 0.6),
                             ],
                           ),
                           shape: BoxShape.circle,
@@ -1045,7 +1026,7 @@ print(type(dogru))     # <class 'bool'>''',
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -1068,7 +1049,7 @@ print(type(dogru))     # <class 'bool'>''',
                       gradient: LinearGradient(
                         colors: [
                           _getCategoryColor(_lesson.category),
-                          _getCategoryColor(_lesson.category).withOpacity(0.7),
+                          _getCategoryColor(_lesson.category).withValues(alpha: 0.7),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(20),
@@ -1118,7 +1099,7 @@ print(type(dogru))     # <class 'bool'>''',
                                     end: Alignment.centerRight,
                                     colors: [
                                       Colors.transparent,
-                                      Colors.white.withOpacity(0.3),
+                                      Colors.white.withValues(alpha: 0.3),
                                       Colors.transparent,
                                     ],
                                     stops: [
@@ -1190,7 +1171,7 @@ print(type(dogru))     # <class 'bool'>''',
                     end: Alignment.bottomRight,
                     colors: [
                       Colors.white,
-                      _getCategoryColor(_lesson.category).withOpacity(0.05),
+                      _getCategoryColor(_lesson.category).withValues(alpha: 0.05),
                     ],
                   ),
                 ),
@@ -1207,13 +1188,13 @@ print(type(dogru))     # <class 'bool'>''',
                         gradient: LinearGradient(
                           colors: [
                             _getCategoryColor(_lesson.category),
-                            _getCategoryColor(_lesson.category).withOpacity(0.8),
+                            _getCategoryColor(_lesson.category).withValues(alpha: 0.8),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: _getCategoryColor(_lesson.category).withOpacity(0.3),
+                            color: _getCategoryColor(_lesson.category).withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -1320,7 +1301,7 @@ print(type(dogru))     # <class 'bool'>''',
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: (_isCorrectAnswer ? Colors.green : Colors.red).withOpacity(0.3),
+                  color: (_isCorrectAnswer ? Colors.green : Colors.red).withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -1351,7 +1332,7 @@ print(type(dogru))     # <class 'bool'>''',
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -1441,8 +1422,8 @@ print(type(dogru))     # <class 'bool'>''',
                   gradient: isSelected
                       ? LinearGradient(
                           colors: [
-                            _getCategoryColor(_lesson.category).withOpacity(0.2),
-                            _getCategoryColor(_lesson.category).withOpacity(0.1),
+                            _getCategoryColor(_lesson.category).withValues(alpha: 0.2),
+                            _getCategoryColor(_lesson.category).withValues(alpha: 0.1),
                           ],
                         )
                       : null,
@@ -1457,7 +1438,7 @@ print(type(dogru))     # <class 'bool'>''',
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: _getCategoryColor(_lesson.category).withOpacity(0.3),
+                            color: _getCategoryColor(_lesson.category).withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -1543,7 +1524,7 @@ print(type(dogru))     # <class 'bool'>''',
               ? LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [color, color.withOpacity(0.7)],
+                  colors: [color, color.withValues(alpha: 0.7)],
                 )
               : null,
           color: isSelected ? null : Colors.grey[100],
@@ -1555,7 +1536,7 @@ print(type(dogru))     # <class 'bool'>''',
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: color.withOpacity(0.4),
+                    color: color.withValues(alpha: 0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -1590,8 +1571,8 @@ print(type(dogru))     # <class 'bool'>''',
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            _getCategoryColor(_lesson.category).withOpacity(0.1),
-            _getCategoryColor(_lesson.category).withOpacity(0.05),
+            _getCategoryColor(_lesson.category).withValues(alpha: 0.1),
+            _getCategoryColor(_lesson.category).withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -1695,7 +1676,7 @@ print(type(dogru))     # <class 'bool'>''',
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Column(
@@ -1744,7 +1725,7 @@ print(type(dogru))     # <class 'bool'>''',
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.amber.withOpacity(0.5),
+                              color: Colors.amber.withValues(alpha: 0.5),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -1985,7 +1966,7 @@ print(type(dogru))     # <class 'bool'>''',
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.3),
+            color: Colors.white.withValues(alpha: 0.3),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: Colors.white, size: 28),
@@ -2003,7 +1984,7 @@ print(type(dogru))     # <class 'bool'>''',
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha: 0.9),
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),

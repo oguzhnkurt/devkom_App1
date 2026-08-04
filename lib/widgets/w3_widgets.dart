@@ -1,5 +1,7 @@
 /// W3Schools-style Widgets
 /// Simple, clean, focused on learning
+library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -25,13 +27,13 @@ class W3CodeBlock extends StatelessWidget {
   final VoidCallback? onTryIt;
 
   const W3CodeBlock({
-    Key? key,
+    super.key,
     required this.code,
     required this.language,
     this.output,
     this.showTryButton = true,
     this.onTryIt,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -162,10 +164,10 @@ class W3TipBox extends StatelessWidget {
   final String? title;
 
   const W3TipBox({
-    Key? key,
+    super.key,
     required this.text,
     this.title,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -214,10 +216,10 @@ class W3WarningBox extends StatelessWidget {
   final String? title;
 
   const W3WarningBox({
-    Key? key,
+    super.key,
     required this.text,
     this.title,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -268,12 +270,12 @@ class W3ProgressBar extends StatelessWidget {
   final bool showPercentage;
 
   const W3ProgressBar({
-    Key? key,
+    super.key,
     required this.progress,
     this.color,
     this.height = 8,
     this.showPercentage = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -316,13 +318,13 @@ class W3BadgeWidget extends StatelessWidget {
   final VoidCallback? onTap;
 
   const W3BadgeWidget({
-    Key? key,
+    super.key,
     required this.emoji,
     required this.name,
     required this.description,
     this.isEarned = false,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -381,11 +383,11 @@ class W3LevelBadge extends StatelessWidget {
   final int xpToNextLevel;
 
   const W3LevelBadge({
-    Key? key,
+    super.key,
     required this.level,
     required this.xp,
     required this.xpToNextLevel,
-  }) : super(key: key);
+  });
 
   Color _getLevelColor() {
     if (level < 5) return Colors.grey;
@@ -403,7 +405,7 @@ class W3LevelBadge extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [_getLevelColor(), _getLevelColor().withOpacity(0.7)],
+          colors: [_getLevelColor(), _getLevelColor().withValues(alpha: 0.7)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -490,9 +492,9 @@ class W3DifficultyBadge extends StatelessWidget {
   final String difficulty;
 
   const W3DifficultyBadge({
-    Key? key,
+    super.key,
     required this.difficulty,
-  }) : super(key: key);
+  });
 
   Color _getColor() {
     switch (difficulty.toLowerCase()) {
@@ -515,7 +517,7 @@ class W3DifficultyBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: _getColor().withOpacity(0.1),
+        color: _getColor().withValues(alpha: 0.1),
         border: Border.all(color: _getColor()),
         borderRadius: BorderRadius.circular(12),
       ),
@@ -542,7 +544,7 @@ class W3CourseCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const W3CourseCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.description,
     required this.icon,
@@ -550,7 +552,7 @@ class W3CourseCard extends StatelessWidget {
     required this.ageRange,
     this.isNew = false,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -654,7 +656,7 @@ class W3InteractiveCodeEditor extends StatefulWidget {
   final Function(bool success, int xp)? onComplete;
 
   const W3InteractiveCodeEditor({
-    Key? key,
+    super.key,
     required this.language,
     required this.starterCode,
     required this.testCases,
@@ -662,7 +664,7 @@ class W3InteractiveCodeEditor extends StatefulWidget {
     required this.challengeId,
     required this.xpReward,
     this.onComplete,
-  }) : super(key: key);
+  });
 
   @override
   State<W3InteractiveCodeEditor> createState() => _W3InteractiveCodeEditorState();
@@ -893,14 +895,14 @@ class W3ScratchWorkspace extends StatefulWidget {
   final Function(bool success, int xp)? onComplete;
 
   const W3ScratchWorkspace({
-    Key? key,
+    super.key,
     required this.availableBlocks,
     required this.expectedSequence,
     this.stage,
     required this.challengeId,
     required this.xpReward,
     this.onComplete,
-  }) : super(key: key);
+  });
 
   @override
   State<W3ScratchWorkspace> createState() => _W3ScratchWorkspaceState();

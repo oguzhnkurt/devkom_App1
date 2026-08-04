@@ -26,7 +26,7 @@ import 'games/millionaire_game_screen.dart';
 class GamePlayScreen extends StatefulWidget {
   final GameModel game;
 
-  const GamePlayScreen({Key? key, required this.game}) : super(key: key);
+  const GamePlayScreen({super.key, required this.game});
 
   @override
   State<GamePlayScreen> createState() => _GamePlayScreenState();
@@ -224,7 +224,7 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 4,
                   offset: const Offset(0, -2),
                 ),
@@ -312,7 +312,7 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
         // This is the selected answer
         if (isCorrect) {
           // Selected answer is correct - GREEN
-          backgroundColor = Colors.green.withOpacity(0.1);
+          backgroundColor = Colors.green.withValues(alpha: 0.1);
           borderColor = Colors.green;
           circleColor = Colors.green;
           textColor = Colors.green.shade900;
@@ -320,7 +320,7 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
           iconColor = Colors.green;
         } else {
           // Selected answer is wrong - RED
-          backgroundColor = Colors.red.withOpacity(0.1);
+          backgroundColor = Colors.red.withValues(alpha: 0.1);
           borderColor = Colors.red;
           circleColor = Colors.red;
           textColor = Colors.red.shade900;
@@ -329,7 +329,7 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
         }
       } else if (isCorrect) {
         // This is the correct answer (not selected) - GREEN
-        backgroundColor = Colors.green.withOpacity(0.1);
+        backgroundColor = Colors.green.withValues(alpha: 0.1);
         borderColor = Colors.green;
         circleColor = Colors.green;
         textColor = Colors.green.shade900;
@@ -345,7 +345,7 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
     } else {
       // No answer selected yet - Default blue for selected, grey for others
       if (isSelected) {
-        backgroundColor = const Color(0xFF2196F3).withOpacity(0.1);
+        backgroundColor = const Color(0xFF2196F3).withValues(alpha: 0.1);
         borderColor = const Color(0xFF2196F3);
         circleColor = const Color(0xFF2196F3);
         textColor = const Color(0xFF2196F3);

@@ -81,7 +81,7 @@ class _WorksheetsScreenState extends State<WorksheetsScreen> with SingleTickerPr
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -123,7 +123,7 @@ class _WorksheetsScreenState extends State<WorksheetsScreen> with SingleTickerPr
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -156,7 +156,7 @@ class _WorksheetsScreenState extends State<WorksheetsScreen> with SingleTickerPr
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -337,7 +337,7 @@ class _WorksheetsScreenState extends State<WorksheetsScreen> with SingleTickerPr
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -358,7 +358,7 @@ class _WorksheetsScreenState extends State<WorksheetsScreen> with SingleTickerPr
                       gradient: LinearGradient(
                         colors: [
                           getCategoryColor(lesson.category),
-                          getCategoryColor(lesson.category).withOpacity(0.7),
+                          getCategoryColor(lesson.category).withValues(alpha: 0.7),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(12),
@@ -383,7 +383,7 @@ class _WorksheetsScreenState extends State<WorksheetsScreen> with SingleTickerPr
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: getCategoryColor(lesson.category).withOpacity(0.1),
+                                color: getCategoryColor(lesson.category).withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -402,7 +402,7 @@ class _WorksheetsScreenState extends State<WorksheetsScreen> with SingleTickerPr
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: _getLevelColor(lesson.level).withOpacity(0.1),
+                                color: _getLevelColor(lesson.level).withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(

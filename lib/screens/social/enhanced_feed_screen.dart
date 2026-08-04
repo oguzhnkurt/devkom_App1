@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme.dart';
-import 'package:intl/intl.dart';
 
 /// Enhanced Feed Screen with filters (All, Mentions, Threads, Reactions)
 /// Professional messaging interface inspired by Slack
@@ -62,9 +61,9 @@ class _EnhancedFeedScreenState extends State<EnhancedFeedScreen> {
           IconButton(
             icon: CircleAvatar(
               radius: 16,
-              backgroundColor: AppTheme.primaryBlue.withOpacity(0.1),
+              backgroundColor: AppTheme.primaryBlue.withValues(alpha: 0.1),
               child: Text(
-                user?.displayName?.substring(0, 1).toUpperCase() ?? 'U',
+                user?.displayName.substring(0, 1).toUpperCase() ?? 'U',
                 style: const TextStyle(
                   color: AppTheme.primaryBlue,
                   fontWeight: FontWeight.bold,
@@ -238,7 +237,7 @@ class _EnhancedFeedScreenState extends State<EnhancedFeedScreen> {
     required bool mentionsYou,
   }) {
     return Container(
-      color: hasNotification ? Colors.blue[50]?.withOpacity(0.3) : Colors.white,
+      color: hasNotification ? Colors.blue[50]?.withValues(alpha: 0.3) : Colors.white,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         leading: Stack(
@@ -276,7 +275,7 @@ class _EnhancedFeedScreenState extends State<EnhancedFeedScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: channelColor.withOpacity(0.1),
+                color: channelColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Row(

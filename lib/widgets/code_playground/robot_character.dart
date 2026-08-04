@@ -9,12 +9,12 @@ class RobotCharacter extends StatefulWidget {
   final bool isCollecting;
 
   const RobotCharacter({
-    Key? key,
+    super.key,
     this.size = 60,
     this.direction = 0,
     this.isJumping = false,
     this.isCollecting = false,
-  }) : super(key: key);
+  });
 
   @override
   State<RobotCharacter> createState() => _RobotCharacterState();
@@ -96,7 +96,7 @@ class _RobotCharacterState extends State<RobotCharacter>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF6366F1).withOpacity(0.4),
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.4),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -190,14 +190,14 @@ class GameGridTile extends StatelessWidget {
   final int direction;
 
   const GameGridTile({
-    Key? key,
+    super.key,
     this.isStart = false,
     this.isEnd = false,
     this.hasCollectable = false,
     this.isObstacle = false,
     this.hasRobot = false,
     this.direction = 0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

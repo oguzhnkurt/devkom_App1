@@ -133,7 +133,7 @@ class _PermissionSheetState extends State<PermissionSheet> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                      color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -193,7 +193,7 @@ class _PermissionSheetState extends State<PermissionSheet> {
                           height: 48,
                           decoration: BoxDecoration(
                             color: isGranted
-                                ? Colors.green.withOpacity(0.1)
+                                ? Colors.green.withValues(alpha: 0.1)
                                 : Colors.grey[100],
                             borderRadius: BorderRadius.circular(12),
                           ),

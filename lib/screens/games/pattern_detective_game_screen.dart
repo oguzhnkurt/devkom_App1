@@ -14,7 +14,7 @@ import '../../providers/settings_provider.dart';
 /// Kod Dedektifi Oyunu
 /// Pattern matching ve dizi tamamlama yeteneklerini geliştiren oyun
 class PatternDetectiveGameScreen extends StatelessWidget {
-  const PatternDetectiveGameScreen({Key? key}) : super(key: key);
+  const PatternDetectiveGameScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class PatternDetectiveGameScreen extends StatelessWidget {
 }
 
 class _PatternDetectiveGameContent extends StatefulWidget {
-  const _PatternDetectiveGameContent({Key? key}) : super(key: key);
+  const _PatternDetectiveGameContent({super.key});
 
   @override
   State<_PatternDetectiveGameContent> createState() => _PatternDetectiveGameContentState();
@@ -205,7 +205,6 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
 
   // Geometrik şekiller
   void _generateGeometricPattern() {
-    final patternLength = min(4 + (currentLevel ~/ 4), 6);
     final repeatCount = _random.nextInt(2) + 2; // 2 veya 3 kez tekrar
 
     pattern = [];
@@ -229,7 +228,6 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
 
   // Renk desenleri
   void _generateColorPattern() {
-    final patternLength = min(4 + (currentLevel ~/ 4), 6);
     final repeatCount = _random.nextInt(2) + 2;
 
     pattern = [];
@@ -279,7 +277,6 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
 
   // Sembol desenleri
   void _generateSymbolPattern() {
-    final patternLength = min(4 + (currentLevel ~/ 5), 7);
     final repeatCount = _random.nextInt(2) + 2;
 
     pattern = [];
@@ -529,7 +526,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppTheme.primaryBlue.withOpacity(0.05),
+              AppTheme.primaryBlue.withValues(alpha: 0.05),
               Colors.white,
             ],
           ),
@@ -565,7 +562,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -683,7 +680,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.psychology, color: AppTheme.primaryBlue),
@@ -722,7 +719,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.primaryBlue.withOpacity(0.05),
+              AppTheme.primaryBlue.withValues(alpha: 0.05),
               Colors.white,
             ],
           ),
@@ -748,7 +745,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
         width: 60,
         height: 60,
         decoration: BoxDecoration(
-          color: isQuestion ? AppTheme.warningOrange.withOpacity(0.2) : Colors.grey[200],
+          color: isQuestion ? AppTheme.warningOrange.withValues(alpha: 0.2) : Colors.grey[200],
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
@@ -763,7 +760,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
         width: 60,
         height: 60,
         decoration: BoxDecoration(
-          color: isQuestion ? AppTheme.warningOrange.withOpacity(0.2) : colors[index],
+          color: isQuestion ? AppTheme.warningOrange.withValues(alpha: 0.2) : colors[index],
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.grey[300]!, width: 2),
         ),
@@ -776,7 +773,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
         width: 60,
         height: 60,
         decoration: BoxDecoration(
-          color: isQuestion ? AppTheme.warningOrange.withOpacity(0.2) : AppTheme.primaryBlue.withOpacity(0.1),
+          color: isQuestion ? AppTheme.warningOrange.withValues(alpha: 0.2) : AppTheme.primaryBlue.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: AppTheme.primaryBlue, width: 2),
         ),
@@ -825,7 +822,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
               end: Alignment.bottomRight,
               colors: [
                 Colors.white,
-                AppTheme.primaryBlue.withOpacity(0.05),
+                AppTheme.primaryBlue.withValues(alpha: 0.05),
               ],
             ),
           ),
@@ -851,7 +848,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: colors[index].withOpacity(0.3),
+              color: colors[index].withValues(alpha: 0.3),
               blurRadius: 8,
               spreadRadius: 2,
             ),

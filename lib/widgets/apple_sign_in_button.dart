@@ -9,10 +9,10 @@ class AppleSignInButton extends StatelessWidget {
   final Function(String)? onError;
 
   const AppleSignInButton({
-    Key? key,
+    super.key,
     this.onSuccess,
     this.onError,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +49,7 @@ class AppleSignInButton extends StatelessWidget {
       // Apple ile giriş yap
       final authService = AuthService();
       final user = await authService.signInWithApple();
+      if (!context.mounted) return;
 
       // Loading kapat
       Navigator.of(context).pop();
@@ -60,6 +61,7 @@ class AppleSignInButton extends StatelessWidget {
         onSuccess!();
       }
     } catch (e) {
+      if (!context.mounted) return;
       // Loading kapat
       Navigator.of(context).pop();
 
@@ -92,13 +94,13 @@ class CustomAppleSignInButton extends StatelessWidget {
   final Color textColor;
 
   const CustomAppleSignInButton({
-    Key? key,
+    super.key,
     this.onSuccess,
     this.onError,
     this.text = 'Apple ile Devam Et',
     this.backgroundColor = Colors.black,
     this.textColor = Colors.white,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +139,8 @@ class CustomAppleSignInButton extends StatelessWidget {
       );
 
       final authService = AuthService();
-      final user = await authService.signInWithApple();
+      await authService.signInWithApple();
+      if (!context.mounted) return;
 
       Navigator.of(context).pop();
 
@@ -145,6 +148,7 @@ class CustomAppleSignInButton extends StatelessWidget {
         onSuccess!();
       }
     } catch (e) {
+      if (!context.mounted) return;
       Navigator.of(context).pop();
 
       final errorMessage = e.toString().replaceAll('Exception: ', '');

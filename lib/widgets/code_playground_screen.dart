@@ -26,16 +26,15 @@ class _CodePlaygroundScreenState extends State<CodePlaygroundScreen>
   int _currentCommandIndex = -1;
 
   // Level state
-  List<Point> _collectables = [
+  final List<Point> _collectables = [
     Point(2, 1),
     Point(4, 3),
   ];
-  List<Point> _collectedStars = [];
+  final List<Point> _collectedStars = [];
   final Point _startPos = Point(0, 0);
   final Point _endPos = Point(4, 4);
 
   late AnimationController _successController;
-  bool _levelComplete = false;
 
   @override
   void initState() {
@@ -77,7 +76,6 @@ class _CodePlaygroundScreenState extends State<CodePlaygroundScreen>
       _robotY = _startPos.y;
       _robotDirection = 0;
       _collectedStars.clear();
-      _levelComplete = false;
       _currentCommandIndex = -1;
     });
   }
@@ -200,9 +198,6 @@ class _CodePlaygroundScreenState extends State<CodePlaygroundScreen>
     if (_robotX == _endPos.x &&
         _robotY == _endPos.y &&
         _collectedStars.length == _collectables.length) {
-      setState(() {
-        _levelComplete = true;
-      });
       _successController.forward();
       _showSuccessDialog();
     }
@@ -369,7 +364,7 @@ class _CodePlaygroundScreenState extends State<CodePlaygroundScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6366F1).withOpacity(0.3),
+            color: const Color(0xFF6366F1).withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -379,7 +374,7 @@ class _CodePlaygroundScreenState extends State<CodePlaygroundScreen>
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: IconButton(
@@ -403,7 +398,7 @@ class _CodePlaygroundScreenState extends State<CodePlaygroundScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -435,7 +430,7 @@ class _CodePlaygroundScreenState extends State<CodePlaygroundScreen>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -500,7 +495,7 @@ class _CodePlaygroundScreenState extends State<CodePlaygroundScreen>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -540,7 +535,7 @@ class _CodePlaygroundScreenState extends State<CodePlaygroundScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),

@@ -1,5 +1,6 @@
 /// Stub file for Stockfish on web platform
 /// This file is used when dart:ffi is not available (web platform)
+library;
 
 // Stub class to prevent compilation errors on web
 class Stockfish {

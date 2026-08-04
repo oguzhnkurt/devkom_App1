@@ -5,7 +5,6 @@ import '../../providers/settings_provider.dart';
 import '../../theme.dart';
 import '../../utils/app_localizations.dart';
 import '../../services/subscription_service.dart';
-import '../../services/auth_service.dart';
 import '../subscription_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -191,7 +190,7 @@ class SettingsScreen extends StatelessWidget {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withOpacity(0.1),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(Icons.description_outlined, color: AppTheme.primaryBlue),
@@ -220,7 +219,7 @@ class SettingsScreen extends StatelessWidget {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withOpacity(0.1),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(Icons.info_outline, color: AppTheme.primaryBlue),
@@ -314,7 +313,7 @@ class SettingsScreen extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppTheme.accentTeal.withOpacity(0.1),
+          color: AppTheme.accentTeal.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: const Icon(Icons.translate, color: AppTheme.accentTeal),
@@ -333,7 +332,7 @@ class SettingsScreen extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.orange.withOpacity(0.1),
+          color: Colors.orange.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: const Icon(Icons.text_fields, color: Colors.orange),
@@ -362,7 +361,7 @@ class SettingsScreen extends StatelessWidget {
       secondary: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppTheme.accentTeal.withOpacity(0.1),
+          color: AppTheme.accentTeal.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, color: AppTheme.accentTeal),
@@ -371,7 +370,7 @@ class SettingsScreen extends StatelessWidget {
       subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, inherit: true)),
       value: value,
       onChanged: onChanged,
-      activeColor: AppTheme.accentTeal,
+      activeThumbColor: AppTheme.accentTeal,
     );
   }
 
@@ -382,7 +381,7 @@ class SettingsScreen extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.purple.withOpacity(0.1),
+          color: Colors.purple.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: const Icon(Icons.info_outline, color: Colors.purple),
@@ -460,8 +459,8 @@ class SettingsScreen extends StatelessWidget {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => WillPopScope(
-        onWillPop: () async => false,
+      builder: (context) => PopScope(
+        canPop: false,
         child: _LanguageChangingOverlay(languageCode: languageCode),
       ),
     );
@@ -574,13 +573,12 @@ class _LanguageChangingOverlayState extends State<_LanguageChangingOverlay>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final message = widget.languageCode == 'tr'
         ? 'Dil Türkçe olarak değiştirildi'
         : 'The language has been changed to English';
 
     return Material(
-      color: Colors.black.withOpacity(0.85),
+      color: Colors.black.withValues(alpha: 0.85),
       child: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -594,14 +592,14 @@ class _LanguageChangingOverlayState extends State<_LanguageChangingOverlay>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.95),
-                    AppTheme.accentTeal.withOpacity(0.95),
+                    AppTheme.primaryBlue.withValues(alpha: 0.95),
+                    AppTheme.accentTeal.withValues(alpha: 0.95),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.5),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                     blurRadius: 30,
                     spreadRadius: 5,
                   ),
@@ -625,7 +623,7 @@ class _LanguageChangingOverlayState extends State<_LanguageChangingOverlay>
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.white.withOpacity(0.3),
+                                color: Colors.white.withValues(alpha: 0.3),
                                 blurRadius: 20,
                                 spreadRadius: 5,
                               ),
@@ -660,7 +658,7 @@ class _LanguageChangingOverlayState extends State<_LanguageChangingOverlay>
                     child: CircularProgressIndicator(
                       strokeWidth: 3,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.white.withOpacity(0.8),
+                        Colors.white.withValues(alpha: 0.8),
                       ),
                     ),
                   ),

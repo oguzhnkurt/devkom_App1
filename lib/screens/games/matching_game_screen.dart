@@ -35,7 +35,7 @@ import '../../providers/settings_provider.dart';
 class MatchingGameScreen extends StatefulWidget {
   final Map<String, dynamic>? gameData;
 
-  const MatchingGameScreen({Key? key, this.gameData}) : super(key: key);
+  const MatchingGameScreen({super.key, this.gameData});
 
   @override
   State<MatchingGameScreen> createState() => _MatchingGameScreenState();
@@ -333,7 +333,7 @@ class _MatchingGameScreenState extends State<MatchingGameScreen> {
       appBar: AppBar(
         title: Text((_isEn ? _levels[_levelIndex]['titleEn']?.toString() : null) ??
             _levels[_levelIndex]['title']?.toString() ??
-            (_isEn ? widget.gameData?['titleEn']?.toString() : null) ??
+            (_isEn ? (widget.gameData?['titleEn']?.toString()) : null) ??
             widget.gameData?['title']?.toString() ??
             (_isEn ? 'Matching Game' : 'Eşleştirme Oyunu')),
         backgroundColor: const Color(0xFF2196F3),
@@ -444,7 +444,7 @@ class _MatchingGameScreenState extends State<MatchingGameScreen> {
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: color.withOpacity(0.4), blurRadius: 6, offset: const Offset(0, 3))],
+          boxShadow: [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 6, offset: const Offset(0, 3))],
         ),
         child: Icon(icon, color: Colors.white, size: 30),
       );
@@ -454,7 +454,7 @@ class _MatchingGameScreenState extends State<MatchingGameScreen> {
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [BoxShadow(color: color.withOpacity(0.4), blurRadius: 6, offset: const Offset(0, 3))],
+          boxShadow: [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 6, offset: const Offset(0, 3))],
         ),
         child: Text(
           _pairs.firstWhere((p) => p.answer == answer, orElse: () => _pairs.first).displayAnswer(_isEn),
@@ -487,7 +487,7 @@ class _MatchingGameScreenState extends State<MatchingGameScreen> {
       slotColor = correctness ? Colors.green.shade50 : Colors.red.shade50;
       slotBorder = correctness ? Colors.green : Colors.red;
     } else if (placed != null) {
-      slotColor = _colorFor(placed).withOpacity(0.12);
+      slotColor = _colorFor(placed).withValues(alpha: 0.12);
       slotBorder = _colorFor(placed);
     }
 

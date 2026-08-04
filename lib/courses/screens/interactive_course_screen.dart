@@ -373,7 +373,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
             shape: BoxShape.circle,
           ),
           child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
@@ -454,7 +454,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: widget.course.primaryColor.withOpacity(0.1),
+            color: widget.course.primaryColor.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -474,7 +474,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                       child: CircularProgressIndicator(
                         value: progress,
                         strokeWidth: 8,
-                        backgroundColor: widget.course.primaryColor.withOpacity(0.2),
+                        backgroundColor: widget.course.primaryColor.withValues(alpha: 0.2),
                         valueColor: AlwaysStoppedAnimation<Color>(widget.course.primaryColor),
                       ),
                     ),
@@ -623,7 +623,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: widget.course.primaryColor.withOpacity(0.3),
+                          color: widget.course.primaryColor.withValues(alpha: 0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 6),
                         ),
@@ -707,7 +707,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: widget.course.primaryColor.withOpacity(0.1),
+                  color: widget.course.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -750,7 +750,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
               : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -786,7 +786,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                           color: (isCompleted
                                   ? Colors.green
                                   : widget.course.primaryColor)
-                              .withOpacity(0.3),
+                              .withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),

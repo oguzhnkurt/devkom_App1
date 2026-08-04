@@ -1,4 +1,6 @@
 /// Sample data for W3Schools-style courses
+library;
+
 import '../models/w3_lesson_model.dart';
 
 class W3SampleData {

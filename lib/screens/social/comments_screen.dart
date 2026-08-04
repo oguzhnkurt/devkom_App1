@@ -11,10 +11,10 @@ class CommentsScreen extends StatefulWidget {
   final UserModel? currentUser;
 
   const CommentsScreen({
-    Key? key,
+    super.key,
     required this.post,
     required this.currentUser,
-  }) : super(key: key);
+  });
 
   @override
   State<CommentsScreen> createState() => _CommentsScreenState();
@@ -67,8 +67,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
         }
       });
     } catch (e) {
-      print('❌ Comment error: $e');
-      print('📋 User data - uid: ${widget.currentUser?.uid}, name: ${widget.currentUser?.displayName}');
+      debugPrint('❌ Comment error: $e');
+      debugPrint('📋 User data - uid: ${widget.currentUser?.uid}, name: ${widget.currentUser?.displayName}');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -157,13 +157,13 @@ class _CommentsScreenState extends State<CommentsScreen> {
                       onDelete: () async {
                         try {
                           await _feedService.deleteComment(comment.id);
-                          if (mounted) {
+                          if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Yorum silindi')),
                             );
                           }
                         } catch (e) {
-                          if (mounted) {
+                          if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Hata: $e')),
                             );
@@ -183,7 +183,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 4,
                   offset: const Offset(0, -2),
                 ),
@@ -210,7 +210,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                       radius: 18,
                       child: widget.currentUser != null
                           ? Text(
-                              widget.currentUser!.name?[0].toUpperCase() ?? 'U',
+                              widget.currentUser!.name[0].toUpperCase() ?? 'U',
                               style: const TextStyle(fontSize: 16),
                             )
                           : const Icon(Icons.person, size: 20),
@@ -264,11 +264,11 @@ class CommentCard extends StatelessWidget {
   final VoidCallback onDelete;
 
   const CommentCard({
-    Key? key,
+    super.key,
     required this.comment,
     required this.currentUser,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -338,7 +338,7 @@ class CommentCard extends StatelessWidget {
 }
 
 class CommentSkeleton extends StatelessWidget {
-  const CommentSkeleton({Key? key}) : super(key: key);
+  const CommentSkeleton({super.key});
 
   @override
   Widget build(BuildContext context) {

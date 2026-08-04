@@ -11,7 +11,7 @@ import '../../providers/settings_provider.dart';
 /// Renk kodları ile programlama öğretir
 ///
 class ColorCodingScreen extends StatefulWidget {
-  const ColorCodingScreen({Key? key}) : super(key: key);
+  const ColorCodingScreen({super.key});
 
   @override
   State<ColorCodingScreen> createState() => _ColorCodingScreenState();
@@ -286,7 +286,7 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
                             boxShadow: isHighlighted
                                 ? [
                                     BoxShadow(
-                                      color: (cmd['color'] as Color).withOpacity(0.8),
+                                      color: (cmd['color'] as Color).withValues(alpha: 0.8),
                                       blurRadius: 20,
                                       spreadRadius: 5,
                                     ),
@@ -332,7 +332,7 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
 
             // Seçilen dizilim
             Card(
-              color: AppTheme.lightBlue.withOpacity(0.3),
+              color: AppTheme.lightBlue.withValues(alpha: 0.3),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -407,7 +407,7 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: (cmd['color'] as Color).withOpacity(0.5),
+                                color: (cmd['color'] as Color).withValues(alpha: 0.5),
                                 blurRadius: 10,
                                 spreadRadius: 2,
                               ),

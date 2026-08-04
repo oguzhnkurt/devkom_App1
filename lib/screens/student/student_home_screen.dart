@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../providers/auth_provider.dart';
-import '../../models/user_model.dart';
 import '../../theme.dart';
 import '../../widgets/student_drawer.dart';
 import '../../widgets/progress_indicator_widget.dart';
@@ -12,10 +11,8 @@ import '../robotics_games_screen.dart';
 import '../homework_screen.dart';
 import '../auth/profile_screen.dart';
 import '../arduino_simulator_main_screen.dart';
-import '../social/feed_screen.dart';
 import '../social/enhanced_feed_screen_v2.dart';
 import '../games/millionaire_game_screen.dart';
-import '../shared/general_curriculum_screen.dart';
 import '../unified_home_screen.dart';
 import '../../courses/screens/course_catalog_screen.dart';
 import '../devchat_screen.dart';
@@ -40,7 +37,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     final loc = AppLocalizations.of(context);
 
     // 5 tab navigation: Ana Sayfa, Kurslar, Sosyal Akış, DevAiChat, Profil
-    final List<Widget> _screens = const [
+    final List<Widget> screens = const [
       UnifiedDashboard(),
       CourseCatalogScreen(),
       EnhancedFeedScreenV2(),
@@ -50,7 +47,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
     return Scaffold(
       drawer: const StudentDrawer(),
-      body: _screens[_selectedIndex],
+      body: screens[_selectedIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (index) {
@@ -225,7 +222,7 @@ class _StudentDashboard extends StatelessWidget {
                         },
                         child: CircleAvatar(
                           radius: 24,
-                          backgroundColor: AppTheme.primaryBlue.withOpacity(0.1),
+                          backgroundColor: AppTheme.primaryBlue.withValues(alpha: 0.1),
                           child: Icon(
                             Icons.person,
                             color: AppTheme.primaryBlue,
@@ -328,7 +325,7 @@ class _StudentDashboard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: 0.6,
               minHeight: 8,
-              backgroundColor: Colors.white.withOpacity(0.2),
+              backgroundColor: Colors.white.withValues(alpha: 0.2),
               valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
             ),
           ),
@@ -491,7 +488,7 @@ class _StudentDashboard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -503,7 +500,7 @@ class _StudentDashboard extends StatelessWidget {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 30),
@@ -545,7 +542,7 @@ class _StudentDashboard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),

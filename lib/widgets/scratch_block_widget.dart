@@ -144,7 +144,7 @@ class ScratchBlockWidget extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 4),
       child: CustomPaint(
         painter: _HexagonPainter(
-          color: Colors.white.withOpacity(0.25),
+          color: Colors.white.withValues(alpha: 0.25),
           borderColor: _darkenColor(block.color, 0.25),
         ),
         child: Padding(
@@ -253,7 +253,7 @@ class _ScratchBlockPainter extends CustomPainter {
 
     // Gölge
     final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.25)
+      ..color = Colors.black.withValues(alpha: 0.25)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
 
     switch (shape) {

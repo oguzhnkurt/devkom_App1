@@ -208,7 +208,7 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
           // Progress bar
           LinearProgressIndicator(
             value: _isCompleted ? 1.0 : 0.5,
-            backgroundColor: widget.course.primaryColor.withOpacity(0.2),
+            backgroundColor: widget.course.primaryColor.withValues(alpha: 0.2),
             valueColor: AlwaysStoppedAnimation<Color>(widget.course.primaryColor),
             minHeight: 4,
           ),
@@ -292,7 +292,7 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
         color: const Color(0xFF1E1E2E),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: widget.course.primaryColor.withOpacity(0.3),
+          color: widget.course.primaryColor.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -303,7 +303,7 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: widget.course.primaryColor.withOpacity(0.2),
+              color: widget.course.primaryColor.withValues(alpha: 0.2),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(11),
                 topRight: Radius.circular(11),
@@ -324,7 +324,7 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.2),
+                      color: Colors.green.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
@@ -389,7 +389,7 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1A2634) : const Color(0xFFE8F5E9),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.withOpacity(0.3)),
+        border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -429,7 +429,7 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF2D2A1A) : const Color(0xFFFFF8E1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.amber.withOpacity(0.3)),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -458,12 +458,12 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            widget.course.primaryColor.withOpacity(0.1),
-            widget.course.secondaryColor.withOpacity(0.1),
+            widget.course.primaryColor.withValues(alpha: 0.1),
+            widget.course.secondaryColor.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: widget.course.primaryColor.withOpacity(0.3)),
+        border: Border.all(color: widget.course.primaryColor.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -473,7 +473,7 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: widget.course.primaryColor.withOpacity(0.2),
+                  color: widget.course.primaryColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text('🎯', style: TextStyle(fontSize: 18)),
@@ -551,7 +551,7 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
         color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -615,27 +615,27 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
               : [Colors.purple.shade400, Colors.purple.shade600],
         ),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: (_quizPassed ? Colors.green : Colors.purple).withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 6))],
+        boxShadow: [BoxShadow(color: (_quizPassed ? Colors.green : Colors.purple).withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6))],
       ),
       child: Column(children: [
         Row(children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
             child: Icon(_quizPassed ? Icons.check_circle : Icons.quiz, color: Colors.white, size: 28),
           ),
           const SizedBox(width: 16),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(_quizPassed ? 'Quiz Tamamlandi!' : 'Bilgini Test Et', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            Text(_quizPassed ? 'Tebrikler, quizi gectin!' : '${_quiz!.questions.length} soru ile ogrendiklerini pekistir', style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14)),
+            Text(_quizPassed ? 'Tebrikler, quizi gectin!' : '${_quiz!.questions.length} soru ile ogrendiklerini pekistir', style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14)),
           ])),
         ]),
         const SizedBox(height: 16),
         Row(children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(20)),
+            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(20)),
             child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.star, color: Colors.amber, size: 18), const SizedBox(width: 4), Text('+${_quiz!.xpReward} XP', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))]),
           ),
           const Spacer(),

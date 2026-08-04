@@ -10,12 +10,12 @@ class AnimatedGradientBackground extends StatefulWidget {
   final double opacity;
 
   const AnimatedGradientBackground({
-    Key? key,
+    super.key,
     required this.colors,
     this.duration = const Duration(seconds: 4),
     this.child,
     this.opacity = 0.3,
-  }) : super(key: key);
+  });
 
   @override
   State<AnimatedGradientBackground> createState() =>
@@ -66,7 +66,7 @@ class _AnimatedGradientBackgroundState
             ),
           ),
           child: Container(
-            color: Colors.black.withOpacity(widget.opacity),
+            color: Colors.black.withValues(alpha: widget.opacity),
             child: widget.child,
           ),
         );
@@ -83,11 +83,11 @@ class PulsingIcon extends StatefulWidget {
   final Color color;
 
   const PulsingIcon({
-    Key? key,
+    super.key,
     required this.icon,
     this.size = 72,
     this.color = Colors.white,
-  }) : super(key: key);
+  });
 
   @override
   State<PulsingIcon> createState() => _PulsingIconState();
@@ -138,7 +138,7 @@ class _PulsingIconState extends State<PulsingIcon>
                 height: widget.size * 1.5,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: widget.color.withOpacity(_opacityAnimation.value * 0.3),
+                  color: widget.color.withValues(alpha: _opacityAnimation.value * 0.3),
                 ),
               ),
             ),
@@ -150,7 +150,7 @@ class _PulsingIconState extends State<PulsingIcon>
                 height: widget.size * 1.2,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: widget.color.withOpacity(_opacityAnimation.value * 0.5),
+                  color: widget.color.withValues(alpha: _opacityAnimation.value * 0.5),
                 ),
               ),
             ),
@@ -158,7 +158,7 @@ class _PulsingIconState extends State<PulsingIcon>
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: Icon(
