@@ -7,8 +7,9 @@ class SubscriptionService {
   static const String _placementId = 'main_paywall';
   static const String _accessLevelId = 'premium';
 
-  static const String monthlyProductId = 'devkom_pro_monthly';
-  static const String yearlyProductId = 'devkom_pro_yearly';
+  // App Store Connect / Google Play ürün kimlikleri ile birebir aynı olmalı.
+  static const String monthlyProductId = 'com.devkom.app.pro.monthly';
+  static const String yearlyProductId = 'com.devkom.app.pro.yearly';
 
   AdaptyPaywall? _cachedPaywall;
 

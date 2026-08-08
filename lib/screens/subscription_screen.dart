@@ -1,5 +1,6 @@
 import 'package:adapty_flutter/adapty_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/subscription_service.dart';
 import '../services/analytics_service.dart';
 import '../theme.dart';
@@ -418,14 +419,64 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             ),
           ),
           Text(
-            'Abonelik otomatik yenilenir. Istediginiz zaman iptal edebilirsiniz.',
+            'Abonelik otomatik yenilenir. Istediginiz zaman iptal edebilirsiniz. '
+            'Odeme, satin alma onaylandiginda App Store / Google Play hesabiniza '
+            'yansitilir. Abonelik, mevcut donem bitmeden en az 24 saat once iptal '
+            'edilmezse otomatik olarak yenilenir.',
             style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
             textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () => _openUrl(_termsUrl),
+                child: Text(
+                  'Kullanim Kosullari',
+                  style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7), fontSize: 12),
+                ),
+              ),
+              Text('·',
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
+              TextButton(
+                onPressed: () => _openUrl(_privacyUrl),
+                child: Text(
+                  'Gizlilik Politikasi',
+                  style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7), fontSize: 12),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  static const String _termsUrl =
+      'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+  static const String _privacyUrl =
+      'https://oguzhnkurt.github.io/devkom_App1/privacy-policy.html';
+
+  Future<void> _openUrl(String url) async {
+    try {
+      final uri = Uri.parse(url);
+      final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!ok && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Baglanti acilamadi: $url')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Baglanti acilamadi: $url')),
+        );
+      }
+    }
   }
 
   Widget _buildPurchasingOverlay() {
