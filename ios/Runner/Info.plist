@@ -53,6 +53,10 @@
 	<string>Devkom, fotoğraf yüklemek için fotoğraf kitaplığına erişim gerektirir.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Devkom, konuma dayalı özellikler için konum erişimi gerektirir.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Devkom, konuma dayalı özellikler için konum erişimi gerektirir.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Devkom, konuma dayalı özellikler için konum erişimi gerektirir.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Devkom, ses kaydetmek için mikrofon erişimi gerektirir.</string>
 </dict>
