@@ -1,4 +1,7 @@
-import 'package:flutter/material.dart';
+// Flutter'in kendi Badge widget'i ile modelimizdeki Badge sinifi cakisiyor
+// (ambiguous_import). Bu dosyada Material'in Badge widget'i kullanilmadigi
+// icin onu gizliyoruz; boylece Badge her zaman bizim rozet modelimiz.
+import 'package:flutter/material.dart' hide Badge;
 import '../models/user_progress_model.dart';
 import '../services/user_progress_service.dart';
 import '../screens/character_screen.dart';
