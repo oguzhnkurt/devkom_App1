@@ -70,20 +70,27 @@ class StoreService {
   Future<StoreItem?> getEquippedItem(StoreItemCategory category) async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return null;
-    final categoryKey = category == StoreItemCategory.robotSkin
-        ? 'robot_skin'
-        : category == StoreItemCategory.avatarFrame
-            ? 'avatar_frame'
-            : 'character';
     final data = await _supabase
         .from('user_inventory')
         .select('store_items!inner(*)')
         .eq('user_id', userId)
         .eq('equipped', true)
-        .eq('store_items.category', categoryKey)
+        .eq('store_items.category', storeCategoryKey(category))
         .maybeSingle();
     if (data == null) return null;
     return StoreItem.fromMap(data['store_items']);
+  }
+
+  /// Tüm kategorilerde kuşanılan ürünleri tek sorguda getirir (ör. Karakterim
+  /// ekranındaki kompozit önizleme için). Kuşanılmamış kategoriler map'te yer
+  /// almaz.
+  Future<Map<StoreItemCategory, StoreItem>> getAllEquipped() async {
+    final inventory = await getInventory();
+    final equipped = <StoreItemCategory, StoreItem>{};
+    for (final owned in inventory.where((o) => o.equipped)) {
+      equipped[owned.item.category] = owned.item;
+    }
+    return equipped;
   }
 
   /// Kullanıcının güncel jeton bakiyesi.

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/game_model.dart';
 import '../services/games_service.dart';
-import '../services/achievement_service.dart';
 import '../providers/auth_provider.dart';
 import '../providers/settings_provider.dart';
 import 'games/chess_game_screen.dart';
@@ -34,7 +33,6 @@ class GamePlayScreen extends StatefulWidget {
 
 class _GamePlayScreenState extends State<GamePlayScreen> {
   final GamesService _gamesService = GamesService();
-  final AchievementService _achievementService = AchievementService();
 
   int _currentQuestionIndex = 0;
   int _score = 0;
@@ -468,38 +466,21 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
   }
 
   /// Quiz sonuçlarını kaydet
+  ///
+  /// Not: Asıl kayıt _finishQuiz() -> _saveProgress() üzerinden
+  /// GamesServiceSupabase.saveGameProgress ile zaten game_progress'e
+  /// (correctAnswers/totalQuestions dahil) yazılıyor. AchievementService
+  /// artık gerçek bir insert yaptığı için burada tekrar çağırmak aynı oyun
+  /// için game_progress'te çift/eksik veri satırı oluşturuyordu — bu yüzden
+  /// bu metod sadece "kaydedildi" bayrağını işaretliyor.
   Future<void> _saveQuizResults(int correctAnswers, int totalQuestions) async {
-    if (_resultsSaved) return; // Sadece bir kez kaydet
+    if (_resultsSaved) return; // Sadece bir kez işaretle
 
-    try {
-      final authProvider = context.read<AuthProvider>();
-      final userId = authProvider.currentUser?.uid;
+    setState(() {
+      _resultsSaved = true;
+    });
 
-      if (userId == null) {
-        debugPrint('❌ Kullanıcı girişi yapılmamış, sonuç kaydedilemedi');
-        return;
-      }
-
-      final wrongAnswers = totalQuestions - correctAnswers;
-
-      final duration = _startTime != null ? DateTime.now().difference(_startTime!).inSeconds : 0;
-      final score = (correctAnswers / totalQuestions * 100).round();
-
-      await _achievementService.saveGameResult(
-        userId: userId,
-        gameId: widget.game.id,
-        score: score,
-        duration: duration,
-      );
-
-      setState(() {
-        _resultsSaved = true;
-      });
-
-      debugPrint('✅ Quiz sonucu kaydedildi: ${widget.game.title}');
-    } catch (e) {
-      debugPrint('❌ Quiz sonucu kaydetme hatası: $e');
-    }
+    debugPrint('✅ Quiz sonucu kaydedildi: ${widget.game.title}');
   }
 
   Widget _buildResultsScreen(List questions) {

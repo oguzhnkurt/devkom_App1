@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
-import '../models/achievement_model.dart';
-import '../services/achievement_badge_service.dart';
+import '../models/user_progress_model.dart';
+import '../services/user_progress_service.dart';
+import '../screens/character_screen.dart';
 
 /// Rozetler Widget'ı
 /// Ana ekranda son kazanılan rozetleri göster
+///
+/// Not: Eskiden AchievementBadgeService (Firebase→Supabase göçü tamamlanmamış,
+/// hep boş veri dönen stub) kullanıyordu ve bu yüzden rozet sayfası açılırken
+/// çöküyordu. Artık UserProgressService/DefaultBadges üzerinden gerçek,
+/// Supabase'den okunan rozet verisini kullanıyor (uygulamanın geri kalanında
+/// zaten kullanılan sistemle aynı).
 class AchievementsWidget extends StatelessWidget {
   final String userId;
-  final AchievementBadgeService _achievementService = AchievementBadgeService();
+  final UserProgressService _progressService = UserProgressService();
 
   AchievementsWidget({
     super.key,
@@ -15,17 +22,19 @@ class AchievementsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: _achievementService.getAchievementStats(userId),
-      builder: (context, statsSnapshot) {
-        if (!statsSnapshot.hasData) {
+    return FutureBuilder<UserProgress?>(
+      future: _progressService.loadUserProgress(userId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const SizedBox.shrink();
         }
 
-        final stats = statsSnapshot.data!;
-        final unlockedCount = stats['unlocked'] as int;
-        final totalCount = stats['total'] as int;
-        final percentage = stats['percentage'] as int;
+        final badges = _progressService.getUserBadges();
+        final unlockedCount = badges.where((b) => b.isEarned).length;
+        final totalCount = badges.length;
+        final percentage =
+            totalCount == 0 ? 0 : ((unlockedCount / totalCount) * 100).round();
+        final recentBadges = badges.where((b) => b.isEarned).take(3).toList();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,37 +144,60 @@ class AchievementsWidget extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 12),
+
+            // Karakterim girişi
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CharacterScreen()),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF7C4DFF), Color(0xFF6C3CE0)],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  children: [
+                    const Text('👾', style: TextStyle(fontSize: 22)),
+                    const SizedBox(width: 10),
+                    const Expanded(
+                      child: Text(
+                        'Karakterim: kolye, şapka ve daha fazlasıyla özelleştir',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12),
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: Colors.white, size: 20),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
 
             // Recent Achievements
-            // TODO: Migrate to Supabase - Future type mismatch
-            FutureBuilder<List<dynamic>>(
-              future: _achievementService.getRecentlyUnlocked(userId, limit: 3),
-              builder: (context, achievementsSnapshot) {
-                if (!achievementsSnapshot.hasData || achievementsSnapshot.data!.isEmpty) {
-                  return _buildEmptyState();
-                }
-
-                final achievements = achievementsSnapshot.data!;
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Son Kazanılanlar',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey,
-                      ),
+            if (recentBadges.isEmpty)
+              _buildEmptyState()
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Son Kazanılanlar',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey,
                     ),
-                    const SizedBox(height: 12),
-                    ...achievements.map((achievement) =>
-                        _buildAchievementTile(achievement)),
-                  ],
-                );
-              },
-            ),
+                  ),
+                  const SizedBox(height: 12),
+                  ...recentBadges.map((badge) => _buildBadgeTile(badge)),
+                ],
+              ),
           ],
         );
       },
@@ -194,7 +226,7 @@ class AchievementsWidget extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Oyunları oynayarak rozet kazan!',
+            'Ders izleyerek, oyun oynayarak rozet kazan!',
             style: TextStyle(fontSize: 12, color: Colors.grey[600]),
           ),
         ],
@@ -202,34 +234,31 @@ class AchievementsWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildAchievementTile(Achievement achievement) {
+  Widget _buildBadgeTile(Badge badge) {
+    final color = badgeCategoryColor(badge.category);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            achievement.color.withValues(alpha: 0.1),
+            color.withValues(alpha: 0.1),
             Colors.white,
           ],
         ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: achievement.color.withValues(alpha: 0.3), width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
       ),
       child: Row(
         children: [
-          // Icon
+          // Emoji
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: achievement.color.withValues(alpha: 0.2),
+              color: color.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              achievement.icon,
-              color: achievement.color,
-              size: 24,
-            ),
+            child: Text(badge.emoji, style: const TextStyle(fontSize: 22)),
           ),
           const SizedBox(width: 12),
 
@@ -239,7 +268,7 @@ class AchievementsWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  achievement.title,
+                  badge.name,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -247,10 +276,10 @@ class AchievementsWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  achievement.rarityLabel,
+                  badge.description,
                   style: TextStyle(
                     fontSize: 11,
-                    color: achievement.color,
+                    color: color,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -258,28 +287,7 @@ class AchievementsWidget extends StatelessWidget {
             ),
           ),
 
-          // XP Badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: achievement.color,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.stars, color: Colors.white, size: 12),
-                const SizedBox(width: 4),
-                Text(
-                  '+${achievement.xpReward}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          const Icon(Icons.check_circle, color: Colors.green, size: 20),
         ],
       ),
     );
@@ -295,10 +303,26 @@ class AchievementsWidget extends StatelessWidget {
   }
 }
 
+/// Kategoriye göre renk (widget + tam ekran arasında paylaşılıyor)
+Color badgeCategoryColor(BadgeCategory category) {
+  switch (category) {
+    case BadgeCategory.milestone:
+      return Colors.amber.shade700;
+    case BadgeCategory.streak:
+      return Colors.deepOrange;
+    case BadgeCategory.lesson:
+      return Colors.blue;
+    case BadgeCategory.game:
+      return Colors.purple;
+    case BadgeCategory.special:
+      return Colors.teal;
+  }
+}
+
 /// Tüm Rozetler Ekranı
 class _AllAchievementsScreen extends StatelessWidget {
   final String userId;
-  final AchievementBadgeService _achievementService = AchievementBadgeService();
+  final UserProgressService _progressService = UserProgressService();
 
   _AllAchievementsScreen({required this.userId});
 
@@ -308,27 +332,34 @@ class _AllAchievementsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Rozetlerim'),
         elevation: 0,
+        actions: [
+          IconButton(
+            tooltip: 'Karakterim',
+            icon: const Text('👾', style: TextStyle(fontSize: 20)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CharacterScreen()),
+              );
+            },
+          ),
+        ],
       ),
-      body: FutureBuilder<List<dynamic>>(
-        future: _achievementService.getUserAchievements(userId),
+      body: FutureBuilder<UserProgress?>(
+        future: _progressService.loadUserProgress(userId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          final badges = _progressService.getUserBadges();
+          if (badges.isEmpty) {
             return const Center(child: Text('Rozet bulunamadı'));
           }
 
-          final achievements = snapshot.data!;
-          final categories = <AchievementCategory, List<Achievement>>{};
-
-          // Kategorilere göre grupla
-          for (final achievement in achievements) {
-            if (!categories.containsKey(achievement.category)) {
-              categories[achievement.category] = [];
-            }
-            categories[achievement.category]!.add(achievement);
+          final categories = <BadgeCategory, List<Badge>>{};
+          for (final badge in badges) {
+            categories.putIfAbsent(badge.category, () => []).add(badge);
           }
 
           return ListView.builder(
@@ -336,7 +367,7 @@ class _AllAchievementsScreen extends StatelessWidget {
             itemCount: categories.length,
             itemBuilder: (context, index) {
               final category = categories.keys.elementAt(index);
-              final categoryAchievements = categories[category]!;
+              final categoryBadges = categories[category]!;
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -351,8 +382,7 @@ class _AllAchievementsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  ...categoryAchievements.map((achievement) =>
-                      _buildFullAchievementCard(achievement)),
+                  ...categoryBadges.map((badge) => _buildFullBadgeCard(badge)),
                   const SizedBox(height: 16),
                 ],
               );
@@ -363,149 +393,105 @@ class _AllAchievementsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFullAchievementCard(Achievement achievement) {
-    final isLocked = !achievement.isUnlocked;
+  Widget _buildFullBadgeCard(Badge badge) {
+    final isLocked = !badge.isEarned;
+    final color = badgeCategoryColor(badge.category);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isLocked ? Colors.grey[100] : achievement.color.withValues(alpha: 0.1),
+        color: isLocked ? Colors.grey[100] : color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: isLocked ? Colors.grey.shade300 : achievement.color.withValues(alpha: 0.5),
+          color: isLocked ? Colors.grey.shade300 : color.withValues(alpha: 0.5),
           width: 2,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              // Icon
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isLocked
-                      ? Colors.grey[300]
-                      : achievement.color.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  achievement.icon,
-                  color: isLocked ? Colors.grey : achievement.color,
-                  size: 28,
-                ),
+          // Emoji
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isLocked ? Colors.grey[300] : color.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              badge.emoji,
+              style: TextStyle(
+                fontSize: 26,
+                color: isLocked ? Colors.grey : null,
               ),
-              const SizedBox(width: 12),
-
-              // Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      achievement.title,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: isLocked ? Colors.grey : Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      achievement.description,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Rarity Badge
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: isLocked ? Colors.grey : achievement.color,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  achievement.rarityLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(width: 12),
 
-          // Progress Bar (if not unlocked)
-          if (isLocked) ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'İlerleme',
+                  badge.name,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isLocked ? Colors.grey : Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  badge.description,
                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
-                Text(
-                  '${achievement.currentProgress}/${achievement.requiredValue}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                if (isLocked && badge.requiredXP > 0) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    '${badge.requiredXP} XP gerekli',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: color,
+                    ),
                   ),
-                ),
+                ],
+                if (!isLocked) ...[
+                  const SizedBox(height: 4),
+                  const Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.green, size: 14),
+                      SizedBox(width: 4),
+                      Text(
+                        'Kazanıldı!',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
-            const SizedBox(height: 6),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: LinearProgressIndicator(
-                value: achievement.progressPercentage,
-                minHeight: 8,
-                backgroundColor: Colors.grey[300],
-                valueColor: AlwaysStoppedAnimation<Color>(achievement.color),
-              ),
-            ),
-          ] else ...[
-            Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.green, size: 16),
-                const SizedBox(width: 6),
-                Text(
-                  'Açıldı! +${achievement.xpReward} XP',
-                  style: const TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ],
+          ),
         ],
       ),
     );
   }
 
-  String _getCategoryName(AchievementCategory category) {
+  String _getCategoryName(BadgeCategory category) {
     switch (category) {
-      case AchievementCategory.games:
-        return 'Oyun Başarıları';
-      case AchievementCategory.score:
-        return 'Skor Başarıları';
-      case AchievementCategory.streak:
+      case BadgeCategory.milestone:
+        return 'Kilometre Taşları';
+      case BadgeCategory.streak:
         return 'Süreklilik Başarıları';
-      case AchievementCategory.mastery:
-        return 'Ustalık Başarıları';
-      case AchievementCategory.social:
-        return 'Sosyal Başarılar';
-      case AchievementCategory.special:
+      case BadgeCategory.lesson:
+        return 'Ders Başarıları';
+      case BadgeCategory.game:
+        return 'Oyun Başarıları';
+      case BadgeCategory.special:
         return 'Özel Başarılar';
     }
   }

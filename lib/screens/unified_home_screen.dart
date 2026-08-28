@@ -16,6 +16,7 @@ import 'w3_courses_screen.dart';
 import '../widgets/visitor_cta_widget.dart';
 import '../widgets/student_drawer.dart';
 import 'market_screen.dart';
+import 'character_screen.dart';
 
 /// Unified Home Screen - Minimal, modern dashboard for all ages
 class UnifiedHomeScreen extends StatefulWidget {
@@ -678,15 +679,16 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
         ),
         _buildThemedCard(
           context: context,
-          icon: Icons.emoji_events,
-          title: 'Rozet',
-          subtitle: 'Basari',
+          icon: Icons.face_retouching_natural,
+          title: 'Karakterim',
+          subtitle: 'Ozellestir',
           colors: [const Color(0xFF1F1D36), const Color(0xFF3F3351), const Color(0xFF5B4B6E)],
           isDark: isDark,
           showStars: true,
           onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Basarilar sayfasi yakinda!')),
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CharacterScreen()),
             );
           },
         ),

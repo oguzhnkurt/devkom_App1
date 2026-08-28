@@ -1,8 +1,13 @@
+import 'dart:math' show pi;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:confetti/confetti.dart';
 import '../models/course_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/user_progress_service.dart';
+import '../../models/leaderboard_model.dart';
+import '../../models/game_model.dart';
+import '../../core/service_locator.dart';
 
 /// Quiz Screen - Interactive quiz experience
 class QuizScreen extends StatefulWidget {
@@ -27,10 +32,20 @@ class _QuizScreenState extends State<QuizScreen> {
   bool _showResult = false;
   int _score = 0;
   bool _isSubmitting = false;
+  bool _hintVisible = false;
+  final DateTime _startTime = DateTime.now();
+  late final ConfettiController _confettiController =
+      ConfettiController(duration: const Duration(seconds: 2));
 
   QuizQuestion get _currentQuestion => widget.quiz.questions[_currentQuestionIndex];
   bool get _isLastQuestion => _currentQuestionIndex == widget.quiz.questions.length - 1;
   bool get _hasAnswered => _answers.containsKey(_currentQuestionIndex);
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,40 +78,123 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
         ],
       ),
-      body: _showResult ? _buildResultScreen(isDark) : _buildQuestionScreen(isDark),
+      body: Stack(
+        children: [
+          _showResult ? _buildResultScreen(isDark) : _buildQuestionScreen(isDark),
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirection: pi / 2,
+              blastDirectionality: BlastDirectionality.explosive,
+              particleDrag: 0.05,
+              emissionFrequency: 0.05,
+              numberOfParticles: 40,
+              gravity: 0.15,
+              shouldLoop: false,
+              colors: [
+                widget.course.primaryColor,
+                widget.course.secondaryColor,
+                Colors.amber,
+                Colors.green,
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildQuestionScreen(bool isDark) {
     return Column(
       children: [
-        // Progress bar
-        LinearProgressIndicator(
-          value: (_currentQuestionIndex + 1) / widget.quiz.questions.length,
-          backgroundColor: widget.course.primaryColor.withValues(alpha: 0.2),
-          valueColor: AlwaysStoppedAnimation<Color>(widget.course.primaryColor),
-          minHeight: 6,
-        ),
-        // Question content
+        // Segmentli ilerleme çubuğu (her soru için ayrı bir segment)
+        _buildSegmentedProgress(),
+        // Question content — soru değiştikçe kayarak/solarak geçiş yapar
         Expanded(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildQuestionHeader(isDark),
-                const SizedBox(height: 24),
-                _buildQuestion(isDark),
-                const SizedBox(height: 20),
-                _buildOptions(isDark),
-              ],
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 320),
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(begin: const Offset(0.08, 0), end: Offset.zero)
+                    .animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+                child: child,
+              ),
+            ),
+            child: SingleChildScrollView(
+              key: ValueKey(_currentQuestionIndex),
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildQuestionHeader(isDark),
+                  const SizedBox(height: 24),
+                  _buildQuestion(isDark),
+                  const SizedBox(height: 20),
+                  _buildOptions(isDark),
+                  if (_hintVisible && _currentQuestion.explanation != null) ...[
+                    const SizedBox(height: 16),
+                    _buildHintCard(isDark),
+                  ],
+                ],
+              ),
             ),
           ),
         ),
         // Bottom navigation
         _buildBottomBar(isDark),
       ],
+    );
+  }
+
+  Widget _buildSegmentedProgress() {
+    final total = widget.quiz.questions.length;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+      child: Row(
+        children: List.generate(total, (index) {
+          final filled = index <= _currentQuestionIndex;
+          return Expanded(
+            child: Container(
+              height: 6,
+              margin: EdgeInsets.only(right: index == total - 1 ? 0 : 6),
+              decoration: BoxDecoration(
+                color: filled ? widget.course.primaryColor : widget.course.primaryColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildHintCard(bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.amber.withValues(alpha: isDark ? 0.15 : 0.12),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.lightbulb, color: Colors.amber, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              _currentQuestion.explanation!,
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? Colors.amber.shade100 : Colors.amber.shade900,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -402,10 +500,25 @@ class _QuizScreenState extends State<QuizScreen> {
       child: SafeArea(
         child: Row(
           children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                onPressed: _toggleHint,
+                icon: const Icon(Icons.lightbulb, color: Colors.amber),
+                tooltip: 'İpucu',
+              ),
+            ),
+            const SizedBox(width: 8),
             if (_currentQuestionIndex > 0)
               OutlinedButton.icon(
                 onPressed: () {
-                  setState(() => _currentQuestionIndex--);
+                  setState(() {
+                    _currentQuestionIndex--;
+                    _hintVisible = false;
+                  });
                 },
                 icon: const Icon(Icons.arrow_back, size: 18),
                 label: const Text('Onceki'),
@@ -428,6 +541,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 backgroundColor: widget.course.primaryColor,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                 disabledBackgroundColor: Colors.grey.shade400,
               ),
             ),
@@ -438,7 +552,20 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _nextQuestion() {
-    setState(() => _currentQuestionIndex++);
+    setState(() {
+      _currentQuestionIndex++;
+      _hintVisible = false;
+    });
+  }
+
+  void _toggleHint() {
+    if (_currentQuestion.explanation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bu soru için ipucu yok, ama tahmin etmekten çekinme!')),
+      );
+      return;
+    }
+    setState(() => _hintVisible = !_hintVisible);
   }
 
   void _submitQuiz() async {
@@ -464,10 +591,33 @@ class _QuizScreenState extends State<QuizScreen> {
     }
 
     _score = ((correctAnswers / widget.quiz.questions.length) * 100).round();
+    final timeSeconds = DateTime.now().difference(_startTime).inSeconds;
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    // Lider tablosuna kaydet (geçse de kalsa da — Quiz Merkezi'ndeki
+    // Sıralama sekmesinde görünür, bkz. GameType.quiz).
+    if (authProvider.isAuthenticated && authProvider.currentUser != null) {
+      try {
+        await leaderboardService.addEntry(LeaderboardEntry(
+          id: '',
+          userId: authProvider.currentUser!.uid,
+          userName: authProvider.currentUser!.displayName,
+          gameType: GameType.quiz,
+          score: _score,
+          timeSeconds: timeSeconds,
+          correctCount: correctAnswers,
+          totalQuestions: widget.quiz.questions.length,
+          completedAt: DateTime.now(),
+        ));
+      } catch (_) {
+        // Lider tablosu yazımı başarısız olsa da quiz sonucu kullanıcıya
+        // gösterilmeye devam etmeli.
+      }
+    }
 
     // Award XP if passed
     if (_score >= widget.quiz.passingScore) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
       if (authProvider.isAuthenticated) {
         await authProvider.addXP(widget.quiz.xpReward);
         // Jeton ödülü: doğru cevap başına (Market'te harcanabilir)
@@ -483,6 +633,10 @@ class _QuizScreenState extends State<QuizScreen> {
       _showResult = true;
       _isSubmitting = false;
     });
+
+    if (_score >= widget.quiz.passingScore) {
+      _confettiController.play();
+    }
   }
 
   Widget _buildResultScreen(bool isDark) {
@@ -529,8 +683,13 @@ class _QuizScreenState extends State<QuizScreen> {
             ),
           ),
           const SizedBox(height: 32),
-          // Score circle
-          Container(
+          // Score circle — hafif bir "pop" animasyonuyla belirir
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.elasticOut,
+            builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
+            child: Container(
             width: 160,
             height: 160,
             decoration: BoxDecoration(
@@ -565,6 +724,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 ],
               ),
             ),
+          ),
           ),
           const SizedBox(height: 24),
           // Stats
@@ -636,6 +796,7 @@ class _QuizScreenState extends State<QuizScreen> {
                         _answers.clear();
                         _showResult = false;
                         _score = 0;
+                        _hintVisible = false;
                       });
                     },
                     icon: const Icon(Icons.refresh),

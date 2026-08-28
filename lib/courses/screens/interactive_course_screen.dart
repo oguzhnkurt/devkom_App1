@@ -10,6 +10,7 @@ import '../data/css_lessons_data.dart';
 import '../data/java_lessons_data.dart';
 import '../data/csharp_lessons_data.dart';
 import 'interactive_lesson_screen.dart';
+import 'module_quiz_screen.dart';
 import 'widgets/step_widgets.dart' show lessonLang;
 
 /// Genel Interaktif Kurs Ekrani
@@ -267,6 +268,14 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
             emoji: '📂',
             lessons: PythonLessonsData.module8,
           ),
+          _ModuleInfo(
+            title: 'Ileri Seviye Python',
+            titleEn: 'Advanced Python',
+            description: 'Hata yonetimi, kutuphaneler, comprehension, OOP',
+            descriptionEn: 'Error handling, libraries, comprehensions, OOP',
+            emoji: '🎓',
+            lessons: PythonLessonsData.module9,
+          ),
         ];
         break;
       case 'arduino':
@@ -300,6 +309,14 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
             description: 'Park sensoru ve cam sileceği',
             emoji: '📏',
             lessons: ArduinoLessonsData.module5,
+          ),
+          _ModuleInfo(
+            title: 'Ileri Seviye: Gercek Kod ile Arduino',
+            titleEn: 'Advanced: Real Code with Arduino',
+            description: 'Bloklardan C++ koduna, LCD ekran ve akilli sulama projesi',
+            descriptionEn: 'From blocks to C++, LCD screens, and a smart watering project',
+            emoji: '💻',
+            lessons: ArduinoLessonsData.module6,
           ),
         ];
         break;
@@ -729,7 +746,93 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
             final lesson = entry.value;
             return _buildLessonCard(lesson, index, isDark);
           }),
+
+          // Modul Quizi - moduldeki derslerin icine gomulu coktan
+          // secmeli sorulari toplayip ayri bir quiz deneyimi olarak sunar.
+          _buildModuleQuizCard(module, isDark),
         ],
+      ),
+    );
+  }
+
+  Widget _buildModuleQuizCard(_ModuleInfo module, bool isDark) {
+    final questions = ModuleQuizScreen.collectQuestions(module.lessons);
+    if (questions.length < 3) {
+      return const SizedBox.shrink();
+    }
+
+    final lang = lessonLang(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ModuleQuizScreen(
+                course: widget.course,
+                moduleTitle: module.title,
+                moduleTitleEn: module.titleEn,
+                questions: questions,
+              ),
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [widget.course.primaryColor, widget.course.secondaryColor],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: widget.course.primaryColor.withValues(alpha: 0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.quiz_rounded, color: Colors.white, size: 24),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      lang == 'en' ? 'Module Quiz' : 'Modul Quizi',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      lang == 'en'
+                          ? 'Test yourself with ${questions.length} questions from this module'
+                          : 'Bu moduldeki ${questions.length} soruyla kendini test et',
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+            ],
+          ),
+        ),
       ),
     );
   }

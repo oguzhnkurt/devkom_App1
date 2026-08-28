@@ -6,6 +6,9 @@ class QuizzesData {
     return _quizzes[lessonId];
   }
 
+  /// Tüm quizler (Quiz Merkezi kategorileri için) — read-only.
+  static Map<String, Quiz> get all => Map.unmodifiable(_quizzes);
+
   static final Map<String, Quiz> _quizzes = {
     // HTML Quizzes
     'html_01': Quiz(

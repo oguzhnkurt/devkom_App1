@@ -123,6 +123,10 @@ class UserProgressService extends ChangeNotifier {
   /// Jeton ekle (Market'te harcanabilir para birimi). XP'nin aksine bu
   /// bakiye satın alma ile azalabilir; azaltma işlemi StoreService
   /// üzerinden purchase_store_item RPC'si ile atomik yapılır.
+  ///
+  /// Pro üyeler her kazanımda %50 daha fazla jeton kazanır (users.is_pro),
+  /// böylece Market'te karakter/kolye/şapka alışverişi için daha hızlı
+  /// biriktirebilirler.
   Future<void> addJeton(String userId, int amount, {String? source}) async {
     if (amount <= 0) return;
     try {
@@ -130,7 +134,10 @@ class UserProgressService extends ChangeNotifier {
         await loadUserProgress(userId);
       }
 
-      final newBalance = (_currentProgress?.jetonBalance ?? 0) + amount;
+      final isPro = await _isUserPro(userId);
+      final finalAmount = isPro ? (amount * 1.5).round() : amount;
+
+      final newBalance = (_currentProgress?.jetonBalance ?? 0) + finalAmount;
 
       await _supabase.from(_progressTable).update({
         'jeton_balance': newBalance,
@@ -139,9 +146,25 @@ class UserProgressService extends ChangeNotifier {
 
       _currentProgress = _currentProgress?.copyWith(jetonBalance: newBalance);
       notifyListeners();
-      debugPrint('🪙 Jeton eklendi: +$amount (${source ?? 'bilinmiyor'}) -> $newBalance');
+      debugPrint(
+          '🪙 Jeton eklendi: +$finalAmount (${source ?? 'bilinmiyor'}${isPro ? ', Pro bonus' : ''}) -> $newBalance');
     } catch (e) {
       debugPrint('Error adding jeton: $e');
+    }
+  }
+
+  /// Kullanıcının Pro üyeliği var mı (users.is_pro, subscription_service
+  /// tarafından Adapty satın alma/restore sonrası senkronize edilir).
+  Future<bool> _isUserPro(String userId) async {
+    try {
+      final data = await _supabase
+          .from('users')
+          .select('is_pro')
+          .eq('id', userId)
+          .maybeSingle();
+      return data?['is_pro'] == true;
+    } catch (e) {
+      return false;
     }
   }
 

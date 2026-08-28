@@ -7,6 +7,7 @@ import '../screens/roboakademi/roboakademi_parent_screen.dart';
 import '../screens/roboakademi/roboakademi_curriculum_screen.dart';
 import '../screens/roboakademi/roboakademi_agenda_screen.dart';
 import '../screens/market_screen.dart';
+import '../screens/quiz/quiz_intro_screen.dart';
 import '../utils/app_localizations.dart';
 
 class StudentDrawer extends StatelessWidget {
@@ -106,6 +107,21 @@ class StudentDrawer extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+
+            // Quiz Merkezi — herkese açık, ders bazlı quizleri konu konu oynatır
+            _buildDrawerItem(
+              context,
+              icon: Icons.quiz_rounded,
+              title: 'Quiz',
+              iconColor: const Color(0xFF6C3CE0),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const QuizIntroScreen()),
+                );
+              },
             ),
 
             // Market — herkese açık, jeton harcayarak robot kılıfı/çerçeve/karakter alınır

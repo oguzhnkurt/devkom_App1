@@ -1,7 +1,7 @@
 /// Market (Store) modelleri.
 /// Bkz. supabase/migrations/23_store_and_jeton_economy.sql
 
-enum StoreItemCategory { robotSkin, avatarFrame, character }
+enum StoreItemCategory { robotSkin, avatarFrame, character, necklace, hat, glasses, shoes }
 
 StoreItemCategory _parseCategory(String value) {
   switch (value) {
@@ -9,6 +9,14 @@ StoreItemCategory _parseCategory(String value) {
       return StoreItemCategory.avatarFrame;
     case 'character':
       return StoreItemCategory.character;
+    case 'necklace':
+      return StoreItemCategory.necklace;
+    case 'hat':
+      return StoreItemCategory.hat;
+    case 'glasses':
+      return StoreItemCategory.glasses;
+    case 'shoes':
+      return StoreItemCategory.shoes;
     default:
       return StoreItemCategory.robotSkin;
   }
@@ -22,6 +30,34 @@ String storeCategoryDisplayName(StoreItemCategory category) {
       return 'Avatar Çerçeveleri';
     case StoreItemCategory.character:
       return 'Karakterler';
+    case StoreItemCategory.necklace:
+      return 'Kolyeler';
+    case StoreItemCategory.hat:
+      return 'Şapkalar';
+    case StoreItemCategory.glasses:
+      return 'Gözlükler';
+    case StoreItemCategory.shoes:
+      return 'Ayakkabılar';
+  }
+}
+
+/// Supabase'deki store_items.category TEXT sütun değeri.
+String storeCategoryKey(StoreItemCategory category) {
+  switch (category) {
+    case StoreItemCategory.robotSkin:
+      return 'robot_skin';
+    case StoreItemCategory.avatarFrame:
+      return 'avatar_frame';
+    case StoreItemCategory.character:
+      return 'character';
+    case StoreItemCategory.necklace:
+      return 'necklace';
+    case StoreItemCategory.hat:
+      return 'hat';
+    case StoreItemCategory.glasses:
+      return 'glasses';
+    case StoreItemCategory.shoes:
+      return 'shoes';
   }
 }
 

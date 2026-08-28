@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/store_item_model.dart';
 import '../providers/auth_provider.dart';
 import '../services/store_service.dart';
+import '../widgets/character_stage.dart';
 import 'subscription_screen.dart';
 
 /// Market ekranı: dersler ve oyunlarla kazanılan jetonlarla robot kılıfı,
@@ -23,7 +25,21 @@ class _MarketScreenState extends State<MarketScreen> {
   List<StoreItem> _catalog = [];
   Set<String> _ownedItemIds = {};
   Set<String> _equippedItemIds = {};
+  Map<StoreItemCategory, StoreItem> _equipped = {};
   StoreItemCategory _selectedCategory = StoreItemCategory.robotSkin;
+
+  // Karakter üzerinde "deneme" önizlemesi (satın almadan/kuşanmadan önce
+  // nasıl görüneceğini gösterir, birkaç saniye sonra otomatik kapanır).
+  StoreItem? _previewItem;
+  Timer? _previewTimer;
+
+  static const _stageCategories = [
+    StoreItemCategory.character,
+    StoreItemCategory.hat,
+    StoreItemCategory.glasses,
+    StoreItemCategory.necklace,
+    StoreItemCategory.shoes,
+  ];
 
   @override
   void initState() {
@@ -31,22 +47,41 @@ class _MarketScreenState extends State<MarketScreen> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _previewTimer?.cancel();
+    super.dispose();
+  }
+
   Future<void> _load() async {
     setState(() => _isLoading = true);
     try {
       final catalog = await _storeService.getCatalog();
       final inventory = await _storeService.getInventory();
+      final equipped = await _storeService.getAllEquipped();
       if (!mounted) return;
       setState(() {
         _catalog = catalog;
         _ownedItemIds = inventory.map((o) => o.item.id).toSet();
         _equippedItemIds = inventory.where((o) => o.equipped).map((o) => o.item.id).toSet();
+        _equipped = equipped;
         _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
     }
+  }
+
+  /// Bir ürünü satın almadan/kuşanmadan önce karakter üzerinde gösterir
+  /// ("yakın çekim" deneme) - 3 saniye sonra gerçek kuşanılan hale döner.
+  void _previewOnStage(StoreItem item) {
+    if (!_stageCategories.contains(item.category)) return;
+    _previewTimer?.cancel();
+    setState(() => _previewItem = item);
+    _previewTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted) setState(() => _previewItem = null);
+    });
   }
 
   int get _jetonBalance =>
@@ -66,6 +101,9 @@ class _MarketScreenState extends State<MarketScreen> {
           _equippedItemIds
             ..removeWhere((id) => _catalog.firstWhere((i) => i.id == id).category == item.category)
             ..add(item.id);
+          _equipped[item.category] = item;
+          _previewTimer?.cancel();
+          _previewItem = null;
         });
         _showSnack('${item.name} kuşanıldı! ${item.iconEmoji}');
       } else {
@@ -167,6 +205,7 @@ class _MarketScreenState extends State<MarketScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
+                _buildStagePreview(),
                 _buildCategoryTabs(),
                 Expanded(child: _buildGrid()),
               ],
@@ -174,20 +213,70 @@ class _MarketScreenState extends State<MarketScreen> {
     );
   }
 
+  /// Marketi gezerken karakterin canlı onizlemesi - kuşandığın ürünleri
+  /// üstünde görürsün; bir ürüne dokununca (satın almadan/kuşanmadan
+  /// önce) o ürünü geçici olarak karakterin üzerinde "deneyebilirsin".
+  Widget _buildStagePreview() {
+    final character = _previewItem?.category == StoreItemCategory.character
+        ? _previewItem
+        : _equipped[StoreItemCategory.character];
+    final hat = _previewItem?.category == StoreItemCategory.hat ? _previewItem : _equipped[StoreItemCategory.hat];
+    final necklace =
+        _previewItem?.category == StoreItemCategory.necklace ? _previewItem : _equipped[StoreItemCategory.necklace];
+    final glasses =
+        _previewItem?.category == StoreItemCategory.glasses ? _previewItem : _equipped[StoreItemCategory.glasses];
+    final shoes = _previewItem?.category == StoreItemCategory.shoes ? _previewItem : _equipped[StoreItemCategory.shoes];
+    final accent = character != null ? CharacterStage.parseColorHex(character.colorHex) : const Color(0xFF6C3CE0);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [accent.withValues(alpha: 0.12), Colors.white],
+        ),
+      ),
+      child: Column(
+        children: [
+          CharacterStage(
+            character: character,
+            hat: hat,
+            necklace: necklace,
+            glasses: glasses,
+            shoes: shoes,
+            size: 108,
+            accentColor: accent,
+            previewMode: _previewItem != null,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _previewItem != null
+                ? '${_previewItem!.name} üzerinde nasıl duruyor?'
+                : 'Bir ürüne dokun, karakterinde dene!',
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCategoryTabs() {
     final categories = StoreItemCategory.values;
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: categories.map((c) {
-          final selected = c == _selectedCategory;
-          return Expanded(
-            child: GestureDetector(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: categories.map((c) {
+            final selected = c == _selectedCategory;
+            return GestureDetector(
               onTap: () => setState(() => _selectedCategory = c),
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 6),
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                 decoration: BoxDecoration(
                   color: selected ? const Color(0xFF6C3CE0) : Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(12),
@@ -202,9 +291,9 @@ class _MarketScreenState extends State<MarketScreen> {
                   ),
                 ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -245,28 +334,50 @@ class _MarketScreenState extends State<MarketScreen> {
       child: Column(
         children: [
           Expanded(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                    boxShadow: item.requiresPro
-                        ? [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 14, spreadRadius: 2)]
-                        : null,
+            child: GestureDetector(
+              onTap: _stageCategories.contains(item.category) ? () => _previewOnStage(item) : null,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                      boxShadow: item.requiresPro
+                          ? [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 14, spreadRadius: 2)]
+                          : null,
+                    ),
+                    child: Center(child: Text(item.iconEmoji, style: const TextStyle(fontSize: 34))),
                   ),
-                  child: Center(child: Text(item.iconEmoji, style: const TextStyle(fontSize: 34))),
-                ),
-                if (item.requiresPro)
-                  const Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Text('👑', style: TextStyle(fontSize: 18)),
-                  ),
-              ],
+                  if (item.requiresPro)
+                    const Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Text('👑', style: TextStyle(fontSize: 18)),
+                    ),
+                  if (_stageCategories.contains(item.category))
+                    Positioned(
+                      bottom: -2,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.55),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.visibility, color: Colors.white, size: 10),
+                            SizedBox(width: 3),
+                            Text('Dene', style: TextStyle(color: Colors.white, fontSize: 9)),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
           Padding(

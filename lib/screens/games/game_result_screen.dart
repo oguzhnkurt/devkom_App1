@@ -82,6 +82,8 @@ class _GameResultScreenState extends State<GameResultScreen> {
           gameId: widget.gameType.name,
           score: (correctAnswers / totalQuestions * 100).round(),
           duration: widget.timeSeconds ?? 0,
+          correctAnswers: correctAnswers,
+          totalQuestions: totalQuestions,
         );
         debugPrint('✅ Oyun sonucu kaydedildi (correct/wrong tracking)');
       }
