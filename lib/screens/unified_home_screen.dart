@@ -17,6 +17,7 @@ import '../widgets/visitor_cta_widget.dart';
 import '../widgets/student_drawer.dart';
 import 'market_screen.dart';
 import 'character_screen.dart';
+import '../utils/social_feed_access.dart';
 
 /// Unified Home Screen - Minimal, modern dashboard for all ages
 class UnifiedHomeScreen extends StatefulWidget {
@@ -34,27 +35,25 @@ class _UnifiedHomeScreenState extends State<UnifiedHomeScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
     final isAuthenticated = authProvider.isAuthenticated;
 
-    // Dynamic screens based on authentication
-    final List<Widget> screens = isAuthenticated
-        ? const [
-            UnifiedDashboard(),
-            RoboticsGamesScreen(), // Temporarily replaced ConversationsScreen
-            EnhancedFeedScreenV2(),
-            DevAiChatScreen(),
-            ProfileScreen(),
-          ]
-        : const [
-            UnifiedDashboard(),
-            RoboticsGamesScreen(), // Games instead of messages for visitors
-            EnhancedFeedScreenV2(),
-            DevAiChatScreen(),
-            ProfileScreen(),
-          ];
+    // Sosyal akis 13 yas alti kullanicilara kapali (Apple yas derecelendirme
+    // beyani geregi) - bkz. utils/social_feed_access.dart
+    final canUseFeed = SocialFeedAccess.isAllowed(authProvider.currentUser);
+
+    final List<Widget> screens = [
+      const UnifiedDashboard(),
+      const RoboticsGamesScreen(), // Temporarily replaced ConversationsScreen
+      if (canUseFeed) const EnhancedFeedScreenV2(),
+      const DevAiChatScreen(),
+      const ProfileScreen(),
+    ];
+
+    // Feed sekmesi kaldirildiginda eski index sinir disina tasabilir.
+    final safeIndex = _selectedIndex.clamp(0, screens.length - 1);
 
     return Scaffold(
-      body: screens[_selectedIndex],
+      body: screens[safeIndex],
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
+        selectedIndex: safeIndex,
         onDestinationSelected: (index) {
           setState(() {
             _selectedIndex = index;
@@ -96,20 +95,21 @@ class _UnifiedHomeScreenState extends State<UnifiedHomeScreen> {
             ),
             label: isAuthenticated ? 'Mesajlar' : 'Oyunlar',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.add_circle_outline, color: Colors.orange.shade400),
-            selectedIcon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.orange.shade400, Colors.orange.shade600],
+          if (canUseFeed)
+            NavigationDestination(
+              icon: Icon(Icons.add_circle_outline, color: Colors.orange.shade400),
+              selectedIcon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.orange.shade400, Colors.orange.shade600],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                borderRadius: BorderRadius.circular(12),
+                child: const Icon(Icons.add_circle, color: Colors.white, size: 20),
               ),
-              child: const Icon(Icons.add_circle, color: Colors.white, size: 20),
+              label: 'Sosyal Akis',
             ),
-            label: 'Sosyal Akis',
-          ),
           NavigationDestination(
             icon: ShaderMask(
               shaderCallback: (bounds) => const LinearGradient(
