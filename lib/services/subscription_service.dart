@@ -3,6 +3,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+/// Abonelik planlari yuklenemedigi zaman nedenini ayirt etmek icin.
+enum SubscriptionLoadFailure {
+  /// Adapty placement'i alinamadi (panel yapilandirmasi ya da ag sorunu).
+  paywallUnavailable,
+
+  /// Paywall alindi ama StoreKit hic urun dondurmedi.
+  noProducts,
+
+  /// Beklenmeyen hata.
+  error,
+}
+
 class SubscriptionService {
   static const String _placementId = 'main_paywall';
   static const String _accessLevelId = 'premium';
@@ -57,13 +69,67 @@ class SubscriptionService {
     }
   }
 
+  /// Urun listesi bos donerse nedenini ayirt edebilmek icin kullanilir.
+  /// Ekran bu bilgiyi kullaniciya anlamli bir mesaj gostermek icin okur.
+  SubscriptionLoadFailure? lastFailure;
+
   Future<List<AdaptyPaywallProduct>> getProducts() async {
+    lastFailure = null;
     try {
       final paywall = await getPaywall();
-      if (paywall == null) return [];
-      return await Adapty().getPaywallProducts(paywall: paywall);
+      if (paywall == null) {
+        // Placement bulunamadi ya da Adapty'ye ulasilamadi.
+        lastFailure = SubscriptionLoadFailure.paywallUnavailable;
+        debugPrint(
+          '⚠️ Adapty: "$_placementId" placement alinamadi. '
+          'Adapty panelinde bu placement tanimli mi ve bir paywall atanmis mi?',
+        );
+        return [];
+      }
+
+      final products = await Adapty().getPaywallProducts(paywall: paywall);
+      if (products.isEmpty) {
+        // Paywall geldi ama StoreKit urunleri cozemedi. En sik nedenleri:
+        //  * iOS Simulator (StoreKit Configuration dosyasi olmadan urun donmez)
+        //  * App Store Connect'te urunler henuz yayilmamis (onay sonrasi birkac saat)
+        //  * Adapty panelinde urunler paywall'a baglanmamis
+        //  * Urun ID'leri App Store Connect ile birebir ayni degil
+        lastFailure = SubscriptionLoadFailure.noProducts;
+        debugPrint(
+          '⚠️ Adapty: paywall "${paywall.placementId}" alindi ama urun listesi BOS. '
+          'Beklenen ID\'ler: $monthlyProductId, $yearlyProductId. '
+          'Simulator kullaniyorsan bu normaldir (StoreKit Configuration dosyasi gerekir).',
+        );
+        return [];
+      }
+
+      debugPrint('✅ Adapty: ${products.length} urun yuklendi '
+          '(${products.map((p) => p.vendorProductId).join(", ")})');
+      return products;
     } catch (e) {
+      // Adapty, urun bulunamadiginda bos liste yerine istisna firlatiyor
+      // (StoreKitManagerError.noProductIDsFound / adapty_code 1000). Bunu
+      // "beklenmeyen hata" gibi gostermek yaniltici; ayni "urunler hazir
+      // degil" durumu olarak ele aliyoruz.
+      final text = e.toString();
+      final isNoProducts = text.contains('noProductIDsFound') ||
+          text.contains('No valid In-App Purchase products') ||
+          text.contains('adapty_code":1000');
+
+      lastFailure = isNoProducts
+          ? SubscriptionLoadFailure.noProducts
+          : SubscriptionLoadFailure.error;
+
       debugPrint('⚠️ Adapty getProducts error: $e');
+      if (isNoProducts) {
+        debugPrint(
+          'ℹ️ StoreKit bu ID\'ler icin urun dondurmedi: '
+          '$monthlyProductId, $yearlyProductId. Olasi nedenler: '
+          'iOS Simulator (StoreKit Configuration dosyasi gerekir), '
+          'App Store Connect Paid Applications sozlesmesi aktif degil, '
+          'urunler henuz yayilmamis, ya da Adapty paywall\'inda urunler ekli degil.',
+        );
+      }
       return [];
     }
   }

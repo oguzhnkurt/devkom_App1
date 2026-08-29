@@ -310,7 +310,9 @@ class LeaderboardServiceSupabase {
           .select()
           .eq('game_type', gameType.name)
           .order('score', ascending: false)
-          .order('timestamp')
+          // NOT: tabloda 'timestamp' diye bir sutun yok; tarih sutunu
+          // 'completed_at'. Yanlis sutun adi Supabase'den hata donduruyordu.
+          .order('completed_at')
           .range(page * pageSize, (page + 1) * pageSize - 1);
 
       return (response as List)
@@ -340,7 +342,8 @@ class LeaderboardServiceSupabase {
       }
 
       final response = await query
-          .order('timestamp', ascending: false)
+          // NOT: tarih sutunu 'completed_at' (bkz. LeaderboardEntry.fromSupabase).
+          .order('completed_at', ascending: false)
           .range(page * pageSize, (page + 1) * pageSize - 1);
 
       return (response as List)

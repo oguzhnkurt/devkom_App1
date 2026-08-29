@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/game_model.dart';
 import 'embedded_games_service.dart';
@@ -16,14 +17,42 @@ class GamesServiceSupabase {
     final embeddedGames = EmbeddedGamesService.getActiveGames();
     final demoGames = _demoGames.where((game) => game.isActive).toList();
 
-    try {
-      // Stream Supabase games and combine with local games
-      await for (final data in _supabase
-          .from(_gamesTable)
-          .stream(primaryKey: ['id'])
-          .eq('is_active', true)) {
+    // Yerel oyunlari hemen goster: Supabase Realtime kapali/yapilandirilmamis
+    // olsa bile (or. "Realtime is enabled for the given connect parameters"
+    // hatasi) kullanici bos/sonsuz yukleniyor ekraniyla karsilasmasin.
+    yield [...embeddedGames, ...demoGames];
 
-        final supabaseGames = data
+    yield* _bridgeSupabaseGamesStream(
+      _supabase.from(_gamesTable).stream(primaryKey: ['id']).eq('is_active', true),
+      embeddedGames,
+      demoGames,
+    );
+  }
+
+  /// Supabase realtime oyun stream'ini yerel oyunlarla birlestirip disari
+  /// aktarir. Realtime hic baglanamazsa (or. tabloda Realtime kapali) ilk olay
+  /// icin sinirli bir sure bekler, sonra sessizce yalnizca yerel oyunlarla
+  /// devam eder - kalici bir hata veya sonsuz bekleme olmaz. Bir kez baglanti
+  /// kurulduktan sonra zaman asimi uygulanmaz, boylece uzun sure degisiklik
+  /// olmamasi gercek zamanli akisi kesmez.
+  Stream<List<GameModel>> _bridgeSupabaseGamesStream(
+    Stream<List<Map<String, dynamic>>> source,
+    List<GameModel> embeddedGames,
+    List<GameModel> demoGames, {
+    bool Function(Map<String, dynamic> item)? filter,
+  }) {
+    final controller = StreamController<List<GameModel>>();
+    StreamSubscription? sub;
+    Timer? initialTimeout;
+    var receivedAny = false;
+
+    sub = source.listen(
+      (data) {
+        receivedAny = true;
+        initialTimeout?.cancel();
+
+        final filtered = filter != null ? data.where(filter) : data;
+        final supabaseGames = filtered
             .map((item) {
               try {
                 return GameModel.fromSupabase(item);
@@ -32,18 +61,38 @@ class GamesServiceSupabase {
                 return null;
               }
             })
-            .where((game) => game != null)
-            .cast<GameModel>()
+            .whereType<GameModel>()
             .toList();
 
-        // Combine all games: embedded + demo + supabase
-        yield [...embeddedGames, ...demoGames, ...supabaseGames];
+        if (!controller.isClosed) {
+          controller.add([...embeddedGames, ...demoGames, ...supabaseGames]);
+        }
+      },
+      onError: (error) {
+        debugPrint('Error fetching Supabase games (falling back to local games): $error');
+        if (!receivedAny && !controller.isClosed) {
+          controller.close();
+        }
+      },
+      onDone: () {
+        if (!controller.isClosed) controller.close();
+      },
+    );
+
+    initialTimeout = Timer(const Duration(seconds: 8), () {
+      if (!receivedAny) {
+        debugPrint('Supabase games stream timed out (Realtime muhtemelen kapali) - yerel oyunlarla devam ediliyor');
+        sub?.cancel();
+        if (!controller.isClosed) controller.close();
       }
-    } catch (error) {
-      // If Supabase fails, return only local games
-      debugPrint('Error fetching Supabase games: $error');
-      yield [...embeddedGames, ...demoGames];
-    }
+    });
+
+    controller.onCancel = () {
+      initialTimeout?.cancel();
+      sub?.cancel();
+    };
+
+    return controller.stream;
   }
 
   // Get games for visitors (only Quiz and Left-Right games)
@@ -71,36 +120,16 @@ class GamesServiceSupabase {
         .where((game) => game.category == category && game.isActive)
         .toList();
 
-    try {
-      // Stream Supabase games filtered by category and active status
-      await for (final data in _supabase
-          .from(_gamesTable)
-          .stream(primaryKey: ['id'])) {
+    // Yerel oyunlari hemen goster (bkz. getAllGames() - ayni gerekce).
+    yield [...embeddedGames, ...demoGames];
 
-        final supabaseGames = data
-            .where((item) =>
-                item['category'] == category.name &&
-                item['is_active'] == true)
-            .map((item) {
-              try {
-                return GameModel.fromSupabase(item);
-              } catch (e) {
-                debugPrint('Error parsing game ${item['id']}: $e');
-                return null;
-              }
-            })
-            .where((game) => game != null)
-            .cast<GameModel>()
-            .toList();
-
-        // Combine all games
-        yield [...embeddedGames, ...demoGames, ...supabaseGames];
-      }
-    } catch (error) {
-      // If Supabase fails, return only local games
-      debugPrint('Error fetching category games: $error');
-      yield [...embeddedGames, ...demoGames];
-    }
+    yield* _bridgeSupabaseGamesStream(
+      _supabase.from(_gamesTable).stream(primaryKey: ['id']),
+      embeddedGames,
+      demoGames,
+      filter: (item) =>
+          item['category'] == category.name && item['is_active'] == true,
+    );
   }
 
   // Get single game

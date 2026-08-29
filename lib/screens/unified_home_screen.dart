@@ -40,14 +40,14 @@ class _UnifiedHomeScreenState extends State<UnifiedHomeScreen> {
             UnifiedDashboard(),
             RoboticsGamesScreen(), // Temporarily replaced ConversationsScreen
             EnhancedFeedScreenV2(),
-            DevAiChatScreen(),
+            DevAiChatScreen(showBackButton: false),
             ProfileScreen(),
           ]
         : const [
             UnifiedDashboard(),
             RoboticsGamesScreen(), // Games instead of messages for visitors
             EnhancedFeedScreenV2(),
-            DevAiChatScreen(),
+            DevAiChatScreen(showBackButton: false),
             ProfileScreen(),
           ];
 
@@ -784,17 +784,29 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            title,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                          // Baslik her zaman tek satirda kalmali; "Karakterim"
+                          // gibi uzun basliklar kartin dar olmasi yuzunden iki
+                          // satira bolunuyordu. scaleDown gerekirse punto
+                          // kucultup tek satirda tutuyor.
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              title,
+                              maxLines: 1,
+                              softWrap: false,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             subtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 12,

@@ -6,14 +6,9 @@ import '../../courses/data/courses_data.dart';
 import '../../courses/data/lessons_data.dart';
 import '../../courses/data/quizzes_data.dart';
 import '../../courses/screens/quiz_screen.dart';
-import '../../models/game_model.dart';
-import '../../models/leaderboard_model.dart';
-import '../../core/service_locator.dart';
-import '../leaderboard/leaderboard_screen.dart';
 
 /// Quiz Merkezi — Quizo tasarımından ilham alan ama devkom'un mor kimliğini
-/// kullanan bağımsız quiz bölümü. Üç iç sekme: Quiz (konu seçimi), Sıralama
-/// (mevcut lider tablosu, GameType.quiz), Profilim (quiz istatistikleri).
+/// kullanan bağımsız quiz bölümü. Tek ekran: konu seçimi.
 ///
 /// Quiz sorularının kaynağı: courses/data/quizzes_data.dart (17 quiz, 5
 /// gerçek kursa bağlı 11'i oynanabilir) — yeni bir içerik sistemi icat
@@ -29,90 +24,20 @@ class QuizHomeScreen extends StatefulWidget {
 }
 
 class _QuizHomeScreenState extends State<QuizHomeScreen> {
-  int _tabIndex = 0;
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6F3FF),
-      extendBody: true,
+    // Quiz Merkezi tek ekran: sadece konu secimi. "Siralama" (skor tabelasi)
+    // ve "Profilim" sekmeleri kaldirildi - skor tabelasina zaten Oyunlar
+    // tarafindan erisiliyor, burada gereksiz karmasiklik yaratiyordu.
+    return const Scaffold(
+      backgroundColor: Color(0xFFF6F3FF),
       body: SafeArea(
         bottom: false,
-        child: IndexedStack(
-          index: _tabIndex,
-          children: const [
-            _QuizCategoriesTab(),
-            LeaderboardScreen(initialGameType: GameType.quiz),
-            _QuizStatsTab(),
-          ],
-        ),
-      ),
-      bottomNavigationBar: _buildBottomNav(),
-    );
-  }
-
-  Widget _buildBottomNav() {
-    final items = [
-      (_QuizTab.quiz, Icons.quiz_rounded, 'Quiz'),
-      (_QuizTab.rank, Icons.emoji_events_rounded, 'Sıralama'),
-      (_QuizTab.profile, Icons.person_rounded, 'Profilim'),
-    ];
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-        child: Container(
-          height: 64,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(32),
-            boxShadow: [
-              BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 16, offset: const Offset(0, 6)),
-            ],
-          ),
-          child: Row(
-            children: List.generate(items.length, (index) {
-              final (_, icon, label) = items[index];
-              final selected = index == _tabIndex;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _tabIndex = index),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    margin: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: selected ? QuizHomeScreen.purple : Colors.transparent,
-                      borderRadius: BorderRadius.circular(26),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(icon, color: selected ? Colors.white : Colors.grey.shade400, size: 22),
-                        if (selected) ...[
-                          const SizedBox(width: 6),
-                          Text(
-                            label,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
+        child: _QuizCategoriesTab(),
       ),
     );
   }
 }
-
-enum _QuizTab { quiz, rank, profile }
 
 class _QuizCategoriesTab extends StatefulWidget {
   const _QuizCategoriesTab();
@@ -149,7 +74,7 @@ class _QuizCategoriesTabState extends State<_QuizCategoriesTab> {
         .toList();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 110),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -158,6 +83,20 @@ class _QuizCategoriesTabState extends State<_QuizCategoriesTab> {
             children: [
               Row(
                 children: [
+                  // Quiz Merkezi'nden ana uygulamaya donus. Bu ekran drawer'dan
+                  // push ile aciliyor ve kendi AppBar'i yok; geri butonu
+                  // olmadan kullanici burada kapana kisiliyordu.
+                  if (Navigator.canPop(context))
+                    Padding(
+                      padding: const EdgeInsets.only(right: 4),
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back_rounded),
+                        color: QuizHomeScreen.purple,
+                        visualDensity: VisualDensity.compact,
+                        tooltip: 'Geri',
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
                   CircleAvatar(
                     radius: 20,
                     backgroundColor: QuizHomeScreen.purple.withValues(alpha: 0.15),
@@ -286,114 +225,3 @@ class _QuizCategoriesTabState extends State<_QuizCategoriesTab> {
   }
 }
 
-class _QuizStatsTab extends StatefulWidget {
-  const _QuizStatsTab();
-
-  @override
-  State<_QuizStatsTab> createState() => _QuizStatsTabState();
-}
-
-class _QuizStatsTabState extends State<_QuizStatsTab> {
-  bool _isLoading = true;
-  List<LeaderboardEntry> _entries = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final userId = context.read<AuthProvider>().currentUser?.uid;
-    if (userId == null) {
-      setState(() => _isLoading = false);
-      return;
-    }
-    final entries = await leaderboardService.getUserEntriesPaginated(userId, gameType: GameType.quiz);
-    if (!mounted) return;
-    setState(() {
-      _entries = entries;
-      _isLoading = false;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final user = context.watch<AuthProvider>().currentUser;
-    final totalQuizzes = _entries.length;
-    final avgSuccess = _entries.isEmpty
-        ? 0.0
-        : _entries
-                .map((e) => (e.totalQuestions ?? 0) == 0 ? 0.0 : (e.correctCount ?? 0) / e.totalQuestions! * 100)
-                .fold<double>(0, (a, b) => a + b) /
-            _entries.length;
-    final bestCorrect = _entries.isEmpty
-        ? 0
-        : _entries.map((e) => e.correctCount ?? 0).reduce((a, b) => a > b ? a : b);
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 110),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 12),
-          Center(
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 44,
-                  backgroundColor: QuizHomeScreen.purple.withValues(alpha: 0.15),
-                  child: Text(
-                    (user?.displayName.isNotEmpty ?? false) ? user!.displayName[0].toUpperCase() : '?',
-                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: QuizHomeScreen.purple),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(user?.displayName ?? 'Kaşif', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 28),
-          if (_isLoading)
-            const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
-          else
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 14,
-              crossAxisSpacing: 14,
-              childAspectRatio: 1.5,
-              children: [
-                _statCard('📝', '$totalQuizzes', 'Tamamlanan Quiz'),
-                _statCard('🎯', '%${avgSuccess.round()}', 'Ortalama Başarı'),
-                _statCard('🏆', '$bestCorrect', 'En Yüksek Doğru'),
-                _statCard('🪙', '${context.watch<AuthProvider>().userProgress?.jetonBalance ?? 0}', 'Jeton Bakiyesi'),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _statCard(String emoji, String value, String label) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 22)),
-          const SizedBox(height: 6),
-          Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          Text(label, style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
-        ],
-      ),
-    );
-  }
-}

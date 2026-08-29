@@ -16,7 +16,17 @@ import 'auth/register_screen.dart';
 /// DevAiChat - AI Chatbot Screen with Google Gemini AI
 /// Following Clean Code principles with proper validation and logging
 class DevAiChatScreen extends StatefulWidget {
-  const DevAiChatScreen({super.key});
+  /// Bu ekran iki farkli sekilde kullaniliyor:
+  /// 1) Navigator.push ile ayri bir sayfa olarak acildiginda (showBackButton: true,
+  ///    varsayilan) - geri okuna basinca bu sayfayi kapatmak dogru davranis.
+  /// 2) Alt navigasyon bar'inda bir "tab" icerigi olarak dogrudan gomuldugunde
+  ///    (showBackButton: false) - bu durumda ekranin kendi route'u yoktur,
+  ///    Navigator.pop(context) cagrisi yanlislikla ustteki ana ekrani navigator'dan
+  ///    kapatir ve altinda kalan ekran aciga cikarak siyah/donmus bir ekranla
+  ///    sonuclanir. Bu yuzden tab kullaniminda geri oku hic gosterilmemeli.
+  final bool showBackButton;
+
+  const DevAiChatScreen({super.key, this.showBackButton = true});
 
   @override
   State<DevAiChatScreen> createState() => _DevAiChatScreenState();
@@ -238,9 +248,43 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
 
       _logger.error('Mesaj gönderme hatası', tag: 'DEVAICHAT', error: e, stackTrace: stackTrace);
 
+      final errorText = e.toString().toLowerCase();
+      final isInvalidKeyError = errorText.contains('api_key_invalid') ||
+          errorText.contains('api key not valid') ||
+          errorText.contains('permission_denied') ||
+          errorText.contains('unauthenticated') ||
+          errorText.contains('unregistered callers') ||
+          errorText.contains('403');
+
+      if (isInvalidKeyError) {
+        // Gemini key Google tarafindan reddediliyor. Bu oturumun geri kalaninda
+        // her mesajda tekrar basarisiz API istegi denemek yerine (kotu UX +
+        // gereksiz gecikme), fallback moduna gecip kullaniciya yine de bir yanit
+        // veriyoruz. Kok neden (gecersiz/kotasi dolmus API key) sunucu tarafinda
+        // (Google Cloud Console) duzeltilmeli.
+        _logger.error(
+          'Gemini API key gecersiz/reddedildi - fallback moduna geciliyor',
+          tag: 'DEVAICHAT',
+          error: e,
+        );
+        setState(() {
+          _model = null;
+          _chat = null;
+        });
+        _addMessage(
+          ChatMessage(
+            text:
+                '${AppConstants.errorApiKeyInvalid}\n\n${_generateFallbackResponse(sanitizedMessage.toLowerCase())}',
+            isUser: false,
+            timestamp: DateTime.now(),
+          ),
+        );
+        return;
+      }
+
       _addMessage(
         ChatMessage(
-          text: e.toString().contains('overloaded')
+          text: errorText.contains('overloaded')
               ? AppConstants.errorApiOverloaded
               : AppConstants.errorGenericApi,
           isUser: false,
@@ -610,10 +654,19 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
+          automaticallyImplyLeading: widget.showBackButton,
+          leading: widget.showBackButton
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () {
+                    // Ekstra guvenlik: pop edilebilecek bir route yoksa hicbir sey
+                    // yapma; ana ekranin kapanip siyah ekran kalmasini engeller.
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
+                  },
+                )
+              : null,
           title: Row(
             children: [
               Container(

@@ -132,6 +132,11 @@ Remember: You are an educational assistant, help students learn, encourage them 
   static const String errorGenericApi =
       'Bir hata oluştu. Lütfen tekrar deneyin.';
 
+  /// API Key Invalid/Rejected Error (Google tarafinda reddedilen key)
+  static const String errorApiKeyInvalid =
+      '⚠️ AI servisi şu anda yapılandırma sorunu nedeniyle kullanılamıyor. '
+      'Basit yanıtlarla devam ediliyor.';
+
   /// Daily Limit Exceeded
   static const String errorDailyLimitExceeded =
       'Günlük soru limitiniz doldu ($dailyFreeQuestionLimit/15)';

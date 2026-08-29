@@ -1,6 +1,8 @@
 import 'package:adapty_flutter/adapty_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../providers/auth_provider.dart';
 import '../services/subscription_service.dart';
 import '../services/analytics_service.dart';
 import '../theme.dart';
@@ -61,13 +63,21 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       if (!mounted) return;
       if (success) {
         _analytics.logPurchaseCompleted(_selected!.vendorProductId);
-        Navigator.pop(context, true);
+
+        // AuthProvider kullaniciyi onbellekte tutuyor; yenilemezsek satin alma
+        // sonrasi arayuz hala "Pro'ya Yukselt" gostermeye devam ediyordu.
+        await context.read<AuthProvider>().refreshUser();
+        if (!mounted) return;
+
+        // Snackbar'i pop'tan ONCE goster: pop sonrasi bu context artik
+        // gecerli degil ve mesaj hic gorunmuyordu.
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Devkom Pro'ya hos geldin!"),
             backgroundColor: Colors.green,
           ),
         );
+        Navigator.pop(context, true);
       }
     } catch (e) {
       if (!mounted) return;
@@ -85,13 +95,17 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       final restored = await _service.restorePurchases();
       if (!mounted) return;
       if (restored) {
-        Navigator.pop(context, true);
+        // Bkz. _purchase(): once provider'i yenile, snackbar'i pop'tan once goster.
+        await context.read<AuthProvider>().refreshUser();
+        if (!mounted) return;
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Satin almalar geri yuklendi'),
             backgroundColor: Colors.green,
           ),
         );
+        Navigator.pop(context, true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -259,6 +273,27 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   Widget _buildPlans() {
     if (_products.isEmpty) {
+      // Neden bos oldugunu ayirt edip kullaniciya isine yarayan bir mesaj ver;
+      // eskiden her durumda tek bir "Planlar yuklenemedi" gosteriliyordu.
+      final failure = _service.lastFailure;
+      final String message;
+      final String hint;
+      switch (failure) {
+        case SubscriptionLoadFailure.paywallUnavailable:
+          message = 'Abonelik planlarina su anda ulasilamiyor';
+          hint = 'Internet baglantini kontrol edip tekrar dene.';
+          break;
+        case SubscriptionLoadFailure.noProducts:
+          message = 'Abonelik planlari henuz hazir degil';
+          hint = 'Kisa bir sure sonra tekrar dene.';
+          break;
+        case SubscriptionLoadFailure.error:
+        case null:
+          message = 'Planlar yuklenemedi';
+          hint = 'Lutfen tekrar dene.';
+          break;
+      }
+
       return Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -267,8 +302,18 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                 color: Colors.white.withValues(alpha: 0.6), size: 40),
             const SizedBox(height: 8),
             Text(
-              'Planlar yuklenemedi',
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.85)),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              hint,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.6),
+                fontSize: 12,
+              ),
             ),
             const SizedBox(height: 8),
             TextButton(

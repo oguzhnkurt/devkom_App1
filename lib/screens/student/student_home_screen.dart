@@ -41,7 +41,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
       UnifiedDashboard(),
       CourseCatalogScreen(),
       EnhancedFeedScreenV2(),
-      DevAiChatScreen(),
+      DevAiChatScreen(showBackButton: false),
       ProfileScreen(),
     ];
 

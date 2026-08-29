@@ -170,8 +170,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               children: [
                 _buildHeader(context, user, theme),
-                Container(
-                  margin: const EdgeInsets.only(top: -28),
+                // NOT: Burada daha once `margin: EdgeInsets.only(top: -28)`
+                // kullaniliyordu; Flutter'da Container margin'i negatif
+                // olamaz ('margin.isNonNegative' assertion) ve bu ekrani
+                // tamamen cokertiyordu. Ayni "basligin uzerine binme"
+                // gorunumu icin Transform kullaniyoruz.
+                Transform.translate(
+                  offset: const Offset(0, -28),
                   child: _buildStatsGrid(progress),
                 ),
                 Padding(
