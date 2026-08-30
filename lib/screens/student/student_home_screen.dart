@@ -18,6 +18,7 @@ import '../../courses/screens/course_catalog_screen.dart';
 import '../devchat_screen.dart';
 import '../worksheets_screen.dart';
 import '../../utils/app_localizations.dart';
+import '../../utils/social_feed_access.dart';
 
 /// Student home screen with age-appropriate content
 /// Shows games and homework based on student's age group
@@ -36,20 +37,29 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
 
-    // 5 tab navigation: Ana Sayfa, Kurslar, Sosyal Akış, DevAiChat, Profil
-    final List<Widget> screens = const [
-      UnifiedDashboard(),
-      CourseCatalogScreen(),
-      EnhancedFeedScreenV2(),
-      DevAiChatScreen(showBackButton: false),
-      ProfileScreen(),
+    // Sosyal akis 13 yas alti kullanicilara kapali (Apple yas derecelendirme
+    // beyani geregi) - bkz. utils/social_feed_access.dart
+    final canUseFeed = SocialFeedAccess.isAllowed(
+      Provider.of<AuthProvider>(context).currentUser,
+    );
+
+    // Tab navigation: Ana Sayfa, Kurslar, (Sosyal Akış), DevAiChat, Profil
+    final List<Widget> screens = [
+      const UnifiedDashboard(),
+      const CourseCatalogScreen(),
+      if (canUseFeed) const EnhancedFeedScreenV2(),
+      const DevAiChatScreen(showBackButton: false),
+      const ProfileScreen(),
     ];
+
+    // Feed sekmesi kaldirildiginda eski index sinir disina tasabilir.
+    final safeIndex = _selectedIndex.clamp(0, screens.length - 1);
 
     return Scaffold(
       drawer: const StudentDrawer(),
-      body: screens[_selectedIndex],
+      body: screens[safeIndex],
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
+        selectedIndex: safeIndex,
         onDestinationSelected: (index) {
           setState(() {
             _selectedIndex = index;
@@ -84,20 +94,21 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
             ),
             label: 'Kurslar',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.add_circle_outline, color: Colors.orange.shade400),
-            selectedIcon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.orange.shade400, Colors.orange.shade600],
+          if (canUseFeed)
+            NavigationDestination(
+              icon: Icon(Icons.add_circle_outline, color: Colors.orange.shade400),
+              selectedIcon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.orange.shade400, Colors.orange.shade600],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                borderRadius: BorderRadius.circular(12),
+                child: const Icon(Icons.add_circle, color: Colors.white, size: 20),
               ),
-              child: const Icon(Icons.add_circle, color: Colors.white, size: 20),
+              label: loc.socialFeed,
             ),
-            label: loc.socialFeed,
-          ),
           NavigationDestination(
             icon: ShaderMask(
               shaderCallback: (bounds) => const LinearGradient(
