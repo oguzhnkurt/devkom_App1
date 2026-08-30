@@ -1,333 +1,145 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DevKom - Gizlilik Politikası / Privacy Policy</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DevEducation — Gizlilik Politikası</title>
 <style>
-  :root {
-    --primary-blue: #1565C0;
-    --accent-teal: #26C6DA;
-    --success-green: #66BB6A;
-    --warning-orange: #FF9800;
-    --error-red: #EF5350;
-    --dark-blue: #0D47A1;
-    --text-dark: #263238;
-    --text-gray: #607D8B;
-    --bg-light: #F5F8FC;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg-light);
-    color: var(--text-dark);
-    line-height: 1.65;
-  }
-  header {
-    background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
-    color: #fff;
-    padding: 32px 20px 40px;
-    text-align: center;
-  }
-  header h1 { margin: 0 0 6px; font-size: 26px; }
-  header p { margin: 0; opacity: 0.9; font-size: 14px; }
-  .lang-toggle {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: #fff;
-    border-bottom: 1px solid #E0E6ED;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-  }
-  .lang-toggle button {
-    border: 1px solid var(--primary-blue);
-    background: #fff;
-    color: var(--primary-blue);
-    padding: 6px 18px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .lang-toggle button.active {
-    background: var(--primary-blue);
-    color: #fff;
-  }
-  main {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 32px 20px 80px;
-  }
-  section {
-    background: #fff;
-    border-radius: 14px;
-    padding: 24px 26px;
-    margin-bottom: 18px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  }
-  h2 {
-    color: var(--dark-blue);
-    font-size: 18px;
-    margin-top: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  h3 { font-size: 15px; color: var(--primary-blue); margin-bottom: 6px; }
-  p, li { font-size: 14.5px; color: #37474F; }
-  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; }
-  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ECEFF1; vertical-align: top; }
-  th { color: var(--text-gray); font-weight: 600; background: #FAFBFC; }
-  .badge {
-    display: inline-block;
-    background: var(--accent-teal);
-    color: #fff;
-    font-size: 11px;
-    padding: 2px 10px;
-    border-radius: 10px;
-    margin-left: 6px;
-  }
-  .note {
-    background: #FFF3E0;
-    border-left: 4px solid var(--warning-orange);
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 13.5px;
-    margin-top: 14px;
-  }
-  .cta {
-    display: inline-block;
-    background: var(--primary-blue);
-    color: #fff !important;
-    text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 24px;
-    font-weight: 600;
-    font-size: 14px;
-    margin-top: 8px;
-  }
-  a { color: var(--primary-blue); }
-  footer {
-    text-align: center;
-    font-size: 12.5px;
-    color: var(--text-gray);
-    padding: 20px;
-  }
-  .lang-block { display: none; }
-  .lang-block.active { display: block; }
+  :root{ --ink:#1a1f36; --muted:#5b6478; --line:#e6e9f0; --brand:#5A34E8; }
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:var(--ink);
+    font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  header{background:linear-gradient(120deg,#5A34E8,#00c4e0);color:#fff;padding:44px 20px 38px}
+  header .wrap{max-width:760px;margin:0 auto}
+  header h1{margin:0 0 6px;font-size:26px;font-weight:800;letter-spacing:.2px}
+  header p{margin:0;opacity:.9;font-size:14.5px}
+  main{max-width:760px;margin:0 auto;padding:34px 20px 70px}
+  h2{font-size:19px;margin:38px 0 10px;padding-top:20px;border-top:1px solid var(--line)}
+  h2:first-of-type{border-top:0;padding-top:0;margin-top:8px}
+  p,li{color:#2b3247}
+  ul{padding-left:22px}
+  li{margin:7px 0}
+  a{color:var(--brand)}
+  .note{background:#f5f6fb;border-left:3px solid var(--brand);
+    padding:14px 16px;border-radius:0 10px 10px 0;margin:18px 0;font-size:14.5px}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#fafbfe;font-size:12.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+  footer{border-top:1px solid var(--line);margin-top:44px;padding-top:20px;
+    color:var(--muted);font-size:14px}
+  @media(max-width:560px){ header{padding:32px 16px 28px} main{padding:26px 16px 50px} }
 </style>
 </head>
 <body>
 
-<div class="lang-toggle">
-  <button id="btn-tr" class="active" onclick="setLang('tr')">Türkçe</button>
-  <button id="btn-en" onclick="setLang('en')">English</button>
-</div>
-
 <header>
-  <h1>DevKom Gizlilik Politikası</h1>
-  <p class="lang-block active" data-lang="tr">Son güncelleme: 1 Ağustos 2026</p>
-  <p class="lang-block" data-lang="en">Last updated: August 1, 2026</p>
+  <div class="wrap">
+    <h1>DevEducation — Gizlilik Politikası</h1>
+    <p>Son güncelleme: 31 Ağustos 2026</p>
+  </div>
 </header>
 
 <main>
 
-<!-- ================= TÜRKÇE ================= -->
-<div class="lang-block active" data-lang="tr">
-
-<section>
-  <h2>1. Veri Sorumlusu</h2>
-  <p>
-    Bu gizlilik politikası, <strong>Devkom Yazılım</strong> ("DevKom", "biz") tarafından geliştirilen
-    ve işletilen DevKom mobil uygulaması ("Uygulama") için geçerlidir. 6698 sayılı Kişisel Verilerin
-    Korunması Kanunu ("KVKK") kapsamında veri sorumlusu:
-  </p>
-  <table>
-    <tr><th>Unvan</th><td>Devkom Yazılım</td></tr>
-    <tr><th>Adres</th><td>Esenler Mahallesi Horasan Sokak No.4 1/2, Konya 42060</td></tr>
-    <tr><th>E-posta</th><td><a href="mailto:info@devkom.com.tr">info@devkom.com.tr</a></td></tr>
-  </table>
-</section>
-
-<section>
-  <h2>2. Hangi Verileri Topluyoruz</h2>
-  <p>Uygulama; öğrenci, veli, öğretmen ve misafir olarak kullanılabilir. Hesap türüne göre topladığımız veriler:</p>
-  <table>
-    <tr><th>Veri Kategorisi</th><th>Örnekler</th></tr>
-    <tr><td>Hesap bilgileri</td><td>Ad soyad, e-posta, şifre (şifrelenmiş), rol (öğrenci/veli/öğretmen), profil fotoğrafı (isteğe bağlı)</td></tr>
-    <tr><td>Kullanım verisi</td><td>Oyun/ders ilerlemesi, skorlar, tamamlanan içerikler, oturum süresi</td></tr>
-    <tr><td>Ödeme/abonelik</td><td>Abonelik durumu ve satın alma geçmişi (kart bilgisi bizde tutulmaz, ödeme sağlayıcı tarafından işlenir)</td></tr>
-    <tr><td>Yapay zekâ sohbet verisi</td><td>"Bilgi Yarışması" ve yapay zekâ destekli bölümlerde yazdığınız mesajlar, yanıt üretmek için Google'ın yapay zekâ servisine iletilir</td></tr>
-    <tr><td>Bildirim verisi</td><td>Push bildirim token'ı (cihaza özel, kişisel kimlik içermez)</td></tr>
-    <tr><td>Teknik veri</td><td>Cihaz/işletim sistemi bilgisi, hata/çökme kayıtları, anonim kullanım istatistikleri</td></tr>
-  </table>
-  <div class="note">
-    Uygulama çocuklar için eğitim içeriği sunar. Öğrenci hesaplarının veli gözetiminde açılmasını ve
-    kullanılmasını öneririz. Çocuklara yönelik reklam göstermiyoruz ve öğrenci verilerini pazarlama
-    amacıyla üçüncü taraflara satmıyoruz.
-  </div>
-</section>
-
-<section>
-  <h2>3. Verilerinizi Kimlerle Paylaşıyoruz</h2>
-  <p>Verileriniz, uygulamanın çalışması için gerekli aşağıdaki hizmet sağlayıcılarla paylaşılır. Bunların
-  hiçbiri veriyi kendi pazarlama amaçları için kullanmaz; sadece bize hizmet sağlamak için işler.</p>
-  <table>
-    <tr><th>Hizmet Sağlayıcı</th><th>Amaç</th><th>Konum</th></tr>
-    <tr><td><strong>Supabase</strong></td><td>Kimlik doğrulama, veritabanı, dosya depolama (uygulamanın altyapısı)</td><td>AB (Frankfurt)</td></tr>
-    <tr><td><strong>Mixpanel</strong></td><td>Anonim/toplu kullanım analitiği</td><td>ABD/AB</td></tr>
-    <tr><td><strong>Adapty</strong></td><td>Abonelik ve satın alma yönetimi</td><td>ABD/AB</td></tr>
-    <tr><td><strong>Google (Generative AI)</strong></td><td>Yapay zekâ destekli soru-cevap ve sohbet özellikleri</td><td>ABD/AB</td></tr>
-    <tr><td><strong>Apple (Sign in with Apple)</strong></td><td>Apple hesabıyla giriş yapmayı tercih ederseniz kimlik doğrulama</td><td>ABD</td></tr>
-    <tr><td><strong>htmlgames.com</strong> (yalnızca "Labirent" oyunu)</td><td>Tek bir oyun için gömülü (embed) üçüncü taraf oyun içeriği; hesap bilgisi paylaşılmaz</td><td>Üçüncü taraf</td></tr>
-  </table>
-</section>
-
-<section>
-  <h2>4. Verilerinizi Nasıl Silebilirsiniz</h2>
-  <p>Aşağıdaki iki yoldan biriyle hesabınızı ve ilişkili tüm verilerinizi kalıcı olarak silebilirsiniz:</p>
-  <ul>
-    <li><strong>Uygulama içinden:</strong> Profil → Hesap Ayarları → "Hesabı Sil"</li>
-    <li><strong>Uygulamayı yüklemeden, web üzerinden:</strong> aşağıdaki bağlantıdan giriş yaparak</li>
-  </ul>
-  <a class="cta" href="./delete-account.html">Hesabımı Sil →</a>
-  <div class="note">
-    Silme işlemi kimliğinizi (e-posta/şifre) ve ilişkili tüm uygulama verilerinizi (ilerleme, skor,
-    mesajlar) kalıcı olarak kaldırır. Bu işlem geri alınamaz. Şifrenize erişiminiz yoksa
-    <a href="mailto:info@devkom.com.tr">info@devkom.com.tr</a> adresine hesap e-postanızla yazın;
-    talebinizi en geç 30 gün içinde manuel olarak işleme alırız.
-  </div>
-</section>
-
-<section>
-  <h2>5. KVKK Kapsamındaki Haklarınız</h2>
-  <p>KVKK Madde 11 uyarınca; verilerinizin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi
-  talep etme, işlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme, yurt içi/yurt dışında
-  aktarıldığı üçüncü kişileri bilme, eksik/yanlış işlenmişse düzeltilmesini isteme, KVKK'da öngörülen
-  şartlarda silinmesini/yok edilmesini isteme ve zarara uğramanız hâlinde zararın giderilmesini talep
-  etme haklarına sahipsiniz. Bu haklarınızı kullanmak için
-  <a href="mailto:info@devkom.com.tr">info@devkom.com.tr</a> adresinden bize ulaşabilirsiniz.</p>
-</section>
-
-<section>
-  <h2>6. Değişiklikler</h2>
-  <p>Bu politikayı zaman zaman güncelleyebiliriz. Önemli değişikliklerde uygulama içinden veya
-  e-posta yoluyla bilgilendirme yaparız.</p>
-</section>
-
+<div class="note">
+  <strong>Uygulama adı değişti.</strong> Daha önce <em>DevKom</em> adıyla yayınlanan
+  uygulama artık <strong>DevEducation</strong> adıyla sunuluyor. Geliştirici, hizmet
+  ve veri işleme uygulamaları aynı; yalnızca isim değişti.
 </div>
 
-<!-- ================= ENGLISH ================= -->
-<div class="lang-block" data-lang="en">
+<h2>1. Veri Sorumlusu</h2>
+<p>
+  Devkom Yazılım — Esenler Mahallesi, Horasan Sokak No.4 1/2, Konya 42060, Türkiye.
+  İletişim: <a href="mailto:info@devkom.com.tr">info@devkom.com.tr</a>
+</p>
 
-<section>
-  <h2>1. Data Controller</h2>
-  <p>
-    This privacy policy applies to the DevKom mobile application ("App") developed and operated by
-    <strong>Devkom Yazılım</strong> ("DevKom", "we"). Under Turkish Law No. 6698 on the Protection of
-    Personal Data ("KVKK") and applicable data protection principles, the data controller is:
-  </p>
-  <table>
-    <tr><th>Company</th><td>Devkom Yazılım</td></tr>
-    <tr><th>Address</th><td>Esenler Mahallesi Horasan Sokak No.4 1/2, Konya 42060, Türkiye</td></tr>
-    <tr><th>Email</th><td><a href="mailto:info@devkom.com.tr">info@devkom.com.tr</a></td></tr>
-  </table>
-</section>
+<h2>2. Hangi Verileri Topluyoruz</h2>
+<p>Uygulama yalnızca çalışması için gereken verileri toplar:</p>
 
-<section>
-  <h2>2. What Data We Collect</h2>
-  <p>The App can be used as a student, parent, teacher, or guest. Depending on account type, we collect:</p>
-  <table>
-    <tr><th>Category</th><th>Examples</th></tr>
-    <tr><td>Account information</td><td>Name, email, password (encrypted), role (student/parent/teacher), profile photo (optional)</td></tr>
-    <tr><td>Usage data</td><td>Game/lesson progress, scores, completed content, session duration</td></tr>
-    <tr><td>Payment/subscription</td><td>Subscription status and purchase history (card details are never stored by us; processed by the payment provider)</td></tr>
-    <tr><td>AI chat data</td><td>Messages you type in "Quiz" and AI-assisted sections are sent to Google's generative AI service to produce a response</td></tr>
-    <tr><td>Notification data</td><td>Push notification token (device-specific, contains no personal identity)</td></tr>
-    <tr><td>Technical data</td><td>Device/OS info, crash/error logs, anonymized usage statistics</td></tr>
-  </table>
-  <div class="note">
-    The App provides educational content for children. We recommend student accounts be created and
-    used under parental supervision. We do not show ads targeted at children and we do not sell
-    student data to third parties for marketing purposes.
-  </div>
-</section>
+<table>
+  <tr><th>Veri</th><th>Ne için</th></tr>
+  <tr><td>E-posta adresi</td><td>Hesap oluşturma ve giriş</td></tr>
+  <tr><td>Takma ad</td><td>Profilde ve sıralamada görünen ad. Otomatik üretilir; istersen değiştirirsin. Gerçek ad istemiyoruz.</td></tr>
+  <tr><td>Kullanıcı kimliği</td><td>İlerlemenin hesabına bağlanması</td></tr>
+  <tr><td>Cihaz tanımlayıcısı</td><td>Abonelik doğrulaması (Adapty)</td></tr>
+  <tr><td>İlerleme verisi</td><td>Tamamlanan dersler, quiz sonuçları, izlenen videolar, XP, jeton, seri, görevler</td></tr>
+  <tr><td>Görev notları</td><td>Yaratıcı görevlerde yazdığın kısa açıklamalar</td></tr>
+  <tr><td>Satın alma geçmişi</td><td>Pro aboneliğinin durumu</td></tr>
+  <tr><td>Bildirim anahtarı</td><td>Günlük hedef hatırlatmaları (izin verirsen)</td></tr>
+</table>
 
-<section>
-  <h2>3. Who We Share Data With</h2>
-  <p>Your data is shared only with the service providers needed to operate the App. None of them use
-  your data for their own marketing purposes; they process it solely to provide services to us.</p>
-  <table>
-    <tr><th>Provider</th><th>Purpose</th><th>Location</th></tr>
-    <tr><td><strong>Supabase</strong></td><td>Authentication, database, file storage (app backend)</td><td>EU (Frankfurt)</td></tr>
-    <tr><td><strong>Mixpanel</strong></td><td>Anonymized/aggregated usage analytics</td><td>US/EU</td></tr>
-    <tr><td><strong>Adapty</strong></td><td>Subscription and purchase management</td><td>US/EU</td></tr>
-    <tr><td><strong>Google (Generative AI)</strong></td><td>AI-powered Q&A and chat features</td><td>US/EU</td></tr>
-    <tr><td><strong>Apple (Sign in with Apple)</strong></td><td>Authentication if you choose to sign in with your Apple ID</td><td>US</td></tr>
-    <tr><td><strong>htmlgames.com</strong> (only the "Maze" game)</td><td>Third-party embedded game content for a single game; no account data is shared</td><td>Third party</td></tr>
-  </table>
-</section>
-
-<section>
-  <h2>4. How to Delete Your Data</h2>
-  <p>You can permanently delete your account and all associated data in one of two ways:</p>
-  <ul>
-    <li><strong>In the app:</strong> Profile → Account Settings → "Delete Account"</li>
-    <li><strong>From the web, without installing the app:</strong> using the link below</li>
-  </ul>
-  <a class="cta" href="./delete-account.html">Delete My Account →</a>
-  <div class="note">
-    Deletion permanently removes your identity (email/password) and all associated app data
-    (progress, scores, messages). This action cannot be undone. If you no longer have access to your
-    password, email <a href="mailto:info@devkom.com.tr">info@devkom.com.tr</a> from your account
-    email address; we will process manual deletion requests within 30 days at the latest.
-  </div>
-</section>
-
-<section>
-  <h2>5. Your Rights</h2>
-  <p>You have the right to learn whether your data is processed, request information about it, learn
-  its purpose and whether it's used accordingly, know third parties it's transferred to (domestic or
-  international), request correction of inaccurate data, request deletion/destruction under applicable
-  law, and request compensation for damages. To exercise these rights, contact us at
-  <a href="mailto:info@devkom.com.tr">info@devkom.com.tr</a>.</p>
-</section>
-
-<section>
-  <h2>6. Changes</h2>
-  <p>We may update this policy from time to time. We will notify you of material changes through the
-  app or by email.</p>
-</section>
-
+<div class="note">
+  <strong>Toplamadığımız veriler:</strong> konum, kişi listesi, fotoğraf kütüphanesi,
+  mikrofon veya kamera kaydı, reklam tanımlayıcısı. Uygulamada reklam yoktur ve
+  hiçbir veri reklam ya da takip amacıyla kullanılmaz, üçüncü taraflara satılmaz.
 </div>
 
-</main>
+<h2>3. Kaldırılan Özellikler</h2>
+<p>
+  Önceki sürümlerde bulunan ve bu sürümde <strong>tamamen kaldırılan</strong> özellikler,
+  dolayısıyla artık toplanmayan veriler:
+</p>
+<ul>
+  <li><strong>Yapay zekâ sohbeti (Google Gemini):</strong> Kaldırıldı. Mesajların artık
+    hiçbir yapay zekâ servisine gönderilmiyor. DevAI Chat şimdi uygulamanın içinde
+    saklanan hazır cevaplarla çalışıyor; yazdıkların cihazından dışarı çıkmıyor.</li>
+  <li><strong>Kullanım analitiği (Mixpanel):</strong> Kaldırıldı.</li>
+  <li><strong>Sosyal akış:</strong> Kaldırıldı. Gönderi, yorum, beğeni yok.</li>
+  <li><strong>Kullanıcılar arası mesajlaşma:</strong> Kaldırıldı.</li>
+  <li><strong>Canlı kamera:</strong> Kaldırıldı.</li>
+</ul>
+
+<h2>4. Verilerinizi Kimlerle Paylaşıyoruz</h2>
+<table>
+  <tr><th>Hizmet</th><th>Konum</th><th>Ne için</th></tr>
+  <tr><td>Supabase</td><td>AB — Frankfurt</td><td>Kimlik doğrulama, veritabanı, ilerleme kaydı</td></tr>
+  <tr><td>Adapty</td><td>ABD / AB</td><td>Abonelik ve satın alma yönetimi</td></tr>
+  <tr><td>Apple</td><td>ABD</td><td>Apple ile giriş, uygulama içi satın alma</td></tr>
+  <tr><td>YouTube (Google)</td><td>ABD / AB</td><td>Video derslerin oynatılması</td></tr>
+</table>
+<p>
+  Video Dersler bölümündeki videolar YouTube'daki eğitmenlere aittir ve YouTube'un resmî
+  oynatıcısı ile gömülü olarak gösterilir. Bir video oynattığında YouTube kendi çerezlerini
+  ve kullanım verisini işleyebilir; bu, YouTube'un kendi gizlilik politikasına tabidir.
+  Her bölümde kanal adı ve orijinal videoya giden bağlantı gösterilir.
+</p>
+
+<h2>5. Çocukların Gizliliği</h2>
+<p>
+  DevEducation kodlamayı yeni öğrenenler için tasarlanmıştır ve App Store'da 4+
+  derecelendirmesiyle sunulur. Uygulamada kullanıcılar arası iletişim, sosyal akış veya
+  kullanıcı içeriği paylaşımı bulunmaz. Küçük yaştaki kullanıcıların hesaplarının bir
+  ebeveyn gözetiminde açılmasını ve abonelik satın alımlarının ebeveyn onayıyla
+  yapılmasını öneriyoruz.
+</p>
+
+<h2>6. Verilerinizi Nasıl Silebilirsiniz</h2>
+<ul>
+  <li>Uygulama içinden: <strong>Profil → Hesabı Sil</strong></li>
+  <li>E-posta ile: <a href="mailto:info@devkom.com.tr">info@devkom.com.tr</a> adresine
+    yazarak 30 gün içinde silme talep edebilirsiniz.</li>
+</ul>
+<p>Silme işlemi geri alınamaz; ilerleme, jeton ve satın alınan karakterler kaybolur.</p>
+
+<h2>7. KVKK ve GDPR Kapsamındaki Haklarınız</h2>
+<p>
+  KVKK Madde 11 ve GDPR uyarınca; verilerinizin işlenip işlenmediğini öğrenme, işlenmişse
+  bilgi talep etme, düzeltilmesini, silinmesini veya aktarılmasını isteme ve zararın
+  giderilmesini talep etme hakkına sahipsiniz. Bu haklarınızı kullanmak için
+  <a href="mailto:info@devkom.com.tr">info@devkom.com.tr</a> adresine yazabilirsiniz.
+</p>
+
+<h2>8. Değişiklikler</h2>
+<p>
+  Bu politika güncellenebilir. Önemli bir değişiklik olduğunda uygulama içinden ya da
+  e-posta ile bilgilendirilirsiniz. Sayfanın üstündeki tarih son güncellemeyi gösterir.
+</p>
 
 <footer>
-  DevKom &copy; 2026 &middot; <a href="mailto:info@devkom.com.tr">info@devkom.com.tr</a> &middot;
-  <a href="./delete-account.html">Hesap Silme / Delete Account</a>
+  DevEducation · Devkom Yazılım · Konya, Türkiye ·
+  <a href="mailto:info@devkom.com.tr">info@devkom.com.tr</a>
 </footer>
 
-<script>
-function setLang(lang) {
-  document.querySelectorAll('.lang-block').forEach(el => {
-    el.classList.toggle('active', el.dataset.lang === lang);
-  });
-  document.getElementById('btn-tr').classList.toggle('active', lang === 'tr');
-  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-  try { localStorage.setItem('devkom_lang', lang); } catch(e) {}
-}
-(function() {
-  try {
-    var saved = localStorage.getItem('devkom_lang');
-    if (saved === 'en') setLang('en');
-  } catch(e) {}
-})();
-</script>
-
+</main>
 </body>
 </html>
