@@ -37,6 +37,16 @@ void main() {
     expect(kod.contains('MediaQuery.paddingOf'), isTrue);
   });
 
+  test('panel yuksekligi zıplamiyor', () {
+    final kod = _kodu('lib/screens/auth/intro_carousel.dart');
+    // Yukseklik dogrudan SizedBox'a verilirse ileri tusuna basildigi
+    // anda ziplar; icerik ise gecisin ortasina kadar hala eski sayfadir.
+    // Ortaya "eski yazi + yeni panel" diye melez bir kare cikiyor ve
+    // kullanici bunu araya giren ucuncu bir sayfa olarak goruyor.
+    expect(kod.contains('Tween(begin: height, end: height)'), isTrue,
+        reason: 'Panel yuksekligi panelin rengiyle ayni surede suzulmeli.');
+  });
+
   test('sayfa gecisi agacin seklini degistirmiyor', () {
     final kod = _kodu('lib/screens/auth/intro_carousel.dart');
     // Eski surum gecisin basinda ve sonunda dogrudan `widget.child`

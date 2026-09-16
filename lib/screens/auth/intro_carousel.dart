@@ -210,68 +210,91 @@ class IntroCarouselState extends State<IntroCarousel> {
     // yeniden çizilirken panelin de yeniden rasterlenmesi için hiçbir
     // sebep yok.
     return RepaintBoundary(
-      child: SizedBox(
-      height: height,
-      width: double.infinity,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          AnimatedContainer(
-            duration: Motion.long2,
-            curve: Motion.emphasized,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(34),
-              ),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color.alphaBlend(
-                    slide.accent.withValues(alpha: 0.10),
-                    Colors.white,
-                  ),
-                  Color.alphaBlend(
-                    slide.accent.withValues(alpha: 0.34),
-                    Colors.white,
-                  ),
-                ],
+      // PANEL YUKSEKLIGI ZIPLAMIYOR, SUZULUYOR.
+      //
+      // Bilgi sayfasinda panel ekranin ~%48'i, soru sayfasinda ~%24'u.
+      // Bu deger dogrudan SizedBox'a veriliyordu, yani ileri tusuna
+      // basildigi ANDA degisiyordu — ama icerik gecisin ortasina kadar
+      // hala ESKI sayfaydi. Ortaya 250 ms suren melez bir kare
+      // cikiyordu: eski yazi, yeni panel. Goz bunu "araya giren ucuncu
+      // bir sayfa" olarak okuyor; kullanicinin gordugu de tam buydu.
+      //
+      // Simdi yukseklik, panelin rengiyle ayni sure ve ayni egride
+      // suzuluyor. Boylece gecis tek bir harekete donuyor: panel
+      // yumusakca buyurken/kuculurken yazi cikiyor ve yenisi giriyor.
+      //
+      // Tween(begin: height, end: height): ilk karede animasyon YOK
+      // (panel dogru boyutta aciliyor), sonraki degisimlerde mevcut
+      // degerden yeni degere gidiyor. TweenAnimationBuilder'in
+      // yerlesik kalibi.
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: height, end: height),
+        duration: Motion.reduced(context) ? Duration.zero : Motion.long2,
+        curve: Motion.emphasized,
+        builder: (context, h, child) => SizedBox(
+          height: h,
+          width: double.infinity,
+          child: child,
+        ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            AnimatedContainer(
+              duration: Motion.long2,
+              curve: Motion.emphasized,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(34),
+                ),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color.alphaBlend(
+                      slide.accent.withValues(alpha: 0.10),
+                      Colors.white,
+                    ),
+                    Color.alphaBlend(
+                      slide.accent.withValues(alpha: 0.34),
+                      Colors.white,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          // Blob animasyonu KENDİ KATMANINDA.
-          //
-          // Bu, saniyede 60 kez çizilen tam panel boyunda bir
-          // CustomPaint. Sınır konmadığında üstündeki başlık, metin ve
-          // gölgeler de her karede yeniden rasterleniyordu.
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(
-              bottom: Radius.circular(34),
-            ),
-            child: RepaintBoundary(child: _PanelDrift(color: slide.accent)),
-          ),
-          if (slide.art != null)
+            // Blob animasyonu KENDİ KATMANINDA.
+            //
+            // Bu, saniyede 60 kez çizilen tam panel boyunda bir
+            // CustomPaint. Sınır konmadığında üstündeki başlık, metin ve
+            // gölgeler de her karede yeniden rasterleniyordu.
             ClipRRect(
               borderRadius: const BorderRadius.vertical(
                 bottom: Radius.circular(34),
               ),
-              child: _PageSwap(
-                index: _index,
-                direction: _dir,
-                child: _ArtEntrance(
-                  key: ValueKey('art$_index'),
-                  child: slide.art!,
+              child: RepaintBoundary(child: _PanelDrift(color: slide.accent)),
+            ),
+            if (slide.art != null)
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(34),
+                ),
+                child: _PageSwap(
+                  index: _index,
+                  direction: _dir,
+                  child: _ArtEntrance(
+                    key: ValueKey('art$_index'),
+                    child: slide.art!,
+                  ),
                 ),
               ),
-            ),
-          if (widget.trailing != null)
-            Positioned(
-              top: MediaQuery.paddingOf(context).top + 8,
-              right: 16,
-              child: widget.trailing!,
-            ),
-        ],
-      ),
+            if (widget.trailing != null)
+              Positioned(
+                top: MediaQuery.paddingOf(context).top + 8,
+                right: 16,
+                child: widget.trailing!,
+              ),
+          ],
+        ),
       ),
     );
   }
