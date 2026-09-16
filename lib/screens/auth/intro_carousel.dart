@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme.dart';
 import '../../ui/motion.dart';
+import '../../ui/sigdir.dart';
 
 /// Akistaki tek bir adim — bilgi ya da soru.
 ///
@@ -433,26 +434,23 @@ class _SlideText extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 18),
-        // Kısa içerik ORTALANIYOR, uzun içerik kayıyor.
+        // ICERIK EKRANA SIGIYOR, KAYDIRILMIYOR.
         //
-        // Önceden gövde doğrudan bir kaydırma görünümündeydi: ilk görev
-        // gibi kısa bir içerik yukarı yapışıyor, altında yarım ekran boş
-        // kalıyordu — ekran bitmemiş gibi duruyordu. minHeight kadar
-        // yükseklik verip ortalayınca kısa içerik ekranın ortasına
-        // oturuyor, klavye açıldığında ya da metin uzadığında kaydırma
-        // yine çalışıyor.
+        // Onceden govde bir kaydirma gorunumundeydi. Bes secenekli
+        // "Ne yapmak istiyorsun?" sayfasi iPhone 17 Pro'da bile
+        // tasiyordu: ustteki secenek yarim gorunuyor, cocuk listeyi
+        // itmeden neyi secebilecegini bilmiyordu. Kucuk ekranlarda
+        // durum daha kotuydu.
+        //
+        // Sigdir icerigin DOGAL yuksekligini olcup gerekirse hepsini
+        // ayni oranda kuculuyor. Sigan icerige dokunmuyor, yani buyuk
+        // ekranda hicbir sey degismiyor; sigmayan icerikte de kaydirma
+        // yerine tam bir sayfa cikiyor. Ortalama isini Center yapiyor:
+        // ilk gorev gibi kisa bir icerik yukari yapismiyor.
         Expanded(
           child: _FadeIn(
             delay: afterTitle,
-            child: LayoutBuilder(
-              builder: (context, constraints) => SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints:
-                      BoxConstraints(minHeight: constraints.maxHeight),
-                  child: Center(child: slide.body),
-                ),
-              ),
-            ),
+            child: Sigdir(child: Center(child: slide.body)),
           ),
         ),
       ],
