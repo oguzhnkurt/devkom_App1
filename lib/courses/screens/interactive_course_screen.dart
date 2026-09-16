@@ -10,7 +10,8 @@ import '../models/interactive_lesson_model.dart';
 import '../data/course_modules.dart';
 import 'interactive_lesson_screen.dart';
 import 'module_quiz_screen.dart';
-import 'widgets/step_widgets.dart' show lessonLang, lessonText;
+import 'widgets/step_widgets.dart'
+    show lessonLang, lessonLangRead, lessonText;
 
 /// Genel Interaktif Kurs Ekrani
 /// Tum kurslar icin kullanilabilir
@@ -73,9 +74,17 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
   }
 
   /// Bu ders su an kilitli mi? (Pro uyede hicbir zaman.)
-  bool _kilitli(InteractiveLesson lesson) =>
+  ///
+  /// [dinle] BUILD ICINDE true olmali: Pro olunca liste kendiliginden
+  /// tazelensin diye `context.watch` kullaniyor. Ama bir dokunma
+  /// isleyicisinden (onTap) cagrilirsa `watch` YASAK — provider
+  /// "Tried to listen to a value exposed with provider, from outside of
+  /// the widget tree" diye assertion atiyor ve o isleyici sessizce olup
+  /// hicbir sey olmuyordu: kilitli derse dokunulunca Pro/Reklam sayfasi
+  /// HIC ACILMIYORDU. Olay isleyicileri `dinle: false` geciyor.
+  bool _kilitli(InteractiveLesson lesson, {bool dinle = true}) =>
       widget.course.isPremium &&
-      !ProGate.watchIsPro(context) &&
+      !(dinle ? ProGate.watchIsPro(context) : ProGate.isPro(context)) &&
       !_acilanDersler.contains(lesson.id);
 
   /// Kilitliyse reklamla acilabilir mi, yoksa yalnizca Pro mu?
@@ -805,17 +814,23 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
   /// Boylece cocuk icerigi gercekten gorup ailesine anlatabiliyor, ama
   /// kursun tamami reklamla bitirilemiyor — yani ilerlemek icin reklam
   /// izlemek ZORUNDA kalmiyor.
+  /// DIKKAT: burasi bir onTap isleyicisi, BUILD DEGIL.
+  ///
+  /// Provider'i dinleyen hicbir cagri yapilamaz: `context.watch` build
+  /// disinda assertion atiyor, istisna yutuluyor ve dokunus sessizce
+  /// hicbir sey yapmiyor. Bu yuzden `_kilitli(dinle: false)` ve
+  /// `lessonLangRead` kullaniliyor (`lessonLang` dinler).
   Future<void> _openLesson(InteractiveLesson lesson) async {
-    if (_kilitli(lesson)) {
+    if (_kilitli(lesson, dinle: false)) {
       final sira = _dersSirasi[lesson.id] ?? 1 << 30;
-      final baslik = lesson.titleFor(lessonLang(context));
+      final baslik = lesson.titleFor(lessonLangRead(context));
 
       if (!_reklamlaAcilir(lesson)) {
         final ok = await ProGate.ensure(
           context,
           featureName: baslik,
           explanation: lessonText(
-            lessonLang(context),
+            lessonLangRead(context),
             'Bu kursun ilk iki dersi herkese açık. Gerisi Pro üyelikte.',
             'The first two lessons of this course are open to everyone. '
                 'The rest is part of Pro.',
@@ -831,7 +846,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
           context,
           featureName: baslik,
           explanation: lessonText(
-            lessonLang(context),
+            lessonLangRead(context),
             'Bu ileri seviye kursun ilk iki dersini deneyebilirsin.',
             'You can try the first two lessons of this advanced course.',
             'Du kannst die ersten zwei Lektionen dieses Kurses ausprobieren.',

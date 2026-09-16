@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -451,24 +453,45 @@ class _RealAdsPlatform extends AdsPlatform {
 
   static const AdRequest _request = AdRequest(nonPersonalizedAds: true);
 
+  /// NEDEN COMPLETER
+  /// ---------------
+  /// `RewardedAd.load()`'un dondurdugu Future, reklam YUKLENINCE degil
+  /// yukleme ISTEGI GONDERILINCE tamamlaniyor. Sonuc `onAdLoaded` /
+  /// `onAdFailedToLoad` ile sonradan geliyor.
+  ///
+  /// Onceki surum `await RewardedAd.load(...)` diyip hemen ardindan
+  /// degiskene bakiyordu; o an her zaman null oluyordu. Yani odullu
+  /// video HIC GOSTERILEMIYORDU — kullanici "Reklam izle"ye basiyor,
+  /// "Su an gosterilecek video yok" yaziyordu. Her seferinde.
+  ///
+  /// Zaman asimi var cunku ag kotuyse hicbir geri cagirma gelmeyebilir
+  /// ve cocuk bos bir ekranda beklerdi.
   @override
   Future<bool?> showRewarded(String unitId) async {
-    RewardedAd? ad;
+    final sonuc = Completer<RewardedAd?>();
+    void bitir(RewardedAd? ad) {
+      if (!sonuc.isCompleted) sonuc.complete(ad);
+    }
+
     try {
       await RewardedAd.load(
         adUnitId: unitId,
         request: _request,
         rewardedAdLoadCallback: RewardedAdLoadCallback(
-          onAdLoaded: (loaded) => ad = loaded,
+          onAdLoaded: bitir,
           onAdFailedToLoad: (error) {
             debugPrint('⚠️ Rewarded load failed: $error');
+            bitir(null);
           },
         ),
       );
     } catch (e) {
       debugPrint('⚠️ Rewarded load threw: $e');
+      bitir(null);
     }
-    final loaded = ad;
+
+    final loaded = await sonuc.future
+        .timeout(const Duration(seconds: 12), onTimeout: () => null);
     if (loaded == null) return null;
 
     var earned = false;
@@ -480,20 +503,35 @@ class _RealAdsPlatform extends AdsPlatform {
     return earned;
   }
 
+  /// Ayni Completer gerekcesi gecis reklami icin de gecerli; bkz.
+  /// [showRewarded]. Bu yol sessizce basarisiz oluyordu: gecis reklami
+  /// hic yuklenmiyor, dolayisiyla hic gosterilmiyordu.
   @override
   Future<InterstitialAd?> loadInterstitial(String unitId) async {
-    InterstitialAd? ad;
-    await InterstitialAd.load(
-      adUnitId: unitId,
-      request: _request,
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (loaded) => ad = loaded,
-        onAdFailedToLoad: (error) {
-          debugPrint('⚠️ Interstitial load failed: $error');
-        },
-      ),
-    );
-    return ad;
+    final sonuc = Completer<InterstitialAd?>();
+    void bitir(InterstitialAd? ad) {
+      if (!sonuc.isCompleted) sonuc.complete(ad);
+    }
+
+    try {
+      await InterstitialAd.load(
+        adUnitId: unitId,
+        request: _request,
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: bitir,
+          onAdFailedToLoad: (error) {
+            debugPrint('⚠️ Interstitial load failed: $error');
+            bitir(null);
+          },
+        ),
+      );
+    } catch (e) {
+      debugPrint('⚠️ Interstitial load threw: $e');
+      bitir(null);
+    }
+
+    return sonuc.future
+        .timeout(const Duration(seconds: 12), onTimeout: () => null);
   }
 
   @override
