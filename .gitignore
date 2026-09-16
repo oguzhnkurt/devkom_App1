@@ -59,3 +59,20 @@ node_modules/
 
 # Windows reserved-name artifacts
 nul
+
+# goldie — uretilen magaza gorselleri (kaynak: goldie.config.ts + .argent/flows)
+goldie/out/
+
+# Oturum ciktilari: icinde .env kopyasi gibi gizli seyler olabiliyor.
+# Bu klasor git tarafindan HIC takip edilmiyordu ama .gitignore'da da
+# degildi; bir `git add .` onu deponun icine sokardi.
+Claude outputs/
+
+# Ajan / arac calisma klasorleri. Icerikleri uretilmis ya da gecici.
+.agents/
+.claude/
+
+# Ekran kayitlari: tek basina 7 MB'a kadar cikiyor ve yeniden uretilebilir.
+# .argent/flows goldie'nin KAYNAGI oldugu icin klasorun kendisi takip
+# ediliyor, yalnizca kayitlar disarida.
+.argent/recordings/
