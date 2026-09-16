@@ -1009,7 +1009,7 @@ class CssLessonsData {
             'Puedes probar border-radius: 16px;',
             'box-shadow: 0px 4px 12px rgba(0,0,0,0.15);',
           ],
-          starterCode: '.kart {\n  /* buraya stillerini yaz */\n}',
+          starterCode: '<div class="kart">\n  <h2>Kartım</h2>\n  <p>Bir şeyler yaz.</p>\n</div>\n\n<style>\n.kart {\n  /* buraya stillerini yaz */\n}\n</style>',
           language: 'css',
           validation: ProjectValidation(
             mustContain: ['border-radius', 'box-shadow', 'padding'],
@@ -1534,7 +1534,7 @@ class CssLessonsData {
             '.galeri { display: flex; flex-wrap: wrap; gap: 16px; }',
             'Puedes centrarlas con justify-content: center;',
           ],
-          starterCode: '.galeri {\n  /* flexbox stillerini yaz */\n}',
+          starterCode: '<div class="galeri">\n  <div class="kart">1</div>\n  <div class="kart">2</div>\n  <div class="kart">3</div>\n</div>\n\n<style>\n.kart { background: #eee; padding: 20px; }\n\n.galeri {\n  /* flexbox stillerini yaz */\n}\n</style>',
           language: 'css',
           validation: ProjectValidation(
             mustContain: ['display: flex', 'flex-wrap', 'gap'],
@@ -2040,7 +2040,7 @@ class CssLessonsData {
             '.profil-karti:hover { transform: scale(1.03); }',
             '¡No olvides transition: transform 0.3s;!',
           ],
-          starterCode: '.profil-karti {\n  /* Kutu modeli */\n\n  /* Flexbox ortalama */\n\n  /* Gecis */\n}\n\n.profil-karti:hover {\n  /* Hover efekti */\n}',
+          starterCode: '<div class="profil-karti">\n  <h2>Adım</h2>\n  <p>Merhaba!</p>\n</div>\n\n<style>\n.profil-karti {\n  /* Kutu modeli */\n\n  /* Flexbox ortalama */\n\n  /* Geçiş */\n}\n\n.profil-karti:hover {\n  /* Hover efekti */\n}\n</style>',
           language: 'css',
           validation: ProjectValidation(
             mustContain: ['border-radius', 'display: flex', ':hover', 'transition'],

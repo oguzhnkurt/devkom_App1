@@ -1437,7 +1437,7 @@ class HtmlLessonsData {
             'Rellena el contenido al final',
             '¡No olvides el texto alt en ninguna imagen!',
           ],
-          starterCode: '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Benim Sayfam</title>\n  </head>\n  <body>\n    <!-- Buraya yaz -->\n  </body>\n</html>',
+          starterCode: '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Benim Sayfam</title>\n  </head>\n  <body>\n    <h1>Adım</h1>\n    <p>Buraya kendini tanıt.</p>\n  </body>\n</html>',
           language: 'html',
           validation: ProjectValidation(
             mustContain: ['<header', '<nav', '<main', '<footer', '<ul', '<img', '<h1'],

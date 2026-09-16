@@ -5,6 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:devkom_app/courses/data/course_modules.dart';
+import 'package:devkom_app/courses/data/courses_data.dart';
+import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
 import 'package:devkom_app/courses/screens/widgets/kod_tezgahi.dart';
 import 'package:devkom_app/providers/settings_provider.dart';
 
@@ -33,6 +36,20 @@ void main() {
     expect(belge.contains("script-src 'unsafe-inline'"), isFalse);
   });
 
+  test('cocuk tam bir belge yazsa da politika dis belgede kaliyor', () {
+    // HTML dersinin iskeleti <!DOCTYPE html> ile basliyor ve bizim
+    // belgemizin govdesine giriyor. Tarayici ic ice html/head
+    // etiketlerini duzlestiriyor; onemli olan politikanin DIS belgenin
+    // basliginda durmasi — cocugun yazdigi hicbir sey onu gevsetemesin.
+    final belge = onizlemeBelgesi(
+        '<!DOCTYPE html><html><head><title>X</title></head>'
+        '<body><h1>Selam</h1></body></html>');
+    final basSonu = belge.indexOf('</head>');
+    expect(belge.indexOf('Content-Security-Policy') < basSonu, isTrue,
+        reason: 'Politika dis belgenin basliginda olmali.');
+    expect(belge.contains('<h1>Selam</h1>'), isTrue);
+  });
+
   test('tezgah betik calistirmiyor ve hicbir yere gitmiyor', () {
     final kod = File('lib/courses/screens/widgets/kod_tezgahi.dart')
         .readAsLinesSync()
@@ -55,6 +72,33 @@ void main() {
     // Sayfa YERELDEN geliyor: hicbir adres yuklenmiyor.
     expect(kod.contains('loadHtmlString'), isTrue);
     expect(kod.contains('loadRequest'), isFalse);
+  });
+
+  test('tezgahli proje adimlarinin baslangic kodu ONIZLEMEDE gorunur', () {
+    // Salt CSS bir baslangic kodu onizlemede HICBIR SEY gostermiyor:
+    // isaretleme yok, gosterilecek kutu yok. Cocuk "Calistir"a basip
+    // bos beyaz bir alan goruyor ve tezgahi bozuk saniyor. Ayni sekilde
+    // govdesi yalnizca yorumdan ibaret bir HTML iskeleti de bos aciliyor.
+    //
+    // Kural: html/css proje adimlarinin baslangic kodu en az bir
+    // GORUNUR etiket icermeli.
+    final eksikler = <String>[];
+    for (final kurs in CoursesData.allCourses) {
+      for (final modul in CourseModules.forCourse(kurs.id)) {
+        for (final ders in modul.lessons) {
+          for (final adim in ders.steps) {
+            if (adim is! ProjectStep) continue;
+            if (adim.language != 'html' && adim.language != 'css') continue;
+            final kod = adim.starterCode;
+            final govde = kod.replaceAll(RegExp(r'<!--.*?-->', dotAll: true), '');
+            final gorunur = RegExp(r'<(h1|h2|h3|p|div|span|ul|li|img|a|button)\b')
+                .hasMatch(govde);
+            if (!gorunur) eksikler.add('${adim.id}: $kod');
+          }
+        }
+      }
+    }
+    expect(eksikler, isEmpty, reason: eksikler.join('\n'));
   });
 
   testWidgets('kod kaydediliyor ve geri yukleniyor', (tester) async {

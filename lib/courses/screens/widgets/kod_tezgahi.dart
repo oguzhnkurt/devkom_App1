@@ -61,11 +61,19 @@ class KodTezgahi extends StatefulWidget {
   State<KodTezgahi> createState() => _KodTezgahiState();
 }
 
-/// Cocugun yazdigi govdeyi tam ve KAPALI bir belgeye sarar.
+/// Cocugun yazdigini tam ve KAPALI bir belgeye sarar.
 ///
 /// Ayri bir islev olmasinin sebebi sinanabilir olmasi: guvenlik
 /// basliklarinin varligi bir ekran goruntusuyle degil, bu dizeye
 /// bakarak dogrulanabiliyor.
+///
+/// COCUK TAM BIR BELGE YAZARSA ne olur? HTML dersinde iskelet zaten
+/// `<!DOCTYPE html><html><head>...` diye basliyor ve bu, bizim
+/// belgemizin govdesine girmis oluyor. Sorun degil: tarayici ic ice
+/// `html`/`head` etiketlerini yok sayip duzlestiriyor, `<style>`
+/// govdede de calisiyor. Onemli olan, Icerik Guvenligi Politikasinin
+/// DIS belgenin basliginda olmasi — cocugun yazdigi hicbir sey onu
+/// gevsetemiyor.
 String onizlemeBelgesi(String govde) {
   return '''
 <!DOCTYPE html>
@@ -183,20 +191,36 @@ class _KodTezgahiState extends State<KodTezgahi> {
               height: 1.45,
               color: Color(0xFFD4D4D4),
             ),
+            cursorColor: Colors.white,
+            // `filled: false` SART. Uygulamanin InputDecorationTheme'i
+            // butun metin alanlarini BEYAZ dolduruyor; koyu kod kutusu
+            // o beyazin altinda kaliyor ve acik gri kod yazisi beyaz
+            // zeminde neredeyse gorunmez oluyordu. Ekranda kutu "beyaz
+            // icli, siyah cerceveli" duruyordu — cerceve sanilan sey
+            // aslinda kutunun gorunen tek parcasiydi.
             decoration: const InputDecoration(
               border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              filled: false,
               isDense: true,
+              contentPadding: EdgeInsets.zero,
             ),
           ),
         ),
         const SizedBox(height: 10),
-        SizedBox(
-          height: 44,
-          child: FilledButton.icon(
-            onPressed: _calistir,
-            icon: const Icon(Icons.play_arrow_rounded),
-            label: Text(lessonText(
-                lang, 'Çalıştır', 'Run', 'Ausführen', 'Ejecutar')),
+        // Sabit 44 piksel yukseklik dugmenin yazisini ALTTAN KESIYORDU;
+        // ekranda "Calistir" yarim gorunuyordu. Yuksekligi dugmenin
+        // kendisi belirlesin, taban olarak 48 verelim (kucuk cocuk icin
+        // onerilen dokunma hedefi).
+        FilledButton.icon(
+          onPressed: _calistir,
+          icon: const Icon(Icons.play_arrow_rounded),
+          label: Text(lessonText(
+              lang, 'Çalıştır', 'Run', 'Ausführen', 'Ejecutar')),
+          style: FilledButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
+            padding: const EdgeInsets.symmetric(vertical: 12),
           ),
         ),
         const SizedBox(height: 16),
