@@ -22,6 +22,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:devkom_app/providers/settings_provider.dart';
 import 'package:devkom_app/screens/auth/onboarding_flow_screen.dart';
 
+/// Birkac KARE ilerlet.
+///
+/// `pump(Duration(seconds: 2))` saati iki saniye ileri alir ama TEK bir
+/// kare cizer. Sayfa gecisi bir AnimationController ile calisiyor ve o
+/// denetleyicinin ilk tiki BIR SONRAKI karede geliyor; tek karelik bir
+/// pump'ta gecis hic baslamiyor ve ekranda hala onceki sayfa duruyor.
+///
+/// Bu, uygulamada bir kusur DEGIL: gercekte her 16 ms'de bir kare
+/// ciziliyor ve gecisin ilk karesinde eski sayfanin durmasi zaten
+/// dogru davranis (yenisi bir kare gorunup kaybolsaydi, kullanicinin
+/// bildirdigi "araya bir sayfa giriyor" kusuru olurdu). Testin kare
+/// saymasi gerekiyor.
+///
+/// `pumpAndSettle` KULLANILAMAZ: ust paneldeki yumusak sekiller
+/// surekli donen bir animasyon, agac hicbir zaman durulmuyor.
+Future<void> kareler(WidgetTester tester,
+    {int adet = 12, int ms = 100}) async {
+  for (var i = 0; i < adet; i++) {
+    await tester.pump(Duration(milliseconds: ms));
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -44,7 +66,7 @@ void main() {
         ),
       ),
     );
-    await tester.pump(const Duration(seconds: 2));
+    await kareler(tester);
 
     Finder forward() => find.byWidgetPredicate((w) =>
         w is Icon && w.icon == Icons.arrow_forward_rounded && w.size == 22);
@@ -63,7 +85,7 @@ void main() {
           draggable.first,
           tester.getCenter(target.first) - tester.getCenter(draggable.first),
         );
-        await tester.pump(const Duration(seconds: 2));
+        await kareler(tester);
         continue;
       }
 
@@ -81,7 +103,7 @@ void main() {
         var sonra = once;
         for (var deneme = 0; deneme < 5 && sonra == once; deneme++) {
           await tester.tap(zar.first);
-          await tester.pump(const Duration(seconds: 2));
+          await kareler(tester);
           expect(tester.takeException(), isNull);
           sonra = tester.widget<TextField>(alan.first).controller!.text;
         }
@@ -92,7 +114,7 @@ void main() {
 
       if (forward().evaluate().isEmpty) break;
       await tester.tap(forward());
-      await tester.pump(const Duration(seconds: 2));
+      await kareler(tester);
     }
 
     expect(acilisDegerleri.length, 2,
