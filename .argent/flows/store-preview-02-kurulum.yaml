@@ -1,0 +1,33 @@
+# ONIZLEME 2/4 — Uygulama cocuga gore ayarlaniyor.
+# Onboarding'in kalani: takma ad, yas, siralama, sertifika ve en sonda
+# "ne yapmak istiyorsun?". Hedef secilince ana sayfa o cocuga gore
+# diziliyor. Ekranlar hizli akiyor; amac tek tek okutmak degil,
+# uygulamanin bir seyler sordugunu gostermek.
+#
+# Sondaki 1800 ms + bir sonraki segmentin bastaki 900 ms'i birlikte
+# ana sayfanin yerlesmesi icin olculen 2600 ms'i asiyor; boylece
+# store-preview-03-oyun'un ilk dokunusu yutulmuyor.
+executionPrerequisite: >-
+  Onboarding'in 2. adimi ("ADIM ADIM") ekranda; 1. adimdaki blok
+  birlestirme store-preview-01-acilis icinde tamamlandi.
+steps:
+  - echo: Sag alttaki ileri ok (0.861, 0.945) alti kez -> 8/8 "HEDEFIN".
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 620
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 620
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 620
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 620
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 620
+  - tap: { x: 0.861, y: 0.945 }
+  - echo: Hedef ekrani okunsun.
+  - wait: 900
+  - echo: >-
+      Ilk secenek "Oyun yapmak" (0.50, 0.449). Secim onboarding'i
+      bitiriyor ve ana sayfa aciliyor.
+  - tap: { x: 0.50, y: 0.449 }
+  - echo: Ana sayfa gorunsun ve yerlessin.
+  - wait: 1800

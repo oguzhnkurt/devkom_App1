@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DevEducation · Yönetim Paneli</title>
+<style>
+  :root{
+    --bg:#f4f6fb; --card:#fff; --ink:#141a2e; --muted:#6b7488;
+    --line:#e4e8f0; --brand:#6C3CE0; --brand2:#00c4e0;
+    --ok:#2E7D32; --warn:#EF6C00; --bad:#C62828;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  header{background:linear-gradient(120deg,#5A34E8,#00c4e0);color:#fff;padding:18px 22px;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  header h1{margin:0;font-size:17px;font-weight:800;letter-spacing:.2px}
+  header .who{margin-left:auto;font-size:12.5px;opacity:.9;display:flex;gap:10px;align-items:center}
+  button{font:inherit;cursor:pointer;border:0;border-radius:9px;padding:9px 15px;
+    background:var(--brand);color:#fff;font-weight:600}
+  button.ghost{background:rgba(255,255,255,.18);color:#fff}
+  button:disabled{opacity:.55;cursor:default}
+  main{max-width:1180px;margin:0 auto;padding:22px}
+  .login{max-width:380px;margin:9vh auto;background:var(--card);padding:26px;
+    border-radius:16px;box-shadow:0 8px 30px rgba(20,26,46,.09)}
+  .login h2{margin:0 0 6px;font-size:19px}
+  .login p{margin:0 0 20px;color:var(--muted);font-size:13px}
+  label{display:block;font-size:12.5px;font-weight:600;margin:12px 0 5px;color:var(--muted)}
+  input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
+  input:focus{outline:2px solid rgba(108,60,224,.25);border-color:var(--brand)}
+  .err{color:var(--bad);font-size:12.5px;margin-top:12px;min-height:18px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin-bottom:22px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px}
+  .stat .k{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+  .stat .v{font-size:26px;font-weight:800;margin-top:5px}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:20px;overflow:hidden}
+  section > h3{margin:0;padding:14px 16px;font-size:14px;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:9px}
+  section > h3 .count{margin-left:auto;font-size:12px;color:var(--muted);font-weight:600}
+  .scroll{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;min-width:760px}
+  th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);
+    background:#fafbfe;position:sticky;top:0;cursor:pointer;user-select:none}
+  th.sorted::after{content:" ▾";color:var(--brand)}
+  tbody tr:hover{background:#fafbff}
+  td.name{font-weight:700;white-space:normal}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11.5px;font-weight:700}
+  .pill.ok{background:rgba(46,125,50,.11);color:var(--ok)}
+  .pill.warn{background:rgba(239,108,0,.12);color:var(--warn)}
+  .pill.mute{background:#eef0f6;color:var(--muted)}
+  .bar{height:6px;border-radius:6px;background:#eef0f6;overflow:hidden;min-width:74px}
+  .bar > i{display:block;height:100%;background:var(--brand)}
+  .note{padding:14px 16px;border-bottom:1px solid var(--line)}
+  .note:last-child{border-bottom:0}
+  .note .top{display:flex;gap:9px;align-items:baseline;flex-wrap:wrap;margin-bottom:5px}
+  .note .who{font-weight:700}
+  .note .q{color:var(--brand);font-weight:600;font-size:12.5px}
+  .note .when{margin-left:auto;font-size:11.5px;color:var(--muted)}
+  .note .body{white-space:pre-wrap;color:#333a4d;font-size:13px}
+  .empty{padding:26px 16px;text-align:center;color:var(--muted);font-size:13px}
+  .foot{color:var(--muted);font-size:11.5px;text-align:center;padding:8px 0 26px}
+  @media(max-width:560px){ main{padding:14px} header{padding:14px} }
+</style>
+</head>
+<body>
+
+<div id="loginView" class="login">
+  <h2>DevEducation Yönetim</h2>
+  <p>Uygulamadaki admin hesabınla giriş yap. Bu sayfa verileri doğrudan Supabase'den okur; giriş yapmadan hiçbir şey görünmez.</p>
+  <label for="mail">E-posta</label>
+  <input id="mail" type="email" autocomplete="username" placeholder="ornek@mail.com">
+  <label for="pass">Şifre</label>
+  <input id="pass" type="password" autocomplete="current-password" placeholder="••••••••">
+  <div class="err" id="loginErr"></div>
+  <button id="loginBtn" style="width:100%;margin-top:8px;padding:12px">Giriş yap</button>
+</div>
+
+<div id="appView" hidden>
+  <header>
+    <h1>DevEducation · Yönetim Paneli</h1>
+    <div class="who">
+      <span id="whoami"></span>
+      <button class="ghost" id="refreshBtn">Yenile</button>
+      <button class="ghost" id="logoutBtn">Çıkış</button>
+    </div>
+  </header>
+  <main>
+    <div class="cards" id="stats"></div>
+
+    <section>
+      <h3>👥 Kullanıcılar <span class="count" id="userCount"></span></h3>
+      <div class="scroll"><table id="userTable">
+        <thead><tr>
+          <th data-k="name">Takma ad</th>
+          <th data-k="level">Seviye</th>
+          <th data-k="xp">XP</th>
+          <th data-k="jeton">Jeton</th>
+          <th data-k="streak">Seri</th>
+          <th data-k="lessons">Ders</th>
+          <th data-k="videos">Video</th>
+          <th data-k="quests">Görev</th>
+          <th data-k="active">Son görülme</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+
+    <section>
+      <h3>📝 Görev Gönderimleri <span class="count" id="noteCount"></span></h3>
+      <div id="notes"></div>
+    </section>
+
+    <section>
+      <h3>🎯 Görev Tamamlanma Oranları <span class="count" id="questCount"></span></h3>
+      <div class="scroll"><table id="questTable">
+        <thead><tr>
+          <th>Görev</th><th>Zorluk</th><th>Tamamlayan</th><th>Oran</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+
+    <p class="foot">Veriler canlı Supabase'den okunur · Yenile ile güncelle</p>
+  </main>
+</div>
+
+<script>
+const SUPABASE_URL = "https://swhldeonfravztafsfof.supabase.co";
+const SUPABASE_KEY = "sb_publishable_jR-NeqU_7Zaj4psIHqMqKw_61PlbIQ8";
+
+let token = sessionStorage.getItem("devedu_admin_token") || null;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
+  ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+async function api(path) {
+  const r = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
+    headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + token }
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function login() {
+  const btn = $("#loginBtn");
+  btn.disabled = true;
+  $("#loginErr").textContent = "";
+  try {
+    const r = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
+      method: "POST",
+      headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ email: $("#mail").value.trim(), password: $("#pass").value })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error_description || d.msg || "Giriş başarısız");
+    token = d.access_token;
+    sessionStorage.setItem("devedu_admin_token", token);
+    await start();
+  } catch (e) {
+    $("#loginErr").textContent = e.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function logout() {
+  token = null;
+  sessionStorage.removeItem("devedu_admin_token");
+  $("#appView").hidden = true;
+  $("#loginView").hidden = false;
+}
+
+function fmtDate(s) {
+  if (!s) return "—";
+  const d = new Date(s);
+  const days = Math.floor((Date.now() - d) / 86400000);
+  if (days === 0) return "bugün";
+  if (days === 1) return "dün";
+  if (days < 30) return days + " gün önce";
+  return d.toLocaleDateString("tr-TR");
+}
+
+let rows = [], sortKey = "xp", sortDir = -1;
+
+async function start() {
+  // Admin yetkisi yoksa user_progress bos doner; once onu kontrol ediyoruz.
+  let me;
+  try {
+    me = await api("users?select=id,display_name,email,role&limit=1&id=eq." + (await currentUserId()));
+  } catch (e) {
+    $("#loginErr").textContent = "Yetki doğrulanamadı: " + e.message;
+    return;
+  }
+  const admin = me[0];
+  if (!admin || admin.role !== "admin") {
+    $("#loginErr").textContent = "Bu hesap admin değil. Yetkiyi verdikten sonra tekrar dene.";
+    logout();
+    return;
+  }
+
+  $("#loginView").hidden = true;
+  $("#appView").hidden = false;
+  $("#whoami").textContent = admin.display_name || admin.email;
+  await load();
+}
+
+async function currentUserId() {
+  const r = await fetch(SUPABASE_URL + "/auth/v1/user", {
+    headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + token }
+  });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.msg || "oturum geçersiz");
+  return d.id;
+}
+
+async function load() {
+  $("#refreshBtn").disabled = true;
+  try {
+    const [users, progress, videos, userQuests, quests] = await Promise.all([
+      api("users?select=id,display_name,email,role,created_at&order=created_at.desc"),
+      api("user_progress?select=user_id,total_xp,level,jeton_balance,streak_days,completed_lesson_ids,total_quizzes_completed,last_active_date"),
+      api("user_video_progress?select=user_id,completed"),
+      api("user_quests?select=user_id,quest_id,completed,note,completed_at"),
+      api("quests?select=id,slug,title,difficulty,sort_order&order=sort_order.asc"),
+    ]);
+
+    const pByUser = Object.fromEntries(progress.map(p => [p.user_id, p]));
+    const vByUser = {};
+    videos.filter(v => v.completed).forEach(v => vByUser[v.user_id] = (vByUser[v.user_id] || 0) + 1);
+    const qByUser = {};
+    userQuests.filter(q => q.completed).forEach(q => qByUser[q.user_id] = (qByUser[q.user_id] || 0) + 1);
+    const uById = Object.fromEntries(users.map(u => [u.id, u]));
+    const questById = Object.fromEntries(quests.map(q => [q.id, q]));
+
+    rows = users.map(u => {
+      const p = pByUser[u.id] || {};
+      return {
+        name: u.display_name || u.email || "—",
+        role: u.role,
+        level: p.level || 0,
+        xp: p.total_xp || 0,
+        jeton: p.jeton_balance || 0,
+        streak: p.streak_days || 0,
+        lessons: (p.completed_lesson_ids || []).length,
+        videos: vByUser[u.id] || 0,
+        quests: qByUser[u.id] || 0,
+        active: p.last_active_date || null,
+      };
+    });
+
+    renderStats(rows, quests, userQuests);
+    renderUsers();
+    renderNotes(userQuests, uById, questById);
+    renderQuests(quests, userQuests, users.length);
+  } catch (e) {
+    alert("Veri okunamadı: " + e.message);
+  } finally {
+    $("#refreshBtn").disabled = false;
+  }
+}
+
+function renderStats(rows, quests, userQuests) {
+  const week = Date.now() - 7 * 86400000;
+  const activeWeek = rows.filter(r => r.active && new Date(r.active) > week).length;
+  const totalXP = rows.reduce((a, r) => a + r.xp, 0);
+  const doneQuests = userQuests.filter(q => q.completed).length;
+  const notes = userQuests.filter(q => q.note).length;
+
+  const cards = [
+    ["Kullanıcı", rows.length],
+    ["Bu hafta aktif", activeWeek],
+    ["Toplam XP", totalXP.toLocaleString("tr-TR")],
+    ["Tamamlanan görev", doneQuests],
+    ["Görev notu", notes],
+  ];
+  $("#stats").innerHTML = cards.map(([k, v]) =>
+    `<div class="stat"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join("");
+}
+
+function renderUsers() {
+  const sorted = [...rows].sort((a, b) => {
+    const x = a[sortKey], y = b[sortKey];
+    if (typeof x === "string") return sortDir * x.localeCompare(y, "tr");
+    return sortDir * ((x || 0) - (y || 0));
+  });
+  $("#userCount").textContent = rows.length + " kayıt";
+  $("#userTable tbody").innerHTML = sorted.map(r => {
+    const week = Date.now() - 7 * 86400000;
+    const fresh = r.active && new Date(r.active) > week;
+    return `<tr>
+      <td class="name">${esc(r.name)}${r.role === "admin" ? ' <span class="pill mute">admin</span>' : ""}</td>
+      <td>${r.level}</td>
+      <td>${r.xp.toLocaleString("tr-TR")}</td>
+      <td>${r.jeton}</td>
+      <td>${r.streak > 0 ? "🔥 " + r.streak : "—"}</td>
+      <td>${r.lessons}</td>
+      <td>${r.videos}</td>
+      <td>${r.quests}</td>
+      <td><span class="pill ${fresh ? "ok" : "mute"}">${esc(fmtDate(r.active))}</span></td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="9" class="empty">Kayıt yok</td></tr>`;
+
+  document.querySelectorAll("#userTable th").forEach(th =>
+    th.classList.toggle("sorted", th.dataset.k === sortKey));
+}
+
+function renderNotes(userQuests, uById, questById) {
+  const notes = userQuests.filter(q => q.note)
+    .sort((a, b) => new Date(b.completed_at || 0) - new Date(a.completed_at || 0));
+  $("#noteCount").textContent = notes.length + " gönderim";
+  $("#notes").innerHTML = notes.map(n => {
+    const u = uById[n.user_id];
+    const q = questById[n.quest_id];
+    return `<div class="note">
+      <div class="top">
+        <span class="who">${esc(u?.display_name || "Bilinmeyen")}</span>
+        <span class="q">${esc(q?.title || "")}</span>
+        <span class="when">${esc(fmtDate(n.completed_at))}</span>
+      </div>
+      <div class="body">${esc(n.note)}</div>
+    </div>`;
+  }).join("") || `<div class="empty">Henüz görev notu gönderilmemiş.</div>`;
+}
+
+function renderQuests(quests, userQuests, userTotal) {
+  const done = {};
+  userQuests.filter(q => q.completed).forEach(q => done[q.quest_id] = (done[q.quest_id] || 0) + 1);
+  $("#questCount").textContent = quests.length + " görev";
+  $("#questTable tbody").innerHTML = quests.map(q => {
+    const n = done[q.id] || 0;
+    const pct = userTotal ? Math.round(n / userTotal * 100) : 0;
+    return `<tr>
+      <td class="name">${esc(q.title)}</td>
+      <td><span class="pill mute">${esc(q.difficulty)}</span></td>
+      <td>${n}</td>
+      <td><div class="bar"><i style="width:${pct}%"></i></div></td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="4" class="empty">Görev yok</td></tr>`;
+}
+
+document.querySelectorAll("#userTable th").forEach(th => {
+  th.addEventListener("click", () => {
+    const k = th.dataset.k;
+    if (sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = -1; }
+    renderUsers();
+  });
+});
+
+$("#loginBtn").addEventListener("click", login);
+$("#pass").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+$("#refreshBtn").addEventListener("click", load);
+$("#logoutBtn").addEventListener("click", logout);
+
+if (token) start().catch(() => logout());
+</script>
+</body>
+</html>

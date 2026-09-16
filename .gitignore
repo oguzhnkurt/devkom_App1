@@ -76,3 +76,9 @@ Claude outputs/
 # .argent/flows goldie'nin KAYNAGI oldugu icin klasorun kendisi takip
 # ediliyor, yalnizca kayitlar disarida.
 .argent/recordings/
+
+# Uretilen magaza gorselleri (30 MB + 13 MB). Kaynaklari repoda:
+# tool/store_slides.py, goldie.config.ts, test/appstore_shots_test.dart.
+# Dosyalar diskte duruyor, yalnizca git'e girmiyor.
+outputs/
+shots/

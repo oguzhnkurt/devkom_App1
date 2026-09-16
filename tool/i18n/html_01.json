@@ -1,0 +1,894 @@
+{
+ "metinler": {
+  "Welcome to HTML!": [
+   "Willkommen bei HTML!",
+   "¡Bienvenido a HTML!"
+  ],
+  "The skeleton of every web page": [
+   "Das Gerüst jeder Webseite",
+   "El esqueleto de toda página web"
+  ],
+  "Hello! With HTML you are going to build the foundation of web pages!": [
+   "Hallo! Mit HTML baust du das Fundament von Webseiten!",
+   "¡Hola! Con HTML vas a construir los cimientos de las páginas web."
+  ],
+  "What Is HTML?": [
+   "Was ist HTML?",
+   "¿Qué es HTML?"
+  ],
+  "HTML (HyperText Markup Language) builds the skeleton of a web page.\\n\\nEvery web page is made with HTML!": [
+   "HTML (HyperText Markup Language) baut das Gerüst einer Webseite.\\n\\nJede Webseite wird mit HTML gemacht!",
+   "HTML (HyperText Markup Language) construye el esqueleto de una página web.\\n\\n¡Todas las páginas web se hacen con HTML!"
+  ],
+  "HTML is not a programming language — it is a markup language!": [
+   "HTML ist keine Programmiersprache – es ist eine Auszeichnungssprache!",
+   "HTML no es un lenguaje de programación: es un lenguaje de marcado."
+  ],
+  "What does HTML stand for?": [
+   "Wofür steht HTML?",
+   "¿Qué significa HTML?"
+  ],
+  "HTML = HyperText Markup Language": [
+   "HTML = HyperText Markup Language",
+   "HTML = HyperText Markup Language"
+  ],
+  "Tags": [
+   "Tags",
+   "Etiquetas"
+  ],
+  "HTML works with tags:\\n\\n<tag>content</tag>\\n\\nOpening tag: <p>\\nClosing tag: </p>\\n\\nExample:\\n<h1>Hello</h1>": [
+   "HTML arbeitet mit Tags:\\n\\n<tag>Inhalt</tag>\\n\\nÖffnendes Tag: <p>\\nSchließendes Tag: </p>\\n\\nBeispiel:\\n<h1>Hallo</h1>",
+   "HTML funciona con etiquetas:\\n\\n<etiqueta>contenido</etiqueta>\\n\\nEtiqueta de apertura: <p>\\nEtiqueta de cierre: </p>\\n\\nEjemplo:\\n<h1>Hola</h1>"
+  ],
+  "Which is the correct HTML tag?": [
+   "Welches ist das richtige HTML-Tag?",
+   "¿Cuál es la etiqueta HTML correcta?"
+  ],
+  "HTML tags are written inside < > and closed with a /": [
+   "HTML-Tags stehen in < > und werden mit einem / geschlossen",
+   "Las etiquetas HTML se escriben entre < > y se cierran con una /"
+  ],
+  "HTML Starter!": [
+   "HTML-Einsteiger!",
+   "¡Principiante de HTML!"
+  ],
+  "🌐 You took your first step into HTML!\\n\\n✓ You learned what HTML is\\n✓ You met tags\\n✓ You know the basic structure\\n\\nNext: your first HTML page!": [
+   "🌐 Du hast deinen ersten Schritt in HTML gemacht!\\n\\n✓ Du weißt, was HTML ist\\n✓ Du hast Tags kennengelernt\\n✓ Du kennst den Grundaufbau\\n\\nAls Nächstes: deine erste HTML-Seite!",
+   "🌐 ¡Has dado tu primer paso en HTML!\\n\\n✓ Sabes qué es HTML\\n✓ Conociste las etiquetas\\n✓ Conoces la estructura básica\\n\\nSiguiente: ¡tu primera página HTML!"
+  ],
+  "You earned the HTML Starter badge!": [
+   "Du hast das Abzeichen «HTML-Einsteiger» verdient!",
+   "¡Has ganado la insignia Principiante de HTML!"
+  ],
+  "Your First HTML Page": [
+   "Deine erste HTML-Seite",
+   "Tu primera página HTML"
+  ],
+  "Build the basic HTML structure": [
+   "Den HTML-Grundaufbau bauen",
+   "Construir la estructura básica de HTML"
+  ],
+  "Now we will make your first web page. You will learn the basic structure every HTML page needs.": [
+   "Jetzt machen wir deine erste Webseite. Du lernst den Grundaufbau, den jede HTML-Seite braucht.",
+   "Ahora vamos a hacer tu primera página web. Aprenderás la estructura básica que necesita toda página HTML."
+  ],
+  "The Structure of an HTML Document": [
+   "Der Aufbau eines HTML-Dokuments",
+   "La estructura de un documento HTML"
+  ],
+  "Every HTML page starts with this structure:\\n\\n<!DOCTYPE html>\\n<html>\\n  <head>\\n    <title>Title</title>\\n  </head>\\n  <body>\\n    Content\\n  </body>\\n</html>": [
+   "Jede HTML-Seite beginnt mit diesem Aufbau:\\n\\n<!DOCTYPE html>\\n<html>\\n  <head>\\n    <title>Titel</title>\\n  </head>\\n  <body>\\n    Inhalt\\n  </body>\\n</html>",
+   "Toda página HTML empieza con esta estructura:\\n\\n<!DOCTYPE html>\\n<html>\\n  <head>\\n    <title>Título</title>\\n  </head>\\n  <body>\\n    Contenido\\n  </body>\\n</html>"
+  ],
+  "DOCTYPE tells the browser that HTML5 is being used!": [
+   "DOCTYPE sagt dem Browser, dass HTML5 benutzt wird!",
+   "¡DOCTYPE le dice al navegador que se está usando HTML5!"
+  ],
+  "Where does the content people see go?": [
+   "Wohin kommt der Inhalt, den die Leute sehen?",
+   "¿Dónde va el contenido que ve la gente?"
+  ],
+  "The <body> tag holds all the content shown on the page!": [
+   "Das <body>-Tag enthält den gesamten Inhalt, der auf der Seite gezeigt wird!",
+   "¡La etiqueta <body> contiene todo el contenido que se muestra en la página!"
+  ],
+  "<head> vs <body>": [
+   "<head> gegen <body>",
+   "<head> frente a <body>"
+  ],
+  "<head>: information about the page (title, meta and so on)\\n<body>: the content people actually see\\n\\nExample:\\n<head>\\n  <title>My Page</title>\\n</head>": [
+   "<head>: Angaben über die Seite (Titel, Meta und so weiter)\\n<body>: der Inhalt, den die Leute wirklich sehen\\n\\nBeispiel:\\n<head>\\n  <title>Meine Seite</title>\\n</head>",
+   "<head>: información sobre la página (título, meta, etc.)\\n<body>: el contenido que la gente ve de verdad\\n\\nEjemplo:\\n<head>\\n  <title>Mi página</title>\\n</head>"
+  ],
+  "Write a simple HTML page with the title \"Hello\":": [
+   "Schreibe eine einfache HTML-Seite mit dem Titel «Hallo»:",
+   "Escribe una página HTML sencilla con el título «Hola»:"
+  ],
+  "First Page Complete!": [
+   "Erste Seite fertig!",
+   "¡Primera página terminada!"
+  ],
+  "📄 You built your first HTML page!\\n\\n✓ You learned the basic structure\\n✓ You told head and body apart\\n✓ You added a title\\n\\nYou are a web developer now!": [
+   "📄 Du hast deine erste HTML-Seite gebaut!\\n\\n✓ Du kennst den Grundaufbau\\n✓ Du unterscheidest head und body\\n✓ Du hast einen Titel eingefügt\\n\\nJetzt bist du Webentwickler!",
+   "📄 ¡Has construido tu primera página HTML!\\n\\n✓ Aprendiste la estructura básica\\n✓ Distingues head y body\\n✓ Añadiste un título\\n\\n¡Ya eres desarrollador web!"
+  ],
+  "You earned the First Page badge!": [
+   "Du hast das Abzeichen «Erste Seite» verdient!",
+   "¡Has ganado la insignia Primera Página!"
+  ],
+  "Headings and Paragraphs": [
+   "Überschriften und Absätze",
+   "Títulos y párrafos"
+  ],
+  "Give your text structure": [
+   "Gib deinem Text Struktur",
+   "Dale estructura a tu texto"
+  ],
+  "There are special tags for text on a web page. Let us learn them all, from headings to paragraphs!": [
+   "Für Text auf einer Webseite gibt es eigene Tags. Lernen wir sie alle, von Überschriften bis Absätzen!",
+   "Para el texto de una página web hay etiquetas especiales. ¡Vamos a aprenderlas todas, de los títulos a los párrafos!"
+  ],
+  "Heading Tags": [
+   "Überschriften-Tags",
+   "Etiquetas de título"
+  ],
+  "HTML has six levels of heading:\\n\\n<h1>The biggest heading</h1>\\n<h2>Second level</h2>\\n<h3>Third level</h3>\\n<h4>Fourth level</h4>": [
+   "HTML hat sechs Überschriftenebenen:\\n\\n<h1>Die größte Überschrift</h1>\\n<h2>Zweite Ebene</h2>\\n<h3>Dritte Ebene</h3>\\n<h4>Vierte Ebene</h4>",
+   "HTML tiene seis niveles de título:\\n\\n<h1>El título más grande</h1>\\n<h2>Segundo nivel</h2>\\n<h3>Tercer nivel</h3>\\n<h4>Cuarto nivel</h4>"
+  ],
+  "You should use only one <h1> per page!": [
+   "Du solltest pro Seite nur ein <h1> benutzen!",
+   "¡Deberías usar solo un <h1> por página!"
+  ],
+  "Which is the biggest heading tag?": [
+   "Welches ist das größte Überschriften-Tag?",
+   "¿Cuál es la etiqueta de título más grande?"
+  ],
+  "<h1> is the biggest heading tag!": [
+   "<h1> ist das größte Überschriften-Tag!",
+   "¡<h1> es la etiqueta de título más grande!"
+  ],
+  "The Paragraph Tag": [
+   "Das Absatz-Tag",
+   "La etiqueta de párrafo"
+  ],
+  "The <p> tag is used for paragraphs of text:\\n\\n<p>This is a paragraph.</p>\\n<p>This is another paragraph.</p>\\n\\nEach <p> starts on a new line.": [
+   "Das <p>-Tag wird für Textabsätze benutzt:\\n\\n<p>Das ist ein Absatz.</p>\\n<p>Das ist noch ein Absatz.</p>\\n\\nJedes <p> beginnt in einer neuen Zeile.",
+   "La etiqueta <p> se usa para los párrafos de texto:\\n\\n<p>Esto es un párrafo.</p>\\n<p>Esto es otro párrafo.</p>\\n\\nCada <p> empieza en una línea nueva."
+  ],
+  "Write HTML with an h1 heading and two paragraphs:": [
+   "Schreibe HTML mit einer h1-Überschrift und zwei Absätzen:",
+   "Escribe HTML con un título h1 y dos párrafos:"
+  ],
+  "Text Master!": [
+   "Text-Meister!",
+   "¡Maestro del texto!"
+  ],
+  "📝 You learned the text tags!\\n\\n✓ Six heading levels\\n✓ Making paragraphs\\n✓ Structured text\\n\\nNext: formatting text!": [
+   "📝 Du hast die Text-Tags gelernt!\\n\\n✓ Sechs Überschriftenebenen\\n✓ Absätze machen\\n✓ Strukturierter Text\\n\\nAls Nächstes: Text formatieren!",
+   "📝 ¡Aprendiste las etiquetas de texto!\\n\\n✓ Seis niveles de título\\n✓ Crear párrafos\\n✓ Texto estructurado\\n\\nSiguiente: ¡dar formato al texto!"
+  ],
+  "You earned the Text Master badge!": [
+   "Du hast das Abzeichen «Text-Meister» verdient!",
+   "¡Has ganado la insignia Maestro del Texto!"
+  ],
+  "Links": [
+   "Links",
+   "Enlaces"
+  ],
+  "Connect pages to each other": [
+   "Seiten miteinander verbinden",
+   "Conectar páginas entre sí"
+  ],
+  "Links are what make the web a \"web\"! Let\\'s learn how to connect pages together.": [
+   "Links machen das Web erst zu einem «Netz»! Lernen wir, wie man Seiten verbindet.",
+   "¡Los enlaces son lo que convierte la web en una «red»! Vamos a aprender a conectar páginas."
+  ],
+  "The Link Tag <a>": [
+   "Das Link-Tag <a>",
+   "La etiqueta de enlace <a>"
+  ],
+  "Use the <a> tag to create a link:\\n\\n<a href=\"https://devkom.com.tr\">DevEducation</a>\\n\\nhref: the destination address\\nThe text inside the tag: the clickable text": [
+   "Mit dem <a>-Tag machst du einen Link:\\n\\n<a href=\"https://devkom.com.tr\">DevEducation</a>\\n\\nhref: die Zieladresse\\nDer Text im Tag: der anklickbare Text",
+   "Usa la etiqueta <a> para crear un enlace:\\n\\n<a href=\"https://devkom.com.tr\">DevEducation</a>\\n\\nhref: la dirección de destino\\nEl texto dentro de la etiqueta: el texto en el que se hace clic"
+  ],
+  "The letter \"a\" stands for \"anchor\"!": [
+   "Der Buchstabe «a» steht für «anchor» (Anker)!",
+   "¡La letra «a» viene de «anchor» (ancla)!"
+  ],
+  "Which attribute defines where a link goes?": [
+   "Welches Attribut legt fest, wohin ein Link führt?",
+   "¿Qué atributo define adónde va un enlace?"
+  ],
+  "href (hypertext reference) specifies the link\\'s target address!": [
+   "href (hypertext reference) gibt die Zieladresse des Links an!",
+   "¡href (hypertext reference) indica la dirección de destino del enlace!"
+  ],
+  "Opening in a New Tab": [
+   "In einem neuen Tab öffnen",
+   "Abrir en una pestaña nueva"
+  ],
+  "Add target=\"_blank\" to open a link in a new tab:\\n\\n<a href=\"https://devkom.com.tr\" target=\"_blank\">DevEducation</a>\\n\\nThis way the user does not leave your site!": [
+   "Füge target=\"_blank\" hinzu, um einen Link in einem neuen Tab zu öffnen:\\n\\n<a href=\"https://devkom.com.tr\" target=\"_blank\">DevEducation</a>\\n\\nSo verlässt der Besucher deine Seite nicht!",
+   "Añade target=\"_blank\" para abrir un enlace en una pestaña nueva:\\n\\n<a href=\"https://devkom.com.tr\" target=\"_blank\">DevEducation</a>\\n\\n¡Así el visitante no se va de tu sitio!"
+  ],
+  "What do you add to open a link in a new tab?": [
+   "Was fügst du hinzu, um einen Link in einem neuen Tab zu öffnen?",
+   "¿Qué añades para abrir un enlace en una pestaña nueva?"
+  ],
+  "target=\"_blank\" opens the link in a new tab!": [
+   "target=\"_blank\" öffnet den Link in einem neuen Tab!",
+   "¡target=\"_blank\" abre el enlace en una pestaña nueva!"
+  ],
+  "Write a link that says \"DevEducation\" and opens in a new tab:": [
+   "Schreibe einen Link mit dem Text «DevEducation», der in einem neuen Tab öffnet:",
+   "Escribe un enlace que diga «DevEducation» y se abra en una pestaña nueva:"
+  ],
+  "Link Master!": [
+   "Link-Meister!",
+   "¡Maestro de los enlaces!"
+  ],
+  "🔗 You have learned links!\\n\\n✓ The <a> tag\\n✓ The href attribute\\n✓ Opening in a new tab\\n\\nNext: Images!": [
+   "🔗 Du hast Links gelernt!\\n\\n✓ Das <a>-Tag\\n✓ Das href-Attribut\\n✓ In neuem Tab öffnen\\n\\nAls Nächstes: Bilder!",
+   "🔗 ¡Has aprendido los enlaces!\\n\\n✓ La etiqueta <a>\\n✓ El atributo href\\n✓ Abrir en pestaña nueva\\n\\nSiguiente: ¡imágenes!"
+  ],
+  "You earned the Link Master badge!": [
+   "Du hast das Abzeichen «Link-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de los Enlaces!"
+  ],
+  "Images": [
+   "Bilder",
+   "Imágenes"
+  ],
+  "Add pictures to your page": [
+   "Bilder auf deine Seite bringen",
+   "Añade imágenes a tu página"
+  ],
+  "A picture is worth a thousand words! Let\\'s learn how to add images to your page.": [
+   "Ein Bild sagt mehr als tausend Worte! Lernen wir, wie man Bilder einfügt.",
+   "¡Una imagen vale más que mil palabras! Vamos a aprender a añadir imágenes a tu página."
+  ],
+  "The Image Tag <img>": [
+   "Das Bild-Tag <img>",
+   "La etiqueta de imagen <img>"
+  ],
+  "Use the <img> tag to add an image:\\n\\n<img src=\"cat.jpg\" alt=\"A cute cat\">\\n\\nsrc: the image address\\nalt: text shown if the image does not load\\n\\nThe <img> tag has no closing tag!": [
+   "Mit dem <img>-Tag fügst du ein Bild ein:\\n\\n<img src=\"katze.jpg\" alt=\"Eine süße Katze\">\\n\\nsrc: die Bildadresse\\nalt: Text, der erscheint, wenn das Bild nicht lädt\\n\\nDas <img>-Tag hat kein schließendes Tag!",
+   "Usa la etiqueta <img> para añadir una imagen:\\n\\n<img src=\"gato.jpg\" alt=\"Un gato adorable\">\\n\\nsrc: la dirección de la imagen\\nalt: texto que se muestra si la imagen no carga\\n\\n¡La etiqueta <img> no tiene etiqueta de cierre!"
+  ],
+  "The alt attribute is very important for visually impaired users!": [
+   "Das alt-Attribut ist für sehbehinderte Menschen sehr wichtig!",
+   "¡El atributo alt es muy importante para las personas con discapacidad visual!"
+  ],
+  "Which attribute specifies the image file address?": [
+   "Welches Attribut gibt die Adresse der Bilddatei an?",
+   "¿Qué atributo indica la dirección del archivo de imagen?"
+  ],
+  "src (source) specifies where the image is located!": [
+   "src (source) gibt an, wo das Bild liegt!",
+   "¡src (source) indica dónde está la imagen!"
+  ],
+  "What is the alt attribute for?": [
+   "Wofür ist das alt-Attribut da?",
+   "¿Para qué sirve el atributo alt?"
+  ],
+  "The alt text is used both on error and by screen readers!": [
+   "Der alt-Text wird sowohl bei einem Fehler als auch von Screenreadern benutzt!",
+   "¡El texto alt se usa tanto cuando hay un error como por los lectores de pantalla!"
+  ],
+  "Add the file robot.png with the alt text \"Robot picture\":": [
+   "Füge die Datei robot.png mit dem alt-Text «Roboterbild» ein:",
+   "Añade el archivo robot.png con el texto alt «Imagen de robot»:"
+  ],
+  "Image Master!": [
+   "Bild-Meister!",
+   "¡Maestro de las imágenes!"
+  ],
+  "🖼️ You have learned images!\\n\\n✓ The <img> tag\\n✓ src and alt\\n✓ Accessibility\\n\\nNext: Lists!": [
+   "🖼️ Du hast Bilder gelernt!\\n\\n✓ Das <img>-Tag\\n✓ src und alt\\n✓ Barrierefreiheit\\n\\nAls Nächstes: Listen!",
+   "🖼️ ¡Has aprendido las imágenes!\\n\\n✓ La etiqueta <img>\\n✓ src y alt\\n✓ Accesibilidad\\n\\nSiguiente: ¡listas!"
+  ],
+  "You earned the Image Master badge!": [
+   "Du hast das Abzeichen «Bild-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de las Imágenes!"
+  ],
+  "Lists": [
+   "Listen",
+   "Listas"
+  ],
+  "Ordered and unordered lists": [
+   "Geordnete und ungeordnete Listen",
+   "Listas ordenadas y sin ordenar"
+  ],
+  "Shopping lists, recipes, rankings... Lists are everywhere! Let\\'s learn how to build them in HTML.": [
+   "Einkaufslisten, Rezepte, Ranglisten … Listen sind überall! Lernen wir, wie man sie in HTML baut.",
+   "Listas de la compra, recetas, clasificaciones… ¡Las listas están por todas partes! Vamos a aprender a construirlas en HTML."
+  ],
+  "Unordered List <ul>": [
+   "Ungeordnete Liste <ul>",
+   "Lista sin ordenar <ul>"
+  ],
+  "When order does not matter, use <ul> (unordered list):\\n\\n<ul>\\n  <li>Apple</li>\\n  <li>Pear</li>\\n  <li>Banana</li>\\n</ul>\\n\\nEach item is shown with a bullet (•).": [
+   "Wenn die Reihenfolge egal ist, nimm <ul> (unordered list):\\n\\n<ul>\\n  <li>Apfel</li>\\n  <li>Birne</li>\\n  <li>Banane</li>\\n</ul>\\n\\nJeder Eintrag bekommt einen Punkt (•).",
+   "Cuando el orden da igual, usa <ul> (unordered list):\\n\\n<ul>\\n  <li>Manzana</li>\\n  <li>Pera</li>\\n  <li>Plátano</li>\\n</ul>\\n\\nCada elemento se muestra con un punto (•)."
+  ],
+  "li = list item": [
+   "li = list item (Listeneintrag)",
+   "li = list item (elemento de lista)"
+  ],
+  "Ordered List <ol>": [
+   "Geordnete Liste <ol>",
+   "Lista ordenada <ol>"
+  ],
+  "When order matters, use <ol> (ordered list):\\n\\n<ol>\\n  <li>Boil the water</li>\\n  <li>Add the pasta</li>\\n  <li>Cook for 10 minutes</li>\\n</ol>\\n\\nEach item is numbered: 1, 2, 3...": [
+   "Wenn die Reihenfolge zählt, nimm <ol> (ordered list):\\n\\n<ol>\\n  <li>Wasser kochen</li>\\n  <li>Nudeln hineingeben</li>\\n  <li>10 Minuten kochen</li>\\n</ol>\\n\\nJeder Eintrag wird nummeriert: 1, 2, 3 …",
+   "Cuando el orden importa, usa <ol> (ordered list):\\n\\n<ol>\\n  <li>Hervir el agua</li>\\n  <li>Echar la pasta</li>\\n  <li>Cocer 10 minutos</li>\\n</ol>\\n\\nCada elemento se numera: 1, 2, 3…"
+  ],
+  "Which tag is more suitable for writing recipe steps?": [
+   "Welches Tag passt besser, um Rezeptschritte zu schreiben?",
+   "¿Qué etiqueta es más adecuada para escribir los pasos de una receta?"
+  ],
+  "Order matters in a recipe, so the numbered <ol> is used!": [
+   "Bei einem Rezept zählt die Reihenfolge, also nimmt man das nummerierte <ol>!",
+   "¡En una receta el orden importa, así que se usa la lista numerada <ol>!"
+  ],
+  "Which tag is used for each item inside a list?": [
+   "Welches Tag benutzt man für jeden Eintrag in einer Liste?",
+   "¿Qué etiqueta se usa para cada elemento dentro de una lista?"
+  ],
+  "Items inside both <ul> and <ol> are written with <li>!": [
+   "Einträge in <ul> und in <ol> werden beide mit <li> geschrieben!",
+   "¡Los elementos de <ul> y de <ol> se escriben con <li> en ambos casos!"
+  ],
+  "Write an unordered list of your three favorite colors:": [
+   "Schreibe eine ungeordnete Liste mit deinen drei Lieblingsfarben:",
+   "Escribe una lista sin ordenar con tus tres colores favoritos:"
+  ],
+  "List Master!": [
+   "Listen-Meister!",
+   "¡Maestro de las listas!"
+  ],
+  "📋 You have learned lists!\\n\\n✓ <ul> unordered list\\n✓ <ol> ordered list\\n✓ <li> list item\\n\\nNext: Tables!": [
+   "📋 Du hast Listen gelernt!\\n\\n✓ <ul> ungeordnete Liste\\n✓ <ol> geordnete Liste\\n✓ <li> Listeneintrag\\n\\nAls Nächstes: Tabellen!",
+   "📋 ¡Has aprendido las listas!\\n\\n✓ <ul> lista sin ordenar\\n✓ <ol> lista ordenada\\n✓ <li> elemento de lista\\n\\nSiguiente: ¡tablas!"
+  ],
+  "You earned the List Master badge!": [
+   "Du hast das Abzeichen «Listen-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de las Listas!"
+  ],
+  "Tables": [
+   "Tabellen",
+   "Tablas"
+  ],
+  "Show data in rows and columns": [
+   "Daten in Zeilen und Spalten zeigen",
+   "Muestra datos en filas y columnas"
+  ],
+  "Class schedules, price lists, score tables... Tables are the best way to present data neatly!": [
+   "Stundenpläne, Preislisten, Punktetabellen … Tabellen sind die beste Art, Daten ordentlich zu zeigen!",
+   "Horarios de clase, listas de precios, tablas de puntuación… ¡Las tablas son la mejor forma de presentar datos con orden!"
+  ],
+  "Table Structure": [
+   "Der Aufbau einer Tabelle",
+   "La estructura de una tabla"
+  ],
+  "A table is made of these tags:\\n\\n<table>  : the table itself\\n<tr>     : table row\\n<th>     : table header cell\\n<td>     : table data cell\\n\\nExample:\\n<table>\\n  <tr>\\n    <th>Name</th>\\n    <th>Age</th>\\n  </tr>\\n  <tr>\\n    <td>Ali</td>\\n    <td>12</td>\\n  </tr>\\n</table>": [
+   "Eine Tabelle besteht aus diesen Tags:\\n\\n<table>  : die Tabelle selbst\\n<tr>     : Tabellenzeile\\n<th>     : Kopfzelle\\n<td>     : Datenzelle\\n\\nBeispiel:\\n<table>\\n  <tr>\\n    <th>Name</th>\\n    <th>Alter</th>\\n  </tr>\\n  <tr>\\n    <td>Ali</td>\\n    <td>12</td>\\n  </tr>\\n</table>",
+   "Una tabla se compone de estas etiquetas:\\n\\n<table>  : la tabla en sí\\n<tr>     : fila de la tabla\\n<th>     : celda de cabecera\\n<td>     : celda de datos\\n\\nEjemplo:\\n<table>\\n  <tr>\\n    <th>Nombre</th>\\n    <th>Edad</th>\\n  </tr>\\n  <tr>\\n    <td>Ali</td>\\n    <td>12</td>\\n  </tr>\\n</table>"
+  ],
+  "Every row starts with <tr>, and cells go inside it!": [
+   "Jede Zeile beginnt mit <tr>, und die Zellen kommen hinein!",
+   "¡Cada fila empieza con <tr>, y las celdas van dentro!"
+  ],
+  "Which tag creates a row in a table?": [
+   "Welches Tag erzeugt eine Zeile in einer Tabelle?",
+   "¿Qué etiqueta crea una fila en una tabla?"
+  ],
+  "<tr> = table row!": [
+   "<tr> = table row (Tabellenzeile)!",
+   "¡<tr> = table row (fila de tabla)!"
+  ],
+  "What is the difference between <th> and <td>?": [
+   "Was ist der Unterschied zwischen <th> und <td>?",
+   "¿Cuál es la diferencia entre <th> y <td>?"
+  ],
+  "The content of <th> is usually bold and centered because it is a header!": [
+   "Der Inhalt von <th> ist meist fett und zentriert, weil es eine Kopfzelle ist!",
+   "¡El contenido de <th> suele ir en negrita y centrado porque es una cabecera!"
+  ],
+  "Order the table tags correctly from outermost to innermost:": [
+   "Bringe die Tabellen-Tags von außen nach innen in die richtige Reihenfolge:",
+   "Ordena las etiquetas de tabla de fuera hacia dentro:"
+  ],
+  "The structure of a table": [
+   "Der Aufbau einer Tabelle",
+   "La estructura de una tabla"
+  ],
+  "Write a simple table with a header row of \"Name\" and \"Age\":": [
+   "Schreibe eine einfache Tabelle mit der Kopfzeile «Name» und «Alter»:",
+   "Escribe una tabla sencilla con una fila de cabecera «Nombre» y «Edad»:"
+  ],
+  "Table Master!": [
+   "Tabellen-Meister!",
+   "¡Maestro de las tablas!"
+  ],
+  "📊 You have learned tables!\\n\\n✓ <table>, <tr>\\n✓ <th> and <td>\\n✓ Nested structure\\n\\nNext: Forms!": [
+   "📊 Du hast Tabellen gelernt!\\n\\n✓ <table>, <tr>\\n✓ <th> und <td>\\n✓ Verschachtelter Aufbau\\n\\nAls Nächstes: Formulare!",
+   "📊 ¡Has aprendido las tablas!\\n\\n✓ <table>, <tr>\\n✓ <th> y <td>\\n✓ Estructura anidada\\n\\nSiguiente: ¡formularios!"
+  ],
+  "You earned the Table Master badge!": [
+   "Du hast das Abzeichen «Tabellen-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de las Tablas!"
+  ],
+  "Form Basics": [
+   "Grundlagen der Formulare",
+   "Fundamentos de los formularios"
+  ],
+  "Collect data from the user": [
+   "Daten von den Nutzern sammeln",
+   "Recoge datos del usuario"
+  ],
+  "Login screens, search boxes, surveys... They are all forms! Let\\'s learn how to collect data from users.": [
+   "Login-Seiten, Suchfelder, Umfragen … Das sind alles Formulare! Lernen wir, wie man Daten von Nutzern sammelt.",
+   "Pantallas de inicio de sesión, buscadores, encuestas… ¡Todo eso son formularios! Vamos a aprender a recoger datos de los usuarios."
+  ],
+  "Form and Input": [
+   "Formular und Eingabefeld",
+   "Formulario y campo de entrada"
+  ],
+  "A form is an area that collects data from the user:\\n\\n<form>\\n  <input type=\"text\" name=\"name\">\\n  <button type=\"submit\">Send</button>\\n</form>\\n\\ntype: the kind of input (text, email, password, number...)\\nname: the name of the data": [
+   "Ein Formular ist ein Bereich, der Daten vom Nutzer sammelt:\\n\\n<form>\\n  <input type=\"text\" name=\"name\">\\n  <button type=\"submit\">Senden</button>\\n</form>\\n\\ntype: die Art der Eingabe (text, email, password, number …)\\nname: der Name der Daten",
+   "Un formulario es una zona que recoge datos del usuario:\\n\\n<form>\\n  <input type=\"text\" name=\"nombre\">\\n  <button type=\"submit\">Enviar</button>\\n</form>\\n\\ntype: el tipo de entrada (text, email, password, number…)\\nname: el nombre del dato"
+  ],
+  "The <input> tag also has no closing tag!": [
+   "Auch das <input>-Tag hat kein schließendes Tag!",
+   "¡La etiqueta <input> tampoco tiene etiqueta de cierre!"
+  ],
+  "Which input type is used for a password field?": [
+   "Welcher input-Typ wird für ein Passwortfeld benutzt?",
+   "¿Qué tipo de input se usa para un campo de contraseña?"
+  ],
+  "type=\"password\" hides what is typed as dots!": [
+   "type=\"password\" zeigt das Getippte als Punkte!",
+   "¡type=\"password\" oculta lo que escribes convirtiéndolo en puntos!"
+  ],
+  "Labels <label>": [
+   "Beschriftungen <label>",
+   "Etiquetas de texto <label>"
+  ],
+  "We explain what each input is for using <label>:\\n\\n<label for=\"email\">Email:</label>\\n<input type=\"email\" id=\"email\" name=\"email\">\\n\\nThe label\\'s for value must match the input\\'s id value!": [
+   "Mit <label> erklären wir, wofür jedes Eingabefeld da ist:\\n\\n<label for=\"email\">E-Mail:</label>\\n<input type=\"email\" id=\"email\" name=\"email\">\\n\\nDas for des Labels muss zum id des Eingabefeldes passen!",
+   "Con <label> explicamos para qué sirve cada campo:\\n\\n<label for=\"email\">Correo:</label>\\n<input type=\"email\" id=\"email\" name=\"email\">\\n\\n¡El for del label debe coincidir con el id del input!"
+  ],
+  "Using labels is very important for accessibility!": [
+   "Labels zu benutzen ist für die Barrierefreiheit sehr wichtig!",
+   "¡Usar labels es muy importante para la accesibilidad!"
+  ],
+  "What should the for value of a <label> match?": [
+   "Wozu muss das for eines <label> passen?",
+   "¿Con qué debe coincidir el for de un <label>?"
+  ],
+  "When for=\"x\" matches id=\"x\", clicking the label focuses the input!": [
+   "Wenn for=\"x\" zu id=\"x\" passt, springt der Cursor beim Klick auf das Label ins Feld!",
+   "¡Cuando for=\"x\" coincide con id=\"x\", al hacer clic en el label se enfoca el campo!"
+  ],
+  "Match each input type with its correct use:": [
+   "Ordne jedem input-Typ seine richtige Verwendung zu:",
+   "Relaciona cada tipo de input con su uso correcto:"
+  ],
+  "Write an email input field with the label \"Email:\":": [
+   "Schreibe ein E-Mail-Eingabefeld mit der Beschriftung «E-Mail:»:",
+   "Escribe un campo de correo con la etiqueta «Correo:»:"
+  ],
+  "Form Starter!": [
+   "Formular-Einsteiger!",
+   "¡Principiante de formularios!"
+  ],
+  "📮 You have learned forms!\\n\\n✓ <form> and <input>\\n✓ input types\\n✓ Accessibility with <label>\\n\\nNext: Semantic HTML!": [
+   "📮 Du hast Formulare gelernt!\\n\\n✓ <form> und <input>\\n✓ input-Typen\\n✓ Barrierefreiheit mit <label>\\n\\nAls Nächstes: semantisches HTML!",
+   "📮 ¡Has aprendido los formularios!\\n\\n✓ <form> e <input>\\n✓ Tipos de input\\n✓ Accesibilidad con <label>\\n\\nSiguiente: ¡HTML semántico!"
+  ],
+  "You earned the Form Starter badge!": [
+   "Du hast das Abzeichen «Formular-Einsteiger» verdient!",
+   "¡Has ganado la insignia Principiante de Formularios!"
+  ],
+  "Semantic HTML": [
+   "Semantisches HTML",
+   "HTML semántico"
+  ],
+  "Use meaningful tags": [
+   "Aussagekräftige Tags benutzen",
+   "Usa etiquetas con significado"
+  ],
+  "Good HTML is not just working HTML, it is MEANINGFUL HTML! Let\\'s learn the tags professionals use.": [
+   "Gutes HTML funktioniert nicht nur, es ist AUSSAGEKRÄFTIG! Lernen wir die Tags, die Profis benutzen.",
+   "El buen HTML no es solo el que funciona: ¡es el que tiene SIGNIFICADO! Vamos a aprender las etiquetas que usan los profesionales."
+  ],
+  "What Is Semantic?": [
+   "Was heißt semantisch?",
+   "¿Qué quiere decir semántico?"
+  ],
+  "Semantic = meaningful.\\n\\nInstead of building everything with <div>, we use tags that describe the content:\\n\\n<header>  : top of the page\\n<nav>     : menu / navigation\\n<main>    : main content\\n<article> : standalone content (a blog post)\\n<footer>  : bottom of the page\\n\\nThis way browsers, search engines and screen readers all understand the page!": [
+   "Semantisch = bedeutungstragend.\\n\\nStatt alles mit <div> zu bauen, nehmen wir Tags, die den Inhalt beschreiben:\\n\\n<header>  : Kopf der Seite\\n<nav>     : Menü / Navigation\\n<main>    : Hauptinhalt\\n<article> : eigenständiger Inhalt (ein Blogbeitrag)\\n<footer>  : Fuß der Seite\\n\\nSo verstehen Browser, Suchmaschinen und Screenreader die Seite!",
+   "Semántico = con significado.\\n\\nEn lugar de construirlo todo con <div>, usamos etiquetas que describen el contenido:\\n\\n<header>  : parte superior de la página\\n<nav>     : menú / navegación\\n<main>    : contenido principal\\n<article> : contenido independiente (una entrada de blog)\\n<footer>  : parte inferior de la página\\n\\n¡Así los navegadores, los buscadores y los lectores de pantalla entienden la página!"
+  ],
+  "Semantic HTML gives better ranking in Google search (SEO)!": [
+   "Semantisches HTML bringt bessere Platzierungen in der Google-Suche (SEO)!",
+   "¡El HTML semántico mejora la posición en la búsqueda de Google (SEO)!"
+  ],
+  "Which tag is most suitable for a page\\'s main menu?": [
+   "Welches Tag passt am besten zum Hauptmenü einer Seite?",
+   "¿Qué etiqueta es la más adecuada para el menú principal de una página?"
+  ],
+  "<nav> is specifically designed for navigation links!": [
+   "<nav> ist genau für Navigationslinks gemacht!",
+   "¡<nav> está pensada justo para los enlaces de navegación!"
+  ],
+  "Why is using <div> for everything a bad idea?": [
+   "Warum ist es eine schlechte Idee, für alles <div> zu benutzen?",
+   "¿Por qué es mala idea usar <div> para todo?"
+  ],
+  "<div> is a neutral box. Semantic tags describe what the content actually is!": [
+   "<div> ist eine neutrale Box. Semantische Tags sagen, was der Inhalt wirklich ist!",
+   "¡<div> es una caja neutra. Las etiquetas semánticas dicen qué es el contenido de verdad!"
+  ],
+  "Match each semantic tag with its purpose:": [
+   "Ordne jedem semantischen Tag seinen Zweck zu:",
+   "Relaciona cada etiqueta semántica con su función:"
+  ],
+  "Find the semantically incorrect line in this code:": [
+   "Finde die semantisch falsche Zeile in diesem Code:",
+   "Encuentra la línea semánticamente incorrecta de este código:"
+  ],
+  "A <nav> should be used for the menu instead of <div>": [
+   "Für das Menü sollte <nav> statt <div> benutzt werden",
+   "Para el menú debería usarse <nav> en lugar de <div>"
+  ],
+  "A navigation menu should be semantically marked with the <nav> tag!": [
+   "Ein Navigationsmenü sollte semantisch mit dem <nav>-Tag ausgezeichnet werden!",
+   "¡Un menú de navegación debería marcarse semánticamente con la etiqueta <nav>!"
+  ],
+  "Semantic Master!": [
+   "Semantik-Meister!",
+   "¡Maestro de la semántica!"
+  ],
+  "🏛️ You have learned semantic HTML!\\n\\n✓ header, nav, main, footer\\n✓ Why it matters\\n✓ SEO and accessibility\\n\\nNext: The final project!": [
+   "🏛️ Du hast semantisches HTML gelernt!\\n\\n✓ header, nav, main, footer\\n✓ Warum es wichtig ist\\n✓ SEO und Barrierefreiheit\\n\\nAls Nächstes: das Abschlussprojekt!",
+   "🏛️ ¡Has aprendido HTML semántico!\\n\\n✓ header, nav, main, footer\\n✓ Por qué importa\\n✓ SEO y accesibilidad\\n\\nSiguiente: ¡el proyecto final!"
+  ],
+  "You earned the Semantic Master badge!": [
+   "Du hast das Abzeichen «Semantik-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de la Semántica!"
+  ],
+  "Final Project: Personal Page": [
+   "Abschlussprojekt: eigene Seite",
+   "Proyecto final: página personal"
+  ],
+  "Bring everything together": [
+   "Alles zusammenbringen",
+   "Juntarlo todo"
+  ],
+  "Now you will build your own profile page using everything you have learned! Ready?": [
+   "Jetzt baust du deine eigene Profilseite mit allem, was du gelernt hast! Bereit?",
+   "¡Ahora vas a construir tu propia página de perfil con todo lo que has aprendido! ¿Listo?"
+  ],
+  "Project Plan": [
+   "Der Projektplan",
+   "El plan del proyecto"
+  ],
+  "Your personal page will have these sections:\\n\\n1. <header> : your name and a short intro\\n2. <nav>    : links to sections\\n3. <main>   : about me + a hobbies list\\n4. <footer> : contact info\\n\\nWe will write each section one by one!": [
+   "Deine eigene Seite bekommt diese Abschnitte:\\n\\n1. <header> : dein Name und eine kurze Vorstellung\\n2. <nav>    : Links zu den Abschnitten\\n3. <main>   : über mich + eine Hobby-Liste\\n4. <footer> : Kontaktangaben\\n\\nWir schreiben jeden Abschnitt nacheinander!",
+   "Tu página personal tendrá estas secciones:\\n\\n1. <header> : tu nombre y una breve presentación\\n2. <nav>    : enlaces a las secciones\\n3. <main>   : sobre mí + una lista de aficiones\\n4. <footer> : datos de contacto\\n\\n¡Escribiremos cada sección una a una!"
+  ],
+  "Personal Profile Page": [
+   "Persönliche Profilseite",
+   "Página de perfil personal"
+  ],
+  "Create a page that introduces yourself using all the HTML tags you have learned. Do not forget to use semantic tags!": [
+   "Baue eine Seite, die dich vorstellt, und benutze alle HTML-Tags, die du gelernt hast. Vergiss die semantischen Tags nicht!",
+   "Crea una página que te presente usando todas las etiquetas HTML que has aprendido. ¡No olvides usar las etiquetas semánticas!"
+  ],
+  "You Completed the HTML Course!": [
+   "Du hast den HTML-Kurs geschafft!",
+   "¡Has terminado el curso de HTML!"
+  ],
+  "🎓 Congratulations! You now know HTML!\\n\\n✓ Tags and structure\\n✓ Text, links, images\\n✓ Lists, tables, forms\\n✓ Semantic HTML\\n✓ A real project\\n\\nNext step: make this page beautiful with CSS!": [
+   "🎓 Glückwunsch! Jetzt kannst du HTML!\\n\\n✓ Tags und Aufbau\\n✓ Text, Links, Bilder\\n✓ Listen, Tabellen, Formulare\\n✓ Semantisches HTML\\n✓ Ein echtes Projekt\\n\\nNächster Schritt: diese Seite mit CSS schön machen!",
+   "🎓 ¡Enhorabuena! ¡Ya sabes HTML!\\n\\n✓ Etiquetas y estructura\\n✓ Texto, enlaces, imágenes\\n✓ Listas, tablas, formularios\\n✓ HTML semántico\\n✓ Un proyecto de verdad\\n\\nSiguiente paso: ¡poner bonita esta página con CSS!"
+  ],
+  "You earned the HTML Graduate badge!": [
+   "Du hast das Abzeichen «HTML-Absolvent» verdient!",
+   "¡Has ganado la insignia Graduado en HTML!"
+  ],
+  "You stepped into the world of HTML!": [
+   "Du bist in die Welt von HTML eingestiegen!",
+   "¡Has entrado en el mundo de HTML!"
+  ],
+  "You created your first HTML page!": [
+   "Du hast deine erste HTML-Seite erstellt!",
+   "¡Has creado tu primera página HTML!"
+  ],
+  "Text Master": [
+   "Text-Meister",
+   "Maestro del Texto"
+  ],
+  "You mastered headings and paragraphs!": [
+   "Du beherrschst Überschriften und Absätze!",
+   "¡Dominas los títulos y los párrafos!"
+  ],
+  "Link Master": [
+   "Link-Meister",
+   "Maestro de los Enlaces"
+  ],
+  "You learned how to connect pages together!": [
+   "Du hast gelernt, Seiten miteinander zu verbinden!",
+   "¡Has aprendido a conectar páginas entre sí!"
+  ],
+  "Image Master": [
+   "Bild-Meister",
+   "Maestro de las Imágenes"
+  ],
+  "You learned how to add images to your page!": [
+   "Du hast gelernt, Bilder auf deine Seite zu bringen!",
+   "¡Has aprendido a añadir imágenes a tu página!"
+  ],
+  "List Master": [
+   "Listen-Meister",
+   "Maestro de las Listas"
+  ],
+  "You learned ordered and unordered lists!": [
+   "Du hast geordnete und ungeordnete Listen gelernt!",
+   "¡Has aprendido las listas ordenadas y sin ordenar!"
+  ],
+  "Table Master": [
+   "Tabellen-Meister",
+   "Maestro de las Tablas"
+  ],
+  "You learned how to organize data with tables!": [
+   "Du hast gelernt, Daten mit Tabellen zu ordnen!",
+   "¡Has aprendido a organizar datos con tablas!"
+  ],
+  "Form Starter": [
+   "Formular-Einsteiger",
+   "Principiante de Formularios"
+  ],
+  "You learned how to collect data from users!": [
+   "Du hast gelernt, Daten von Nutzern zu sammeln!",
+   "¡Has aprendido a recoger datos de los usuarios!"
+  ],
+  "Semantic Master": [
+   "Semantik-Meister",
+   "Maestro de la Semántica"
+  ],
+  "You learned to write meaningful HTML!": [
+   "Du hast gelernt, aussagekräftiges HTML zu schreiben!",
+   "¡Has aprendido a escribir HTML con significado!"
+  ],
+  "HTML Graduate": [
+   "HTML-Absolvent",
+   "Graduado en HTML"
+  ],
+  "You completed the entire HTML course!": [
+   "Du hast den ganzen HTML-Kurs geschafft!",
+   "¡Has completado todo el curso de HTML!"
+  ]
+ },
+ "listeler": [
+  {
+   "en": [
+    "The foundation of web pages",
+    "Work with tags",
+    "Build meaningful content"
+   ],
+   "de": [
+    "Das Fundament von Webseiten",
+    "Mit Tags arbeiten",
+    "Aussagekräftige Inhalte bauen"
+   ],
+   "es": [
+    "Los cimientos de las páginas web",
+    "Trabajar con etiquetas",
+    "Construir contenido con significado"
+   ]
+  },
+  {
+   "en": [
+    "The <a> tag",
+    "The href attribute",
+    "Opening in a new tab"
+   ],
+   "de": [
+    "Das <a>-Tag",
+    "Das href-Attribut",
+    "In neuem Tab öffnen"
+   ],
+   "es": [
+    "La etiqueta <a>",
+    "El atributo href",
+    "Abrir en pestaña nueva"
+   ]
+  },
+  {
+   "en": [
+    "Start with the <a> tag",
+    "Put the address in the href attribute",
+    "Add target=\"_blank\""
+   ],
+   "de": [
+    "Fang mit dem <a>-Tag an",
+    "Schreib die Adresse ins href-Attribut",
+    "Füge target=\"_blank\" hinzu"
+   ],
+   "es": [
+    "Empieza con la etiqueta <a>",
+    "Pon la dirección en el atributo href",
+    "Añade target=\"_blank\""
+   ]
+  },
+  {
+   "en": [
+    "Start with the <img tag",
+    "Use the src and alt attributes",
+    "No closing tag is needed"
+   ],
+   "de": [
+    "Fang mit dem <img-Tag an",
+    "Benutze die Attribute src und alt",
+    "Ein schließendes Tag ist nicht nötig"
+   ],
+   "es": [
+    "Empieza con la etiqueta <img",
+    "Usa los atributos src y alt",
+    "No hace falta etiqueta de cierre"
+   ]
+  },
+  {
+   "en": [
+    "Unordered list <ul>",
+    "Ordered list <ol>",
+    "List item <li>"
+   ],
+   "de": [
+    "Ungeordnete Liste <ul>",
+    "Geordnete Liste <ol>",
+    "Listeneintrag <li>"
+   ],
+   "es": [
+    "Lista sin ordenar <ul>",
+    "Lista ordenada <ol>",
+    "Elemento de lista <li>"
+   ]
+  },
+  {
+   "en": [
+    "Start with <ul>",
+    "Add one <li> per color",
+    "Close with </ul>"
+   ],
+   "de": [
+    "Fang mit <ul> an",
+    "Füge pro Farbe ein <li> hinzu",
+    "Schließe mit </ul>"
+   ],
+   "es": [
+    "Empieza con <ul>",
+    "Añade un <li> por cada color",
+    "Cierra con </ul>"
+   ]
+  },
+  {
+   "en": [
+    "Start with <table>",
+    "Put a <tr> row inside it",
+    "Add two <th> cells inside the row"
+   ],
+   "de": [
+    "Fang mit <table> an",
+    "Setze eine <tr>-Zeile hinein",
+    "Füge zwei <th>-Zellen in die Zeile ein"
+   ],
+   "es": [
+    "Empieza con <table>",
+    "Pon dentro una fila <tr>",
+    "Añade dos celdas <th> dentro de la fila"
+   ]
+  },
+  {
+   "en": [
+    "The <form> tag",
+    "<input> fields",
+    "<label> tags"
+   ],
+   "de": [
+    "Das <form>-Tag",
+    "<input>-Felder",
+    "<label>-Tags"
+   ],
+   "es": [
+    "La etiqueta <form>",
+    "Campos <input>",
+    "Etiquetas <label>"
+   ]
+  },
+  {
+   "en": [
+    "First write <label for=\"...\">",
+    "Then add <input type=\"email\">",
+    "Make the label\\'s for match the input\\'s id"
+   ],
+   "de": [
+    "Schreib zuerst <label for=\"...\">",
+    "Dann füge <input type=\"email\"> hinzu",
+    "Lass das for des Labels zum id des Feldes passen"
+   ],
+   "es": [
+    "Escribe primero <label for=\"...\">",
+    "Después añade <input type=\"email\">",
+    "Haz que el for del label coincida con el id del input"
+   ]
+  },
+  {
+   "en": [
+    "Semantic structure",
+    "Headings, paragraphs, lists",
+    "Links and images"
+   ],
+   "de": [
+    "Semantischer Aufbau",
+    "Überschriften, Absätze, Listen",
+    "Links und Bilder"
+   ],
+   "es": [
+    "Estructura semántica",
+    "Títulos, párrafos, listas",
+    "Enlaces e imágenes"
+   ]
+  },
+  {
+   "en": [
+    "A complete page structure starting with <!DOCTYPE html>",
+    "Your name in an <h1> inside <header>",
+    "At least 2 links inside <nav>",
+    "A paragraph and a <ul> hobby list inside <main>",
+    "At least one <img> (with alt text)",
+    "Contact info inside <footer>"
+   ],
+   "de": [
+    "Ein vollständiger Seitenaufbau, der mit <!DOCTYPE html> beginnt",
+    "Dein Name in einem <h1> innerhalb von <header>",
+    "Mindestens 2 Links innerhalb von <nav>",
+    "Ein Absatz und eine <ul>-Hobbyliste innerhalb von <main>",
+    "Mindestens ein <img> (mit alt-Text)",
+    "Kontaktangaben innerhalb von <footer>"
+   ],
+   "es": [
+    "Una estructura de página completa que empiece con <!DOCTYPE html>",
+    "Tu nombre en un <h1> dentro de <header>",
+    "Al menos 2 enlaces dentro de <nav>",
+    "Un párrafo y una lista <ul> de aficiones dentro de <main>",
+    "Al menos una <img> (con texto alt)",
+    "Datos de contacto dentro de <footer>"
+   ]
+  },
+  {
+   "en": [
+    "First set up the skeleton: html, head, body",
+    "Then add the header, nav, main and footer sections",
+    "Fill in the content last",
+    "Do not forget alt text on every image!"
+   ],
+   "de": [
+    "Stell zuerst das Gerüst auf: html, head, body",
+    "Füge dann die Abschnitte header, nav, main und footer hinzu",
+    "Fülle zuletzt die Inhalte ein",
+    "Vergiss den alt-Text bei keinem Bild!"
+   ],
+   "es": [
+    "Monta primero el esqueleto: html, head, body",
+    "Añade después las secciones header, nav, main y footer",
+    "Rellena el contenido al final",
+    "¡No olvides el texto alt en ninguna imagen!"
+   ]
+  }
+ ]
+}

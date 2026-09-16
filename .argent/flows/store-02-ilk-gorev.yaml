@@ -1,0 +1,69 @@
+# SAHNE 2 — "Ilk gorevini ilk dakikada cozer".
+# Ana sayfadaki "Ilk Dersine Basla" -> Scratch'a Hos Geldin dersi.
+# Ders 9 adim; 3. adim ilk sorusu. Dogru secenege dokununca YESIL
+# isaretleniyor ve ALTINDA aciklama kutusu aciliyor (+10 XP).
+# Slaytta gorunen kare bu: cocuk bir seyi cozmus ve nedenini
+# okuyor.
+steps:
+  # --- ORTAK ACILIS (bkz. store-00-sablon.yaml) -------------------------
+  # Veri silinmis kurulumdan ana sayfaya: splash + 8 adimlik onboarding.
+  # Metin secici YOK: ayni akis tr/en/de/es kosularinda oynatiliyor.
+  #
+  # BEKLEMELER NEDEN SABIT: `await idle` bu uygulamada guvenilir degil,
+  # cunku Puf'un maskot animasyonu hic durmuyor. argent "ekran hic
+  # durulmadi" ya da "yerlesti ama bir parcasi hala degisiyordu" diye
+  # uyarip devam ediyor, sonraki dokunus da gecis sirasinda yutuluyor.
+  # Olculdu: goal secimi sonrasi yalnizca `await idle` birakilinca
+  # hemen ardindaki sekme dokunusu bosa dustu ve ekran ana sayfada
+  # kaldi. Bu yuzden her gecisten sonra sabit `wait` var.
+  - launch: com.devkom.app
+  - echo: Splash 2.5 sn surer (modern_splash_screen.dart:54); 3.5 sn bekliyoruz.
+  - wait: 3500
+  - echo: >-
+      Onboarding 1/8: mavi "10 adim git" blogunu (0.50, 0.754) ustteki bos
+      yuvaya (0.52, 0.678) birakiyoruz. Ileri ok bu adimda pasif; bloklar
+      birlesince 2. adima kendiliginden geciliyor.
+  - tool: gesture-swipe
+    args: { fromX: 0.50, fromY: 0.754, toX: 0.52, toY: 0.678, durationMs: 900 }
+  - wait: 1500
+  - echo: Onboarding 2/8 -> 8/8, sag alttaki ileri ok (0.861, 0.945), alti kez.
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 1200
+  - echo: >-
+      Onboarding 8/8 "HEDEFIN": ilk secenek "Oyun yapmak" (0.50, 0.449).
+      Secim onboarding'i bitirip ana sayfayi aciyor.
+  - tap: { x: 0.50, y: 0.449 }
+  - echo: >-
+      Ana sayfanin acilis gecisi + ilk verinin yerlesmesi. 2600 ms olculdu;
+      daha kisasinda sonraki dokunus yutuluyor.
+  - wait: 2600
+  # --- ORTAK ACILIS SONU ------------------------------------------------
+  - echo: >-
+      Ana sayfadaki turuncu kartin beyaz dugmesi "Ilk Dersine Basla"
+      (y 0.320-0.383) -> merkez (0.4995, 0.3515).
+  - tap: { x: 0.4995, y: 0.3515 }
+  - wait: 2200
+  - echo: >-
+      Ders 1/9 (tanitim) ve 2/9 (Scratch nedir) bilgi adimi. Sag alttaki
+      "Devam" (0.817, 0.921) iki kez -> 3/9 soru adimi.
+  - tap: { x: 0.817, y: 0.921 }
+  - wait: 1200
+  - tap: { x: 0.817, y: 0.921 }
+  - wait: 1400
+  - echo: >-
+      3/9 "Scratch ile neler yapabilirsin?" — dogru secenek 3. siradaki
+      "Oyun, animasyon, hikaye ve daha fazlasi!" (y 0.597-0.684) ->
+      merkez (0.4995, 0.6405). Dokununca secenek yesile donuyor ve
+      aciklama kutusu aciliyor.
+  - tap: { x: 0.4995, y: 0.6405 }
+  - wait: 1800

@@ -1,0 +1,1760 @@
+{
+ "metinler": {
+  "Welcome to Python!": [
+   "Willkommen bei Python!",
+   "¡Bienvenido a Python!"
+  ],
+  "Your first Python program": [
+   "Dein erstes Python-Programm",
+   "Tu primer programa en Python"
+  ],
+  "Hi! I am the Python snake! Together we are going to build great programs. Ready?": [
+   "Hallo! Ich bin die Python-Schlange! Zusammen bauen wir tolle Programme. Bereit?",
+   "¡Hola! ¡Soy la serpiente Python! Juntos vamos a construir programas geniales. ¿Listo?"
+  ],
+  "What Is Python?": [
+   "Was ist Python?",
+   "¿Qué es Python?"
+  ],
+  "Python is easy to learn but very powerful. It is used to build websites, games, artificial intelligence and much more!": [
+   "Python ist leicht zu lernen, aber sehr mächtig. Damit baut man Webseiten, Spiele, künstliche Intelligenz und vieles mehr!",
+   "Python es fácil de aprender pero muy potente. ¡Se usa para crear páginas web, juegos, inteligencia artificial y mucho más!"
+  ],
+  "Big sites like Google, YouTube and Instagram use Python!": [
+   "Große Seiten wie Google, YouTube und Instagram benutzen Python!",
+   "¡Sitios enormes como Google, YouTube e Instagram usan Python!"
+  ],
+  "Your First Command: print()": [
+   "Dein erster Befehl: print()",
+   "Tu primer comando: print()"
+  ],
+  "The print() command writes text on the screen. It is one of the most used commands in Python!": [
+   "Der Befehl print() schreibt Text auf den Bildschirm. Er ist einer der meistbenutzten Befehle in Python!",
+   "El comando print() escribe texto en la pantalla. ¡Es uno de los comandos más usados de Python!"
+  ],
+  "What does print(\"Python\") do?": [
+   "Was macht print(\"Python\")?",
+   "¿Qué hace print(\"Python\")?"
+  ],
+  "That is right! print() is for writing text on the screen.": [
+   "Richtig! print() schreibt Text auf den Bildschirm.",
+   "¡Correcto! print() sirve para escribir texto en la pantalla."
+  ],
+  "Quotation Marks": [
+   "Anführungszeichen",
+   "Comillas"
+  ],
+  "We write text (strings) inside double quotes \" \" or single quotes \\' \\'.\\n\\nExample:\\nprint(\"Hello\")\\nprint(\\'Hi\\')\\n\\nBoth work!": [
+   "Text (Strings) schreiben wir in doppelte Anführungszeichen \" \" oder einfache \\' \\'.\\n\\nBeispiel:\\nprint(\"Hallo\")\\nprint(\\'Hi\\')\\n\\nBeides funktioniert!",
+   "El texto (las cadenas) se escribe entre comillas dobles \" \" o simples \\' \\'.\\n\\nEjemplo:\\nprint(\"Hola\")\\nprint(\\'Hola\\')\\n\\n¡Las dos formas funcionan!"
+  ],
+  "Which one is WRONG?": [
+   "Welches ist FALSCH?",
+   "¿Cuál es INCORRECTO?"
+  ],
+  "print(Hello) is wrong! Text has to be in quotes: print(\"Hello\")": [
+   "print(Hallo) ist falsch! Text muss in Anführungszeichen: print(\"Hallo\")",
+   "¡print(Hola) es incorrecto! El texto tiene que ir entre comillas: print(\"Hola\")"
+  ],
+  "Congratulations!": [
+   "Glückwunsch!",
+   "¡Enhorabuena!"
+  ],
+  "🎉 You finished your first Python lesson!\\n\\n✓ You met Python\\n✓ You learned the print() command\\n✓ You used strings (text)\\n\\nNext lesson: variables!": [
+   "🎉 Du hast deine erste Python-Lektion geschafft!\\n\\n✓ Du hast Python kennengelernt\\n✓ Du hast den Befehl print() gelernt\\n✓ Du hast Strings (Text) benutzt\\n\\nNächste Lektion: Variablen!",
+   "🎉 ¡Has terminado tu primera lección de Python!\\n\\n✓ Conociste Python\\n✓ Aprendiste el comando print()\\n✓ Usaste cadenas (texto)\\n\\nSiguiente lección: ¡las variables!"
+  ],
+  "You earned the Python Starter badge!": [
+   "Du hast das Abzeichen «Python-Einsteiger» verdient!",
+   "¡Has ganado la insignia Principiante de Python!"
+  ],
+  "Variables": [
+   "Variablen",
+   "Variables"
+  ],
+  "Store information and use it": [
+   "Informationen speichern und benutzen",
+   "Guarda información y úsala"
+  ],
+  "Variables are like boxes that hold information. Write a name on it and put whatever you like inside!": [
+   "Variablen sind wie Kisten, die Informationen halten. Schreib einen Namen drauf und leg hinein, was du willst!",
+   "Las variables son como cajas que guardan información. ¡Escribe un nombre encima y mete dentro lo que quieras!"
+  ],
+  "What Is a Variable?": [
+   "Was ist eine Variable?",
+   "¿Qué es una variable?"
+  ],
+  "A variable is a name plus a value. It stores information and you use it whenever you want.": [
+   "Eine Variable ist ein Name plus ein Wert. Sie speichert Informationen, und du benutzt sie, wann du willst.",
+   "Una variable es un nombre más un valor. Guarda información y la usas cuando quieras."
+  ],
+  "Using Variables": [
+   "Variablen benutzen",
+   "Usar variables"
+  ],
+  "Create the variable (=) and then use it:": [
+   "Erstelle die Variable (=) und benutze sie dann:",
+   "Crea la variable (=) y después úsala:"
+  ],
+  "Lines that start with # are comments and are not run!": [
+   "Zeilen, die mit # beginnen, sind Kommentare und werden nicht ausgeführt!",
+   "¡Las líneas que empiezan con # son comentarios y no se ejecutan!"
+  ],
+  "x = 10\\nprint(x)\\nWhat does this code do?": [
+   "x = 10\\nprint(x)\\nWas macht dieser Code?",
+   "x = 10\\nprint(x)\\n¿Qué hace este código?"
+  ],
+  "The value of x is 10, so it prints 10 on the screen.": [
+   "Der Wert von x ist 10, also wird 10 auf den Bildschirm geschrieben.",
+   "El valor de x es 10, así que escribe 10 en la pantalla."
+  ],
+  "Variable Types": [
+   "Variablentypen",
+   "Tipos de variables"
+  ],
+  "Python has different types of variables:\\n\\n• Whole number (int): 10, 42, -5\\n• Decimal (float): 3.14, 2.5\\n• Text (string): \"Hello\"\\n• True/false (bool): True, False": [
+   "Python hat verschiedene Variablentypen:\\n\\n• Ganze Zahl (int): 10, 42, -5\\n• Kommazahl (float): 3.14, 2.5\\n• Text (string): \"Hallo\"\\n• Wahr/falsch (bool): True, False",
+   "Python tiene distintos tipos de variables:\\n\\n• Número entero (int): 10, 42, -5\\n• Número decimal (float): 3.14, 2.5\\n• Texto (string): \"Hola\"\\n• Verdadero/falso (bool): True, False"
+  ],
+  "Match the variables with their types!": [
+   "Ordne die Variablen ihren Typen zu!",
+   "¡Relaciona las variables con sus tipos!"
+  ],
+  "Variable Master!": [
+   "Variablen-Meister!",
+   "¡Maestro de las variables!"
+  ],
+  "🎊 You learned variables!\\n\\n✓ Creating a variable\\n✓ Using a variable\\n✓ Different types\\n\\nNext up: math operations!": [
+   "🎊 Du hast Variablen gelernt!\\n\\n✓ Eine Variable erstellen\\n✓ Eine Variable benutzen\\n✓ Verschiedene Typen\\n\\nAls Nächstes: Rechenoperationen!",
+   "🎊 ¡Aprendiste las variables!\\n\\n✓ Crear una variable\\n✓ Usar una variable\\n✓ Distintos tipos\\n\\nSiguiente: ¡operaciones matemáticas!"
+  ],
+  "You earned the Variable Master badge!": [
+   "Du hast das Abzeichen «Variablen-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de las Variables!"
+  ],
+  "Maths Operations": [
+   "Rechenoperationen",
+   "Operaciones matemáticas"
+  ],
+  "Do the sums with Python": [
+   "Rechne mit Python",
+   "Haz las cuentas con Python"
+  ],
+  "Python is a brilliant calculator! Addition, subtraction, multiplication and much more!": [
+   "Python ist ein glänzender Taschenrechner! Plus, minus, mal und vieles mehr!",
+   "¡Python es una calculadora estupenda! Sumas, restas, multiplicaciones y mucho más."
+  ],
+  "Basic Operations": [
+   "Grundrechenarten",
+   "Operaciones básicas"
+  ],
+  "Math in Python is very easy:\\n\\n+ Addition\\n- Subtraction\\n* Multiplication\\n/ Division": [
+   "Rechnen ist in Python sehr einfach:\\n\\n+ Addition\\n- Subtraktion\\n* Multiplikation\\n/ Division",
+   "Las matemáticas en Python son muy fáciles:\\n\\n+ Suma\\n- Resta\\n* Multiplicación\\n/ División"
+  ],
+  "What does print(7 * 6) print?": [
+   "Was gibt print(7 * 6) aus?",
+   "¿Qué muestra print(7 * 6)?"
+  ],
+  "7 times 6 = 42": [
+   "7 mal 6 = 42",
+   "7 por 6 = 42"
+  ],
+  "Math With Variables": [
+   "Rechnen mit Variablen",
+   "Matemáticas con variables"
+  ],
+  "You can do math with variables too:": [
+   "Du kannst auch mit Variablen rechnen:",
+   "También puedes hacer cuentas con variables:"
+  ],
+  "Special Operations": [
+   "Besondere Operationen",
+   "Operaciones especiales"
+  ],
+  "Some special math operations:\\n\\n** Power (2**3 = 8)\\n// Whole division (17//5 = 3)\\n% Mod (remainder) (17%5 = 2)": [
+   "Ein paar besondere Rechenoperationen:\\n\\n** Potenz (2**3 = 8)\\n// Ganzzahldivision (17//5 = 3)\\n% Modulo (Rest) (17%5 = 2)",
+   "Algunas operaciones matemáticas especiales:\\n\\n** Potencia (2**3 = 8)\\n// División entera (17//5 = 3)\\n% Módulo (resto) (17%5 = 2)"
+  ],
+  "What does print(2 ** 4) print?": [
+   "Was gibt print(2 ** 4) aus?",
+   "¿Qué muestra print(2 ** 4)?"
+  ],
+  "2 to the power of 4 = 2*2*2*2 = 16": [
+   "2 hoch 4 = 2*2*2*2 = 16",
+   "2 elevado a 4 = 2*2*2*2 = 16"
+  ],
+  "Match the operations with their results!": [
+   "Ordne die Operationen ihren Ergebnissen zu!",
+   "¡Relaciona las operaciones con sus resultados!"
+  ],
+  "Math Wizard!": [
+   "Rechen-Zauberer!",
+   "¡Mago de las matemáticas!"
+  ],
+  "🧮 Math with Python is easy now!\\n\\n✓ Basic operations\\n✓ Calculating with variables\\n✓ Special operators\\n\\nNext module: user input!": [
+   "🧮 Rechnen mit Python ist jetzt leicht!\\n\\n✓ Grundrechenarten\\n✓ Mit Variablen rechnen\\n✓ Besondere Operatoren\\n\\nNächstes Modul: Eingaben der Nutzer!",
+   "🧮 ¡Ahora las matemáticas con Python son fáciles!\\n\\n✓ Operaciones básicas\\n✓ Calcular con variables\\n✓ Operadores especiales\\n\\nSiguiente módulo: ¡la entrada del usuario!"
+  ],
+  "You earned the Math Wizard badge!": [
+   "Du hast das Abzeichen «Rechen-Zauberer» verdient!",
+   "¡Has ganado la insignia Mago de las Matemáticas!"
+  ],
+  "Getting Input with input()": [
+   "Eingaben mit input()",
+   "Recoger datos con input()"
+  ],
+  "Ask the user for information": [
+   "Frag den Nutzer nach Informationen",
+   "Pídele información al usuario"
+  ],
+  "Now we are going to talk to the user! Ask a question with input() and get an answer!": [
+   "Jetzt reden wir mit dem Nutzer! Stell mit input() eine Frage und bekomme eine Antwort!",
+   "¡Ahora vamos a hablar con el usuario! ¡Haz una pregunta con input() y consigue una respuesta!"
+  ],
+  "What Is input()?": [
+   "Was ist input()?",
+   "¿Qué es input()?"
+  ],
+  "input() is for getting information from the user. It asks a question and waits for the answer.": [
+   "input() holt Informationen vom Nutzer. Es stellt eine Frage und wartet auf die Antwort.",
+   "input() sirve para conseguir información del usuario. Hace una pregunta y espera la respuesta."
+  ],
+  "How Does input() Work?": [
+   "Wie funktioniert input()?",
+   "¿Cómo funciona input()?"
+  ],
+  "1. The question appears on the screen\\n2. The user types an answer\\n3. The answer is stored in a variable\\n4. The program carries on": [
+   "1. Die Frage erscheint auf dem Bildschirm\\n2. Der Nutzer tippt eine Antwort\\n3. Die Antwort wird in einer Variablen gespeichert\\n4. Das Programm läuft weiter",
+   "1. La pregunta aparece en la pantalla\\n2. El usuario escribe una respuesta\\n3. La respuesta se guarda en una variable\\n4. El programa continúa"
+  ],
+  "input() waits until the user presses Enter!": [
+   "input() wartet, bis der Nutzer Enter drückt!",
+   "¡input() espera hasta que el usuario pulsa Intro!"
+  ],
+  "age = input(\"How old are you? \")\\nWhat does this code do?": [
+   "alter = input(\"Wie alt bist du? \")\\nWas macht dieser Code?",
+   "edad = input(\"¿Cuántos años tienes? \")\\n¿Qué hace este código?"
+  ],
+  "input() asks the question and stores the user\\'s answer in the age variable.": [
+   "input() stellt die Frage und speichert die Antwort des Nutzers in der Variablen alter.",
+   "input() hace la pregunta y guarda la respuesta del usuario en la variable edad."
+  ],
+  "Joining Strings": [
+   "Strings zusammenfügen",
+   "Unir cadenas"
+  ],
+  "You can join pieces of text with +:": [
+   "Mit + kannst du Textstücke zusammenfügen:",
+   "Puedes unir trozos de texto con +:"
+  ],
+  "What does print(\"Python\" + \" \" + \"is great\") print?": [
+   "Was gibt print(\"Python\" + \" \" + \"ist toll\") aus?",
+   "¿Qué muestra print(\"Python\" + \" \" + \"es genial\")?"
+  ],
+  "+ puts pieces of text side by side. The space in the middle is added too.": [
+   "+ stellt Textstücke nebeneinander. Das Leerzeichen in der Mitte kommt mit dazu.",
+   "+ pone los trozos de texto uno junto a otro. El espacio del medio también se añade."
+  ],
+  "Input Master!": [
+   "Eingabe-Meister!",
+   "¡Maestro de la entrada!"
+  ],
+  "⌨️ Talking with the user is in your hands now!\\n\\n✓ Using input()\\n✓ Taking in data\\n✓ Joining strings\\n\\nNext up: type conversion!": [
+   "⌨️ Das Gespräch mit dem Nutzer liegt jetzt in deiner Hand!\\n\\n✓ input() benutzen\\n✓ Daten entgegennehmen\\n✓ Strings zusammenfügen\\n\\nAls Nächstes: Typumwandlung!",
+   "⌨️ ¡Hablar con el usuario ya está en tus manos!\\n\\n✓ Usar input()\\n✓ Recoger datos\\n✓ Unir cadenas\\n\\nSiguiente: ¡la conversión de tipos!"
+  ],
+  "You earned the Input Master badge!": [
+   "Du hast das Abzeichen «Eingabe-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de la Entrada!"
+  ],
+  "Type Conversion": [
+   "Typumwandlung",
+   "Conversión de tipos"
+  ],
+  "Turn a string into a number": [
+   "Aus einem String eine Zahl machen",
+   "Convertir una cadena en un número"
+  ],
+  "input() always gives back a string. But what if you want to do math with numbers?": [
+   "input() gibt immer einen String zurück. Aber was, wenn du mit Zahlen rechnen willst?",
+   "input() siempre devuelve una cadena. Pero ¿y si quieres hacer cuentas con números?"
+  ],
+  "The Problem: input() Gives a String": [
+   "Das Problem: input() gibt einen String",
+   "El problema: input() devuelve una cadena"
+  ],
+  "input() always gives back text (a string), never a number!": [
+   "input() gibt immer Text (einen String) zurück, nie eine Zahl!",
+   "¡input() siempre devuelve texto (una cadena), nunca un número!"
+  ],
+  "The Fix: int() and float()": [
+   "Die Lösung: int() und float()",
+   "La solución: int() y float()"
+  ],
+  "Type conversion turns a string into a number:\\n\\nint() -> whole number\\nfloat() -> decimal number": [
+   "Die Typumwandlung macht aus einem String eine Zahl:\\n\\nint() -> ganze Zahl\\nfloat() -> Kommazahl",
+   "La conversión de tipos convierte una cadena en un número:\\n\\nint() -> número entero\\nfloat() -> número decimal"
+  ],
+  "number = int(\"42\")\\nWhat does print(number + 8) print?": [
+   "zahl = int(\"42\")\\nWas gibt print(zahl + 8) aus?",
+   "numero = int(\"42\")\\n¿Qué muestra print(numero + 8)?"
+  ],
+  "int(\"42\") turns the string into the number 42. Then 42 + 8 = 50": [
+   "int(\"42\") macht aus dem String die Zahl 42. Dann 42 + 8 = 50",
+   "int(\"42\") convierte la cadena en el número 42. Luego 42 + 8 = 50"
+  ],
+  "A Shortcut": [
+   "Eine Abkürzung",
+   "Un atajo"
+  ],
+  "You can convert right inside input():": [
+   "Du kannst direkt in input() umwandeln:",
+   "Puedes convertir dentro del propio input():"
+  ],
+  "Match the functions with what they do!": [
+   "Ordne die Funktionen ihren Aufgaben zu!",
+   "¡Relaciona las funciones con lo que hacen!"
+  ],
+  "Converter Pro!": [
+   "Umwandlungs-Profi!",
+   "¡Profesional de la conversión!"
+  ],
+  "🔄 You can now use every kind of data!\\n\\n✓ Using int()\\n✓ Using float()\\n✓ How type conversion works\\n\\nNext module: conditions!": [
+   "🔄 Jetzt kannst du mit jeder Art von Daten umgehen!\\n\\n✓ int() benutzen\\n✓ float() benutzen\\n✓ Wie Typumwandlung funktioniert\\n\\nNächstes Modul: Bedingungen!",
+   "🔄 ¡Ya puedes usar todo tipo de datos!\\n\\n✓ Usar int()\\n✓ Usar float()\\n✓ Cómo funciona la conversión de tipos\\n\\nSiguiente módulo: ¡las condiciones!"
+  ],
+  "You earned the Converter Pro badge!": [
+   "Du hast das Abzeichen «Umwandlungs-Profi» verdient!",
+   "¡Has ganado la insignia Profesional de la Conversión!"
+  ],
+  "The if Statement": [
+   "Die if-Anweisung",
+   "La instrucción if"
+  ],
+  "Let your program decide": [
+   "Lass dein Programm entscheiden",
+   "Deja que tu programa decida"
+  ],
+  "Programs can make decisions! With if you are going to learn conditional logic!": [
+   "Programme können Entscheidungen treffen! Mit if lernst du bedingte Logik!",
+   "¡Los programas pueden tomar decisiones! ¡Con if vas a aprender la lógica condicional!"
+  ],
+  "What Is if?": [
+   "Was ist if?",
+   "¿Qué es if?"
+  ],
+  "if means \"if\". It checks a condition, and if it is true the code runs.": [
+   "if heißt «falls». Es prüft eine Bedingung, und wenn sie wahr ist, läuft der Code.",
+   "if significa «si». Comprueba una condición y, si es verdadera, el código se ejecuta."
+  ],
+  "Indentation": [
+   "Einrückung",
+   "La sangría"
+  ],
+  "Indentation really matters in Python! The code inside an if has to be indented (4 spaces or a Tab).": [
+   "Die Einrückung ist in Python wirklich wichtig! Der Code in einem if muss eingerückt sein (4 Leerzeichen oder ein Tab).",
+   "¡La sangría importa de verdad en Python! El código dentro de un if tiene que ir sangrado (4 espacios o un tabulador)."
+  ],
+  "Indentation mistakes are among the most common errors in Python!": [
+   "Einrückungsfehler gehören zu den häufigsten Fehlern in Python!",
+   "¡Los errores de sangría están entre los fallos más comunes de Python!"
+  ],
+  "score = 85\\nif score > 50:\\n    print(\"I passed!\")\\nWhat happens?": [
+   "punkte = 85\\nif punkte > 50:\\n    print(\"Bestanden!\")\\nWas passiert?",
+   "nota = 85\\nif nota > 50:\\n    print(\"¡Aprobado!\")\\n¿Qué pasa?"
+  ],
+  "85 > 50 is true, so the if block runs and prints \"I passed!\".": [
+   "85 > 50 ist wahr, also läuft der if-Block und schreibt \"Bestanden!\".",
+   "85 > 50 es verdadero, así que el bloque if se ejecuta y escribe \"¡Aprobado!\"."
+  ],
+  "Comparison Operators": [
+   "Vergleichsoperatoren",
+   "Operadores de comparación"
+  ],
+  "Condition checks:\\n\\n== Is it equal?\\n!= Is it not equal?\\n> Is it greater?\\n< Is it smaller?\\n>= Greater or equal?\\n<= Smaller or equal?": [
+   "Bedingungen prüfen:\\n\\n== Ist es gleich?\\n!= Ist es ungleich?\\n> Ist es größer?\\n< Ist es kleiner?\\n>= Größer oder gleich?\\n<= Kleiner oder gleich?",
+   "Comprobaciones de condiciones:\\n\\n== ¿Es igual?\\n!= ¿Es distinto?\\n> ¿Es mayor?\\n< ¿Es menor?\\n>= ¿Mayor o igual?\\n<= ¿Menor o igual?"
+  ],
+  "Match the operators with their meanings!": [
+   "Ordne die Operatoren ihren Bedeutungen zu!",
+   "¡Relaciona los operadores con sus significados!"
+  ],
+  "Decision Maker!": [
+   "Entscheider!",
+   "¡Tomador de decisiones!"
+  ],
+  "🤔 Your programs can think now!\\n\\n✓ Using if\\n✓ Indentation\\n✓ Comparison operators\\n\\nNext up: else and elif!": [
+   "🤔 Deine Programme können jetzt denken!\\n\\n✓ if benutzen\\n✓ Einrückung\\n✓ Vergleichsoperatoren\\n\\nAls Nächstes: else und elif!",
+   "🤔 ¡Tus programas ya pueden pensar!\\n\\n✓ Usar if\\n✓ La sangría\\n✓ Operadores de comparación\\n\\nSiguiente: ¡else y elif!"
+  ],
+  "You earned the Decision Maker badge!": [
+   "Du hast das Abzeichen «Entscheider» verdient!",
+   "¡Has ganado la insignia Tomador de Decisiones!"
+  ],
+  "else and elif": [
+   "else und elif",
+   "else y elif"
+  ],
+  "Alternative conditions": [
+   "Alternative Bedingungen",
+   "Condiciones alternativas"
+  ],
+  "As well as if, there is else and elif! More options mean smarter programs!": [
+   "Neben if gibt es else und elif! Mehr Möglichkeiten heißt klügere Programme!",
+   "¡Además de if existen else y elif! ¡Más opciones significan programas más listos!"
+  ],
+  "else = Otherwise": [
+   "else = sonst",
+   "else = si no"
+  ],
+  "If the if condition is false, the else block runs:": [
+   "Wenn die if-Bedingung falsch ist, läuft der else-Block:",
+   "Si la condición del if es falsa, se ejecuta el bloque else:"
+  ],
+  "number = 10\\nif number > 20:\\n    print(\"A\")\\nelse:\\n    print(\"B\")\\nWhat does it print?": [
+   "zahl = 10\\nif zahl > 20:\\n    print(\"A\")\\nelse:\\n    print(\"B\")\\nWas wird ausgegeben?",
+   "numero = 10\\nif numero > 20:\\n    print(\"A\")\\nelse:\\n    print(\"B\")\\n¿Qué muestra?"
+  ],
+  "10 > 20 is false, so the else block runs and prints B.": [
+   "10 > 20 ist falsch, also läuft der else-Block und gibt B aus.",
+   "10 > 20 es falso, así que se ejecuta el bloque else y muestra B."
+  ],
+  "elif = Or Else If": [
+   "elif = sonst falls",
+   "elif = o si no, si"
+  ],
+  "elif (else if) checks other conditions:": [
+   "elif (else if) prüft weitere Bedingungen:",
+   "elif (else if) comprueba otras condiciones:"
+  ],
+  "When do you use elif?": [
+   "Wann benutzt du elif?",
+   "¿Cuándo usas elif?"
+  ],
+  "With elif you can check several conditions one after another!": [
+   "Mit elif kannst du mehrere Bedingungen nacheinander prüfen!",
+   "¡Con elif puedes comprobar varias condiciones una tras otra!"
+  ],
+  "The Full Structure": [
+   "Der vollständige Aufbau",
+   "La estructura completa"
+  ],
+  "The if-elif-else structure:\\n\\n1. if: the first condition\\n2. elif: other conditions (as many as you like)\\n3. else: when none of them matched": [
+   "Der Aufbau if-elif-else:\\n\\n1. if: die erste Bedingung\\n2. elif: weitere Bedingungen (so viele du willst)\\n3. else: wenn keine davon gepasst hat",
+   "La estructura if-elif-else:\\n\\n1. if: la primera condición\\n2. elif: otras condiciones (tantas como quieras)\\n3. else: cuando ninguna ha coincidido"
+  ],
+  "Logic Expert!": [
+   "Logik-Experte!",
+   "¡Experto en lógica!"
+  ],
+  "↔️ You can handle every case now!\\n\\n✓ Using else\\n✓ Using elif\\n✓ Checking several conditions\\n\\nNext module: loops!": [
+   "↔️ Jetzt kommst du mit jedem Fall zurecht!\\n\\n✓ else benutzen\\n✓ elif benutzen\\n✓ Mehrere Bedingungen prüfen\\n\\nNächstes Modul: Schleifen!",
+   "↔️ ¡Ya puedes con cualquier caso!\\n\\n✓ Usar else\\n✓ Usar elif\\n✓ Comprobar varias condiciones\\n\\nSiguiente módulo: ¡los bucles!"
+  ],
+  "You earned the Logic Expert badge!": [
+   "Du hast das Abzeichen «Logik-Experte» verdient!",
+   "¡Has ganado la insignia Experto en Lógica!"
+  ],
+  "The while Loop": [
+   "Die while-Schleife",
+   "El bucle while"
+  ],
+  "Repeat, repeat, repeat!": [
+   "Wiederholen, wiederholen, wiederholen!",
+   "¡Repetir, repetir, repetir!"
+  ],
+  "You would not want to write the same code 100 times! With a while loop you write it once and repeat it as often as you like!": [
+   "Du willst denselben Code sicher nicht 100-mal schreiben! Mit einer while-Schleife schreibst du ihn einmal und wiederholst ihn so oft du willst!",
+   "¡Seguro que no quieres escribir el mismo código 100 veces! ¡Con un bucle while lo escribes una vez y lo repites tantas veces como quieras!"
+  ],
+  "What Is while?": [
+   "Was ist while?",
+   "¿Qué es while?"
+  ],
+  "while means \"as long as\". The code repeats while the condition stays true.": [
+   "while heißt «solange». Der Code wiederholt sich, solange die Bedingung wahr bleibt.",
+   "while significa «mientras». El código se repite mientras la condición siga siendo verdadera."
+  ],
+  "Careful: Infinite Loops!": [
+   "Achtung: Endlosschleifen!",
+   "¡Cuidado: bucles infinitos!"
+  ],
+  "If the condition never becomes false, the loop never ends!": [
+   "Wenn die Bedingung nie falsch wird, hört die Schleife nie auf!",
+   "¡Si la condición nunca se vuelve falsa, el bucle no termina nunca!"
+  ],
+  "Every loop needs a way out!": [
+   "Jede Schleife braucht einen Ausweg!",
+   "¡Todo bucle necesita una salida!"
+  ],
+  "x = 0\\nwhile x < 3:\\n    x = x + 1\\nprint(x)\\nWhat does it print?": [
+   "x = 0\\nwhile x < 3:\\n    x = x + 1\\nprint(x)\\nWas wird ausgegeben?",
+   "x = 0\\nwhile x < 3:\\n    x = x + 1\\nprint(x)\\n¿Qué muestra?"
+  ],
+  "After the loop has run 3 times x is 3, the condition becomes false, so the output is 3": [
+   "Nachdem die Schleife 3-mal gelaufen ist, ist x gleich 3, die Bedingung wird falsch, also ist die Ausgabe 3",
+   "Después de que el bucle se ejecute 3 veces, x vale 3, la condición se vuelve falsa y la salida es 3"
+  ],
+  "Loop Beginner!": [
+   "Schleifen-Anfänger!",
+   "¡Principiante de los bucles!"
+  ],
+  "🔄 Repeating with a while loop is easy now!\\n\\n✓ Using while\\n✓ Checking the condition\\n✓ Avoiding infinite loops\\n\\nNext up: the for loop!": [
+   "🔄 Wiederholen mit einer while-Schleife ist jetzt leicht!\\n\\n✓ while benutzen\\n✓ Die Bedingung prüfen\\n✓ Endlosschleifen vermeiden\\n\\nAls Nächstes: die for-Schleife!",
+   "🔄 ¡Repetir con un bucle while ya es fácil!\\n\\n✓ Usar while\\n✓ Comprobar la condición\\n✓ Evitar bucles infinitos\\n\\nSiguiente: ¡el bucle for!"
+  ],
+  "You earned the Loop Beginner badge!": [
+   "Du hast das Abzeichen «Schleifen-Anfänger» verdient!",
+   "¡Has ganado la insignia Principiante de los Bucles!"
+  ],
+  "The for Loop": [
+   "Die for-Schleife",
+   "El bucle for"
+  ],
+  "Walk through a list": [
+   "Eine Liste durchlaufen",
+   "Recorrer una lista"
+  ],
+  "A for loop walks through a list. It handles every item one by one!": [
+   "Eine for-Schleife durchläuft eine Liste. Sie nimmt jeden Eintrag nacheinander dran!",
+   "Un bucle for recorre una lista. ¡Se ocupa de cada elemento uno a uno!"
+  ],
+  "A for loop goes through a sequence one item at a time:": [
+   "Eine for-Schleife geht eine Folge Eintrag für Eintrag durch:",
+   "Un bucle for recorre una secuencia elemento a elemento:"
+  ],
+  "The range() Function": [
+   "Die Funktion range()",
+   "La función range()"
+  ],
+  "range() creates a sequence of numbers:\\n\\nExample:\\nfor i in range(5):\\n    print(i)\\n\\nOutput: 0, 1, 2, 3, 4\\n\\nrange(5) = from 0 up to 4": [
+   "range() erzeugt eine Folge von Zahlen:\\n\\nBeispiel:\\nfor i in range(5):\\n    print(i)\\n\\nAusgabe: 0, 1, 2, 3, 4\\n\\nrange(5) = von 0 bis 4",
+   "range() crea una secuencia de números:\\n\\nEjemplo:\\nfor i in range(5):\\n    print(i)\\n\\nSalida: 0, 1, 2, 3, 4\\n\\nrange(5) = de 0 hasta 4"
+  ],
+  "range(5) starts at 0, and 5 is not included!": [
+   "range(5) beginnt bei 0, und die 5 ist nicht dabei!",
+   "¡range(5) empieza en 0, y el 5 no se incluye!"
+  ],
+  "for i in range(3):\\n    print(\"Hi\")\\nHow many times does it print \"Hi\"?": [
+   "for i in range(3):\\n    print(\"Hi\")\\nWie oft wird \"Hi\" ausgegeben?",
+   "for i in range(3):\\n    print(\"Hola\")\\n¿Cuántas veces muestra \"Hola\"?"
+  ],
+  "range(3) = [0, 1, 2], which is 3 items. So it prints 3 times.": [
+   "range(3) = [0, 1, 2], also 3 Einträge. Deshalb wird 3-mal ausgegeben.",
+   "range(3) = [0, 1, 2], o sea 3 elementos. Así que lo muestra 3 veces."
+  ],
+  "Match the loop types with what they are used for!": [
+   "Ordne die Schleifenarten ihrem Einsatzzweck zu!",
+   "¡Relaciona los tipos de bucle con su uso!"
+  ],
+  "for Loop Master!": [
+   "for-Schleifen-Meister!",
+   "¡Maestro del bucle for!"
+  ],
+  "📜 You are a for loop expert now!\\n\\n✓ Using for\\n✓ The range() function\\n✓ Walking through a list\\n\\nNext module: lists!": [
+   "📜 Jetzt bist du Experte für for-Schleifen!\\n\\n✓ for benutzen\\n✓ Die Funktion range()\\n✓ Eine Liste durchlaufen\\n\\nNächstes Modul: Listen!",
+   "📜 ¡Ya eres experto en bucles for!\\n\\n✓ Usar for\\n✓ La función range()\\n✓ Recorrer una lista\\n\\nSiguiente módulo: ¡las listas!"
+  ],
+  "You earned the for Loop Master badge!": [
+   "Du hast das Abzeichen «for-Schleifen-Meister» verdient!",
+   "¡Has ganado la insignia Maestro del Bucle for!"
+  ],
+  "List Basics": [
+   "Grundlagen der Listen",
+   "Fundamentos de las listas"
+  ],
+  "Keep many values together": [
+   "Viele Werte zusammen aufbewahren",
+   "Guarda muchos valores juntos"
+  ],
+  "Lists hold several values in one place! Very handy!": [
+   "Listen halten mehrere Werte an einem Ort! Sehr praktisch!",
+   "¡Las listas guardan varios valores en un mismo sitio! ¡Muy práctico!"
+  ],
+  "What Is a List?": [
+   "Was ist eine Liste?",
+   "¿Qué es una lista?"
+  ],
+  "A list stores more than one value. You create it with square brackets [ ].": [
+   "Eine Liste speichert mehr als einen Wert. Du erstellst sie mit eckigen Klammern [ ].",
+   "Una lista guarda más de un valor. Se crea con corchetes [ ]."
+  ],
+  "Reaching Into a List": [
+   "In eine Liste hineingreifen",
+   "Acceder a una lista"
+  ],
+  "Reach an item by its index (position number). It starts at 0!": [
+   "Greif einen Eintrag über seinen Index (Platznummer) heraus. Der beginnt bei 0!",
+   "Accede a un elemento por su índice (número de posición). ¡Empieza en 0!"
+  ],
+  "In Python indexes start at 0, not 1!": [
+   "In Python beginnen Indexe bei 0, nicht bei 1!",
+   "¡En Python los índices empiezan en 0, no en 1!"
+  ],
+  "my_list = [10, 20, 30]\\nWhat does print(my_list[1]) print?": [
+   "meine_liste = [10, 20, 30]\\nWas gibt print(meine_liste[1]) aus?",
+   "mi_lista = [10, 20, 30]\\n¿Qué muestra print(mi_lista[1])?"
+  ],
+  "Index 1 = the second item = 20": [
+   "Index 1 = der zweite Eintrag = 20",
+   "Índice 1 = el segundo elemento = 20"
+  ],
+  "List Methods": [
+   "Listen-Methoden",
+   "Métodos de lista"
+  ],
+  "Commands that change a list:\\n\\nappend() - add to the end\\nremove() - take out\\nlen() - length": [
+   "Befehle, die eine Liste verändern:\\n\\nappend() - hinten anfügen\\nremove() - herausnehmen\\nlen() - Länge",
+   "Comandos que cambian una lista:\\n\\nappend() - añadir al final\\nremove() - quitar\\nlen() - longitud"
+  ],
+  "List Beginner!": [
+   "Listen-Anfänger!",
+   "¡Principiante de las listas!"
+  ],
+  "📋 With lists you can manage a lot of data!\\n\\n✓ Creating a list\\n✓ Using indexes\\n✓ List methods\\n\\nWell done, the Python basics are complete!": [
+   "📋 Mit Listen kannst du viele Daten verwalten!\\n\\n✓ Eine Liste erstellen\\n✓ Indexe benutzen\\n✓ Listen-Methoden\\n\\nGut gemacht, die Python-Grundlagen sind komplett!",
+   "📋 ¡Con las listas puedes manejar muchos datos!\\n\\n✓ Crear una lista\\n✓ Usar índices\\n✓ Métodos de lista\\n\\n¡Muy bien, los fundamentos de Python están completos!"
+  ],
+  "You earned the List Beginner badge!": [
+   "Du hast das Abzeichen «Listen-Anfänger» verdient!",
+   "¡Has ganado la insignia Principiante de las Listas!"
+  ],
+  "Add, remove, sort!": [
+   "Hinzufügen, entfernen, sortieren!",
+   "¡Añadir, quitar, ordenar!"
+  ],
+  "You learned lists, now learn how to manage them! Adding, removing, sorting...": [
+   "Du kennst Listen, jetzt lerne, sie zu verwalten! Hinzufügen, entfernen, sortieren …",
+   "¡Ya conoces las listas, ahora aprende a manejarlas! Añadir, quitar, ordenar…"
+  ],
+  "Adding Items to a List": [
+   "Einträge zu einer Liste hinzufügen",
+   "Añadir elementos a una lista"
+  ],
+  "append() adds to the END of the list:\\n\\nfruits = [\"apple\", \"pear\"]\\nfruits.append(\"banana\")\\n# [\"apple\", \"pear\", \"banana\"]\\n\\ninsert() adds WHEREVER you want:\\n\\nfruits.insert(0, \"cherry\")\\n# [\"cherry\", \"apple\", \"pear\", \"banana\"]": [
+   "append() fügt ans ENDE der Liste an:\\n\\nobst = [\"Apfel\", \"Birne\"]\\nobst.append(\"Banane\")\\n# [\"Apfel\", \"Birne\", \"Banane\"]\\n\\ninsert() fügt ein, WO du willst:\\n\\nobst.insert(0, \"Kirsche\")\\n# [\"Kirsche\", \"Apfel\", \"Birne\", \"Banane\"]",
+   "append() añade al FINAL de la lista:\\n\\nfrutas = [\"manzana\", \"pera\"]\\nfrutas.append(\"plátano\")\\n# [\"manzana\", \"pera\", \"plátano\"]\\n\\ninsert() añade DONDE tú quieras:\\n\\nfrutas.insert(0, \"cereza\")\\n# [\"cereza\", \"manzana\", \"pera\", \"plátano\"]"
+  ],
+  "append always adds to the end; with insert you choose the spot!": [
+   "append hängt immer hinten an; bei insert suchst du die Stelle aus!",
+   "¡append añade siempre al final; con insert eliges el sitio!"
+  ],
+  "numbers = [1, 2, 3]\\nnumbers.append(4)\\nWhat does print(numbers) print?": [
+   "zahlen = [1, 2, 3]\\nzahlen.append(4)\\nWas gibt print(zahlen) aus?",
+   "numeros = [1, 2, 3]\\nnumeros.append(4)\\n¿Qué muestra print(numeros)?"
+  ],
+  "append() adds the item to the end of the list: [1, 2, 3, 4]": [
+   "append() hängt den Eintrag ans Ende der Liste: [1, 2, 3, 4]",
+   "append() añade el elemento al final de la lista: [1, 2, 3, 4]"
+  ],
+  "Removing Items": [
+   "Einträge entfernen",
+   "Quitar elementos"
+  ],
+  "remove() takes an item out by value:\\n\\nfruits.remove(\"apple\")\\n\\npop() takes it out by index:\\n\\nfruits.pop(0)  # remove the first item\\nfruits.pop()   # remove the last item": [
+   "remove() nimmt einen Eintrag über seinen Wert heraus:\\n\\nobst.remove(\"Apfel\")\\n\\npop() nimmt ihn über den Index heraus:\\n\\nobst.pop(0)  # den ersten Eintrag entfernen\\nobst.pop()   # den letzten Eintrag entfernen",
+   "remove() quita un elemento por su valor:\\n\\nfrutas.remove(\"manzana\")\\n\\npop() lo quita por su índice:\\n\\nfrutas.pop(0)  # quitar el primer elemento\\nfrutas.pop()   # quitar el último elemento"
+  ],
+  "Add \"pencil\" to the list and print the list": [
+   "Füge \"Bleistift\" zur Liste hinzu und gib die Liste aus",
+   "Añade \"lápiz\" a la lista y muestra la lista"
+  ],
+  "The method used to add to the end": [
+   "Die Methode, die hinten anfügt",
+   "El método que se usa para añadir al final"
+  ],
+  "Sorting": [
+   "Sortieren",
+   "Ordenar"
+  ],
+  "sort() sorts the list from smallest to largest:\\n\\nnumbers = [3, 1, 2]\\nnumbers.sort()\\n# [1, 2, 3]\\n\\nTo sort the other way round:\\n\\nnumbers.sort(reverse=True)\\n# [3, 2, 1]": [
+   "sort() sortiert die Liste von klein nach groß:\\n\\nzahlen = [3, 1, 2]\\nzahlen.sort()\\n# [1, 2, 3]\\n\\nUmgekehrt sortieren:\\n\\nzahlen.sort(reverse=True)\\n# [3, 2, 1]",
+   "sort() ordena la lista de menor a mayor:\\n\\nnumeros = [3, 1, 2]\\nnumeros.sort()\\n# [1, 2, 3]\\n\\nPara ordenar al revés:\\n\\nnumeros.sort(reverse=True)\\n# [3, 2, 1]"
+  ],
+  "sort() puts text in alphabetical order too!": [
+   "sort() bringt auch Text in alphabetische Reihenfolge!",
+   "¡sort() también pone el texto en orden alfabético!"
+  ],
+  "How do you find out how many items a list has?": [
+   "Wie findest du heraus, wie viele Einträge eine Liste hat?",
+   "¿Cómo averiguas cuántos elementos tiene una lista?"
+  ],
+  "The len() function gives you the number of items in the list.": [
+   "Die Funktion len() gibt dir die Anzahl der Einträge in der Liste.",
+   "La función len() te da el número de elementos de la lista."
+  ],
+  "List Master!": [
+   "Listen-Meister!",
+   "¡Maestro de las listas!"
+  ],
+  "🛠️ You have full control of lists now!\\n\\n✓ Adding with append() and insert()\\n✓ Removing with remove() and pop()\\n✓ Sorting with sort()\\n✓ Counting with len()\\n\\nNext module: functions!": [
+   "🛠️ Du hast Listen jetzt voll im Griff!\\n\\n✓ Hinzufügen mit append() und insert()\\n✓ Entfernen mit remove() und pop()\\n✓ Sortieren mit sort()\\n✓ Zählen mit len()\\n\\nNächstes Modul: Funktionen!",
+   "🛠️ ¡Ya controlas las listas por completo!\\n\\n✓ Añadir con append() e insert()\\n✓ Quitar con remove() y pop()\\n✓ Ordenar con sort()\\n✓ Contar con len()\\n\\nSiguiente módulo: ¡las funciones!"
+  ],
+  "Lists are the most used data structure in Python!": [
+   "Listen sind die meistbenutzte Datenstruktur in Python!",
+   "¡Las listas son la estructura de datos más usada de Python!"
+  ],
+  "Functions": [
+   "Funktionen",
+   "Funciones"
+  ],
+  "Reuse your code!": [
+   "Benutze deinen Code wieder!",
+   "¡Reutiliza tu código!"
+  ],
+  "Functions are the best way to organise your code! Write it once, use it as often as you like!": [
+   "Funktionen sind die beste Art, deinen Code zu ordnen! Einmal schreiben, so oft benutzen wie du willst!",
+   "¡Las funciones son la mejor forma de ordenar tu código! ¡Escríbelo una vez y úsalo tantas veces como quieras!"
+  ],
+  "What Is a Function?": [
+   "Was ist eine Funktion?",
+   "¿Qué es una función?"
+  ],
+  "A function means naming and storing a block of code that does a certain job.\\n\\nExample:\\ndef greet():\\n    print(\"Hello!\")\\n\\n# Now we can use it as often as we like:\\ngreet()  # Hello!\\ngreet()  # Hello!": [
+   "Eine Funktion heißt: einem Codeblock, der eine bestimmte Aufgabe erledigt, einen Namen geben und ihn aufbewahren.\\n\\nBeispiel:\\ndef gruesse():\\n    print(\"Hallo!\")\\n\\n# Jetzt können wir sie so oft benutzen, wie wir wollen:\\ngruesse()  # Hallo!\\ngruesse()  # Hallo!",
+   "Una función significa dar nombre y guardar un bloque de código que hace un trabajo concreto.\\n\\nEjemplo:\\ndef saludar():\\n    print(\"¡Hola!\")\\n\\n# Ahora podemos usarla tantas veces como queramos:\\nsaludar()  # ¡Hola!\\nsaludar()  # ¡Hola!"
+  ],
+  "The word def comes from \"define\"!": [
+   "Das Wort def kommt von «define» (definieren)!",
+   "¡La palabra def viene de «define» (definir)!"
+  ],
+  "Which word is used to define a function?": [
+   "Mit welchem Wort definiert man eine Funktion?",
+   "¿Qué palabra se usa para definir una función?"
+  ],
+  "In Python the word \"def\" is used to define a function.": [
+   "In Python wird das Wort «def» benutzt, um eine Funktion zu definieren.",
+   "En Python se usa la palabra «def» para definir una función."
+  ],
+  "Functions With Parameters": [
+   "Funktionen mit Parametern",
+   "Funciones con parámetros"
+  ],
+  "We can send data into functions:\\n\\ndef greet(name):\\n    print(\"Hello \" + name + \"!\")\\n\\ngreet(\"Alex\")    # Hello Alex!\\ngreet(\"Mia\")     # Hello Mia!": [
+   "Wir können Daten in Funktionen hineingeben:\\n\\ndef gruesse(name):\\n    print(\"Hallo \" + name + \"!\")\\n\\ngruesse(\"Alex\")    # Hallo Alex!\\ngruesse(\"Mia\")     # Hallo Mia!",
+   "Podemos enviar datos a las funciones:\\n\\ndef saludar(nombre):\\n    print(\"Hola \" + nombre + \"!\")\\n\\nsaludar(\"Alex\")    # ¡Hola Alex!\\nsaludar(\"Mia\")     # ¡Hola Mia!"
+  ],
+  "The name inside the brackets is called a \"parameter\"!": [
+   "Der Name in den Klammern heißt «Parameter»!",
+   "¡Al nombre que va entre paréntesis se le llama «parámetro»!"
+  ],
+  "What does this code do?\\n\\ndef add(a, b):\\n    print(a + b)\\n\\nadd(5, 3)": [
+   "Was macht dieser Code?\\n\\ndef addiere(a, b):\\n    print(a + b)\\n\\naddiere(5, 3)",
+   "¿Qué hace este código?\\n\\ndef sumar(a, b):\\n    print(a + b)\\n\\nsumar(5, 3)"
+  ],
+  "add(5, 3) prints the result of 5 + 3 = 8 on the screen.": [
+   "addiere(5, 3) schreibt das Ergebnis von 5 + 3 = 8 auf den Bildschirm.",
+   "sumar(5, 3) escribe en la pantalla el resultado de 5 + 3 = 8."
+  ],
+  "return - Sending a Value Back": [
+   "return – einen Wert zurückgeben",
+   "return: devolver un valor"
+  ],
+  "Functions can give back a result:\\n\\ndef add(a, b):\\n    return a + b\\n\\nresult = add(5, 3)\\nprint(result)  # 8": [
+   "Funktionen können ein Ergebnis zurückgeben:\\n\\ndef addiere(a, b):\\n    return a + b\\n\\nergebnis = addiere(5, 3)\\nprint(ergebnis)  # 8",
+   "Las funciones pueden devolver un resultado:\\n\\ndef sumar(a, b):\\n    return a + b\\n\\nresultado = sumar(5, 3)\\nprint(resultado)  # 8"
+  ],
+  "return sends a value back and ends the function!": [
+   "return gibt einen Wert zurück und beendet die Funktion!",
+   "¡return devuelve un valor y termina la función!"
+  ],
+  "What is the difference between return and print?": [
+   "Was ist der Unterschied zwischen return und print?",
+   "¿Cuál es la diferencia entre return y print?"
+  ],
+  "return sends a value back out of the function, while print only writes on the screen.": [
+   "return gibt einen Wert aus der Funktion heraus, print schreibt nur auf den Bildschirm.",
+   "return devuelve un valor hacia fuera de la función, mientras que print solo escribe en la pantalla."
+  ],
+  "Write a function that multiplies two numbers:": [
+   "Schreibe eine Funktion, die zwei Zahlen multipliziert:",
+   "Escribe una función que multiplique dos números:"
+  ],
+  "Function Creator!": [
+   "Funktions-Erfinder!",
+   "¡Creador de funciones!"
+  ],
+  "🔧 You can write your own functions now!\\n\\n✓ Define a function with def\\n✓ Use parameters\\n✓ Send a value back with return\\n\\nYour code will be much tidier!": [
+   "🔧 Jetzt kannst du eigene Funktionen schreiben!\\n\\n✓ Eine Funktion mit def definieren\\n✓ Parameter benutzen\\n✓ Mit return einen Wert zurückgeben\\n\\nDein Code wird viel aufgeräumter!",
+   "🔧 ¡Ya puedes escribir tus propias funciones!\\n\\n✓ Definir una función con def\\n✓ Usar parámetros\\n✓ Devolver un valor con return\\n\\n¡Tu código será mucho más ordenado!"
+  ],
+  "You earned the Function Creator badge!": [
+   "Du hast das Abzeichen «Funktions-Erfinder» verdient!",
+   "¡Has ganado la insignia Creador de Funciones!"
+  ],
+  "Functions, Going Further": [
+   "Funktionen, ein Schritt weiter",
+   "Funciones, un paso más"
+  ],
+  "Default values and more": [
+   "Standardwerte und mehr",
+   "Valores por defecto y más"
+  ],
+  "Let\\'s learn more about functions! Default values, multiple parameters...": [
+   "Lernen wir mehr über Funktionen! Standardwerte, mehrere Parameter …",
+   "¡Vamos a aprender más sobre funciones! Valores por defecto, varios parámetros…"
+  ],
+  "Default Values": [
+   "Standardwerte",
+   "Valores por defecto"
+  ],
+  "We can give parameters a default value:\\n\\ndef greet(name=\"World\"):\\n    print(\"Hello \" + name + \"!\")\\n\\ngreet()          # Hello World!\\ngreet(\"Alex\")    # Hello Alex!": [
+   "Wir können Parametern einen Standardwert geben:\\n\\ndef gruesse(name=\"Welt\"):\\n    print(\"Hallo \" + name + \"!\")\\n\\ngruesse()          # Hallo Welt!\\ngruesse(\"Alex\")    # Hallo Alex!",
+   "Podemos dar a los parámetros un valor por defecto:\\n\\ndef saludar(nombre=\"Mundo\"):\\n    print(\"Hola \" + nombre + \"!\")\\n\\nsaludar()          # ¡Hola Mundo!\\nsaludar(\"Alex\")    # ¡Hola Alex!"
+  ],
+  "A default value makes a parameter optional!": [
+   "Ein Standardwert macht einen Parameter freiwillig!",
+   "¡Un valor por defecto hace que un parámetro sea opcional!"
+  ],
+  "What does this code print?\\n\\ndef say(message=\"Hello\", times=2):\\n    for i in range(times):\\n        print(message)\\n\\nsay()": [
+   "Was gibt dieser Code aus?\\n\\ndef sage(nachricht=\"Hallo\", male=2):\\n    for i in range(male):\\n        print(nachricht)\\n\\nsage()",
+   "¿Qué muestra este código?\\n\\ndef decir(mensaje=\"Hola\", veces=2):\\n    for i in range(veces):\\n        print(mensaje)\\n\\ndecir()"
+  ],
+  "The default values are used: \"Hello\" is printed twice.": [
+   "Die Standardwerte werden benutzt: \"Hallo\" wird zweimal ausgegeben.",
+   "Se usan los valores por defecto: \"Hola\" se muestra dos veces."
+  ],
+  "Returning More Than One Value": [
+   "Mehr als einen Wert zurückgeben",
+   "Devolver más de un valor"
+  ],
+  "A function can return more than one value:\\n\\ndef calculate(a, b):\\n    total = a + b\\n    difference = a - b\\n    return total, difference\\n\\nresult1, result2 = calculate(10, 3)\\nprint(result1)  # 13\\nprint(result2)  # 7": [
+   "Eine Funktion kann mehr als einen Wert zurückgeben:\\n\\ndef rechne(a, b):\\n    summe = a + b\\n    differenz = a - b\\n    return summe, differenz\\n\\nergebnis1, ergebnis2 = rechne(10, 3)\\nprint(ergebnis1)  # 13\\nprint(ergebnis2)  # 7",
+   "Una función puede devolver más de un valor:\\n\\ndef calcular(a, b):\\n    total = a + b\\n    diferencia = a - b\\n    return total, diferencia\\n\\nresultado1, resultado2 = calcular(10, 3)\\nprint(resultado1)  # 13\\nprint(resultado2)  # 7"
+  ],
+  "Write a function that returns the square and the cube of a number:": [
+   "Schreibe eine Funktion, die das Quadrat und die dritte Potenz einer Zahl zurückgibt:",
+   "Escribe una función que devuelva el cuadrado y el cubo de un número:"
+  ],
+  "Function Master!": [
+   "Funktions-Meister!",
+   "¡Maestro de las funciones!"
+  ],
+  "⚙️ You mastered functions!\\n\\n✓ Default values\\n✓ Returning several values\\n✓ Flexible parameters\\n\\nYou can write professional functions now!": [
+   "⚙️ Du beherrschst Funktionen!\\n\\n✓ Standardwerte\\n✓ Mehrere Werte zurückgeben\\n✓ Flexible Parameter\\n\\nJetzt kannst du professionelle Funktionen schreiben!",
+   "⚙️ ¡Dominas las funciones!\\n\\n✓ Valores por defecto\\n✓ Devolver varios valores\\n✓ Parámetros flexibles\\n\\n¡Ya puedes escribir funciones profesionales!"
+  ],
+  "You earned the Function Master badge!": [
+   "Du hast das Abzeichen «Funktions-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de las Funciones!"
+  ],
+  "Dictionaries": [
+   "Dictionaries",
+   "Diccionarios"
+  ],
+  "Key-value pairs!": [
+   "Schlüssel-Wert-Paare!",
+   "¡Pares clave-valor!"
+  ],
+  "Dictionaries are like real dictionaries! You write a word (the key) and find its meaning (the value)!": [
+   "Dictionaries sind wie echte Wörterbücher! Du schreibst ein Wort (den Schlüssel) und findest seine Bedeutung (den Wert)!",
+   "¡Los diccionarios son como los diccionarios de verdad! ¡Escribes una palabra (la clave) y encuentras su significado (el valor)!"
+  ],
+  "What Is a Dictionary?": [
+   "Was ist ein Dictionary?",
+   "¿Qué es un diccionario?"
+  ],
+  "A dictionary stores key-value pairs:\\n\\nstudent = {\\n    \"name\": \"Alex\",\\n    \"age\": 15,\\n    \"grade\": 9\\n}\\n\\nprint(student[\"name\"])  # Alex\\nprint(student[\"age\"])   # 15": [
+   "Ein Dictionary speichert Schlüssel-Wert-Paare:\\n\\nschueler = {\\n    \"name\": \"Alex\",\\n    \"alter\": 15,\\n    \"klasse\": 9\\n}\\n\\nprint(schueler[\"name\"])   # Alex\\nprint(schueler[\"alter\"])  # 15",
+   "Un diccionario guarda pares clave-valor:\\n\\nalumno = {\\n    \"nombre\": \"Alex\",\\n    \"edad\": 15,\\n    \"curso\": 9\\n}\\n\\nprint(alumno[\"nombre\"])  # Alex\\nprint(alumno[\"edad\"])    # 15"
+  ],
+  "Keys have to be unique, but values can repeat!": [
+   "Schlüssel müssen einmalig sein, Werte dürfen sich wiederholen!",
+   "¡Las claves tienen que ser únicas, pero los valores pueden repetirse!"
+  ],
+  "How do you create a dictionary?": [
+   "Wie erstellt man ein Dictionary?",
+   "¿Cómo se crea un diccionario?"
+  ],
+  "Dictionaries are created with curly brackets {}!": [
+   "Dictionaries werden mit geschweiften Klammern {} erstellt!",
+   "¡Los diccionarios se crean con llaves {}!"
+  ],
+  "Reaching Into a Dictionary": [
+   "In ein Dictionary hineingreifen",
+   "Acceder a un diccionario"
+  ],
+  "We reach a value through its key:\\n\\ngrades = {\\n    \"math\": 85,\\n    \"science\": 90,\\n    \"english\": 78\\n}\\n\\nprint(grades[\"math\"])   # 85\\ngrades[\"science\"] = 95  # change it\\ngrades[\"history\"] = 88  # add a new one": [
+   "Wir kommen über den Schlüssel an einen Wert:\\n\\nnoten = {\\n    \"mathe\": 85,\\n    \"physik\": 90,\\n    \"englisch\": 78\\n}\\n\\nprint(noten[\"mathe\"])  # 85\\nnoten[\"physik\"] = 95   # ändern\\nnoten[\"geschichte\"] = 88  # neu hinzufügen",
+   "Llegamos a un valor a través de su clave:\\n\\nnotas = {\\n    \"mates\": 85,\\n    \"ciencias\": 90,\\n    \"lengua\": 78\\n}\\n\\nprint(notas[\"mates\"])    # 85\\nnotas[\"ciencias\"] = 95   # cambiar\\nnotas[\"historia\"] = 88   # añadir una nueva"
+  ],
+  "With square brackets [] we both read and write!": [
+   "Mit eckigen Klammern [] lesen und schreiben wir!",
+   "¡Con los corchetes [] leemos y escribimos!"
+  ],
+  "What does this code do?\\n\\nperson = {\"first\": \"Mia\", \"last\": \"Jones\"}\\nperson[\"age\"] = 16": [
+   "Was macht dieser Code?\\n\\nperson = {\"vorname\": \"Mia\", \"nachname\": \"Jones\"}\\nperson[\"alter\"] = 16",
+   "¿Qué hace este código?\\n\\npersona = {\"nombre\": \"Mia\", \"apellido\": \"Jones\"}\\npersona[\"edad\"] = 16"
+  ],
+  "If you assign to a key that does not exist, a new key-value pair is added!": [
+   "Wenn du einem Schlüssel etwas zuweist, den es noch nicht gibt, wird ein neues Schlüssel-Wert-Paar angelegt!",
+   "¡Si asignas a una clave que no existe, se añade un nuevo par clave-valor!"
+  ],
+  "Dictionary Methods": [
+   "Dictionary-Methoden",
+   "Métodos de diccionario"
+  ],
+  "Handy methods:\\n\\nmenu = {\"pizza\": 50, \"burger\": 35}\\n\\nprint(menu.keys())    # the keys\\nprint(menu.values())  # the values\\nprint(menu.items())   # the pairs\\n\\nif \"pizza\" in menu:\\n    print(\"Pizza is on the menu!\")": [
+   "Praktische Methoden:\\n\\nkarte = {\"pizza\": 50, \"burger\": 35}\\n\\nprint(karte.keys())    # die Schlüssel\\nprint(karte.values())  # die Werte\\nprint(karte.items())   # die Paare\\n\\nif \"pizza\" in karte:\\n    print(\"Pizza steht auf der Karte!\")",
+   "Métodos prácticos:\\n\\ncarta = {\"pizza\": 50, \"hamburguesa\": 35}\\n\\nprint(carta.keys())    # las claves\\nprint(carta.values())  # los valores\\nprint(carta.items())   # los pares\\n\\nif \"pizza\" in carta:\\n    print(\"¡La pizza está en la carta!\")"
+  ],
+  "The in operator searches through the keys!": [
+   "Der Operator in sucht in den Schlüsseln!",
+   "¡El operador in busca entre las claves!"
+  ],
+  "Create a phone book dictionary and add one person:": [
+   "Erstelle ein Telefonbuch-Dictionary und füge eine Person hinzu:",
+   "Crea un diccionario de agenda telefónica y añade una persona:"
+  ],
+  "Dictionary Master!": [
+   "Dictionary-Meister!",
+   "¡Maestro de los diccionarios!"
+  ],
+  "📖 You can work with dictionaries now!\\n\\n✓ Key-value pairs\\n✓ Fast lookup\\n✓ Adding, deleting, changing\\n\\nDictionaries are very powerful data structures!": [
+   "📖 Jetzt kannst du mit Dictionaries arbeiten!\\n\\n✓ Schlüssel-Wert-Paare\\n✓ Schnelles Nachschlagen\\n✓ Hinzufügen, löschen, ändern\\n\\nDictionaries sind sehr mächtige Datenstrukturen!",
+   "📖 ¡Ya puedes trabajar con diccionarios!\\n\\n✓ Pares clave-valor\\n✓ Búsqueda rápida\\n✓ Añadir, borrar, cambiar\\n\\n¡Los diccionarios son estructuras de datos muy potentes!"
+  ],
+  "You earned the Dictionary Master badge!": [
+   "Du hast das Abzeichen «Dictionary-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de los Diccionarios!"
+  ],
+  "Dictionaries, Going Further": [
+   "Dictionaries, ein Schritt weiter",
+   "Diccionarios, un paso más"
+  ],
+  "Nested dictionaries and more": [
+   "Verschachtelte Dictionaries und mehr",
+   "Diccionarios anidados y más"
+  ],
+  "With dictionaries we can build more complex data structures! Nested dictionaries, loops...": [
+   "Mit Dictionaries können wir komplexere Datenstrukturen bauen! Verschachtelte Dictionaries, Schleifen …",
+   "¡Con los diccionarios podemos construir estructuras de datos más complejas! Diccionarios anidados, bucles…"
+  ],
+  "Nested Dictionaries": [
+   "Verschachtelte Dictionaries",
+   "Diccionarios anidados"
+  ],
+  "A dictionary inside a dictionary:\\n\\nschools = {\\n    \"school1\": {\\n        \"name\": \"Riverside High\",\\n        \"students\": 500\\n    },\\n    \"school2\": {\\n        \"name\": \"Science High\",\\n        \"students\": 300\\n    }\\n}\\n\\nprint(schools[\"school1\"][\"name\"])": [
+   "Ein Dictionary in einem Dictionary:\\n\\nschulen = {\\n    \"schule1\": {\\n        \"name\": \"Riverside High\",\\n        \"schueler\": 500\\n    },\\n    \"schule2\": {\\n        \"name\": \"Science High\",\\n        \"schueler\": 300\\n    }\\n}\\n\\nprint(schulen[\"schule1\"][\"name\"])",
+   "Un diccionario dentro de un diccionario:\\n\\nescuelas = {\\n    \"escuela1\": {\\n        \"nombre\": \"Riverside High\",\\n        \"alumnos\": 500\\n    },\\n    \"escuela2\": {\\n        \"nombre\": \"Science High\",\\n        \"alumnos\": 300\\n    }\\n}\\n\\nprint(escuelas[\"escuela1\"][\"nombre\"])"
+  ],
+  "With nested dictionaries we can organise complex data!": [
+   "Mit verschachtelten Dictionaries können wir komplexe Daten ordnen!",
+   "¡Con los diccionarios anidados podemos organizar datos complejos!"
+  ],
+  "What does this code print?\\n\\ndata = {\"a\": {\"b\": {\"c\": 42}}}\\nprint(data[\"a\"][\"b\"][\"c\"])": [
+   "Was gibt dieser Code aus?\\n\\ndaten = {\"a\": {\"b\": {\"c\": 42}}}\\nprint(daten[\"a\"][\"b\"][\"c\"])",
+   "¿Qué muestra este código?\\n\\ndatos = {\"a\": {\"b\": {\"c\": 42}}}\\nprint(datos[\"a\"][\"b\"][\"c\"])"
+  ],
+  "With nested keys we can go deeper and deeper!": [
+   "Mit verschachtelten Schlüsseln können wir immer tiefer gehen!",
+   "¡Con claves anidadas podemos ir cada vez más hondo!"
+  ],
+  "Looping Over a Dictionary": [
+   "Über ein Dictionary schleifen",
+   "Recorrer un diccionario con un bucle"
+  ],
+  "We can walk through dictionaries with a loop:\\n\\ngrades = {\"Alex\": 85, \"Mia\": 90}\\n\\nfor name in grades:\\n    print(name, grades[name])\\n\\n# Or:\\nfor name, score in grades.items():\\n    print(name, score)": [
+   "Wir können Dictionaries mit einer Schleife durchlaufen:\\n\\nnoten = {\"Alex\": 85, \"Mia\": 90}\\n\\nfor name in noten:\\n    print(name, noten[name])\\n\\n# Oder:\\nfor name, punkte in noten.items():\\n    print(name, punkte)",
+   "Podemos recorrer los diccionarios con un bucle:\\n\\nnotas = {\"Alex\": 85, \"Mia\": 90}\\n\\nfor nombre in notas:\\n    print(nombre, notas[nombre])\\n\\n# O bien:\\nfor nombre, puntos in notas.items():\\n    print(nombre, puntos)"
+  ],
+  "Write code that adds up all the values in a dictionary:": [
+   "Schreibe Code, der alle Werte in einem Dictionary zusammenzählt:",
+   "Escribe código que sume todos los valores de un diccionario:"
+  ],
+  "Dictionary Wizard!": [
+   "Dictionary-Zauberer!",
+   "¡Mago de los diccionarios!"
+  ],
+  "🧙 You mastered dictionaries!\\n\\n✓ Nested dictionaries\\n✓ Walking through them with loops\\n✓ Complex data structures\\n\\nYou can use these in real projects now!": [
+   "🧙 Du beherrschst Dictionaries!\\n\\n✓ Verschachtelte Dictionaries\\n✓ Sie mit Schleifen durchlaufen\\n✓ Komplexe Datenstrukturen\\n\\nDie kannst du jetzt in echten Projekten benutzen!",
+   "🧙 ¡Dominas los diccionarios!\\n\\n✓ Diccionarios anidados\\n✓ Recorrerlos con bucles\\n✓ Estructuras de datos complejas\\n\\n¡Ya puedes usarlos en proyectos de verdad!"
+  ],
+  "You earned the Dictionary Wizard badge!": [
+   "Du hast das Abzeichen «Dictionary-Zauberer» verdient!",
+   "¡Has ganado la insignia Mago de los Diccionarios!"
+  ],
+  "Reading Files": [
+   "Dateien lesen",
+   "Leer archivos"
+  ],
+  "Read data from a file!": [
+   "Daten aus einer Datei lesen!",
+   "¡Lee datos de un archivo!"
+  ],
+  "Programs can read data from files! Text files, CSV, JSON and more...": [
+   "Programme können Daten aus Dateien lesen! Textdateien, CSV, JSON und mehr …",
+   "¡Los programas pueden leer datos de archivos! Archivos de texto, CSV, JSON y más…"
+  ],
+  "How Do You Open a File?": [
+   "Wie öffnet man eine Datei?",
+   "¿Cómo se abre un archivo?"
+  ],
+  "We open a file with the open() function:\\n\\nwith open(\"file.txt\", \"r\") as f:\\n    content = f.read()\\n    print(content)\\n\\n# with closes it automatically!": [
+   "Wir öffnen eine Datei mit der Funktion open():\\n\\nwith open(\"datei.txt\", \"r\") as f:\\n    inhalt = f.read()\\n    print(inhalt)\\n\\n# with schließt sie automatisch!",
+   "Abrimos un archivo con la función open():\\n\\nwith open(\"archivo.txt\", \"r\") as f:\\n    contenido = f.read()\\n    print(contenido)\\n\\n# ¡with lo cierra automáticamente!"
+  ],
+  "Using with is the safest way! The file closes by itself.": [
+   "with zu benutzen ist der sicherste Weg! Die Datei schließt sich von selbst.",
+   "¡Usar with es la forma más segura! El archivo se cierra solo."
+  ],
+  "Which mode is used to read a file?": [
+   "Welcher Modus wird zum Lesen einer Datei benutzt?",
+   "¿Qué modo se usa para leer un archivo?"
+  ],
+  "The \"r\" mode opens the file for reading!": [
+   "Der Modus \"r\" öffnet die Datei zum Lesen!",
+   "¡El modo \"r\" abre el archivo para leerlo!"
+  ],
+  "Reading Line by Line": [
+   "Zeile für Zeile lesen",
+   "Leer línea a línea"
+  ],
+  "Read big files line by line:\\n\\nwith open(\"list.txt\", \"r\") as f:\\n    for line in f:\\n        print(line.strip())\\n\\n# .strip() removes spaces and the line break": [
+   "Große Dateien Zeile für Zeile lesen:\\n\\nwith open(\"liste.txt\", \"r\") as f:\\n    for zeile in f:\\n        print(zeile.strip())\\n\\n# .strip() entfernt Leerzeichen und den Zeilenumbruch",
+   "Lee los archivos grandes línea a línea:\\n\\nwith open(\"lista.txt\", \"r\") as f:\\n    for linea in f:\\n        print(linea.strip())\\n\\n# .strip() quita los espacios y el salto de línea"
+  ],
+  "For big files use a for loop instead of .read()!": [
+   "Bei großen Dateien nimm eine for-Schleife statt .read()!",
+   "¡Para los archivos grandes usa un bucle for en lugar de .read()!"
+  ],
+  "What does strip() do?": [
+   "Was macht strip()?",
+   "¿Qué hace strip()?"
+  ],
+  ".strip() clears the spaces at the start and end of a line!": [
+   ".strip() räumt die Leerzeichen am Anfang und am Ende einer Zeile weg!",
+   "¡.strip() limpia los espacios del principio y del final de una línea!"
+  ],
+  "Write code that counts the lines in a file:": [
+   "Schreibe Code, der die Zeilen einer Datei zählt:",
+   "Escribe código que cuente las líneas de un archivo:"
+  ],
+  "File Reader!": [
+   "Datei-Leser!",
+   "¡Lector de archivos!"
+  ],
+  "📂 You can read files now!\\n\\n✓ Opening with open()\\n✓ Safe use with with\\n✓ Reading line by line\\n\\nGetting data out of files is easy now!": [
+   "📂 Jetzt kannst du Dateien lesen!\\n\\n✓ Öffnen mit open()\\n✓ Sicher arbeiten mit with\\n✓ Zeile für Zeile lesen\\n\\nDaten aus Dateien zu holen ist jetzt leicht!",
+   "📂 ¡Ya puedes leer archivos!\\n\\n✓ Abrir con open()\\n✓ Uso seguro con with\\n✓ Leer línea a línea\\n\\n¡Sacar datos de los archivos ya es fácil!"
+  ],
+  "You earned the File Reader badge!": [
+   "Du hast das Abzeichen «Datei-Leser» verdient!",
+   "¡Has ganado la insignia Lector de Archivos!"
+  ],
+  "Writing Files": [
+   "Dateien schreiben",
+   "Escribir archivos"
+  ],
+  "Write data to a file!": [
+   "Daten in eine Datei schreiben!",
+   "¡Escribe datos en un archivo!"
+  ],
+  "We can save the data our program produces into files! Keeping logs, building reports...": [
+   "Wir können die Daten, die unser Programm erzeugt, in Dateien speichern! Protokolle führen, Berichte bauen …",
+   "¡Podemos guardar en archivos los datos que produce nuestro programa! Llevar registros, crear informes…"
+  ],
+  "Writing to a File": [
+   "In eine Datei schreiben",
+   "Escribir en un archivo"
+  ],
+  "We write to a file with write():\\n\\nwith open(\"output.txt\", \"w\") as f:\\n    f.write(\"Hello World!\\\\n\")\\n    f.write(\"Python is great!\\\\n\")\\n\\n# \"w\" mode: a new file, or overwrite the old one": [
+   "Wir schreiben mit write() in eine Datei:\\n\\nwith open(\"ausgabe.txt\", \"w\") as f:\\n    f.write(\"Hallo Welt!\\\\n\")\\n    f.write(\"Python ist toll!\\\\n\")\\n\\n# Modus \"w\": eine neue Datei, oder die alte überschreiben",
+   "Escribimos en un archivo con write():\\n\\nwith open(\"salida.txt\", \"w\") as f:\\n    f.write(\"¡Hola Mundo!\\\\n\")\\n    f.write(\"¡Python es genial!\\\\n\")\\n\\n# Modo \"w\": un archivo nuevo, o sobrescribir el antiguo"
+  ],
+  "The \"w\" mode erases the old content! Be careful!": [
+   "Der Modus \"w\" löscht den alten Inhalt! Sei vorsichtig!",
+   "¡El modo \"w\" borra el contenido anterior! ¡Ten cuidado!"
+  ],
+  "What is the difference between \"w\" and \"a\" mode?": [
+   "Was ist der Unterschied zwischen den Modi \"w\" und \"a\"?",
+   "¿Cuál es la diferencia entre los modos \"w\" y \"a\"?"
+  ],
+  "\"w\" (write) erases the old content, \"a\" (append) adds to the end!": [
+   "\"w\" (write) löscht den alten Inhalt, \"a\" (append) hängt hinten an!",
+   "¡\"w\" (write) borra el contenido anterior, \"a\" (append) añade al final!"
+  ],
+  "Saving a List to a File": [
+   "Eine Liste in einer Datei speichern",
+   "Guardar una lista en un archivo"
+  ],
+  "Writing list data to a file:\\n\\nnames = [\"Alex\", \"Mia\", \"Sam\"]\\n\\nwith open(\"list.txt\", \"w\") as f:\\n    for name in names:\\n        f.write(name + \"\\\\n\")": [
+   "Listendaten in eine Datei schreiben:\\n\\nnamen = [\"Alex\", \"Mia\", \"Sam\"]\\n\\nwith open(\"liste.txt\", \"w\") as f:\\n    for name in namen:\\n        f.write(name + \"\\\\n\")",
+   "Escribir los datos de una lista en un archivo:\\n\\nnombres = [\"Alex\", \"Mia\", \"Sam\"]\\n\\nwith open(\"lista.txt\", \"w\") as f:\\n    for nombre in nombres:\\n        f.write(nombre + \"\\\\n\")"
+  ],
+  "\\\\n adds a line break; without it everything runs together!": [
+   "\\\\n fügt einen Zeilenumbruch ein; ohne ihn läuft alles zusammen!",
+   "¡\\\\n añade un salto de línea; sin él todo se junta!"
+  ],
+  "Write code that writes a dictionary to a file (in key: value format):": [
+   "Schreibe Code, der ein Dictionary in eine Datei schreibt (im Format Schlüssel: Wert):",
+   "Escribe código que guarde un diccionario en un archivo (con el formato clave: valor):"
+  ],
+  "Working With JSON": [
+   "Mit JSON arbeiten",
+   "Trabajar con JSON"
+  ],
+  "Saving data in JSON format:\\n\\nimport json\\n\\ndata = {\"name\": \"Alex\", \"age\": 15}\\n\\nwith open(\"data.json\", \"w\") as f:\\n    json.dump(data, f)\\n\\n# JSON is readable and popular!": [
+   "Daten im JSON-Format speichern:\\n\\nimport json\\n\\ndaten = {\"name\": \"Alex\", \"alter\": 15}\\n\\nwith open(\"daten.json\", \"w\") as f:\\n    json.dump(daten, f)\\n\\n# JSON ist lesbar und beliebt!",
+   "Guardar datos en formato JSON:\\n\\nimport json\\n\\ndatos = {\"nombre\": \"Alex\", \"edad\": 15}\\n\\nwith open(\"datos.json\", \"w\") as f:\\n    json.dump(datos, f)\\n\\n# ¡JSON es legible y muy usado!"
+  ],
+  "JSON is the standard format for web services!": [
+   "JSON ist das Standardformat für Webdienste!",
+   "¡JSON es el formato estándar de los servicios web!"
+  ],
+  "File Writer!": [
+   "Datei-Schreiber!",
+   "¡Escritor de archivos!"
+  ],
+  "✍️ You mastered writing data to files!\\n\\n✓ Write modes (w, a)\\n✓ Saving lists and dictionaries\\n✓ Data in JSON format\\n\\nYou can store data permanently now!": [
+   "✍️ Du beherrschst das Schreiben von Daten in Dateien!\\n\\n✓ Schreibmodi (w, a)\\n✓ Listen und Dictionaries speichern\\n✓ Daten im JSON-Format\\n\\nJetzt kannst du Daten dauerhaft aufbewahren!",
+   "✍️ ¡Dominas la escritura de datos en archivos!\\n\\n✓ Modos de escritura (w, a)\\n✓ Guardar listas y diccionarios\\n✓ Datos en formato JSON\\n\\n¡Ya puedes guardar datos de forma permanente!"
+  ],
+  "You earned the File Writer badge!": [
+   "Du hast das Abzeichen «Datei-Schreiber» verdient!",
+   "¡Has ganado la insignia Escritor de Archivos!"
+  ],
+  "Handling Errors Gracefully": [
+   "Fehler elegant behandeln",
+   "Manejar los errores con elegancia"
+  ],
+  "Use try/except so your program never crashes": [
+   "Mit try/except stürzt dein Programm nie ab",
+   "Con try/except tu programa nunca se cuelga"
+  ],
+  "Until now, an error would stop your whole program, right? Real developers anticipate errors in advance so their programs never crash. This is called \"exception handling\"!": [
+   "Bisher hat ein Fehler dein ganzes Programm gestoppt, oder? Echte Entwickler rechnen vorher mit Fehlern, damit ihre Programme nie abstürzen. Das nennt man «Ausnahmebehandlung»!",
+   "Hasta ahora un error detenía todo tu programa, ¿verdad? Los desarrolladores de verdad se adelantan a los errores para que sus programas nunca se cuelguen. ¡A esto se le llama «manejo de excepciones»!"
+  ],
+  "How try/except Works": [
+   "Wie try/except funktioniert",
+   "Cómo funciona try/except"
+  ],
+  "try:\\n    number = int(input(\"Enter a number: \"))\\n    print(100 / number)\\nexcept ValueError:\\n    print(\"That is not a number!\")\\nexcept ZeroDivisionError:\\n    print(\"You cannot divide by zero!\")\\n\\nPython first tries the try block. If an error happens, the matching except block runs and the program does NOT crash - it keeps going.": [
+   "try:\\n    zahl = int(input(\"Gib eine Zahl ein: \"))\\n    print(100 / zahl)\\nexcept ValueError:\\n    print(\"Das ist keine Zahl!\")\\nexcept ZeroDivisionError:\\n    print(\"Durch null kann man nicht teilen!\")\\n\\nPython versucht zuerst den try-Block. Passiert ein Fehler, läuft der passende except-Block und das Programm stürzt NICHT ab – es macht weiter.",
+   "try:\\n    numero = int(input(\"Escribe un número: \"))\\n    print(100 / numero)\\nexcept ValueError:\\n    print(\"¡Eso no es un número!\")\\nexcept ZeroDivisionError:\\n    print(\"¡No se puede dividir entre cero!\")\\n\\nPython prueba primero el bloque try. Si ocurre un error, se ejecuta el bloque except que corresponda y el programa NO se cuelga: sigue adelante."
+  ],
+  "Think of try/except as a \"safety net\" - if you fall, it catches you!": [
+   "Stell dir try/except als «Sicherheitsnetz» vor – wenn du fällst, fängt es dich auf!",
+   "Piensa en try/except como una «red de seguridad»: si te caes, te recoge."
+  ],
+  "What error occurs if the user types a letter instead of a number?": [
+   "Welcher Fehler passiert, wenn der Nutzer einen Buchstaben statt einer Zahl tippt?",
+   "¿Qué error ocurre si el usuario escribe una letra en lugar de un número?"
+  ],
+  "When int() fails to convert a letter into a number, it raises a ValueError.": [
+   "Wenn int() einen Buchstaben nicht in eine Zahl umwandeln kann, löst es einen ValueError aus.",
+   "Cuando int() no consigue convertir una letra en número, lanza un ValueError."
+  ],
+  "else and finally": [
+   "else und finally",
+   "else y finally"
+  ],
+  "Two optional blocks can be added to try/except:\\n\\ntry:\\n    result = 10 / 2\\nexcept ZeroDivisionError:\\n    print(\"Error!\")\\nelse:\\n    print(\"No error, result:\", result)\\nfinally:\\n    print(\"This always runs\")\\n\\nelse: runs only if NO error happened.\\nfinally: ALWAYS runs whether there was an error or not (ideal for closing a file, for example).": [
+   "Zwei freiwillige Blöcke kann man zu try/except hinzufügen:\\n\\ntry:\\n    ergebnis = 10 / 2\\nexcept ZeroDivisionError:\\n    print(\"Fehler!\")\\nelse:\\n    print(\"Kein Fehler, Ergebnis:\", ergebnis)\\nfinally:\\n    print(\"Das läuft immer\")\\n\\nelse: läuft nur, wenn KEIN Fehler passiert ist.\\nfinally: läuft IMMER, ob mit oder ohne Fehler (ideal zum Beispiel, um eine Datei zu schließen).",
+   "A try/except se le pueden añadir dos bloques opcionales:\\n\\ntry:\\n    resultado = 10 / 2\\nexcept ZeroDivisionError:\\n    print(\"¡Error!\")\\nelse:\\n    print(\"Sin errores, resultado:\", resultado)\\nfinally:\\n    print(\"Esto se ejecuta siempre\")\\n\\nelse: se ejecuta solo si NO hubo error.\\nfinally: se ejecuta SIEMPRE, haya habido error o no (ideal, por ejemplo, para cerrar un archivo)."
+  ],
+  "finally is how you say \"do this no matter what\" - like closing a file.": [
+   "Mit finally sagst du «mach das auf jeden Fall» – zum Beispiel eine Datei schließen.",
+   "Con finally dices «haz esto pase lo que pase», como cerrar un archivo."
+  ],
+  "Complete the code that asks for the user\\'s age and warns if the input is invalid.": [
+   "Vervollständige den Code, der nach dem Alter des Nutzers fragt und bei einer ungültigen Eingabe warnt.",
+   "Completa el código que pide la edad del usuario y avisa si la entrada no es válida."
+  ],
+  "Your Program No Longer Crashes!": [
+   "Dein Programm stürzt nicht mehr ab!",
+   "¡Tu programa ya no se cuelga!"
+  ],
+  "🛡️ You learned to handle errors!\\n\\n✓ You can catch errors with try/except\\n✓ You recognize error types like ValueError and ZeroDivisionError\\n✓ You can use else and finally blocks\\n\\nNext up: using Python\\'s built-in libraries!": [
+   "🛡️ Du hast gelernt, Fehler zu behandeln!\\n\\n✓ Du kannst Fehler mit try/except abfangen\\n✓ Du erkennst Fehlerarten wie ValueError und ZeroDivisionError\\n✓ Du kannst else- und finally-Blöcke benutzen\\n\\nAls Nächstes: Pythons eingebaute Bibliotheken benutzen!",
+   "🛡️ ¡Aprendiste a manejar los errores!\\n\\n✓ Puedes capturar errores con try/except\\n✓ Reconoces tipos de error como ValueError y ZeroDivisionError\\n✓ Puedes usar los bloques else y finally\\n\\nSiguiente: ¡usar las bibliotecas que trae Python!"
+  ],
+  "You earned the Error Handler badge!": [
+   "Du hast das Abzeichen «Fehler-Bändiger» verdient!",
+   "¡Has ganado la insignia Domador de Errores!"
+  ],
+  "Modules and Libraries": [
+   "Module und Bibliotheken",
+   "Módulos y bibliotecas"
+  ],
+  "Reuse code other people already wrote": [
+   "Benutze Code, den andere schon geschrieben haben",
+   "Reutiliza código que otros ya escribieron"
+  ],
+  "You don\\'t need to write everything from scratch! Python comes with thousands of ready-made tools - \"modules\" you can add to your project with the import command.": [
+   "Du musst nicht alles von Grund auf schreiben! Python bringt tausende fertige Werkzeuge mit – «Module», die du mit dem Befehl import in dein Projekt holst.",
+   "¡No hace falta escribirlo todo desde cero! Python trae miles de herramientas listas: «módulos» que añades a tu proyecto con el comando import."
+  ],
+  "Adding a Module with import": [
+   "Ein Modul mit import holen",
+   "Añadir un módulo con import"
+  ],
+  "import random\\n\\ndice = random.randint(1, 6)\\nprint(\"Dice result:\", dice)\\n\\nimport math\\nprint(math.sqrt(16))  # 4.0\\n\\nEvery module is like a \"toolbox\" full of ready-made functions. The random module is for random numbers, the math module is for math operations.": [
+   "import random\\n\\nwuerfel = random.randint(1, 6)\\nprint(\"Würfelergebnis:\", wuerfel)\\n\\nimport math\\nprint(math.sqrt(16))  # 4.0\\n\\nJedes Modul ist wie ein «Werkzeugkasten» voller fertiger Funktionen. Das Modul random ist für Zufallszahlen, das Modul math für Rechenoperationen.",
+   "import random\\n\\ndado = random.randint(1, 6)\\nprint(\"Resultado del dado:\", dado)\\n\\nimport math\\nprint(math.sqrt(16))  # 4.0\\n\\nCada módulo es como una «caja de herramientas» llena de funciones listas. El módulo random es para números aleatorios, el módulo math para operaciones matemáticas."
+  ],
+  "Python\\'s \"standard library\" has over 200 ready-made modules - you can use any of them with import!": [
+   "Pythons «Standardbibliothek» hat über 200 fertige Module – jedes davon kannst du mit import benutzen!",
+   "¡La «biblioteca estándar» de Python tiene más de 200 módulos listos, y puedes usar cualquiera con import!"
+  ],
+  "Dates and Times with datetime": [
+   "Datum und Uhrzeit mit datetime",
+   "Fechas y horas con datetime"
+  ],
+  "import datetime\\n\\nnow = datetime.datetime.now()\\nprint(\"Right now:\", now)\\nprint(\"Year:\", now.year)\\n\\nThis is commonly used, for example, to record a \"created at\" timestamp in a to-do list app!": [
+   "import datetime\\n\\njetzt = datetime.datetime.now()\\nprint(\"Gerade jetzt:\", jetzt)\\nprint(\"Jahr:\", jetzt.year)\\n\\nDas benutzt man oft, zum Beispiel um in einer Aufgaben-App den Zeitpunkt «erstellt am» festzuhalten!",
+   "import datetime\\n\\nahora = datetime.datetime.now()\\nprint(\"Ahora mismo:\", ahora)\\nprint(\"Año:\", ahora.year)\\n\\n¡Esto se usa mucho, por ejemplo, para guardar la fecha de «creado el» en una aplicación de tareas!"
+  ],
+  "datetime.now() gives you the real current date/time every time you run it.": [
+   "datetime.now() gibt dir bei jedem Lauf das echte aktuelle Datum und die echte Uhrzeit.",
+   "datetime.now() te da la fecha y la hora reales cada vez que ejecutas el programa."
+  ],
+  "What do you write to generate a random number between 1 and 100?": [
+   "Was schreibst du, um eine Zufallszahl zwischen 1 und 100 zu erzeugen?",
+   "¿Qué escribes para generar un número aleatorio entre 1 y 100?"
+  ],
+  "The random module\\'s randint(low, high) function generates a random whole number between the two bounds (inclusive).": [
+   "Die Funktion randint(unten, oben) des Moduls random erzeugt eine zufällige ganze Zahl zwischen den beiden Grenzen (beide eingeschlossen).",
+   "La función randint(bajo, alto) del módulo random genera un número entero aleatorio entre los dos límites (ambos incluidos)."
+  ],
+  "Use the random module to generate and print a random number between 1 and 10.": [
+   "Benutze das Modul random, um eine Zufallszahl zwischen 1 und 10 zu erzeugen und auszugeben.",
+   "Usa el módulo random para generar y mostrar un número aleatorio entre 1 y 10."
+  ],
+  "You\\'re a Library Master!": [
+   "Du bist ein Bibliotheks-Meister!",
+   "¡Eres un maestro de las bibliotecas!"
+  ],
+  "📦 You\\'re now using the power of Python!\\n\\n✓ You learned to add modules with import\\n✓ You can generate randomness with random\\n✓ You know the math and datetime modules\\n\\nNext up: comprehensions that shorten your code!": [
+   "📦 Jetzt nutzt du die Kraft von Python!\\n\\n✓ Du hast gelernt, Module mit import zu holen\\n✓ Du kannst mit random Zufall erzeugen\\n✓ Du kennst die Module math und datetime\\n\\nAls Nächstes: Comprehensions, die deinen Code kürzer machen!",
+   "📦 ¡Ya estás usando la potencia de Python!\\n\\n✓ Aprendiste a añadir módulos con import\\n✓ Puedes generar azar con random\\n✓ Conoces los módulos math y datetime\\n\\nSiguiente: ¡las comprensiones que acortan tu código!"
+  ],
+  "You earned the Library Master badge!": [
+   "Du hast das Abzeichen «Bibliotheks-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de las Bibliotecas!"
+  ],
+  "List and Dict Shortcuts": [
+   "Abkürzungen für Listen und Dicts",
+   "Atajos para listas y diccionarios"
+  ],
+  "Build a list in a single line": [
+   "Eine Liste in einer einzigen Zeile bauen",
+   "Construye una lista en una sola línea"
+  ],
+  "You already know how to fill a list with a for loop. But Python has a very popular way to do it in ONE LINE: \"list comprehension\"! You\\'ll see it everywhere in professional Python code.": [
+   "Du weißt schon, wie man eine Liste mit einer for-Schleife füllt. Aber Python hat einen sehr beliebten Weg, das in EINER ZEILE zu tun: die «List Comprehension»! Du siehst sie überall in professionellem Python-Code.",
+   "Ya sabes llenar una lista con un bucle for. Pero Python tiene una forma muy popular de hacerlo en UNA LÍNEA: ¡la «comprensión de listas»! La verás por todas partes en el código Python profesional."
+  ],
+  "Classic Method vs Comprehension": [
+   "Klassischer Weg gegen Comprehension",
+   "Método clásico frente a comprensión"
+  ],
+  "Classic method:\\nsquares = []\\nfor number in range(1, 6):\\n    squares.append(number ** 2)\\n\\nWith comprehension (one line!):\\nsquares = [number ** 2 for number in range(1, 6)]\\n\\nBoth give the same result: [1, 4, 9, 16, 25]. Comprehension is a short way of saying \"do something to each item and put it in a new list\".": [
+   "Klassischer Weg:\\nquadrate = []\\nfor zahl in range(1, 6):\\n    quadrate.append(zahl ** 2)\\n\\nMit Comprehension (eine Zeile!):\\nquadrate = [zahl ** 2 for zahl in range(1, 6)]\\n\\nBeides gibt dasselbe Ergebnis: [1, 4, 9, 16, 25]. Comprehension ist eine kurze Art zu sagen «mach mit jedem Eintrag etwas und leg ihn in eine neue Liste».",
+   "Método clásico:\\ncuadrados = []\\nfor numero in range(1, 6):\\n    cuadrados.append(numero ** 2)\\n\\nCon comprensión (¡una línea!):\\ncuadrados = [numero ** 2 for numero in range(1, 6)]\\n\\nLas dos dan el mismo resultado: [1, 4, 9, 16, 25]. La comprensión es una forma corta de decir «haz algo con cada elemento y ponlo en una lista nueva»."
+  ],
+  "The format looks like this: [expression for item in list]": [
+   "Das Format sieht so aus: [Ausdruck for Eintrag in Liste]",
+   "El formato es así: [expresión for elemento in lista]"
+  ],
+  "Conditional Comprehension": [
+   "Comprehension mit Bedingung",
+   "Comprensión con condición"
+  ],
+  "You can add an if to keep only certain items:\\n\\neven_numbers = [x for x in range(1, 11) if x % 2 == 0]\\n# [2, 4, 6, 8, 10]\\n\\nDict comprehension works similarly:\\n\\nsquares_dict = {x: x**2 for x in range(1, 6)}\\n# {1: 1, 2: 4, 3: 9, 4: 16, 5: 25}": [
+   "Du kannst ein if anhängen, um nur bestimmte Einträge zu behalten:\\n\\ngerade_zahlen = [x for x in range(1, 11) if x % 2 == 0]\\n# [2, 4, 6, 8, 10]\\n\\nDict Comprehension funktioniert genauso:\\n\\nquadrat_dict = {x: x**2 for x in range(1, 6)}\\n# {1: 1, 2: 4, 3: 9, 4: 16, 5: 25}",
+   "Puedes añadir un if para quedarte solo con ciertos elementos:\\n\\nnumeros_pares = [x for x in range(1, 11) if x % 2 == 0]\\n# [2, 4, 6, 8, 10]\\n\\nLa comprensión de diccionarios funciona igual:\\n\\ndict_cuadrados = {x: x**2 for x in range(1, 6)}\\n# {1: 1, 2: 4, 3: 9, 4: 16, 5: 25}"
+  ],
+  "The if condition goes at the end of the comprehension: [expression for item in list if condition]": [
+   "Die if-Bedingung steht am Ende der Comprehension: [Ausdruck for Eintrag in Liste if Bedingung]",
+   "La condición if va al final de la comprensión: [expresión for elemento in lista if condición]"
+  ],
+  "What is the result of [x * 2 for x in range(1, 4)]?": [
+   "Was ist das Ergebnis von [x * 2 for x in range(1, 4)]?",
+   "¿Cuál es el resultado de [x * 2 for x in range(1, 4)]?"
+  ],
+  "range(1, 4) produces 1, 2, 3 in order; each is multiplied by 2, giving [2, 4, 6]": [
+   "range(1, 4) liefert der Reihe nach 1, 2, 3; jede wird mit 2 multipliziert, das ergibt [2, 4, 6]",
+   "range(1, 4) produce 1, 2, 3 en orden; cada uno se multiplica por 2, lo que da [2, 4, 6]"
+  ],
+  "Write a comprehension that lists numbers between 1-20 divisible by 3.": [
+   "Schreibe eine Comprehension, die die durch 3 teilbaren Zahlen zwischen 1 und 20 auflistet.",
+   "Escribe una comprensión que liste los números entre 1 y 20 divisibles entre 3."
+  ],
+  "You Learned the Shortcuts!": [
+   "Du hast die Abkürzungen gelernt!",
+   "¡Aprendiste los atajos!"
+  ],
+  "⚡ You now write shorter, more readable code!\\n\\n✓ You can write list comprehensions\\n✓ You can use conditional comprehensions\\n✓ You know dict comprehension\\n\\nNext up: Python\\'s most powerful topic - Object-Oriented Programming!": [
+   "⚡ Jetzt schreibst du kürzeren, lesbareren Code!\\n\\n✓ Du kannst List Comprehensions schreiben\\n✓ Du kannst Comprehensions mit Bedingung benutzen\\n✓ Du kennst Dict Comprehension\\n\\nAls Nächstes: Pythons mächtigstes Thema – objektorientierte Programmierung!",
+   "⚡ ¡Ya escribes código más corto y más legible!\\n\\n✓ Puedes escribir comprensiones de listas\\n✓ Puedes usar comprensiones con condición\\n✓ Conoces la comprensión de diccionarios\\n\\nSiguiente: el tema más potente de Python, ¡la programación orientada a objetos!"
+  ],
+  "You earned the Comprehension Pro badge!": [
+   "Du hast das Abzeichen «Comprehension-Profi» verdient!",
+   "¡Has ganado la insignia Profesional de las Comprensiones!"
+  ],
+  "Intro to Object-Oriented Programming": [
+   "Einstieg in die objektorientierte Programmierung",
+   "Introducción a la programación orientada a objetos"
+  ],
+  "Design your own data types": [
+   "Entwirf deine eigenen Datentypen",
+   "Diseña tus propios tipos de datos"
+  ],
+  "So far we\\'ve used numbers, text, and lists. Now you\\'ll learn to create your OWN data types! This is called a \"class\" - a way to represent real-world things like a \"student\" or a \"car\" in code.": [
+   "Bisher haben wir Zahlen, Text und Listen benutzt. Jetzt lernst du, EIGENE Datentypen zu bauen! Das nennt man eine «Klasse» – eine Art, Dinge aus der echten Welt wie einen «Schüler» oder ein «Auto» im Code darzustellen.",
+   "Hasta ahora hemos usado números, texto y listas. ¡Ahora vas a aprender a crear tus PROPIOS tipos de datos! A esto se le llama una «clase»: una forma de representar en código cosas del mundo real, como un «alumno» o un «coche»."
+  ],
+  "Your First Class": [
+   "Deine erste Klasse",
+   "Tu primera clase"
+  ],
+  "class Student:\\n    def __init__(self, name, age):\\n        self.name = name\\n        self.age = age\\n\\nstudent1 = Student(\"Alex\", 14)\\nprint(student1.name)  # Alex\\n\\n__init__ is a special function that runs automatically whenever a Student OBJECT is created. self means \"this specific object\" - each student gets their own name and age.": [
+   "class Schueler:\\n    def __init__(self, name, alter):\\n        self.name = name\\n        self.alter = alter\\n\\nschueler1 = Schueler(\"Alex\", 14)\\nprint(schueler1.name)  # Alex\\n\\n__init__ ist eine besondere Funktion, die automatisch läuft, sobald ein Schueler-OBJEKT erstellt wird. self heißt «genau dieses Objekt» – jeder Schüler bekommt seinen eigenen Namen und sein eigenes Alter.",
+   "class Alumno:\\n    def __init__(self, nombre, edad):\\n        self.nombre = nombre\\n        self.edad = edad\\n\\nalumno1 = Alumno(\"Alex\", 14)\\nprint(alumno1.nombre)  # Alex\\n\\n__init__ es una función especial que se ejecuta automáticamente en cuanto se crea un OBJETO Alumno. self significa «este objeto concreto»: cada alumno tiene su propio nombre y su propia edad."
+  ],
+  "class = a blueprint (e.g. the idea of \"a car\"), object = a real thing made from that blueprint (e.g. your specific car)": [
+   "class = ein Bauplan (z. B. die Idee «ein Auto»), Objekt = ein echtes Ding aus diesem Bauplan (z. B. dein bestimmtes Auto)",
+   "class = un plano (por ejemplo, la idea de «un coche»), objeto = una cosa real hecha con ese plano (por ejemplo, tu coche concreto)"
+  ],
+  "Methods: What a Class Can Do": [
+   "Methoden: was eine Klasse kann",
+   "Métodos: lo que una clase sabe hacer"
+  ],
+  "You can add functions (methods) specific to a class:\\n\\nclass Student:\\n    def __init__(self, name, grades):\\n        self.name = name\\n        self.grades = grades\\n\\n    def calculate_average(self):\\n        return sum(self.grades) / len(self.grades)\\n\\nalex = Student(\"Alex\", [80, 90, 70])\\nprint(alex.calculate_average())  # 80.0\\n\\nEvery Student object can calculate its own average from its own grades!": [
+   "Du kannst einer Klasse eigene Funktionen (Methoden) geben:\\n\\nclass Schueler:\\n    def __init__(self, name, noten):\\n        self.name = name\\n        self.noten = noten\\n\\n    def berechne_durchschnitt(self):\\n        return sum(self.noten) / len(self.noten)\\n\\nalex = Schueler(\"Alex\", [80, 90, 70])\\nprint(alex.berechne_durchschnitt())  # 80.0\\n\\nJedes Schueler-Objekt kann seinen eigenen Durchschnitt aus seinen eigenen Noten berechnen!",
+   "Puedes añadir funciones (métodos) propias de una clase:\\n\\nclass Alumno:\\n    def __init__(self, nombre, notas):\\n        self.nombre = nombre\\n        self.notas = notas\\n\\n    def calcular_media(self):\\n        return sum(self.notas) / len(self.notas)\\n\\nalex = Alumno(\"Alex\", [80, 90, 70])\\nprint(alex.calcular_media())  # 80.0\\n\\n¡Cada objeto Alumno puede calcular su propia media a partir de sus propias notas!"
+  ],
+  "A method is the list of things an object \"can do\" - your class\\'s own version of a built-in function like print().": [
+   "Eine Methode ist die Liste dessen, was ein Objekt «kann» – die eigene Fassung deiner Klasse von einer eingebauten Funktion wie print().",
+   "Un método es la lista de cosas que un objeto «sabe hacer»: la versión propia de tu clase de una función incorporada como print()."
+  ],
+  "When does the __init__ function run?": [
+   "Wann läuft die Funktion __init__?",
+   "¿Cuándo se ejecuta la función __init__?"
+  ],
+  "__init__ runs automatically the moment an object (instance) of a class is created, and sets up its starting values.": [
+   "__init__ läuft automatisch in dem Moment, in dem ein Objekt (eine Instanz) einer Klasse erstellt wird, und setzt seine Startwerte.",
+   "__init__ se ejecuta automáticamente en el momento en que se crea un objeto (una instancia) de una clase, y fija sus valores iniciales."
+  ],
+  "Put the Book class lines in the correct order.": [
+   "Bring die Zeilen der Klasse Book in die richtige Reihenfolge.",
+   "Pon en el orden correcto las líneas de la clase Book."
+  ],
+  "A Python class definition": [
+   "Eine Python-Klassendefinition",
+   "La definición de una clase en Python"
+  ],
+  "You Took Your First Step into OOP!": [
+   "Du hast deinen ersten Schritt in OOP gemacht!",
+   "¡Diste tu primer paso en la POO!"
+  ],
+  "🏗️ You can now design your own data types!\\n\\n✓ You learned to build a blueprint with class\\n✓ You can set starting values with __init__\\n✓ You can write methods that define what an object \"can do\"\\n\\nNext up: the final project that combines EVERYTHING - a Student Grade System!": [
+   "🏗️ Jetzt kannst du eigene Datentypen entwerfen!\\n\\n✓ Du hast gelernt, mit class einen Bauplan zu bauen\\n✓ Du kannst mit __init__ Startwerte setzen\\n✓ Du kannst Methoden schreiben, die sagen, was ein Objekt «kann»\\n\\nAls Nächstes: das Abschlussprojekt, das ALLES zusammenbringt – ein Notensystem für Schüler!",
+   "🏗️ ¡Ya puedes diseñar tus propios tipos de datos!\\n\\n✓ Aprendiste a crear un plano con class\\n✓ Puedes fijar valores iniciales con __init__\\n✓ Puedes escribir métodos que definen lo que un objeto «sabe hacer»\\n\\nSiguiente: el proyecto final que lo junta TODO: ¡un sistema de notas de alumnos!"
+  ],
+  "You earned the OOP Apprentice badge!": [
+   "Du hast das Abzeichen «OOP-Lehrling» verdient!",
+   "¡Has ganado la insignia Aprendiz de POO!"
+  ],
+  "Final Project: Student Grade System": [
+   "Abschlussprojekt: Notensystem für Schüler",
+   "Proyecto final: sistema de notas de alumnos"
+  ],
+  "Combine OOP + error handling + file I/O": [
+   "OOP + Fehlerbehandlung + Dateien zusammen",
+   "Junta POO + manejo de errores + archivos"
+  ],
+  "You\\'ve reached the final project of the Advanced Python module! We\\'ll combine EVERYTHING you learned here: classes, try/except, comprehensions, and JSON file operations. You\\'ll build a real school grade-tracking system!": [
+   "Du bist beim Abschlussprojekt des Moduls «Python für Fortgeschrittene» angekommen! Wir bringen ALLES zusammen, was du hier gelernt hast: Klassen, try/except, Comprehensions und JSON-Dateioperationen. Du baust ein echtes Notensystem für die Schule!",
+   "¡Has llegado al proyecto final del módulo de Python avanzado! Vamos a juntar TODO lo que has aprendido aquí: clases, try/except, comprensiones y operaciones con archivos JSON. ¡Vas a construir un sistema de seguimiento de notas de verdad!"
+  ],
+  "The Project Plan": [
+   "Der Projektplan",
+   "El plan del proyecto"
+  ],
+  "The Student Grade System has 3 parts:\\n\\n1. A Student class (name, list of grades, calculate_average() method)\\n2. Handling invalid input with try/except while entering grades (catch ValueError if a letter is typed)\\n3. Saving the results to a file with json.dump()\\n\\nclass Student:\\n    def __init__(self, name):\\n        self.name = name\\n        self.grades = []\\n\\n    def add_grade(self, grade):\\n        self.grades.append(grade)\\n\\n    def calculate_average(self):\\n        if len(self.grades) == 0:\\n            return 0\\n        return sum(self.grades) / len(self.grades)": [
+   "Das Notensystem hat 3 Teile:\\n\\n1. Eine Klasse Schueler (Name, Notenliste, Methode berechne_durchschnitt())\\n2. Ungültige Eingaben beim Eintragen der Noten mit try/except abfangen (ValueError, wenn ein Buchstabe getippt wird)\\n3. Die Ergebnisse mit json.dump() in einer Datei speichern\\n\\nclass Schueler:\\n    def __init__(self, name):\\n        self.name = name\\n        self.noten = []\\n\\n    def note_hinzufuegen(self, note):\\n        self.noten.append(note)\\n\\n    def berechne_durchschnitt(self):\\n        if len(self.noten) == 0:\\n            return 0\\n        return sum(self.noten) / len(self.noten)",
+   "El sistema de notas tiene 3 partes:\\n\\n1. Una clase Alumno (nombre, lista de notas, método calcular_media())\\n2. Manejar la entrada no válida con try/except al introducir las notas (capturar ValueError si se escribe una letra)\\n3. Guardar los resultados en un archivo con json.dump()\\n\\nclass Alumno:\\n    def __init__(self, nombre):\\n        self.nombre = nombre\\n        self.notas = []\\n\\n    def anadir_nota(self, nota):\\n        self.notas.append(nota)\\n\\n    def calcular_media(self):\\n        if len(self.notas) == 0:\\n            return 0\\n        return sum(self.notas) / len(self.notas)"
+  ],
+  "Always break big projects into small, testable pieces - write the class first, then add error handling, then save to a file.": [
+   "Teile große Projekte immer in kleine, prüfbare Stücke – schreib zuerst die Klasse, dann die Fehlerbehandlung, dann das Speichern in eine Datei.",
+   "Divide siempre los proyectos grandes en trozos pequeños que puedas probar: escribe primero la clase, luego el manejo de errores y después el guardado en archivo."
+  ],
+  "Why should we use try/except when taking a grade from the user?": [
+   "Warum sollten wir try/except benutzen, wenn wir eine Note vom Nutzer entgegennehmen?",
+   "¿Por qué deberíamos usar try/except al recoger una nota del usuario?"
+  ],
+  "User input is never fully trustworthy - try/except means an unexpected input informs the user instead of crashing the program.": [
+   "Eingaben von Nutzern sind nie ganz verlässlich – mit try/except führt eine unerwartete Eingabe zu einem Hinweis statt zu einem Absturz.",
+   "Lo que escribe el usuario nunca es del todo fiable: con try/except, una entrada inesperada avisa al usuario en lugar de colgar el programa."
+  ],
+  "Design a Student class (name, grades, calculate_average method). Safely read grades from the user with try/except, calculate the average, and save the result to a JSON file.": [
+   "Entwirf eine Klasse Schueler (Name, Noten, Methode berechne_durchschnitt). Lies die Noten mit try/except sicher vom Nutzer ein, berechne den Durchschnitt und speichere das Ergebnis in einer JSON-Datei.",
+   "Diseña una clase Alumno (nombre, notas, método calcular_media). Lee las notas del usuario de forma segura con try/except, calcula la media y guarda el resultado en un archivo JSON."
+  ],
+  "Student Grade System": [
+   "Notensystem für Schüler",
+   "Sistema de notas de alumnos"
+  ],
+  "🎓 YOU COMPLETED ADVANCED PYTHON!": [
+   "🎓 DU HAST PYTHON FÜR FORTGESCHRITTENE GESCHAFFT!",
+   "🎓 ¡HAS COMPLETADO PYTHON AVANZADO!"
+  ],
+  "🐍🏆🐍 You went from basic Python to real-world software techniques and finished a professional project!\\n\\n✓ Handling errors with try/except\\n✓ Using built-in libraries (random, math, datetime)\\n✓ Writing shorter code with list/dict comprehension\\n✓ Designing classes and objects\\n✓ An OOP + file project that combines it all\\n\\nWith these skills you can now write your own games, data analysis tools, or automation scripts. Your software engineering journey continues at a much more advanced level!": [
+   "🐍🏆🐍 Du bist von den Python-Grundlagen zu echten Software-Techniken gekommen und hast ein professionelles Projekt abgeschlossen!\\n\\n✓ Fehler mit try/except behandeln\\n✓ Eingebaute Bibliotheken benutzen (random, math, datetime)\\n✓ Mit List- und Dict-Comprehension kürzeren Code schreiben\\n✓ Klassen und Objekte entwerfen\\n✓ Ein OOP- und Datei-Projekt, das alles verbindet\\n\\nMit diesen Fähigkeiten kannst du jetzt eigene Spiele, Datenanalyse-Werkzeuge oder Automatisierungsskripte schreiben. Deine Reise als Software-Entwickler geht auf einem viel höheren Niveau weiter!",
+   "🐍🏆🐍 ¡Has pasado de los fundamentos de Python a técnicas de software reales y has terminado un proyecto profesional!\\n\\n✓ Manejar errores con try/except\\n✓ Usar las bibliotecas incorporadas (random, math, datetime)\\n✓ Escribir código más corto con comprensiones de listas y diccionarios\\n✓ Diseñar clases y objetos\\n✓ Un proyecto de POO y archivos que lo junta todo\\n\\nCon estas habilidades ya puedes escribir tus propios juegos, herramientas de análisis de datos o scripts de automatización. ¡Tu camino como desarrollador continúa a un nivel mucho más alto!"
+  ],
+  "You earned the Advanced Python Engineer badge - your next goal is designing your own original project!": [
+   "Du hast das Abzeichen «Fortgeschrittener Python-Entwickler» verdient – dein nächstes Ziel ist ein eigenes, selbst ausgedachtes Projekt!",
+   "¡Has ganado la insignia Desarrollador Python Avanzado! Tu próximo objetivo es diseñar un proyecto original tuyo."
+  ],
+  "You took your first step into Python!": [
+   "Du hast deinen ersten Schritt in Python gemacht!",
+   "¡Diste tu primer paso en Python!"
+  ],
+  "You learned variables!": [
+   "Du hast Variablen gelernt!",
+   "¡Aprendiste las variables!"
+  ],
+  "Math with Python is easy now!": [
+   "Rechnen mit Python ist jetzt leicht!",
+   "¡Ahora las matemáticas con Python son fáciles!"
+  ],
+  "You learned how to get input from the user!": [
+   "Du hast gelernt, Eingaben vom Nutzer zu holen!",
+   "¡Aprendiste a recoger datos del usuario!"
+  ],
+  "You mastered type conversion!": [
+   "Du beherrschst die Typumwandlung!",
+   "¡Dominas la conversión de tipos!"
+  ],
+  "You learned the if condition!": [
+   "Du hast die if-Bedingung gelernt!",
+   "¡Aprendiste la condición if!"
+  ],
+  "You conquered else and elif!": [
+   "Du hast else und elif bezwungen!",
+   "¡Has conquistado else y elif!"
+  ],
+  "You met the while loop!": [
+   "Du hast die while-Schleife kennengelernt!",
+   "¡Conociste el bucle while!"
+  ],
+  "You became a for loop expert!": [
+   "Du bist Experte für for-Schleifen geworden!",
+   "¡Te has convertido en experto del bucle for!"
+  ],
+  "You discovered lists!": [
+   "Du hast Listen entdeckt!",
+   "¡Descubriste las listas!"
+  ],
+  "You wrote your first function!": [
+   "Du hast deine erste Funktion geschrieben!",
+   "¡Escribiste tu primera función!"
+  ],
+  "You mastered functions!": [
+   "Du beherrschst Funktionen!",
+   "¡Dominas las funciones!"
+  ],
+  "You learned key-value pairs!": [
+   "Du hast Schlüssel-Wert-Paare gelernt!",
+   "¡Aprendiste los pares clave-valor!"
+  ],
+  "You mastered nested dictionaries!": [
+   "Du beherrschst verschachtelte Dictionaries!",
+   "¡Dominas los diccionarios anidados!"
+  ],
+  "You learned how to read data from files!": [
+   "Du hast gelernt, Daten aus Dateien zu lesen!",
+   "¡Aprendiste a leer datos de archivos!"
+  ],
+  "You mastered writing data to files!": [
+   "Du beherrschst das Schreiben von Daten in Dateien!",
+   "¡Dominas la escritura de datos en archivos!"
+  ],
+  "Error Handler": [
+   "Fehler-Bändiger",
+   "Domador de Errores"
+  ],
+  "You protected your program from crashing with try/except!": [
+   "Du hast dein Programm mit try/except vor dem Absturz bewahrt!",
+   "¡Has protegido tu programa de colgarse con try/except!"
+  ],
+  "Library Master": [
+   "Bibliotheks-Meister",
+   "Maestro de las Bibliotecas"
+  ],
+  "You used Python\\'s built-in libraries with import!": [
+   "Du hast Pythons eingebaute Bibliotheken mit import benutzt!",
+   "¡Has usado las bibliotecas incorporadas de Python con import!"
+  ],
+  "Comprehension Pro": [
+   "Comprehension-Profi",
+   "Profesional de las Comprensiones"
+  ],
+  "You wrote shorter code with list and dict comprehensions!": [
+   "Du hast mit List- und Dict-Comprehensions kürzeren Code geschrieben!",
+   "¡Has escrito código más corto con comprensiones de listas y diccionarios!"
+  ],
+  "OOP Apprentice": [
+   "OOP-Lehrling",
+   "Aprendiz de POO"
+  ],
+  "You learned classes and objects and wrote your first class!": [
+   "Du hast Klassen und Objekte gelernt und deine erste Klasse geschrieben!",
+   "¡Aprendiste las clases y los objetos y escribiste tu primera clase!"
+  ],
+  "Advanced Python Engineer": [
+   "Fortgeschrittener Python-Entwickler",
+   "Desarrollador Python Avanzado"
+  ],
+  "You completed a final project combining OOP, error handling, and file I/O!": [
+   "Du hast ein Abschlussprojekt geschafft, das OOP, Fehlerbehandlung und Dateien verbindet!",
+   "¡Has completado un proyecto final que junta POO, manejo de errores y archivos!"
+  ]
+ },
+ "listeler": [
+  {
+   "en": [
+    "Simple, readable code",
+    "A powerful programming language",
+    "Used for all sorts of things"
+   ],
+   "de": [
+    "Einfacher, lesbarer Code",
+    "Eine mächtige Programmiersprache",
+    "Für alles Mögliche benutzt"
+   ],
+   "es": [
+    "Código sencillo y legible",
+    "Un lenguaje de programación potente",
+    "Se usa para todo tipo de cosas"
+   ]
+  },
+  {
+   "en": [
+    "Add with append()",
+    "Remove with remove()",
+    "Sort with sort()"
+   ],
+   "de": [
+    "Hinzufügen mit append()",
+    "Entfernen mit remove()",
+    "Sortieren mit sort()"
+   ],
+   "es": [
+    "Añadir con append()",
+    "Quitar con remove()",
+    "Ordenar con sort()"
+   ]
+  },
+  {
+   "en": [
+    "Avoid repeating code",
+    "More readable code",
+    "Easier to maintain"
+   ],
+   "de": [
+    "Code nicht wiederholen",
+    "Lesbarerer Code",
+    "Leichter zu pflegen"
+   ],
+   "es": [
+    "Evitar repetir código",
+    "Código más legible",
+    "Más fácil de mantener"
+   ]
+  },
+  {
+   "en": [
+    "Key-value pairs",
+    "Fast lookup",
+    "A flexible data structure"
+   ],
+   "de": [
+    "Schlüssel-Wert-Paare",
+    "Schnelles Nachschlagen",
+    "Eine flexible Datenstruktur"
+   ],
+   "es": [
+    "Pares clave-valor",
+    "Búsqueda rápida",
+    "Una estructura de datos flexible"
+   ]
+  },
+  {
+   "en": [
+    "Opening and closing files",
+    "Reading line by line",
+    "Safe file handling"
+   ],
+   "de": [
+    "Dateien öffnen und schließen",
+    "Zeile für Zeile lesen",
+    "Sicherer Umgang mit Dateien"
+   ],
+   "es": [
+    "Abrir y cerrar archivos",
+    "Leer línea a línea",
+    "Manejo seguro de archivos"
+   ]
+  },
+  {
+   "en": [
+    "What a try/except block is",
+    "What kinds of errors can happen",
+    "Handling bad input from a user"
+   ],
+   "de": [
+    "Was ein try/except-Block ist",
+    "Welche Arten von Fehlern passieren können",
+    "Mit falschen Eingaben eines Nutzers umgehen"
+   ],
+   "es": [
+    "Qué es un bloque try/except",
+    "Qué tipos de errores pueden ocurrir",
+    "Manejar una entrada incorrecta del usuario"
+   ]
+  },
+  {
+   "en": [
+    "The import statement",
+    "The random, math, and datetime modules",
+    "Why we don\\'t rewrite code that already exists"
+   ],
+   "de": [
+    "Die import-Anweisung",
+    "Die Module random, math und datetime",
+    "Warum wir Code, den es schon gibt, nicht neu schreiben"
+   ],
+   "es": [
+    "La instrucción import",
+    "Los módulos random, math y datetime",
+    "Por qué no reescribimos código que ya existe"
+   ]
+  },
+  {
+   "en": [
+    "Start with import random",
+    "random.randint(1, 10) generates the random number"
+   ],
+   "de": [
+    "Fang mit import random an",
+    "random.randint(1, 10) erzeugt die Zufallszahl"
+   ],
+   "es": [
+    "Empieza con import random",
+    "random.randint(1, 10) genera el número aleatorio"
+   ]
+  },
+  {
+   "en": [
+    "List comprehension syntax",
+    "Conditional comprehension (with if)",
+    "Dict comprehension"
+   ],
+   "de": [
+    "Der Aufbau einer List Comprehension",
+    "Comprehension mit Bedingung (mit if)",
+    "Dict Comprehension"
+   ],
+   "es": [
+    "La sintaxis de la comprensión de listas",
+    "Comprensión con condición (con if)",
+    "Comprensión de diccionarios"
+   ]
+  },
+  {
+   "en": [
+    "range(1, 21) gives numbers from 1 to 20",
+    "The condition x % 3 == 0 checks divisibility by 3"
+   ],
+   "de": [
+    "range(1, 21) liefert die Zahlen von 1 bis 20",
+    "Die Bedingung x % 3 == 0 prüft die Teilbarkeit durch 3"
+   ],
+   "es": [
+    "range(1, 21) da los números del 1 al 20",
+    "La condición x % 3 == 0 comprueba la divisibilidad entre 3"
+   ]
+  },
+  {
+   "en": [
+    "The concept of a class and an object",
+    "Setting starting values with __init__",
+    "Methods (functions that belong to a class)"
+   ],
+   "de": [
+    "Der Begriff Klasse und Objekt",
+    "Startwerte mit __init__ setzen",
+    "Methoden (Funktionen, die zu einer Klasse gehören)"
+   ],
+   "es": [
+    "El concepto de clase y objeto",
+    "Fijar los valores iniciales con __init__",
+    "Métodos (funciones que pertenecen a una clase)"
+   ]
+  },
+  {
+   "en": [
+    "Designing a Student class",
+    "Handling invalid grade input",
+    "Saving results to a JSON file"
+   ],
+   "de": [
+    "Eine Klasse Schueler entwerfen",
+    "Mit ungültigen Noteneingaben umgehen",
+    "Ergebnisse in einer JSON-Datei speichern"
+   ],
+   "es": [
+    "Diseñar una clase Alumno",
+    "Manejar entradas de nota no válidas",
+    "Guardar los resultados en un archivo JSON"
+   ]
+  },
+  {
+   "en": [
+    "Create a Student class with __init__ setting a name and an empty grades list",
+    "Add an add_grade(grade) method that appends to the grades list",
+    "Add a calculate_average() method that returns the average of the grades",
+    "Use try/except to catch a ValueError while reading grade input from the user",
+    "Save the student\\'s name and average to a file using json.dump()"
+   ],
+   "de": [
+    "Erstelle eine Klasse Schueler, deren __init__ einen Namen und eine leere Notenliste setzt",
+    "Füge eine Methode note_hinzufuegen(note) hinzu, die an die Notenliste anhängt",
+    "Füge eine Methode berechne_durchschnitt() hinzu, die den Durchschnitt der Noten zurückgibt",
+    "Benutze try/except, um beim Einlesen der Note einen ValueError abzufangen",
+    "Speichere Name und Durchschnitt des Schülers mit json.dump() in einer Datei"
+   ],
+   "es": [
+    "Crea una clase Alumno cuyo __init__ fije un nombre y una lista de notas vacía",
+    "Añade un método anadir_nota(nota) que añada a la lista de notas",
+    "Añade un método calcular_media() que devuelva la media de las notas",
+    "Usa try/except para capturar un ValueError al leer la nota que escribe el usuario",
+    "Guarda el nombre y la media del alumno en un archivo con json.dump()"
+   ]
+  },
+  {
+   "en": [
+    "Start with self.grades = [] and add to it with append()",
+    "Remember to return 0 from calculate_average if grades is empty (avoids division by zero)",
+    "json.dump(data, file) writes a dictionary straight to a file"
+   ],
+   "de": [
+    "Fang mit self.noten = [] an und füge mit append() hinzu",
+    "Denk daran, aus berechne_durchschnitt 0 zurückzugeben, wenn noten leer ist (verhindert eine Division durch null)",
+    "json.dump(daten, datei) schreibt ein Dictionary direkt in eine Datei"
+   ],
+   "es": [
+    "Empieza con self.notas = [] y añade con append()",
+    "Acuérdate de devolver 0 desde calcular_media si notas está vacía (evita la división entre cero)",
+    "json.dump(datos, archivo) escribe un diccionario directamente en un archivo"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,23 @@
+# ONIZLEME 1/4 — Acilis.
+# Uygulamayi ilk kez acan bir cocugun gordugu ilk sey: Puf cikiyor ve
+# "su iki blogu birlestirir misin?" diyor. Video bu anla basliyor —
+# anlatim yok, ilk saniyede eline bir is veriliyor.
+#
+# Bu segment `launch:` ile basliyor, bu yuzden executionPrerequisite
+# ALMIYOR (flow-execute ikisini birlikte kabul etmiyor).
+#
+# Beklemeler sabit: maskot animasyonu hic durmadigi icin `await idle`
+# erken donuyor (bkz. store-00-sablon.yaml).
+steps:
+  - launch: com.devkom.app
+  - echo: Splash 2.5 sn; kayitta nefes alsin diye 3.5 sn bekliyoruz.
+  - wait: 3500
+  - echo: Puf'un sorusu okunsun.
+  - wait: 800
+  - echo: >-
+      Mavi "10 adim git" blogu (0.50, 0.754) -> ustteki bos yuva
+      (0.52, 0.678). 900 ms suruklemek insan eli gibi gorunuyor.
+  - tool: gesture-swipe
+    args: { fromX: 0.50, fromY: 0.754, toX: 0.52, toY: 0.678, durationMs: 900 }
+  - echo: Bloklar birlesince ekran kendiliginden 2. adima geciyor.
+  - wait: 1200

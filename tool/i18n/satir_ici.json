@@ -1,0 +1,2932 @@
+{
+ "metinler": {
+  "'        self.author = author'": [
+   "        self.author = author",
+   "        self.author = author"
+  ],
+  "'        self.title = title'": [
+   "        self.title = title",
+   "        self.title = title"
+  ],
+  "'    def __init__(self, title, author):'": [
+   "    def __init__(self, title, author):",
+   "    def __init__(self, title, author):"
+  ],
+  "'!='": [
+   "!=",
+   "!="
+  ],
+  "'\"428\"'": [
+   "\"428\"",
+   "\"428\""
+  ],
+  "'\"Hello\"'": [
+   "\"Hello\"",
+   "\"Hello\""
+  ],
+  "'\"forever\"'": [
+   "\"forever\"",
+   "\"forever\""
+  ],
+  "'\"r\" (read)'": [
+   "\"r\" (read)",
+   "\"r\" (read)"
+  ],
+  "'\"w\" (write)'": [
+   "\"w\" (write)",
+   "\"w\" (write)"
+  ],
+  "'\"x\" (create)'": [
+   "\"x\" (create)",
+   "\"x\" (create)"
+  ],
+  "'#3498DB'": [
+   "#3498DB",
+   "#3498DB"
+  ],
+  "'#class-name'": [
+   "#class-name",
+   "#class-name"
+  ],
+  "'#homepage'": [
+   "#homepage",
+   "#homepage"
+  ],
+  "'(p)Text(/p)'": [
+   "(p)Text(/p)",
+   "(p)Text(/p)"
+  ],
+  "'->'": [
+   "->",
+   "->"
+  ],
+  "'.box'": [
+   ".box",
+   ".box"
+  ],
+  "'.button'": [
+   ".button",
+   ".button"
+  ],
+  "'.card'": [
+   ".card",
+   ".card"
+  ],
+  "'.class-name'": [
+   ".class-name",
+   ".class-name"
+  ],
+  "'.container {'": [
+   ".container {",
+   ".container {"
+  ],
+  "'0 1 2'": [
+   "0 1 2",
+   "0 1 2"
+  ],
+  "'0'": [
+   "0",
+   "0"
+  ],
+  "'0px'": [
+   "0px",
+   "0px"
+  ],
+  "'1'": [
+   "1",
+   "1"
+  ],
+  "'10%'": [
+   "10%",
+   "10%"
+  ],
+  "'10'": [
+   "10",
+   "10"
+  ],
+  "'100'": [
+   "100",
+   "100"
+  ],
+  "'100px'": [
+   "100px",
+   "100px"
+  ],
+  "'1023'": [
+   "1023",
+   "1023"
+  ],
+  "'12'": [
+   "12",
+   "12"
+  ],
+  "'120px'": [
+   "120px",
+   "120px"
+  ],
+  "'13'": [
+   "13",
+   "13"
+  ],
+  "'140px (100 + 20 + 20)'": [
+   "140px (100 + 20 + 20)",
+   "140px (100 + 20 + 20)"
+  ],
+  "'15'": [
+   "15",
+   "15"
+  ],
+  "'16'": [
+   "16",
+   "16"
+  ],
+  "'20'": [
+   "20",
+   "20"
+  ],
+  "'24'": [
+   "24",
+   "24"
+  ],
+  "'25'": [
+   "25",
+   "25"
+  ],
+  "'255'": [
+   "255",
+   "255"
+  ],
+  "'3'": [
+   "3",
+   "3"
+  ],
+  "'3.14'": [
+   "3.14",
+   "3.14"
+  ],
+  "'30'": [
+   "30",
+   "30"
+  ],
+  "'3498DB#'": [
+   "3498DB#",
+   "3498DB#"
+  ],
+  "'4'": [
+   "4",
+   "4"
+  ],
+  "'42'": [
+   "42",
+   "42"
+  ],
+  "'428'": [
+   "428",
+   "428"
+  ],
+  "'5'": [
+   "5",
+   "5"
+  ],
+  "'50%'": [
+   "50%",
+   "50%"
+  ],
+  "'50'": [
+   "50",
+   "50"
+  ],
+  "'6'": [
+   "6",
+   "6"
+  ],
+  "'7'": [
+   "7",
+   "7"
+  ],
+  "'76'": [
+   "76",
+   "76"
+  ],
+  "'78'": [
+   "78",
+   "78"
+  ],
+  "'8'": [
+   "8",
+   "8"
+  ],
+  "'80px'": [
+   "80px",
+   "80px"
+  ],
+  "'85'": [
+   "85",
+   "85"
+  ],
+  "'90'": [
+   "90",
+   "90"
+  ],
+  "':active-mouse'": [
+   ":active-mouse",
+   ":active-mouse"
+  ],
+  "':hover'": [
+   ":hover",
+   ":hover"
+  ],
+  "':mouse'": [
+   ":mouse",
+   ":mouse"
+  ],
+  "':over'": [
+   ":over",
+   ":over"
+  ],
+  "'<>'": [
+   "<>",
+   "<>"
+  ],
+  "'<div>'": [
+   "<div>",
+   "<div>"
+  ],
+  "'<footer>'": [
+   "<footer>",
+   "<footer>"
+  ],
+  "'<h1> (heading)'": [
+   "<h1> (heading)",
+   "<h1> (heading)"
+  ],
+  "'<h1>'": [
+   "<h1>",
+   "<h1>"
+  ],
+  "'<h6>'": [
+   "<h6>",
+   "<h6>"
+  ],
+  "'<header>'": [
+   "<header>",
+   "<header>"
+  ],
+  "'<heading>'": [
+   "<heading>",
+   "<heading>"
+  ],
+  "'<item>'": [
+   "<item>",
+   "<item>"
+  ],
+  "'<li>'": [
+   "<li>",
+   "<li>"
+  ],
+  "'<list>'": [
+   "<list>",
+   "<list>"
+  ],
+  "'<main>'": [
+   "<main>",
+   "<main>"
+  ],
+  "'<menu-bar>'": [
+   "<menu-bar>",
+   "<menu-bar>"
+  ],
+  "'<nav>'": [
+   "<nav>",
+   "<nav>"
+  ],
+  "'<ol> (ordered list)'": [
+   "<ol> (ordered list)",
+   "<ol> (ordered list)"
+  ],
+  "'<p> (paragraph)'": [
+   "<p> (paragraph)",
+   "<p> (paragraph)"
+  ],
+  "'<p>'": [
+   "<p>",
+   "<p>"
+  ],
+  "'<p>Text</p>'": [
+   "<p>Text</p>",
+   "<p>Text</p>"
+  ],
+  "'<p>Text<p>'": [
+   "<p>Text<p>",
+   "<p>Text<p>"
+  ],
+  "'<row>'": [
+   "<row>",
+   "<row>"
+  ],
+  "'<span>'": [
+   "<span>",
+   "<span>"
+  ],
+  "'<table>'": [
+   "<table>",
+   "<table>"
+  ],
+  "'<td>'": [
+   "<td>",
+   "<td>"
+  ],
+  "'<th>'": [
+   "<th>",
+   "<th>"
+  ],
+  "'<title>'": [
+   "<title>",
+   "<title>"
+  ],
+  "'<tr>'": [
+   "<tr>",
+   "<tr>"
+  ],
+  "'<ul> (unordered list)'": [
+   "<ul> (unordered list)",
+   "<ul> (unordered list)"
+  ],
+  "'='": [
+   "=",
+   "="
+  ],
+  "'=='": [
+   "==",
+   "=="
+  ],
+  "'==='": [
+   "===",
+   "==="
+  ],
+  "'@animation'": [
+   "@animation",
+   "@animation"
+  ],
+  "'@class-name'": [
+   "@class-name",
+   "@class-name"
+  ],
+  "'@frames'": [
+   "@frames",
+   "@frames"
+  ],
+  "'@keyframes spin {'": [
+   "@keyframes spin {",
+   "@keyframes spin {"
+  ],
+  "'@keyframes'": [
+   "@keyframes",
+   "@keyframes"
+  ],
+  "'@steps'": [
+   "@steps",
+   "@steps"
+  ],
+  "'A'": [
+   "A",
+   "A"
+  ],
+  "'Add()'": [
+   "Add()",
+   "Add()"
+  ],
+  "'Always'": [
+   "Always",
+   "Always"
+  ],
+  "'Amazon'": [
+   "Amazon",
+   "Amazon"
+  ],
+  "'Append()'": [
+   "Append()",
+   "Append()"
+  ],
+  "'Apple'": [
+   "Apple",
+   "Apple"
+  ],
+  "'B'": [
+   "B",
+   "B"
+  ],
+  "'Backdrop'": [
+   "Backdrop",
+   "Backdrop"
+  ],
+  "'Blue'": [
+   "Blue",
+   "Blue"
+  ],
+  "'Border'": [
+   "Border",
+   "Border"
+  ],
+  "'C'": [
+   "C",
+   "C"
+  ],
+  "'Character'": [
+   "Character",
+   "Character"
+  ],
+  "'Console.WriteLine(\"A\");'": [
+   "Console.WriteLine(\"A\");",
+   "Console.WriteLine(\"A\");"
+  ],
+  "'Console.WriteLine(\"Hello World!\");'": [
+   "Console.WriteLine(\"Hello World!\");",
+   "Console.WriteLine(\"Hello World!\");"
+  ],
+  "'Console.WriteLine(\"Hi!\");'": [
+   "Console.WriteLine(\"Hi!\");",
+   "Console.WriteLine(\"Hi!\");"
+  ],
+  "'Console.WriteLine(grade);'": [
+   "Console.WriteLine(grade);",
+   "Console.WriteLine(grade);"
+  ],
+  "'Console.print(\"Hi!\");'": [
+   "Console.print(\"Hi!\");",
+   "Console.print(\"Hi!\");"
+  ],
+  "'Content'": [
+   "Content",
+   "Content"
+  ],
+  "'Endlessly'": [
+   "Endlessly",
+   "Endlessly"
+  ],
+  "'Excel'": [
+   "Excel",
+   "Excel"
+  ],
+  "'FIFA'": [
+   "FIFA",
+   "FIFA"
+  ],
+  "'Fortnite'": [
+   "Fortnite",
+   "Fortnite"
+  ],
+  "'Google'": [
+   "Google",
+   "Google"
+  ],
+  "'Green'": [
+   "Green",
+   "Green"
+  ],
+  "'Hello\\\\\\nHello'": [
+   "Hello\\\\\\nHello",
+   "Hello\\\\\\nHello"
+  ],
+  "'Insert()'": [
+   "Insert()",
+   "Insert()"
+  ],
+  "'Inside <!DOCTYPE>'": [
+   "Inside <!DOCTYPE>",
+   "Inside <!DOCTYPE>"
+  ],
+  "'Main() (capital M)'": [
+   "Main() (capital M)",
+   "Main() (capital M)"
+  ],
+  "'Margin'": [
+   "Margin",
+   "Margin"
+  ],
+  "'Microsoft'": [
+   "Microsoft",
+   "Microsoft"
+  ],
+  "'Minecraft'": [
+   "Minecraft",
+   "Minecraft"
+  ],
+  "'Neither'": [
+   "Neither",
+   "Neither"
+  ],
+  "'Never'": [
+   "Never",
+   "Never"
+  ],
+  "'None'": [
+   "None",
+   "None"
+  ],
+  "'Nothing'": [
+   "Nothing",
+   "Nothing"
+  ],
+  "'Nowhere'": [
+   "Nowhere",
+   "Nowhere"
+  ],
+  "'Orange'": [
+   "Orange",
+   "Orange"
+  ],
+  "'Padding'": [
+   "Padding",
+   "Padding"
+  ],
+  "'Parameters'": [
+   "Parameters",
+   "Parameters"
+  ],
+  "'Person'": [
+   "Person",
+   "Person"
+  ],
+  "'Photoshop'": [
+   "Photoshop",
+   "Photoshop"
+  ],
+  "'Pink'": [
+   "Pink",
+   "Pink"
+  ],
+  "'Plan/Template'": [
+   "Plan/Template",
+   "Plan/Template"
+  ],
+  "'Player();'": [
+   "Player();",
+   "Player();"
+  ],
+  "'Player.new();'": [
+   "Player.new();",
+   "Player.new();"
+  ],
+  "'Purple'": [
+   "Purple",
+   "Purple"
+  ],
+  "'Push()'": [
+   "Push()",
+   "Push()"
+  ],
+  "'Score: {score}'": [
+   "Score: {score}",
+   "Score: {score}"
+  ],
+  "'Scratch'": [
+   "Scratch",
+   "Scratch"
+  ],
+  "'Serial.println(value);'": [
+   "Serial.println(value);",
+   "Serial.println(value);"
+  ],
+  "'Sprite'": [
+   "Sprite",
+   "Sprite"
+  ],
+  "'String (capital)'": [
+   "String (capital)",
+   "String (capital)"
+  ],
+  "'String'": [
+   "String",
+   "String"
+  ],
+  "'Student.new();'": [
+   "Student.new();",
+   "Student.new();"
+  ],
+  "'Subclass (Child)'": [
+   "Subclass (Child)",
+   "Subclass (Child)"
+  ],
+  "'Superclass (Parent)'": [
+   "Superclass (Parent)",
+   "Superclass (Parent)"
+  ],
+  "'SyntaxError'": [
+   "SyntaxError",
+   "SyntaxError"
+  ],
+  "'System.out.println(\"A\");'": [
+   "System.out.println(\"A\");",
+   "System.out.println(\"A\");"
+  ],
+  "'System.out.println(\"Hello World!\");'": [
+   "System.out.println(\"Hello World!\");",
+   "System.out.println(\"Hello World!\");"
+  ],
+  "'System.out.println(\"Hi!\");'": [
+   "System.out.println(\"Hi!\");",
+   "System.out.println(\"Hi!\");"
+  ],
+  "'System.out.println(grades[i]);'": [
+   "System.out.println(grades[i]);",
+   "System.out.println(grades[i]);"
+  ],
+  "'System.print(\"Hi!\");'": [
+   "System.print(\"Hi!\");",
+   "System.print(\"Hi!\");"
+  ],
+  "'Tetris'": [
+   "Tetris",
+   "Tetris"
+  ],
+  "'Twice'": [
+   "Twice",
+   "Twice"
+  ],
+  "'Unity'": [
+   "Unity",
+   "Unity"
+  ],
+  "'Unlimited'": [
+   "Unlimited",
+   "Unlimited"
+  ],
+  "'ValueError'": [
+   "ValueError",
+   "ValueError"
+  ],
+  "'White'": [
+   "White",
+   "White"
+  ],
+  "'Yellow'": [
+   "Yellow",
+   "Yellow"
+  ],
+  "'ZeroDivisionError'": [
+   "ZeroDivisionError",
+   "ZeroDivisionError"
+  ],
+  "'[1, 2, 3, 4]'": [
+   "[1, 2, 3, 4]",
+   "[1, 2, 3, 4]"
+  ],
+  "'[1, 2, 3]'": [
+   "[1, 2, 3]",
+   "[1, 2, 3]"
+  ],
+  "'[2, 4, 6, 8]'": [
+   "[2, 4, 6, 8]",
+   "[2, 4, 6, 8]"
+  ],
+  "'[2, 4, 6]'": [
+   "[2, 4, 6]",
+   "[2, 4, 6]"
+  ],
+  "'[4, 1, 2, 3]'": [
+   "[4, 1, 2, 3]",
+   "[4, 1, 2, 3]"
+  ],
+  "'[p]Text[/p]'": [
+   "[p]Text[/p]",
+   "[p]Text[/p]"
+  ],
+  "'absolute'": [
+   "absolute",
+   "absolute"
+  ],
+  "'align-items: center;'": [
+   "align-items: center;",
+   "align-items: center;"
+  ],
+  "'align: center;'": [
+   "align: center;",
+   "align: center;"
+  ],
+  "'alt'": [
+   "alt",
+   "alt"
+  ],
+  "'background-color'": [
+   "background-color",
+   "background-color"
+  ],
+  "'bool'": [
+   "bool",
+   "bool"
+  ],
+  "'boolean'": [
+   "boolean",
+   "boolean"
+  ],
+  "'border'": [
+   "border",
+   "border"
+  ],
+  "'center: true;'": [
+   "center: true;",
+   "center: true;"
+  ],
+  "'char*'": [
+   "char*",
+   "char*"
+  ],
+  "'class Hello {'": [
+   "class Hello {",
+   "class Hello {"
+  ],
+  "'class Player { }'": [
+   "class Player { }",
+   "class Player { }"
+  ],
+  "'class Student { }'": [
+   "class Student { }",
+   "class Student { }"
+  ],
+  "'class-name'": [
+   "class-name",
+   "class-name"
+  ],
+  "'color'": [
+   "color",
+   "color"
+  ],
+  "'color-45'": [
+   "color-45",
+   "color-45"
+  ],
+  "'color: purple;'": [
+   "color: purple;",
+   "color: purple;"
+  ],
+  "'content'": [
+   "content",
+   "content"
+  ],
+  "'count(my_list)'": [
+   "count(my_list)",
+   "count(my_list)"
+  ],
+  "'create Player();'": [
+   "create Player();",
+   "create Player();"
+  ],
+  "'create Student();'": [
+   "create Student();",
+   "create Student();"
+  ],
+  "'datetime.random(1, 100)'": [
+   "datetime.random(1, 100)",
+   "datetime.random(1, 100)"
+  ],
+  "'def'": [
+   "def",
+   "def"
+  ],
+  "'define'": [
+   "define",
+   "define"
+  ],
+  "'delay(value);'": [
+   "delay(value);",
+   "delay(value);"
+  ],
+  "'digitalWrite(value);'": [
+   "digitalWrite(value);",
+   "digitalWrite(value);"
+  ],
+  "'direction: vertical;'": [
+   "direction: vertical;",
+   "direction: vertical;"
+  ],
+  "'display: block; + text-align: left;'": [
+   "display: block; + text-align: left;",
+   "display: block; + text-align: left;"
+  ],
+  "'display: column;'": [
+   "display: column;",
+   "display: column;"
+  ],
+  "'display: flex;'": [
+   "display: flex;",
+   "display: flex;"
+  ],
+  "'display: hidden;'": [
+   "display: hidden;",
+   "display: hidden;"
+  ],
+  "'display: none;'": [
+   "display: none;",
+   "display: none;"
+  ],
+  "'display: row;'": [
+   "display: row;",
+   "display: row;"
+  ],
+  "'display: wrap;'": [
+   "display: wrap;",
+   "display: wrap;"
+  ],
+  "'double'": [
+   "double",
+   "double"
+  ],
+  "'echo \"Hi!\";'": [
+   "echo \"Hi!\";",
+   "echo \"Hi!\";"
+  ],
+  "'equals'": [
+   "equals",
+   "equals"
+  ],
+  "'extends'": [
+   "extends",
+   "extends"
+  ],
+  "'false'": [
+   "false",
+   "false"
+  ],
+  "'file'": [
+   "file",
+   "file"
+  ],
+  "'fixed'": [
+   "fixed",
+   "fixed"
+  ],
+  "'flex-direction: column; + align-items: center;'": [
+   "flex-direction: column; + align-items: center;",
+   "flex-direction: column; + align-items: center;"
+  ],
+  "'flex-direction: column;'": [
+   "flex-direction: column;",
+   "flex-direction: column;"
+  ],
+  "'flex-direction: row;'": [
+   "flex-direction: row;",
+   "flex-direction: row;"
+  ],
+  "'flex-direction: wrap;'": [
+   "flex-direction: wrap;",
+   "flex-direction: wrap;"
+  ],
+  "'flex-wrap: wrap;'": [
+   "flex-wrap: wrap;",
+   "flex-wrap: wrap;"
+  ],
+  "'flex: true;'": [
+   "flex: true;",
+   "flex: true;"
+  ],
+  "'font-bold: true;'": [
+   "font-bold: true;",
+   "font-bold: true;"
+  ],
+  "'font-size'": [
+   "font-size",
+   "font-size"
+  ],
+  "'font-weight: bold;'": [
+   "font-weight: bold;",
+   "font-weight: bold;"
+  ],
+  "'func'": [
+   "func",
+   "func"
+  ],
+  "'function'": [
+   "function",
+   "function"
+  ],
+  "'h1'": [
+   "h1",
+   "h1"
+  ],
+  "'h2'": [
+   "h2",
+   "h2"
+  ],
+  "'height: 150px;'": [
+   "height: 150px;",
+   "height: 150px;"
+  ],
+  "'hex-blue'": [
+   "hex-blue",
+   "hex-blue"
+  ],
+  "'high'": [
+   "high",
+   "high"
+  ],
+  "'href'": [
+   "href",
+   "href"
+  ],
+  "'if...then...else'": [
+   "if...then...else",
+   "if...then...else"
+  ],
+  "'inherits'": [
+   "inherits",
+   "inherits"
+  ],
+  "'int'": [
+   "int",
+   "int"
+  ],
+  "'int[] grades = {70, 80, 90};'": [
+   "int[] grades = {70, 80, 90};",
+   "int[] grades = {70, 80, 90};"
+  ],
+  "'justify-content: center;'": [
+   "justify-content: center;",
+   "justify-content: center;"
+  ],
+  "'layout: flex;'": [
+   "layout: flex;",
+   "layout: flex;"
+  ],
+  "'len(my_list)'": [
+   "len(my_list)",
+   "len(my_list)"
+  ],
+  "'link'": [
+   "link",
+   "link"
+  ],
+  "'low'": [
+   "low",
+   "low"
+  ],
+  "'main() (lowercase m)'": [
+   "main() (lowercase m)",
+   "main() (lowercase m)"
+  ],
+  "'make Student();'": [
+   "make Student();",
+   "make Student();"
+  ],
+  "'margin'": [
+   "margin",
+   "margin"
+  ],
+  "'math.random(1, 100)'": [
+   "math.random(1, 100)",
+   "math.random(1, 100)"
+  ],
+  "'my_list.length()'": [
+   "my_list.length()",
+   "my_list.length()"
+  ],
+  "'my_list.size'": [
+   "my_list.size",
+   "my_list.size"
+  ],
+  "'new Player()'": [
+   "new Player()",
+   "new Player()"
+  ],
+  "'new Player();'": [
+   "new Player();",
+   "new Player();"
+  ],
+  "'new Student()'": [
+   "new Student()",
+   "new Student()"
+  ],
+  "'new Student();'": [
+   "new Student();",
+   "new Student();"
+  ],
+  "'new=\"tab\"'": [
+   "new=\"tab\"",
+   "new=\"tab\""
+  ],
+  "'none'": [
+   "none",
+   "none"
+  ],
+  "'off'": [
+   "off",
+   "off"
+  ],
+  "'open=\"new\"'": [
+   "open=\"new\"",
+   "open=\"new\""
+  ],
+  "'overflow: wrap;'": [
+   "overflow: wrap;",
+   "overflow: wrap;"
+  ],
+  "'padding'": [
+   "padding",
+   "padding"
+  ],
+  "'pinMode(value);'": [
+   "pinMode(value);",
+   "pinMode(value);"
+  ],
+  "'position: fixed; + top: 0;'": [
+   "position: fixed; + top: 0;",
+   "position: fixed; + top: 0;"
+  ],
+  "'print(\"Hello World\")'": [
+   "print(\"Hello World\")",
+   "print(\"Hello World\")"
+  ],
+  "'print(\"Hello\")'": [
+   "print(\"Hello\")",
+   "print(\"Hello\")"
+  ],
+  "'print(\"Hi!\")'": [
+   "print(\"Hi!\")",
+   "print(\"Hi!\")"
+  ],
+  "'print(\"Hi!\");'": [
+   "print(\"Hi!\");",
+   "print(\"Hi!\");"
+  ],
+  "'print(Hello)'": [
+   "print(Hello)",
+   "print(Hello)"
+  ],
+  "'print(\\'Hello\\')'": [
+   "print('Hello')",
+   "print('Hello')"
+  ],
+  "'public class Hello {'": [
+   "public class Hello {",
+   "public class Hello {"
+  ],
+  "'public static void main(String[] args) {'": [
+   "public static void main(String[] args) {",
+   "public static void main(String[] args) {"
+  ],
+  "'randint.random(1, 100)'": [
+   "randint.random(1, 100)",
+   "randint.random(1, 100)"
+  ],
+  "'random.randint(1, 100)'": [
+   "random.randint(1, 100)",
+   "random.randint(1, 100)"
+  ],
+  "'relative'": [
+   "relative",
+   "relative"
+  ],
+  "'run()'": [
+   "run()",
+   "run()"
+  ],
+  "'size: 200px;'": [
+   "size: 200px;",
+   "size: 200px;"
+  ],
+  "'span'": [
+   "span",
+   "span"
+  ],
+  "'src'": [
+   "src",
+   "src"
+  ],
+  "'start()'": [
+   "start()",
+   "start()"
+  ],
+  "'static void Main() {'": [
+   "static void Main() {",
+   "static void Main() {"
+  ],
+  "'static'": [
+   "static",
+   "static"
+  ],
+  "'str'": [
+   "str",
+   "str"
+  ],
+  "'string (lowercase)'": [
+   "string (lowercase)",
+   "string (lowercase)"
+  ],
+  "'string'": [
+   "string",
+   "string"
+  ],
+  "'target=\"_blank\"'": [
+   "target=\"_blank\"",
+   "target=\"_blank\""
+  ],
+  "'text'": [
+   "text",
+   "text"
+  ],
+  "'text-align: middle;'": [
+   "text-align: middle;",
+   "text-align: middle;"
+  ],
+  "'text-style: bold;'": [
+   "text-style: bold;",
+   "text-style: bold;"
+  ],
+  "'transform: scale()'": [
+   "transform: scale()",
+   "transform: scale()"
+  ],
+  "'transition'": [
+   "transition",
+   "transition"
+  ],
+  "'true'": [
+   "true",
+   "true"
+  ],
+  "'type=\"checkbox\"'": [
+   "type=\"checkbox\"",
+   "type=\"checkbox\""
+  ],
+  "'type=\"email\"'": [
+   "type=\"email\"",
+   "type=\"email\""
+  ],
+  "'type=\"hidden\"'": [
+   "type=\"hidden\"",
+   "type=\"hidden\""
+  ],
+  "'type=\"number\"'": [
+   "type=\"number\"",
+   "type=\"number\""
+  ],
+  "'type=\"password\"'": [
+   "type=\"password\"",
+   "type=\"password\""
+  ],
+  "'type=\"secret\"'": [
+   "type=\"secret\"",
+   "type=\"secret\""
+  ],
+  "'type=\"text\"'": [
+   "type=\"text\"",
+   "type=\"text\""
+  ],
+  "'url'": [
+   "url",
+   "url"
+  ],
+  "'visible: false;'": [
+   "visible: false;",
+   "visible: false;"
+  ],
+  "'weight: heavy;'": [
+   "weight: heavy;",
+   "weight: heavy;"
+  ],
+  "'wide: 200;'": [
+   "wide: 200;",
+   "wide: 200;"
+  ],
+  "'width'": [
+   "width",
+   "width"
+  ],
+  "'width: 100%; + height: 100%;'": [
+   "width: 100%; + height: 100%;",
+   "width: 100%; + height: 100%;"
+  ],
+  "'width: 200;'": [
+   "width: 200;",
+   "width: 200;"
+  ],
+  "'width: 200px;'": [
+   "width: 200px;",
+   "width: 200px;"
+  ],
+  "'width: 300px;'": [
+   "width: 300px;",
+   "width: 300px;"
+  ],
+  "'window=\"new\"'": [
+   "window=\"new\"",
+   "window=\"new\""
+  ],
+  "'{\"c\": 42}'": [
+   "{\"c\": 42}",
+   "{\"c\": 42}"
+  ],
+  "'{'": [
+   "{",
+   "{"
+  ],
+  "'} else {'": [
+   "} else {",
+   "} else {"
+  ],
+  "'}'": [
+   "}",
+   "}"
+  ],
+  "'\"Game Over\" and the total score'": [
+   "«Game Over» und die Gesamtpunktzahl",
+   "«Game Over» y la puntuación total"
+  ],
+  "'\"a\" (append)'": [
+   "\"a\" (append, anhängen)",
+   "\"a\" (append, añadir)"
+  ],
+  "'\"read analog pin (A) 9\"'": [
+   "\"analogen Pin（A）9 lesen\"",
+   "\"lee pin analógico 9\""
+  ],
+  "'\"read digital pin 9\"'": [
+   "\"Digitalpin lesen 9\"",
+   "\"lee pin digital 9\""
+  ],
+  "'\"set digital pin 9 output as high\"'": [
+   "\"digitalen Pin von Ausgang 9 als hoch setzen\"",
+   "\"pon el pin digital 9 a alto\""
+  ],
+  "'\"w\" adds, \"a\" overwrites'": [
+   "\"w\" hängt an, \"a\" überschreibt",
+   "\"w\" añade, \"a\" sobrescribe"
+  ],
+  "'\"w\" overwrites, \"a\" adds to the end'": [
+   "\"w\" überschreibt, \"a\" hängt hinten an",
+   "\"w\" sobrescribe, \"a\" añade al final"
+  ],
+  "'0 volt'": [
+   "0 Volt",
+   "0 voltios"
+  ],
+  "'0-180 degrees'": [
+   "0-180 Grad",
+   "0-180 grados"
+  ],
+  "'0-360 degrees'": [
+   "0-360 Grad",
+   "0-360 grados"
+  ],
+  "'1 sprite'": [
+   "1 Figur",
+   "1 objeto"
+  ],
+  "'1 time'": [
+   "1 Mal",
+   "1 vez"
+  ],
+  "'10 sprites'": [
+   "10 Figuren",
+   "10 objetos"
+  ],
+  "'10 times'": [
+   "10 Mal",
+   "10 veces"
+  ],
+  "'100 times'": [
+   "100 Mal",
+   "100 veces"
+  ],
+  "'11 sprites'": [
+   "11 Figuren",
+   "11 objetos"
+  ],
+  "'2 pixels thick, dashed, red'": [
+   "2 Pixel dick, gestrichelt, rot",
+   "2 píxeles de grosor, discontinuo, rojo"
+  ],
+  "'2 times'": [
+   "2 Mal",
+   "2 veces"
+  ],
+  "'20 sprites'": [
+   "20 Figuren",
+   "20 objetos"
+  ],
+  "'3 times'": [
+   "3 Mal",
+   "3 veces"
+  ],
+  "'4 times'": [
+   "4 Mal",
+   "4 veces"
+  ],
+  "'5 times'": [
+   "5 Mal",
+   "5 veces"
+  ],
+  "'50 times'": [
+   "50 Mal",
+   "50 veces"
+  ],
+  "'6 times'": [
+   "6 Mal",
+   "6 veces"
+  ],
+  "': (a colon)'": [
+   ": (ein Doppelpunkt)",
+   ": (dos puntos)"
+  ],
+  "'<div> carries no meaning; search engines and screen readers cannot understand the content'": [
+   "<div> trägt keine Bedeutung; Suchmaschinen und Screenreader verstehen den Inhalt nicht",
+   "<div> no aporta significado; los buscadores y los lectores de pantalla no entienden el contenido"
+  ],
+  "'<div> is no longer supported'": [
+   "<div> wird nicht mehr unterstützt",
+   "<div> ya no se admite"
+  ],
+  "'<div> is only for images'": [
+   "<div> ist nur für Bilder",
+   "<div> es solo para imágenes"
+  ],
+  "'<div> is very slow'": [
+   "<div> ist sehr langsam",
+   "<div> es muy lento"
+  ],
+  "'<td> is used outside tables'": [
+   "<td> wird außerhalb von Tabellen benutzt",
+   "<td> se usa fuera de las tablas"
+  ],
+  "'<th> is a header cell, <td> is a normal data cell'": [
+   "<th> ist eine Kopfzelle, <td> eine normale Datenzelle",
+   "<th> es una celda de cabecera, <td> una celda de datos normal"
+  ],
+  "'<th> is only for numbers'": [
+   "<th> ist nur für Zahlen",
+   "<th> es solo para números"
+  ],
+  "'A B'": [
+   "A B",
+   "A B"
+  ],
+  "'A Real Object'": [
+   "Ein echtes Objekt",
+   "Un objeto real"
+  ],
+  "'A badge in the corner of a card'": [
+   "Ein Abzeichen in der Ecke einer Karte",
+   "Una insignia en la esquina de una tarjeta"
+  ],
+  "'A class'": [
+   "Eine Klasse",
+   "Una clase"
+  ],
+  "'A comma (,)'": [
+   "Ein Komma (,)",
+   "Una coma (,)"
+  ],
+  "'A data type'": [
+   "Ein Datentyp",
+   "Un tipo de dato"
+  ],
+  "'A dot (.)'": [
+   "Ein Punkt (.)",
+   "Un punto (.)"
+  ],
+  "'A file name'": [
+   "Ein Dateiname",
+   "Un nombre de archivo"
+  ],
+  "'A fixed top menu'": [
+   "Ein festes Menü oben",
+   "Un menú fijo arriba"
+  ],
+  "'A list'": [
+   "Eine Liste",
+   "Una lista"
+  ],
+  "'A passive buzzer'": [
+   "Ein passiver Summer",
+   "Un zumbador pasivo"
+  ],
+  "'A piece of text'": [
+   "Ein Stück Text",
+   "Un trozo de texto"
+  ],
+  "'A plain black line'": [
+   "Eine einfache schwarze Linie",
+   "Una línea negra sencilla"
+  ],
+  "'A semicolon (;)'": [
+   "Ein Semikolon (;)",
+   "Un punto y coma (;)"
+  ],
+  "'A shadowed blue line'": [
+   "Eine blaue Linie mit Schatten",
+   "Una línea azul con sombra"
+  ],
+  "'A single number'": [
+   "Eine einzelne Zahl",
+   "Un solo número"
+  ],
+  "'About text'": [
+   "Über den Text",
+   "Sobre el texto"
+  ],
+  "'About the box'": [
+   "Über die Box",
+   "Sobre la caja"
+  ],
+  "'After 1 second, without checking the condition'": [
+   "Nach 1 Sekunde, ohne die Bedingung zu prüfen",
+   "Después de 1 segundo, sin comprobar la condición"
+  ],
+  "'Always visible'": [
+   "Immer sichtbar",
+   "Siempre visible"
+  ],
+  "'An active buzzer'": [
+   "Ein aktiver Summer",
+   "Un zumbador activo"
+  ],
+  "'An array of 3 whole numbers'": [
+   "Ein Array aus 3 ganzen Zahlen",
+   "Un array de 3 números enteros"
+  ],
+  "'An array'": [
+   "Ein Array",
+   "Un array"
+  ],
+  "'An empty screen'": [
+   "Ein leerer Bildschirm",
+   "Una pantalla vacía"
+  ],
+  "'An error message'": [
+   "Eine Fehlermeldung",
+   "Un mensaje de error"
+  ],
+  "'An error'": [
+   "Ein Fehler",
+   "Un error"
+  ],
+  "'An infinite loop'": [
+   "Eine Endlosschleife",
+   "Un bucle infinito"
+  ],
+  "'An invisible border'": [
+   "Ein unsichtbarer Rahmen",
+   "Un borde invisible"
+  ],
+  "'An object'": [
+   "Ein Objekt",
+   "Un objeto"
+  ],
+  "'As many times as you like'": [
+   "So oft du willst",
+   "Tantas veces como quieras"
+  ],
+  "'At the end of the first line'": [
+   "Am Ende der ersten Zeile",
+   "Al final de la primera línea"
+  ],
+  "'At the top'": [
+   "Ganz oben",
+   "Arriba del todo"
+  ],
+  "'At the very start of the second line'": [
+   "Ganz am Anfang der zweiten Zeile",
+   "Justo al principio de la segunda línea"
+  ],
+  "'Automatically, whenever a new object is created'": [
+   "Automatisch, sobald ein neues Objekt erstellt wird",
+   "Automáticamente, en cuanto se crea un objeto nuevo"
+  ],
+  "'Base Class'": [
+   "Basisklasse",
+   "Clase base"
+  ],
+  "'Because a PWM pin only accepts values between 0 and 255'": [
+   "Weil ein PWM-Pin nur Werte zwischen 0 und 255 annimmt",
+   "Porque un pin PWM solo acepta valores entre 0 y 255"
+  ],
+  "'Because every sensor gives slightly different values, so we find the right threshold'": [
+   "Weil jeder Sensor etwas andere Werte gibt, so finden wir den richtigen Schwellenwert",
+   "Porque cada sensor da valores algo distintos, así encontramos el umbral correcto"
+  ],
+  "'Because it is compulsory, no other reason'": [
+   "Weil es Pflicht ist, aus keinem anderen Grund",
+   "Porque es obligatorio, sin más razón"
+  ],
+  "'Between 0 and 1023'": [
+   "Zwischen 0 und 1023",
+   "Entre 0 y 1023"
+  ],
+  "'Between 0 and 255'": [
+   "Zwischen 0 und 255",
+   "Entre 0 y 255"
+  ],
+  "'Both of them'": [
+   "Beide",
+   "Los dos"
+  ],
+  "'Bottom of the page'": [
+   "Fuß der Seite",
+   "Parte inferior de la página"
+  ],
+  "'Branching on a condition'": [
+   "Verzweigen nach einer Bedingung",
+   "Bifurcar según una condición"
+  ],
+  "'By broadcasting a message'": [
+   "Indem man eine Nachricht sendet",
+   "Enviando un mensaje"
+  ],
+  "'By its name'": [
+   "An seinem Namen",
+   "Por su nombre"
+  ],
+  "'By phoning'": [
+   "Per Telefon",
+   "Llamando por teléfono"
+  ],
+  "'By shouting'": [
+   "Durch Rufen",
+   "Gritando"
+  ],
+  "'By waving'": [
+   "Durch Winken",
+   "Saludando con la mano"
+  ],
+  "'Changing colour'": [
+   "Die Farbe ändern",
+   "Cambiar de color"
+  ],
+  "'Changing direction'": [
+   "Die Richtung ändern",
+   "Cambiar de dirección"
+  ],
+  "'Character\\'s features + its own features'": [
+   "Die Eigenschaften von Character + eigene",
+   "Las características de Character + las suyas"
+  ],
+  "'Class Selector'": [
+   "Klassen-Selektor",
+   "Selector de clase"
+  ],
+  "'Colors the image'": [
+   "Färbt das Bild",
+   "Colorea la imagen"
+  ],
+  "'Colour, size...'": [
+   "Farbe, Größe …",
+   "Color, tamaño…"
+  ],
+  "'Console.WriteLine(\"Did not pass\");'": [
+   "Console.WriteLine(\"Nicht bestanden\");",
+   "Console.WriteLine(\"No aprobado\");"
+  ],
+  "'Deletes the image'": [
+   "Löscht das Bild",
+   "Borra la imagen"
+  ],
+  "'Derived Class'": [
+   "Abgeleitete Klasse",
+   "Clase derivada"
+  ],
+  "'Either one works'": [
+   "Beides geht",
+   "Cualquiera de las dos"
+  ],
+  "'Element Selector'": [
+   "Element-Selektor",
+   "Selector de elemento"
+  ],
+  "'Email address'": [
+   "E-Mail-Adresse",
+   "Dirección de correo"
+  ],
+  "'Enlarges the image'": [
+   "Vergrößert das Bild",
+   "Agranda la imagen"
+  ],
+  "'Even spacing'": [
+   "Gleichmäßige Abstände",
+   "Espaciado uniforme"
+  ],
+  "'Every property change takes a smooth 0.5 seconds'": [
+   "Jede Eigenschaftsänderung dauert sanfte 0,5 Sekunden",
+   "Cada cambio de propiedad dura 0,5 segundos de forma suave"
+  ],
+  "'Exists in memory'": [
+   "Ist im Speicher",
+   "Existe en la memoria"
+  ],
+  "'First we have to measure the dry and wet soil values with the Serial Monitor'": [
+   "Zuerst müssen wir die Werte für trockene und nasse Erde im seriellen Monitor messen",
+   "Primero hay que medir los valores de tierra seca y mojada con el Monitor Serie"
+  ],
+  "'From a random place'": [
+   "Von einer zufälligen Stelle",
+   "Desde un sitio al azar"
+  ],
+  "'From the class line'": [
+   "Bei der class-Zeile",
+   "Desde la línea de la clase"
+  ],
+  "'From the last line'": [
+   "Bei der letzten Zeile",
+   "Desde la última línea"
+  ],
+  "'From the main method'": [
+   "Bei der main-Methode",
+   "Desde el método main"
+  ],
+  "'Games, animations, stories and more!'": [
+   "Spiele, Animationen, Geschichten und mehr!",
+   "¡Juegos, animaciones, historias y mucho más!"
+  ],
+  "'Greater than or equal to'": [
+   "Größer oder gleich",
+   "Mayor o igual que"
+  ],
+  "'Grows or shrinks the element'": [
+   "Vergrößert oder verkleinert das Element",
+   "Agranda o encoge el elemento"
+  ],
+  "'High Tech Modern Language'": [
+   "High Tech Modern Language",
+   "High Tech Modern Language"
+  ],
+  "'Holds the text or image'": [
+   "Enthält den Text oder das Bild",
+   "Contiene el texto o la imagen"
+  ],
+  "'Home Tool Markup Language'": [
+   "Home Tool Markup Language",
+   "Home Tool Markup Language"
+  ],
+  "'How long it plays'": [
+   "Wie lange er spielt",
+   "Cuánto dura"
+  ],
+  "'How the stage looks'": [
+   "Wie die Bühne aussieht",
+   "Qué aspecto tiene el escenario"
+  ],
+  "'HyperText Making Language'": [
+   "HyperText Making Language",
+   "HyperText Making Language"
+  ],
+  "'HyperText Markup Language'": [
+   "HyperText Markup Language",
+   "HyperText Markup Language"
+  ],
+  "'ID Selector'": [
+   "ID-Selektor",
+   "Selector de ID"
+  ],
+  "'If the age is 18 or more'": [
+   "Wenn das Alter 18 oder mehr ist",
+   "Si la edad es 18 o más"
+  ],
+  "'If the age is exactly 18'": [
+   "Wenn das Alter genau 18 ist",
+   "Si la edad es exactamente 18"
+  ],
+  "'If the age is never 18'": [
+   "Wenn das Alter nie 18 ist",
+   "Si la edad nunca es 18"
+  ],
+  "'If the age is under 18'": [
+   "Wenn das Alter unter 18 ist",
+   "Si la edad es menor de 18"
+  ],
+  "'In the middle of the screen'": [
+   "In der Mitte des Bildschirms",
+   "En el centro de la pantalla"
+  ],
+  "'In the middle'": [
+   "In der Mitte",
+   "En el centro"
+  ],
+  "'Inherited + its own'": [
+   "Geerbte + eigene",
+   "Las heredadas + las suyas"
+  ],
+  "'Inside nothing, it works on its own'": [
+   "In gar nichts, er funktioniert allein",
+   "Dentro de nada, funciona solo"
+  ],
+  "'Inside the \"forever\" block'": [
+   "In den Block «wiederhole fortlaufend»",
+   "Dentro del bloque «por siempre»"
+  ],
+  "'Inside the \"wait\" block'": [
+   "In den Block «warte»",
+   "Dentro del bloque «esperar»"
+  ],
+  "'Inside the <body> tag'": [
+   "In das <body>-Tag",
+   "Dentro de la etiqueta <body>"
+  ],
+  "'Inside the <head> tag'": [
+   "In das <head>-Tag",
+   "Dentro de la etiqueta <head>"
+  ],
+  "'Inside the <title> tag'": [
+   "In das <title>-Tag",
+   "Dentro de la etiqueta <title>"
+  ],
+  "'Instead of else'": [
+   "Statt else",
+   "En lugar de else"
+  ],
+  "'Into another block\\'s number slot'": [
+   "In den Zahlen-Schlitz eines anderen Blocks",
+   "En la ranura numérica de otro bloque"
+  ],
+  "'Into the condition of an \"if then\"'": [
+   "In die Bedingung von «falls, dann»",
+   "En la condición de un «si entonces»"
+  ],
+  "'It adds 1 to the value of the counter variable'": [
+   "Es zählt 1 zum Wert der Variablen zaehler dazu",
+   "Suma 1 al valor de la variable contador"
+  ],
+  "'It adds a new \"age\" key to the dictionary'": [
+   "Es fügt dem Dictionary einen neuen Schlüssel \"age\" hinzu",
+   "Añade al diccionario una clave nueva \"age\""
+  ],
+  "'It asks the question and stores the answer in age'": [
+   "Es stellt die Frage und speichert die Antwort in age",
+   "Hace la pregunta y guarda la respuesta en age"
+  ],
+  "'It becomes zero'": [
+   "Es wird null",
+   "Se vuelve cero"
+  ],
+  "'It builds the structure of the page'": [
+   "Es baut den Aufbau der Seite",
+   "Construye la estructura de la página"
+  ],
+  "'It can be reached from outside'": [
+   "Man kommt von außen daran",
+   "Se puede acceder desde fuera"
+  ],
+  "'It can only be reached inside that class'": [
+   "Man kommt nur innerhalb dieser Klasse daran",
+   "Solo se puede acceder dentro de esa clase"
+  ],
+  "'It cannot be deleted'": [
+   "Es kann nicht gelöscht werden",
+   "No se puede borrar"
+  ],
+  "'It cannot be used at all'": [
+   "Es kann gar nicht benutzt werden",
+   "No se puede usar en absoluto"
+  ],
+  "'It changes how the page looks'": [
+   "Es ändert, wie die Seite aussieht",
+   "Cambia el aspecto de la página"
+  ],
+  "'It closes the file'": [
+   "Es schließt die Datei",
+   "Cierra el archivo"
+  ],
+  "'It connects to a database'": [
+   "Es verbindet sich mit einer Datenbank",
+   "Se conecta a una base de datos"
+  ],
+  "'It creates a template/plan for objects'": [
+   "Es erstellt eine Vorlage/einen Plan für Objekte",
+   "Crea una plantilla o plano para los objetos"
+  ],
+  "'It deletes the Item class'": [
+   "Es löscht die Klasse Item",
+   "Borra la clase Item"
+  ],
+  "'It deletes the counter variable'": [
+   "Es löscht die Variable zaehler",
+   "Borra la variable contador"
+  ],
+  "'It deletes the dictionary'": [
+   "Es löscht das Dictionary",
+   "Borra el diccionario"
+  ],
+  "'It deletes the file'": [
+   "Es löscht die Datei",
+   "Borra el archivo"
+  ],
+  "'It does not matter at all'": [
+   "Es spielt überhaupt keine Rolle",
+   "No importa nada"
+  ],
+  "'It does nothing'": [
+   "Es macht nichts",
+   "No hace nada"
+  ],
+  "'It errors and will not run'": [
+   "Es gibt einen Fehler und läuft nicht",
+   "Da error y no se ejecuta"
+  ],
+  "'It gives a number for a maths slot'": [
+   "Es gibt eine Zahl für einen Rechen-Schlitz",
+   "Da un número para una ranura de cálculo"
+  ],
+  "'It gives an error'": [
+   "Es gibt einen Fehler",
+   "Da un error"
+  ],
+  "'It gives yes/no and goes in a condition'": [
+   "Es gibt ja/nein und kommt in eine Bedingung",
+   "Da sí/no y va en una condición"
+  ],
+  "'It goes as far as it can; it cannot pass 180 degrees'": [
+   "Er geht so weit er kann; über 180 Grad kommt er nicht",
+   "Llega hasta donde puede; no puede pasar de 180 grados"
+  ],
+  "'It goes down'": [
+   "Es geht runter",
+   "Baja"
+  ],
+  "'It goes straight to red'": [
+   "Es geht direkt auf Rot",
+   "Pasa directamente a rojo"
+  ],
+  "'It goes up'": [
+   "Es geht hoch",
+   "Sube"
+  ],
+  "'It holds a fixed value'": [
+   "Es hält einen festen Wert",
+   "Guarda un valor fijo"
+  ],
+  "'It holds other blocks inside'": [
+   "Er hält andere Blöcke in sich",
+   "Contiene otros bloques dentro"
+  ],
+  "'It is a bug in mBlock'": [
+   "Das ist ein Fehler in mBlock",
+   "Es un fallo de mBlock"
+  ],
+  "'It is a hexagon: no notch on top, no bump below'": [
+   "Es ist ein Sechseck: oben keine Kerbe, unten keine Nase",
+   "Es un hexágono: sin muesca arriba ni saliente abajo"
+  ],
+  "'It is a random name'": [
+   "Es ist ein zufälliger Name",
+   "Es un nombre al azar"
+  ],
+  "'It is always true'": [
+   "Es ist immer wahr",
+   "Siempre es verdadero"
+  ],
+  "'It is an error message'": [
+   "Es ist eine Fehlermeldung",
+   "Es un mensaje de error"
+  ],
+  "'It is never true'": [
+   "Es ist nie wahr",
+   "Nunca es verdadero"
+  ],
+  "'It is no help at all'": [
+   "Es hilft überhaupt nicht",
+   "No ayuda en nada"
+  ],
+  "'It makes no difference'": [
+   "Es macht keinen Unterschied",
+   "No cambia nada"
+  ],
+  "'It makes the LEDs brighter'": [
+   "Es macht die LEDs heller",
+   "Hace los LEDs más brillantes"
+  ],
+  "'It makes the number negative'": [
+   "Es macht die Zahl negativ",
+   "Hace el número negativo"
+  ],
+  "'It makes the program faster'": [
+   "Es macht das Programm schneller",
+   "Hace el programa más rápido"
+  ],
+  "'It makes two full turns'": [
+   "Er macht zwei volle Drehungen",
+   "Da dos vueltas completas"
+  ],
+  "'It multiplies the number by 2'": [
+   "Es multipliziert die Zahl mit 2",
+   "Multiplica el número por 2"
+  ],
+  "'It never carries on'": [
+   "Es läuft nie weiter",
+   "Nunca continúa"
+  ],
+  "'It never changes'": [
+   "Es ändert sich nie",
+   "Nunca cambia"
+  ],
+  "'It never runs automatically'": [
+   "Sie läuft nie von allein",
+   "Nunca se ejecuta sola"
+  ],
+  "'It only asks the question'": [
+   "Es stellt nur die Frage",
+   "Solo hace la pregunta"
+  ],
+  "'It only stores numbers'": [
+   "Es speichert nur Zahlen",
+   "Solo guarda números"
+  ],
+  "'It only works in live mode'": [
+   "Er funktioniert nur im Live-Modus",
+   "Solo funciona en modo en vivo"
+  ],
+  "'It opens the file'": [
+   "Es öffnet die Datei",
+   "Abre el archivo"
+  ],
+  "'It prints \"I passed!\"'": [
+   "Es gibt \"Bestanden!\" aus",
+   "Muestra \"¡Aprobado!\""
+  ],
+  "'It prints 10'": [
+   "Es gibt 10 aus",
+   "Muestra 10"
+  ],
+  "'It prints 53 on the screen'": [
+   "Es gibt 53 auf dem Bildschirm aus",
+   "Muestra 53 en la pantalla"
+  ],
+  "'It prints 8 on the screen'": [
+   "Es gibt 8 auf dem Bildschirm aus",
+   "Muestra 8 en la pantalla"
+  ],
+  "'It prints 85'": [
+   "Es gibt 85 aus",
+   "Muestra 85"
+  ],
+  "'It prints Hello only once'": [
+   "Es gibt Hallo nur einmal aus",
+   "Muestra Hola solo una vez"
+  ],
+  "'It prints nothing'": [
+   "Es gibt nichts aus",
+   "No muestra nada"
+  ],
+  "'It prints text on the screen'": [
+   "Es gibt Text auf dem Bildschirm aus",
+   "Muestra texto en la pantalla"
+  ],
+  "'It prints the age'": [
+   "Es gibt das Alter aus",
+   "Muestra la edad"
+  ],
+  "'It prints x'": [
+   "Es gibt x aus",
+   "Muestra x"
+  ],
+  "'It removes the spaces at the start and the end'": [
+   "Es entfernt die Leerzeichen am Anfang und am Ende",
+   "Quita los espacios del principio y del final"
+  ],
+  "'It runs a server'": [
+   "Es startet einen Server",
+   "Ejecuta un servidor"
+  ],
+  "'It saves you writing the same code over and over'": [
+   "Es erspart dir, denselben Code immer wieder zu schreiben",
+   "Te ahorra escribir el mismo código una y otra vez"
+  ],
+  "'It says \"You won!\"'": [
+   "Es sagt \"Gewonnen!\"",
+   "Dice \"¡Ganaste!\""
+  ],
+  "'It says the list will hold only Item objects'": [
+   "Es sagt, dass die Liste nur Item-Objekte hält",
+   "Dice que la lista solo guardará objetos Item"
+  ],
+  "'It sets the counter to 1 (not a reset, always 1)'": [
+   "Es setzt den Zähler auf 1 (kein Zurücksetzen, immer 1)",
+   "Pone el contador a 1 (no lo reinicia, siempre 1)"
+  ],
+  "'It shuts the computer down'": [
+   "Es fährt den Computer herunter",
+   "Apaga el ordenador"
+  ],
+  "'It slows the code down'": [
+   "Es macht den Code langsamer",
+   "Hace el código más lento"
+  ],
+  "'It starts the program'": [
+   "Es startet das Programm",
+   "Inicia el programa"
+  ],
+  "'It stops health becoming a negative number'": [
+   "Es verhindert, dass die Lebenspunkte negativ werden",
+   "Evita que la vida se vuelva negativa"
+  ],
+  "'It stops until the condition is met'": [
+   "Es hält an, bis die Bedingung erfüllt ist",
+   "Se detiene hasta que se cumple la condición"
+  ],
+  "'It turns the LED on'": [
+   "Es schaltet die LED an",
+   "Enciende el LED"
+  ],
+  "'It turns the whole number into a decimal (for correct division)'": [
+   "Es macht aus der ganzen Zahl eine Kommazahl (für richtiges Teilen)",
+   "Convierte el número entero en decimal (para dividir bien)"
+  ],
+  "'It writes the word Python on the screen'": [
+   "Es schreibt das Wort Python auf den Bildschirm",
+   "Escribe la palabra Python en la pantalla"
+  ],
+  "'Just a red screen'": [
+   "Nur ein roter Bildschirm",
+   "Solo una pantalla roja"
+  ],
+  "'Just for looks'": [
+   "Nur zur Zierde",
+   "Solo por estética"
+  ],
+  "'Less than'": [
+   "Kleiner als",
+   "Menor que"
+  ],
+  "'Level 1'": [
+   "Stufe 1",
+   "Nivel 1"
+  ],
+  "'Level 2'": [
+   "Stufe 2",
+   "Nivel 2"
+  ],
+  "'Level 3'": [
+   "Stufe 3",
+   "Nivel 3"
+  ],
+  "'Level 4'": [
+   "Stufe 4",
+   "Nivel 4"
+  ],
+  "'Like the state of an LED'": [
+   "Wie der Zustand einer LED",
+   "Como el estado de un LED"
+  ],
+  "'Live mode'": [
+   "Live-Modus",
+   "Modo en vivo"
+  ],
+  "'Main content'": [
+   "Hauptinhalt",
+   "Contenido principal"
+  ],
+  "'Make a Variable'": [
+   "Neue Variable",
+   "Crear una variable"
+  ],
+  "'Moving the sprite'": [
+   "Die Figur bewegen",
+   "Mover el objeto"
+  ],
+  "'Multiple selection'": [
+   "Mehrfachauswahl",
+   "Selección múltiple"
+  ],
+  "'Navigation menu'": [
+   "Navigationsmenü",
+   "Menú de navegación"
+  ],
+  "'Needs a Loop'": [
+   "Braucht eine Schleife",
+   "Necesita un bucle"
+  ],
+  "'Neither can play a melody'": [
+   "Keiner von beiden kann eine Melodie spielen",
+   "Ninguno de los dos puede tocar una melodía"
+  ],
+  "'Neither, the board must stay connected'": [
+   "Keiner von beiden, die Platine muss verbunden bleiben",
+   "Ninguno, la placa tiene que seguir conectada"
+  ],
+  "'No Loop Needed'": [
+   "Keine Schleife nötig",
+   "No hace falta bucle"
+  ],
+  "'No block is needed'": [
+   "Es wird kein Block gebraucht",
+   "No hace falta ningún bloque"
+  ],
+  "'No error at all'": [
+   "Überhaupt kein Fehler",
+   "Ningún error"
+  ],
+  "'No features at all'": [
+   "Überhaupt keine Eigenschaften",
+   "Ninguna característica"
+  ],
+  "'No reason at all'": [
+   "Überhaupt kein Grund",
+   "Ninguna razón"
+  ],
+  "'No reason at all, just for looks'": [
+   "Überhaupt kein Grund, nur zur Zierde",
+   "Ninguna razón, solo por estética"
+  ],
+  "'No, we control each one separately with its own \"set digital pin output as high/low\" block'": [
+   "Nein, wir steuern jede einzeln mit ihrem eigenen Block «digitalen Pin von Ausgang als hoch/niedrig setzen»",
+   "No, controlamos cada uno por separado con su propio bloque «pon el pin digital a alto/bajo»"
+  ],
+  "'Normal flow'": [
+   "Normaler Fluss",
+   "Flujo normal"
+  ],
+  "'Not equal to'": [
+   "Ungleich",
+   "Distinto de"
+  ],
+  "'Not real yet'": [
+   "Noch nicht echt",
+   "Todavía no es real"
+  ],
+  "'Nothing changes'": [
+   "Nichts ändert sich",
+   "No cambia nada"
+  ],
+  "'Nothing happens'": [
+   "Nichts passiert",
+   "No pasa nada"
+  ],
+  "'Nothing, it is invalid code'": [
+   "Nichts, der Code ist ungültig",
+   "Nada, el código no es válido"
+  ],
+  "'Nothing, the game freezes'": [
+   "Nichts, das Spiel friert ein",
+   "Nada, el juego se congela"
+  ],
+  "'Nothing, we just code it straight away'": [
+   "Nichts, wir programmieren gleich los",
+   "Nada, programamos directamente"
+  ],
+  "'Number input'": [
+   "Zahleneingabe",
+   "Campo numérico"
+  ],
+  "'On its own, stacked in a column'": [
+   "Allein, in einer Spalte gestapelt",
+   "Solo, apilado en una columna"
+  ],
+  "'On the left edge'": [
+   "Am linken Rand",
+   "En el borde izquierdo"
+  ],
+  "'On the right edge'": [
+   "Am rechten Rand",
+   "En el borde derecho"
+  ],
+  "'On top, as the start of the program'": [
+   "Ganz oben, als Anfang des Programms",
+   "Arriba del todo, como inicio del programa"
+  ],
+  "'One-off jobs'": [
+   "Einmalige Aufgaben",
+   "Tareas de una sola vez"
+  ],
+  "'Only \"forever\"'": [
+   "Nur «wiederhole fortlaufend»",
+   "Solo «por siempre»"
+  ],
+  "'Only 0 or 1'": [
+   "Nur 0 oder 1",
+   "Solo 0 o 1"
+  ],
+  "'Only 0 or 90'": [
+   "Nur 0 oder 90",
+   "Solo 0 o 90"
+  ],
+  "'Only Character\\'s features'": [
+   "Nur die Eigenschaften von Character",
+   "Solo las características de Character"
+  ],
+  "'Only HIGH or LOW'": [
+   "Nur HIGH oder LOW",
+   "Solo HIGH o LOW"
+  ],
+  "'Only Person\\'s features'": [
+   "Nur die Eigenschaften von Person",
+   "Solo las características de Persona"
+  ],
+  "'Only Pin blocks can attach'": [
+   "Nur Pin-Blöcke können andocken",
+   "Solo pueden encajar bloques de Pin"
+  ],
+  "'Only animations'": [
+   "Nur Animationen",
+   "Solo animaciones"
+  ],
+  "'Only for games'": [
+   "Nur für Spiele",
+   "Solo para juegos"
+  ],
+  "'Only for looks'": [
+   "Nur zur Zierde",
+   "Solo por estética"
+  ],
+  "'Only for the web'": [
+   "Nur fürs Web",
+   "Solo para la web"
+  ],
+  "'Only games'": [
+   "Nur Spiele",
+   "Solo juegos"
+  ],
+  "'Only greater than'": [
+   "Nur größer als",
+   "Solo mayor que"
+  ],
+  "'Only if it is called'": [
+   "Nur wenn sie aufgerufen wird",
+   "Solo si se la llama"
+  ],
+  "'Only its own features'": [
+   "Nur seine eigenen Eigenschaften",
+   "Solo sus propias características"
+  ],
+  "'Only once'": [
+   "Nur einmal",
+   "Solo una vez"
+  ],
+  "'Only when the button is pressed'": [
+   "Nur solange der Taster gedrückt ist",
+   "Solo mientras el botón está pulsado"
+  ],
+  "'Only when there are 2 conditions'": [
+   "Nur wenn es 2 Bedingungen gibt",
+   "Solo cuando hay 2 condiciones"
+  ],
+  "'Outside the \"when clicked\" block'": [
+   "Außerhalb des Blocks «Wenn angeklickt wird»",
+   "Fuera del bloque «al hacer clic»"
+  ],
+  "'Over and over, forever'": [
+   "Immer wieder, endlos",
+   "Una y otra vez, sin parar"
+  ],
+  "'Person\\'s features + its own features'": [
+   "Die Eigenschaften von Person + eigene",
+   "Las características de Persona + las suyas"
+  ],
+  "'Player : Character'": [
+   "Player : Character",
+   "Player : Character"
+  ],
+  "'Playing a sound'": [
+   "Einen Klang abspielen",
+   "Reproducir un sonido"
+  ],
+  "'Positioned against the parent'": [
+   "Am Elternelement ausgerichtet",
+   "Colocado respecto al padre"
+  ],
+  "'Pushes other boxes away'": [
+   "Schiebt andere Boxen weg",
+   "Aparta las otras cajas"
+  ],
+  "'Python is great'": [
+   "Python ist toll",
+   "Python es genial"
+  ],
+  "'Python+is great'": [
+   "Python+ist toll",
+   "Python+es genial"
+  ],
+  "'Pythonis great'": [
+   "Pythonist toll",
+   "Pythones genial"
+  ],
+  "'Repeat 10 times (I know the number)'": [
+   "Wiederhole 10 Mal (ich kenne die Anzahl)",
+   "Repetir 10 veces (sé el número)"
+  ],
+  "'Repeat until the user types \"stop\"'": [
+   "Wiederhole, bis der Nutzer \"stop\" tippt",
+   "Repetir hasta que el usuario escriba \"stop\""
+  ],
+  "'Score becomes 2'": [
+   "Die Punktzahl wird 2",
+   "La puntuación pasa a 2"
+  ],
+  "'Score becomes 3'": [
+   "Die Punktzahl wird 3",
+   "La puntuación pasa a 3"
+  ],
+  "'Score becomes 8'": [
+   "Die Punktzahl wird 8",
+   "La puntuación pasa a 8"
+  ],
+  "'Score: 90'": [
+   "Punkte: 90",
+   "Puntos: 90"
+  ],
+  "'Score: score'": [
+   "Punkte: punkte",
+   "Puntos: puntos"
+  ],
+  "'Shows text if the image fails to load and provides accessibility'": [
+   "Zeigt Text, wenn das Bild nicht lädt, und hilft der Barrierefreiheit",
+   "Muestra texto si la imagen no carga y mejora la accesibilidad"
+  ],
+  "'Smooths the change'": [
+   "Macht den Wechsel sanft",
+   "Suaviza el cambio"
+  ],
+  "'So the pot does not break'": [
+   "Damit der Poti nicht kaputtgeht",
+   "Para que no se rompa el potenciómetro"
+  ],
+  "'So the program does not crash if the user types a letter by mistake'": [
+   "Damit das Programm nicht abstürzt, wenn der Nutzer aus Versehen einen Buchstaben tippt",
+   "Para que el programa no se cuelgue si el usuario escribe una letra por error"
+  ],
+  "'So we do not tire the Arduino out'": [
+   "Damit wir den Arduino nicht überfordern",
+   "Para no cansar al Arduino"
+  ],
+  "'Something a class can do - a behaviour'": [
+   "Etwas, das eine Klasse tun kann – ein Verhalten",
+   "Algo que una clase sabe hacer: un comportamiento"
+  ],
+  "'Space between items'": [
+   "Abstand zwischen den Elementen",
+   "Espacio entre los elementos"
+  ],
+  "'Stacking vertically'": [
+   "Senkrecht stapeln",
+   "Apilar en vertical"
+  ],
+  "'Storing information'": [
+   "Informationen speichern",
+   "Guardar información"
+  ],
+  "'Straight away, without waiting'": [
+   "Sofort, ohne zu warten",
+   "Al instante, sin esperar"
+  ],
+  "'Student and Person are the same thing'": [
+   "Student und Person sind dasselbe",
+   "Student y Persona son lo mismo"
+  ],
+  "'Student deletes Person'": [
+   "Student löscht Person",
+   "Student borra a Persona"
+  ],
+  "'Student extends Person'": [
+   "Student extends Person",
+   "Student extends Persona"
+  ],
+  "'Student inherits from Person'": [
+   "Student erbt von Person",
+   "Student hereda de Persona"
+  ],
+  "'System.out.println(\"Did not pass\");'": [
+   "System.out.println(\"Nicht bestanden\");",
+   "System.out.println(\"No aprobado\");"
+  ],
+  "'The \"wait\" block'": [
+   "Der Block «warte»",
+   "El bloque «esperar»"
+  ],
+  "'The \"when Arduino Uno starts up\" block'": [
+   "Der Block «wenn Arduino Uno startet»",
+   "El bloque «cuando Arduino Uno se inicia»"
+  ],
+  "'The Device tab'": [
+   "Der Reiter Gerät",
+   "La pestaña Dispositivo"
+  ],
+  "'The Innermost Layer'": [
+   "Die innerste Schicht",
+   "La capa más interior"
+  ],
+  "'The Outermost Layer'": [
+   "Die äußerste Schicht",
+   "La capa más exterior"
+  ],
+  "'The Sprite tab'": [
+   "Der Reiter Figur",
+   "La pestaña Objeto"
+  ],
+  "'The Stage tab'": [
+   "Der Reiter Bühne",
+   "La pestaña Escenario"
+  ],
+  "'The animation lasts 2 seconds'": [
+   "Die Animation dauert 2 Sekunden",
+   "La animación dura 2 segundos"
+  ],
+  "'The animation repeats forever'": [
+   "Die Animation wiederholt sich endlos",
+   "La animación se repite sin parar"
+  ],
+  "'The animation runs only once'": [
+   "Die Animation läuft nur einmal",
+   "La animación se ejecuta solo una vez"
+  ],
+  "'The animation stops'": [
+   "Die Animation hört auf",
+   "La animación se detiene"
+  ],
+  "'The block only works in upload mode'": [
+   "Der Block funktioniert nur im Upload-Modus",
+   "El bloque solo funciona en modo de subida"
+  ],
+  "'The command that starts the Serial Monitor'": [
+   "Der Befehl, der den seriellen Monitor startet",
+   "La orden que inicia el Monitor Serie"
+  ],
+  "'The default behaviour'": [
+   "Das voreingestellte Verhalten",
+   "El comportamiento por defecto"
+  ],
+  "'The distance to the object (in cm)'": [
+   "Der Abstand zum Objekt (in cm)",
+   "La distancia al objeto (en cm)"
+  ],
+  "'The element disappears after 0.5 seconds'": [
+   "Das Element verschwindet nach 0,5 Sekunden",
+   "El elemento desaparece a los 0,5 segundos"
+  ],
+  "'The element loads in 0.5 seconds'": [
+   "Das Element lädt in 0,5 Sekunden",
+   "El elemento carga en 0,5 segundos"
+  ],
+  "'The fastest language'": [
+   "Die schnellste Sprache",
+   "El lenguaje más rápido"
+  ],
+  "'The form\\'s name'": [
+   "Der Name des Formulars",
+   "El nombre del formulario"
+  ],
+  "'The game ends'": [
+   "Das Spiel ist zu Ende",
+   "El juego termina"
+  ],
+  "'The general features'": [
+   "Die allgemeinen Eigenschaften",
+   "Las características generales"
+  ],
+  "'The input\\'s id value'": [
+   "Der id-Wert des Eingabefeldes",
+   "El valor id del campo"
+  ],
+  "'The input\\'s type value'": [
+   "Der type-Wert des Eingabefeldes",
+   "El valor type del campo"
+  ],
+  "'The keyword that catches the error'": [
+   "Das Schlüsselwort, das den Fehler auffängt",
+   "La palabra clave que captura el error"
+  ],
+  "'The keyword that starts the code to attempt'": [
+   "Das Schlüsselwort, das den zu versuchenden Code einleitet",
+   "La palabra clave que empieza el código a intentar"
+  ],
+  "'The light level'": [
+   "Die Helligkeit",
+   "El nivel de luz"
+  ],
+  "'The loop never ends, so the turn never comes'": [
+   "Die Schleife endet nie, also kommt die Reihe nie",
+   "El bucle no termina nunca, así que nunca le toca"
+  ],
+  "'The note C, 4th octave'": [
+   "Die Note C, 4. Oktave",
+   "La nota do, 4.ª octava"
+  ],
+  "'The page title'": [
+   "Der Seitentitel",
+   "El título de la página"
+  ],
+  "'The pin number'": [
+   "Die Pin-Nummer",
+   "El número del pin"
+  ],
+  "'The program ends straight away'": [
+   "Das Programm endet sofort",
+   "El programa termina enseguida"
+  ],
+  "'The program runs faster'": [
+   "Das Programm läuft schneller",
+   "El programa va más rápido"
+  ],
+  "'The sensor is broken'": [
+   "Der Sensor ist kaputt",
+   "El sensor está roto"
+  ],
+  "'The servo breaks permanently'": [
+   "Der Servo geht dauerhaft kaputt",
+   "El servo se rompe para siempre"
+  ],
+  "'The variable holding the reading'": [
+   "Die Variable mit dem Messwert",
+   "La variable que guarda la lectura"
+  ],
+  "'The variable name you just declared'": [
+   "Der Variablenname, den du gerade deklariert hast",
+   "El nombre de variable que acabas de declarar"
+  ],
+  "'The volume'": [
+   "Die Lautstärke",
+   "El volumen"
+  ],
+  "'The wiring is wrong'": [
+   "Die Verkabelung ist falsch",
+   "El cableado está mal"
+  ],
+  "'There is no difference'": [
+   "Es gibt keinen Unterschied",
+   "No hay diferencia"
+  ],
+  "'They are exactly the same'": [
+   "Sie sind genau gleich",
+   "Son exactamente iguales"
+  ],
+  "'They are the same'": [
+   "Sie sind gleich",
+   "Son iguales"
+  ],
+  "'They both delete the file'": [
+   "Beide löschen die Datei",
+   "Los dos borran el archivo"
+  ],
+  "'They both do the same thing'": [
+   "Beide machen dasselbe",
+   "Los dos hacen lo mismo"
+  ],
+  "'They both work the same way'": [
+   "Beide funktionieren gleich",
+   "Los dos funcionan igual"
+  ],
+  "'Things that move'": [
+   "Dinge, die sich bewegen",
+   "Cosas que se mueven"
+  ],
+  "'To avoid a division-by-zero error'": [
+   "Um eine Division durch null zu vermeiden",
+   "Para evitar un error de división entre cero"
+  ],
+  "'To bring the Arduino\\'s 5V down to the 3V the LED runs on'": [
+   "Um die 5V des Arduino auf die 3V der LED zu bringen",
+   "Para bajar los 5V del Arduino a los 3V que usa el LED"
+  ],
+  "'To change the LED\\'s colour'": [
+   "Um die Farbe der LED zu ändern",
+   "Para cambiar el color del LED"
+  ],
+  "'To check more than one condition'": [
+   "Um mehr als eine Bedingung zu prüfen",
+   "Para comprobar más de una condición"
+  ],
+  "'To create a JSON file'": [
+   "Um eine JSON-Datei zu erstellen",
+   "Para crear un archivo JSON"
+  ],
+  "'To delete the button'": [
+   "Um den Knopf zu löschen",
+   "Para borrar el botón"
+  ],
+  "'To make a decision'": [
+   "Um eine Entscheidung zu treffen",
+   "Para tomar una decisión"
+  ],
+  "'To make the LED brighter'": [
+   "Um die LED heller zu machen",
+   "Para que el LED brille más"
+  ],
+  "'To make the LED light up more slowly'": [
+   "Um die LED langsamer aufleuchten zu lassen",
+   "Para que el LED se encienda más despacio"
+  ],
+  "'To make the program faster'": [
+   "Um das Programm schneller zu machen",
+   "Para que el programa vaya más rápido"
+  ],
+  "'To remember information'": [
+   "Um sich etwas zu merken",
+   "Para recordar información"
+  ],
+  "'To remember the LED\\'s current state (on/off)'": [
+   "Um sich den aktuellen Zustand der LED zu merken (an/aus)",
+   "Para recordar el estado actual del LED (encendido/apagado)"
+  ],
+  "'To restart the Arduino'": [
+   "Um den Arduino neu zu starten",
+   "Para reiniciar el Arduino"
+  ],
+  "'To slow the Arduino down'": [
+   "Um den Arduino zu bremsen",
+   "Para ralentizar el Arduino"
+  ],
+  "'To slow the program down'": [
+   "Um das Programm zu bremsen",
+   "Para ralentizar el programa"
+  ],
+  "'To stop a single press being counted many times by mistake'": [
+   "Damit ein einziger Druck nicht aus Versehen viele Male gezählt wird",
+   "Para que una sola pulsación no se cuente muchas veces por error"
+  ],
+  "'To stop the buzzer'": [
+   "Um den Summer abzustellen",
+   "Para apagar el zumbador"
+  ],
+  "'To stop the same press being counted again'": [
+   "Damit derselbe Druck nicht noch einmal gezählt wird",
+   "Para que la misma pulsación no se cuente otra vez"
+  ],
+  "'Top of the page'": [
+   "Kopf der Seite",
+   "Parte superior de la página"
+  ],
+  "'Triggers when the mouse moves over'": [
+   "Wird ausgelöst, wenn die Maus darüberfährt",
+   "Se activa cuando el ratón pasa por encima"
+  ],
+  "'Upload mode'": [
+   "Upload-Modus",
+   "Modo de subida"
+  ],
+  "'Walk through every item of an array'": [
+   "Jeden Eintrag eines Arrays durchgehen",
+   "Recorrer todos los elementos de un array"
+  ],
+  "'We can get wrong results'": [
+   "Wir können falsche Ergebnisse bekommen",
+   "Podemos obtener resultados equivocados"
+  ],
+  "'We do not touch the LEDs at all'": [
+   "Wir fassen die LEDs gar nicht an",
+   "No tocamos los LEDs en absoluto"
+  ],
+  "'We only control the red one'": [
+   "Wir steuern nur die rote",
+   "Solo controlamos el rojo"
+  ],
+  "'We should only look at the LCD'": [
+   "Wir sollten nur auf das LCD schauen",
+   "Solo deberíamos mirar la LCD"
+  ],
+  "'We should use a fixed number found on the internet'": [
+   "Wir sollten eine feste Zahl aus dem Internet nehmen",
+   "Deberíamos usar un número fijo sacado de internet"
+  ],
+  "'When an object is closer than 20 cm to the sensor'": [
+   "Wenn ein Objekt näher als 20 cm am Sensor ist",
+   "Cuando un objeto está a menos de 20 cm del sensor"
+  ],
+  "'When the button is released and the pin reads 1 again'": [
+   "Wenn der Taster losgelassen wird und der Pin wieder 1 liest",
+   "Cuando se suelta el botón y el pin vuelve a leer 1"
+  ],
+  "'When the program ends'": [
+   "Wenn das Programm endet",
+   "Cuando el programa termina"
+  ],
+  "'When the room gets bright'": [
+   "Wenn es im Zimmer hell wird",
+   "Cuando la habitación se ilumina"
+  ],
+  "'When the room goes dark (the LDR value drops below 100)'": [
+   "Wenn es im Zimmer dunkel wird (der LDR-Wert unter 100 fällt)",
+   "Cuando la habitación se queda a oscuras (el valor de la LDR baja de 100)"
+  ],
+  "'When there is nothing in front of the sensor'": [
+   "Wenn nichts vor dem Sensor ist",
+   "Cuando no hay nada delante del sensor"
+  ],
+  "'When things overflow'": [
+   "Wenn etwas nicht mehr passt",
+   "Cuando las cosas no caben"
+  ],
+  "'When you do not know when it will end'": [
+   "Wenn du nicht weißt, wann es endet",
+   "Cuando no sabes cuándo terminará"
+  ],
+  "'When you know the number'": [
+   "Wenn du die Anzahl kennst",
+   "Cuando sabes el número"
+  ],
+  "'Width, background...'": [
+   "Breite, Hintergrund …",
+   "Ancho, fondo…"
+  ],
+  "'With a capital letter (Greet)'": [
+   "Mit einem Großbuchstaben (Greet)",
+   "Con mayúscula (Greet)"
+  ],
+  "'With a dot'": [
+   "Mit einem Punkt",
+   "Con un punto"
+  ],
+  "'With a hash'": [
+   "Mit einer Raute",
+   "Con una almohadilla"
+  ],
+  "'With a lowercase letter (greet)'": [
+   "Mit einem Kleinbuchstaben (greet)",
+   "Con minúscula (greet)"
+  ],
+  "'With a number (1greet)'": [
+   "Mit einer Zahl (1greet)",
+   "Con un número (1greet)"
+  ],
+  "'With an underscore (_greet)'": [
+   "Mit einem Unterstrich (_greet)",
+   "Con un guion bajo (_greet)"
+  ],
+  "'Work that repeats'": [
+   "Arbeit, die sich wiederholt",
+   "Trabajo que se repite"
+  ],
+  "'Wrapping onto a new line'": [
+   "In eine neue Zeile umbrechen",
+   "Pasar a una línea nueva"
+  ],
+  "'Write once, run anywhere'": [
+   "Einmal schreiben, überall laufen lassen",
+   "Escribe una vez, ejecuta en cualquier sitio"
+  ],
+  "'Yes, we control them all with a single block'": [
+   "Ja, wir steuern alle mit einem einzigen Block",
+   "Sí, los controlamos todos con un solo bloque"
+  ],
+  "'You can, but it slows things down'": [
+   "Man kann, aber es wird langsamer",
+   "Se puede, pero va más lento"
+  ],
+  "'You can, it is just slow'": [
+   "Man kann, es ist nur langsam",
+   "Se puede, solo que es lento"
+  ],
+  "'You get a compile error'": [
+   "Du bekommst einen Compilerfehler",
+   "Te da un error de compilación"
+  ],
+  "'You get an infinite loop'": [
+   "Du bekommst eine Endlosschleife",
+   "Te queda un bucle infinito"
+  ],
+  "'You must define a variable first'": [
+   "Du musst zuerst eine Variable definieren",
+   "Primero tienes que definir una variable"
+  ],
+  "'change \"time\" by -1'": [
+   "ändere «zeit» um -1",
+   "sumar a «tiempo» -1"
+  ],
+  "'class Book:'": [
+   "class Book:",
+   "class Book:"
+  ],
+  "'dance forever'": [
+   "tanze fortlaufend",
+   "baila por siempre"
+  ],
+  "'delete the \"time\" variable'": [
+   "lösche die Variable «zeit»",
+   "borrar la variable «tiempo»"
+  ],
+  "'flex-direction: column'": [
+   "flex-direction: column",
+   "flex-direction: column"
+  ],
+  "'flex-wrap: wrap'": [
+   "flex-wrap: wrap",
+   "flex-wrap: wrap"
+  ],
+  "'for (int i = 0; i < grades.length; i++) {'": [
+   "for (int i = 0; i < grades.length; i++) {",
+   "for (int i = 0; i < grades.length; i++) {"
+  ],
+  "'for loop'": [
+   "for-Schleife",
+   "bucle for"
+  ],
+  "'foreach (int grade in grades) {'": [
+   "foreach (int grade in grades) {",
+   "foreach (int grade in grades) {"
+  ],
+  "'foreach loop'": [
+   "foreach-Schleife",
+   "bucle foreach"
+  ],
+  "'from { transform: rotate(0deg); }'": [
+   "from { transform: rotate(0deg); }",
+   "from { transform: rotate(0deg); }"
+  ],
+  "'gap: 12px'": [
+   "gap: 12px",
+   "gap: 12px"
+  ],
+  "'if (score >= 90) {'": [
+   "if (score >= 90) {",
+   "if (score >= 90) {"
+  ],
+  "'int add(int a, int b) {'": [
+   "int add(int a, int b) {",
+   "int add(int a, int b) {"
+  ],
+  "'jump once'": [
+   "springe einmal",
+   "salta una vez"
+  ],
+  "'mBlock refuses to upload the program'": [
+   "mBlock weigert sich, das Programm hochzuladen",
+   "mBlock se niega a subir el programa"
+  ],
+  "'move 10 steps'": [
+   "gehe 10 er Schritt",
+   "mover 10 pasos"
+  ],
+  "'my_dict = (\"a\": 1, \"b\": 2)'": [
+   "my_dict = (\"a\": 1, \"b\": 2)",
+   "my_dict = (\"a\": 1, \"b\": 2)"
+  ],
+  "'my_dict = <\"a\": 1, \"b\": 2>'": [
+   "my_dict = <\"a\": 1, \"b\": 2>",
+   "my_dict = <\"a\": 1, \"b\": 2>"
+  ],
+  "'my_dict = [\"a\": 1, \"b\": 2]'": [
+   "my_dict = [\"a\": 1, \"b\": 2]",
+   "my_dict = [\"a\": 1, \"b\": 2]"
+  ],
+  "'my_dict = {\"a\": 1, \"b\": 2}'": [
+   "my_dict = {\"a\": 1, \"b\": 2}",
+   "my_dict = {\"a\": 1, \"b\": 2}"
+  ],
+  "'print sends a value back, return writes on the screen'": [
+   "print gibt einen Wert zurück, return schreibt auf den Bildschirm",
+   "print devuelve un valor, return escribe en la pantalla"
+  ],
+  "'public int Add(int a, int b) {'": [
+   "public int Add(int a, int b) {",
+   "public int Add(int a, int b) {"
+  ],
+  "'return a + b;'": [
+   "return a + b;",
+   "return a + b;"
+  ],
+  "'return sends a value back, print writes on the screen'": [
+   "return gibt einen Wert zurück, print schreibt auf den Bildschirm",
+   "return devuelve un valor, print escribe en la pantalla"
+  ],
+  "'say \"Done!\"'": [
+   "sage \"Fertig!\"",
+   "decir \"¡Listo!\""
+  ],
+  "'set \"time\" to 0'": [
+   "setze «zeit» auf 0",
+   "dar a «tiempo» el valor 0"
+  ],
+  "'set \"time\" to 30'": [
+   "setze «zeit» auf 30",
+   "dar a «tiempo» el valor 30"
+  ],
+  "'show: no;'": [
+   "show: no;",
+   "show: no;"
+  ],
+  "'to { transform: rotate(360deg); }'": [
+   "to { transform: rotate(360deg); }",
+   "to { transform: rotate(360deg); }"
+  ],
+  "'wait until...'": [
+   "warte bis …",
+   "esperar hasta que…"
+  ],
+  "'walk 100 steps'": [
+   "gehe 100 er Schritt",
+   "mover 100 pasos"
+  ],
+  "'wave once'": [
+   "winke einmal",
+   "saluda una vez"
+  ],
+  "'when clicked'": [
+   "Wenn die grüne Flagge angeklickt wird",
+   "al hacer clic en la bandera verde"
+  ],
+  "'while loop'": [
+   "while-Schleife",
+   "bucle while"
+  ],
+  "'⚽ Ball'": [
+   "⚽ Ball",
+   "⚽ Pelota"
+  ],
+  "'🌌 Space'": [
+   "🌌 Weltraum",
+   "🌌 Espacio"
+  ],
+  "'🎪 Backdrop'": [
+   "🎪 Bühnenbild",
+   "🎪 Fondo"
+  ],
+  "'🐱 Cat'": [
+   "🐱 Katze",
+   "🐱 Gato"
+  ]
+ }
+}

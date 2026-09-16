@@ -1,135 +1,165 @@
 {
-  "identifier" : "A1B2C3D4",
-  "nonRenewingSubscriptions" : [
-
-  ],
-  "products" : [
-
-  ],
-  "settings" : {
-    "_askToBuyEnabled" : false,
-    "_billingIssuesEnabled" : false,
-    "_documentVersion" : 3,
-    "_failTransactionsEnabled" : false,
-    "_locale" : "tr_TR",
-    "_storefront" : "TUR",
-    "_storeKitErrors" : [
+  "identifier": "A1B2C3D4",
+  "nonRenewingSubscriptions": [],
+  "products": [],
+  "settings": {
+    "_askToBuyEnabled": false,
+    "_billingIssuesEnabled": false,
+    "_documentVersion": 3,
+    "_failTransactionsEnabled": false,
+    "_locale": "tr_TR",
+    "_storefront": "TUR",
+    "_storeKitErrors": [
       {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Load Products"
+        "current": null,
+        "enabled": false,
+        "name": "Load Products"
       },
       {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Purchase"
+        "current": null,
+        "enabled": false,
+        "name": "Purchase"
       },
       {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Verification"
+        "current": null,
+        "enabled": false,
+        "name": "Verification"
       },
       {
-        "current" : null,
-        "enabled" : false,
-        "name" : "App Store Sync"
+        "current": null,
+        "enabled": false,
+        "name": "App Store Sync"
       },
       {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Subscription Status"
+        "current": null,
+        "enabled": false,
+        "name": "Subscription Status"
       },
       {
-        "current" : null,
-        "enabled" : false,
-        "name" : "App Transaction"
+        "current": null,
+        "enabled": false,
+        "name": "App Transaction"
       },
       {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Manage Subscriptions Sheet"
+        "current": null,
+        "enabled": false,
+        "name": "Manage Subscriptions Sheet"
       },
       {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Refund Request Sheet"
+        "current": null,
+        "enabled": false,
+        "name": "Refund Request Sheet"
       },
       {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Offer Code Redeem Sheet"
+        "current": null,
+        "enabled": false,
+        "name": "Offer Code Redeem Sheet"
       }
     ]
   },
-  "subscriptionGroups" : [
+  "subscriptionGroups": [
     {
-      "id" : "20510001",
-      "localizations" : [
-
-      ],
-      "name" : "Devkom Pro",
-      "subscriptions" : [
+      "id": "20510001",
+      "localizations": [],
+      "name": "Devkom Pro",
+      "subscriptions": [
         {
-          "adHocOffers" : [
-
-          ],
-          "codeOffers" : [
-
-          ],
-          "displayPrice" : "149.99",
-          "familyShareable" : false,
-          "groupNumber" : 1,
-          "internalID" : "20510002",
-          "introductoryOffer" : null,
-          "localizations" : [
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "49.99",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "20510021",
+          "introductoryOffer": null,
+          "localizations": [
             {
-              "description" : "Devkom Pro - aylik abonelik",
-              "displayName" : "Devkom Pro Aylik",
-              "locale" : "tr_TR"
+              "description": "Haftalık Pro erişim",
+              "displayName": "Pro — Haftalık",
+              "locale": "tr_TR"
             }
           ],
-          "productID" : "com.devkom.app.pro.monthly",
-          "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Devkom Pro Monthly",
-          "subscriptionGroupID" : "20510001",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
+          "productID": "com.devkom.app.pro.weekly",
+          "recurringSubscriptionPeriod": "P1W",
+          "referenceName": "Pro Weekly",
+          "subscriptionGroupID": "20510001",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
         },
         {
-          "adHocOffers" : [
-
-          ],
-          "codeOffers" : [
-
-          ],
-          "displayPrice" : "999.99",
-          "familyShareable" : false,
-          "groupNumber" : 1,
-          "internalID" : "20510003",
-          "introductoryOffer" : null,
-          "localizations" : [
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "149.99",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "20510002",
+          "introductoryOffer": null,
+          "localizations": [
             {
-              "description" : "Devkom Pro - yillik abonelik",
-              "displayName" : "Devkom Pro Yillik",
-              "locale" : "tr_TR"
+              "description": "Devkom Pro - aylik abonelik",
+              "displayName": "Devkom Pro Aylik",
+              "locale": "tr_TR"
             }
           ],
-          "productID" : "com.devkom.app.pro.yearly",
-          "recurringSubscriptionPeriod" : "P1Y",
-          "referenceName" : "Devkom Pro Yearly",
-          "subscriptionGroupID" : "20510001",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
+          "productID": "com.devkom.app.pro.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Devkom Pro Monthly",
+          "subscriptionGroupID": "20510001",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "999.99",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "20510003",
+          "introductoryOffer": {
+            "internalID": "20510091",
+            "paymentMode": "free",
+            "subscriptionPeriod": "P1W"
+          },
+          "localizations": [
+            {
+              "description": "Devkom Pro - yillik abonelik",
+              "displayName": "Devkom Pro Yillik",
+              "locale": "tr_TR"
+            }
+          ],
+          "productID": "com.devkom.app.pro.yearly",
+          "recurringSubscriptionPeriod": "P1Y",
+          "referenceName": "Devkom Pro Yearly",
+          "subscriptionGroupID": "20510001",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "649.99",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "20510031",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Yıllık Pro erişim — çıkışta sunulan özel fiyat",
+              "displayName": "Pro — Yıllık (özel fiyat)",
+              "locale": "tr_TR"
+            }
+          ],
+          "productID": "com.devkom.app.pro.yearly.offer",
+          "recurringSubscriptionPeriod": "P1Y",
+          "referenceName": "Pro Yearly Offer",
+          "subscriptionGroupID": "20510001",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
         }
       ]
     }
   ],
-  "version" : {
-    "major" : 3,
-    "minor" : 0
+  "version": {
+    "major": 3,
+    "minor": 0
   }
 }

@@ -1,0 +1,53 @@
+# SAHNE 3 — "Oyunla pekistirir". Ana sayfadaki "Oyun" kutucugu
+# 16 mini oyunun izgarasini aciyor (embedded_games_service.dart
+# icinde tam 16 oyun tanimli — alt metindeki sayi dogrulandi).
+steps:
+  # --- ORTAK ACILIS (bkz. store-00-sablon.yaml) -------------------------
+  # Veri silinmis kurulumdan ana sayfaya: splash + 8 adimlik onboarding.
+  # Metin secici YOK: ayni akis tr/en/de/es kosularinda oynatiliyor.
+  #
+  # BEKLEMELER NEDEN SABIT: `await idle` bu uygulamada guvenilir degil,
+  # cunku Puf'un maskot animasyonu hic durmuyor. argent "ekran hic
+  # durulmadi" ya da "yerlesti ama bir parcasi hala degisiyordu" diye
+  # uyarip devam ediyor, sonraki dokunus da gecis sirasinda yutuluyor.
+  # Olculdu: goal secimi sonrasi yalnizca `await idle` birakilinca
+  # hemen ardindaki sekme dokunusu bosa dustu ve ekran ana sayfada
+  # kaldi. Bu yuzden her gecisten sonra sabit `wait` var.
+  - launch: com.devkom.app
+  - echo: Splash 2.5 sn surer (modern_splash_screen.dart:54); 3.5 sn bekliyoruz.
+  - wait: 3500
+  - echo: >-
+      Onboarding 1/8: mavi "10 adim git" blogunu (0.50, 0.754) ustteki bos
+      yuvaya (0.52, 0.678) birakiyoruz. Ileri ok bu adimda pasif; bloklar
+      birlesince 2. adima kendiliginden geciliyor.
+  - tool: gesture-swipe
+    args: { fromX: 0.50, fromY: 0.754, toX: 0.52, toY: 0.678, durationMs: 900 }
+  - wait: 1500
+  - echo: Onboarding 2/8 -> 8/8, sag alttaki ileri ok (0.861, 0.945), alti kez.
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 1200
+  - echo: >-
+      Onboarding 8/8 "HEDEFIN": ilk secenek "Oyun yapmak" (0.50, 0.449).
+      Secim onboarding'i bitirip ana sayfayi aciyor.
+  - tap: { x: 0.50, y: 0.449 }
+  - echo: >-
+      Ana sayfanin acilis gecisi + ilk verinin yerlesmesi. 2600 ms olculdu;
+      daha kisasinda sonraki dokunus yutuluyor.
+  - wait: 2600
+  # --- ORTAK ACILIS SONU ------------------------------------------------
+  - echo: >-
+      Ana sayfada ucla kutucuk satiri: Oyun / Gorevler / Tum Dersler
+      (y 0.671-0.754). Soldaki "Oyun" -> merkez (0.189, 0.7125).
+  - tap: { x: 0.189, y: 0.7125 }
+  - echo: Izgaradaki kucuk onizlemeler cizilene kadar bekliyoruz.
+  - wait: 2600

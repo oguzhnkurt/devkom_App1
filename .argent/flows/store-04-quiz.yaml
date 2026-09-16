@@ -1,0 +1,97 @@
+# SAHNE 4 — "Gercek kodu okur".
+# Etkinlikler -> Bilgi yarismasi -> HTML quiz'i. Setin 3. sorusu
+# "Kod Ciktisi" tipinde: ekranda <h1>Merhaba</h1> yaziyor ve
+# cocuk ciktiyi tahmin ediyor. Son adimda "Ipucu" dugmesine
+# basiliyor: altta sari ipucu kutusu aciliyor — slaytin alt
+# metnindeki "takilirsan ipucu" iddiasi ekranda gorunuyor.
+#
+# NEDEN HTML, NEDEN PYTHON DEGIL
+# Python setinin 1. sorusu bosluk doldurma; gecmek icin klavyeyle
+# yazi girmek gerekiyor. Turkce klavye "print" yerine "prınt"
+# yaziyor, argent'in paste araci ise iOS'un "yapistirmaya izin ver"
+# sistem uyarisini aciyor. HTML setinde ilk iki soru coktan
+# secmeli/dogru-yanlis: sadece dokunarak kod sorusuna variliyor.
+steps:
+  # --- ORTAK ACILIS (bkz. store-00-sablon.yaml) -------------------------
+  # Veri silinmis kurulumdan ana sayfaya: splash + 8 adimlik onboarding.
+  # Metin secici YOK: ayni akis tr/en/de/es kosularinda oynatiliyor.
+  #
+  # BEKLEMELER NEDEN SABIT: `await idle` bu uygulamada guvenilir degil,
+  # cunku Puf'un maskot animasyonu hic durmuyor. argent "ekran hic
+  # durulmadi" ya da "yerlesti ama bir parcasi hala degisiyordu" diye
+  # uyarip devam ediyor, sonraki dokunus da gecis sirasinda yutuluyor.
+  # Olculdu: goal secimi sonrasi yalnizca `await idle` birakilinca
+  # hemen ardindaki sekme dokunusu bosa dustu ve ekran ana sayfada
+  # kaldi. Bu yuzden her gecisten sonra sabit `wait` var.
+  - launch: com.devkom.app
+  - echo: Splash 2.5 sn surer (modern_splash_screen.dart:54); 3.5 sn bekliyoruz.
+  - wait: 3500
+  - echo: >-
+      Onboarding 1/8: mavi "10 adim git" blogunu (0.50, 0.754) ustteki bos
+      yuvaya (0.52, 0.678) birakiyoruz. Ileri ok bu adimda pasif; bloklar
+      birlesince 2. adima kendiliginden geciliyor.
+  - tool: gesture-swipe
+    args: { fromX: 0.50, fromY: 0.754, toX: 0.52, toY: 0.678, durationMs: 900 }
+  - wait: 1500
+  - echo: Onboarding 2/8 -> 8/8, sag alttaki ileri ok (0.861, 0.945), alti kez.
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 1200
+  - echo: >-
+      Onboarding 8/8 "HEDEFIN": ilk secenek "Oyun yapmak" (0.50, 0.449).
+      Secim onboarding'i bitirip ana sayfayi aciyor.
+  - tap: { x: 0.50, y: 0.449 }
+  - echo: >-
+      Ana sayfanin acilis gecisi + ilk verinin yerlesmesi. 2600 ms olculdu;
+      daha kisasinda sonraki dokunus yutuluyor.
+  - wait: 2600
+  # --- ORTAK ACILIS SONU ------------------------------------------------
+  - echo: Ana sayfadaki mor "Etkinlikler" karti -> merkez (0.4995, 0.5945).
+  - tap: { x: 0.4995, y: 0.5945 }
+  - wait: 1800
+  - echo: >-
+      Etkinlikler listesinin 4. satiri "Bilgi yarismasi"
+      (y 0.559-0.651) -> merkez (0.50, 0.605).
+  - tap: { x: 0.50, y: 0.605 }
+  - wait: 2200
+  - echo: >-
+      Quiz tanitim ekrani aciliyor. Sag ustteki "Gec" (0.8635, 0.102)
+      dogrudan konu listesine goturuyor.
+  - tap: { x: 0.8635, y: 0.102 }
+  - wait: 1800
+  - echo: >-
+      Konu listesi: Scratch / Arduino / HTML / CSS / Python. 3. satirin
+      "Oyna" dugmesi = HTML (0.7975, 0.595). Satirin kendisine dokunmak
+      ise yaramiyor, yalnizca dugme calisiyor.
+  - tap: { x: 0.7975, y: 0.595 }
+  - wait: 2200
+  - echo: >-
+      Soru 1/3 coktan secmeli ("HTML ne anlama gelir?"). A sikki
+      (y 0.414-0.483) -> (0.4995, 0.4485), sonra "Sonraki" (0.8105, 0.922).
+  - tap: { x: 0.4995, y: 0.4485 }
+  - wait: 1000
+  - tap: { x: 0.8105, y: 0.922 }
+  - wait: 1400
+  - echo: >-
+      Soru 2/3 dogru-yanlis. Iki genis kutu yan yana (y 0.503-0.645);
+      sagdaki "Yanlis" -> (0.736, 0.574). Sonra "Sonraki" (0.8105, 0.920).
+  - tap: { x: 0.736, y: 0.574 }
+  - wait: 1000
+  - tap: { x: 0.8105, y: 0.920 }
+  - wait: 1600
+  - echo: >-
+      Soru 3/3 "Kod Ciktisi": <h1>Merhaba</h1>. Sol alttaki ampul
+      "Ipucu" (0.0905, 0.919) sari ipucu kutusunu aciyor. Soruyu
+      CEVAPLAMIYORUZ: sikklar notr kalsin, slaytta okunan sey kod ve
+      ipucu olsun.
+  - tap: { x: 0.0905, y: 0.919 }
+  - wait: 1800

@@ -2,7 +2,7 @@ name: devkom_app
 description: "A new Flutter project."
 publish_to: 'none'
 
-version: 1.0.5+9
+version: 1.0.8+12
 
 environment:
   sdk: ^3.6.0
@@ -12,8 +12,6 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-
-  cupertino_icons: ^1.0.8
 
   # Environment variables
   flutter_dotenv: ^5.2.1
@@ -30,14 +28,9 @@ dependencies:
   video_player: ^2.9.2
   youtube_player_flutter: ^9.0.3
 
-  # Animations
-  lottie: ^3.2.0
-
   # Fonts & UI
   google_fonts: ^8.0.0
   provider: ^6.1.5+1
-  rxdart: ^0.28.0
-  flutter_vlc_player: ^7.4.2
 
   # Chess game
   chess: ^0.7.0
@@ -58,21 +51,44 @@ dependencies:
   fl_chart: ^0.69.0
   connectivity_plus: ^6.0.5
   carousel_slider: ^5.0.0
+  # webview_flutter'i Dart tarafinda KIMSE import etmiyor (tek
+  # kullanicisi olan Daily Maze ekrani silindi) ama ILAN EDILMIS KALMALI:
+  # google_mobile_ads hem CocoaPods hem SPM tarafinda bu pakete bagli.
+  # Kaldirildiginda `pod install` su hatayla duruyor:
+  #   Unable to find a specification for `webview_flutter_wkwebview`
+  #   depended upon by `google_mobile_ads`
+  # Gomulu bir web sayfasi yeniden acilacaksa
+  # test/embedded_webview_safety_test.dart'taki gezinme kurallarina uyulmali.
   webview_flutter: ^4.10.0
   table_calendar: ^3.1.2
   flutter_local_notifications: ^18.0.1
   timezone: ^0.9.4
-  any_link_preview: ^3.0.2
   flutter_sound: ^9.2.13
   audioplayers: ^5.2.1
-  google_generative_ai: ^0.2.2
   sign_in_with_apple: ^6.1.2
+  # Apple ile giriste nonce'un SHA-256 ozetini almak icin.
+  crypto: ^3.0.6
   adapty_flutter: ^3.3.0
-  mixpanel_flutter: ^2.3.1
+
+  # Reklam (AdMob). Kitlede cocuk oldugu icin istekler her zaman
+  # kisisellestirmesiz gidiyor; bkz. lib/services/ads_service.dart.
+  #
+  # SURUM 8 ALTINA DUSURULMEMELI. Bu proje Flutter 3.44 ile Swift
+  # Package Manager acik calisiyor. webview_flutter_wkwebview'in SPM
+  # destegi var, bu yuzden Flutter onu CocoaPods'a HIC yazmiyor;
+  # google_mobile_ads 5.x'in podspec'i ise ayni pod'u sürümsüz istiyor
+  # ve `pod install` "Unable to find a specification for
+  # webview_flutter_wkwebview" diyerek duruyor. 8.0.0 kendi
+  # Package.swift'iyle geldigi icin bagimliligi SPM uzerinden
+  # cozuyor ve sorun ortadan kalkiyor.
+  google_mobile_ads: ^8.0.0
+
+  # Sertifika paylasimi (PNG olarak kaydedip paylasiyoruz; ayri bir PDF
+  # paketi eklemeye gerek yok, telefonlarda PNG paylasimi daha kolay).
+  share_plus: ^10.1.4
 
   # Backend & Database
   http: ^1.2.1
-  shimmer: ^3.0.0
   supabase_flutter: ^2.10.3
   get_it: ^9.1.0
 
@@ -87,6 +103,9 @@ flutter_launcher_icons:
   android: true
   image_path: "assets/images/app_icon.png"
   min_sdk_android: 21
+  remove_alpha_ios: true
+  adaptive_icon_background: "#5A34E8"
+  adaptive_icon_foreground: "assets/images/app_icon.png"
 
 flutter:
   uses-material-design: true
@@ -94,6 +113,23 @@ flutter:
   assets:
     - .env
     - assets/images/
+    - assets/images/games/
     - assets/videos/
     - assets/sounds/
     - assets/html/
+
+  # Yazi tipi uygulamayla birlikte geliyor. Daha once `google_fonts` paketi
+  # dosyalari calisma aninda internetten cekiyordu; indirme bitene kadar
+  # (ve internet yokken hep) Flutter Roboto'ya dusuyor, basliklar ince
+  # goruluyordu.
+  fonts:
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-400.ttf
+          weight: 400
+        - asset: assets/fonts/Nunito-600.ttf
+          weight: 600
+        - asset: assets/fonts/Nunito-700.ttf
+          weight: 700
+        - asset: assets/fonts/Nunito-800.ttf
+          weight: 800

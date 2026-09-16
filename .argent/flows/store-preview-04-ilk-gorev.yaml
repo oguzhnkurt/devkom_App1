@@ -1,0 +1,29 @@
+# ONIZLEME 4/4 — Ilk gorev cozuluyor.
+# Video en guclu yerde bitiyor: cocuk bir soruya dogru cevap veriyor,
+# secenek yesile donuyor ve altinda NEDEN dogru oldugunu anlatan kutu
+# aciliyor. Kapanis karesi bu.
+#
+# Oyunlar ekranindan cikis "Geri" ile: dersten cikmak
+# "ilerlemen kaybedilecek" uyarisi aciyor, onizlemede o uyariyi
+# gostermek istemiyoruz.
+executionPrerequisite: >-
+  Oyunlar izgarasi acik (store-preview-03-oyun orada birakti).
+steps:
+  - echo: Sol ustteki "Geri" (0.0635, 0.094) -> ana sayfa.
+  - tap: { x: 0.0635, y: 0.094 }
+  - wait: 900
+  - echo: Turuncu karttaki "Ilk Dersine Basla" (0.4995, 0.3515).
+  - tap: { x: 0.4995, y: 0.3515 }
+  - wait: 1800
+  - echo: Ders 1/9 ve 2/9 bilgi adimlari; "Devam" (0.817, 0.921) iki kez.
+  - tap: { x: 0.817, y: 0.921 }
+  - wait: 1100
+  - tap: { x: 0.817, y: 0.921 }
+  - echo: 3/9 soru ekrani okunsun.
+  - wait: 1200
+  - echo: >-
+      Dogru secenek "Oyun, animasyon, hikaye ve daha fazlasi!"
+      (0.4995, 0.6405). Secenek yesile donuyor, aciklama kutusu aciliyor.
+  - tap: { x: 0.4995, y: 0.6405 }
+  - echo: Kapanis karesi: yesil onay + aciklama, ustte +10 XP.
+  - wait: 1800

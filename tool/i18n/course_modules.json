@@ -1,0 +1,33 @@
+{
+  "metinler": {
+    "Getting Started with HTML": ["Erste Schritte mit HTML", "Primeros pasos con HTML"],
+    "The skeleton of web pages": ["Das Gerüst von Webseiten", "El esqueleto de las páginas web"],
+    "Text Tags": ["Text-Tags", "Etiquetas de texto"],
+    "Headings and paragraphs": ["Überschriften und Absätze", "Títulos y párrafos"],
+    "Links and Images": ["Links und Bilder", "Enlaces e imágenes"],
+    "Connect pages together": ["Seiten miteinander verbinden", "Conectar páginas entre sí"],
+    "Lists and Tables": ["Listen und Tabellen", "Listas y tablas"],
+    "Present data in an organized way": ["Daten geordnet darstellen", "Presentar datos de forma ordenada"],
+    "Forms": ["Formulare", "Formularios"],
+    "Collect data from users": ["Daten von Nutzern sammeln", "Recoger datos de los usuarios"],
+    "Semantic HTML and Project": ["Semantisches HTML und Projekt", "HTML semántico y proyecto"],
+    "Meaningful structure and a final project": ["Sinnvolle Struktur und ein Abschlussprojekt", "Estructura con sentido y un proyecto final"],
+    "Advanced Python": ["Python für Fortgeschrittene", "Python avanzado"],
+    "Error handling, libraries, comprehensions, OOP": ["Fehlerbehandlung, Bibliotheken, Comprehensions, OOP", "Manejo de errores, bibliotecas, comprensiones, POO"],
+    "What mBlock Is, and What Is Where": ["Was mBlock ist und was wo liegt", "Qué es mBlock y dónde está cada cosa"],
+    "The editor, the two modes, the nine categories": ["Der Editor, die zwei Modi, die neun Kategorien", "El editor, los dos modos, las nueve categorías"],
+    "First Programs": ["Erste Programme", "Primeros programas"],
+    "The start block, digital output, the loop": ["Der Startblock, der Digitalausgang, die Schleife", "El bloque de inicio, la salida digital, el bucle"],
+    "The Board Listens": ["Die Platine hört zu", "La placa te escucha"],
+    "Button, potentiometer, PWM and map": ["Taster, Potentiometer, PWM und Karte", "Botón, potenciómetro, PWM y mapear"],
+    "Bigger Projects": ["Größere Projekte", "Proyectos más grandes"],
+    "Distance sensor, servo, parking sensor, barrier": ["Abstandssensor, Servo, Einparkhilfe, Schranke", "Sensor de distancia, servo, sensor de aparcamiento, barrera"],
+    "From Blocks to Code": ["Von Blöcken zu Code", "De los bloques al código"],
+    "Arduino IDE, your first C++ program and the serial monitor": ["Arduino IDE, dein erstes C++-Programm und der serielle Monitor", "Arduino IDE, tu primer programa en C++ y el monitor serie"],
+    "Functions": ["Funktionen", "Funciones"],
+    "Reduce repetition, write your own functions": ["Wiederholungen verringern, eigene Funktionen schreiben", "Reducir repeticiones, escribir tus propias funciones"],
+    "LCD Screen & Final Project": ["LCD-Display & Abschlussprojekt", "Pantalla LCD y proyecto final"],
+    "I2C LCD screens and a smart plant watering system": ["I2C-LCD-Displays und eine smarte Pflanzenbewässerung", "Pantallas LCD I2C y un sistema inteligente de riego de plantas"]
+  },
+  "listeler": []
+}

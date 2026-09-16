@@ -1,0 +1,1039 @@
+{
+ "metinler": {
+  "Welcome to CSS!": [
+   "Willkommen bei CSS!",
+   "¡Bienvenido a CSS!"
+  ],
+  "Make web pages beautiful": [
+   "Mach Webseiten schön",
+   "Haz bonitas las páginas web"
+  ],
+  "Hello! You are about to meet CSS. Let HTML build the skeleton, and CSS give it colour and beauty!": [
+   "Hallo! Gleich lernst du CSS kennen. HTML baut das Gerüst, CSS gibt ihm Farbe und Schönheit!",
+   "¡Hola! Estás a punto de conocer CSS. ¡Que HTML construya el esqueleto y CSS le dé color y belleza!"
+  ],
+  "What Is CSS?": [
+   "Was ist CSS?",
+   "¿Qué es CSS?"
+  ],
+  "CSS (Cascading Style Sheets) is the language that changes how HTML elements LOOK.\\n\\nHTML: the skeleton (it builds the structure)\\nCSS: the clothes (it makes things look good)\\n\\nColours, fonts, sizes, spacing - all of it is done with CSS!": [
+   "CSS (Cascading Style Sheets) ist die Sprache, die verändert, wie HTML-Elemente AUSSEHEN.\\n\\nHTML: das Gerüst (es baut die Struktur)\\nCSS: die Kleidung (es macht alles schön)\\n\\nFarben, Schriften, Größen, Abstände – alles davon macht man mit CSS!",
+   "CSS (Cascading Style Sheets) es el lenguaje que cambia el ASPECTO de los elementos HTML.\\n\\nHTML: el esqueleto (construye la estructura)\\nCSS: la ropa (hace que se vea bien)\\n\\nColores, tipografías, tamaños, espacios: ¡todo eso se hace con CSS!"
+  ],
+  "Without CSS every website would be black text on a white background!": [
+   "Ohne CSS wäre jede Webseite schwarzer Text auf weißem Grund!",
+   "¡Sin CSS todas las páginas web serían texto negro sobre fondo blanco!"
+  ],
+  "What is CSS for?": [
+   "Wofür ist CSS da?",
+   "¿Para qué sirve CSS?"
+  ],
+  "CSS sets the visual properties of HTML elements: colour, size, layout and so on!": [
+   "CSS legt die sichtbaren Eigenschaften von HTML-Elementen fest: Farbe, Größe, Anordnung und so weiter!",
+   "¡CSS fija las propiedades visuales de los elementos HTML: color, tamaño, disposición, etc.!"
+  ],
+  "CSS Syntax": [
+   "Der Aufbau von CSS",
+   "La sintaxis de CSS"
+  ],
+  "CSS rules are written like this:\\n\\nselector {\\n  property: value;\\n}\\n\\nExample:\\nh1 {\\n  color: blue;\\n}\\n\\nThis rule says: \"make every h1 heading blue\"!": [
+   "CSS-Regeln schreibt man so:\\n\\nSelektor {\\n  Eigenschaft: Wert;\\n}\\n\\nBeispiel:\\nh1 {\\n  color: blue;\\n}\\n\\nDiese Regel sagt: «mach jede h1-Überschrift blau»!",
+   "Las reglas CSS se escriben así:\\n\\nselector {\\n  propiedad: valor;\\n}\\n\\nEjemplo:\\nh1 {\\n  color: blue;\\n}\\n\\n¡Esta regla dice: «pon azul todos los títulos h1»!"
+  ],
+  "h1 {\\n  color: blue;\\n}": [
+   "h1 {\\n  color: blue;\\n}",
+   "h1 {\\n  color: blue;\\n}"
+  ],
+  "Selector + Property + Value": [
+   "Selektor + Eigenschaft + Wert",
+   "Selector + propiedad + valor"
+  ],
+  "What has to come at the end of the line \"color: red;\"?": [
+   "Was muss am Ende der Zeile \"color: red;\" stehen?",
+   "¿Qué tiene que ir al final de la línea \"color: red;\"?"
+  ],
+  "Every CSS property has to end with a semicolon (;)!": [
+   "Jede CSS-Eigenschaft muss mit einem Semikolon (;) enden!",
+   "¡Toda propiedad CSS tiene que terminar con un punto y coma (;)!"
+  ],
+  "Where Do You Write CSS?": [
+   "Wo schreibt man CSS?",
+   "¿Dónde se escribe el CSS?"
+  ],
+  "You can write CSS in 3 places:\\n\\n1. Inside a <style> tag (in the page itself)\\n2. In a separate .css file (the most common!)\\n3. Inside the tag with style=\"...\" (inline)\\n\\nThe cleanest way: use a separate .css file!": [
+   "CSS kannst du an 3 Stellen schreiben:\\n\\n1. In einem <style>-Tag (in der Seite selbst)\\n2. In einer eigenen .css-Datei (das Übliche!)\\n3. Im Tag selbst mit style=\"...\" (inline)\\n\\nDer sauberste Weg: eine eigene .css-Datei!",
+   "Puedes escribir CSS en 3 sitios:\\n\\n1. Dentro de una etiqueta <style> (en la propia página)\\n2. En un archivo .css aparte (¡lo más habitual!)\\n3. Dentro de la etiqueta con style=\"...\" (en línea)\\n\\nLa forma más limpia: ¡usar un archivo .css aparte!"
+  ],
+  "Match the CSS properties with what they do!": [
+   "Ordne die CSS-Eigenschaften ihren Aufgaben zu!",
+   "¡Relaciona las propiedades CSS con lo que hacen!"
+  ],
+  "Great! You can tell the CSS properties apart!": [
+   "Super! Du kannst die CSS-Eigenschaften auseinanderhalten!",
+   "¡Genial! ¡Sabes distinguir las propiedades CSS!"
+  ],
+  "CSS Beginner!": [
+   "CSS-Anfänger!",
+   "¡Principiante de CSS!"
+  ],
+  "🎉 You took your first step into the world of CSS!\\n\\n✓ You learned what CSS is\\n✓ You met the syntax\\n✓ You discovered the kinds of properties\\n\\nNext lesson: colours and fonts!": [
+   "🎉 Du hast deinen ersten Schritt in die Welt von CSS gemacht!\\n\\n✓ Du weißt, was CSS ist\\n✓ Du hast den Aufbau kennengelernt\\n✓ Du hast die Arten von Eigenschaften entdeckt\\n\\nNächste Lektion: Farben und Schriften!",
+   "🎉 ¡Has dado tu primer paso en el mundo de CSS!\\n\\n✓ Aprendiste qué es CSS\\n✓ Conociste la sintaxis\\n✓ Descubriste los tipos de propiedades\\n\\nSiguiente lección: ¡colores y tipografías!"
+  ],
+  "You earned the CSS Starter badge!": [
+   "Du hast das Abzeichen «CSS-Einsteiger» verdient!",
+   "¡Has ganado la insignia Principiante de CSS!"
+  ],
+  "Colours and Fonts": [
+   "Farben und Schriften",
+   "Colores y tipografías"
+  ],
+  "Add colour to your page": [
+   "Bring Farbe auf deine Seite",
+   "Dale color a tu página"
+  ],
+  "Now we are going to add colour to your page! Let\\'s colour the text and add backgrounds!": [
+   "Jetzt bringen wir Farbe auf deine Seite! Färben wir den Text und fügen wir Hintergründe hinzu!",
+   "¡Ahora vamos a darle color a tu página! ¡Vamos a colorear el texto y a añadir fondos!"
+  ],
+  "Ways to Set a Colour": [
+   "Wege, eine Farbe zu setzen",
+   "Formas de poner un color"
+  ],
+  "There are 3 ways to set a colour in CSS:\\n\\n1. By name: color: red;\\n2. With a hex code: color: #FF0000;\\n3. With RGB: color: rgb(255, 0, 0);\\n\\nAll three give the same red!": [
+   "Es gibt 3 Wege, in CSS eine Farbe zu setzen:\\n\\n1. Über den Namen: color: red;\\n2. Mit einem Hex-Code: color: #FF0000;\\n3. Mit RGB: color: rgb(255, 0, 0);\\n\\nAlle drei ergeben dasselbe Rot!",
+   "Hay 3 formas de poner un color en CSS:\\n\\n1. Por su nombre: color: red;\\n2. Con un código hexadecimal: color: #FF0000;\\n3. Con RGB: color: rgb(255, 0, 0);\\n\\n¡Las tres dan el mismo rojo!"
+  ],
+  "Hex codes start with # and are 6 characters long!": [
+   "Hex-Codes beginnen mit # und sind 6 Zeichen lang!",
+   "¡Los códigos hexadecimales empiezan por # y tienen 6 caracteres!"
+  ],
+  "Which one is a valid hex colour code?": [
+   "Welcher ist ein gültiger Hex-Farbcode?",
+   "¿Cuál es un código de color hexadecimal válido?"
+  ],
+  "Hex codes start with # and are made of 6 digits or letters!": [
+   "Hex-Codes beginnen mit # und bestehen aus 6 Ziffern oder Buchstaben!",
+   "¡Los códigos hexadecimales empiezan por # y se componen de 6 cifras o letras!"
+  ],
+  "Text Properties": [
+   "Text-Eigenschaften",
+   "Propiedades del texto"
+  ],
+  "The main text properties:\\n\\ncolor: text colour\\nfont-size: text size (16px, 1.5em...)\\nfont-family: typeface (Arial, Georgia...)\\nfont-weight: thickness (normal, bold)\\ntext-align: alignment (left, center, right)": [
+   "Die wichtigsten Text-Eigenschaften:\\n\\ncolor: Textfarbe\\nfont-size: Textgröße (16px, 1.5em …)\\nfont-family: Schriftart (Arial, Georgia …)\\nfont-weight: Dicke (normal, bold)\\ntext-align: Ausrichtung (left, center, right)",
+   "Las principales propiedades del texto:\\n\\ncolor: color del texto\\nfont-size: tamaño del texto (16px, 1.5em…)\\nfont-family: tipografía (Arial, Georgia…)\\nfont-weight: grosor (normal, bold)\\ntext-align: alineación (left, center, right)"
+  ],
+  "p {\\n  color: #333;\\n  font-size: 18px;\\n  font-family: Arial;\\n  font-weight: bold;\\n}": [
+   "p {\\n  color: #333;\\n  font-size: 18px;\\n  font-family: Arial;\\n  font-weight: bold;\\n}",
+   "p {\\n  color: #333;\\n  font-size: 18px;\\n  font-family: Arial;\\n  font-weight: bold;\\n}"
+  ],
+  "What do we write to make text bold?": [
+   "Was schreiben wir, um Text fett zu machen?",
+   "¿Qué escribimos para poner el texto en negrita?"
+  ],
+  "font-weight: bold; makes text bold!": [
+   "font-weight: bold; macht Text fett!",
+   "¡font-weight: bold; pone el texto en negrita!"
+  ],
+  "Background Colour": [
+   "Hintergrundfarbe",
+   "Color de fondo"
+  ],
+  "The background-color property paints an element\\'s background:\\n\\ndiv {\\n  background-color: yellow;\\n}\\n\\nApply it to body and the whole page\\'s background changes!": [
+   "Die Eigenschaft background-color färbt den Hintergrund eines Elements:\\n\\ndiv {\\n  background-color: yellow;\\n}\\n\\nWendest du sie auf body an, ändert sich der Hintergrund der ganzen Seite!",
+   "La propiedad background-color pinta el fondo de un elemento:\\n\\ndiv {\\n  background-color: yellow;\\n}\\n\\n¡Aplícala a body y cambia el fondo de toda la página!"
+  ],
+  "Find the right order for the CSS rule below": [
+   "Finde die richtige Reihenfolge für die CSS-Regel unten",
+   "Encuentra el orden correcto de la regla CSS de abajo"
+  ],
+  "Put this in order to build a valid CSS rule": [
+   "Bring das in die richtige Reihenfolge, damit eine gültige CSS-Regel entsteht",
+   "Ordena esto para construir una regla CSS válida"
+  ],
+  "Colour Master!": [
+   "Farb-Meister!",
+   "¡Maestro del color!"
+  ],
+  "🌈 You can add colour to your page now!\\n\\n✓ 3 ways to set a colour\\n✓ Text properties\\n✓ Background colour\\n\\nNext up: we are going to learn selectors!": [
+   "🌈 Jetzt kannst du Farbe auf deine Seite bringen!\\n\\n✓ 3 Wege, eine Farbe zu setzen\\n✓ Text-Eigenschaften\\n✓ Hintergrundfarbe\\n\\nAls Nächstes lernen wir Selektoren!",
+   "🌈 ¡Ya puedes darle color a tu página!\\n\\n✓ 3 formas de poner un color\\n✓ Propiedades del texto\\n✓ Color de fondo\\n\\nSiguiente: ¡vamos a aprender los selectores!"
+  ],
+  "You earned the Colour Master badge!": [
+   "Du hast das Abzeichen «Farb-Meister» verdient!",
+   "¡Has ganado la insignia Maestro del Color!"
+  ],
+  "Selectors": [
+   "Selektoren",
+   "Selectores"
+  ],
+  "Target the right element": [
+   "Ziel genau auf das richtige Element",
+   "Apunta al elemento correcto"
+  ],
+  "A page can have 100 elements. So how do you say which one to style? With SELECTORS!": [
+   "Eine Seite kann 100 Elemente haben. Wie sagst du also, welches gestaltet werden soll? Mit SELEKTOREN!",
+   "Una página puede tener 100 elementos. ¿Cómo dices entonces cuál quieres decorar? ¡Con los SELECTORES!"
+  ],
+  "The Element Selector": [
+   "Der Element-Selektor",
+   "El selector de elemento"
+  ],
+  "The simplest selector is the name of the HTML tag:\\n\\np {\\n  color: gray;\\n}\\n\\nThis affects EVERY <p> tag on the page!": [
+   "Der einfachste Selektor ist der Name des HTML-Tags:\\n\\np {\\n  color: gray;\\n}\\n\\nDas betrifft JEDES <p>-Tag auf der Seite!",
+   "El selector más sencillo es el nombre de la etiqueta HTML:\\n\\np {\\n  color: gray;\\n}\\n\\n¡Esto afecta a TODAS las etiquetas <p> de la página!"
+  ],
+  "An element selector affects every single one on the page, so use it carefully!": [
+   "Ein Element-Selektor betrifft wirklich alle auf der Seite, also benutze ihn vorsichtig!",
+   "¡Un selector de elemento afecta a todos los de la página, así que úsalo con cuidado!"
+  ],
+  "The Class Selector": [
+   "Der Klassen-Selektor",
+   "El selector de clase"
+  ],
+  "To pick only certain elements we use a CLASS. It starts with a dot (.):\\n\\nHTML: <p class=\"warning\">Careful!</p>\\n\\nCSS:\\n.warning {\\n  color: red;\\n}\\n\\nOnly elements with class=\"warning\" turn red!": [
+   "Um nur bestimmte Elemente auszuwählen, benutzen wir eine KLASSE. Sie beginnt mit einem Punkt (.):\\n\\nHTML: <p class=\"warning\">Achtung!</p>\\n\\nCSS:\\n.warning {\\n  color: red;\\n}\\n\\nNur Elemente mit class=\"warning\" werden rot!",
+   "Para elegir solo ciertos elementos usamos una CLASE. Empieza con un punto (.):\\n\\nHTML: <p class=\"warning\">¡Cuidado!</p>\\n\\nCSS:\\n.warning {\\n  color: red;\\n}\\n\\n¡Solo los elementos con class=\"warning\" se vuelven rojos!"
+  ],
+  ".warning {\\n  color: red;\\n}": [
+   ".warning {\\n  color: red;\\n}",
+   ".warning {\\n  color: red;\\n}"
+  ],
+  "Starts with a dot": [
+   "Beginnt mit einem Punkt",
+   "Empieza con un punto"
+  ],
+  "How do you write a class selector?": [
+   "Wie schreibt man einen Klassen-Selektor?",
+   "¿Cómo se escribe un selector de clase?"
+  ],
+  "Class selectors start with a dot (.)!": [
+   "Klassen-Selektoren beginnen mit einem Punkt (.)!",
+   "¡Los selectores de clase empiezan con un punto (.)!"
+  ],
+  "The ID Selector": [
+   "Der ID-Selektor",
+   "El selector de ID"
+  ],
+  "An ID is for picking ONE SINGLE element. It starts with a hash (#):\\n\\nHTML: <div id=\"header-area\">...</div>\\n\\nCSS:\\n#header-area {\\n  background-color: navy;\\n}\\n\\nThe same ID must be used only ONCE on a page!": [
+   "Eine ID wählt EIN EINZIGES Element aus. Sie beginnt mit einer Raute (#):\\n\\nHTML: <div id=\"header-area\">…</div>\\n\\nCSS:\\n#header-area {\\n  background-color: navy;\\n}\\n\\nDieselbe ID darf auf einer Seite nur EINMAL benutzt werden!",
+   "Un ID sirve para elegir UN SOLO elemento. Empieza con una almohadilla (#):\\n\\nHTML: <div id=\"header-area\">…</div>\\n\\nCSS:\\n#header-area {\\n  background-color: navy;\\n}\\n\\n¡El mismo ID solo se puede usar UNA VEZ en una página!"
+  ],
+  "Use a class over and over, and an ID only once!": [
+   "Eine Klasse immer wieder, eine ID nur einmal!",
+   "¡Una clase se usa una y otra vez, y un ID solo una vez!"
+  ],
+  "How many times can the same ID be used on a page?": [
+   "Wie oft darf dieselbe ID auf einer Seite benutzt werden?",
+   "¿Cuántas veces se puede usar el mismo ID en una página?"
+  ],
+  "An ID has to be unique - it is used only once per page. For repeating elements you use a class!": [
+   "Eine ID muss einmalig sein – sie wird nur einmal pro Seite benutzt. Für sich wiederholende Elemente nimmst du eine Klasse!",
+   "Un ID tiene que ser único: se usa solo una vez por página. ¡Para los elementos que se repiten se usa una clase!"
+  ],
+  "Drag each selector onto its correct type!": [
+   "Zieh jeden Selektor auf seinen richtigen Typ!",
+   "¡Arrastra cada selector a su tipo correcto!"
+  ],
+  "Perfect! You can tell all three selector types apart!": [
+   "Perfekt! Du kannst alle drei Selektortypen auseinanderhalten!",
+   "¡Perfecto! ¡Sabes distinguir los tres tipos de selector!"
+  ],
+  "Selector Master!": [
+   "Selektor-Meister!",
+   "¡Maestro de los selectores!"
+  ],
+  "🎯 You can aim at exactly the right element now!\\n\\n✓ The element selector\\n✓ The class selector (.)\\n✓ The ID selector (#)\\n\\nNext module: the box model!": [
+   "🎯 Jetzt zielst du genau auf das richtige Element!\\n\\n✓ Der Element-Selektor\\n✓ Der Klassen-Selektor (.)\\n✓ Der ID-Selektor (#)\\n\\nNächstes Modul: das Box-Modell!",
+   "🎯 ¡Ya puedes apuntar exactamente al elemento correcto!\\n\\n✓ El selector de elemento\\n✓ El selector de clase (.)\\n✓ El selector de ID (#)\\n\\nSiguiente módulo: ¡el modelo de caja!"
+  ],
+  "You earned the Selector Master badge!": [
+   "Du hast das Abzeichen «Selektor-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de los Selectores!"
+  ],
+  "What Is the Box Model?": [
+   "Was ist das Box-Modell?",
+   "¿Qué es el modelo de caja?"
+  ],
+  "Every element is a box": [
+   "Jedes Element ist eine Box",
+   "Todo elemento es una caja"
+  ],
+  "Let me tell you a big secret: EVERYTHING on a web page is really a box! This is called the Box Model.": [
+   "Ich verrate dir ein großes Geheimnis: ALLES auf einer Webseite ist in Wahrheit eine Box! Das nennt man das Box-Modell.",
+   "Te voy a contar un gran secreto: ¡TODO en una página web es en realidad una caja! A esto se le llama el modelo de caja."
+  ],
+  "The 4 Layers of the Box Model": [
+   "Die 4 Schichten des Box-Modells",
+   "Las 4 capas del modelo de caja"
+  ],
+  "Every element has 4 layers (from the inside out):\\n\\n1. Content: what is inside (text, images)\\n2. Padding: the space between the content and the border\\n3. Border: the border itself\\n4. Margin: the space outside the box\\n\\nContent > Padding > Border > Margin!": [
+   "Jedes Element hat 4 Schichten (von innen nach außen):\\n\\n1. Content: was drin ist (Text, Bilder)\\n2. Padding: der Abstand zwischen Inhalt und Rahmen\\n3. Border: der Rahmen selbst\\n4. Margin: der Abstand außerhalb der Box\\n\\nContent > Padding > Border > Margin!",
+   "Todo elemento tiene 4 capas (de dentro hacia fuera):\\n\\n1. Content: lo que hay dentro (texto, imágenes)\\n2. Padding: el espacio entre el contenido y el borde\\n3. Border: el borde en sí\\n4. Margin: el espacio de fuera de la caja\\n\\n¡Content > Padding > Border > Margin!"
+  ],
+  "Margin > Border > Padding > Content": [
+   "Margin > Border > Padding > Content",
+   "Margin > Border > Padding > Content"
+  ],
+  "Think of it as a gift box: the gift inside (content), the padding inside the box (padding), the box itself (border), and the space around the box (margin)!": [
+   "Stell dir eine Geschenkschachtel vor: das Geschenk drin (content), die Polsterung in der Schachtel (padding), die Schachtel selbst (border) und der Platz um die Schachtel herum (margin)!",
+   "¡Imagínalo como una caja de regalo: el regalo de dentro (content), el acolchado dentro de la caja (padding), la caja en sí (border) y el espacio alrededor de la caja (margin)!"
+  ],
+  "What is the space between the content and the border called?": [
+   "Wie heißt der Abstand zwischen Inhalt und Rahmen?",
+   "¿Cómo se llama el espacio entre el contenido y el borde?"
+  ],
+  "Padding is the inner space between the content and the border!": [
+   "Padding ist der innere Abstand zwischen Inhalt und Rahmen!",
+   "¡El padding es el espacio interior entre el contenido y el borde!"
+  ],
+  "Margin vs Padding": [
+   "Margin gegen Padding",
+   "Margin frente a padding"
+  ],
+  "These two get mixed up a lot:\\n\\nPadding: the space INSIDE the box (between content and edge)\\nMargin: the space OUTSIDE the box (between it and other elements)\\n\\nExample:\\ndiv {\\n  padding: 20px;\\n  margin: 10px;\\n}": [
+   "Diese beiden werden oft verwechselt:\\n\\nPadding: der Abstand INNERHALB der Box (zwischen Inhalt und Rand)\\nMargin: der Abstand AUSSERHALB der Box (zu anderen Elementen)\\n\\nBeispiel:\\ndiv {\\n  padding: 20px;\\n  margin: 10px;\\n}",
+   "Estos dos se confunden mucho:\\n\\nPadding: el espacio DENTRO de la caja (entre el contenido y el borde)\\nMargin: el espacio FUERA de la caja (entre ella y otros elementos)\\n\\nEjemplo:\\ndiv {\\n  padding: 20px;\\n  margin: 10px;\\n}"
+  ],
+  "Which property sets the distance between two boxes?": [
+   "Welche Eigenschaft bestimmt den Abstand zwischen zwei Boxen?",
+   "¿Qué propiedad fija la distancia entre dos cajas?"
+  ],
+  "Margin sets the space OUTSIDE the element - it pushes other elements away!": [
+   "Margin bestimmt den Abstand AUSSERHALB des Elements – es schiebt andere Elemente weg!",
+   "¡El margin fija el espacio de FUERA del elemento: aparta a los demás elementos!"
+  ],
+  "Drag the box model layers from the inside out!": [
+   "Zieh die Schichten des Box-Modells von innen nach außen!",
+   "¡Arrastra las capas del modelo de caja de dentro hacia fuera!"
+  ],
+  "You learned the layers from the inside out!": [
+   "Du hast die Schichten von innen nach außen gelernt!",
+   "¡Aprendiste las capas de dentro hacia fuera!"
+  ],
+  "Box Model Master!": [
+   "Box-Modell-Meister!",
+   "¡Maestro del modelo de caja!"
+  ],
+  "📦 Now you know that every element is a box!\\n\\n✓ You learned the 4 layers\\n✓ You grasped the difference between margin and padding\\n\\nNext up: setting width and height!": [
+   "📦 Jetzt weißt du, dass jedes Element eine Box ist!\\n\\n✓ Du hast die 4 Schichten gelernt\\n✓ Du hast den Unterschied zwischen margin und padding verstanden\\n\\nAls Nächstes: Breite und Höhe setzen!",
+   "📦 ¡Ahora sabes que todo elemento es una caja!\\n\\n✓ Aprendiste las 4 capas\\n✓ Entendiste la diferencia entre margin y padding\\n\\nSiguiente: ¡fijar el ancho y el alto!"
+  ],
+  "You earned the Box Model badge!": [
+   "Du hast das Abzeichen «Box-Modell» verdient!",
+   "¡Has ganado la insignia Modelo de Caja!"
+  ],
+  "Width and Height": [
+   "Breite und Höhe",
+   "Ancho y alto"
+  ],
+  "Size your boxes": [
+   "Gib deinen Boxen eine Größe",
+   "Dale tamaño a tus cajas"
+  ],
+  "Let\\'s learn how to control the size of boxes! With width and height you can scale anything.": [
+   "Lernen wir, wie man die Größe von Boxen steuert! Mit width und height kannst du alles skalieren.",
+   "¡Vamos a aprender a controlar el tamaño de las cajas! Con width y height puedes escalar cualquier cosa."
+  ],
+  "width and height": [
+   "width und height",
+   "width y height"
+  ],
+  "To set the size of an element:\\n\\ndiv {\\n  width: 300px;\\n  height: 150px;\\n}\\n\\nUnits:\\npx: fixed pixels\\n%: a percentage of the parent element\\nem/rem: relative to the text size": [
+   "So setzt du die Größe eines Elements:\\n\\ndiv {\\n  width: 300px;\\n  height: 150px;\\n}\\n\\nEinheiten:\\npx: feste Pixel\\n%: ein Anteil des Elternelements\\nem/rem: relativ zur Textgröße",
+   "Para fijar el tamaño de un elemento:\\n\\ndiv {\\n  width: 300px;\\n  height: 150px;\\n}\\n\\nUnidades:\\npx: píxeles fijos\\n%: un porcentaje del elemento padre\\nem/rem: relativo al tamaño del texto"
+  ],
+  "If you use %, the element grows and shrinks automatically with the screen!": [
+   "Wenn du % benutzt, wächst und schrumpft das Element automatisch mit dem Bildschirm!",
+   "¡Si usas %, el elemento crece y encoge automáticamente con la pantalla!"
+  ],
+  "What do we write to make a box 200 pixels wide?": [
+   "Was schreiben wir, damit eine Box 200 Pixel breit wird?",
+   "¿Qué escribimos para que una caja mida 200 píxeles de ancho?"
+  ],
+  "width: 200px; - do not forget to write the unit (px)!": [
+   "width: 200px; – vergiss die Einheit (px) nicht!",
+   "width: 200px; ¡no te olvides de escribir la unidad (px)!"
+  ],
+  "box-sizing: border-box": [
+   "box-sizing: border-box",
+   "box-sizing: border-box"
+  ],
+  "An important catch: padding and border normally INCREASE the total width!\\n\\nTo avoid that:\\ndiv {\\n  box-sizing: border-box;\\n}\\n\\nNow width includes the padding and the border - the maths gets much easier!": [
+   "Ein wichtiger Haken: Padding und Border VERGRÖSSERN normalerweise die Gesamtbreite!\\n\\nDamit das nicht passiert:\\ndiv {\\n  box-sizing: border-box;\\n}\\n\\nJetzt schließt width Padding und Border mit ein – die Rechnerei wird viel leichter!",
+   "Un detalle importante: ¡el padding y el border normalmente AUMENTAN el ancho total!\\n\\nPara evitarlo:\\ndiv {\\n  box-sizing: border-box;\\n}\\n\\n¡Ahora width incluye el padding y el border, y las cuentas salen mucho más fáciles!"
+  ],
+  "Professionals usually apply box-sizing: border-box; to the whole page!": [
+   "Profis wenden box-sizing: border-box; meistens auf die ganze Seite an!",
+   "¡Los profesionales suelen aplicar box-sizing: border-box; a toda la página!"
+  ],
+  "What is the real width of a box with width: 100px and padding: 20px (without box-sizing)?": [
+   "Wie breit ist eine Box mit width: 100px und padding: 20px wirklich (ohne box-sizing)?",
+   "¿Cuál es el ancho real de una caja con width: 100px y padding: 20px (sin box-sizing)?"
+  ],
+  "Padding is added on both sides: 100 + 20 (left) + 20 (right) = 140px!": [
+   "Padding kommt auf beiden Seiten dazu: 100 + 20 (links) + 20 (rechts) = 140px!",
+   "¡El padding se suma por los dos lados: 100 + 20 (izquierda) + 20 (derecha) = 140px!"
+  ],
+  "min-width and max-width": [
+   "min-width und max-width",
+   "min-width y max-width"
+  ],
+  "For flexible designs:\\n\\nmin-width: the smallest the box can shrink to\\nmax-width: the largest it can grow to\\n\\nExample:\\ndiv {\\n  width: 100%;\\n  max-width: 600px;\\n}\\n\\nThis makes the box flexible but never wider than 600px!": [
+   "Für flexible Gestaltung:\\n\\nmin-width: wie klein die Box höchstens werden darf\\nmax-width: wie groß sie höchstens werden darf\\n\\nBeispiel:\\ndiv {\\n  width: 100%;\\n  max-width: 600px;\\n}\\n\\nSo ist die Box flexibel, aber nie breiter als 600px!",
+   "Para diseños flexibles:\\n\\nmin-width: lo más pequeña que puede quedarse la caja\\nmax-width: lo más grande que puede llegar a ser\\n\\nEjemplo:\\ndiv {\\n  width: 100%;\\n  max-width: 600px;\\n}\\n\\n¡Así la caja es flexible pero nunca mide más de 600px de ancho!"
+  ],
+  "Put this CSS rule in the right order": [
+   "Bring diese CSS-Regel in die richtige Reihenfolge",
+   "Pon esta regla CSS en el orden correcto"
+  ],
+  "Put the rule that gives .box a size of 300x150 in order": [
+   "Bring die Regel, die .box die Größe 300x150 gibt, in die richtige Reihenfolge",
+   "Ordena la regla que le da a .box un tamaño de 300x150"
+  ],
+  "Sizing Master!": [
+   "Größen-Meister!",
+   "¡Maestro del tamaño!"
+  ],
+  "📏 You have full control of box sizes now!\\n\\n✓ width and height\\n✓ box-sizing: border-box\\n✓ min/max-width\\n\\nNext up: borders and rounded corners!": [
+   "📏 Du hast die Größe von Boxen jetzt voll im Griff!\\n\\n✓ width und height\\n✓ box-sizing: border-box\\n✓ min/max-width\\n\\nAls Nächstes: Rahmen und runde Ecken!",
+   "📏 ¡Ya controlas del todo el tamaño de las cajas!\\n\\n✓ width y height\\n✓ box-sizing: border-box\\n✓ min/max-width\\n\\nSiguiente: ¡bordes y esquinas redondeadas!"
+  ],
+  "You earned the Sizing Master badge!": [
+   "Du hast das Abzeichen «Größen-Meister» verdient!",
+   "¡Has ganado la insignia Maestro del Tamaño!"
+  ],
+  "Borders and Corners": [
+   "Rahmen und Ecken",
+   "Bordes y esquinas"
+  ],
+  "Shape your boxes": [
+   "Gib deinen Boxen eine Form",
+   "Dale forma a tus cajas"
+  ],
+  "Let\\'s make our boxes look good! We are going to add borders, round the corners and add shadows!": [
+   "Machen wir unsere Boxen schön! Wir fügen Rahmen hinzu, runden die Ecken ab und setzen Schatten!",
+   "¡Vamos a poner guapas nuestras cajas! ¡Vamos a añadir bordes, redondear las esquinas y poner sombras!"
+  ],
+  "Borders": [
+   "Rahmen",
+   "Bordes"
+  ],
+  "A border is made of 3 parts:\\n\\nborder: 2px solid black;\\n       (thickness) (style) (colour)\\n\\nStyles: solid, dashed, dotted, double": [
+   "Ein Rahmen besteht aus 3 Teilen:\\n\\nborder: 2px solid black;\\n       (Dicke) (Stil) (Farbe)\\n\\nStile: solid, dashed, dotted, double",
+   "Un borde se compone de 3 partes:\\n\\nborder: 2px solid black;\\n       (grosor) (estilo) (color)\\n\\nEstilos: solid, dashed, dotted, double"
+  ],
+  "div {\\n  border: 3px solid #2196F3;\\n}": [
+   "div {\\n  border: 3px solid #2196F3;\\n}",
+   "div {\\n  border: 3px solid #2196F3;\\n}"
+  ],
+  "What kind of border does \"border: 2px dashed red;\" create?": [
+   "Was für einen Rahmen erzeugt \"border: 2px dashed red;\"?",
+   "¿Qué tipo de borde crea \"border: 2px dashed red;\"?"
+  ],
+  "2px = thickness, dashed = the dashed style, red = the colour!": [
+   "2px = Dicke, dashed = der gestrichelte Stil, red = die Farbe!",
+   "¡2px = grosor, dashed = el estilo discontinuo, red = el color!"
+  ],
+  "border-radius: Rounding the Corners": [
+   "border-radius: die Ecken abrunden",
+   "border-radius: redondear las esquinas"
+  ],
+  "border-radius is used to round the corners:\\n\\ndiv {\\n  border-radius: 12px;\\n}\\n\\nWith a big value (50%, for example) you can make the box A PERFECT CIRCLE!": [
+   "border-radius rundet die Ecken ab:\\n\\ndiv {\\n  border-radius: 12px;\\n}\\n\\nMit einem großen Wert (zum Beispiel 50%) machst du aus der Box EINEN PERFEKTEN KREIS!",
+   "border-radius se usa para redondear las esquinas:\\n\\ndiv {\\n  border-radius: 12px;\\n}\\n\\n¡Con un valor grande (por ejemplo 50%) puedes convertir la caja en UN CÍRCULO PERFECTO!"
+  ],
+  "border-radius: 50%; turns a square box into a circle!": [
+   "border-radius: 50%; macht aus einer quadratischen Box einen Kreis!",
+   "¡border-radius: 50%; convierte una caja cuadrada en un círculo!"
+  ],
+  "What does border-radius have to be to turn a square box into a full circle?": [
+   "Was muss border-radius sein, damit aus einer quadratischen Box ein voller Kreis wird?",
+   "¿Cuánto tiene que valer border-radius para convertir una caja cuadrada en un círculo completo?"
+  ],
+  "border-radius: 50% turns a square into a perfect circle!": [
+   "border-radius: 50% macht aus einem Quadrat einen perfekten Kreis!",
+   "¡border-radius: 50% convierte un cuadrado en un círculo perfecto!"
+  ],
+  "box-shadow: The Shadow Effect": [
+   "box-shadow: der Schatteneffekt",
+   "box-shadow: el efecto de sombra"
+  ],
+  "A shadow gives boxes depth:\\n\\ndiv {\\n  box-shadow: 0px 4px 10px rgba(0,0,0,0.2);\\n}\\n\\nThe values are: horizontal-offset vertical-offset blur colour\\n\\nModern cards use this a lot!": [
+   "Ein Schatten gibt Boxen Tiefe:\\n\\ndiv {\\n  box-shadow: 0px 4px 10px rgba(0,0,0,0.2);\\n}\\n\\nDie Werte sind: waagerechter Versatz, senkrechter Versatz, Unschärfe, Farbe\\n\\nModerne Karten benutzen das sehr oft!",
+   "Una sombra da profundidad a las cajas:\\n\\ndiv {\\n  box-shadow: 0px 4px 10px rgba(0,0,0,0.2);\\n}\\n\\nLos valores son: desplazamiento horizontal, desplazamiento vertical, desenfoque, color\\n\\n¡Las tarjetas modernas lo usan muchísimo!"
+  ],
+  "Mini Project: A Beautiful Card": [
+   "Mini-Projekt: eine schöne Karte",
+   "Miniproyecto: una tarjeta bonita"
+  ],
+  "Put everything you learned together and design a beautiful card box!": [
+   "Bring alles Gelernte zusammen und gestalte eine schöne Kartenbox!",
+   "¡Junta todo lo que has aprendido y diseña una caja de tarjeta bonita!"
+  ],
+  "Border Artist!": [
+   "Rahmen-Künstler!",
+   "¡Artista del borde!"
+  ],
+  "🖼️ You can turn boxes into works of art now!\\n\\n✓ Borders with border\\n✓ Rounded corners with border-radius\\n✓ Shadows with box-shadow\\n\\nNext module: layout!": [
+   "🖼️ Jetzt kannst du aus Boxen Kunstwerke machen!\\n\\n✓ Rahmen mit border\\n✓ Runde Ecken mit border-radius\\n✓ Schatten mit box-shadow\\n\\nNächstes Modul: das Layout!",
+   "🖼️ ¡Ya puedes convertir las cajas en obras de arte!\\n\\n✓ Bordes con border\\n✓ Esquinas redondeadas con border-radius\\n✓ Sombras con box-shadow\\n\\nSiguiente módulo: ¡la disposición!"
+  ],
+  "You earned the Border Artist badge!": [
+   "Du hast das Abzeichen «Rahmen-Künstler» verdient!",
+   "¡Has ganado la insignia Artista del Borde!"
+  ],
+  "Display and Position": [
+   "display und position",
+   "display y position"
+  ],
+  "Control how elements behave": [
+   "Steuere, wie sich Elemente verhalten",
+   "Controla cómo se comportan los elementos"
+  ],
+  "Let\\'s learn how to control WHERE elements sit on the page. With display and position you can put anything anywhere!": [
+   "Lernen wir, WO Elemente auf der Seite sitzen. Mit display und position kannst du alles überall hinsetzen!",
+   "Vamos a aprender a controlar DÓNDE se colocan los elementos en la página. ¡Con display y position puedes poner cualquier cosa en cualquier sitio!"
+  ],
+  "display: block vs inline": [
+   "display: block gegen inline",
+   "display: block frente a inline"
+  ],
+  "Every HTML tag has a default \"display\" value:\\n\\nblock: takes the whole line, stacks vertically (div, p, h1)\\ninline: takes only as much room as its content, sits side by side (span, a)\\nnone: hides the element completely!": [
+   "Jedes HTML-Tag hat einen voreingestellten «display»-Wert:\\n\\nblock: nimmt die ganze Zeile, stapelt sich untereinander (div, p, h1)\\ninline: nimmt nur so viel Platz wie sein Inhalt, sitzt nebeneinander (span, a)\\nnone: versteckt das Element komplett!",
+   "Cada etiqueta HTML tiene un valor de «display» por defecto:\\n\\nblock: ocupa toda la línea, se apila en vertical (div, p, h1)\\ninline: ocupa solo lo que ocupa su contenido, se coloca al lado (span, a)\\nnone: ¡oculta el elemento por completo!"
+  ],
+  "display: none; removes an element from the page completely, as if it were never there!": [
+   "display: none; nimmt ein Element vollständig von der Seite, als wäre es nie da gewesen!",
+   "¡display: none; quita el elemento de la página por completo, como si nunca hubiera estado!"
+  ],
+  "What do we write to hide an element from the page completely?": [
+   "Was schreiben wir, um ein Element komplett von der Seite zu verstecken?",
+   "¿Qué escribimos para ocultar un elemento de la página por completo?"
+  ],
+  "display: none; hides the element completely and stops it taking up space!": [
+   "display: none; versteckt das Element komplett, und es nimmt auch keinen Platz mehr weg!",
+   "¡display: none; oculta el elemento por completo y deja de ocupar espacio!"
+  ],
+  "position: relative and absolute": [
+   "position: relative und absolute",
+   "position: relative y absolute"
+  ],
+  "The position property decides how an element is placed:\\n\\nstatic: the default, normal flow\\nrelative: shifted from its own normal position\\nabsolute: positioned against the nearest \"relative\" parent\\nfixed: pinned to the screen (it stays put even when you scroll)": [
+   "Die Eigenschaft position entscheidet, wie ein Element platziert wird:\\n\\nstatic: die Voreinstellung, der normale Fluss\\nrelative: von seiner eigenen normalen Stelle verschoben\\nabsolute: am nächsten «relative»-Elternelement ausgerichtet\\nfixed: am Bildschirm festgesteckt (es bleibt beim Scrollen stehen)",
+   "La propiedad position decide cómo se coloca un elemento:\\n\\nstatic: el valor por defecto, el flujo normal\\nrelative: desplazado desde su propia posición normal\\nabsolute: colocado respecto al padre «relative» más cercano\\nfixed: clavado en la pantalla (no se mueve aunque hagas scroll)"
+  ],
+  "Which position do you use for a menu that stays in the same place on screen even when you scroll?": [
+   "Welchen position-Wert nimmst du für ein Menü, das beim Scrollen an derselben Stelle bleibt?",
+   "¿Qué position usas para un menú que se queda en el mismo sitio de la pantalla aunque hagas scroll?"
+  ],
+  "position: fixed; pins the element to the screen, so it stays put even when the page scrolls!": [
+   "position: fixed; steckt das Element am Bildschirm fest, es bleibt also stehen, auch wenn die Seite scrollt!",
+   "¡position: fixed; clava el elemento en la pantalla, así que se queda quieto aunque la página se desplace!"
+  ],
+  "top, left, right, bottom": [
+   "top, left, right, bottom",
+   "top, left, right, bottom"
+  ],
+  "When you use position: relative/absolute/fixed, you set the position with these properties:\\n\\ndiv {\\n  position: absolute;\\n  top: 10px;\\n  right: 20px;\\n}\\n\\nThis puts the element 10px from the top and 20px from the right!": [
+   "Wenn du position: relative/absolute/fixed benutzt, setzt du die Position mit diesen Eigenschaften:\\n\\ndiv {\\n  position: absolute;\\n  top: 10px;\\n  right: 20px;\\n}\\n\\nDas setzt das Element 10px von oben und 20px von rechts!",
+   "Cuando usas position: relative/absolute/fixed, fijas la posición con estas propiedades:\\n\\ndiv {\\n  position: absolute;\\n  top: 10px;\\n  right: 20px;\\n}\\n\\n¡Esto pone el elemento a 10px de arriba y a 20px de la derecha!"
+  ],
+  "Drag each position value onto the right scenario!": [
+   "Zieh jeden position-Wert auf die richtige Situation!",
+   "¡Arrastra cada valor de position al caso correcto!"
+  ],
+  "You matched the position values with the right scenarios!": [
+   "Du hast die position-Werte den richtigen Situationen zugeordnet!",
+   "¡Has relacionado los valores de position con los casos correctos!"
+  ],
+  "Layout Explorer!": [
+   "Layout-Entdecker!",
+   "¡Explorador de la disposición!"
+  ],
+  "📐 You can control how elements behave!\\n\\n✓ display: block/inline/none\\n✓ position: relative/absolute/fixed\\n\\nNext up: modern layout with Flexbox!": [
+   "📐 Du kannst steuern, wie sich Elemente verhalten!\\n\\n✓ display: block/inline/none\\n✓ position: relative/absolute/fixed\\n\\nAls Nächstes: modernes Layout mit Flexbox!",
+   "📐 ¡Puedes controlar cómo se comportan los elementos!\\n\\n✓ display: block/inline/none\\n✓ position: relative/absolute/fixed\\n\\nSiguiente: ¡disposición moderna con Flexbox!"
+  ],
+  "You earned the Layout Explorer badge!": [
+   "Du hast das Abzeichen «Layout-Entdecker» verdient!",
+   "¡Has ganado la insignia Explorador de la Disposición!"
+  ],
+  "Getting Started with Flexbox": [
+   "Erste Schritte mit Flexbox",
+   "Primeros pasos con Flexbox"
+  ],
+  "The power of modern layout": [
+   "Die Kraft des modernen Layouts",
+   "La potencia de la disposición moderna"
+  ],
+  "Flexbox is a MAGIC tool that lets you line elements up side by side or centre them easily! Let\\'s learn it!": [
+   "Flexbox ist ein ZAUBER-Werkzeug, mit dem du Elemente nebeneinander stellen oder leicht zentrieren kannst! Lernen wir es!",
+   "¡Flexbox es una herramienta MÁGICA que te deja alinear elementos uno al lado de otro o centrarlos fácilmente! ¡Vamos a aprenderla!"
+  ],
+  "display: flex": [
+   "display: flex",
+   "display: flex"
+  ],
+  "To turn a box into a flex container:\\n\\n.container {\\n  display: flex;\\n}\\n\\nThis one line lays every element inside it SIDE BY SIDE automatically!": [
+   "So machst du aus einer Box einen Flex-Container:\\n\\n.container {\\n  display: flex;\\n}\\n\\nDiese eine Zeile stellt alle Elemente darin automatisch NEBENEINANDER!",
+   "Para convertir una caja en un contenedor flex:\\n\\n.container {\\n  display: flex;\\n}\\n\\n¡Esta única línea coloca automáticamente UNO AL LADO DE OTRO todos los elementos de dentro!"
+  ],
+  "People used to use float to line things up side by side - flexbox is far easier!": [
+   "Früher hat man float benutzt, um Dinge nebeneinander zu stellen – Flexbox ist viel einfacher!",
+   "¡Antes se usaba float para poner cosas una al lado de otra; Flexbox es mucho más fácil!"
+  ],
+  "What do we write to turn a div into a flex container?": [
+   "Was schreiben wir, um aus einem div einen Flex-Container zu machen?",
+   "¿Qué escribimos para convertir un div en un contenedor flex?"
+  ],
+  "display: flex; turns an element into a flex container!": [
+   "display: flex; macht aus einem Element einen Flex-Container!",
+   "¡display: flex; convierte un elemento en un contenedor flex!"
+  ],
+  "justify-content: Horizontal Alignment": [
+   "justify-content: waagerechte Ausrichtung",
+   "justify-content: alineación horizontal"
+  ],
+  "To line elements up horizontally:\\n\\n.container {\\n  display: flex;\\n  justify-content: center;\\n}\\n\\nValues:\\ncenter: centre them\\nspace-between: equal space between them\\nflex-end: push them to the right": [
+   "So richtest du Elemente waagerecht aus:\\n\\n.container {\\n  display: flex;\\n  justify-content: center;\\n}\\n\\nWerte:\\ncenter: mittig\\nspace-between: gleicher Abstand dazwischen\\nflex-end: nach rechts schieben",
+   "Para alinear los elementos en horizontal:\\n\\n.container {\\n  display: flex;\\n  justify-content: center;\\n}\\n\\nValores:\\ncenter: centrarlos\\nspace-between: el mismo espacio entre ellos\\nflex-end: empujarlos a la derecha"
+  ],
+  "What do we write to put elements EXACTLY in the horizontal centre?": [
+   "Was schreiben wir, um Elemente GENAU waagerecht in die Mitte zu setzen?",
+   "¿Qué escribimos para poner los elementos EXACTAMENTE en el centro horizontal?"
+  ],
+  "justify-content: center; centres the elements on the horizontal axis!": [
+   "justify-content: center; zentriert die Elemente auf der waagerechten Achse!",
+   "¡justify-content: center; centra los elementos en el eje horizontal!"
+  ],
+  "align-items: Vertical Alignment": [
+   "align-items: senkrechte Ausrichtung",
+   "align-items: alineación vertical"
+  ],
+  "To line elements up vertically:\\n\\n.container {\\n  display: flex;\\n  align-items: center;\\n}\\n\\nThis centres the elements vertically in the container. justify-content (horizontal) + align-items (vertical) = PERFECTLY CENTRED!": [
+   "So richtest du Elemente senkrecht aus:\\n\\n.container {\\n  display: flex;\\n  align-items: center;\\n}\\n\\nDas zentriert die Elemente senkrecht im Container. justify-content (waagerecht) + align-items (senkrecht) = PERFEKT ZENTRIERT!",
+   "Para alinear los elementos en vertical:\\n\\n.container {\\n  display: flex;\\n  align-items: center;\\n}\\n\\nEsto centra los elementos verticalmente en el contenedor. justify-content (horizontal) + align-items (vertical) = ¡PERFECTAMENTE CENTRADO!"
+  ],
+  "justify-content: center + align-items: center = an element perfectly centred in every direction!": [
+   "justify-content: center + align-items: center = ein Element, das in jede Richtung perfekt zentriert ist!",
+   "justify-content: center + align-items: center = ¡un elemento perfectamente centrado en todas las direcciones!"
+  ],
+  "Put the CSS rule that centres a box in order": [
+   "Bring die CSS-Regel, die eine Box zentriert, in die richtige Reihenfolge",
+   "Ordena la regla CSS que centra una caja"
+  ],
+  "The flex rule that centres the content both horizontally and vertically": [
+   "Die flex-Regel, die den Inhalt waagerecht und senkrecht zentriert",
+   "La regla flex que centra el contenido en horizontal y en vertical"
+  ],
+  "Flexbox Explorer!": [
+   "Flexbox-Entdecker!",
+   "¡Explorador de Flexbox!"
+  ],
+  "🧲 You learned the basics of Flexbox!\\n\\n✓ display: flex\\n✓ justify-content (horizontal)\\n✓ align-items (vertical)\\n\\nNext up: more ways to arrange things with Flexbox!": [
+   "🧲 Du hast die Grundlagen von Flexbox gelernt!\\n\\n✓ display: flex\\n✓ justify-content (waagerecht)\\n✓ align-items (senkrecht)\\n\\nAls Nächstes: noch mehr Wege, mit Flexbox zu ordnen!",
+   "🧲 ¡Aprendiste los fundamentos de Flexbox!\\n\\n✓ display: flex\\n✓ justify-content (horizontal)\\n✓ align-items (vertical)\\n\\nSiguiente: ¡más formas de ordenar con Flexbox!"
+  ],
+  "You earned the Flexbox Explorer badge!": [
+   "Du hast das Abzeichen «Flexbox-Entdecker» verdient!",
+   "¡Has ganado la insignia Explorador de Flexbox!"
+  ],
+  "Ordering with Flexbox": [
+   "Ordnen mit Flexbox",
+   "Ordenar con Flexbox"
+  ],
+  "Direction, wrapping and spacing": [
+   "Richtung, Umbruch und Abstände",
+   "Dirección, salto de línea y espacios"
+  ],
+  "Let\\'s discover more of Flexbox\\'s power: changing direction, wrapping lines and space between items!": [
+   "Entdecken wir mehr von der Kraft von Flexbox: die Richtung ändern, Zeilen umbrechen und Abstände zwischen den Elementen!",
+   "¡Descubramos más potencia de Flexbox: cambiar la dirección, saltar de línea y el espacio entre los elementos!"
+  ],
+  "flex-direction: Changing Direction": [
+   "flex-direction: die Richtung ändern",
+   "flex-direction: cambiar la dirección"
+  ],
+  "By default Flexbox lays elements out HORIZONTALLY. To stack them vertically:\\n\\n.container {\\n  display: flex;\\n  flex-direction: column;\\n}\\n\\nValues: row (default), column, row-reverse, column-reverse": [
+   "Standardmäßig ordnet Flexbox die Elemente WAAGERECHT an. So stapelst du sie senkrecht:\\n\\n.container {\\n  display: flex;\\n  flex-direction: column;\\n}\\n\\nWerte: row (Standard), column, row-reverse, column-reverse",
+   "Por defecto Flexbox coloca los elementos en HORIZONTAL. Para apilarlos en vertical:\\n\\n.container {\\n  display: flex;\\n  flex-direction: column;\\n}\\n\\nValores: row (por defecto), column, row-reverse, column-reverse"
+  ],
+  "flex-direction: column; stacks the elements like a list!": [
+   "flex-direction: column; stapelt die Elemente wie eine Liste!",
+   "¡flex-direction: column; apila los elementos como una lista!"
+  ],
+  "What do we write to stack elements vertically?": [
+   "Was schreiben wir, um Elemente senkrecht zu stapeln?",
+   "¿Qué escribimos para apilar los elementos en vertical?"
+  ],
+  "flex-direction: column; lays the elements out vertically, one under another!": [
+   "flex-direction: column; ordnet die Elemente senkrecht untereinander an!",
+   "¡flex-direction: column; coloca los elementos en vertical, uno debajo de otro!"
+  ],
+  "flex-wrap: Moving to a New Line": [
+   "flex-wrap: in eine neue Zeile rutschen",
+   "flex-wrap: pasar a una línea nueva"
+  ],
+  "If there are too many elements and they do not fit:\\n\\n.container {\\n  display: flex;\\n  flex-wrap: wrap;\\n}\\n\\nThis lets the ones that do not fit move to the next line - just like text!": [
+   "Wenn es zu viele Elemente sind und sie nicht passen:\\n\\n.container {\\n  display: flex;\\n  flex-wrap: wrap;\\n}\\n\\nSo rutschen die, die nicht passen, in die nächste Zeile – genau wie Text!",
+   "Si hay demasiados elementos y no caben:\\n\\n.container {\\n  display: flex;\\n  flex-wrap: wrap;\\n}\\n\\n¡Así los que no caben pasan a la línea siguiente, igual que el texto!"
+  ],
+  "What do we have to thank for flex items moving to the next line when they do not fit?": [
+   "Wem verdanken wir es, dass Flex-Elemente in die nächste Zeile rutschen, wenn sie nicht passen?",
+   "¿A qué le debemos que los elementos flex pasen a la línea siguiente cuando no caben?"
+  ],
+  "flex-wrap: wrap; lets elements that do not fit move to a new line!": [
+   "flex-wrap: wrap; lässt Elemente, die nicht passen, in eine neue Zeile rutschen!",
+   "¡flex-wrap: wrap; deja que los elementos que no caben pasen a una línea nueva!"
+  ],
+  "gap: Space Between Items": [
+   "gap: Abstand zwischen den Elementen",
+   "gap: espacio entre los elementos"
+  ],
+  "To put equal space between flex items we now use gap instead of margin:\\n\\n.container {\\n  display: flex;\\n  gap: 16px;\\n}\\n\\nMuch cleaner and easier - you do not have to give every element its own margin!": [
+   "Für gleiche Abstände zwischen Flex-Elementen nehmen wir heute gap statt margin:\\n\\n.container {\\n  display: flex;\\n  gap: 16px;\\n}\\n\\nViel sauberer und leichter – du musst nicht jedem Element sein eigenes margin geben!",
+   "Para poner el mismo espacio entre los elementos flex hoy usamos gap en lugar de margin:\\n\\n.container {\\n  display: flex;\\n  gap: 16px;\\n}\\n\\n¡Mucho más limpio y más fácil: no tienes que darle a cada elemento su propio margin!"
+  ],
+  "gap works with both flexbox and grid!": [
+   "gap funktioniert sowohl mit Flexbox als auch mit Grid!",
+   "¡gap funciona tanto con flexbox como con grid!"
+  ],
+  "Match each property with its purpose!": [
+   "Ordne jede Eigenschaft ihrem Zweck zu!",
+   "¡Relaciona cada propiedad con su función!"
+  ],
+  "You fully grasped the Flexbox properties!": [
+   "Du hast die Flexbox-Eigenschaften vollständig verstanden!",
+   "¡Has entendido del todo las propiedades de Flexbox!"
+  ],
+  "Mini Project: A Card Gallery": [
+   "Mini-Projekt: eine Kartengalerie",
+   "Miniproyecto: una galería de tarjetas"
+  ],
+  "Build a card gallery that lines up side by side and wraps onto new lines using Flexbox!": [
+   "Baue mit Flexbox eine Kartengalerie, die sich nebeneinander anordnet und in neue Zeilen umbricht!",
+   "¡Construye con Flexbox una galería de tarjetas que se alineen una al lado de otra y salten a líneas nuevas!"
+  ],
+  "Flexbox Master!": [
+   "Flexbox-Meister!",
+   "¡Maestro de Flexbox!"
+  ],
+  "🔄 You have full control of Flexbox!\\n\\n✓ flex-direction\\n✓ flex-wrap\\n✓ gap\\n\\nNext module: interaction and the final project!": [
+   "🔄 Du hast Flexbox voll im Griff!\\n\\n✓ flex-direction\\n✓ flex-wrap\\n✓ gap\\n\\nNächstes Modul: Interaktion und das Abschlussprojekt!",
+   "🔄 ¡Controlas Flexbox por completo!\\n\\n✓ flex-direction\\n✓ flex-wrap\\n✓ gap\\n\\nSiguiente módulo: ¡la interacción y el proyecto final!"
+  ],
+  "You earned the Flexbox Master badge!": [
+   "Du hast das Abzeichen «Flexbox-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de Flexbox!"
+  ],
+  "Hover and Transitions": [
+   "Hover und Übergänge",
+   "Hover y transiciones"
+  ],
+  "Bring your page to life": [
+   "Erwecke deine Seite zum Leben",
+   "Dale vida a tu página"
+  ],
+  "Have you ever noticed something change when the mouse moves onto a button? That is called a hover effect. Now we are going to build one!": [
+   "Ist dir schon mal aufgefallen, dass sich etwas ändert, wenn die Maus auf einen Knopf fährt? Das nennt man einen Hover-Effekt. Jetzt bauen wir einen!",
+   "¿Te has fijado alguna vez en que algo cambia cuando el ratón se pone encima de un botón? A eso se le llama efecto hover. ¡Ahora vamos a crear uno!"
+  ],
+  "The :hover Pseudo-class": [
+   "Die Pseudoklasse :hover",
+   "La pseudoclase :hover"
+  ],
+  "To change the style when the mouse moves over an element:\\n\\nbutton:hover {\\n  background-color: darkblue;\\n}\\n\\nThis style applies ONLY while the mouse is on it!": [
+   "So änderst du die Gestaltung, wenn die Maus über ein Element fährt:\\n\\nbutton:hover {\\n  background-color: darkblue;\\n}\\n\\nDiese Gestaltung gilt NUR, solange die Maus darauf ist!",
+   "Para cambiar el estilo cuando el ratón pasa por encima de un elemento:\\n\\nbutton:hover {\\n  background-color: darkblue;\\n}\\n\\n¡Este estilo se aplica SOLO mientras el ratón está encima!"
+  ],
+  ":hover is used a lot on buttons, links and cards!": [
+   ":hover wird oft bei Knöpfen, Links und Karten benutzt!",
+   "¡:hover se usa mucho en botones, enlaces y tarjetas!"
+  ],
+  "What is used to change the style when the mouse moves onto a button?": [
+   "Was benutzt man, um die Gestaltung zu ändern, wenn die Maus auf einen Knopf fährt?",
+   "¿Qué se usa para cambiar el estilo cuando el ratón se pone sobre un botón?"
+  ],
+  ":hover is a special selector that kicks in while the mouse is over an element!": [
+   ":hover ist ein besonderer Selektor, der greift, solange die Maus über einem Element ist!",
+   "¡:hover es un selector especial que se activa mientras el ratón está sobre un elemento!"
+  ],
+  "transition: A Smooth Change": [
+   "transition: ein sanfter Wechsel",
+   "transition: un cambio suave"
+  ],
+  "A colour that changes instantly looks harsh. transition smooths it out:\\n\\nbutton {\\n  background-color: blue;\\n  transition: background-color 0.3s;\\n}\\nbutton:hover {\\n  background-color: darkblue;\\n}\\n\\nNow the colour change takes a smooth 0.3 seconds!": [
+   "Eine Farbe, die sofort umspringt, wirkt hart. transition macht es sanft:\\n\\nbutton {\\n  background-color: blue;\\n  transition: background-color 0.3s;\\n}\\nbutton:hover {\\n  background-color: darkblue;\\n}\\n\\nJetzt dauert der Farbwechsel sanfte 0,3 Sekunden!",
+   "Un color que cambia de golpe queda brusco. transition lo suaviza:\\n\\nbutton {\\n  background-color: blue;\\n  transition: background-color 0.3s;\\n}\\nbutton:hover {\\n  background-color: darkblue;\\n}\\n\\n¡Ahora el cambio de color tarda unos suaves 0,3 segundos!"
+  ],
+  "What does \"transition: all 0.5s;\" mean?": [
+   "Was bedeutet \"transition: all 0.5s;\"?",
+   "¿Qué significa \"transition: all 0.5s;\"?"
+  ],
+  "transition: all 0.5s; - \"all\" covers every property, and 0.5s is how long the change takes!": [
+   "transition: all 0.5s; – \"all\" umfasst jede Eigenschaft, und 0.5s ist die Dauer des Wechsels!",
+   "transition: all 0.5s; «all» abarca todas las propiedades, y 0.5s es lo que dura el cambio."
+  ],
+  "transform: Growing With scale": [
+   "transform: mit scale größer werden",
+   "transform: crecer con scale"
+  ],
+  "Growing an element on hover is a very common effect:\\n\\n.card:hover {\\n  transform: scale(1.05);\\n}\\n\\nThis makes the card 5% bigger when you point at it - it tells the user \"you can click me\"!": [
+   "Ein Element beim Hover größer zu machen ist ein sehr häufiger Effekt:\\n\\n.card:hover {\\n  transform: scale(1.05);\\n}\\n\\nDie Karte wird 5 % größer, wenn du darauf zeigst – das sagt dem Nutzer «du kannst mich anklicken»!",
+   "Hacer que un elemento crezca al pasar el ratón es un efecto muy común:\\n\\n.card:hover {\\n  transform: scale(1.05);\\n}\\n\\n¡Esto hace la tarjeta un 5 % más grande cuando apuntas a ella: le dice al usuario «puedes hacer clic en mí»!"
+  ],
+  "transform: scale(1.05) + transition = professional looking cards!": [
+   "transform: scale(1.05) + transition = professionell aussehende Karten!",
+   "transform: scale(1.05) + transition = ¡tarjetas con aspecto profesional!"
+  ],
+  "Drag each property onto its correct description": [
+   "Zieh jede Eigenschaft auf ihre richtige Beschreibung",
+   "Arrastra cada propiedad a su descripción correcta"
+  ],
+  "You fully grasped the interaction properties!": [
+   "Du hast die Interaktions-Eigenschaften vollständig verstanden!",
+   "¡Has entendido del todo las propiedades de interacción!"
+  ],
+  "Interaction Designer!": [
+   "Interaktions-Designer!",
+   "¡Diseñador de interacción!"
+  ],
+  "✨ You learned how to bring your page to life!\\n\\n✓ Reacting with :hover\\n✓ Smooth changes with transition\\n✓ Growing with transform: scale\\n\\nNext up: simple animations!": [
+   "✨ Du hast gelernt, deine Seite zum Leben zu erwecken!\\n\\n✓ Mit :hover reagieren\\n✓ Sanfte Wechsel mit transition\\n✓ Größer werden mit transform: scale\\n\\nAls Nächstes: einfache Animationen!",
+   "✨ ¡Aprendiste a darle vida a tu página!\\n\\n✓ Reaccionar con :hover\\n✓ Cambios suaves con transition\\n✓ Crecer con transform: scale\\n\\nSiguiente: ¡animaciones sencillas!"
+  ],
+  "You earned the Interaction Designer badge!": [
+   "Du hast das Abzeichen «Interaktions-Designer» verdient!",
+   "¡Has ganado la insignia Diseñador de Interacción!"
+  ],
+  "Simple Animations": [
+   "Einfache Animationen",
+   "Animaciones sencillas"
+  ],
+  "Motion with @keyframes": [
+   "Bewegung mit @keyframes",
+   "Movimiento con @keyframes"
+  ],
+  "We can do more than hover: animations that run all by themselves! We are going to do magic with @keyframes.": [
+   "Wir können mehr als Hover: Animationen, die ganz von allein laufen! Mit @keyframes zaubern wir.",
+   "Podemos hacer más que hover: ¡animaciones que se ejecutan solas! Vamos a hacer magia con @keyframes."
+  ],
+  "What Is @keyframes?": [
+   "Was ist @keyframes?",
+   "¿Qué es @keyframes?"
+  ],
+  "@keyframes defines the steps of an animation:\\n\\n@keyframes spin {\\n  from { transform: rotate(0deg); }\\n  to { transform: rotate(360deg); }\\n}\\n\\nThis defines an animation called \"spin\": turning from 0 to 360 degrees!": [
+   "@keyframes legt die Schritte einer Animation fest:\\n\\n@keyframes spin {\\n  from { transform: rotate(0deg); }\\n  to { transform: rotate(360deg); }\\n}\\n\\nDas legt eine Animation namens \"spin\" fest: eine Drehung von 0 auf 360 Grad!",
+   "@keyframes define los pasos de una animación:\\n\\n@keyframes spin {\\n  from { transform: rotate(0deg); }\\n  to { transform: rotate(360deg); }\\n}\\n\\n¡Esto define una animación llamada \"spin\": girar de 0 a 360 grados!"
+  ],
+  "Instead of from/to you can also use percentages like 0%, 50%, 100%!": [
+   "Statt from/to kannst du auch Prozentwerte wie 0%, 50%, 100% benutzen!",
+   "¡En lugar de from/to también puedes usar porcentajes como 0%, 50%, 100%!"
+  ],
+  "What is used to define the steps of an animation?": [
+   "Womit legt man die Schritte einer Animation fest?",
+   "¿Qué se usa para definir los pasos de una animación?"
+  ],
+  "With @keyframes you define the steps of the animation from beginning to end!": [
+   "Mit @keyframes legst du die Schritte der Animation von Anfang bis Ende fest!",
+   "¡Con @keyframes defines los pasos de la animación de principio a fin!"
+  ],
+  "Hooking It Up With the animation Property": [
+   "Mit der Eigenschaft animation anhängen",
+   "Engancharla con la propiedad animation"
+  ],
+  "To hook the @keyframes you defined onto an element:\\n\\n.spinner {\\n  animation: spin 2s linear infinite;\\n}\\n\\nThe values are: name, duration (2s), speed (linear), repeat (infinite = forever)": [
+   "So hängst du die festgelegten @keyframes an ein Element:\\n\\n.spinner {\\n  animation: spin 2s linear infinite;\\n}\\n\\nDie Werte sind: Name, Dauer (2s), Tempo (linear), Wiederholung (infinite = endlos)",
+   "Para enganchar a un elemento los @keyframes que has definido:\\n\\n.spinner {\\n  animation: spin 2s linear infinite;\\n}\\n\\nLos valores son: nombre, duración (2s), velocidad (linear), repetición (infinite = sin fin)"
+  ],
+  "\"animation: spin 2s linear infinite;\" - what does \"infinite\" mean?": [
+   "\"animation: spin 2s linear infinite;\" – was bedeutet \"infinite\"?",
+   "\"animation: spin 2s linear infinite;\" ¿qué significa \"infinite\"?"
+  ],
+  "infinite makes the animation repeat forever without stopping!": [
+   "infinite lässt die Animation endlos wiederholen, ohne anzuhalten!",
+   "¡infinite hace que la animación se repita sin parar!"
+  ],
+  "Multi-step Animation With Percentages": [
+   "Mehrschrittige Animation mit Prozentwerten",
+   "Animación de varios pasos con porcentajes"
+  ],
+  "For more complex animations we use percentages:\\n\\n@keyframes bounce {\\n  0%   { transform: translateY(0); }\\n  50%  { transform: translateY(-20px); }\\n  100% { transform: translateY(0); }\\n}\\n\\nThis makes the element hop up and come back down!": [
+   "Für aufwendigere Animationen nehmen wir Prozentwerte:\\n\\n@keyframes bounce {\\n  0%   { transform: translateY(0); }\\n  50%  { transform: translateY(-20px); }\\n  100% { transform: translateY(0); }\\n}\\n\\nDamit hüpft das Element hoch und kommt wieder herunter!",
+   "Para animaciones más complejas usamos porcentajes:\\n\\n@keyframes bounce {\\n  0%   { transform: translateY(0); }\\n  50%  { transform: translateY(-20px); }\\n  100% { transform: translateY(0); }\\n}\\n\\n¡Esto hace que el elemento dé un salto y vuelva a bajar!"
+  ],
+  "With percentages you can add as many in-between steps as you like (0%, 25%, 50%, 75%, 100%)!": [
+   "Mit Prozentwerten kannst du beliebig viele Zwischenschritte einbauen (0 %, 25 %, 50 %, 75 %, 100 %)!",
+   "¡Con los porcentajes puedes añadir tantos pasos intermedios como quieras (0 %, 25 %, 50 %, 75 %, 100 %)!"
+  ],
+  "Put a simple spin animation in the right order": [
+   "Bring eine einfache Dreh-Animation in die richtige Reihenfolge",
+   "Pon en el orden correcto una animación de giro sencilla"
+  ],
+  "Define the keyframes animation called spin": [
+   "Lege die keyframes-Animation namens spin fest",
+   "Define la animación de keyframes llamada spin"
+  ],
+  "Animation Wizard!": [
+   "Animations-Zauberer!",
+   "¡Mago de las animaciones!"
+  ],
+  "🎬 You can create your own animations!\\n\\n✓ Defining @keyframes\\n✓ Hooking it up with the animation property\\n✓ Multi-step movement with percentages\\n\\nNext up: the final project that puts it all together!": [
+   "🎬 Du kannst eigene Animationen bauen!\\n\\n✓ @keyframes festlegen\\n✓ Mit der Eigenschaft animation anhängen\\n✓ Mehrschrittige Bewegung mit Prozentwerten\\n\\nAls Nächstes: das Abschlussprojekt, das alles zusammenbringt!",
+   "🎬 ¡Puedes crear tus propias animaciones!\\n\\n✓ Definir @keyframes\\n✓ Engancharla con la propiedad animation\\n✓ Movimiento de varios pasos con porcentajes\\n\\nSiguiente: ¡el proyecto final que lo junta todo!"
+  ],
+  "You earned the Animation Wizard badge!": [
+   "Du hast das Abzeichen «Animations-Zauberer» verdient!",
+   "¡Has ganado la insignia Mago de las Animaciones!"
+  ],
+  "Final Project: Profile Card": [
+   "Abschlussprojekt: Profilkarte",
+   "Proyecto final: tarjeta de perfil"
+  ],
+  "Bring everything together!": [
+   "Bring alles zusammen!",
+   "¡Júntalo todo!"
+  ],
+  "Well done for getting this far! Now we are going to use EVERYTHING you learned to design a beautiful profile card!": [
+   "Gut gemacht, dass du so weit gekommen bist! Jetzt benutzen wir ALLES, was du gelernt hast, um eine schöne Profilkarte zu gestalten!",
+   "¡Muy bien por haber llegado hasta aquí! ¡Ahora vamos a usar TODO lo que has aprendido para diseñar una tarjeta de perfil bonita!"
+  ],
+  "The Project Plan": [
+   "Der Projektplan",
+   "El plan del proyecto"
+  ],
+  "🎯 The goal: a stylish profile card\\n\\n📦 Box model: padding, border-radius\\n🧲 Flexbox: centre the content\\n✨ Hover: the card grows when you point at it\\n🎬 Transition: a smooth animation\\n\\nWe are going to combine all of it!": [
+   "🎯 Das Ziel: eine schicke Profilkarte\\n\\n📦 Box-Modell: padding, border-radius\\n🧲 Flexbox: den Inhalt zentrieren\\n✨ Hover: die Karte wird größer, wenn du darauf zeigst\\n🎬 Transition: eine sanfte Animation\\n\\nAll das bringen wir zusammen!",
+   "🎯 El objetivo: una tarjeta de perfil con estilo\\n\\n📦 Modelo de caja: padding, border-radius\\n🧲 Flexbox: centrar el contenido\\n✨ Hover: la tarjeta crece cuando apuntas a ella\\n🎬 Transition: una animación suave\\n\\n¡Vamos a combinarlo todo!"
+  ],
+  "Step 1: The Card Structure": [
+   "Schritt 1: der Aufbau der Karte",
+   "Paso 1: la estructura de la tarjeta"
+  ],
+  "First let\\'s build the basic card box:\\n\\n.profile-card {\\n  width: 280px;\\n  padding: 24px;\\n  border-radius: 16px;\\n  background-color: white;\\n  box-shadow: 0px 4px 20px rgba(0,0,0,0.1);\\n}": [
+   "Bauen wir zuerst die Grundbox der Karte:\\n\\n.profile-card {\\n  width: 280px;\\n  padding: 24px;\\n  border-radius: 16px;\\n  background-color: white;\\n  box-shadow: 0px 4px 20px rgba(0,0,0,0.1);\\n}",
+   "Construyamos primero la caja básica de la tarjeta:\\n\\n.profile-card {\\n  width: 280px;\\n  padding: 24px;\\n  border-radius: 16px;\\n  background-color: white;\\n  box-shadow: 0px 4px 20px rgba(0,0,0,0.1);\\n}"
+  ],
+  ".profile-card {\\n  width: 280px;\\n  padding: 24px;\\n  border-radius: 16px;\\n}": [
+   ".profile-card {\\n  width: 280px;\\n  padding: 24px;\\n  border-radius: 16px;\\n}",
+   ".profile-card {\\n  width: 280px;\\n  padding: 24px;\\n  border-radius: 16px;\\n}"
+  ],
+  "Step 2: Centre the Content": [
+   "Schritt 2: den Inhalt zentrieren",
+   "Paso 2: centrar el contenido"
+  ],
+  "Let\\'s centre the picture and the text inside the card with Flexbox:\\n\\n.profile-card {\\n  display: flex;\\n  flex-direction: column;\\n  align-items: center;\\n  text-align: center;\\n}": [
+   "Zentrieren wir Bild und Text in der Karte mit Flexbox:\\n\\n.profile-card {\\n  display: flex;\\n  flex-direction: column;\\n  align-items: center;\\n  text-align: center;\\n}",
+   "Centremos la imagen y el texto dentro de la tarjeta con Flexbox:\\n\\n.profile-card {\\n  display: flex;\\n  flex-direction: column;\\n  align-items: center;\\n  text-align: center;\\n}"
+  ],
+  "Which two do we have to use together to stack the elements in a card vertically and centre them?": [
+   "Welche zwei müssen wir zusammen benutzen, um die Elemente in einer Karte senkrecht zu stapeln und zu zentrieren?",
+   "¿Qué dos cosas tenemos que usar juntas para apilar en vertical y centrar los elementos de una tarjeta?"
+  ],
+  "Stack them with flex-direction: column and centre them with align-items: center!": [
+   "Mit flex-direction: column stapeln und mit align-items: center zentrieren!",
+   "¡Apilarlos con flex-direction: column y centrarlos con align-items: center!"
+  ],
+  "Step 3: Add a Hover Effect": [
+   "Schritt 3: einen Hover-Effekt hinzufügen",
+   "Paso 3: añadir un efecto hover"
+  ],
+  "Finally, let\\'s give the card some life:\\n\\n.profile-card {\\n  transition: transform 0.3s;\\n}\\n.profile-card:hover {\\n  transform: scale(1.03);\\n  box-shadow: 0px 8px 30px rgba(0,0,0,0.15);\\n}\\n\\nNow the card grows smoothly when you point at it!": [
+   "Zum Schluss geben wir der Karte etwas Leben:\\n\\n.profile-card {\\n  transition: transform 0.3s;\\n}\\n.profile-card:hover {\\n  transform: scale(1.03);\\n  box-shadow: 0px 8px 30px rgba(0,0,0,0.15);\\n}\\n\\nJetzt wird die Karte sanft größer, wenn du darauf zeigst!",
+   "Por último, démosle algo de vida a la tarjeta:\\n\\n.profile-card {\\n  transition: transform 0.3s;\\n}\\n.profile-card:hover {\\n  transform: scale(1.03);\\n  box-shadow: 0px 8px 30px rgba(0,0,0,0.15);\\n}\\n\\n¡Ahora la tarjeta crece suavemente cuando apuntas a ella!"
+  ],
+  "Out in the real world plenty of sites (Instagram, Airbnb, Twitter) do exactly this!": [
+   "Draußen in der echten Welt machen viele Seiten (Instagram, Airbnb, Twitter) genau das!",
+   "¡Ahí fuera, en el mundo real, un montón de sitios (Instagram, Airbnb, Twitter) hacen exactamente esto!"
+  ],
+  "Final Project: The Complete Profile Card": [
+   "Abschlussprojekt: die vollständige Profilkarte",
+   "Proyecto final: la tarjeta de perfil completa"
+  ],
+  "Combine every CSS topic you learned and build a complete profile card!": [
+   "Verbinde alle CSS-Themen, die du gelernt hast, und baue eine vollständige Profilkarte!",
+   "¡Combina todos los temas de CSS que has aprendido y construye una tarjeta de perfil completa!"
+  ],
+  "🎓 YOU ARE A CSS GRADUATE!": [
+   "🎓 DU BIST CSS-ABSOLVENT!",
+   "🎓 ¡ERES GRADUADO EN CSS!"
+  ],
+  "🎉🎨🎉 YOU FINISHED THE CSS COURSE!\\n\\n✓ Selectors and properties\\n✓ The box model\\n✓ Modern layout with Flexbox\\n✓ Hover, transition and animations\\n✓ You designed a real profile card\\n\\nYou can make any web page look good now!": [
+   "🎉🎨🎉 DU HAST DEN CSS-KURS GESCHAFFT!\\n\\n✓ Selektoren und Eigenschaften\\n✓ Das Box-Modell\\n✓ Modernes Layout mit Flexbox\\n✓ Hover, transition und Animationen\\n✓ Du hast eine echte Profilkarte gestaltet\\n\\nJetzt kannst du jede Webseite gut aussehen lassen!",
+   "🎉🎨🎉 ¡HAS TERMINADO EL CURSO DE CSS!\\n\\n✓ Selectores y propiedades\\n✓ El modelo de caja\\n✓ Disposición moderna con Flexbox\\n✓ Hover, transition y animaciones\\n✓ Has diseñado una tarjeta de perfil de verdad\\n\\n¡Ya puedes poner guapa cualquier página web!"
+  ],
+  "You earned the CSS Graduate badge! Now you can use these skills on real projects.": [
+   "Du hast das Abzeichen «CSS-Absolvent» verdient! Diese Fähigkeiten kannst du jetzt in echten Projekten einsetzen.",
+   "¡Has ganado la insignia Graduado en CSS! Ya puedes usar estas habilidades en proyectos de verdad."
+  ],
+  "You stepped into the world of CSS!": [
+   "Du bist in die Welt von CSS eingestiegen!",
+   "¡Has entrado en el mundo de CSS!"
+  ],
+  "You learned colours and fonts!": [
+   "Du hast Farben und Schriften gelernt!",
+   "¡Aprendiste los colores y las tipografías!"
+  ],
+  "You mastered element, class and ID selectors!": [
+   "Du beherrschst Element-, Klassen- und ID-Selektoren!",
+   "¡Dominas los selectores de elemento, clase e ID!"
+  ],
+  "You fully grasped the box model!": [
+   "Du hast das Box-Modell vollständig verstanden!",
+   "¡Has entendido del todo el modelo de caja!"
+  ],
+  "You became a width, height and box-sizing expert!": [
+   "Du bist Experte für width, height und box-sizing geworden!",
+   "¡Te has convertido en experto de width, height y box-sizing!"
+  ],
+  "You designed a card with border-radius and box-shadow!": [
+   "Du hast eine Karte mit border-radius und box-shadow gestaltet!",
+   "¡Has diseñado una tarjeta con border-radius y box-shadow!"
+  ],
+  "You learned the display and position concepts!": [
+   "Du hast die Begriffe display und position gelernt!",
+   "¡Aprendiste los conceptos de display y position!"
+  ],
+  "You took your first steps with Flexbox!": [
+   "Du hast deine ersten Schritte mit Flexbox gemacht!",
+   "¡Diste tus primeros pasos con Flexbox!"
+  ],
+  "You can build any kind of layout with Flexbox!": [
+   "Du kannst mit Flexbox jedes Layout bauen!",
+   "¡Puedes construir cualquier disposición con Flexbox!"
+  ],
+  "You added hover and transition effects!": [
+   "Du hast Hover- und transition-Effekte eingebaut!",
+   "¡Has añadido efectos de hover y transition!"
+  ],
+  "You created your own animation with @keyframes!": [
+   "Du hast mit @keyframes deine eigene Animation gebaut!",
+   "¡Has creado tu propia animación con @keyframes!"
+  ],
+  "You finished the whole CSS course and the final project!": [
+   "Du hast den ganzen CSS-Kurs und das Abschlussprojekt geschafft!",
+   "¡Has terminado todo el curso de CSS y el proyecto final!"
+  ]
+ },
+ "listeler": [
+  {
+   "en": [
+    "Colours and fonts",
+    "Size and layout",
+    "Make the page look good"
+   ],
+   "de": [
+    "Farben und Schriften",
+    "Größe und Layout",
+    "Die Seite schön machen"
+   ],
+   "es": [
+    "Colores y tipografías",
+    "Tamaño y disposición",
+    "Hacer que la página se vea bien"
+   ]
+  }
+ ]
+}

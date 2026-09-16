@@ -1,0 +1,1571 @@
+{
+ "metinler": {
+  "Welcome to Arduino!": [
+   "Willkommen bei Arduino!",
+   "¡Bienvenido a Arduino!"
+  ],
+  "Block-by-block coding with mBlock": [
+   "Blockweises Programmieren mit mBlock",
+   "Programar bloque a bloque con mBlock"
+  ],
+  "Hi! With Arduino we are going to control the real world - light up an LED, sound a buzzer, read a sensor. And without writing a single line of code: you just drag blocks!": [
+   "Hallo! Mit Arduino steuern wir die echte Welt – eine LED leuchten lassen, einen Summer piepen lassen, einen Sensor lesen. Und ohne eine einzige Zeile Code zu schreiben: Du ziehst einfach Blöcke!",
+   "¡Hola! Con Arduino vamos a controlar el mundo real: encender un LED, hacer sonar un zumbador, leer un sensor. ¡Y sin escribir ni una línea de código: solo arrastras bloques!"
+  ],
+  "What Are Arduino and mBlock?": [
+   "Was sind Arduino und mBlock?",
+   "¿Qué son Arduino y mBlock?"
+  ],
+  "Arduino is a small computer (a microcontroller board) that lets you build electronics projects easily.\\n\\nmBlock is the program that lets you code the Arduino by dragging colourful blocks, very much like Scratch. So we are NOT writing C++ code (lines like pinMode, digitalWrite) — we connect ready-made blocks and upload them to the board!": [
+   "Arduino ist ein kleiner Computer (eine Mikrocontroller-Platine), mit dem du leicht Elektronikprojekte bauen kannst.\\n\\nmBlock ist das Programm, mit dem du den Arduino programmierst, indem du bunte Blöcke ziehst – sehr ähnlich wie Scratch. Wir schreiben also KEINEN C++-Code (Zeilen wie pinMode, digitalWrite) – wir stecken fertige Blöcke zusammen und laden sie auf die Platine!",
+   "Arduino es un ordenador pequeño (una placa microcontroladora) que te permite construir proyectos de electrónica fácilmente.\\n\\nmBlock es el programa que te deja programar el Arduino arrastrando bloques de colores, muy parecido a Scratch. Así que NO vamos a escribir código C++ (líneas como pinMode, digitalWrite): ¡unimos bloques ya hechos y los subimos a la placa!"
+  ],
+  "Everything you know from Scratch still applies here — the blocks just control real LEDs, buttons and sensors now!": [
+   "Alles, was du aus Scratch kennst, gilt auch hier – die Blöcke steuern jetzt nur echte LEDs, Taster und Sensoren!",
+   "¡Todo lo que sabes de Scratch sigue valiendo aquí: solo que ahora los bloques controlan LEDs, botones y sensores de verdad!"
+  ],
+  "Why Do an LED and a Resistor Go Together?": [
+   "Warum gehören eine LED und ein Widerstand zusammen?",
+   "¿Por qué van juntos un LED y una resistencia?"
+  ],
+  "An LED (Light Emitting Diode) is a component that gives off light. It has two legs:\\n\\nLong leg (+) -> to a digital pin on the Arduino\\nShort leg (-) -> to GND (ground)\\n\\nOne important point: Arduino pins send 5V, but LEDs run on about 3V. To balance the extra 2V we put a RESISTOR (220 ohm) between the LED and GND — otherwise the LED can burn out!": [
+   "Eine LED (Light Emitting Diode) ist ein Bauteil, das Licht abgibt. Sie hat zwei Beine:\\n\\nLanges Bein (+) -> an einen Digitalpin des Arduino\\nKurzes Bein (-) -> an GND (Masse)\\n\\nEin wichtiger Punkt: Arduino-Pins geben 5V, aber LEDs laufen mit etwa 3V. Um die zusätzlichen 2V auszugleichen, setzen wir einen WIDERSTAND (220 Ohm) zwischen LED und GND – sonst kann die LED durchbrennen!",
+   "Un LED (Light Emitting Diode) es un componente que emite luz. Tiene dos patas:\\n\\nPata larga (+) -> a un pin digital del Arduino\\nPata corta (-) -> a GND (tierra)\\n\\nUn punto importante: los pines del Arduino dan 5V, pero los LEDs funcionan con unos 3V. Para equilibrar los 2V de más ponemos una RESISTENCIA (220 ohmios) entre el LED y GND; ¡si no, el LED puede quemarse!"
+  ],
+  "You can think of the resistor as a \"fuse\" that protects the LED from too much current!": [
+   "Du kannst dir den Widerstand als «Sicherung» vorstellen, die die LED vor zu viel Strom schützt!",
+   "¡Puedes pensar en la resistencia como un «fusible» que protege al LED de un exceso de corriente!"
+  ],
+  "Why do we add a resistor to an LED circuit?": [
+   "Warum fügen wir einer LED-Schaltung einen Widerstand hinzu?",
+   "¿Por qué añadimos una resistencia a un circuito con LED?"
+  ],
+  "Arduino sends 5V but an LED wants about 3V — the resistor balances the extra energy and protects the LED!": [
+   "Arduino gibt 5V, aber eine LED will etwa 3V – der Widerstand gleicht die zusätzliche Energie aus und schützt die LED!",
+   "¡El Arduino da 5V pero un LED quiere unos 3V: la resistencia equilibra la energía de más y protege al LED!"
+  ],
+  "How Does Every mBlock Project Start?": [
+   "Wie beginnt jedes mBlock-Projekt?",
+   "¿Cómo empieza todo proyecto de mBlock?"
+  ],
+  "There are two ways to start a project in mBlock:\\n\\n🟩 \"when ⚑ clicked\" (Events tab) — runs while the board is connected to the computer\\n🤖 \"when Arduino Uno starts up\" (Events tab, upload mode) — written into the board and runs on its own\\n\\nFor permanent projects we use the second one.": [
+   "Es gibt zwei Wege, ein Projekt in mBlock zu starten:\\n\\n🟩 «Wenn die grüne Flagge angeklickt wird» (Ereignisse) – läuft, solange die Platine mit dem Computer verbunden ist\\n🤖 «wenn Arduino Uno startet» (Ereignisse, Upload-Modus) – wird in die Platine geschrieben und läuft von allein\\n\\nFür dauerhafte Projekte nehmen wir den zweiten.",
+   "Hay dos formas de empezar un proyecto en mBlock:\\n\\n🟩 «al hacer clic en la bandera verde» (Eventos): funciona mientras la placa esté conectada al ordenador\\n🤖 «cuando Arduino Uno se inicia» (Eventos, modo de subida): se escribe en la placa y funciona solo\\n\\nPara los proyectos permanentes usamos el segundo."
+  ],
+  "when green flag clicked": [
+   "Wenn die grüne Flagge angeklickt wird",
+   "al hacer clic en la bandera verde"
+  ],
+  "Starter block (Events)": [
+   "Startblock (Ereignisse)",
+   "Bloque de inicio (Eventos)"
+  ],
+  "forever": [
+   "wiederhole fortlaufend",
+   "por siempre"
+  ],
+  "Control block": [
+   "Block aus Steuerung",
+   "Bloque de Control"
+  ],
+  "Which starting block is used when uploading code permanently to the Arduino?": [
+   "Welcher Startblock wird benutzt, wenn der Code dauerhaft auf den Arduino geladen wird?",
+   "¿Qué bloque de inicio se usa al subir el código de forma permanente al Arduino?"
+  ],
+  "The \"when Arduino Uno starts up\" block is in the Events category and is used for permanent uploads!": [
+   "Der Block «wenn Arduino Uno startet» liegt in der Kategorie Ereignisse und wird für dauerhafte Uploads benutzt!",
+   "¡El bloque «cuando Arduino Uno se inicia» está en la categoría Eventos y se usa para las subidas permanentes!"
+  ],
+  "Arduino Starter!": [
+   "Arduino-Einsteiger!",
+   "¡Principiante de Arduino!"
+  ],
+  "🤖 Welcome to the world of Arduino and mBlock!\\n\\n✓ You learned what Arduino and mBlock are\\n✓ You understand the LED + resistor idea\\n✓ You met the starting blocks\\n\\nNext: your first LED project!": [
+   "🤖 Willkommen in der Welt von Arduino und mBlock!\\n\\n✓ Du weißt, was Arduino und mBlock sind\\n✓ Du verstehst die Sache mit LED + Widerstand\\n✓ Du hast die Startblöcke kennengelernt\\n\\nAls Nächstes: dein erstes LED-Projekt!",
+   "🤖 ¡Bienvenido al mundo de Arduino y mBlock!\\n\\n✓ Aprendiste qué son Arduino y mBlock\\n✓ Entiendes la idea del LED + resistencia\\n✓ Conociste los bloques de inicio\\n\\nSiguiente: ¡tu primer proyecto con LED!"
+  ],
+  "You earned the Arduino Starter badge!": [
+   "Du hast das Abzeichen «Arduino-Einsteiger» verdient!",
+   "¡Has ganado la insignia Principiante de Arduino!"
+  ],
+  "Your First LED Project": [
+   "Dein erstes LED-Projekt",
+   "Tu primer proyecto con LED"
+  ],
+  "Turn an LED on and off with mBlock blocks!": [
+   "Schalte eine LED mit mBlock-Blöcken an und aus!",
+   "¡Enciende y apaga un LED con bloques de mBlock!"
+  ],
+  "So far we have only talked. Now we are going to switch a real LED on and off with mBlock blocks!": [
+   "Bisher haben wir nur geredet. Jetzt schalten wir eine echte LED mit mBlock-Blöcken an und aus!",
+   "¡Hasta ahora solo hemos hablado. Ahora vamos a encender y apagar un LED de verdad con bloques de mBlock!"
+  ],
+  "Digital Output Blocks": [
+   "Blöcke für den Digitalausgang",
+   "Bloques de salida digital"
+  ],
+  "In mBlock the Pin category has ready-made blocks for turning a pin on and off:\\n\\n\"set digital pin 9 output as high\" -> turns the LED on\\n\"set digital pin 9 output as low\" -> turns the LED off": [
+   "In mBlock hat die Kategorie Pin fertige Blöcke, um einen Pin an- und auszuschalten:\\n\\n«digitalen Pin von Ausgang 9 als hoch setzen» -> schaltet die LED an\\n«digitalen Pin von Ausgang 9 als niedrig setzen» -> schaltet die LED aus",
+   "En mBlock la categoría Pin tiene bloques listos para encender y apagar un pin:\\n\\n«pon el pin digital 9 a alto» -> enciende el LED\\n«pon el pin digital 9 a bajo» -> apaga el LED"
+  ],
+  "set digital pin 9 output as high": [
+   "digitalen Pin von Ausgang 9 als hoch setzen",
+   "pon el pin digital 9 a alto"
+  ],
+  "Pin - digital output": [
+   "Pin – Digitalausgang",
+   "Pin: salida digital"
+  ],
+  "HIGH = pin on (5V), LOW = pin off (0V)": [
+   "hoch = Pin an (5V), niedrig = Pin aus (0V)",
+   "alto = pin encendido (5V), bajo = pin apagado (0V)"
+  ],
+  "Which block do we use to light the LED on pin 9?": [
+   "Welchen Block benutzen wir, um die LED an Pin 9 leuchten zu lassen?",
+   "¿Qué bloque usamos para encender el LED del pin 9?"
+  ],
+  "The \"set digital pin 9 output as high\" block lights the LED connected to that pin!": [
+   "Der Block «digitalen Pin von Ausgang 9 als hoch setzen» lässt die LED an diesem Pin leuchten!",
+   "¡El bloque «pon el pin digital 9 a alto» enciende el LED conectado a ese pin!"
+  ],
+  "The \"wait\" Block": [
+   "Der Block «warte»",
+   "El bloque «esperar»"
+  ],
+  "To control how long the LED stays on, use the \"wait\" block from the Control category:\\n\\n\"wait 1 seconds\"\\n\\nWithout it the LED switches thousands of times a second and your eye just sees it dimly on.": [
+   "Um zu steuern, wie lange die LED anbleibt, nimm den Block «warte» aus der Kategorie Steuerung:\\n\\n«warte 1 Sekunden»\\n\\nOhne ihn schaltet die LED tausende Male pro Sekunde um und dein Auge sieht sie nur schwach an.",
+   "Para controlar cuánto tiempo se queda encendido el LED, usa el bloque «esperar» de la categoría Control:\\n\\n«esperar 1 segundos»\\n\\nSin él, el LED cambia miles de veces por segundo y tu ojo solo lo ve encendido flojito."
+  ],
+  "You can find the \"wait\" block in the Control category!": [
+   "Den Block «warte» findest du in der Kategorie Steuerung!",
+   "¡El bloque «esperar» está en la categoría Control!"
+  ],
+  "The Block Order for a Blinking LED": [
+   "Die Blockreihenfolge für eine blinkende LED",
+   "El orden de los bloques para un LED parpadeante"
+  ],
+  "To make the LED blink forever we stack the blocks in this order:\\n\\n🟩 when Arduino Uno starts up\\n🔁 forever\\n  💡 set digital pin 9 output as high\\n  ⏱ wait 1 seconds\\n  💡 set digital pin 9 output as low\\n  ⏱ wait 1 seconds": [
+   "Damit die LED endlos blinkt, stapeln wir die Blöcke in dieser Reihenfolge:\\n\\n🟩 wenn Arduino Uno startet\\n🔁 wiederhole fortlaufend\\n  💡 digitalen Pin von Ausgang 9 als hoch setzen\\n  ⏱ warte 1 Sekunden\\n  💡 digitalen Pin von Ausgang 9 als niedrig setzen\\n  ⏱ warte 1 Sekunden",
+   "Para que el LED parpadee sin parar apilamos los bloques en este orden:\\n\\n🟩 cuando Arduino Uno se inicia\\n🔁 por siempre\\n  💡 pon el pin digital 9 a alto\\n  ⏱ esperar 1 segundos\\n  💡 pon el pin digital 9 a bajo\\n  ⏱ esperar 1 segundos"
+  ],
+  "We want the LED to blink forever. Which block should the LED blocks go inside?": [
+   "Die LED soll endlos blinken. In welchen Block gehören die LED-Blöcke?",
+   "Queremos que el LED parpadee sin parar. ¿Dentro de qué bloque deben ir los bloques del LED?"
+  ],
+  "Without a \"forever\" block the LED blinks just ONCE and stops!": [
+   "Ohne einen Block «wiederhole fortlaufend» blinkt die LED nur EINMAL und hört dann auf!",
+   "¡Sin un bloque «por siempre» el LED parpadea solo UNA VEZ y se detiene!"
+  ],
+  "Build the mBlock code that makes the LED blink on and off forever!": [
+   "Baue den mBlock-Code, der die LED endlos an- und ausblinken lässt!",
+   "¡Construye el código de mBlock que hace que el LED parpadee sin parar!"
+  ],
+  "The LED on pin 9 blinks with 1 second between each change": [
+   "Die LED an Pin 9 blinkt mit 1 Sekunde zwischen jedem Wechsel",
+   "El LED del pin 9 parpadea con 1 segundo entre cada cambio"
+  ],
+  "when Arduino Uno starts up": [
+   "wenn Arduino Uno startet",
+   "cuando Arduino Uno se inicia"
+  ],
+  "wait 1 seconds": [
+   "warte 1 Sekunden",
+   "esperar 1 segundos"
+  ],
+  "set digital pin 9 output as low": [
+   "digitalen Pin von Ausgang 9 als niedrig setzen",
+   "pon el pin digital 9 a bajo"
+  ],
+  "LED Master!": [
+   "LED-Meister!",
+   "¡Maestro del LED!"
+  ],
+  "💡 You finished your first Arduino project with mBlock!\\n\\n✓ You used the digital output blocks\\n✓ You handled timing with the \"wait\" block\\n✓ You built a forever loop\\n\\nNext: reading a button!": [
+   "💡 Du hast dein erstes Arduino-Projekt mit mBlock geschafft!\\n\\n✓ Du hast die Blöcke für den Digitalausgang benutzt\\n✓ Du hast das Timing mit dem Block «warte» geregelt\\n✓ Du hast eine Endlosschleife gebaut\\n\\nAls Nächstes: einen Taster lesen!",
+   "💡 ¡Has terminado tu primer proyecto de Arduino con mBlock!\\n\\n✓ Usaste los bloques de salida digital\\n✓ Controlaste el tiempo con el bloque «esperar»\\n✓ Construiste un bucle por siempre\\n\\nSiguiente: ¡leer un botón!"
+  ],
+  "You earned the LED Master badge!": [
+   "Du hast das Abzeichen «LED-Meister» verdient!",
+   "¡Has ganado la insignia Maestro del LED!"
+  ],
+  "Light an LED with a Button": [
+   "Eine LED mit einem Taster leuchten lassen",
+   "Enciende un LED con un botón"
+  ],
+  "Count the presses, control the LED!": [
+   "Zähle die Tastendrücke, steuere die LED!",
+   "¡Cuenta las pulsaciones, controla el LED!"
+  ],
+  "Now we are going to read data from the Arduino! Every time we press the button, we will count it.": [
+   "Jetzt lesen wir Daten vom Arduino! Jedes Mal, wenn wir den Taster drücken, zählen wir mit.",
+   "¡Ahora vamos a leer datos del Arduino! Cada vez que pulsemos el botón, lo contaremos."
+  ],
+  "The Button Block and the 0/1 Logic": [
+   "Der Taster-Block und die 0/1-Logik",
+   "El bloque del botón y la lógica 0/1"
+  ],
+  "To read the value on a pin, mBlock uses a REPORTER block:\\n\\n\"read digital pin 6\"\\n\\nImportant: in this circuit the button reads 0 when it is pressed and 1 when it is released.": [
+   "Um den Wert an einem Pin zu lesen, benutzt mBlock einen REPORTER-Block:\\n\\n«Digitalpin lesen 6»\\n\\nWichtig: In dieser Schaltung liest der Taster 0, wenn er gedrückt ist, und 1, wenn er losgelassen ist.",
+   "Para leer el valor de un pin, mBlock usa un bloque REPORTERO:\\n\\n«lee pin digital 6»\\n\\nImportante: en este circuito el botón lee 0 cuando está pulsado y 1 cuando está suelto."
+  ],
+  "read digital pin 6": [
+   "Digitalpin lesen 6",
+   "lee pin digital 6"
+  ],
+  "Pin - digital read": [
+   "Pin – Digitalpin lesen",
+   "Pin: lectura digital"
+  ],
+  "While the button is held down it reads 0, and when you let go it reads 1 — memorise this, it matters a lot!": [
+   "Solange der Taster gedrückt ist, liest er 0, und wenn du loslässt, 1 – merk dir das, es ist sehr wichtig!",
+   "¡Mientras el botón está pulsado lee 0, y cuando lo sueltas lee 1: memorízalo, importa mucho!"
+  ],
+  "What value does \"read digital pin 6\" give while the button is PRESSED?": [
+   "Welchen Wert gibt «Digitalpin lesen 6», solange der Taster GEDRÜCKT ist?",
+   "¿Qué valor da «lee pin digital 6» mientras el botón está PULSADO?"
+  ],
+  "In this circuit the pin reads 0 (low) while the button is pressed and 1 (high) while it is released!": [
+   "In dieser Schaltung liest der Pin 0 (niedrig), solange der Taster gedrückt ist, und 1 (hoch), solange er losgelassen ist!",
+   "¡En este circuito el pin lee 0 (bajo) mientras el botón está pulsado y 1 (alto) mientras está suelto!"
+  ],
+  "Make a Counter Variable": [
+   "Eine Zählervariable erstellen",
+   "Crear una variable contador"
+  ],
+  "To count how many times the button has been pressed we use a VARIABLE:\\n\\n1. In the Variables category click \"Make a Variable\"\\n2. Name it \"counter\"\\n3. Set it to 0 at the start of the program": [
+   "Um zu zählen, wie oft der Taster gedrückt wurde, benutzen wir eine VARIABLE:\\n\\n1. Klick in der Kategorie Variablen auf «Neue Variable»\\n2. Nenn sie «zaehler»\\n3. Setz sie am Anfang des Programms auf 0",
+   "Para contar cuántas veces se ha pulsado el botón usamos una VARIABLE:\\n\\n1. En la categoría Variables haz clic en «Crear una variable»\\n2. Llámala «contador»\\n3. Ponla a 0 al principio del programa"
+  ],
+  "set counter to 0": [
+   "setze zaehler auf 0",
+   "dar a contador el valor 0"
+  ],
+  "Data & Blocks": [
+   "Daten & Blöcke",
+   "Datos y bloques"
+  ],
+  "What does the \"change counter by 1\" block do?": [
+   "Was macht der Block «ändere zaehler um 1»?",
+   "¿Qué hace el bloque «sumar a contador 1»?"
+  ],
+  "\"change\" blocks ADD to the current value — \"change by 1\" makes it one bigger every time!": [
+   "Die «ändere»-Blöcke ZÄHLEN zum aktuellen Wert dazu – «ändere um 1» macht ihn jedes Mal um eins größer!",
+   "¡Los bloques «sumar a» SE AÑADEN al valor actual: «sumar 1» lo hace uno más grande cada vez!"
+  ],
+  "The \"wait until\" Block": [
+   "Der Block «warte bis»",
+   "El bloque «esperar hasta que»"
+  ],
+  "To count a press-and-release correctly, a special block is used:\\n\\n\"if <read digital pin 6> = 0 then\\n  change counter by 1\\n  wait until <read digital pin 6> = 1\"": [
+   "Um ein Drücken-und-Loslassen richtig zu zählen, wird ein besonderer Block benutzt:\\n\\n«falls <Digitalpin lesen 6> = 0, dann\\n  ändere zaehler um 1\\n  warte bis <Digitalpin lesen 6> = 1»",
+   "Para contar bien una pulsación y su suelta se usa un bloque especial:\\n\\n«si <lee pin digital 6> = 0 entonces\\n  sumar a contador 1\\n  esperar hasta que <lee pin digital 6> = 1»"
+  ],
+  "Without this block a single press can be counted dozens of times, because the Arduino runs so fast!": [
+   "Ohne diesen Block kann ein einziger Druck dutzende Male gezählt werden, weil der Arduino so schnell läuft!",
+   "¡Sin este bloque una sola pulsación puede contarse decenas de veces, porque el Arduino va muy rápido!"
+  ],
+  "When does \"wait until <read digital pin 6> = 1\" carry on?": [
+   "Wann läuft «warte bis <Digitalpin lesen 6> = 1» weiter?",
+   "¿Cuándo continúa «esperar hasta que <lee pin digital 6> = 1»?"
+  ],
+  "The \"wait until\" block holds the code exactly until the stated condition becomes true (here, until the button is released).": [
+   "Der Block «warte bis» hält den Code genau so lange an, bis die genannte Bedingung wahr wird (hier: bis der Taster losgelassen ist).",
+   "El bloque «esperar hasta que» detiene el código justo hasta que la condición indicada se vuelve verdadera (aquí, hasta que se suelta el botón)."
+  ],
+  "Build the code that adds 1 to the counter every time the button is pressed!": [
+   "Baue den Code, der bei jedem Tastendruck 1 zum Zähler addiert!",
+   "¡Construye el código que suma 1 al contador cada vez que se pulsa el botón!"
+  ],
+  "When the button on pin 6 is pressed the counter goes up, then waits until it is pressed again": [
+   "Wenn der Taster an Pin 6 gedrückt wird, geht der Zähler hoch und wartet dann, bis erneut gedrückt wird",
+   "Cuando se pulsa el botón del pin 6 el contador sube y luego espera a que se vuelva a pulsar"
+  ],
+  "if <read digital pin 6> then": [
+   "falls <Digitalpin lesen 6>, dann",
+   "si <lee pin digital 6> entonces"
+  ],
+  "change counter by 1": [
+   "ändere zaehler um 1",
+   "sumar a contador 1"
+  ],
+  "wait until <read digital pin 6>": [
+   "warte bis <Digitalpin lesen 6>",
+   "esperar hasta que <lee pin digital 6>"
+  ],
+  "Button Reader!": [
+   "Taster-Leser!",
+   "¡Lector de botones!"
+  ],
+  "🔘 Now you can read an input!\\n\\n✓ You read a button with \"read digital pin\"\\n✓ You counted with a variable\\n✓ You used \"wait until\"\\n\\nNext: a proper on/off switch!": [
+   "🔘 Jetzt kannst du eine Eingabe lesen!\\n\\n✓ Du hast einen Taster mit «Digitalpin lesen» gelesen\\n✓ Du hast mit einer Variablen gezählt\\n✓ Du hast «warte bis» benutzt\\n\\nAls Nächstes: ein richtiger An/Aus-Schalter!",
+   "🔘 ¡Ya puedes leer una entrada!\\n\\n✓ Leíste un botón con «lee pin digital»\\n✓ Contaste con una variable\\n✓ Usaste «esperar hasta que»\\n\\nSiguiente: ¡un interruptor de encendido/apagado de verdad!"
+  ],
+  "You earned the Button Reader badge!": [
+   "Du hast das Abzeichen «Taster-Leser» verdient!",
+   "¡Has ganado la insignia Lector de Botones!"
+  ],
+  "Button On/Off Switch": [
+   "An/Aus-Schalter mit Taster",
+   "Interruptor de encendido/apagado con botón"
+  ],
+  "Use a variable to make it act like a switch!": [
+   "Benutze eine Variable, damit er wie ein Schalter wirkt!",
+   "¡Usa una variable para que funcione como un interruptor!"
+  ],
+  "Last lesson we counted presses. Now let\\'s make it work like a real switch: press once and the LED turns on, press again and it turns off!": [
+   "Letzte Lektion haben wir die Tastendrücke gezählt. Jetzt soll es wie ein echter Schalter funktionieren: einmal drücken und die LED geht an, nochmal drücken und sie geht aus!",
+   "¡La última lección contamos las pulsaciones. Ahora hagamos que funcione como un interruptor de verdad: pulsas una vez y el LED se enciende, pulsas otra vez y se apaga!"
+  ],
+  "Why Do We Need a Second Variable?": [
+   "Warum brauchen wir eine zweite Variable?",
+   "¿Por qué necesitamos una segunda variable?"
+  ],
+  "In the last project we only COUNTED presses. But we want \"press once, leave the LED ON; press again, leave it OFF\". For that the board has to REMEMBER the state.": [
+   "Im letzten Projekt haben wir die Tastendrücke nur GEZÄHLT. Aber wir wollen «einmal drücken, LED bleibt AN; nochmal drücken, sie bleibt AUS». Dafür muss sich die Platine den Zustand MERKEN.",
+   "En el último proyecto solo CONTAMOS las pulsaciones. Pero queremos «pulsa una vez y deja el LED ENCENDIDO; pulsa otra vez y déjalo APAGADO». Para eso la placa tiene que RECORDAR el estado."
+  ],
+  "A variable is like a \"box\" that lets the Arduino remember a piece of information!": [
+   "Eine Variable ist wie eine «Kiste», mit der sich der Arduino eine Information merken kann!",
+   "¡Una variable es como una «caja» que le permite al Arduino recordar un dato!"
+  ],
+  "Make the \"on\" Variable": [
+   "Die Variable «an» erstellen",
+   "Crear la variable «encendido»"
+  ],
+  "In the Variables category, click \"Make a Variable\" and create one called \"on\".\\n\\nThis variable holds the state of the LED: 0 = off, 1 = on.": [
+   "Klick in der Kategorie Variablen auf «Neue Variable» und erstelle eine mit dem Namen «an».\\n\\nDiese Variable hält den Zustand der LED: 0 = aus, 1 = an.",
+   "En la categoría Variables haz clic en «Crear una variable» y crea una llamada «encendido».\\n\\nEsta variable guarda el estado del LED: 0 = apagado, 1 = encendido."
+  ],
+  "make the variable \"on\"": [
+   "die Variable «an» erstellen",
+   "crear la variable «encendido»"
+  ],
+  "What is the \"on\" variable for?": [
+   "Wofür ist die Variable «an» da?",
+   "¿Para qué sirve la variable «encendido»?"
+  ],
+  "A variable lets us remember something — here, whether the LED is on or off!": [
+   "Mit einer Variablen können wir uns etwas merken – hier, ob die LED an oder aus ist!",
+   "¡Una variable nos deja recordar algo: aquí, si el LED está encendido o apagado!"
+  ],
+  "Detecting a Press and Flipping the State": [
+   "Einen Druck erkennen und den Zustand umschalten",
+   "Detectar una pulsación y cambiar el estado"
+  ],
+  "On every press we FLIP the value of \"on\":\\n\\nif <read digital pin 6> then\\n  if <on = 0> then set on to 1\\n  else set on to 0": [
+   "Bei jedem Druck SCHALTEN wir den Wert von «an» um:\\n\\nfalls <Digitalpin lesen 6>, dann\\n  falls <an = 0>, dann setze an auf 1\\n  sonst setze an auf 0",
+   "En cada pulsación CAMBIAMOS el valor de «encendido»:\\n\\nsi <lee pin digital 6> entonces\\n  si <encendido = 0> entonces dar a encendido el valor 1\\n  si no dar a encendido el valor 0"
+  ],
+  "Without \"wait until\", the LED could switch on and off dozens of times even if your finger left the button a moment ago!": [
+   "Ohne «warte bis» könnte die LED dutzende Male an- und ausgehen, obwohl dein Finger den Taster gerade erst verlassen hat!",
+   "¡Sin «esperar hasta que», el LED podría encenderse y apagarse decenas de veces aunque tu dedo acabe de soltar el botón!"
+  ],
+  "Why do we put \"wait until <read digital pin 6>\" after detecting a press?": [
+   "Warum setzen wir «warte bis <Digitalpin lesen 6>» hinter das Erkennen eines Drucks?",
+   "¿Por qué ponemos «esperar hasta que <lee pin digital 6>» después de detectar una pulsación?"
+  ],
+  "Without this block the Arduino, which runs very fast, would count a single press dozens of times!": [
+   "Ohne diesen Block würde der Arduino, der sehr schnell läuft, einen einzigen Druck dutzende Male zählen!",
+   "¡Sin este bloque el Arduino, que va muy rápido, contaría una sola pulsación decenas de veces!"
+  ],
+  "Drag each block onto the description that matches it!": [
+   "Zieh jeden Block auf die Beschreibung, die zu ihm passt!",
+   "¡Arrastra cada bloque a la descripción que le corresponde!"
+  ],
+  "You have fully grasped what variables, conditions and wait blocks do!": [
+   "Du hast vollständig verstanden, was Variablen, Bedingungen und Warte-Blöcke tun!",
+   "¡Has entendido del todo lo que hacen las variables, las condiciones y los bloques de espera!"
+  ],
+  "Project Complete!": [
+   "Projekt geschafft!",
+   "¡Proyecto terminado!"
+  ],
+  "🔀 You finished the button on/off project!\\n\\n✓ You made and used a second variable\\n✓ You used \"if ... then ... else\"\\n✓ You made the board remember a state\\n\\nNext: a traffic light!": [
+   "🔀 Du hast das An/Aus-Projekt mit Taster geschafft!\\n\\n✓ Du hast eine zweite Variable erstellt und benutzt\\n✓ Du hast «falls … dann … sonst» benutzt\\n✓ Du hast die Platine einen Zustand merken lassen\\n\\nAls Nächstes: eine Ampel!",
+   "🔀 ¡Has terminado el proyecto del interruptor con botón!\\n\\n✓ Creaste y usaste una segunda variable\\n✓ Usaste «si … entonces … si no»\\n✓ Hiciste que la placa recordara un estado\\n\\nSiguiente: ¡un semáforo!"
+  ],
+  "Lift buttons and lamp switches work on exactly the same logic!": [
+   "Aufzugsknöpfe und Lampenschalter funktionieren nach genau derselben Logik!",
+   "¡Los botones de los ascensores y los interruptores de la luz funcionan con exactamente la misma lógica!"
+  ],
+  "Build a Traffic Light": [
+   "Baue eine Ampel",
+   "Construye un semáforo"
+  ],
+  "A real traffic light with 3 LEDs": [
+   "Eine echte Ampel mit 3 LEDs",
+   "Un semáforo de verdad con 3 LEDs"
+  ],
+  "Now you get to build the traffic lights you see every day with your own hands! Red, yellow and green — three LEDs at once!": [
+   "Jetzt baust du die Ampel, die du jeden Tag siehst, mit deinen eigenen Händen! Rot, Gelb und Grün – drei LEDs auf einmal!",
+   "¡Ahora te toca construir con tus propias manos el semáforo que ves todos los días! Rojo, amarillo y verde: ¡tres LEDs a la vez!"
+  ],
+  "Controlling More Than One LED": [
+   "Mehr als eine LED steuern",
+   "Controlar más de un LED"
+  ],
+  "A traffic light uses three separate LEDs, each on its own digital pin:\\n\\nRed LED -> Pin 9\\nYellow LED -> Pin 10\\nGreen LED -> Pin 11\\n\\nEach one has its own resistor.": [
+   "Eine Ampel benutzt drei einzelne LEDs, jede an ihrem eigenen Digitalpin:\\n\\nRote LED -> Pin 9\\nGelbe LED -> Pin 10\\nGrüne LED -> Pin 11\\n\\nJede hat ihren eigenen Widerstand.",
+   "Un semáforo usa tres LEDs distintos, cada uno en su propio pin digital:\\n\\nLED rojo -> Pin 9\\nLED amarillo -> Pin 10\\nLED verde -> Pin 11\\n\\nCada uno tiene su propia resistencia."
+  ],
+  "In real traffic lights each colour stays on for a set time and then goes off — we are going to build the same logic!": [
+   "In echten Ampeln bleibt jede Farbe eine festgelegte Zeit an und geht dann aus – genau diese Logik bauen wir!",
+   "¡En los semáforos de verdad cada color se queda encendido un tiempo fijo y luego se apaga: vamos a construir esa misma lógica!"
+  ],
+  "Do we control the red (pin 9), yellow (pin 10) and green (pin 11) LEDs all at once?": [
+   "Steuern wir die rote (Pin 9), die gelbe (Pin 10) und die grüne (Pin 11) LED alle auf einmal?",
+   "¿Controlamos a la vez los LEDs rojo (pin 9), amarillo (pin 10) y verde (pin 11)?"
+  ],
+  "Each LED is on a different pin, so we turn each one on and off with its own block!": [
+   "Jede LED hängt an einem anderen Pin, also schalten wir jede mit ihrem eigenen Block an und aus!",
+   "¡Cada LED está en un pin distinto, así que encendemos y apagamos cada uno con su propio bloque!"
+  ],
+  "Traffic Light Timing": [
+   "Das Timing der Ampel",
+   "Los tiempos del semáforo"
+  ],
+  "A realistic traffic light order goes like this:\\n\\n🔴 Red is on (3 seconds)\\n🔴🟡 Red and yellow together (short)\\n🟢 Green is on (3 seconds)\\n🟡 Yellow is on (short)\\nand back to the beginning.": [
+   "Eine realistische Ampelreihenfolge geht so:\\n\\n🔴 Rot ist an (3 Sekunden)\\n🔴🟡 Rot und Gelb zusammen (kurz)\\n🟢 Grün ist an (3 Sekunden)\\n🟡 Gelb ist an (kurz)\\nund wieder von vorn.",
+   "Un orden realista de semáforo es así:\\n\\n🔴 Rojo encendido (3 segundos)\\n🔴🟡 Rojo y amarillo juntos (poco tiempo)\\n🟢 Verde encendido (3 segundos)\\n🟡 Amarillo encendido (poco tiempo)\\ny vuelta a empezar."
+  ],
+  "Which colour comes on before going from green to red on a traffic light?": [
+   "Welche Farbe kommt bei einer Ampel, bevor es von Grün nach Rot geht?",
+   "¿Qué color se enciende antes de pasar de verde a rojo en un semáforo?"
+  ],
+  "On a real traffic light there is a short yellow warning after green, and then it goes to red!": [
+   "Bei einer echten Ampel kommt nach Grün eine kurze gelbe Warnung, und dann geht es auf Rot!",
+   "¡En un semáforo de verdad, después del verde hay un aviso corto en amarillo, y luego pasa a rojo!"
+  ],
+  "Build a simple traffic light cycle: red -> green -> yellow -> back to red!": [
+   "Baue einen einfachen Ampelzyklus: Rot -> Grün -> Gelb -> zurück zu Rot!",
+   "¡Construye un ciclo sencillo de semáforo: rojo -> verde -> amarillo -> otra vez rojo!"
+  ],
+  "Each colour lights up in turn": [
+   "Jede Farbe leuchtet der Reihe nach auf",
+   "Cada color se enciende por turnos"
+  ],
+  "wait 3 seconds": [
+   "warte 3 Sekunden",
+   "esperar 3 segundos"
+  ],
+  "set digital pin 9 low, set pin 11 (green) high": [
+   "Pin 9 auf niedrig setzen, Pin 11 (grün) auf hoch setzen",
+   "pon el pin 9 a bajo y el pin 11 (verde) a alto"
+  ],
+  "set digital pin 11 low, set pin 10 (yellow) high": [
+   "Pin 11 auf niedrig setzen, Pin 10 (gelb) auf hoch setzen",
+   "pon el pin 11 a bajo y el pin 10 (amarillo) a alto"
+  ],
+  "set digital pin 10 output as low": [
+   "digitalen Pin von Ausgang 10 als niedrig setzen",
+   "pon el pin digital 10 a bajo"
+  ],
+  "Traffic Light Master!": [
+   "Ampel-Meister!",
+   "¡Maestro del semáforo!"
+  ],
+  "🚦 You built a real traffic light circuit!\\n\\n✓ You controlled several LEDs separately\\n✓ You built a timed sequence\\n✓ You matched a real-world system\\n\\nNext: analog input!": [
+   "🚦 Du hast eine echte Ampelschaltung gebaut!\\n\\n✓ Du hast mehrere LEDs getrennt gesteuert\\n✓ Du hast eine zeitgesteuerte Abfolge gebaut\\n✓ Du hast ein System aus der echten Welt nachgebaut\\n\\nAls Nächstes: analoge Eingänge!",
+   "🚦 ¡Has construido un circuito de semáforo de verdad!\\n\\n✓ Controlaste varios LEDs por separado\\n✓ Construiste una secuencia con tiempos\\n✓ Reprodujiste un sistema del mundo real\\n\\nSiguiente: ¡entradas analógicas!"
+  ],
+  "You earned the Traffic Light Master badge!": [
+   "Du hast das Abzeichen «Ampel-Meister» verdient!",
+   "¡Has ganado la insignia Maestro del Semáforo!"
+  ],
+  "LED with a Potentiometer": [
+   "LED mit einem Potentiometer",
+   "LED con un potenciómetro"
+  ],
+  "Read an analog value, set the brightness": [
+   "Einen analogen Wert lesen, die Helligkeit einstellen",
+   "Lee un valor analógico, ajusta el brillo"
+  ],
+  "A potentiometer is an adjustable resistor whose value changes as you turn it — just like a volume knob! We will use it to set the LED\\'s brightness.": [
+   "Ein Potentiometer ist ein einstellbarer Widerstand, dessen Wert sich beim Drehen ändert – genau wie ein Lautstärkeregler! Damit stellen wir die Helligkeit der LED ein.",
+   "¡Un potenciómetro es una resistencia ajustable cuyo valor cambia al girarla, igual que un mando de volumen! Lo usaremos para ajustar el brillo del LED."
+  ],
+  "What Is a Potentiometer?": [
+   "Was ist ein Potentiometer?",
+   "¿Qué es un potenciómetro?"
+  ],
+  "A potentiometer (an adjustable resistor) has three legs:\\n\\nLeg A -> 5V\\nLeg B -> GND\\nLeg C -> the analog signal pin (A0)\\n\\nAs you turn the knob, the voltage on leg C changes.": [
+   "Ein Potentiometer (ein einstellbarer Widerstand) hat drei Beine:\\n\\nBein A -> 5V\\nBein B -> GND\\nBein C -> der analoge Signalpin (A0)\\n\\nBeim Drehen des Knopfes ändert sich die Spannung an Bein C.",
+   "Un potenciómetro (una resistencia ajustable) tiene tres patas:\\n\\nPata A -> 5V\\nPata B -> GND\\nPata C -> el pin de señal analógica (A0)\\n\\nAl girar el mando, cambia la tensión de la pata C."
+  ],
+  "Turning a potentiometer is like turning a volume knob!": [
+   "Ein Potentiometer zu drehen ist wie einen Lautstärkeregler zu drehen!",
+   "¡Girar un potenciómetro es como girar un mando de volumen!"
+  ],
+  "What range of values does \"read analog pin (A) 0\" give from a potentiometer?": [
+   "Welchen Wertebereich gibt «analogen Pin（A）0 lesen» bei einem Potentiometer?",
+   "¿Qué rango de valores da «lee pin analógico 0» con un potenciómetro?"
+  ],
+  "The analog reading block returns a number from 0 to 1023 — not just 0/1 like a button!": [
+   "Der Block für die analoge Messung gibt eine Zahl von 0 bis 1023 zurück – nicht nur 0/1 wie ein Taster!",
+   "¡El bloque de lectura analógica devuelve un número de 0 a 1023, no solo 0/1 como un botón!"
+  ],
+  "Seeing the Value on Screen": [
+   "Den Wert auf dem Bildschirm sehen",
+   "Ver el valor en la pantalla"
+  ],
+  "To see the values coming from the potentiometer we use the serial port - the Looks category does NOT exist in the palette while the Arduino Uno is selected.\\n\\nPut \"write <read analog pin (A) 0> to serial port\" inside \"forever\", then open the Serial Monitor in mBlock.\\n\\nAs you turn the pot you will see the values streaming past!": [
+   "Um die Werte vom Potentiometer zu sehen, benutzen wir die serielle Schnittstelle – die Kategorie Aussehen gibt es in der Palette NICHT, solange der Arduino Uno ausgewählt ist.\\n\\nLeg «<analogen Pin（A）0 lesen> an serielle Schnittstelle schreiben» in «wiederhole fortlaufend» und öffne dann in mBlock den seriellen Monitor.\\n\\nWährend du den Poti drehst, siehst du die Werte vorbeilaufen!",
+   "Para ver los valores que llegan del potenciómetro usamos el puerto serie: la categoría Apariencia NO existe en la paleta mientras el Arduino Uno está seleccionado.\\n\\nPon «escribe <lee pin analógico 0> al puerto serie» dentro de «por siempre» y después abre el Monitor Serie en mBlock.\\n\\n¡Mientras giras el potenciómetro verás pasar los valores!"
+  ],
+  "write <read analog pin (A) 0> to serial port": [
+   "<analogen Pin（A）0 lesen> an serielle Schnittstelle schreiben",
+   "escribe <lee pin analógico 0> al puerto serie"
+  ],
+  "Serial port block": [
+   "Block der seriellen Schnittstelle",
+   "Bloque de puerto serie"
+  ],
+  "Turning 1023 into 255": [
+   "Aus 1023 eine 255 machen",
+   "Convertir 1023 en 255"
+  ],
+  "A potentiometer gives a value from 0 to 1023. But the PWM pin our LED is on only accepts 0 to 255!\\n\\nSo we DIVIDE the value from the potentiometer by 4 (1023 / 4 ≈ 255):\\n\\nset \"pot\" to <read analog pin (A) 0> / 4\\nset PWM 5 output as pot\\n\\nNow turning the knob changes the brightness of the LED!": [
+   "Ein Potentiometer gibt einen Wert von 0 bis 1023. Aber der PWM-Pin, an dem unsere LED hängt, nimmt nur 0 bis 255!\\n\\nAlso TEILEN wir den Wert vom Potentiometer durch 4 (1023 / 4 ≈ 255):\\n\\nsetze «poti» auf <analogen Pin（A）0 lesen> / 4\\nPWM-Ausgang 5 als poti festlegen\\n\\nJetzt ändert das Drehen des Knopfes die Helligkeit der LED!",
+   "Un potenciómetro da un valor de 0 a 1023. ¡Pero el pin PWM donde está nuestro LED solo acepta de 0 a 255!\\n\\nAsí que DIVIDIMOS el valor del potenciómetro entre 4 (1023 / 4 ≈ 255):\\n\\ndar a «pot» el valor <lee pin analógico 0> / 4\\npon la salida PWM 5 a pot\\n\\n¡Ahora al girar el mando cambia el brillo del LED!"
+  ],
+  "1023 / 4 = 255.75, so about 255 — the upper limit of PWM!": [
+   "1023 / 4 = 255,75, also etwa 255 – die Obergrenze von PWM!",
+   "¡1023 / 4 = 255,75, o sea unos 255: el límite superior del PWM!"
+  ],
+  "Why do we divide the 0-1023 value from the potentiometer by 4?": [
+   "Warum teilen wir den Wert 0-1023 vom Potentiometer durch 4?",
+   "¿Por qué dividimos entre 4 el valor 0-1023 del potenciómetro?"
+  ],
+  "1023 / 4 ≈ 255 — that matches the potentiometer\\'s range to the range PWM accepts (0-255)!": [
+   "1023 / 4 ≈ 255 – das bringt den Bereich des Potentiometers auf den Bereich, den PWM annimmt (0-255)!",
+   "¡1023 / 4 ≈ 255: eso ajusta el rango del potenciómetro al rango que acepta el PWM (0-255)!"
+  ],
+  "Build the code that sets the LED brightness with the potentiometer!": [
+   "Baue den Code, der die Helligkeit der LED mit dem Potentiometer einstellt!",
+   "¡Construye el código que ajusta el brillo del LED con el potenciómetro!"
+  ],
+  "As the pot is turned, the brightness of the LED on pin 5 changes": [
+   "Beim Drehen des Potis ändert sich die Helligkeit der LED an Pin 5",
+   "Al girar el potenciómetro cambia el brillo del LED del pin 5"
+  ],
+  "set pot to <read analog pin (A) 0 / 4>": [
+   "setze poti auf <analogen Pin（A）0 lesen / 4>",
+   "dar a pot el valor <lee pin analógico 0 / 4>"
+  ],
+  "set PWM 5 output as pot": [
+   "PWM-Ausgang 5 als poti festlegen",
+   "pon la salida PWM 5 a pot"
+  ],
+  "PWM Master!": [
+   "PWM-Meister!",
+   "¡Maestro del PWM!"
+  ],
+  "🎛️ You controlled an LED with a potentiometer!\\n\\n✓ You read an analog value (0-1023)\\n✓ You converted it to the PWM range (0-255)\\n✓ You built a dimmer\\n\\nNext: sound!": [
+   "🎛️ Du hast eine LED mit einem Potentiometer gesteuert!\\n\\n✓ Du hast einen analogen Wert gelesen (0-1023)\\n✓ Du hast ihn in den PWM-Bereich umgerechnet (0-255)\\n✓ Du hast einen Dimmer gebaut\\n\\nAls Nächstes: Ton!",
+   "🎛️ ¡Has controlado un LED con un potenciómetro!\\n\\n✓ Leíste un valor analógico (0-1023)\\n✓ Lo convertiste al rango del PWM (0-255)\\n✓ Construiste un regulador de intensidad\\n\\nSiguiente: ¡el sonido!"
+  ],
+  "You earned the PWM Master badge!": [
+   "Du hast das Abzeichen «PWM-Meister» verdient!",
+   "¡Has ganado la insignia Maestro del PWM!"
+  ],
+  "Making Sound with a Buzzer": [
+   "Mit einem Summer Töne machen",
+   "Hacer sonido con un zumbador"
+  ],
+  "Play notes, make a melody": [
+   "Spiel Noten, mach eine Melodie",
+   "Toca notas, crea una melodía"
+  ],
+  "A buzzer is a mini speaker that makes warning sounds in our projects! By playing notes you can write your own melodies.": [
+   "Ein Summer ist ein Mini-Lautsprecher, der in unseren Projekten Warntöne macht! Indem du Noten spielst, kannst du eigene Melodien schreiben.",
+   "¡Un zumbador es un mini altavoz que hace sonidos de aviso en nuestros proyectos! Tocando notas puedes escribir tus propias melodías."
+  ],
+  "Active and Passive Buzzers": [
+   "Aktive und passive Summer",
+   "Zumbadores activos y pasivos"
+  ],
+  "There are two kinds of buzzer:\\n\\n🔴 Active buzzer: makes only ONE tone, meant for alerts\\n🎵 Passive buzzer: can make different tones, so it can play melodies\\n\\nWe use a passive buzzer.": [
+   "Es gibt zwei Arten von Summern:\\n\\n🔴 Aktiver Summer: macht nur EINEN Ton, gedacht für Warnungen\\n🎵 Passiver Summer: kann verschiedene Töne machen, kann also Melodien spielen\\n\\nWir benutzen einen passiven Summer.",
+   "Hay dos tipos de zumbador:\\n\\n🔴 Zumbador activo: hace un ÚNICO tono, pensado para avisos\\n🎵 Zumbador pasivo: puede hacer tonos distintos, así que puede tocar melodías\\n\\nNosotros usamos un zumbador pasivo."
+  ],
+  "Alarm systems usually use an active buzzer, while music boxes use a passive one!": [
+   "Alarmanlagen benutzen meist einen aktiven Summer, Spieluhren dagegen einen passiven!",
+   "¡Los sistemas de alarma suelen usar un zumbador activo, y las cajas de música uno pasivo!"
+  ],
+  "Which kind of buzzer do you need to play a melody?": [
+   "Welche Art von Summer brauchst du, um eine Melodie zu spielen?",
+   "¿Qué tipo de zumbador necesitas para tocar una melodía?"
+  ],
+  "A passive buzzer can make sounds at different frequencies (notes), so it is the one for melodies!": [
+   "Ein passiver Summer kann Töne in verschiedenen Frequenzen (Noten) machen, also ist er der richtige für Melodien!",
+   "¡Un zumbador pasivo puede hacer sonidos de distintas frecuencias (notas), así que es el adecuado para las melodías!"
+  ],
+  "The Buzzer Block": [
+   "Der Summer-Block",
+   "El bloque del zumbador"
+  ],
+  "mBlock has a ready-made buzzer block in the Pin category:\\n\\n\"play pin 9 with note C4 for 0.5 beats\"\\n\\nC4 is the note (middle C), and 0.5 is how long it lasts.": [
+   "mBlock hat in der Kategorie Pin einen fertigen Summer-Block:\\n\\n«Pin9 spielt Note C4 tür 0.5 Schläge»\\n\\nC4 ist die Note (das mittlere C), und 0.5 ist die Dauer.",
+   "mBlock tiene un bloque de zumbador listo en la categoría Pin:\\n\\n«toca nota C4 en pin 9 durante 0.5 tiempos»\\n\\nC4 es la nota (el do central) y 0.5 es lo que dura."
+  ],
+  "play pin 9 with note C4 for 0.5 beats": [
+   "Pin9 spielt Note C4 tür 0.5 Schläge",
+   "toca nota C4 en pin 9 durante 0.5 tiempos"
+  ],
+  "Buzzer block": [
+   "Summer-Block",
+   "Bloque del zumbador"
+  ],
+  "In \"play pin 9 with note C4 for 0.5 beats\", what does C4 mean?": [
+   "Was bedeutet C4 in «Pin9 spielt Note C4 tür 0.5 Schläge»?",
+   "En «toca nota C4 en pin 9 durante 0.5 tiempos», ¿qué significa C4?"
+  ],
+  "C4 is the note \"C\" in the 4th octave — a middle-range C. C=Do, D=Re, E=Mi, F=Fa, G=Sol, A=La, B=Si!": [
+   "C4 ist die Note «C» in der 4. Oktave – ein C aus der mittleren Lage. C=Do, D=Re, E=Mi, F=Fa, G=Sol, A=La, B=Si!",
+   "C4 es la nota «do» de la 4.ª octava, un do de la zona media. ¡C=Do, D=Re, E=Mi, F=Fa, G=Sol, A=La, B=Si!"
+  ],
+  "Playing Notes One After Another": [
+   "Noten nacheinander spielen",
+   "Tocar notas una detrás de otra"
+  ],
+  "To make a melody we put buzzer blocks one after another:\\n\\nplay pin 9 with note C4 for 0.5 beats\\nplay pin 9 with note D4 for 0.5 beats\\nplay pin 9 with note E4 for 0.5 beats\\n\\nThat is Do-Re-Mi!": [
+   "Für eine Melodie setzen wir Summer-Blöcke hintereinander:\\n\\nPin9 spielt Note C4 tür 0.5 Schläge\\nPin9 spielt Note D4 tür 0.5 Schläge\\nPin9 spielt Note E4 tür 0.5 Schläge\\n\\nDas ist Do-Re-Mi!",
+   "Para hacer una melodía ponemos bloques de zumbador uno detrás de otro:\\n\\ntoca nota C4 en pin 9 durante 0.5 tiempos\\ntoca nota D4 en pin 9 durante 0.5 tiempos\\ntoca nota E4 en pin 9 durante 0.5 tiempos\\n\\n¡Eso es Do-Re-Mi!"
+  ],
+  "If you line up the notes of a song you know, you can make your own melody!": [
+   "Wenn du die Noten eines Liedes aufreihst, das du kennst, kannst du deine eigene Melodie machen!",
+   "¡Si pones en fila las notas de una canción que te sepas, puedes crear tu propia melodía!"
+  ],
+  "Build the code that plays the C-D-E melody!": [
+   "Baue den Code, der die Melodie C-D-E spielt!",
+   "¡Construye el código que toca la melodía do-re-mi!"
+  ],
+  "The buzzer plays C, D and E in order": [
+   "Der Summer spielt der Reihe nach C, D und E",
+   "El zumbador toca do, re y mi en orden"
+  ],
+  "play pin 9 with note D4 for 0.5 beats": [
+   "Pin9 spielt Note D4 tür 0.5 Schläge",
+   "toca nota D4 en pin 9 durante 0.5 tiempos"
+  ],
+  "play pin 9 with note E4 for 0.5 beats": [
+   "Pin9 spielt Note E4 tür 0.5 Schläge",
+   "toca nota E4 en pin 9 durante 0.5 tiempos"
+  ],
+  "Sound Maker!": [
+   "Tonmacher!",
+   "¡Creador de sonidos!"
+  ],
+  "🔊 Now you can play a melody with Arduino!\\n\\n✓ You learned the difference between active and passive buzzers\\n✓ You met the note + octave + beat system\\n✓ You played your first melody\\n\\nNext: a light sensor!": [
+   "🔊 Jetzt kannst du mit dem Arduino eine Melodie spielen!\\n\\n✓ Du hast den Unterschied zwischen aktivem und passivem Summer gelernt\\n✓ Du hast das System aus Note + Oktave + Schlag kennengelernt\\n✓ Du hast deine erste Melodie gespielt\\n\\nAls Nächstes: ein Lichtsensor!",
+   "🔊 ¡Ya puedes tocar una melodía con Arduino!\\n\\n✓ Aprendiste la diferencia entre zumbadores activos y pasivos\\n✓ Conociste el sistema de nota + octava + tiempo\\n✓ Tocaste tu primera melodía\\n\\nSiguiente: ¡un sensor de luz!"
+  ],
+  "You earned the Sound Maker badge!": [
+   "Du hast das Abzeichen «Tonmacher» verdient!",
+   "¡Has ganado la insignia Creador de Sonidos!"
+  ],
+  "Night Light with an LDR": [
+   "Nachtlicht mit einem LDR",
+   "Luz nocturna con una LDR"
+  ],
+  "A light that comes on in the dark": [
+   "Ein Licht, das im Dunkeln angeht",
+   "Una luz que se enciende a oscuras"
+  ],
+  "Street lamps come on by themselves when it gets dark, right? Now we are going to learn their secret: the LDR (light sensor)!": [
+   "Straßenlaternen gehen von allein an, wenn es dunkel wird, oder? Jetzt lernen wir ihr Geheimnis: den LDR (Lichtsensor)!",
+   "Las farolas se encienden solas cuando oscurece, ¿verdad? ¡Ahora vamos a aprender su secreto: la LDR (sensor de luz)!"
+  ],
+  "What Is an LDR?": [
+   "Was ist ein LDR?",
+   "¿Qué es una LDR?"
+  ],
+  "An LDR (Light Dependent Resistor) is a sensor whose resistance changes with how much light falls on it.\\n\\nIn the light its resistance is low, in the dark it is high. So we can measure how bright the room is.": [
+   "Ein LDR (Light Dependent Resistor) ist ein Sensor, dessen Widerstand sich danach ändert, wie viel Licht auf ihn fällt.\\n\\nIm Hellen ist sein Widerstand niedrig, im Dunkeln hoch. So können wir messen, wie hell der Raum ist.",
+   "Una LDR (Light Dependent Resistor) es un sensor cuya resistencia cambia según la cantidad de luz que le llega.\\n\\nCon luz su resistencia es baja, a oscuras es alta. Así podemos medir cuánta luz hay en la habitación."
+  ],
+  "An LDR is used in every project that needs light control (street lamps, night lights)!": [
+   "Ein LDR wird in jedem Projekt benutzt, das Licht steuern soll (Straßenlaternen, Nachtlichter)!",
+   "¡Una LDR se usa en todos los proyectos que necesitan control de luz (farolas, luces nocturnas)!"
+  ],
+  "What happens to an LDR\\'s resistance when the light gets weaker (the room gets dark)?": [
+   "Was passiert mit dem Widerstand eines LDR, wenn das Licht schwächer wird (der Raum dunkel wird)?",
+   "¿Qué le pasa a la resistencia de una LDR cuando la luz se debilita (la habitación se queda a oscuras)?"
+  ],
+  "With an LDR, light and resistance are inversely related: as light drops (darkness), resistance goes up!": [
+   "Beim LDR hängen Licht und Widerstand umgekehrt zusammen: Wird es dunkler, steigt der Widerstand!",
+   "¡En una LDR la luz y la resistencia van al revés: cuanto menos luz (oscuridad), más resistencia!"
+  ],
+  "Choosing a Threshold": [
+   "Einen Schwellenwert wählen",
+   "Elegir un umbral"
+  ],
+  "First we watch the values the LDR gives in the dark and in the light, using the \"say ... for 2 seconds\" block.\\n\\nSay it reads about 700 in the light and about 50 in the dark — then a threshold of 100 is a sensible dividing line.": [
+   "Zuerst schauen wir uns die Werte an, die der LDR im Dunkeln und im Hellen gibt, indem wir sie mit «<analogen Pin（A）0 lesen> an serielle Schnittstelle schreiben» in den seriellen Monitor schicken.\\n\\nSagen wir, er liest im Hellen etwa 700 und im Dunkeln etwa 50 – dann ist ein Schwellenwert von 100 eine sinnvolle Grenze.",
+   "Primero observamos los valores que da la LDR a oscuras y con luz, enviándolos al Monitor Serie con «escribe <lee pin analógico 0> al puerto serie».\\n\\nDigamos que con luz marca unos 700 y a oscuras unos 50: entonces un umbral de 100 es una frontera razonable."
+  ],
+  "The threshold is a number you have to find by experimenting in your own room — it can be different everywhere!": [
+   "Den Schwellenwert musst du in deinem eigenen Zimmer durch Ausprobieren finden – er kann überall anders sein!",
+   "¡El umbral es un número que tienes que encontrar probando en tu propia habitación: puede ser distinto en cada sitio!"
+  ],
+  "When is the condition \"ldr < 100\" TRUE?": [
+   "Wann ist die Bedingung «ldr < 100» WAHR?",
+   "¿Cuándo es VERDADERA la condición «ldr < 100»?"
+  ],
+  "In this example, when the ldr value falls below 100 we know the room has gone dark!": [
+   "In diesem Beispiel wissen wir, dass es im Raum dunkel geworden ist, wenn der ldr-Wert unter 100 fällt!",
+   "¡En este ejemplo, cuando el valor de ldr baja de 100 sabemos que la habitación se ha quedado a oscuras!"
+  ],
+  "Build the code for a night light that turns on by itself in the dark!": [
+   "Baue den Code für ein Nachtlicht, das im Dunkeln von allein angeht!",
+   "¡Construye el código de una luz nocturna que se enciende sola a oscuras!"
+  ],
+  "If the LDR value is below 100 the LED turns on, otherwise it turns off": [
+   "Liegt der LDR-Wert unter 100, geht die LED an, sonst geht sie aus",
+   "Si el valor de la LDR está por debajo de 100 el LED se enciende; si no, se apaga"
+  ],
+  "set ldr to <read analog pin (A) 0>": [
+   "setze ldr auf <analogen Pin（A）0 lesen>",
+   "dar a ldr el valor <lee pin analógico 0>"
+  ],
+  "if <ldr < 100> then": [
+   "falls <ldr < 100>, dann",
+   "si <ldr < 100> entonces"
+  ],
+  "if <ldr > 100> then": [
+   "falls <ldr > 100>, dann",
+   "si <ldr > 100> entonces"
+  ],
+  "Analog Reader!": [
+   "Analog-Leser!",
+   "¡Lector analógico!"
+  ],
+  "🌙 You made your own night light!\\n\\n✓ You measured light with an LDR\\n✓ You learned the idea of a threshold\\n✓ You built a system that decides on its own\\n\\nNext module: the distance sensor and a parking sensor!": [
+   "🌙 Du hast dein eigenes Nachtlicht gebaut!\\n\\n✓ Du hast Licht mit einem LDR gemessen\\n✓ Du hast den Gedanken des Schwellenwerts gelernt\\n✓ Du hast ein System gebaut, das selbst entscheidet\\n\\nNächstes Modul: der Abstandssensor und eine Einparkhilfe!",
+   "🌙 ¡Has creado tu propia luz nocturna!\\n\\n✓ Mediste la luz con una LDR\\n✓ Aprendiste la idea de umbral\\n✓ Construiste un sistema que decide solo\\n\\nSiguiente módulo: ¡el sensor de distancia y un sensor de aparcamiento!"
+  ],
+  "You earned the Analog Reader badge!": [
+   "Du hast das Abzeichen «Analog-Leser» verdient!",
+   "¡Has ganado la insignia Lector Analógico!"
+  ],
+  "Distance Meter and Parking Sensor": [
+   "Abstandsmesser und Einparkhilfe",
+   "Medidor de distancia y sensor de aparcamiento"
+  ],
+  "Measure distance with an ultrasonic sensor": [
+   "Abstand mit einem Ultraschallsensor messen",
+   "Mide distancias con un sensor de ultrasonidos"
+  ],
+  "Have you ever wondered how the parking sensors in cars work? We are going to build our own with an ultrasonic sensor!": [
+   "Hast du dich je gefragt, wie die Einparkhilfen im Auto funktionieren? Wir bauen unsere eigene mit einem Ultraschallsensor!",
+   "¿Te has preguntado alguna vez cómo funcionan los sensores de aparcamiento de los coches? ¡Vamos a construir el nuestro con un sensor de ultrasonidos!"
+  ],
+  "How Does an Ultrasonic Sensor Work?": [
+   "Wie funktioniert ein Ultraschallsensor?",
+   "¿Cómo funciona un sensor de ultrasonidos?"
+  ],
+  "An ultrasonic sensor sends out sound waves too high for human ears to hear. When a wave hits an object and comes back, the sensor measures how long the round trip took and works out the distance from it.": [
+   "Ein Ultraschallsensor schickt Schallwellen aus, die für menschliche Ohren zu hoch sind. Trifft eine Welle auf ein Objekt und kommt zurück, misst der Sensor, wie lange der Hin- und Rückweg gedauert hat, und rechnet daraus den Abstand aus.",
+   "Un sensor de ultrasonidos envía ondas de sonido demasiado agudas para el oído humano. Cuando una onda choca con un objeto y vuelve, el sensor mide cuánto ha tardado el viaje de ida y vuelta y con eso calcula la distancia."
+  ],
+  "This is like the way bats find their way in the dark (echolocation)!": [
+   "Das ist wie die Art, wie Fledermäuse sich im Dunkeln zurechtfinden (Echoortung)!",
+   "¡Es como la forma en que los murciélagos se orientan a oscuras (la ecolocalización)!"
+  ],
+  "The Ultrasonic Block": [
+   "Der Ultraschall-Block",
+   "El bloque de ultrasonidos"
+  ],
+  "mBlock has a special block for reading distance:\\n\\n\"read ultrasonic sensor trig pin 12 echo pin 13\"\\n\\nThe trig pin sends the sound, the echo pin listens for it coming back.": [
+   "mBlock hat einen besonderen Block, um den Abstand zu lesen:\\n\\n«read ultrasonic sensor trig pin 12 echo pin 13»\\n\\nDer trig-Pin schickt den Schall, der echo-Pin hört auf seine Rückkehr.",
+   "mBlock tiene un bloque especial para leer la distancia:\\n\\n«lee sensor de ultrasonidos, pin de activación 12, pin de eco 13»\\n\\nEl pin de activación (trig) envía el sonido y el pin de eco escucha su vuelta."
+  ],
+  "read ultrasonic sensor trig pin 12 echo pin 13": [
+   "read ultrasonic sensor trig pin 12 echo pin 13",
+   "lee sensor de ultrasonidos, pin de activación 12, pin de eco 13"
+  ],
+  "Sensor - ultrasonic": [
+   "sensor – Ultraschall",
+   "Sensor: ultrasonidos"
+  ],
+  "What does \"read ultrasonic sensor trig pin 12 echo pin 13\" return?": [
+   "Was gibt «read ultrasonic sensor trig pin 12 echo pin 13» zurück?",
+   "¿Qué devuelve «lee sensor de ultrasonidos, pin de activación 12, pin de eco 13»?"
+  ],
+  "The ultrasonic block returns the distance in centimetres between the sensor and the object in front of it!": [
+   "Der Ultraschall-Block gibt den Abstand in Zentimetern zwischen dem Sensor und dem Objekt davor zurück!",
+   "¡El bloque de ultrasonidos devuelve la distancia en centímetros entre el sensor y el objeto que tiene delante!"
+  ],
+  "Getting a Whole Number with \"round\"": [
+   "Mit «gerundet» eine ganze Zahl bekommen",
+   "Conseguir un número entero con «redondear»"
+  ],
+  "The distance can come back with decimals. To turn it into a whole number, use the \"round\" block from the Operators category:\\n\\nset \"distance\" to round <read ultrasonic sensor trig pin 12 echo pin 13>": [
+   "Der Abstand kann mit Nachkommastellen zurückkommen. Um daraus eine ganze Zahl zu machen, nimm den Block «gerundet» aus der Kategorie Operatoren:\\n\\nsetze «abstand» auf <read ultrasonic sensor trig pin 12 echo pin 13> gerundet",
+   "La distancia puede volver con decimales. Para convertirla en un número entero, usa el bloque «redondear» de la categoría Operadores:\\n\\ndar a «distancia» el valor redondear <lee sensor de ultrasonidos, pin de activación 12, pin de eco 13>"
+  ],
+  "You can find the \"round\" block in the Operators category!": [
+   "Den Block «gerundet» findest du in der Kategorie Operatoren!",
+   "¡El bloque «redondear» está en la categoría Operadores!"
+  ],
+  "Parking Sensor: Distance + Buzzer": [
+   "Einparkhilfe: Abstand + Summer",
+   "Sensor de aparcamiento: distancia + zumbador"
+  ],
+  "Now let us put the two things together: measuring distance and the buzzer!\\n\\nif <distance < 20> then\\n  play pin 9 with note C4 for 0.5 beats\\n\\nThe closer the obstacle, the more often it beeps.": [
+   "Jetzt bringen wir die beiden Dinge zusammen: das Messen des Abstands und den Summer!\\n\\nfalls <abstand < 20>, dann\\n  Pin9 spielt Note C4 tür 0.5 Schläge\\n\\nJe näher das Hindernis, desto öfter piept es.",
+   "Ahora juntemos las dos cosas: medir la distancia y el zumbador:\\n\\nsi <distancia < 20> entonces\\n  toca nota C4 en pin 9 durante 0.5 tiempos\\n\\nCuanto más cerca esté el obstáculo, más a menudo pita."
+  ],
+  "By playing different notes at different distances you can even make an alarm that speeds up as you get closer!": [
+   "Wenn du bei verschiedenen Abständen verschiedene Noten spielst, kannst du sogar einen Alarm bauen, der schneller wird, je näher du kommst!",
+   "¡Si tocas notas distintas a distancias distintas puedes hacer incluso una alarma que va más rápido cuanto más te acercas!"
+  ],
+  "In the parking sensor project, when is \"if <distance < 20>\" true?": [
+   "Wann ist «falls <abstand < 20>» im Einparkhilfe-Projekt wahr?",
+   "En el proyecto del sensor de aparcamiento, ¿cuándo es verdadero «si <distancia < 20>»?"
+  ],
+  "If the distance is under 20 — that is, the object is very close — this condition is true and the alarm sounds!": [
+   "Ist der Abstand unter 20 – das Objekt also sehr nah –, ist diese Bedingung wahr und der Alarm ertönt!",
+   "¡Si la distancia es menor de 20, es decir, el objeto está muy cerca, esta condición es verdadera y suena la alarma!"
+  ],
+  "Final Project: Parking Sensor": [
+   "Abschlussprojekt: Einparkhilfe",
+   "Proyecto final: sensor de aparcamiento"
+  ],
+  "Build a real parking sensor system using an ultrasonic sensor and a buzzer!": [
+   "Baue mit einem Ultraschallsensor und einem Summer eine echte Einparkhilfe!",
+   "¡Construye un sistema de sensor de aparcamiento de verdad usando un sensor de ultrasonidos y un zumbador!"
+  ],
+  "Ultrasonic Master!": [
+   "Ultraschall-Meister!",
+   "¡Maestro de los ultrasonidos!"
+  ],
+  "📏 You built your own parking sensor!\\n\\n✓ You measured distance with an ultrasonic sensor\\n✓ You got clean numbers with \"round\"\\n✓ You combined a sensor with a buzzer\\n\\nNext: the final project!": [
+   "📏 Du hast deine eigene Einparkhilfe gebaut!\\n\\n✓ Du hast den Abstand mit einem Ultraschallsensor gemessen\\n✓ Du hast mit «gerundet» saubere Zahlen bekommen\\n✓ Du hast einen Sensor mit einem Summer verbunden\\n\\nAls Nächstes: das Abschlussprojekt!",
+   "📏 ¡Has construido tu propio sensor de aparcamiento!\\n\\n✓ Mediste distancias con un sensor de ultrasonidos\\n✓ Conseguiste números limpios con «redondear»\\n✓ Combinaste un sensor con un zumbador\\n\\nSiguiente: ¡el proyecto final!"
+  ],
+  "You earned the Ultrasonic Master badge!": [
+   "Du hast das Abzeichen «Ultraschall-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de los Ultrasonidos!"
+  ],
+  "Final Project: Windscreen Wiper": [
+   "Abschlussprojekt: Scheibenwischer",
+   "Proyecto final: limpiaparabrisas"
+  ],
+  "Rain sensor + servo motor": [
+   "Regensensor + Servomotor",
+   "Sensor de lluvia + servomotor"
+  ],
+  "Our last project: we are going to build the logic behind a car\\'s automatic windscreen wipers! When it rains, the servo motor runs by itself.": [
+   "Unser letztes Projekt: Wir bauen die Logik hinter dem automatischen Scheibenwischer eines Autos! Wenn es regnet, läuft der Servomotor von allein.",
+   "Nuestro último proyecto: ¡vamos a construir la lógica del limpiaparabrisas automático de un coche! Cuando llueve, el servomotor se mueve solo."
+  ],
+  "A Reminder About Servo Motors": [
+   "Eine Erinnerung an Servomotoren",
+   "Un recordatorio sobre los servomotores"
+  ],
+  "A servo motor turns precisely to any angle between 0 and 180 degrees. In mBlock it is controlled with a single block:\\n\\n\"set servo pin 9 angle as 90\"": [
+   "Ein Servomotor dreht sich genau auf jeden Winkel zwischen 0 und 180 Grad. In mBlock wird er mit einem einzigen Block gesteuert:\\n\\n«setze Servo an Anschluss 9 auf Winkel 90»",
+   "Un servomotor gira con precisión a cualquier ángulo entre 0 y 180 grados. En mBlock se controla con un solo bloque:\\n\\n«mueve el servo en pin 9 al ángulo 90»"
+  ],
+  "set servo pin 9 angle as 90": [
+   "setze Servo an Anschluss 9 auf Winkel 90",
+   "mueve el servo en pin 9 al ángulo 90"
+  ],
+  "Servo block": [
+   "Servo-Block",
+   "Bloque del servo"
+  ],
+  "Inside a servo motor there is a potentiometer attached to the shaft: the motor measures its own angle and keeps turning until it reaches the one you asked for. The three wires outside are just power (+), ground (GND) and signal.": [
+   "Im Inneren eines Servomotors sitzt ein Potentiometer an der Achse: Der Motor misst seinen eigenen Winkel und dreht weiter, bis er den erreicht, den du verlangt hast. Die drei Kabel außen sind nur Strom (+), Masse (GND) und Signal.",
+   "Dentro de un servomotor hay un potenciómetro unido al eje: el motor mide su propio ángulo y sigue girando hasta llegar al que le has pedido. Los tres cables de fuera son solo alimentación (+), tierra (GND) y señal."
+  ],
+  "How many degrees can a servo motor move through?": [
+   "Über wie viele Grad kann sich ein Servomotor bewegen?",
+   "¿Cuántos grados puede recorrer un servomotor?"
+  ],
+  "Standard servo motors can move precisely between 0 and 180 degrees!": [
+   "Normale Servomotoren können sich genau zwischen 0 und 180 Grad bewegen!",
+   "¡Los servomotores normales pueden moverse con precisión entre 0 y 180 grados!"
+  ],
+  "How Does a Rain Sensor Work?": [
+   "Wie funktioniert ein Regensensor?",
+   "¿Cómo funciona un sensor de lluvia?"
+  ],
+  "A rain sensor is made of conductive lines drawn side by side. When water touches those lines the resistance between them changes, and we read that change as an analog value.": [
+   "Ein Regensensor besteht aus leitenden Linien, die nebeneinander gezeichnet sind. Berührt Wasser diese Linien, ändert sich der Widerstand zwischen ihnen, und wir lesen diese Änderung als analogen Wert.",
+   "Un sensor de lluvia está hecho de líneas conductoras dibujadas una al lado de otra. Cuando el agua toca esas líneas, cambia la resistencia entre ellas, y ese cambio lo leemos como un valor analógico."
+  ],
+  "Water and electronics together need care — be careful not to drip water on your computer while testing!": [
+   "Wasser und Elektronik zusammen brauchen Vorsicht – pass auf, dass du beim Ausprobieren kein Wasser auf deinen Computer tropfst!",
+   "¡El agua y la electrónica juntas piden cuidado: ten cuidado de no dejar caer agua sobre tu ordenador mientras pruebas!"
+  ],
+  "Measure the Values First, Then Write the Code": [
+   "Erst die Werte messen, dann den Code schreiben",
+   "Mide primero los valores y escribe el código después"
+  ],
+  "The method the handbook suggests: first watch the DRY and WET values from the sensor with \"say ... for 2 seconds\", then pick a threshold between them. Every sensor and every environment is a little different, so measuring beats guessing.": [
+   "Die Methode, die das Handbuch vorschlägt: Schau dir zuerst die TROCKEN- und NASS-Werte des Sensors im seriellen Monitor an («<analogen Pin（A）0 lesen> an serielle Schnittstelle schreiben»), und wähle dann einen Schwellenwert dazwischen. Jeder Sensor und jede Umgebung ist ein bisschen anders, deshalb ist Messen besser als Raten.",
+   "El método que propone el manual: observa primero en el Monitor Serie los valores en SECO y en MOJADO del sensor (con «escribe <lee pin analógico 0> al puerto serie») y elige después un umbral entre los dos. Cada sensor y cada entorno es un poco distinto, así que medir es mejor que adivinar."
+  ],
+  "Every sensor can give slightly different values — that is why measuring first and coding afterwards is the right way round!": [
+   "Jeder Sensor kann etwas andere Werte geben – deshalb ist erst messen und dann programmieren die richtige Reihenfolge!",
+   "¡Cada sensor puede dar valores algo distintos: por eso medir primero y programar después es el orden correcto!"
+  ],
+  "Why should we measure the rain sensor\\'s values before writing the threshold into the code?": [
+   "Warum sollten wir die Werte des Regensensors messen, bevor wir den Schwellenwert in den Code schreiben?",
+   "¿Por qué deberíamos medir los valores del sensor de lluvia antes de escribir el umbral en el código?"
+  ],
+  "Sensors differ slightly from one another, so observing first and finding the right threshold value is what makes the project work properly!": [
+   "Sensoren unterscheiden sich leicht voneinander, deshalb sorgt erst beobachten und den richtigen Schwellenwert finden dafür, dass das Projekt richtig funktioniert!",
+   "¡Los sensores se diferencian un poco entre sí, así que observar primero y encontrar el umbral adecuado es lo que hace que el proyecto funcione bien!"
+  ],
+  "Build the final code that runs the servo motor when rain is detected!": [
+   "Baue den Abschluss-Code, der den Servomotor laufen lässt, wenn Regen erkannt wird!",
+   "¡Construye el código final que mueve el servomotor cuando se detecta lluvia!"
+  ],
+  "If the rain sensor detects water the servo moves (simulating the wiper)": [
+   "Erkennt der Regensensor Wasser, bewegt sich der Servo (er spielt den Scheibenwischer)",
+   "Si el sensor de lluvia detecta agua el servo se mueve (simulando el limpiaparabrisas)"
+  ],
+  "set rain to <read analog pin (A) 0>": [
+   "setze regen auf <analogen Pin（A）0 lesen>",
+   "dar a lluvia el valor <lee pin analógico 0>"
+  ],
+  "if <rain < 300> then": [
+   "falls <regen < 300>, dann",
+   "si <lluvia < 300> entonces"
+  ],
+  "set servo pin 9 angle as 0": [
+   "setze Servo an Anschluss 9 auf Winkel 0",
+   "mueve el servo en pin 9 al ángulo 0"
+  ],
+  "Final Project: Automatic Windscreen Wiper": [
+   "Abschlussprojekt: automatischer Scheibenwischer",
+   "Proyecto final: limpiaparabrisas automático"
+  ],
+  "Put EVERYTHING you have learned together and build an automatic windscreen wiper with a rain sensor!": [
+   "Bring ALLES Gelernte zusammen und baue einen automatischen Scheibenwischer mit einem Regensensor!",
+   "¡Junta TODO lo que has aprendido y construye un limpiaparabrisas automático con un sensor de lluvia!"
+  ],
+  "🎓 YOU FINISHED THE ARDUINO COURSE!": [
+   "🎓 DU HAST DEN ARDUINO-KURS GESCHAFFT!",
+   "🎓 ¡HAS TERMINADO EL CURSO DE ARDUINO!"
+  ],
+  "🎉🤖🎉 You finished every basic project in the curriculum!\\n\\n✓ Lighting an LED and reading a button\\n✓ A traffic light and a potentiometer\\n✓ A buzzer, an LDR and an ultrasonic sensor\\n✓ A servo motor and a rain sensor\\n\\nYou are a maker now!": [
+   "🎉🤖🎉 Du hast jedes Grundprojekt des Lehrplans geschafft!\\n\\n✓ Eine LED leuchten lassen und einen Taster lesen\\n✓ Eine Ampel und ein Potentiometer\\n✓ Ein Summer, ein LDR und ein Ultraschallsensor\\n✓ Ein Servomotor und ein Regensensor\\n\\nJetzt bist du ein Maker!",
+   "🎉🤖🎉 ¡Has terminado todos los proyectos básicos del programa!\\n\\n✓ Encender un LED y leer un botón\\n✓ Un semáforo y un potenciómetro\\n✓ Un zumbador, una LDR y un sensor de ultrasonidos\\n✓ Un servomotor y un sensor de lluvia\\n\\n¡Ya eres un maker!"
+  ],
+  "You are an Arduino Graduate! With these skills you can start building projects you invent yourself.": [
+   "Du bist Arduino-Absolvent! Mit diesen Fähigkeiten kannst du anfangen, selbst ausgedachte Projekte zu bauen.",
+   "¡Eres graduado en Arduino! Con estas habilidades puedes empezar a construir proyectos que inventes tú."
+  ],
+  "From Blocks to Code: Hello Arduino IDE": [
+   "Von Blöcken zu Code: Hallo Arduino IDE",
+   "De los bloques al código: hola, Arduino IDE"
+  ],
+  "Write the logic you learned in real code": [
+   "Schreib die gelernte Logik in echtem Code",
+   "Escribe en código real la lógica que has aprendido"
+  ],
+  "Congratulations! You finished five mBlock modules. Now we\\'ll learn to write real TEXT CODE with the Arduino IDE, just like professional engineers. Don\\'t worry - the logic is the same, only the blocks turn into words!": [
+   "Glückwunsch! Du hast fünf mBlock-Module geschafft. Jetzt lernen wir, mit der Arduino IDE echten TEXT-CODE zu schreiben, so wie professionelle Ingenieure. Keine Sorge – die Logik ist dieselbe, nur aus den Blöcken werden Wörter!",
+   "¡Enhorabuena! Has terminado cinco módulos de mBlock. Ahora vamos a aprender a escribir CÓDIGO DE TEXTO de verdad con el Arduino IDE, como los ingenieros profesionales. No te preocupes: la lógica es la misma, solo que los bloques se convierten en palabras."
+  ],
+  "The Skeleton of Every Arduino Sketch": [
+   "Das Gerüst jedes Arduino-Sketches",
+   "El esqueleto de todo sketch de Arduino"
+  ],
+  "Every program you write in the Arduino IDE is called a \"sketch\". Every sketch has two core functions:\\n\\nvoid setup() {\\n  // Runs ONLY ONCE\\n}\\n\\nvoid loop() {\\n  // Repeats FOREVER\\n}\\n\\nThis is the exact text equivalent of mBlock\\'s \"when clicked\" (runs once) and \"forever\" (infinite loop) blocks!": [
+   "Jedes Programm, das du in der Arduino IDE schreibst, heißt «Sketch». Jeder Sketch hat zwei Kernfunktionen:\\n\\nvoid setup() {\\n  // Läuft NUR EINMAL\\n}\\n\\nvoid loop() {\\n  // Wiederholt sich ENDLOS\\n}\\n\\nDas ist genau die Text-Entsprechung von mBlocks Blöcken «wenn angeklickt» (läuft einmal) und «wiederhole fortlaufend» (Endlosschleife)!",
+   "A cada programa que escribes en el Arduino IDE se le llama «sketch». Todo sketch tiene dos funciones centrales:\\n\\nvoid setup() {\\n  // Se ejecuta SOLO UNA VEZ\\n}\\n\\nvoid loop() {\\n  // Se repite PARA SIEMPRE\\n}\\n\\n¡Es el equivalente exacto en texto de los bloques «al hacer clic» (se ejecuta una vez) y «por siempre» (bucle infinito) de mBlock!"
+  ],
+  "setup() = one-time preparation, loop() = the task that keeps running.": [
+   "setup() = einmalige Vorbereitung, loop() = die Aufgabe, die immer weiterläuft.",
+   "setup() = preparación de una sola vez, loop() = la tarea que sigue ejecutándose."
+  ],
+  "The Text Equivalent of Blocks You Know": [
+   "Die Text-Entsprechung der Blöcke, die du kennst",
+   "El equivalente en texto de los bloques que ya conoces"
+  ],
+  "The blocks you used in mBlock are now written like this:\\n\\n\"set pin to OUTPUT\" -> pinMode(9, OUTPUT);\\n\"turn pin ON\" -> digitalWrite(9, HIGH);\\n\"turn pin OFF\" -> digitalWrite(9, LOW);\\n\"wait X seconds\" -> delay(1000); (Arduino uses milliseconds! 1000 ms = 1 second)\\n\\nEvery line MUST end with a semicolon ( ; ) - that\\'s how Arduino\\'s language says \"this command is finished\".": [
+   "Die Blöcke, die du in mBlock benutzt hast, schreibt man jetzt so:\\n\\n«Pin auf AUSGANG setzen» -> pinMode(9, OUTPUT);\\n«Pin AN schalten» -> digitalWrite(9, HIGH);\\n«Pin AUS schalten» -> digitalWrite(9, LOW);\\n«X Sekunden warten» -> delay(1000); (Arduino rechnet in Millisekunden! 1000 ms = 1 Sekunde)\\n\\nJede Zeile MUSS mit einem Semikolon ( ; ) enden – so sagt Arduinos Sprache «dieser Befehl ist zu Ende».",
+   "Los bloques que usaste en mBlock ahora se escriben así:\\n\\n«poner el pin en SALIDA» -> pinMode(9, OUTPUT);\\n«encender el pin» -> digitalWrite(9, HIGH);\\n«apagar el pin» -> digitalWrite(9, LOW);\\n«esperar X segundos» -> delay(1000); (¡Arduino usa milisegundos! 1000 ms = 1 segundo)\\n\\nToda línea DEBE terminar con un punto y coma ( ; ): así dice el lenguaje de Arduino «esta orden está terminada»."
+  ],
+  "If you forget the semicolon, the Arduino IDE shows a red error - that\\'s normal, it\\'s part of debugging!": [
+   "Vergisst du das Semikolon, zeigt die Arduino IDE einen roten Fehler – das ist normal und gehört zur Fehlersuche!",
+   "¡Si te olvidas del punto y coma, el Arduino IDE muestra un error en rojo: es normal, forma parte de la depuración!"
+  ],
+  "How many times does the loop() function run?": [
+   "Wie oft läuft die Funktion loop()?",
+   "¿Cuántas veces se ejecuta la función loop()?"
+  ],
+  "The loop() function repeats forever as long as the Arduino is powered on - just like mBlock\\'s \"forever\" block!": [
+   "Die Funktion loop() wiederholt sich endlos, solange der Arduino Strom hat – genau wie mBlocks Block «wiederhole fortlaufend»!",
+   "¡La función loop() se repite sin parar mientras el Arduino tenga corriente, igual que el bloque «por siempre» de mBlock!"
+  ],
+  "There\\'s a bug in this code. Can you find it?": [
+   "In diesem Code steckt ein Fehler. Findest du ihn?",
+   "En este código hay un fallo. ¿Puedes encontrarlo?"
+  ],
+  "The pinMode line is missing a semicolon ( ; ) at the end!": [
+   "In der pinMode-Zeile fehlt am Ende das Semikolon ( ; )!",
+   "¡A la línea del pinMode le falta el punto y coma ( ; ) del final!"
+  ],
+  "In Arduino (and C++), every command line must end with a semicolon. It tells the compiler \"this line is complete\".": [
+   "In Arduino (und C++) muss jede Befehlszeile mit einem Semikolon enden. Es sagt dem Compiler «diese Zeile ist vollständig».",
+   "En Arduino (y en C++), toda línea de orden debe terminar con un punto y coma. Le dice al compilador «esta línea está completa»."
+  ],
+  "Write code that turns the LED on pin 9 on for 1 second and off for 1 second (blink).": [
+   "Schreibe Code, der die LED an Pin 9 für 1 Sekunde anschaltet und für 1 Sekunde ausschaltet (Blinken).",
+   "Escribe el código que enciende el LED del pin 9 durante 1 segundo y lo apaga durante 1 segundo (parpadeo)."
+  ],
+  "You Wrote Your First Text Code!": [
+   "Du hast deinen ersten Text-Code geschrieben!",
+   "¡Has escrito tu primer código de texto!"
+  ],
+  "💻 You\\'re now a real Arduino programmer!\\n\\n✓ You know what setup() and loop() do\\n✓ You can write pinMode, digitalWrite, delay commands\\n✓ You learned why semicolons matter\\n✓ You can spot and fix bugs in code\\n\\nNext up: variables and debugging with the Serial Monitor!": [
+   "💻 Jetzt bist du ein echter Arduino-Programmierer!\\n\\n✓ Du weißt, was setup() und loop() tun\\n✓ Du kannst die Befehle pinMode, digitalWrite und delay schreiben\\n✓ Du hast gelernt, warum Semikolons wichtig sind\\n✓ Du kannst Fehler im Code finden und beheben\\n\\nAls Nächstes: Variablen und Fehlersuche mit dem seriellen Monitor!",
+   "💻 ¡Ya eres un programador de Arduino de verdad!\\n\\n✓ Sabes qué hacen setup() y loop()\\n✓ Puedes escribir las órdenes pinMode, digitalWrite y delay\\n✓ Aprendiste por qué importan los puntos y comas\\n✓ Sabes encontrar y corregir fallos en el código\\n\\nSiguiente: ¡variables y depuración con el Monitor Serie!"
+  ],
+  "You earned the Code Writer badge!": [
+   "Du hast das Abzeichen «Code-Schreiber» verdient!",
+   "¡Has ganado la insignia Escritor de Código!"
+  ],
+  "Variables and Debugging with the Serial Monitor": [
+   "Variablen und Fehlersuche mit dem seriellen Monitor",
+   "Variables y depuración con el Monitor Serie"
+  ],
+  "Make what\\'s happening inside your code visible": [
+   "Mach sichtbar, was in deinem Code passiert",
+   "Haz visible lo que pasa dentro de tu código"
+  ],
+  "Remember creating variables in mBlock? Now we\\'ll do the same thing in code. Plus, with a magic window called the \"Serial Monitor\", we\\'ll watch what\\'s happening inside the Arduino live on our computer screen!": [
+   "Erinnerst du dich daran, in mBlock Variablen zu erstellen? Jetzt machen wir dasselbe im Code. Und mit einem Zauberfenster namens «serieller Monitor» schauen wir live auf unserem Bildschirm zu, was im Arduino passiert!",
+   "¿Te acuerdas de crear variables en mBlock? Ahora haremos lo mismo en código. Además, con una ventana mágica llamada «Monitor Serie», veremos en directo en la pantalla del ordenador lo que pasa dentro del Arduino."
+  ],
+  "Declaring a Variable": [
+   "Eine Variable deklarieren",
+   "Declarar una variable"
+  ],
+  "Think of it like a labeled box holding a number:\\n\\nint ledPin = 9;\\nint waitTime = 500;\\n\\n\"int\" tells the box it holds a WHOLE NUMBER. Now instead of typing \"9\" everywhere, you can type \"ledPin\" - and if you want to change the pin, you only update ONE line!": [
+   "Stell es dir wie eine beschriftete Kiste vor, die eine Zahl enthält:\\n\\nint ledPin = 9;\\nint waitTime = 500;\\n\\n«int» sagt der Kiste, dass sie eine GANZE ZAHL enthält. Statt überall «9» zu tippen, kannst du jetzt «ledPin» tippen – und wenn du den Pin ändern willst, änderst du nur EINE Zeile!",
+   "Imagínalo como una caja etiquetada que guarda un número:\\n\\nint ledPin = 9;\\nint waitTime = 500;\\n\\n«int» le dice a la caja que guarda un NÚMERO ENTERO. ¡Ahora, en lugar de escribir «9» por todas partes, puedes escribir «ledPin», y si quieres cambiar el pin solo actualizas UNA línea!"
+  ],
+  "Variable names should be meaningful: write \"ledPin\", not \"x\" - let your code explain itself!": [
+   "Variablennamen sollten etwas aussagen: Schreib «ledPin», nicht «x» – lass deinen Code sich selbst erklären!",
+   "Los nombres de las variables deben tener sentido: escribe «ledPin», no «x»; ¡deja que tu código se explique solo!"
+  ],
+  "The Serial Monitor: Arduino\\'s Diary": [
+   "Der serielle Monitor: Arduinos Tagebuch",
+   "El Monitor Serie: el diario del Arduino"
+  ],
+  "To see what the Arduino is \"thinking\", you use the Serial Monitor:\\n\\nvoid setup() {\\n  Serial.begin(9600);\\n}\\n\\nvoid loop() {\\n  Serial.println(\"Hello!\");\\n  delay(1000);\\n}\\n\\nClicking the magnifying-glass icon in the top-right of the Arduino IDE opens the Serial Monitor window, where you\\'ll see these messages live. This is the debugging technique professional programmers use the most!": [
+   "Um zu sehen, was der Arduino «denkt», benutzt du den seriellen Monitor:\\n\\nvoid setup() {\\n  Serial.begin(9600);\\n}\\n\\nvoid loop() {\\n  Serial.println(\"Hallo!\");\\n  delay(1000);\\n}\\n\\nEin Klick auf das Lupensymbol oben rechts in der Arduino IDE öffnet das Fenster des seriellen Monitors, wo du diese Meldungen live siehst. Das ist die Technik zur Fehlersuche, die professionelle Programmierer am meisten benutzen!",
+   "Para ver lo que el Arduino «está pensando» usas el Monitor Serie:\\n\\nvoid setup() {\\n  Serial.begin(9600);\\n}\\n\\nvoid loop() {\\n  Serial.println(\"¡Hola!\");\\n  delay(1000);\\n}\\n\\nAl hacer clic en el icono de la lupa, arriba a la derecha del Arduino IDE, se abre la ventana del Monitor Serie, donde verás estos mensajes en directo. ¡Es la técnica de depuración que más usan los programadores profesionales!"
+  ],
+  "Serial.begin(9600) is written only once, inside setup() - it sets the communication speed.": [
+   "Serial.begin(9600) wird nur einmal geschrieben, in setup() – es legt die Übertragungsgeschwindigkeit fest.",
+   "Serial.begin(9600) se escribe solo una vez, dentro de setup(): fija la velocidad de comunicación."
+  ],
+  "Which command shows a value read from a sensor on the screen?": [
+   "Welcher Befehl zeigt einen Wert an, der von einem Sensor gelesen wurde?",
+   "¿Qué orden muestra en la pantalla un valor leído de un sensor?"
+  ],
+  "Serial.println() prints a value to the Serial Monitor - the fastest way to test sensor readings.": [
+   "Serial.println() gibt einen Wert im seriellen Monitor aus – der schnellste Weg, Sensormessungen zu prüfen.",
+   "Serial.println() imprime un valor en el Monitor Serie: la forma más rápida de comprobar las lecturas de un sensor."
+  ],
+  "Complete the code that prints a potentiometer reading to the Serial Monitor.": [
+   "Vervollständige den Code, der einen Potentiometerwert im seriellen Monitor ausgibt.",
+   "Completa el código que imprime la lectura de un potenciómetro en el Monitor Serie."
+  ],
+  "You\\'re a Bug Hunter Now!": [
+   "Jetzt bist du ein Fehlerjäger!",
+   "¡Ya eres cazador de fallos!"
+  ],
+  "🕵️ You can see inside your code now!\\n\\n✓ You learned to declare variables (int)\\n✓ You can use Serial.begin() and Serial.println()\\n✓ You can watch sensor readings live\\n\\nThis is the very first thing real engineers do when testing their projects!": [
+   "🕵️ Jetzt kannst du in deinen Code hineinsehen!\\n\\n✓ Du hast gelernt, Variablen zu deklarieren (int)\\n✓ Du kannst Serial.begin() und Serial.println() benutzen\\n✓ Du kannst Sensormessungen live verfolgen\\n\\nDas ist das Allererste, was echte Ingenieure beim Testen ihrer Projekte tun!",
+   "🕵️ ¡Ya puedes ver dentro de tu código!\\n\\n✓ Aprendiste a declarar variables (int)\\n✓ Puedes usar Serial.begin() y Serial.println()\\n✓ Puedes seguir las lecturas de un sensor en directo\\n\\n¡Es lo primerísimo que hacen los ingenieros de verdad al probar sus proyectos!"
+  ],
+  "You earned the Bug Hunter badge!": [
+   "Du hast das Abzeichen «Fehlerjäger» verdient!",
+   "¡Has ganado la insignia Cazador de Fallos!"
+  ],
+  "Simplifying Code with Functions": [
+   "Code mit Funktionen vereinfachen",
+   "Simplificar el código con funciones"
+  ],
+  "Write your own commands": [
+   "Schreib deine eigenen Befehle",
+   "Escribe tus propias órdenes"
+  ],
+  "Remember using \"My Blocks\" in mBlock? Here\\'s its text-code equivalent: FUNCTIONS! Write repeated code once and call it as many times as you like.": [
+   "Erinnerst du dich an «Meine Blöcke» in mBlock? Hier ist die Entsprechung im Text-Code: FUNKTIONEN! Schreib wiederkehrenden Code einmal und ruf ihn so oft auf, wie du willst.",
+   "¿Te acuerdas de usar «Mis bloques» en mBlock? Aquí está su equivalente en código de texto: ¡las FUNCIONES! Escribe una vez el código que se repite y llámalo tantas veces como quieras."
+  ],
+  "Why Do We Write Functions?": [
+   "Warum schreiben wir Funktionen?",
+   "¿Por qué escribimos funciones?"
+  ],
+  "If you want to blink an LED 3 times, you could copy the same lines 3 times. But what if you wanted 10 times? Or wanted to use it in 5 different places?\\n\\nThat\\'s where a FUNCTION comes in - you write the code once, and call it as many times as you like:\\n\\nvoid blinkLed() {\\n  digitalWrite(9, HIGH);\\n  delay(300);\\n  digitalWrite(9, LOW);\\n  delay(300);\\n}\\n\\nThen inside loop() you just write blinkLed(); to call it!": [
+   "Wenn du eine LED 3-mal blinken lassen willst, könntest du dieselben Zeilen 3-mal kopieren. Aber was, wenn du 10-mal willst? Oder es an 5 verschiedenen Stellen brauchst?\\n\\nDa kommt eine FUNKTION ins Spiel – du schreibst den Code einmal und rufst ihn so oft auf, wie du willst:\\n\\nvoid blinkLed() {\\n  digitalWrite(9, HIGH);\\n  delay(300);\\n  digitalWrite(9, LOW);\\n  delay(300);\\n}\\n\\nDann schreibst du in loop() einfach blinkLed();, um sie aufzurufen!",
+   "Si quieres que un LED parpadee 3 veces, podrías copiar las mismas líneas 3 veces. ¿Pero y si quisieras 10 veces? ¿O usarlo en 5 sitios distintos?\\n\\nAhí entra una FUNCIÓN: escribes el código una vez y lo llamas tantas veces como quieras:\\n\\nvoid blinkLed() {\\n  digitalWrite(9, HIGH);\\n  delay(300);\\n  digitalWrite(9, LOW);\\n  delay(300);\\n}\\n\\n¡Después, dentro de loop(), solo escribes blinkLed(); para llamarla!"
+  ],
+  "Functions are the foundation of \"Don\\'t Repeat Yourself\" (DRY) - a golden rule for professional programmers!": [
+   "Funktionen sind die Grundlage von «Don\\'t Repeat Yourself» (DRY) – einer goldenen Regel für professionelle Programmierer!",
+   "¡Las funciones son la base de «Don\\'t Repeat Yourself» (DRY), una regla de oro de los programadores profesionales!"
+  ],
+  "Sending Information to a Function: Parameters": [
+   "Informationen an eine Funktion schicken: Parameter",
+   "Enviar información a una función: los parámetros"
+  ],
+  "Functions become even more powerful with parameters:\\n\\nvoid blinkLed(int pin, int duration) {\\n  digitalWrite(pin, HIGH);\\n  delay(duration);\\n  digitalWrite(pin, LOW);\\n  delay(duration);\\n}\\n\\nNow inside loop():\\nblinkLed(9, 300);  // pin 9, 300ms\\nblinkLed(10, 100); // pin 10, 100ms\\n\\nYou can reuse the same function for different pins and timings!": [
+   "Mit Parametern werden Funktionen noch mächtiger:\\n\\nvoid blinkLed(int pin, int duration) {\\n  digitalWrite(pin, HIGH);\\n  delay(duration);\\n  digitalWrite(pin, LOW);\\n  delay(duration);\\n}\\n\\nJetzt in loop():\\nblinkLed(9, 300);  // Pin 9, 300 ms\\nblinkLed(10, 100); // Pin 10, 100 ms\\n\\nDu kannst dieselbe Funktion für verschiedene Pins und Zeiten wiederverwenden!",
+   "Las funciones se vuelven aún más potentes con parámetros:\\n\\nvoid blinkLed(int pin, int duration) {\\n  digitalWrite(pin, HIGH);\\n  delay(duration);\\n  digitalWrite(pin, LOW);\\n  delay(duration);\\n}\\n\\nAhora dentro de loop():\\nblinkLed(9, 300);  // pin 9, 300 ms\\nblinkLed(10, 100); // pin 10, 100 ms\\n\\n¡Puedes reutilizar la misma función para pines y tiempos distintos!"
+  ],
+  "Parameters are how you tell a function \"do it this way, just this once\".": [
+   "Mit Parametern sagst du einer Funktion «mach es dieses eine Mal so».",
+   "Los parámetros son la forma de decirle a una función «hazlo así, solo esta vez»."
+  ],
+  "What is the biggest benefit of writing a function?": [
+   "Was ist der größte Vorteil daran, eine Funktion zu schreiben?",
+   "¿Cuál es la mayor ventaja de escribir una función?"
+  ],
+  "Functions reduce code repetition, make code easier to read, and lower the chance of mistakes.": [
+   "Funktionen verringern doppelten Code, machen ihn leichter lesbar und senken die Fehlerwahrscheinlichkeit.",
+   "Las funciones reducen la repetición de código, lo hacen más fácil de leer y bajan la probabilidad de errores."
+  ],
+  "Write a function that takes 2 parameters (pin, repeatCount) and blinks the LED that many times.": [
+   "Schreibe eine Funktion, die 2 Parameter nimmt (pin, repeatCount) und die LED so oft blinken lässt.",
+   "Escribe una función que reciba 2 parámetros (pin, repeatCount) y haga parpadear el LED ese número de veces."
+  ],
+  "You Wrote Your Own Commands!": [
+   "Du hast deine eigenen Befehle geschrieben!",
+   "¡Has escrito tus propias órdenes!"
+  ],
+  "🧩 You now write code using functions!\\n\\n✓ You know what a function is and why it matters\\n✓ You can write flexible functions using parameters\\n✓ You learned to reduce code repetition\\n\\nNext up: displaying messages with a real piece of hardware, the LCD screen!": [
+   "🧩 Jetzt schreibst du Code mit Funktionen!\\n\\n✓ Du weißt, was eine Funktion ist und warum sie wichtig ist\\n✓ Du kannst mit Parametern flexible Funktionen schreiben\\n✓ Du hast gelernt, doppelten Code zu verringern\\n\\nAls Nächstes: Meldungen mit einem echten Bauteil anzeigen, dem LCD-Display!",
+   "🧩 ¡Ya escribes código con funciones!\\n\\n✓ Sabes qué es una función y por qué importa\\n✓ Puedes escribir funciones flexibles usando parámetros\\n✓ Aprendiste a reducir la repetición de código\\n\\nSiguiente: ¡mostrar mensajes con un componente de verdad, la pantalla LCD!"
+  ],
+  "You earned the Function Master badge!": [
+   "Du hast das Abzeichen «Funktions-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de las Funciones!"
+  ],
+  "Displaying Messages with an I2C LCD": [
+   "Meldungen mit einem I2C-LCD anzeigen",
+   "Mostrar mensajes con una LCD I2C"
+  ],
+  "Add a screen to your project": [
+   "Gib deinem Projekt ein Display",
+   "Añade una pantalla a tu proyecto"
+  ],
+  "Until now your projects \"spoke\" through LEDs and buzzers. Now we\\'ll add a real SCREEN - a 16x2 I2C LCD! Your project will be able to display information like temperature, distance, or messages as text.": [
+   "Bisher haben deine Projekte über LEDs und Summer «gesprochen». Jetzt kommt ein echtes DISPLAY dazu – ein 16x2-I2C-LCD! Dein Projekt kann Informationen wie Temperatur, Abstand oder Meldungen als Text anzeigen.",
+   "Hasta ahora tus proyectos «hablaban» con LEDs y zumbadores. ¡Ahora vamos a añadir una PANTALLA de verdad: una LCD I2C de 16x2! Tu proyecto podrá mostrar información como la temperatura, la distancia o mensajes en forma de texto."
+  ],
+  "How to Wire an I2C LCD": [
+   "Wie man ein I2C-LCD anschließt",
+   "Cómo conectar una LCD I2C"
+  ],
+  "A 16x2 I2C LCD screen only needs 4 wires:\\n\\nVCC -> Arduino 5V\\nGND -> Arduino GND\\nSDA -> Arduino A4 (on Uno)\\nSCL -> Arduino A5 (on Uno)\\n\\nThanks to \"I2C\", data travels over a single wire (SDA) - no need for a regular LCD\\'s 6-7 wires! Remember adding an LCD from the \"Extensions\" menu in mBlock? Now we\\'ll control the same screen with code.": [
+   "Ein 16x2-I2C-LCD braucht nur 4 Kabel:\\n\\nVCC -> Arduino 5V\\nGND -> Arduino GND\\nSDA -> Arduino A4 (beim Uno)\\nSCL -> Arduino A5 (beim Uno)\\n\\nDank «I2C» laufen die Daten über ein einziges Kabel (SDA) – die 6-7 Kabel eines normalen LCD sind nicht nötig! Erinnerst du dich daran, in mBlock über das Menü «Erweiterungen» ein LCD hinzuzufügen? Jetzt steuern wir dasselbe Display mit Code.",
+   "Una pantalla LCD I2C de 16x2 solo necesita 4 cables:\\n\\nVCC -> Arduino 5V\\nGND -> Arduino GND\\nSDA -> Arduino A4 (en el Uno)\\nSCL -> Arduino A5 (en el Uno)\\n\\nGracias al «I2C», los datos viajan por un solo cable (SDA): ¡no hacen falta los 6-7 cables de una LCD normal! ¿Te acuerdas de añadir una LCD desde el menú «Extensiones» en mBlock? Ahora controlaremos esa misma pantalla con código."
+  ],
+  "Most I2C LCD modules use address 0x27 or 0x3F - if it doesn\\'t work, an \"I2C Scanner\" sketch can find the right address.": [
+   "Die meisten I2C-LCD-Module benutzen die Adresse 0x27 oder 0x3F – geht es nicht, findet ein «I2C Scanner»-Sketch die richtige Adresse.",
+   "La mayoría de los módulos LCD I2C usan la dirección 0x27 o 0x3F; si no funciona, un sketch «I2C Scanner» puede encontrar la dirección correcta."
+  ],
+  "Using the Library": [
+   "Die Bibliothek benutzen",
+   "Usar la biblioteca"
+  ],
+  "#include <LiquidCrystal_I2C.h>\\nLiquidCrystal_I2C lcd(0x27, 16, 2);\\n\\nvoid setup() {\\n  lcd.init();\\n  lcd.backlight();\\n  lcd.setCursor(0, 0);\\n  lcd.print(\"Hello World!\");\\n}\\n\\nlcd.setCursor(column, row) decides where the cursor writes (0,0 is the top-left corner). lcd.print() then prints text starting from the cursor.": [
+   "#include <LiquidCrystal_I2C.h>\\nLiquidCrystal_I2C lcd(0x27, 16, 2);\\n\\nvoid setup() {\\n  lcd.init();\\n  lcd.backlight();\\n  lcd.setCursor(0, 0);\\n  lcd.print(\"Hello World!\");\\n}\\n\\nlcd.setCursor(Spalte, Zeile) entscheidet, wo der Cursor schreibt (0,0 ist die obere linke Ecke). lcd.print() gibt den Text dann ab dem Cursor aus.",
+   "#include <LiquidCrystal_I2C.h>\\nLiquidCrystal_I2C lcd(0x27, 16, 2);\\n\\nvoid setup() {\\n  lcd.init();\\n  lcd.backlight();\\n  lcd.setCursor(0, 0);\\n  lcd.print(\"Hello World!\");\\n}\\n\\nlcd.setCursor(columna, fila) decide dónde escribe el cursor (0,0 es la esquina superior izquierda). lcd.print() imprime después el texto a partir del cursor."
+  ],
+  "Install the library from Tools > Manage Libraries in the Arduino IDE by searching \"LiquidCrystal I2C\".": [
+   "Installiere die Bibliothek in der Arduino IDE über Werkzeuge > Bibliotheken verwalten, indem du nach «LiquidCrystal I2C» suchst.",
+   "Instala la biblioteca en el Arduino IDE desde Herramientas > Gestionar bibliotecas buscando «LiquidCrystal I2C»."
+  ],
+  "Where does lcd.setCursor(0, 1) move the cursor?": [
+   "Wohin bewegt lcd.setCursor(0, 1) den Cursor?",
+   "¿Adónde mueve el cursor lcd.setCursor(0, 1)?"
+  ],
+  "In setCursor(column, row), the second number is the row; since rows start at 0, \"1\" is the second row.": [
+   "Bei setCursor(Spalte, Zeile) ist die zweite Zahl die Zeile; da die Zeilen bei 0 beginnen, ist «1» die zweite Zeile.",
+   "En setCursor(columna, fila) el segundo número es la fila; como las filas empiezan en 0, «1» es la segunda fila."
+  ],
+  "This code shows nothing on the LCD. Find the bug!": [
+   "Dieser Code zeigt nichts auf dem LCD. Finde den Fehler!",
+   "Este código no muestra nada en la LCD. ¡Encuentra el fallo!"
+  ],
+  "lcd.init() and lcd.backlight() are never called, so the screen is never started and the backlight stays off!": [
+   "lcd.init() und lcd.backlight() werden nie aufgerufen, also wird das Display nie gestartet und die Hintergrundbeleuchtung bleibt aus!",
+   "¡Nunca se llama a lcd.init() ni a lcd.backlight(), así que la pantalla no se inicia nunca y la retroiluminación se queda apagada!"
+  ],
+  "Every LCD project must call lcd.init() first inside setup() to start the screen, then lcd.backlight() to turn on the light.": [
+   "Jedes LCD-Projekt muss in setup() zuerst lcd.init() aufrufen, um das Display zu starten, und dann lcd.backlight(), um das Licht anzuschalten.",
+   "Todo proyecto con LCD tiene que llamar primero a lcd.init() dentro de setup() para iniciar la pantalla, y después a lcd.backlight() para encender la luz."
+  ],
+  "Complete the code that prints \"DevEducation\" on the first line and \"Hello!\" on the second.": [
+   "Vervollständige den Code, der «DevEducation» in die erste Zeile und «Hello!» in die zweite schreibt.",
+   "Completa el código que escribe «DevEducation» en la primera línea y «Hello!» en la segunda."
+  ],
+  "You Added a Screen to Your Project!": [
+   "Du hast deinem Projekt ein Display gegeben!",
+   "¡Le has añadido una pantalla a tu proyecto!"
+  ],
+  "📺 You can now use a real screen in your projects!\\n\\n✓ You know how to wire an I2C LCD\\n✓ You can use the LiquidCrystal_I2C library\\n✓ You can print any text to any line of the screen\\n\\nNext up: the grand final project combining everything you\\'ve learned - the Smart Plant Watering System!": [
+   "📺 Jetzt kannst du in deinen Projekten ein echtes Display benutzen!\\n\\n✓ Du weißt, wie man ein I2C-LCD anschließt\\n✓ Du kannst die Bibliothek LiquidCrystal_I2C benutzen\\n✓ Du kannst jeden Text in jede Zeile des Displays schreiben\\n\\nAls Nächstes: das große Abschlussprojekt, das alles Gelernte verbindet – die smarte Pflanzenbewässerung!",
+   "📺 ¡Ya puedes usar una pantalla de verdad en tus proyectos!\\n\\n✓ Sabes cómo conectar una LCD I2C\\n✓ Puedes usar la biblioteca LiquidCrystal_I2C\\n✓ Puedes escribir cualquier texto en cualquier línea de la pantalla\\n\\nSiguiente: ¡el gran proyecto final que junta todo lo aprendido: el sistema inteligente de riego de plantas!"
+  ],
+  "You earned the Screen Master badge!": [
+   "Du hast das Abzeichen «Display-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de la Pantalla!"
+  ],
+  "Final Project: Smart Plant Watering System": [
+   "Abschlussprojekt: smarte Pflanzenbewässerung",
+   "Proyecto final: sistema inteligente de riego de plantas"
+  ],
+  "Soil moisture sensor + LCD + relay": [
+   "Bodenfeuchtesensor + LCD + Relais",
+   "Sensor de humedad del suelo + LCD + relé"
+  ],
+  "You\\'ve reached the final project of the Advanced module! We\\'ll combine EVERYTHING you learned here: variables, the Serial Monitor, functions, and the LCD screen. We\\'ll solve a real problem: who notices when a plant gets thirsty?": [
+   "Du bist beim Abschlussprojekt des Fortgeschrittenen-Moduls angekommen! Wir bringen ALLES zusammen, was du hier gelernt hast: Variablen, den seriellen Monitor, Funktionen und das LCD-Display. Wir lösen ein echtes Problem: Wer merkt eigentlich, wenn eine Pflanze durstig wird?",
+   "¡Has llegado al proyecto final del módulo avanzado! Vamos a juntar TODO lo que has aprendido aquí: variables, el Monitor Serie, funciones y la pantalla LCD. Resolveremos un problema real: ¿quién se da cuenta de cuándo una planta tiene sed?"
+  ],
+  "How a Soil Moisture Sensor Works": [
+   "Wie ein Bodenfeuchtesensor funktioniert",
+   "Cómo funciona un sensor de humedad del suelo"
+  ],
+  "A soil moisture sensor measures how well electricity flows between two metal prongs stuck in the soil: the wetter the soil, the better it conducts.\\n\\nWith analogRead() you get a value between 0-1023. Values vary sensor to sensor - so just like the rain sensor lesson in mBlock, you must MEASURE FIRST, THEN DECIDE ON A THRESHOLD!\\n\\nDry soil usually gives a HIGH value, wet soil a LOW value (this can vary by sensor - always test first).": [
+   "Ein Bodenfeuchtesensor misst, wie gut der Strom zwischen zwei Metallzinken fließt, die in der Erde stecken: Je nasser die Erde, desto besser leitet sie.\\n\\nMit analogRead() bekommst du einen Wert zwischen 0 und 1023. Die Werte unterscheiden sich von Sensor zu Sensor – genau wie in der mBlock-Lektion zum Regensensor musst du also ERST MESSEN UND DANN DEN SCHWELLENWERT FESTLEGEN!\\n\\nTrockene Erde gibt meist einen HOHEN Wert, nasse Erde einen NIEDRIGEN (das kann je nach Sensor anders sein – teste immer zuerst).",
+   "Un sensor de humedad del suelo mide lo bien que circula la electricidad entre dos púas metálicas clavadas en la tierra: cuanto más mojada está la tierra, mejor conduce.\\n\\nCon analogRead() obtienes un valor entre 0 y 1023. Los valores cambian de un sensor a otro, así que, igual que en la lección del sensor de lluvia en mBlock, ¡hay que MEDIR PRIMERO Y DECIDIR DESPUÉS EL UMBRAL!\\n\\nLa tierra seca suele dar un valor ALTO y la tierra mojada uno BAJO (esto puede cambiar según el sensor: prueba siempre antes)."
+  ],
+  "A professional engineer never hardcodes a threshold just because \"the internet says so\" - they always test their own sensor!": [
+   "Ein professioneller Ingenieur schreibt einen Schwellenwert nie fest, nur weil «es im Internet steht» – er testet immer seinen eigenen Sensor!",
+   "¡Un ingeniero profesional nunca fija un umbral solo porque «lo dice internet»: siempre prueba su propio sensor!"
+  ],
+  "Putting the System Pieces Together": [
+   "Die Teile des Systems zusammenbringen",
+   "Juntar las piezas del sistema"
+  ],
+  "Our project has 3 parts:\\n\\n1. Soil moisture sensor (analogRead from pin A0)\\n2. LCD screen (show the moisture percentage)\\n3. Relay + water pump (run the pump if moisture is low)\\n\\nCore logic:\\nint moisture = analogRead(A0);\\nint percent = map(moisture, 1023, 300, 0, 100); // calibrated to your own readings\\n\\nif (percent < 30) {\\n  digitalWrite(relayPin, HIGH); // run the pump\\n} else {\\n  digitalWrite(relayPin, LOW); // stop the pump\\n}\\n\\nThe map() function turns the raw sensor value into an understandable percentage!": [
+   "Unser Projekt hat 3 Teile:\\n\\n1. Bodenfeuchtesensor (analogRead an Pin A0)\\n2. LCD-Display (zeigt den Feuchtigkeitsanteil)\\n3. Relais + Wasserpumpe (lässt die Pumpe laufen, wenn es zu trocken ist)\\n\\nKernlogik:\\nint moisture = analogRead(A0);\\nint percent = map(moisture, 1023, 300, 0, 100); // auf deine eigenen Messwerte geeicht\\n\\nif (percent < 30) {\\n  digitalWrite(relayPin, HIGH); // Pumpe laufen lassen\\n} else {\\n  digitalWrite(relayPin, LOW); // Pumpe stoppen\\n}\\n\\nDie Funktion map() macht aus dem rohen Sensorwert einen verständlichen Prozentwert!",
+   "Nuestro proyecto tiene 3 partes:\\n\\n1. Sensor de humedad del suelo (analogRead del pin A0)\\n2. Pantalla LCD (muestra el porcentaje de humedad)\\n3. Relé + bomba de agua (pone en marcha la bomba si hay poca humedad)\\n\\nLógica central:\\nint moisture = analogRead(A0);\\nint percent = map(moisture, 1023, 300, 0, 100); // calibrado con tus propias lecturas\\n\\nif (percent < 30) {\\n  digitalWrite(relayPin, HIGH); // poner en marcha la bomba\\n} else {\\n  digitalWrite(relayPin, LOW); // parar la bomba\\n}\\n\\n¡La función map() convierte el valor bruto del sensor en un porcentaje que se entiende!"
+  ],
+  "The numbers inside map() depend on your own measurements - always observe the raw values through the Serial Monitor first.": [
+   "Die Zahlen in map() hängen von deinen eigenen Messungen ab – beobachte die Rohwerte immer zuerst im seriellen Monitor.",
+   "Los números que van dentro de map() dependen de tus propias mediciones: observa siempre primero los valores brutos en el Monitor Serie."
+  ],
+  "What should we do before deciding the soil moisture sensor\\'s threshold?": [
+   "Was sollten wir tun, bevor wir den Schwellenwert des Bodenfeuchtesensors festlegen?",
+   "¿Qué deberíamos hacer antes de decidir el umbral del sensor de humedad del suelo?"
+  ],
+  "Every sensor can give slightly different readings. For a reliable system, you must first test your own sensor in dry and wet soil and observe the real values.": [
+   "Jeder Sensor kann etwas andere Werte liefern. Für ein verlässliches System musst du deinen eigenen Sensor zuerst in trockener und nasser Erde testen und die echten Werte beobachten.",
+   "Cada sensor puede dar lecturas algo distintas. Para un sistema fiable tienes que probar primero tu propio sensor en tierra seca y mojada y observar los valores reales."
+  ],
+  "Code a system that automatically waters a plant using a soil moisture sensor, an LCD screen, and a relay. Show the live moisture percentage and pump status on the LCD.": [
+   "Programmiere ein System, das eine Pflanze mit einem Bodenfeuchtesensor, einem LCD-Display und einem Relais automatisch gießt. Zeige den aktuellen Feuchtigkeitsanteil und den Zustand der Pumpe auf dem LCD.",
+   "Programa un sistema que riegue una planta automáticamente usando un sensor de humedad del suelo, una pantalla LCD y un relé. Muestra en la LCD el porcentaje de humedad actual y el estado de la bomba."
+  ],
+  "Smart Plant Watering System": [
+   "Smarte Pflanzenbewässerung",
+   "Sistema inteligente de riego de plantas"
+  ],
+  "🎓 YOU COMPLETED ADVANCED ARDUINO!": [
+   "🎓 DU HAST ARDUINO FÜR FORTGESCHRITTENE GESCHAFFT!",
+   "🎓 ¡HAS COMPLETADO ARDUINO AVANZADO!"
+  ],
+  "🌱🏆🌱 You went from block coding to real Arduino C++ and finished a professional IoT project!\\n\\n✓ setup()/loop() and variables\\n✓ Debugging with the Serial Monitor\\n✓ Writing your own functions\\n✓ Controlling an I2C LCD screen\\n✓ Combining a sensor + screen + relay (a real IoT system!)\\n\\nWith these skills you can now design temperature monitors, security alarms, or any smart device you can imagine. The door to engineering is wide open!": [
+   "🌱🏆🌱 Du bist vom Blockprogrammieren zu echtem Arduino-C++ gekommen und hast ein professionelles IoT-Projekt abgeschlossen!\\n\\n✓ setup()/loop() und Variablen\\n✓ Fehlersuche mit dem seriellen Monitor\\n✓ Eigene Funktionen schreiben\\n✓ Ein I2C-LCD-Display steuern\\n✓ Sensor + Display + Relais verbinden (ein echtes IoT-System!)\\n\\nMit diesen Fähigkeiten kannst du jetzt Temperaturwächter, Alarmanlagen oder jedes smarte Gerät entwerfen, das du dir vorstellen kannst. Die Tür zur Technik steht weit offen!",
+   "🌱🏆🌱 ¡Has pasado de la programación por bloques al C++ de Arduino de verdad y has terminado un proyecto de IoT profesional!\\n\\n✓ setup()/loop() y variables\\n✓ Depuración con el Monitor Serie\\n✓ Escribir tus propias funciones\\n✓ Controlar una pantalla LCD I2C\\n✓ Combinar sensor + pantalla + relé (¡un sistema IoT de verdad!)\\n\\nCon estas habilidades ya puedes diseñar monitores de temperatura, alarmas de seguridad o cualquier aparato inteligente que te imagines. ¡La puerta de la ingeniería está abierta de par en par!"
+  ],
+  "You earned the Advanced Arduino Engineer badge - your next goal is designing your own original project!": [
+   "Du hast das Abzeichen «Fortgeschrittener Arduino-Ingenieur» verdient – dein nächstes Ziel ist ein eigenes, selbst ausgedachtes Projekt!",
+   "¡Has ganado la insignia Ingeniero Arduino Avanzado! Tu próximo objetivo es diseñar un proyecto original tuyo."
+  ],
+  "You have stepped into the world of Arduino and mBlock!": [
+   "Du bist in die Welt von Arduino und mBlock eingestiegen!",
+   "¡Has entrado en el mundo de Arduino y mBlock!"
+  ],
+  "You lit your first LED with mBlock!": [
+   "Du hast deine erste LED mit mBlock zum Leuchten gebracht!",
+   "¡Encendiste tu primer LED con mBlock!"
+  ],
+  "You read a button input!": [
+   "Du hast eine Taster-Eingabe gelesen!",
+   "¡Leíste la entrada de un botón!"
+  ],
+  "You built a traffic light with 3 LEDs!": [
+   "Du hast eine Ampel mit 3 LEDs gebaut!",
+   "¡Construiste un semáforo con 3 LEDs!"
+  ],
+  "You set an LED\\'s brightness with a potentiometer!": [
+   "Du hast die Helligkeit einer LED mit einem Potentiometer eingestellt!",
+   "¡Ajustaste el brillo de un LED con un potenciómetro!"
+  ],
+  "You played a melody with a buzzer!": [
+   "Du hast mit einem Summer eine Melodie gespielt!",
+   "¡Tocaste una melodía con un zumbador!"
+  ],
+  "You built a night light with an LDR!": [
+   "Du hast mit einem LDR ein Nachtlicht gebaut!",
+   "¡Construiste una luz nocturna con una LDR!"
+  ],
+  "You built a distance meter and a parking sensor!": [
+   "Du hast einen Abstandsmesser und eine Einparkhilfe gebaut!",
+   "¡Construiste un medidor de distancia y un sensor de aparcamiento!"
+  ],
+  "You finished the final project: a windscreen wiper with a rain sensor!": [
+   "Du hast das Abschlussprojekt geschafft: einen Scheibenwischer mit Regensensor!",
+   "¡Terminaste el proyecto final: un limpiaparabrisas con sensor de lluvia!"
+  ],
+  "Code Writer": [
+   "Code-Schreiber",
+   "Escritor de Código"
+  ],
+  "You went from blocks to real Arduino C++ code!": [
+   "Du bist von Blöcken zu echtem Arduino-C++-Code gekommen!",
+   "¡Pasaste de los bloques al código C++ de Arduino de verdad!"
+  ],
+  "Bug Hunter": [
+   "Fehlerjäger",
+   "Cazador de Fallos"
+  ],
+  "You debugged code by watching variables with the Serial Monitor!": [
+   "Du hast Code beim Beobachten von Variablen im seriellen Monitor entfehlert!",
+   "¡Depuraste código observando variables con el Monitor Serie!"
+  ],
+  "Function Master": [
+   "Funktions-Meister",
+   "Maestro de las Funciones"
+  ],
+  "You wrote your own functions and reduced code repetition!": [
+   "Du hast eigene Funktionen geschrieben und doppelten Code verringert!",
+   "¡Escribiste tus propias funciones y redujiste la repetición de código!"
+  ],
+  "Screen Master": [
+   "Display-Meister",
+   "Maestro de la Pantalla"
+  ],
+  "You displayed messages on your project with an I2C LCD screen!": [
+   "Du hast mit einem I2C-LCD-Display Meldungen in deinem Projekt angezeigt!",
+   "¡Mostraste mensajes en tu proyecto con una pantalla LCD I2C!"
+  ],
+  "Advanced Arduino Engineer": [
+   "Fortgeschrittener Arduino-Ingenieur",
+   "Ingeniero Arduino Avanzado"
+  ],
+  "You completed a smart watering system combining a sensor, screen, and relay!": [
+   "Du hast eine smarte Bewässerung geschafft, die Sensor, Display und Relais verbindet!",
+   "¡Completaste un sistema de riego inteligente que combina sensor, pantalla y relé!"
+  ]
+ },
+ "listeler": [
+  {
+   "en": [
+    "Build a real circuit",
+    "Drag and drop blocks",
+    "LED, button, sensor, buzzer"
+   ],
+   "de": [
+    "Eine echte Schaltung bauen",
+    "Blöcke ziehen und ablegen",
+    "LED, Taster, Sensor, Summer"
+   ],
+   "es": [
+    "Construir un circuito de verdad",
+    "Arrastrar y soltar bloques",
+    "LED, botón, sensor, zumbador"
+   ]
+  },
+  {
+   "en": [
+    "Make a second variable",
+    "Tracking state with true/false",
+    "A real on/off switch"
+   ],
+   "de": [
+    "Eine zweite Variable erstellen",
+    "Den Zustand mit wahr/falsch verfolgen",
+    "Ein echter An/Aus-Schalter"
+   ],
+   "es": [
+    "Crear una segunda variable",
+    "Seguir el estado con verdadero/falso",
+    "Un interruptor de encendido/apagado de verdad"
+   ]
+  },
+  {
+   "en": [
+    "What the Arduino IDE is and how to open it",
+    "The setup() and loop() functions",
+    "The text version of blocks you already know"
+   ],
+   "de": [
+    "Was die Arduino IDE ist und wie man sie öffnet",
+    "Die Funktionen setup() und loop()",
+    "Die Textfassung der Blöcke, die du schon kennst"
+   ],
+   "es": [
+    "Qué es el Arduino IDE y cómo se abre",
+    "Las funciones setup() y loop()",
+    "La versión en texto de los bloques que ya conoces"
+   ]
+  },
+  {
+   "en": [
+    "Inside setup() you need pinMode(9, OUTPUT);",
+    "Inside loop() you need HIGH then delay, then LOW then delay"
+   ],
+   "de": [
+    "In setup() brauchst du pinMode(9, OUTPUT);",
+    "In loop() brauchst du HIGH und delay, dann LOW und delay"
+   ],
+   "es": [
+    "Dentro de setup() necesitas pinMode(9, OUTPUT);",
+    "Dentro de loop() necesitas HIGH y delay, después LOW y delay"
+   ]
+  },
+  {
+   "en": [
+    "Variable types like int and float",
+    "Serial.begin() and Serial.println()",
+    "What debugging means"
+   ],
+   "de": [
+    "Variablentypen wie int und float",
+    "Serial.begin() und Serial.println()",
+    "Was Fehlersuche bedeutet"
+   ],
+   "es": [
+    "Tipos de variable como int y float",
+    "Serial.begin() y Serial.println()",
+    "Qué significa depurar"
+   ]
+  },
+  {
+   "en": [
+    "What a function is and why we use it",
+    "Sending information to a function with parameters",
+    "Reducing code repetition"
+   ],
+   "de": [
+    "Was eine Funktion ist und warum wir sie benutzen",
+    "Mit Parametern Informationen an eine Funktion schicken",
+    "Doppelten Code verringern"
+   ],
+   "es": [
+    "Qué es una función y por qué la usamos",
+    "Enviar información a una función con parámetros",
+    "Reducir la repetición de código"
+   ]
+  },
+  {
+   "en": [
+    "You can loop tekrarSayisi times with a for loop",
+    "Each loop needs the HIGH-delay-LOW-delay order"
+   ],
+   "de": [
+    "Mit einer for-Schleife kannst du tekrarSayisi-mal wiederholen",
+    "Jeder Durchlauf braucht die Reihenfolge HIGH-delay-LOW-delay"
+   ],
+   "es": [
+    "Puedes repetir tekrarSayisi veces con un bucle for",
+    "Cada vuelta necesita el orden HIGH-delay-LOW-delay"
+   ]
+  },
+  {
+   "en": [
+    "What an I2C LCD is and how to wire it (SDA/SCL)",
+    "The LiquidCrystal_I2C library",
+    "Printing text to the screen"
+   ],
+   "de": [
+    "Was ein I2C-LCD ist und wie man es anschließt (SDA/SCL)",
+    "Die Bibliothek LiquidCrystal_I2C",
+    "Text auf dem Display ausgeben"
+   ],
+   "es": [
+    "Qué es una LCD I2C y cómo se conecta (SDA/SCL)",
+    "La biblioteca LiquidCrystal_I2C",
+    "Escribir texto en la pantalla"
+   ]
+  },
+  {
+   "en": [
+    "Call lcd.init() and lcd.backlight() first",
+    "Use a separate setCursor + print for each line"
+   ],
+   "de": [
+    "Ruf zuerst lcd.init() und lcd.backlight() auf",
+    "Benutze für jede Zeile ein eigenes setCursor + print"
+   ],
+   "es": [
+    "Llama primero a lcd.init() y a lcd.backlight()",
+    "Usa un setCursor + print propio para cada línea"
+   ]
+  },
+  {
+   "en": [
+    "How a soil moisture sensor works",
+    "Measure first, then decide on a threshold",
+    "Showing live moisture percentage on the LCD"
+   ],
+   "de": [
+    "Wie ein Bodenfeuchtesensor funktioniert",
+    "Erst messen, dann den Schwellenwert festlegen",
+    "Den aktuellen Feuchtigkeitsanteil auf dem LCD zeigen"
+   ],
+   "es": [
+    "Cómo funciona un sensor de humedad del suelo",
+    "Mide primero y decide después el umbral",
+    "Mostrar en la LCD el porcentaje de humedad actual"
+   ]
+  },
+  {
+   "en": [
+    "Read the moisture value from pin A0 with analogRead",
+    "Convert it to a 0-100 percentage with map()",
+    "Show the moisture percentage on the LCD\\'s first line",
+    "Show the pump status (ON/OFF) on the LCD\\'s second line",
+    "Turn the relay/pump on below 30%, off above it"
+   ],
+   "de": [
+    "Lies den Feuchtewert mit analogRead von Pin A0",
+    "Rechne ihn mit map() in einen Prozentwert von 0-100 um",
+    "Zeig den Feuchtigkeitsanteil in der ersten Zeile des LCD",
+    "Zeig den Zustand der Pumpe (AN/AUS) in der zweiten Zeile des LCD",
+    "Schalte Relais und Pumpe unter 30 % an und darüber aus"
+   ],
+   "es": [
+    "Lee el valor de humedad del pin A0 con analogRead",
+    "Conviértelo a un porcentaje de 0-100 con map()",
+    "Muestra el porcentaje de humedad en la primera línea de la LCD",
+    "Muestra el estado de la bomba (ENCENDIDA/APAGADA) en la segunda línea de la LCD",
+    "Enciende el relé y la bomba por debajo del 30 % y apágalos por encima"
+   ]
+  },
+  {
+   "en": [
+    "First observe the raw values with Serial.println to find your own threshold",
+    "Always call lcd.setCursor() before lcd.print() to move to the right spot",
+    "Add a delay (e.g. 2000ms) so the pump doesn\\'t flicker on/off constantly"
+   ],
+   "de": [
+    "Beobachte die Rohwerte zuerst mit Serial.println, um deinen eigenen Schwellenwert zu finden",
+    "Ruf immer lcd.setCursor() vor lcd.print() auf, um an die richtige Stelle zu gehen",
+    "Bau eine Pause ein (z. B. 2000 ms), damit die Pumpe nicht ständig an und aus flackert"
+   ],
+   "es": [
+    "Observa primero los valores brutos con Serial.println para encontrar tu propio umbral",
+    "Llama siempre a lcd.setCursor() antes de lcd.print() para ir al sitio correcto",
+    "Añade una pausa (por ejemplo 2000 ms) para que la bomba no se encienda y apague sin parar"
+   ]
+  }
+ ]
+}

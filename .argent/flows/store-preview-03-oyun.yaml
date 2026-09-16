@@ -1,0 +1,15 @@
+# ONIZLEME 3/4 — Oyunlar.
+# Ana sayfadan tek dokunusla 16 mini oyunun izgarasi aciliyor. Renkli
+# kucuk onizlemeler videonun en hareketli karesi.
+executionPrerequisite: >-
+  Ana sayfa acik; store-preview-02-kurulum onboarding'i bitirip ana
+  sayfayi birakti ve yerlesmesi icin 1800 ms bekledi.
+steps:
+  - echo: >-
+      Ana sayfa bir an dursun (onceki segmentin 1800 ms'iyle birlikte
+      2700 ms — olculen 2600 ms esiginin ustunde), sonra "Oyun"
+      kutucugu (0.189, 0.7125).
+  - wait: 900
+  - tap: { x: 0.189, y: 0.7125 }
+  - echo: Izgara cizilsin ve okunsun.
+  - wait: 2200

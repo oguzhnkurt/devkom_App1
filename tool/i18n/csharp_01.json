@@ -1,0 +1,1023 @@
+{
+ "metinler": {
+  "Welcome to C#!": [
+   "Willkommen bei C#!",
+   "¡Bienvenido a C#!"
+  ],
+  "The power behind Microsoft": [
+   "Die Kraft hinter Microsoft",
+   "La potencia que hay detrás de Microsoft"
+  ],
+  "Hello! I am C# (say it \"see sharp\"). I was made by Microsoft and I am used everywhere, from games to desktop apps!": [
+   "Hallo! Ich bin C# (sprich «see sharp»). Microsoft hat mich gemacht, und ich werde überall benutzt, von Spielen bis zu Desktop-Apps!",
+   "¡Hola! Soy C# (se dice «si sharp»). Me creó Microsoft y me usan en todas partes, desde juegos hasta aplicaciones de escritorio."
+  ],
+  "What Is C#?": [
+   "Was ist C#?",
+   "¿Qué es C#?"
+  ],
+  "C# (C-Sharp) is a modern, powerful programming language created by Microsoft in 2000.\\n\\nIt looks a lot like Java, but it runs on Microsoft\\'s .NET platform.": [
+   "C# (C-Sharp) ist eine moderne, mächtige Programmiersprache, die Microsoft im Jahr 2000 erschaffen hat.\\n\\nSie sieht Java sehr ähnlich, läuft aber auf Microsofts .NET-Plattform.",
+   "C# (C-Sharp) es un lenguaje de programación moderno y potente creado por Microsoft en el año 2000.\\n\\nSe parece mucho a Java, pero funciona sobre la plataforma .NET de Microsoft."
+  ],
+  "Most games in the world are made with the Unity engine + C#!": [
+   "Die meisten Spiele der Welt entstehen mit der Unity-Engine + C#!",
+   "¡La mayoría de los juegos del mundo se hacen con el motor Unity + C#!"
+  ],
+  "Which company created C#?": [
+   "Welche Firma hat C# erschaffen?",
+   "¿Qué empresa creó C#?"
+  ],
+  "C# was created by Microsoft for the .NET platform!": [
+   "C# wurde von Microsoft für die .NET-Plattform erschaffen!",
+   "¡C# fue creado por Microsoft para la plataforma .NET!"
+  ],
+  "Where Is C# Used?": [
+   "Wo wird C# benutzt?",
+   "¿Dónde se usa C#?"
+  ],
+  "C# is a very versatile language:\\n\\n🎮 Game development with Unity\\n🖥️ Windows desktop apps\\n🌐 Websites (ASP.NET)\\n📱 Mobile apps (MAUI)": [
+   "C# ist eine sehr vielseitige Sprache:\\n\\n🎮 Spieleentwicklung mit Unity\\n🖥️ Windows-Desktop-Apps\\n🌐 Webseiten (ASP.NET)\\n📱 Mobile Apps (MAUI)",
+   "C# es un lenguaje muy versátil:\\n\\n🎮 Desarrollo de juegos con Unity\\n🖥️ Aplicaciones de escritorio de Windows\\n🌐 Páginas web (ASP.NET)\\n📱 Aplicaciones móviles (MAUI)"
+  ],
+  "Which game engine is C# used with most?": [
+   "Mit welcher Spiel-Engine wird C# am meisten benutzt?",
+   "¿Con qué motor de juegos se usa más C#?"
+  ],
+  "Unity is one of the most popular game engines in the world, and it uses C#!": [
+   "Unity ist eine der beliebtesten Spiel-Engines der Welt, und sie benutzt C#!",
+   "¡Unity es uno de los motores de juegos más populares del mundo, y usa C#!"
+  ],
+  "What Is the .NET Platform?": [
+   "Was ist die .NET-Plattform?",
+   "¿Qué es la plataforma .NET?"
+  ],
+  ".NET is the platform that runs C# code - just like the JVM for Java.\\n\\nThanks to .NET your C# code can run on Windows, Mac and Linux!": [
+   ".NET ist die Plattform, die C#-Code ausführt – genau wie die JVM bei Java.\\n\\nDank .NET kann dein C#-Code unter Windows, auf einem Mac und unter Linux laufen!",
+   ".NET es la plataforma que ejecuta el código C#, igual que la JVM para Java.\\n\\n¡Gracias a .NET tu código C# puede funcionar en Windows, Mac y Linux!"
+  ],
+  ".NET is the technology behind C#\\'s \"runs anywhere\" power!": [
+   ".NET ist die Technik hinter C#s Kraft, «überall zu laufen»!",
+   "¡.NET es la tecnología que hay detrás de la potencia de C# para «funcionar en cualquier sitio»!"
+  ],
+  "C# Starter!": [
+   "C#-Einsteiger!",
+   "¡Principiante de C#!"
+  ],
+  "💜 Welcome to the world of C#!\\n\\n✓ You learned what C# is\\n✓ You discovered where it is used\\n✓ You met the idea of .NET\\n\\nNext lesson: you are going to write your first C# program!": [
+   "💜 Willkommen in der Welt von C#!\\n\\n✓ Du weißt, was C# ist\\n✓ Du hast entdeckt, wo es benutzt wird\\n✓ Du hast die Idee von .NET kennengelernt\\n\\nNächste Lektion: Du schreibst dein erstes C#-Programm!",
+   "💜 ¡Bienvenido al mundo de C#!\\n\\n✓ Aprendiste qué es C#\\n✓ Descubriste dónde se usa\\n✓ Conociste la idea de .NET\\n\\nSiguiente lección: ¡vas a escribir tu primer programa en C#!"
+  ],
+  "You earned the C# Starter badge!": [
+   "Du hast das Abzeichen «C#-Einsteiger» verdient!",
+   "¡Has ganado la insignia Principiante de C#!"
+  ],
+  "Your First Program": [
+   "Dein erstes Programm",
+   "Tu primer programa"
+  ],
+  "Write Hello World!": [
+   "Schreib Hello World!",
+   "¡Escribe Hello World!"
+  ],
+  "Now we are going to write your first C# program - the classic \"Hello World\"!": [
+   "Jetzt schreiben wir dein erstes C#-Programm – das klassische «Hello World»!",
+   "¡Ahora vamos a escribir tu primer programa en C#: el clásico «Hello World»!"
+  ],
+  "The Skeleton of a C# Program": [
+   "Das Gerüst eines C#-Programms",
+   "El esqueleto de un programa C#"
+  ],
+  "C# programs are written inside a class too (like Java):\\n\\nusing System;\\n\\nclass Hello {\\n    static void Main() {\\n        // your code goes here\\n    }\\n}": [
+   "C#-Programme werden auch in einer Klasse geschrieben (wie in Java):\\n\\nusing System;\\n\\nclass Hello {\\n    static void Main() {\\n        // hier kommt dein Code hin\\n    }\\n}",
+   "Los programas C# también se escriben dentro de una clase (como en Java):\\n\\nusing System;\\n\\nclass Hello {\\n    static void Main() {\\n        // aquí va tu código\\n    }\\n}"
+  ],
+  "The Main method starts with a capital M - different from Java\\'s main!": [
+   "Die Methode Main beginnt mit großem M – anders als das main in Java!",
+   "¡El método Main empieza con M mayúscula, a diferencia del main de Java!"
+  ],
+  "Which method does a C# program start running from?": [
+   "Bei welcher Methode startet ein C#-Programm?",
+   "¿Por qué método empieza a ejecutarse un programa C#?"
+  ],
+  "In C# method names start with a capital letter - that is why it is Main (not main)!": [
+   "In C# beginnen Methodennamen mit einem Großbuchstaben – deshalb heißt sie Main (nicht main)!",
+   "¡En C# los nombres de los métodos empiezan por mayúscula: por eso es Main (y no main)!"
+  ],
+  "Console.WriteLine()": [
+   "Console.WriteLine()",
+   "Console.WriteLine()"
+  ],
+  "Console.WriteLine() is used to print text on the screen:\\n\\nConsole.WriteLine(\"Hello World!\");\\n\\nIt does the same job as System.out.println() in Java, only the name is different!": [
+   "Console.WriteLine() gibt Text auf dem Bildschirm aus:\\n\\nConsole.WriteLine(\"Hello World!\");\\n\\nEs macht dasselbe wie System.out.println() in Java, nur der Name ist anders!",
+   "Console.WriteLine() se usa para mostrar texto en la pantalla:\\n\\nConsole.WriteLine(\"Hello World!\");\\n\\n¡Hace el mismo trabajo que System.out.println() en Java, solo cambia el nombre!"
+  ],
+  "Which is the right code to print \"Hi!\" on the screen?": [
+   "Welches ist der richtige Code, um \"Hi!\" auf dem Bildschirm auszugeben?",
+   "¿Cuál es el código correcto para mostrar \"¡Hola!\" en la pantalla?"
+  ],
+  "Console.WriteLine() is the standard way to print text on the screen in C#!": [
+   "Console.WriteLine() ist in C# der übliche Weg, Text auf dem Bildschirm auszugeben!",
+   "¡Console.WriteLine() es la forma habitual de mostrar texto en la pantalla en C#!"
+  ],
+  "Semicolons and Curly Brackets": [
+   "Semikolons und geschweifte Klammern",
+   "Puntos y comas y llaves"
+  ],
+  "C# uses semicolons (;) and curly brackets { } just like Java:\\n\\nConsole.WriteLine(\"One\");\\nConsole.WriteLine(\"Two\");\\n\\nEvery statement ends with ; and code blocks are wrapped in { }!": [
+   "C# benutzt Semikolons (;) und geschweifte Klammern { } genau wie Java:\\n\\nConsole.WriteLine(\"Eins\");\\nConsole.WriteLine(\"Zwei\");\\n\\nJede Anweisung endet mit ; und Codeblöcke stehen in { }!",
+   "C# usa puntos y comas (;) y llaves { } igual que Java:\\n\\nConsole.WriteLine(\"Uno\");\\nConsole.WriteLine(\"Dos\");\\n\\n¡Toda instrucción termina con ; y los bloques de código van entre { }!"
+  ],
+  "C#, Java and JavaScript share the same \"C-style\" syntax - learn one and the others get easier!": [
+   "C#, Java und JavaScript teilen sich denselben «C-Stil» – lernst du eine, fallen dir die anderen leichter!",
+   "¡C#, Java y JavaScript comparten la misma sintaxis «de estilo C»: aprende uno y los demás te resultarán más fáciles!"
+  ],
+  "Put a simple C# program in the right order": [
+   "Bring ein einfaches C#-Programm in die richtige Reihenfolge",
+   "Pon en el orden correcto un programa C# sencillo"
+  ],
+  "A complete C# program that prints \"Hello World!\"": [
+   "Ein vollständiges C#-Programm, das \"Hello World!\" ausgibt",
+   "Un programa C# completo que muestra \"Hello World!\""
+  ],
+  "Mini Project: Introduce Yourself": [
+   "Mini-Projekt: Stell dich vor",
+   "Miniproyecto: preséntate"
+  ],
+  "Write a small program that introduces you using Console.WriteLine()!": [
+   "Schreibe ein kleines Programm, das dich mit Console.WriteLine() vorstellt!",
+   "¡Escribe un pequeño programa que te presente usando Console.WriteLine()!"
+  ],
+  "Your First Code Is Written!": [
+   "Dein erster Code ist geschrieben!",
+   "¡Tu primer código está escrito!"
+  ],
+  "🎊 You wrote your first C# program!\\n\\n✓ You learned the class and Main structure\\n✓ You used Console.WriteLine()\\n✓ You did not forget the semicolon\\n\\nNext up: variables and data types!": [
+   "🎊 Du hast dein erstes C#-Programm geschrieben!\\n\\n✓ Du hast den Aufbau mit class und Main gelernt\\n✓ Du hast Console.WriteLine() benutzt\\n✓ Du hast das Semikolon nicht vergessen\\n\\nAls Nächstes: Variablen und Datentypen!",
+   "🎊 ¡Escribiste tu primer programa en C#!\\n\\n✓ Aprendiste la estructura de class y Main\\n✓ Usaste Console.WriteLine()\\n✓ No olvidaste el punto y coma\\n\\nSiguiente: ¡variables y tipos de datos!"
+  ],
+  "You earned the First Code badge!": [
+   "Du hast das Abzeichen «Erster Code» verdient!",
+   "¡Has ganado la insignia Primer Código!"
+  ],
+  "Variables and Data Types": [
+   "Variablen und Datentypen",
+   "Variables y tipos de datos"
+  ],
+  "Store information": [
+   "Informationen speichern",
+   "Guarda información"
+  ],
+  "Programs need to remember things. In C# we do that with VARIABLES!": [
+   "Programme müssen sich Dinge merken. In C# machen wir das mit VARIABLEN!",
+   "Los programas necesitan recordar cosas. ¡En C# lo hacemos con VARIABLES!"
+  ],
+  "Declaring a Variable in C#": [
+   "Eine Variable in C# deklarieren",
+   "Declarar una variable en C#"
+  ],
+  "In C# you have to state the TYPE when you declare a variable:\\n\\nint age = 12;\\nstring name = \"Alex\";\\ndouble height = 1.45;\\nbool isStudent = true;\\n\\nWatch out: in C# the text type is \"string\" with a small s!": [
+   "In C# musst du beim Deklarieren einer Variablen den TYP angeben:\\n\\nint alter = 12;\\nstring name = \"Alex\";\\ndouble groesse = 1.45;\\nbool istSchueler = true;\\n\\nAchtung: In C# heißt der Texttyp \"string\" mit kleinem s!",
+   "En C# tienes que indicar el TIPO al declarar una variable:\\n\\nint edad = 12;\\nstring nombre = \"Alex\";\\ndouble altura = 1.45;\\nbool esAlumno = true;\\n\\n¡Ojo: en C# el tipo de texto es \"string\" con s minúscula!"
+  ],
+  "bool is C#\\'s short name for Java\\'s boolean!": [
+   "bool ist C#s kurzer Name für Javas boolean!",
+   "¡bool es el nombre corto de C# para el boolean de Java!"
+  ],
+  "How is the text (string) data type written in C#?": [
+   "Wie wird der Datentyp für Text (string) in C# geschrieben?",
+   "¿Cómo se escribe el tipo de dato de texto (string) en C#?"
+  ],
+  "In C# string is written in lowercase - one of the places it differs from Java!": [
+   "In C# wird string kleingeschrieben – eine der Stellen, an denen es sich von Java unterscheidet!",
+   "¡En C# string se escribe en minúscula: una de las cosas en las que se diferencia de Java!"
+  ],
+  "The Basic Data Types": [
+   "Die grundlegenden Datentypen",
+   "Los tipos de datos básicos"
+  ],
+  "C#\\'s basic data types:\\n\\nint: whole number (12, -5, 100)\\ndouble: decimal number (3.14, 1.45)\\nstring: text (\"Hello\", \"Alex\")\\nbool: true/false": [
+   "C#s grundlegende Datentypen:\\n\\nint: ganze Zahl (12, -5, 100)\\ndouble: Kommazahl (3.14, 1.45)\\nstring: Text (\"Hallo\", \"Alex\")\\nbool: wahr/falsch",
+   "Los tipos de datos básicos de C#:\\n\\nint: número entero (12, -5, 100)\\ndouble: número decimal (3.14, 1.45)\\nstring: texto (\"Hola\", \"Alex\")\\nbool: verdadero/falso"
+  ],
+  "Which data type holds a true or false value?": [
+   "Welcher Datentyp hält einen Wert wahr oder falsch?",
+   "¿Qué tipo de dato guarda un valor verdadero o falso?"
+  ],
+  "bool is the C# data type that holds true/false values (it was boolean in Java)!": [
+   "bool ist der C#-Datentyp, der wahr/falsch-Werte hält (in Java hieß er boolean)!",
+   "¡bool es el tipo de dato de C# que guarda valores verdadero/falso (en Java era boolean)!"
+  ],
+  "Joining With String Interpolation": [
+   "Mit String-Interpolation verbinden",
+   "Unir con interpolación de cadenas"
+  ],
+  "The modern way to join variables into text in C# is the \\$ sign:\\n\\nint age = 12;\\nConsole.WriteLine(\\$\"My age: {age}\");\\n\\nPut a \\$ in front of the string and the variable inside { } - much cleaner!": [
+   "Der moderne Weg, Variablen in C# in Text einzufügen, ist das Zeichen \\$:\\n\\nint alter = 12;\\nConsole.WriteLine(\\$\"Mein Alter: {alter}\");\\n\\nSetz ein \\$ vor die Zeichenkette und die Variable in { } – viel sauberer!",
+   "La forma moderna de meter variables en un texto en C# es el signo \\$:\\n\\nint edad = 12;\\nConsole.WriteLine(\\$\"Mi edad: {edad}\");\\n\\nPon un \\$ delante de la cadena y la variable entre { }: ¡mucho más limpio!"
+  ],
+  "This is called \"string interpolation\" - one of C#\\'s best loved features!": [
+   "Das nennt man «String-Interpolation» – eine der beliebtesten Eigenschaften von C#!",
+   "¡A esto se le llama «interpolación de cadenas», una de las funciones más queridas de C#!"
+  ],
+  "With int score = 90;, what does Console.WriteLine(\\$\"Score: {score}\"); print?": [
+   "Was gibt Console.WriteLine(\\$\"Punkte: {punkte}\"); bei int punkte = 90; aus?",
+   "Con int puntos = 90;, ¿qué muestra Console.WriteLine(\\$\"Puntos: {puntos}\");?"
+  ],
+  "The {score} inside \\$\"...\" is replaced by the VALUE of the score variable!": [
+   "Das {punkte} im \\$\"...\" wird durch den WERT der Variablen punkte ersetzt!",
+   "¡El {puntos} dentro de \\$\"...\" se sustituye por el VALOR de la variable puntos!"
+  ],
+  "Match each value with the right data type!": [
+   "Ordne jeden Wert seinem richtigen Datentyp zu!",
+   "¡Relaciona cada valor con su tipo de dato correcto!"
+  ],
+  "You tell the data types apart perfectly!": [
+   "Du hältst die Datentypen perfekt auseinander!",
+   "¡Distingues los tipos de datos a la perfección!"
+  ],
+  "Variable Master!": [
+   "Variablen-Meister!",
+   "¡Maestro de las variables!"
+  ],
+  "📦 You can store information now!\\n\\n✓ int, string, double, bool\\n✓ Declaring a variable\\n✓ String interpolation (\\$\"...\")\\n\\nNext module: control structures!": [
+   "📦 Jetzt kannst du Informationen speichern!\\n\\n✓ int, string, double, bool\\n✓ Eine Variable deklarieren\\n✓ String-Interpolation (\\$\"…\")\\n\\nNächstes Modul: Kontrollstrukturen!",
+   "📦 ¡Ya puedes guardar información!\\n\\n✓ int, string, double, bool\\n✓ Declarar una variable\\n✓ Interpolación de cadenas (\\$\"…\")\\n\\nSiguiente módulo: ¡estructuras de control!"
+  ],
+  "You earned the Variable Master badge!": [
+   "Du hast das Abzeichen «Variablen-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de las Variables!"
+  ],
+  "If-Else": [
+   "If-Else",
+   "If-Else"
+  ],
+  "Letting your program decide": [
+   "Lass dein Programm entscheiden",
+   "Deja que tu programa decida"
+  ],
+  "Programs can decide in C# too! With if-else we are going to build the \"if this, then do that\" logic.": [
+   "Auch in C# können Programme entscheiden! Mit if-else bauen wir die Logik «wenn das, dann mach jenes».",
+   "¡En C# los programas también pueden decidir! Con if-else vamos a construir la lógica de «si pasa esto, haz aquello»."
+  ],
+  "The if Statement": [
+   "Die if-Anweisung",
+   "La instrucción if"
+  ],
+  "if checks whether a condition is TRUE:\\n\\nint age = 15;\\nif (age >= 18) {\\n    Console.WriteLine(\"You are an adult!\");\\n}\\n\\nThis is EXACTLY the same as in Java!": [
+   "if prüft, ob eine Bedingung WAHR ist:\\n\\nint alter = 15;\\nif (alter >= 18) {\\n    Console.WriteLine(\"Du bist erwachsen!\");\\n}\\n\\nDas ist GENAU dasselbe wie in Java!",
+   "if comprueba si una condición es VERDADERA:\\n\\nint edad = 15;\\nif (edad >= 18) {\\n    Console.WriteLine(\"¡Eres mayor de edad!\");\\n}\\n\\n¡Esto es EXACTAMENTE igual que en Java!"
+  ],
+  "The control structures of C# and Java are nearly identical - if you know Java, C# is very easy to pick up!": [
+   "Die Kontrollstrukturen von C# und Java sind fast gleich – wer Java kann, lernt C# sehr leicht!",
+   "¡Las estructuras de control de C# y Java son casi idénticas: si sabes Java, C# se aprende muy fácil!"
+  ],
+  "In the line if (age >= 18), what does >= mean?": [
+   "Was bedeutet >= in der Zeile if (alter >= 18)?",
+   "En la línea if (edad >= 18), ¿qué significa >=?"
+  ],
+  ">= means \"greater than or equal to\" - if the age is 18 or more the condition is true!": [
+   ">= heißt «größer oder gleich» – ist das Alter 18 oder mehr, ist die Bedingung wahr!",
+   "¡>= significa «mayor o igual que»: si la edad es 18 o más, la condición es verdadera!"
+  ],
+  "else and else if": [
+   "else und else if",
+   "else y else if"
+  ],
+  "To check more than one case:\\n\\nint score = 75;\\nif (score >= 90) {\\n    Console.WriteLine(\"A\");\\n} else if (score >= 70) {\\n    Console.WriteLine(\"B\");\\n} else {\\n    Console.WriteLine(\"C\");\\n}": [
+   "Um mehr als einen Fall zu prüfen:\\n\\nint punkte = 75;\\nif (punkte >= 90) {\\n    Console.WriteLine(\"A\");\\n} else if (punkte >= 70) {\\n    Console.WriteLine(\"B\");\\n} else {\\n    Console.WriteLine(\"C\");\\n}",
+   "Para comprobar más de un caso:\\n\\nint puntos = 75;\\nif (puntos >= 90) {\\n    Console.WriteLine(\"A\");\\n} else if (puntos >= 70) {\\n    Console.WriteLine(\"B\");\\n} else {\\n    Console.WriteLine(\"C\");\\n}"
+  ],
+  "Which operator is used to check equality in C#?": [
+   "Welcher Operator prüft in C# auf Gleichheit?",
+   "¿Qué operador se usa en C# para comprobar la igualdad?"
+  ],
+  "== compares, while a single = assigns a value!": [
+   "== vergleicht, ein einzelnes = weist dagegen einen Wert zu!",
+   "¡== compara, mientras que un solo = asigna un valor!"
+  ],
+  "The Logical Operators: && and ||": [
+   "Die logischen Operatoren: && und ||",
+   "Los operadores lógicos: && y ||"
+  ],
+  "To combine conditions:\\n\\n&& (AND): both conditions have to be true\\n|| (OR): at least one has to be true\\n\\nExample:\\nif (age >= 13 && age <= 19) {\\n    Console.WriteLine(\"You are a teenager!\");\\n}": [
+   "Um Bedingungen zu verbinden:\\n\\n&& (UND): beide Bedingungen müssen wahr sein\\n|| (ODER): mindestens eine muss wahr sein\\n\\nBeispiel:\\nif (alter >= 13 && alter <= 19) {\\n    Console.WriteLine(\"Du bist ein Teenager!\");\\n}",
+   "Para combinar condiciones:\\n\\n&& (Y): las dos condiciones tienen que ser verdaderas\\n|| (O): al menos una tiene que ser verdadera\\n\\nEjemplo:\\nif (edad >= 13 && edad <= 19) {\\n    Console.WriteLine(\"¡Eres adolescente!\");\\n}"
+  ],
+  "&& and || let you combine several conditions in a single if!": [
+   "Mit && und || kannst du mehrere Bedingungen in einem einzigen if verbinden!",
+   "¡&& y || te permiten combinar varias condiciones en un solo if!"
+  ],
+  "With age = 15, what does the expression \"age >= 13 && age <= 19\" return?": [
+   "Was liefert der Ausdruck \"alter >= 13 && alter <= 19\" bei alter = 15?",
+   "Con edad = 15, ¿qué devuelve la expresión \"edad >= 13 && edad <= 19\"?"
+  ],
+  "15 is both greater than or equal to 13 and less than or equal to 19, so both conditions are true - the result is true!": [
+   "15 ist sowohl größer oder gleich 13 als auch kleiner oder gleich 19, also sind beide Bedingungen wahr – das Ergebnis ist wahr!",
+   "15 es mayor o igual que 13 y también menor o igual que 19, así que las dos condiciones son verdaderas: ¡el resultado es verdadero!"
+  ],
+  "Put the grade-checking code in the right order": [
+   "Bring den Code zur Notenprüfung in die richtige Reihenfolge",
+   "Pon en orden el código que comprueba la nota"
+  ],
+  "Code that prints A if the score is 90 or more, and \"Did not pass\" otherwise": [
+   "Code, der A ausgibt, wenn die Punktzahl 90 oder mehr ist, und sonst \"Nicht bestanden\"",
+   "Código que muestra A si la puntuación es 90 o más, y \"No aprobado\" en caso contrario"
+  ],
+  "Decision Making Master!": [
+   "Entscheidungs-Meister!",
+   "¡Maestro de las decisiones!"
+  ],
+  "🤔 You can make your programs decide now!\\n\\n✓ if / else / else if\\n✓ The && and || logical operators\\n\\nNext up: repeating work with loops!": [
+   "🤔 Jetzt können deine Programme entscheiden!\\n\\n✓ if / else / else if\\n✓ Die logischen Operatoren && und ||\\n\\nAls Nächstes: Arbeit mit Schleifen wiederholen!",
+   "🤔 ¡Ya puedes hacer que tus programas decidan!\\n\\n✓ if / else / else if\\n✓ Los operadores lógicos && y ||\\n\\nSiguiente: ¡repetir trabajo con bucles!"
+  ],
+  "You earned the Decision Making Master badge!": [
+   "Du hast das Abzeichen «Entscheidungs-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de las Decisiones!"
+  ],
+  "Loops": [
+   "Schleifen",
+   "Bucles"
+  ],
+  "Repeat with for and while": [
+   "Wiederholen mit for und while",
+   "Repetir con for y while"
+  ],
+  "To repeat the same work over and over we are going to use loops - just like in Java!": [
+   "Um dieselbe Arbeit immer wieder zu machen, benutzen wir Schleifen – genau wie in Java!",
+   "¡Para repetir el mismo trabajo una y otra vez vamos a usar bucles, igual que en Java!"
+  ],
+  "The for Loop": [
+   "Die for-Schleife",
+   "El bucle for"
+  ],
+  "A for loop repeats a set number of times:\\n\\nfor (int i = 0; i < 5; i++) {\\n    Console.WriteLine(\\$\"Hello {i}\");\\n}\\n\\n3 parts: the start (i=0), the condition (i<5), the step (i++)": [
+   "Eine for-Schleife wiederholt sich eine festgelegte Anzahl von Malen:\\n\\nfor (int i = 0; i < 5; i++) {\\n    Console.WriteLine(\\$\"Hallo {i}\");\\n}\\n\\n3 Teile: der Start (i=0), die Bedingung (i<5), der Schritt (i++)",
+   "Un bucle for se repite un número fijo de veces:\\n\\nfor (int i = 0; i < 5; i++) {\\n    Console.WriteLine(\\$\"Hola {i}\");\\n}\\n\\n3 partes: el inicio (i=0), la condición (i<5), el paso (i++)"
+  ],
+  "C#\\'s for loop is written exactly the same as Java\\'s!": [
+   "C#s for-Schleife wird genau gleich geschrieben wie die von Java!",
+   "¡El bucle for de C# se escribe exactamente igual que el de Java!"
+  ],
+  "How many times does for (int i = 0; i < 5; i++) run?": [
+   "Wie oft läuft for (int i = 0; i < 5; i++)?",
+   "¿Cuántas veces se ejecuta for (int i = 0; i < 5; i++)?"
+  ],
+  "i starts at 0 and carries on while it is under 5: 0,1,2,3,4 - 5 times in total!": [
+   "i beginnt bei 0 und läuft weiter, solange es unter 5 ist: 0,1,2,3,4 – insgesamt 5-mal!",
+   "¡i empieza en 0 y sigue mientras sea menor que 5: 0,1,2,3,4, o sea 5 veces en total!"
+  ],
+  "The while Loop": [
+   "Die while-Schleife",
+   "El bucle while"
+  ],
+  "A while loop carries on as long as a condition is true:\\n\\nint counter = 0;\\nwhile (counter < 3) {\\n    Console.WriteLine(\\$\"Counter: {counter}\");\\n    counter++;\\n}\\n\\nUse it when you do not know in advance how many times it will repeat!": [
+   "Eine while-Schleife läuft weiter, solange eine Bedingung wahr ist:\\n\\nint zaehler = 0;\\nwhile (zaehler < 3) {\\n    Console.WriteLine(\\$\"Zähler: {zaehler}\");\\n    zaehler++;\\n}\\n\\nNimm sie, wenn du vorher nicht weißt, wie oft sie sich wiederholt!",
+   "Un bucle while sigue mientras una condición sea verdadera:\\n\\nint contador = 0;\\nwhile (contador < 3) {\\n    Console.WriteLine(\\$\"Contador: {contador}\");\\n    contador++;\\n}\\n\\n¡Úsalo cuando no sepas de antemano cuántas veces se repetirá!"
+  ],
+  "What happens if we forget to increase the counter in a while loop?": [
+   "Was passiert, wenn wir vergessen, den Zähler in einer while-Schleife hochzuzählen?",
+   "¿Qué pasa si se nos olvida aumentar el contador en un bucle while?"
+  ],
+  "If the counter never goes up, the condition stays true forever - that is called an infinite loop!": [
+   "Geht der Zähler nie hoch, bleibt die Bedingung für immer wahr – das nennt man eine Endlosschleife!",
+   "¡Si el contador nunca sube, la condición se queda verdadera para siempre: a eso se le llama bucle infinito!"
+  ],
+  "The foreach Loop": [
+   "Die foreach-Schleife",
+   "El bucle foreach"
+  ],
+  "C# has one more special loop: foreach! It walks through ALL the items of a list or array easily:\\n\\nint[] numbers = {10, 20, 30};\\nforeach (int number in numbers) {\\n    Console.WriteLine(number);\\n}": [
+   "C# hat noch eine besondere Schleife: foreach! Sie geht leicht durch ALLE Einträge einer Liste oder eines Arrays:\\n\\nint[] zahlen = {10, 20, 30};\\nforeach (int zahl in zahlen) {\\n    Console.WriteLine(zahl);\\n}",
+   "C# tiene un bucle especial más: ¡foreach! Recorre fácilmente TODOS los elementos de una lista o un array:\\n\\nint[] numeros = {10, 20, 30};\\nforeach (int numero in numeros) {\\n    Console.WriteLine(numero);\\n}"
+  ],
+  "foreach means \"for each one\" - it is like Java\\'s enhanced for loop!": [
+   "foreach heißt «für jedes einzelne» – es ist wie Javas erweiterte for-Schleife!",
+   "¡foreach significa «para cada uno»: es como el bucle for mejorado de Java!"
+  ],
+  "Match each scenario with the right kind of loop!": [
+   "Ordne jede Situation der richtigen Schleifenart zu!",
+   "¡Relaciona cada caso con el tipo de bucle adecuado!"
+  ],
+  "You learned which loop to use when!": [
+   "Du hast gelernt, wann man welche Schleife nimmt!",
+   "¡Aprendiste qué bucle usar en cada momento!"
+  ],
+  "Mini Project: Number Printer": [
+   "Mini-Projekt: Zahlen ausgeben",
+   "Miniproyecto: mostrar números"
+  ],
+  "Write a program that prints the numbers from 1 to 10 using a for loop!": [
+   "Schreibe ein Programm, das mit einer for-Schleife die Zahlen von 1 bis 10 ausgibt!",
+   "¡Escribe un programa que muestre los números del 1 al 10 usando un bucle for!"
+  ],
+  "Loop Master!": [
+   "Schleifen-Meister!",
+   "¡Maestro de los bucles!"
+  ],
+  "🔁 You can automate repeating work!\\n\\n✓ The for loop\\n✓ The while loop\\n✓ The foreach loop\\n\\nNext up: arrays and lists!": [
+   "🔁 Du kannst wiederkehrende Arbeit automatisieren!\\n\\n✓ Die for-Schleife\\n✓ Die while-Schleife\\n✓ Die foreach-Schleife\\n\\nAls Nächstes: Arrays und Listen!",
+   "🔁 ¡Puedes automatizar el trabajo repetitivo!\\n\\n✓ El bucle for\\n✓ El bucle while\\n✓ El bucle foreach\\n\\nSiguiente: ¡arrays y listas!"
+  ],
+  "You earned the Loop Master badge!": [
+   "Du hast das Abzeichen «Schleifen-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de los Bucles!"
+  ],
+  "Arrays and Lists": [
+   "Arrays und Listen",
+   "Arrays y listas"
+  ],
+  "Store more than one value": [
+   "Mehr als einen Wert speichern",
+   "Guarda más de un valor"
+  ],
+  "To hold several values in one structure C# gives you two options: ARRAYS and LISTS!": [
+   "Um mehrere Werte in einer Struktur zu halten, gibt dir C# zwei Möglichkeiten: ARRAYS und LISTEN!",
+   "¡Para guardar varios valores en una estructura, C# te da dos opciones: ARRAYS y LISTAS!"
+  ],
+  "Declaring an Array": [
+   "Ein Array deklarieren",
+   "Declarar un array"
+  ],
+  "An array holds several values of the same type:\\n\\nint[] grades = {85, 90, 78, 95};\\nstring[] names = {\"Alex\", \"Mia\", \"Sam\"};\\n\\nThe index starts at 0 - grades[0] is the first one!": [
+   "Ein Array hält mehrere Werte desselben Typs:\\n\\nint[] noten = {85, 90, 78, 95};\\nstring[] namen = {\"Alex\", \"Mia\", \"Sam\"};\\n\\nDer Index beginnt bei 0 – noten[0] ist der erste!",
+   "Un array guarda varios valores del mismo tipo:\\n\\nint[] notas = {85, 90, 78, 95};\\nstring[] nombres = {\"Alex\", \"Mia\", \"Sam\"};\\n\\n¡El índice empieza en 0: notas[0] es la primera!"
+  ],
+  "An array has a fixed size - once you create it the number of items does not change!": [
+   "Ein Array hat eine feste Größe – ist es einmal erstellt, ändert sich die Anzahl der Einträge nicht mehr!",
+   "¡Un array tiene un tamaño fijo: una vez creado, el número de elementos no cambia!"
+  ],
+  "With int[] grades = {85, 90, 78};, what value does grades[0] give?": [
+   "Welchen Wert gibt noten[0] bei int[] noten = {85, 90, 78};?",
+   "Con int[] notas = {85, 90, 78};, ¿qué valor da notas[0]?"
+  ],
+  "The index starts at 0 - grades[0] gives the FIRST item in the array (85)!": [
+   "Der Index beginnt bei 0 – noten[0] gibt den ERSTEN Eintrag des Arrays (85)!",
+   "¡El índice empieza en 0: notas[0] da el PRIMER elemento del array (85)!"
+  ],
+  "List<T>: A Flexible-Size List": [
+   "List<T>: eine Liste mit flexibler Größe",
+   "List<T>: una lista de tamaño flexible"
+  ],
+  "An array has a fixed size, but a List<T> can CHANGE size:\\n\\nList<string> names = new List<string>();\\nnames.Add(\"Alex\");\\nnames.Add(\"Mia\");\\n\\nWith Add() you can keep adding as many as you like!": [
+   "Ein Array hat eine feste Größe, aber eine List<T> kann ihre Größe ÄNDERN:\\n\\nList<string> namen = new List<string>();\\nnamen.Add(\"Alex\");\\nnamen.Add(\"Mia\");\\n\\nMit Add() kannst du so viele hinzufügen, wie du willst!",
+   "Un array tiene un tamaño fijo, pero una List<T> puede CAMBIAR de tamaño:\\n\\nList<string> nombres = new List<string>();\\nnombres.Add(\"Alex\");\\nnombres.Add(\"Mia\");\\n\\n¡Con Add() puedes seguir añadiendo tantos como quieras!"
+  ],
+  "The type inside <string> says WHICH TYPE of data the list will hold!": [
+   "Der Typ in <string> sagt, WELCHEN TYP von Daten die Liste halten wird!",
+   "¡El tipo que va dentro de <string> dice QUÉ TIPO de datos va a guardar la lista!"
+  ],
+  "Which method is used to add a new item to a List?": [
+   "Welche Methode fügt einer List einen neuen Eintrag hinzu?",
+   "¿Qué método se usa para añadir un elemento nuevo a una List?"
+  ],
+  "The Add() method adds a new item to the end of a List!": [
+   "Die Methode Add() fügt einen neuen Eintrag ans Ende einer List an!",
+   "¡El método Add() añade un elemento nuevo al final de una List!"
+  ],
+  "Walking an Array or List With foreach": [
+   "Ein Array oder eine Liste mit foreach durchlaufen",
+   "Recorrer un array o una lista con foreach"
+  ],
+  "To walk an array or a list one item at a time we use foreach:\\n\\nint[] grades = {85, 90, 78};\\nforeach (int grade in grades) {\\n    Console.WriteLine(grade);\\n}": [
+   "Um ein Array oder eine Liste Eintrag für Eintrag durchzugehen, nehmen wir foreach:\\n\\nint[] noten = {85, 90, 78};\\nforeach (int note in noten) {\\n    Console.WriteLine(note);\\n}",
+   "Para recorrer un array o una lista elemento a elemento usamos foreach:\\n\\nint[] notas = {85, 90, 78};\\nforeach (int nota in notas) {\\n    Console.WriteLine(nota);\\n}"
+  ],
+  "Put the code that prints an array from start to finish in order": [
+   "Bring den Code, der ein Array von vorne bis hinten ausgibt, in die richtige Reihenfolge",
+   "Pon en orden el código que muestra un array de principio a fin"
+  ],
+  "Code that prints every item in the grades array one by one": [
+   "Code, der jeden Eintrag des Arrays noten nacheinander ausgibt",
+   "Código que muestra uno a uno todos los elementos del array notas"
+  ],
+  "Mini Project: Grade Average": [
+   "Mini-Projekt: Notendurchschnitt",
+   "Miniproyecto: media de notas"
+  ],
+  "Create an array of grades and work out the average using a loop!": [
+   "Lege ein Array mit Noten an und berechne den Durchschnitt mit einer Schleife!",
+   "¡Crea un array de notas y calcula la media con un bucle!"
+  ],
+  "Array and List Master!": [
+   "Array- und Listen-Meister!",
+   "¡Maestro de arrays y listas!"
+  ],
+  "📋 You can manage several values in one structure!\\n\\n✓ Arrays - a fixed size\\n✓ List<T> - a flexible size\\n✓ Walking them with foreach\\n\\nNext module: object-oriented programming!": [
+   "📋 Du kannst mehrere Werte in einer Struktur verwalten!\\n\\n✓ Arrays – feste Größe\\n✓ List<T> – flexible Größe\\n✓ Sie mit foreach durchlaufen\\n\\nNächstes Modul: objektorientierte Programmierung!",
+   "📋 ¡Puedes manejar varios valores en una sola estructura!\\n\\n✓ Arrays: tamaño fijo\\n✓ List<T>: tamaño flexible\\n✓ Recorrerlos con foreach\\n\\nSiguiente módulo: ¡programación orientada a objetos!"
+  ],
+  "You earned the Array Master badge!": [
+   "Du hast das Abzeichen «Array-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de los Arrays!"
+  ],
+  "Classes": [
+   "Klassen",
+   "Clases"
+  ],
+  "Create your own data type": [
+   "Bau deinen eigenen Datentyp",
+   "Crea tu propio tipo de dato"
+  ],
+  "C# is an object-oriented language too. Now we are going to learn how to create our own CLASSES!": [
+   "Auch C# ist eine objektorientierte Sprache. Jetzt lernen wir, wie man eigene KLASSEN baut!",
+   "C# también es un lenguaje orientado a objetos. ¡Ahora vamos a aprender a crear nuestras propias CLASES!"
+  ],
+  "What Is a Class?": [
+   "Was ist eine Klasse?",
+   "¿Qué es una clase?"
+  ],
+  "A class is a \"template\". A Player class, for example:\\n\\nclass Player {\\n    public string name;\\n    public int health;\\n}\\n\\nThe word public means these fields can be reached from outside!": [
+   "Eine Klasse ist eine «Vorlage». Zum Beispiel eine Klasse Player:\\n\\nclass Player {\\n    public string name;\\n    public int health;\\n}\\n\\nDas Wort public heißt, dass man diese Felder von außen erreichen kann!",
+   "Una clase es una «plantilla». Por ejemplo, una clase Player:\\n\\nclass Player {\\n    public string name;\\n    public int health;\\n}\\n\\n¡La palabra public significa que se puede llegar a estos campos desde fuera!"
+  ],
+  "In Unity games every character, enemy and item is a C# class!": [
+   "In Unity-Spielen ist jede Figur, jeder Gegner und jeder Gegenstand eine C#-Klasse!",
+   "¡En los juegos de Unity cada personaje, enemigo y objeto es una clase de C#!"
+  ],
+  "What does the word \"public\" in front of a class field mean?": [
+   "Was bedeutet das Wort \"public\" vor einem Klassenfeld?",
+   "¿Qué significa la palabra \"public\" delante de un campo de una clase?"
+  ],
+  "public makes a field or a method reachable from outside the class!": [
+   "public macht ein Feld oder eine Methode von außerhalb der Klasse erreichbar!",
+   "¡public hace que se pueda llegar a un campo o a un método desde fuera de la clase!"
+  ],
+  "Creating an Object": [
+   "Ein Objekt erstellen",
+   "Crear un objeto"
+  ],
+  "To create a real OBJECT from the class we use new:\\n\\nPlayer player1 = new Player();\\nplayer1.name = \"Hero\";\\nplayer1.health = 100;\\n\\nNow player1 is a REAL object!": [
+   "Um aus der Klasse ein echtes OBJEKT zu machen, benutzen wir new:\\n\\nPlayer player1 = new Player();\\nplayer1.name = \"Held\";\\nplayer1.health = 100;\\n\\nJetzt ist player1 ein ECHTES Objekt!",
+   "Para crear un OBJETO real a partir de la clase usamos new:\\n\\nPlayer player1 = new Player();\\nplayer1.name = \"Héroe\";\\nplayer1.health = 100;\\n\\n¡Ahora player1 es un objeto REAL!"
+  ],
+  "Exactly the same as using new in Java!": [
+   "Genau dasselbe wie new in Java!",
+   "¡Exactamente igual que usar new en Java!"
+  ],
+  "What do we write to create a new object from the Player class?": [
+   "Was schreiben wir, um aus der Klasse Player ein neues Objekt zu erstellen?",
+   "¿Qué escribimos para crear un objeto nuevo de la clase Player?"
+  ],
+  "The new keyword creates a new object from a class!": [
+   "Das Schlüsselwort new erstellt ein neues Objekt aus einer Klasse!",
+   "¡La palabra clave new crea un objeto nuevo a partir de una clase!"
+  ],
+  "More Than One Object From the Same Class": [
+   "Mehrere Objekte aus derselben Klasse",
+   "Más de un objeto de la misma clase"
+  ],
+  "Using one class you can create as many objects as you like:\\n\\nPlayer p1 = new Player();\\np1.name = \"Hero1\";\\n\\nPlayer p2 = new Player();\\np2.name = \"Hero2\";\\n\\np1 and p2 are different objects - neither affects the other!": [
+   "Mit einer Klasse kannst du so viele Objekte erstellen, wie du willst:\\n\\nPlayer p1 = new Player();\\np1.name = \"Held1\";\\n\\nPlayer p2 = new Player();\\np2.name = \"Held2\";\\n\\np1 und p2 sind verschiedene Objekte – keines beeinflusst das andere!",
+   "Con una sola clase puedes crear tantos objetos como quieras:\\n\\nPlayer p1 = new Player();\\np1.name = \"Héroe1\";\\n\\nPlayer p2 = new Player();\\np2.name = \"Héroe2\";\\n\\n¡p1 y p2 son objetos distintos y ninguno afecta al otro!"
+  ],
+  "Match the concepts with the right definitions!": [
+   "Ordne die Begriffe den richtigen Erklärungen zu!",
+   "¡Relaciona los conceptos con sus definiciones correctas!"
+  ],
+  "You understood the difference between a class and an object!": [
+   "Du hast den Unterschied zwischen Klasse und Objekt verstanden!",
+   "¡Entendiste la diferencia entre una clase y un objeto!"
+  ],
+  "Your OOP Journey Has Begun!": [
+   "Deine OOP-Reise hat begonnen!",
+   "¡Tu viaje por la POO ha empezado!"
+  ],
+  "🏗️ You laid the foundation of object-oriented programming!\\n\\n✓ Class = the plan\\n✓ Object = the real thing\\n✓ Creating an object with new\\n\\nNext up: adding METHODS to a class!": [
+   "🏗️ Du hast das Fundament der objektorientierten Programmierung gelegt!\\n\\n✓ Klasse = der Plan\\n✓ Objekt = das echte Ding\\n✓ Ein Objekt mit new erstellen\\n\\nAls Nächstes: einer Klasse METHODEN geben!",
+   "🏗️ ¡Pusiste los cimientos de la programación orientada a objetos!\\n\\n✓ Clase = el plano\\n✓ Objeto = la cosa real\\n✓ Crear un objeto con new\\n\\nSiguiente: ¡añadir MÉTODOS a una clase!"
+  ],
+  "You earned the OOP Starter badge!": [
+   "Du hast das Abzeichen «OOP-Einsteiger» verdient!",
+   "¡Has ganado la insignia Principiante de POO!"
+  ],
+  "Methods": [
+   "Methoden",
+   "Métodos"
+  ],
+  "Give your objects behaviour": [
+   "Gib deinen Objekten Verhalten",
+   "Dale comportamiento a tus objetos"
+  ],
+  "It is time to give our objects BEHAVIOUR: with METHODS!": [
+   "Zeit, unseren Objekten VERHALTEN zu geben: mit METHODEN!",
+   "¡Es hora de darles COMPORTAMIENTO a nuestros objetos: con MÉTODOS!"
+  ],
+  "What Is a Method?": [
+   "Was ist eine Methode?",
+   "¿Qué es un método?"
+  ],
+  "A method is something a class CAN DO:\\n\\nclass Player {\\n    public string name;\\n\\n    public void Greet() {\\n        Console.WriteLine(\\$\"Hello, I am {name}\");\\n    }\\n}": [
+   "Eine Methode ist etwas, das eine Klasse TUN KANN:\\n\\nclass Player {\\n    public string name;\\n\\n    public void Greet() {\\n        Console.WriteLine(\\$\"Hallo, ich bin {name}\");\\n    }\\n}",
+   "Un método es algo que una clase SABE HACER:\\n\\nclass Player {\\n    public string name;\\n\\n    public void Greet() {\\n        Console.WriteLine(\\$\"Hola, soy {name}\");\\n    }\\n}"
+  ],
+  "This is a small style difference between C# and Java - in C# methods start with a capital letter!": [
+   "Das ist ein kleiner Stilunterschied zwischen C# und Java – in C# beginnen Methoden mit einem Großbuchstaben!",
+   "¡Esta es una pequeña diferencia de estilo entre C# y Java: en C# los métodos empiezan por mayúscula!"
+  ],
+  "How do method names usually start in C#?": [
+   "Wie beginnen Methodennamen in C# üblicherweise?",
+   "¿Cómo empiezan normalmente los nombres de los métodos en C#?"
+  ],
+  "By C# convention method names start with a capital letter - this is called PascalCase!": [
+   "Nach der C#-Konvention beginnen Methodennamen mit einem Großbuchstaben – das nennt man PascalCase!",
+   "¡Por convención, en C# los nombres de los métodos empiezan por mayúscula: a esto se le llama PascalCase!"
+  ],
+  "Methods With Parameters": [
+   "Methoden mit Parametern",
+   "Métodos con parámetros"
+  ],
+  "Methods can take information (parameters) from outside:\\n\\npublic void Greet(string name) {\\n    Console.WriteLine(\\$\"Hello, {name}!\");\\n}\\n\\n// Using it:\\nGreet(\"Alex\"); // prints \"Hello, Alex!\"": [
+   "Methoden können Informationen (Parameter) von außen bekommen:\\n\\npublic void Greet(string name) {\\n    Console.WriteLine(\\$\"Hallo, {name}!\");\\n}\\n\\n// Benutzung:\\nGreet(\"Alex\"); // gibt \"Hallo, Alex!\" aus",
+   "Los métodos pueden recibir información (parámetros) desde fuera:\\n\\npublic void Greet(string name) {\\n    Console.WriteLine(\\$\"¡Hola, {name}!\");\\n}\\n\\n// Uso:\\nGreet(\"Alex\"); // muestra \"¡Hola, Alex!\""
+  ],
+  "In the method int Add(int a, int b), what are \"a\" and \"b\" called?": [
+   "Wie heißen \"a\" und \"b\" in der Methode int Add(int a, int b)?",
+   "En el método int Add(int a, int b), ¿cómo se llaman \"a\" y \"b\"?"
+  ],
+  "a and b are the values the method takes from outside - that is, its parameters!": [
+   "a und b sind die Werte, die die Methode von außen bekommt – also ihre Parameter!",
+   "¡a y b son los valores que el método recibe desde fuera, es decir, sus parámetros!"
+  ],
+  "Returning a Value With return": [
+   "Mit return einen Wert zurückgeben",
+   "Devolver un valor con return"
+  ],
+  "A method can work out a VALUE and send it back:\\n\\npublic int Add(int a, int b) {\\n    return a + b;\\n}\\n\\n// Using it:\\nint result = Add(3, 5); // result = 8\\n\\nWe wrote int instead of void because it returns a number now!": [
+   "Eine Methode kann einen WERT berechnen und zurückschicken:\\n\\npublic int Add(int a, int b) {\\n    return a + b;\\n}\\n\\n// Benutzung:\\nint ergebnis = Add(3, 5); // ergebnis = 8\\n\\nWir haben int statt void geschrieben, weil sie jetzt eine Zahl zurückgibt!",
+   "Un método puede calcular un VALOR y devolverlo:\\n\\npublic int Add(int a, int b) {\\n    return a + b;\\n}\\n\\n// Uso:\\nint resultado = Add(3, 5); // resultado = 8\\n\\n¡Escribimos int en lugar de void porque ahora devuelve un número!"
+  ],
+  "void = \"returns nothing\", int/string/double = \"returns something of that type\"": [
+   "void = «gibt nichts zurück», int/string/double = «gibt etwas von diesem Typ zurück»",
+   "void = «no devuelve nada», int/string/double = «devuelve algo de ese tipo»"
+  ],
+  "Put a method that adds two numbers in order": [
+   "Bring eine Methode, die zwei Zahlen addiert, in die richtige Reihenfolge",
+   "Pon en orden un método que suma dos números"
+  ],
+  "A method that adds the parameters a and b and returns the result": [
+   "Eine Methode, die die Parameter a und b addiert und das Ergebnis zurückgibt",
+   "Un método que suma los parámetros a y b y devuelve el resultado"
+  ],
+  "Mini Project: The Player Class": [
+   "Mini-Projekt: die Klasse Player",
+   "Miniproyecto: la clase Player"
+  ],
+  "Write a Player class that holds a name and health and has a method for taking damage!": [
+   "Schreibe eine Klasse Player, die einen Namen und Lebenspunkte hält und eine Methode zum Schadennehmen hat!",
+   "¡Escribe una clase Player que guarde un nombre y puntos de vida y tenga un método para recibir daño!"
+  ],
+  "Method Master!": [
+   "Methoden-Meister!",
+   "¡Maestro de los métodos!"
+  ],
+  "⚡ You can give objects behaviour!\\n\\n✓ Defining a method\\n✓ Taking parameters\\n✓ Sending a value back with return\\n\\nNext up: cutting down repeated code with inheritance!": [
+   "⚡ Du kannst Objekten Verhalten geben!\\n\\n✓ Eine Methode definieren\\n✓ Parameter entgegennehmen\\n✓ Mit return einen Wert zurückschicken\\n\\nAls Nächstes: doppelten Code mit Vererbung vermeiden!",
+   "⚡ ¡Puedes darles comportamiento a los objetos!\\n\\n✓ Definir un método\\n✓ Recibir parámetros\\n✓ Devolver un valor con return\\n\\nSiguiente: ¡reducir el código repetido con la herencia!"
+  ],
+  "You earned the Method Master badge!": [
+   "Du hast das Abzeichen «Methoden-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de los Métodos!"
+  ],
+  "Inheritance": [
+   "Vererbung",
+   "Herencia"
+  ],
+  "Pass class features down": [
+   "Gib Eigenschaften einer Klasse weiter",
+   "Transmite las características de una clase"
+  ],
+  "An Enemy class and a Player class can be very similar - they are both a \"Character\", right? With INHERITANCE we are going to avoid repeating code!": [
+   "Eine Klasse Enemy und eine Klasse Player können sich sehr ähneln – beide sind eine «Figur», oder? Mit VERERBUNG vermeiden wir doppelten Code!",
+   "Una clase Enemy y una clase Player pueden parecerse mucho: las dos son un «personaje», ¿verdad? ¡Con la HERENCIA vamos a evitar repetir código!"
+  ],
+  "What Is Inheritance?": [
+   "Was ist Vererbung?",
+   "¿Qué es la herencia?"
+  ],
+  "Inheritance is one class \"inheriting\" the features of another:\\n\\nclass Character {\\n    public string name;\\n    public int health;\\n}\\n\\nclass Player : Character {\\n    public int score;\\n}": [
+   "Vererbung heißt, dass eine Klasse die Eigenschaften einer anderen «erbt»:\\n\\nclass Character {\\n    public string name;\\n    public int health;\\n}\\n\\nclass Player : Character {\\n    public int score;\\n}",
+   "La herencia es que una clase «herede» las características de otra:\\n\\nclass Character {\\n    public string name;\\n    public int health;\\n}\\n\\nclass Player : Character {\\n    public int score;\\n}"
+  ],
+  "Java uses \"extends\", but in C# a simple \":\" (colon) is enough!": [
+   "Java benutzt \"extends\", aber in C# genügt ein einfacher \":\" (Doppelpunkt)!",
+   "¡Java usa \"extends\", pero en C# basta con un simple \":\" (dos puntos)!"
+  ],
+  "Which sign is used for inheritance in C#?": [
+   "Welches Zeichen wird in C# für die Vererbung benutzt?",
+   "¿Qué signo se usa en C# para la herencia?"
+  ],
+  "C# uses only a : (colon) for inheritance - different from Java\\'s extends!": [
+   "C# benutzt für die Vererbung nur einen : (Doppelpunkt) – anders als Javas extends!",
+   "¡C# usa solo unos : (dos puntos) para la herencia, a diferencia del extends de Java!"
+  ],
+  "Base Class and Derived Class": [
+   "Basisklasse und abgeleitete Klasse",
+   "Clase base y clase derivada"
+  ],
+  "There are two sides to inheritance:\\n\\nCharacter = the base class - the general features\\nPlayer = the derived class - its own features plus everything from Character": [
+   "Vererbung hat zwei Seiten:\\n\\nCharacter = die Basisklasse – die allgemeinen Eigenschaften\\nPlayer = die abgeleitete Klasse – ihre eigenen Eigenschaften plus alles von Character",
+   "La herencia tiene dos caras:\\n\\nCharacter = la clase base: las características generales\\nPlayer = la clase derivada: sus propias características más todo lo de Character"
+  ],
+  "When class Enemy : Character { } is defined, what features does an Enemy object have?": [
+   "Welche Eigenschaften hat ein Enemy-Objekt, wenn class Enemy : Character { } definiert ist?",
+   "Cuando se define class Enemy : Character { }, ¿qué características tiene un objeto Enemy?"
+  ],
+  "Thanks to inheritance, Enemy TAKES all of Character\\'s features and can ADD its own!": [
+   "Dank der Vererbung ÜBERNIMMT Enemy alle Eigenschaften von Character und kann eigene HINZUFÜGEN!",
+   "¡Gracias a la herencia, Enemy TOMA todas las características de Character y puede AÑADIR las suyas!"
+  ],
+  "Why Use Inheritance?": [
+   "Warum Vererbung benutzen?",
+   "¿Por qué usar la herencia?"
+  ],
+  "Without inheritance you would have to write name and health SEPARATELY in the Player and Enemy classes (repeated code!).\\n\\nUnity games use this a lot: every script inherits from a base class called MonoBehaviour.": [
+   "Ohne Vererbung müsstest du name und health in den Klassen Player und Enemy EINZELN schreiben (doppelter Code!).\\n\\nUnity-Spiele benutzen das sehr oft: Jedes Skript erbt von einer Basisklasse namens MonoBehaviour.",
+   "Sin herencia tendrías que escribir name y health POR SEPARADO en las clases Player y Enemy (¡código repetido!).\\n\\nLos juegos de Unity usan mucho esto: cada script hereda de una clase base llamada MonoBehaviour."
+  ],
+  "Good programmers avoid repeating code - inheritance is a great tool for that!": [
+   "Gute Programmierer vermeiden doppelten Code – Vererbung ist dafür ein tolles Werkzeug!",
+   "¡Los buenos programadores evitan repetir código, y la herencia es una gran herramienta para eso!"
+  ],
+  "Drag each class into the right role!": [
+   "Zieh jede Klasse in ihre richtige Rolle!",
+   "¡Arrastra cada clase a su papel correcto!"
+  ],
+  "You grasped the base class and derived class relationship!": [
+   "Du hast die Beziehung zwischen Basisklasse und abgeleiteter Klasse verstanden!",
+   "¡Has entendido la relación entre clase base y clase derivada!"
+  ],
+  "Inheritance Master!": [
+   "Vererbungs-Meister!",
+   "¡Maestro de la herencia!"
+  ],
+  "👨‍👦 You learned how to avoid repeating code!\\n\\n✓ Inheritance with : (a colon)\\n✓ The base class / derived class relationship\\n✓ How this idea is used in Unity\\n\\nNext module: real projects!": [
+   "👨‍👦 Du hast gelernt, doppelten Code zu vermeiden!\\n\\n✓ Vererbung mit : (einem Doppelpunkt)\\n✓ Die Beziehung Basisklasse / abgeleitete Klasse\\n✓ Wie diese Idee in Unity benutzt wird\\n\\nNächstes Modul: echte Projekte!",
+   "👨‍👦 ¡Aprendiste a evitar el código repetido!\\n\\n✓ Herencia con : (dos puntos)\\n✓ La relación clase base / clase derivada\\n✓ Cómo se usa esta idea en Unity\\n\\nSiguiente módulo: ¡proyectos de verdad!"
+  ],
+  "You earned the Inheritance Master badge!": [
+   "Du hast das Abzeichen «Vererbungs-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de la Herencia!"
+  ],
+  "Project: Grade Calculator": [
+   "Projekt: Notenrechner",
+   "Proyecto: calculadora de notas"
+  ],
+  "Put what you learned together": [
+   "Bring das Gelernte zusammen",
+   "Junta lo que has aprendido"
+  ],
+  "Now we are going to put everything you learned together and build a real program: a system that works out letter grades!": [
+   "Jetzt bringen wir alles Gelernte zusammen und bauen ein echtes Programm: ein System, das Notenbuchstaben berechnet!",
+   "¡Ahora vamos a juntar todo lo que has aprendido y construir un programa de verdad: un sistema que calcula notas con letra!"
+  ],
+  "The Project Plan": [
+   "Der Projektplan",
+   "El plan del proyecto"
+  ],
+  "🎯 The goal: turn a number grade into a letter grade\\n\\n90-100: A\\n80-89: B\\n70-79: C\\nunder 70: F (fail)\\n\\nWe are going to use an if-else if chain for this!": [
+   "🎯 Das Ziel: aus einer Punktzahl einen Notenbuchstaben machen\\n\\n90-100: A\\n80-89: B\\n70-79: C\\nunter 70: F (nicht bestanden)\\n\\nDafür benutzen wir eine if-else-if-Kette!",
+   "🎯 El objetivo: convertir una nota numérica en una nota con letra\\n\\n90-100: A\\n80-89: B\\n70-79: C\\nmenos de 70: F (suspenso)\\n\\n¡Para esto vamos a usar una cadena if-else if!"
+  ],
+  "Step 1: Take the Grade and Check It": [
+   "Schritt 1: die Note entgegennehmen und prüfen",
+   "Paso 1: recoger la nota y comprobarla"
+  ],
+  "It matters that the if-else if chain is written in the RIGHT order, from the top down:\\n\\nint score = 85;\\nstring letterGrade;\\n\\nif (score >= 90) {\\n    letterGrade = \"A\";\\n} else if (score >= 80) {\\n    letterGrade = \"B\";\\n} else if (score >= 70) {\\n    letterGrade = \"C\";\\n} else {\\n    letterGrade = \"F\";\\n}": [
+   "Es ist wichtig, dass die if-else-if-Kette in der RICHTIGEN Reihenfolge von oben nach unten geschrieben wird:\\n\\nint punkte = 85;\\nstring notenBuchstabe;\\n\\nif (punkte >= 90) {\\n    notenBuchstabe = \"A\";\\n} else if (punkte >= 80) {\\n    notenBuchstabe = \"B\";\\n} else if (punkte >= 70) {\\n    notenBuchstabe = \"C\";\\n} else {\\n    notenBuchstabe = \"F\";\\n}",
+   "Es importante que la cadena if-else if se escriba en el ORDEN CORRECTO, de arriba abajo:\\n\\nint puntos = 85;\\nstring notaLetra;\\n\\nif (puntos >= 90) {\\n    notaLetra = \"A\";\\n} else if (puntos >= 80) {\\n    notaLetra = \"B\";\\n} else if (puntos >= 70) {\\n    notaLetra = \"C\";\\n} else {\\n    notaLetra = \"F\";\\n}"
+  ],
+  "What happens if we do not write the if conditions IN ORDER, from highest to lowest?": [
+   "Was passiert, wenn wir die if-Bedingungen NICHT der Reihe nach von hoch nach niedrig schreiben?",
+   "¿Qué pasa si no escribimos las condiciones if EN ORDEN, de mayor a menor?"
+  ],
+  "We check the conditions in order and use the first true one - if the order is wrong you get a logic error!": [
+   "Wir prüfen die Bedingungen der Reihe nach und nehmen die erste wahre – ist die Reihenfolge falsch, bekommst du einen Logikfehler!",
+   "¡Comprobamos las condiciones en orden y usamos la primera verdadera: si el orden está mal, tienes un error de lógica!"
+  ],
+  "Step 2: Print the Result": [
+   "Schritt 2: das Ergebnis ausgeben",
+   "Paso 2: mostrar el resultado"
+  ],
+  "Finally, let\\'s show the result to the user:\\n\\nConsole.WriteLine(\\$\"Your score: {score}\");\\nConsole.WriteLine(\\$\"Your letter grade: {letterGrade}\");\\n\\nString interpolation (\\$\"...\") keeps it nice and tidy!": [
+   "Zum Schluss zeigen wir dem Nutzer das Ergebnis:\\n\\nConsole.WriteLine(\\$\"Deine Punktzahl: {punkte}\");\\nConsole.WriteLine(\\$\"Dein Notenbuchstabe: {notenBuchstabe}\");\\n\\nDie String-Interpolation (\\$\"…\") hält es schön aufgeräumt!",
+   "Por último, mostremos el resultado al usuario:\\n\\nConsole.WriteLine(\\$\"Tu puntuación: {puntos}\");\\nConsole.WriteLine(\\$\"Tu nota con letra: {notaLetra}\");\\n\\n¡La interpolación de cadenas (\\$\"…\") lo deja todo bien ordenado!"
+  ],
+  "Write a complete program that takes a number grade and turns it into a letter grade!": [
+   "Schreibe ein vollständiges Programm, das eine Punktzahl entgegennimmt und daraus einen Notenbuchstaben macht!",
+   "¡Escribe un programa completo que recoja una nota numérica y la convierta en una nota con letra!"
+  ],
+  "Your First Real Project Is Done!": [
+   "Dein erstes echtes Projekt ist fertig!",
+   "¡Tu primer proyecto de verdad está terminado!"
+  ],
+  "📊 You used control structures on a real problem!\\n\\n✓ The if-else if chain\\n✓ Sensible ordering\\n✓ Showing the result with string interpolation\\n\\nNext up: a bigger project with a Player class!": [
+   "📊 Du hast Kontrollstrukturen auf ein echtes Problem angewendet!\\n\\n✓ Die if-else-if-Kette\\n✓ Eine sinnvolle Reihenfolge\\n✓ Das Ergebnis mit String-Interpolation zeigen\\n\\nAls Nächstes: ein größeres Projekt mit einer Klasse Player!",
+   "📊 ¡Has usado las estructuras de control en un problema real!\\n\\n✓ La cadena if-else if\\n✓ Un orden con sentido\\n✓ Mostrar el resultado con interpolación de cadenas\\n\\nSiguiente: ¡un proyecto más grande con una clase Player!"
+  ],
+  "You finished the Grade Calculator project!": [
+   "Du hast das Projekt «Notenrechner» geschafft!",
+   "¡Has terminado el proyecto de la calculadora de notas!"
+  ],
+  "Project: Inventory System": [
+   "Projekt: Inventarsystem",
+   "Proyecto: sistema de inventario"
+  ],
+  "Use classes in real life": [
+   "Klassen im echten Leben benutzen",
+   "Usa las clases en la vida real"
+  ],
+  "We are going to build a game inventory (a bag of items) system - using classes, objects and List<T>!": [
+   "Wir bauen ein Spiel-Inventar (einen Beutel mit Gegenständen) – mit Klassen, Objekten und List<T>!",
+   "¡Vamos a construir un inventario de juego (una bolsa de objetos) usando clases, objetos y List<T>!"
+  ],
+  "🎯 The goal: an inventory system that stores items\\n\\n1. An Item class (name, value)\\n2. An inventory list (List<Item>)\\n3. Adding an item\\n4. Working out the total value": [
+   "🎯 Das Ziel: ein Inventarsystem, das Gegenstände aufbewahrt\\n\\n1. Eine Klasse Item (Name, Wert)\\n2. Eine Inventarliste (List<Item>)\\n3. Einen Gegenstand hinzufügen\\n4. Den Gesamtwert berechnen",
+   "🎯 El objetivo: un sistema de inventario que guarde objetos\\n\\n1. Una clase Item (nombre, valor)\\n2. Una lista de inventario (List<Item>)\\n3. Añadir un objeto\\n4. Calcular el valor total"
+  ],
+  "Step 1: The Item Class": [
+   "Schritt 1: die Klasse Item",
+   "Paso 1: la clase Item"
+  ],
+  "First let\\'s define our Item class:\\n\\nclass Item {\\n    public string name;\\n    public int value;\\n}\\n\\nThen let\\'s hold many items in a list:\\n\\nList<Item> inventory = new List<Item>();": [
+   "Zuerst legen wir unsere Klasse Item fest:\\n\\nclass Item {\\n    public string name;\\n    public int value;\\n}\\n\\nDann halten wir viele Gegenstände in einer Liste:\\n\\nList<Item> inventory = new List<Item>();",
+   "Definamos primero nuestra clase Item:\\n\\nclass Item {\\n    public string name;\\n    public int value;\\n}\\n\\nDespués guardemos muchos objetos en una lista:\\n\\nList<Item> inventory = new List<Item>();"
+  ],
+  "class Item {\\n  public string name;\\n  public int value;\\n}": [
+   "class Item {\\n  public string name;\\n  public int value;\\n}",
+   "class Item {\\n  public string name;\\n  public int value;\\n}"
+  ],
+  "In the line List<Item> inventory = new List<Item>();, what does <Item> mean?": [
+   "Was bedeutet <Item> in der Zeile List<Item> inventory = new List<Item>();?",
+   "En la línea List<Item> inventory = new List<Item>();, ¿qué significa <Item>?"
+  ],
+  "<Item> is a \"generic type\": it says this list will hold ONLY Item objects!": [
+   "<Item> ist ein «generischer Typ»: Er sagt, dass diese Liste NUR Item-Objekte halten wird!",
+   "¡<Item> es un «tipo genérico»: dice que esta lista guardará SOLO objetos Item!"
+  ],
+  "Step 2: Add Items and Work Out the Total": [
+   "Schritt 2: Gegenstände hinzufügen und die Summe berechnen",
+   "Paso 2: añadir objetos y calcular el total"
+  ],
+  "Now let\\'s add an item to the inventory and work out the total value:\\n\\nItem sword = new Item();\\nsword.name = \"Sword\";\\nsword.value = 50;\\ninventory.Add(sword);\\n\\nint totalValue = 0;\\nforeach (Item item in inventory) {\\n    totalValue += item.value;\\n}": [
+   "Jetzt fügen wir dem Inventar einen Gegenstand hinzu und berechnen den Gesamtwert:\\n\\nItem sword = new Item();\\nsword.name = \"Schwert\";\\nsword.value = 50;\\ninventory.Add(sword);\\n\\nint totalValue = 0;\\nforeach (Item item in inventory) {\\n    totalValue += item.value;\\n}",
+   "Ahora añadamos un objeto al inventario y calculemos el valor total:\\n\\nItem sword = new Item();\\nsword.name = \"Espada\";\\nsword.value = 50;\\ninventory.Add(sword);\\n\\nint totalValue = 0;\\nforeach (Item item in inventory) {\\n    totalValue += item.value;\\n}"
+  ],
+  "With foreach you can easily walk through every object in a list!": [
+   "Mit foreach kannst du leicht jedes Objekt in einer Liste durchgehen!",
+   "¡Con foreach puedes recorrer fácilmente todos los objetos de una lista!"
+  ],
+  "Project: Game Inventory": [
+   "Projekt: Spiel-Inventar",
+   "Proyecto: inventario de juego"
+  ],
+  "Write an inventory system that stores items and works out their total value!": [
+   "Schreibe ein Inventarsystem, das Gegenstände aufbewahrt und ihren Gesamtwert berechnet!",
+   "¡Escribe un sistema de inventario que guarde objetos y calcule su valor total!"
+  ],
+  "System Developer!": [
+   "System-Entwickler!",
+   "¡Desarrollador de sistemas!"
+  ],
+  "🎒 You built a real OOP system!\\n\\n✓ Designing a class\\n✓ Using List<T>\\n✓ Adding things up with foreach\\n\\nNext up: the final project, which uses inheritance too!": [
+   "🎒 Du hast ein echtes OOP-System gebaut!\\n\\n✓ Eine Klasse entwerfen\\n✓ List<T> benutzen\\n✓ Mit foreach zusammenzählen\\n\\nAls Nächstes: das Abschlussprojekt, das auch Vererbung benutzt!",
+   "🎒 ¡Has construido un sistema de POO de verdad!\\n\\n✓ Diseñar una clase\\n✓ Usar List<T>\\n✓ Sumar con foreach\\n\\nSiguiente: ¡el proyecto final, que también usa la herencia!"
+  ],
+  "You earned the System Developer badge!": [
+   "Du hast das Abzeichen «System-Entwickler» verdient!",
+   "¡Has ganado la insignia Desarrollador de Sistemas!"
+  ],
+  "Final Project: Game Character": [
+   "Abschlussprojekt: Spielfigur",
+   "Proyecto final: personaje de juego"
+  ],
+  "Bring everything together!": [
+   "Bring alles zusammen!",
+   "¡Júntalo todo!"
+  ],
+  "Well done for getting this far! Now we are going to use EVERYTHING you learned to build a simple game character system - just like in Unity!": [
+   "Gut gemacht, dass du so weit gekommen bist! Jetzt benutzen wir ALLES, was du gelernt hast, um ein einfaches System für Spielfiguren zu bauen – genau wie in Unity!",
+   "¡Muy bien por haber llegado hasta aquí! ¡Ahora vamos a usar TODO lo que has aprendido para construir un sistema sencillo de personajes de juego, igual que en Unity!"
+  ],
+  "🎯 The goal: a Character system with health that can take damage and attack\\n\\n📦 Classes and methods\\n🔀 Control structures (health can never go below 0)\\n👨‍👦 Inheritance (Player and Enemy both come from Character)": [
+   "🎯 Das Ziel: ein System mit Figuren, die Lebenspunkte haben, Schaden nehmen und angreifen können\\n\\n📦 Klassen und Methoden\\n🔀 Kontrollstrukturen (Lebenspunkte dürfen nie unter 0 gehen)\\n👨‍👦 Vererbung (Player und Enemy kommen beide von Character)",
+   "🎯 El objetivo: un sistema de personajes con vida, que puedan recibir daño y atacar\\n\\n📦 Clases y métodos\\n🔀 Estructuras de control (la vida nunca puede bajar de 0)\\n👨‍👦 Herencia (Player y Enemy vienen los dos de Character)"
+  ],
+  "Step 1: The Base Character Class": [
+   "Schritt 1: die Basisklasse Character",
+   "Paso 1: la clase base Character"
+  ],
+  "First let\\'s define our shared Character class:\\n\\nclass Character {\\n    public string name;\\n    public int health = 100;\\n\\n    public void TakeDamage(int amount) {\\n        health -= amount;\\n    }\\n}": [
+   "Zuerst legen wir unsere gemeinsame Klasse Character fest:\\n\\nclass Character {\\n    public string name;\\n    public int health = 100;\\n\\n    public void TakeDamage(int amount) {\\n        health -= amount;\\n    }\\n}",
+   "Definamos primero nuestra clase común Character:\\n\\nclass Character {\\n    public string name;\\n    public int health = 100;\\n\\n    public void TakeDamage(int amount) {\\n        health -= amount;\\n    }\\n}"
+  ],
+  "Step 2: Never Let Health Go Below Zero": [
+   "Schritt 2: Lebenspunkte nie unter null lassen",
+   "Paso 2: que la vida no baje nunca de cero"
+  ],
+  "In a realistic game health should NEVER be negative!\\n\\npublic void TakeDamage(int amount) {\\n    health -= amount;\\n    if (health < 0) {\\n        health = 0;\\n    }\\n    if (health == 0) {\\n        Console.WriteLine(\\$\"{name} is out of the game!\");\\n    }\\n}": [
+   "In einem realistischen Spiel dürfen die Lebenspunkte NIE negativ sein!\\n\\npublic void TakeDamage(int amount) {\\n    health -= amount;\\n    if (health < 0) {\\n        health = 0;\\n    }\\n    if (health == 0) {\\n        Console.WriteLine(\\$\"{name} ist aus dem Spiel!\");\\n    }\\n}",
+   "¡En un juego realista la vida NUNCA debería ser negativa!\\n\\npublic void TakeDamage(int amount) {\\n    health -= amount;\\n    if (health < 0) {\\n        health = 0;\\n    }\\n    if (health == 0) {\\n        Console.WriteLine(\\$\"¡{name} está fuera del juego!\");\\n    }\\n}"
+  ],
+  "Good programmers always think about the edge cases!": [
+   "Gute Programmierer denken immer an die Randfälle!",
+   "¡Los buenos programadores piensan siempre en los casos límite!"
+  ],
+  "Why does the line \"if (health < 0) { health = 0; }\" matter in the TakeDamage method?": [
+   "Warum ist die Zeile \"if (health < 0) { health = 0; }\" in der Methode TakeDamage wichtig?",
+   "¿Por qué es importante la línea \"if (health < 0) { health = 0; }\" en el método TakeDamage?"
+  ],
+  "Logically health cannot be negative (-20 health makes no sense) - this check prevents it!": [
+   "Logisch können Lebenspunkte nicht negativ sein (-20 Lebenspunkte ergeben keinen Sinn) – diese Prüfung verhindert das!",
+   "¡Por lógica la vida no puede ser negativa (-20 de vida no tiene sentido) y esta comprobación lo evita!"
+  ],
+  "Step 3: Player and Enemy Through Inheritance": [
+   "Schritt 3: Player und Enemy durch Vererbung",
+   "Paso 3: Player y Enemy mediante herencia"
+  ],
+  "Now let\\'s make two subclasses that come from Character:\\n\\nclass Player : Character {\\n    public int score = 0;\\n}\\n\\nclass Enemy : Character {\\n    public int attackPower = 10;\\n}": [
+   "Jetzt machen wir zwei Unterklassen, die von Character kommen:\\n\\nclass Player : Character {\\n    public int score = 0;\\n}\\n\\nclass Enemy : Character {\\n    public int attackPower = 10;\\n}",
+   "Ahora hagamos dos subclases que vienen de Character:\\n\\nclass Player : Character {\\n    public int score = 0;\\n}\\n\\nclass Enemy : Character {\\n    public int attackPower = 10;\\n}"
+  ],
+  "Final Project: The Complete Character System": [
+   "Abschlussprojekt: das vollständige Figurensystem",
+   "Proyecto final: el sistema de personajes completo"
+  ],
+  "Put everything you learned together and build a complete game character system!": [
+   "Bring alles Gelernte zusammen und baue ein vollständiges System für Spielfiguren!",
+   "¡Junta todo lo que has aprendido y construye un sistema completo de personajes de juego!"
+  ],
+  "🎓 YOU ARE A C# GRADUATE!": [
+   "🎓 DU BIST C#-ABSOLVENT!",
+   "🎓 ¡ERES GRADUADO EN C#!"
+  ],
+  "🎉💜🎉 YOU FINISHED THE C# COURSE!\\n\\n✓ Variables and data types\\n✓ Control structures (if-else, loops)\\n✓ Arrays and List<T>\\n✓ Object-oriented programming (class, object, method, inheritance)\\n\\nYou can step into Unity game development with these skills!": [
+   "🎉💜🎉 DU HAST DEN C#-KURS GESCHAFFT!\\n\\n✓ Variablen und Datentypen\\n✓ Kontrollstrukturen (if-else, Schleifen)\\n✓ Arrays und List<T>\\n✓ Objektorientierte Programmierung (Klasse, Objekt, Methode, Vererbung)\\n\\nMit diesen Fähigkeiten kannst du in die Spieleentwicklung mit Unity einsteigen!",
+   "🎉💜🎉 ¡HAS TERMINADO EL CURSO DE C#!\\n\\n✓ Variables y tipos de datos\\n✓ Estructuras de control (if-else, bucles)\\n✓ Arrays y List<T>\\n✓ Programación orientada a objetos (clase, objeto, método, herencia)\\n\\n¡Con estas habilidades puedes entrar en el desarrollo de juegos con Unity!"
+  ],
+  "You earned the C# Graduate badge! With these skills you can step into Unity game development.": [
+   "Du hast das Abzeichen «C#-Absolvent» verdient! Mit diesen Fähigkeiten kannst du in die Spieleentwicklung mit Unity einsteigen.",
+   "¡Has ganado la insignia Graduado en C#! Con estas habilidades puedes entrar en el desarrollo de juegos con Unity."
+  ],
+  "You stepped into the world of C#!": [
+   "Du bist in die Welt von C# eingestiegen!",
+   "¡Has entrado en el mundo de C#!"
+  ],
+  "You wrote your first C# program!": [
+   "Du hast dein erstes C#-Programm geschrieben!",
+   "¡Escribiste tu primer programa en C#!"
+  ],
+  "You mastered data types!": [
+   "Du beherrschst die Datentypen!",
+   "¡Dominas los tipos de datos!"
+  ],
+  "You made your programs decide with if-else!": [
+   "Du hast deine Programme mit if-else entscheiden lassen!",
+   "¡Hiciste que tus programas decidieran con if-else!"
+  ],
+  "You mastered the for, while and foreach loops!": [
+   "Du beherrschst die for-, while- und foreach-Schleife!",
+   "¡Dominas los bucles for, while y foreach!"
+  ],
+  "You managed several values with arrays and lists!": [
+   "Du hast mehrere Werte mit Arrays und Listen verwaltet!",
+   "¡Has manejado varios valores con arrays y listas!"
+  ],
+  "You learned the class and object concepts!": [
+   "Du hast die Begriffe Klasse und Objekt gelernt!",
+   "¡Aprendiste los conceptos de clase y objeto!"
+  ],
+  "You gave your objects behaviour!": [
+   "Du hast deinen Objekten Verhalten gegeben!",
+   "¡Les diste comportamiento a tus objetos!"
+  ],
+  "You avoided repeated code with :!": [
+   "Du hast doppelten Code mit : vermieden!",
+   "¡Has evitado el código repetido con :!"
+  ],
+  "You finished the whole C# course and the final project!": [
+   "Du hast den ganzen C#-Kurs und das Abschlussprojekt geschafft!",
+   "¡Has terminado todo el curso de C# y el proyecto final!"
+  ]
+ },
+ "listeler": [
+  {
+   "en": [
+    "Build games with Unity",
+    "Windows apps",
+    "Web and mobile"
+   ],
+   "de": [
+    "Spiele mit Unity bauen",
+    "Windows-Apps",
+    "Web und Mobil"
+   ],
+   "es": [
+    "Crear juegos con Unity",
+    "Aplicaciones de Windows",
+    "Web y móvil"
+   ]
+  }
+ ]
+}

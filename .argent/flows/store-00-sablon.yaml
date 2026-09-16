@@ -1,0 +1,81 @@
+# SABLON — magaza akislarinin ortak basi. Bu dosya bir sahne degil;
+# yeni bir store-*.yaml yazarken bastaki bu adimlar kopyalanir.
+#
+# NEDEN BU ADIMLAR VAR
+# --------------------
+# goldie her akistan once uygulamayi VERISI SILINMIS halde yeniden
+# kuruyor. Yani her akis en bastan basliyor. Gercek ilk acilis
+# (2026-09-09'da simulatorde dogrulandi):
+#
+#   splash (2.5 sn, modern_splash_screen.dart:54)
+#     -> onboarding 1/8  "BASLAYALIM"  iki blogu birlestir  (SURUKLEME)
+#     -> 2/8  "ADIM ADIM"       bilgi
+#     -> 3/8  "TANISALIM"       takma ad (onceden dolu)
+#     -> 4/8  "OYNA VE KAZAN"   bilgi
+#     -> 5/8  "SENI TANIYALIM"  yas (secmeden gecilebiliyor)
+#     -> 6/8  "SIRALAMA"        bilgi
+#     -> 7/8  "BITIRINCE"       bilgi
+#     -> 8/8  "HEDEFIN"         hedef sec  -> ANA SAYFA
+#
+# GIRIS EKRANI YOK. Eski surumdeki "Hesapsiz devam et" adimi artik
+# acilista gorunmuyor; onboarding dogrudan basliyor.
+#
+# 1. ADIM SURUKLEME ISTIYOR: ileri oku o adimda pasif. Mavi "10 adim git"
+# blogu ustteki bos yuvaya birakilinca ekran KENDILIGINDEN 2. adima
+# geciyor — orada ayrica ileri oka basilmiyor.
+#
+# BEKLEMELER NEDEN SABIT: `await idle` bu uygulamada guvenilir degil.
+# Puf'un maskot animasyonu hic durmadigi icin argent "ekran hic
+# durulmadi" deyip devam ediyor; hemen sonraki dokunus da gecis
+# sirasinda yutuluyor. Olculdu: goal secimi sonrasi yalnizca
+# `await idle` birakilinca sekme dokunusu bosa dustu ve ekran ana
+# sayfada kaldi.
+#
+# DIL: goldie akisi dort yerel icin ayri calistiriyor (tr/en/de/es) ve
+# cihaz dili bos kurulumda uygulamaya gecdiyor
+# (settings_provider.dart:92 -> _deviceLocaleOrDefault). Bu yuzden
+# METIN SECICI KULLANILMIYOR: "Hesabım" tr kosusunda bulunur, en/de/es
+# kosusunda bulunmaz. Bunun yerine KOORDINAT kullaniyoruz — arayuz
+# duzeni dort dilde ayni, yalnizca metin degisiyor. Her koordinatin
+# ustunde neyi hedefledigini soyleyen bir echo var; duzen degisirse
+# canli ekrani `describe` ile gezip yeniden cozmek icin gereken bilgi
+# orada.
+steps:
+  - launch: com.devkom.app
+  - echo: Splash 2.5 sn surer (modern_splash_screen.dart:54); 3.5 sn bekliyoruz.
+  - wait: 3500
+  - echo: >-
+      Onboarding 1/8. Mavi "10 adim git" blogunu (0.50, 0.754) ustteki bos
+      yuvaya (0.52, 0.678) birakiyoruz. Birlesince 2. adima kendiliginden
+      geciyor.
+  - tool: gesture-swipe
+    args: { fromX: 0.50, fromY: 0.754, toX: 0.52, toY: 0.678, durationMs: 900 }
+  - wait: 1500
+  - echo: >-
+      Onboarding 2/8 -> 8/8. Sag alttaki ileri oku (0.861, 0.945) alti kez.
+      Ara ekranlarda (takma ad, yas) secim ZORUNLU degil; varsayilan
+      degerlerle ilerliyor.
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 900
+  - tap: { x: 0.861, y: 0.945 }
+  - wait: 1200
+  - echo: >-
+      Onboarding 8/8 "HEDEFIN": ilk secenek "Oyun yapmak" (0.50, 0.449).
+      Hedef secilince onboarding BITIYOR ve ana sayfa aciliyor; burada
+      ileri oka basilmiyor. "Oyun yapmak" hedefi yolu Scratch -> Python
+      olarak diziyor (learning_path_service.dart:27) — yani ana sayfa
+      Scratch'in ilk dersiyle aciliyor.
+  - tap: { x: 0.50, y: 0.449 }
+  - echo: >-
+      Ana sayfanin acilis gecisi + ilk verinin yerlesmesi. 2600 ms
+      olculdu; daha kisasinda sonraki dokunus yutuluyor.
+  - wait: 2600
+  # Buradan sonrasi sahneye gore degisir.

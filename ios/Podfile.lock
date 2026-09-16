@@ -15,10 +15,6 @@ PODS:
     - Flutter
     - flutter_sound_core (= 9.30.0)
   - flutter_sound_core (9.30.0)
-  - flutter_vlc_player (3.0.3):
-    - Flutter
-    - MobileVLCKit (~> 3.6.1b1)
-  - MobileVLCKit (3.6.1b1)
   - OrderedSet (6.0.3)
   - sign_in_with_apple (0.0.1):
     - Flutter
@@ -31,14 +27,12 @@ DEPENDENCIES:
   - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_sound (from `.symlinks/plugins/flutter_sound/ios`)
-  - flutter_vlc_player (from `.symlinks/plugins/flutter_vlc_player/ios`)
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
   - stockfish_chess_engine (from `.symlinks/plugins/stockfish_chess_engine/ios`)
 
 SPEC REPOS:
   trunk:
     - flutter_sound_core
-    - MobileVLCKit
     - OrderedSet
 
 EXTERNAL SOURCES:
@@ -52,8 +46,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
   flutter_sound:
     :path: ".symlinks/plugins/flutter_sound/ios"
-  flutter_vlc_player:
-    :path: ".symlinks/plugins/flutter_vlc_player/ios"
   sign_in_with_apple:
     :path: ".symlinks/plugins/sign_in_with_apple/ios"
   stockfish_chess_engine:
@@ -66,8 +58,6 @@ SPEC CHECKSUMS:
   flutter_local_notifications: 395056b3175ba4f08480a7c5de30cd36d69827e4
   flutter_sound: d95194f6476c9ad211d22b3a414d852c12c7ca44
   flutter_sound_core: 7f2626d249d3a57bfa6da892ef7e22d234482c1a
-  flutter_vlc_player: 5464f594a9338e080d240bbe7b10ffe30c7bc8bc
-  MobileVLCKit: 2d9c7c373393ae43086aeeff890bf0b1afc15c5c
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   sign_in_with_apple: c5dcc141574c8c54d5ac99dd2163c0c72ad22418
   stockfish_chess_engine: 02e24e8fee8cfbcfe769b9334c4a49075bdf8ac5

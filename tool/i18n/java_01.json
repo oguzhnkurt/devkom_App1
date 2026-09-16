@@ -1,0 +1,1027 @@
+{
+ "metinler": {
+  "Welcome to Java!": [
+   "Willkommen bei Java!",
+   "¡Bienvenido a Java!"
+  ],
+  "Write once, run anywhere": [
+   "Einmal schreiben, überall laufen lassen",
+   "Escribe una vez, ejecuta en cualquier sitio"
+  ],
+  "Hello! I am Java. I am one of the most used languages in the world - most of the apps on your Android phone were written with me!": [
+   "Hallo! Ich bin Java. Ich gehöre zu den meistbenutzten Sprachen der Welt – die meisten Apps auf deinem Android-Handy wurden mit mir geschrieben!",
+   "¡Hola! Soy Java. Soy uno de los lenguajes más usados del mundo: ¡la mayoría de las aplicaciones de tu móvil Android se escribieron conmigo!"
+  ],
+  "What Is Java?": [
+   "Was ist Java?",
+   "¿Qué es Java?"
+  ],
+  "Java is a powerful programming language created by Sun Microsystems in 1995.\\n\\nIts slogan: \"Write once, run anywhere!\"\\n\\nWhat does that mean? Your Java code runs THE SAME WAY on Windows, on a Mac, on Linux, even on Android phones!": [
+   "Java ist eine mächtige Programmiersprache, die Sun Microsystems 1995 erschaffen hat.\\n\\nIhr Motto: «Einmal schreiben, überall laufen lassen!»\\n\\nWas heißt das? Dein Java-Code läuft GENAU GLEICH unter Windows, auf einem Mac, unter Linux, sogar auf Android-Handys!",
+   "Java es un lenguaje de programación potente creado por Sun Microsystems en 1995.\\n\\nSu lema: «¡Escribe una vez, ejecuta en cualquier sitio!»\\n\\n¿Qué significa? ¡Tu código Java funciona IGUAL en Windows, en un Mac, en Linux e incluso en móviles Android!"
+  ],
+  "The game Minecraft (the original version) was written entirely in Java!": [
+   "Das Spiel Minecraft (die ursprüngliche Fassung) wurde komplett in Java geschrieben!",
+   "¡El juego Minecraft (la versión original) se escribió entero en Java!"
+  ],
+  "What is Java\\'s famous slogan?": [
+   "Wie lautet Javas berühmtes Motto?",
+   "¿Cuál es el famoso lema de Java?"
+  ],
+  "Java code can run on any platform thanks to the JVM (Java Virtual Machine)!": [
+   "Java-Code läuft dank der JVM (Java Virtual Machine) auf jeder Plattform!",
+   "¡El código Java puede ejecutarse en cualquier plataforma gracias a la JVM (Java Virtual Machine)!"
+  ],
+  "Where Is Java Used?": [
+   "Wo wird Java benutzt?",
+   "¿Dónde se usa Java?"
+  ],
+  "Java turns up everywhere:\\n\\n📱 Android apps\\n🏢 Enterprise software (banks, big companies)\\n🌐 Web servers\\n🎮 Games (Minecraft!)\\n💾 Big data systems": [
+   "Java taucht überall auf:\\n\\n📱 Android-Apps\\n🏢 Unternehmenssoftware (Banken, große Firmen)\\n🌐 Webserver\\n🎮 Spiele (Minecraft!)\\n💾 Big-Data-Systeme",
+   "Java aparece por todas partes:\\n\\n📱 Aplicaciones Android\\n🏢 Software empresarial (bancos, grandes empresas)\\n🌐 Servidores web\\n🎮 Juegos (¡Minecraft!)\\n💾 Sistemas de macrodatos"
+  ],
+  "Which popular game was written in Java?": [
+   "Welches beliebte Spiel wurde in Java geschrieben?",
+   "¿Qué juego popular se escribió en Java?"
+  ],
+  "The original (Java Edition) version of Minecraft was written entirely in Java!": [
+   "Die ursprüngliche Fassung (Java Edition) von Minecraft wurde komplett in Java geschrieben!",
+   "¡La versión original (Java Edition) de Minecraft se escribió entera en Java!"
+  ],
+  "What Is the JVM?": [
+   "Was ist die JVM?",
+   "¿Qué es la JVM?"
+  ],
+  "The Java Virtual Machine (JVM) is a \"translator\" that turns Java code into the language your computer understands.\\n\\nThat is why the same Java program runs on Windows and on a Mac - there is a separate JVM for each platform, but your code stays the same!": [
+   "Die Java Virtual Machine (JVM) ist ein «Übersetzer», der Java-Code in die Sprache übersetzt, die dein Computer versteht.\\n\\nDeshalb läuft dasselbe Java-Programm unter Windows und auf einem Mac – für jede Plattform gibt es eine eigene JVM, aber dein Code bleibt derselbe!",
+   "La Java Virtual Machine (JVM) es un «traductor» que convierte el código Java al lenguaje que entiende tu ordenador.\\n\\nPor eso el mismo programa Java funciona en Windows y en un Mac: hay una JVM distinta para cada plataforma, ¡pero tu código sigue siendo el mismo!"
+  ],
+  "The JVM is the real hero behind the \"write once, run anywhere\" magic!": [
+   "Die JVM ist der wahre Held hinter dem Zauber «einmal schreiben, überall laufen lassen»!",
+   "¡La JVM es la verdadera heroína detrás de la magia de «escribe una vez, ejecuta en cualquier sitio»!"
+  ],
+  "Java Starter!": [
+   "Java-Einsteiger!",
+   "¡Principiante de Java!"
+  ],
+  "☕ Welcome to the world of Java!\\n\\n✓ You learned what Java is\\n✓ You discovered where it is used\\n✓ You met the idea of the JVM\\n\\nNext lesson: you are going to write your first Java program!": [
+   "☕ Willkommen in der Welt von Java!\\n\\n✓ Du weißt, was Java ist\\n✓ Du hast entdeckt, wo es benutzt wird\\n✓ Du hast die Idee der JVM kennengelernt\\n\\nNächste Lektion: Du schreibst dein erstes Java-Programm!",
+   "☕ ¡Bienvenido al mundo de Java!\\n\\n✓ Aprendiste qué es Java\\n✓ Descubriste dónde se usa\\n✓ Conociste la idea de la JVM\\n\\nSiguiente lección: ¡vas a escribir tu primer programa en Java!"
+  ],
+  "You earned the Java Starter badge!": [
+   "Du hast das Abzeichen «Java-Einsteiger» verdient!",
+   "¡Has ganado la insignia Principiante de Java!"
+  ],
+  "Your First Program": [
+   "Dein erstes Programm",
+   "Tu primer programa"
+  ],
+  "Write Hello World!": [
+   "Schreib Hello World!",
+   "¡Escribe Hello World!"
+  ],
+  "Every programmer\\'s legendary first step: printing \"Hello World\"! Your turn!": [
+   "Der legendäre erste Schritt jedes Programmierers: «Hello World» ausgeben! Du bist dran!",
+   "El legendario primer paso de todo programador: ¡mostrar «Hello World»! ¡Te toca!"
+  ],
+  "The Skeleton of a Java Program": [
+   "Das Gerüst eines Java-Programms",
+   "El esqueleto de un programa Java"
+  ],
+  "In Java EVERYTHING is written inside a class:\\n\\npublic class Hello {\\n    public static void main(String[] args) {\\n        // your code goes here\\n    }\\n}\\n\\nA program ALWAYS starts running from the main method!": [
+   "In Java wird ALLES in einer Klasse geschrieben:\\n\\npublic class Hello {\\n    public static void main(String[] args) {\\n        // hier kommt dein Code hin\\n    }\\n}\\n\\nEin Programm startet IMMER bei der Methode main!",
+   "En Java TODO se escribe dentro de una clase:\\n\\npublic class Hello {\\n    public static void main(String[] args) {\\n        // aquí va tu código\\n    }\\n}\\n\\n¡Un programa SIEMPRE empieza a ejecutarse por el método main!"
+  ],
+  "The file name and the class name have to MATCH! (Hello.java -> class Hello)": [
+   "Dateiname und Klassenname müssen ÜBEREINSTIMMEN! (Hello.java -> class Hello)",
+   "¡El nombre del archivo y el de la clase tienen que COINCIDIR! (Hello.java -> class Hello)"
+  ],
+  "Where does a Java program start running?": [
+   "Wo startet ein Java-Programm?",
+   "¿Por dónde empieza a ejecutarse un programa Java?"
+  ],
+  "Every Java program starts from the public static void main(String[] args) method!": [
+   "Jedes Java-Programm startet bei der Methode public static void main(String[] args)!",
+   "¡Todo programa Java empieza por el método public static void main(String[] args)!"
+  ],
+  "System.out.println()": [
+   "System.out.println()",
+   "System.out.println()"
+  ],
+  "System.out.println() is used to print text on the screen:\\n\\nSystem.out.println(\"Hello World!\");\\n\\nThis line prints \"Hello World!\" and moves to the next line.\\n\\nWatch out: every line ends with a semicolon (;)!": [
+   "System.out.println() gibt Text auf dem Bildschirm aus:\\n\\nSystem.out.println(\"Hello World!\");\\n\\nDiese Zeile gibt \"Hello World!\" aus und springt in die nächste Zeile.\\n\\nAchtung: Jede Zeile endet mit einem Semikolon (;)!",
+   "System.out.println() se usa para mostrar texto en la pantalla:\\n\\nSystem.out.println(\"Hello World!\");\\n\\nEsta línea muestra \"Hello World!\" y pasa a la línea siguiente.\\n\\n¡Ojo: cada línea termina con un punto y coma (;)!"
+  ],
+  "Which is the right code to print \"Hi!\" on the screen?": [
+   "Welches ist der richtige Code, um \"Hi!\" auf dem Bildschirm auszugeben?",
+   "¿Cuál es el código correcto para mostrar \"¡Hola!\" en la pantalla?"
+  ],
+  "System.out.println() is used in Java to print text on the screen!": [
+   "In Java wird System.out.println() benutzt, um Text auf dem Bildschirm auszugeben!",
+   "¡En Java se usa System.out.println() para mostrar texto en la pantalla!"
+  ],
+  "Every Line Ends With a Semicolon": [
+   "Jede Zeile endet mit einem Semikolon",
+   "Cada línea termina con un punto y coma"
+  ],
+  "In Java every statement has to end with a semicolon (;):\\n\\nSystem.out.println(\"One\");\\nSystem.out.println(\"Two\");\\nSystem.out.println(\"Three\");\\n\\nForget it and Java gives you an error!": [
+   "In Java muss jede Anweisung mit einem Semikolon (;) enden:\\n\\nSystem.out.println(\"Eins\");\\nSystem.out.println(\"Zwei\");\\nSystem.out.println(\"Drei\");\\n\\nVergiss es, und Java gibt dir einen Fehler!",
+   "En Java toda instrucción tiene que terminar con un punto y coma (;):\\n\\nSystem.out.println(\"Uno\");\\nSystem.out.println(\"Dos\");\\nSystem.out.println(\"Tres\");\\n\\n¡Si se te olvida, Java te da un error!"
+  ],
+  "Forgetting the semicolon is the most common beginner mistake!": [
+   "Das Semikolon zu vergessen ist der häufigste Anfängerfehler!",
+   "¡Olvidar el punto y coma es el error de principiante más común!"
+  ],
+  "Put a simple Java program in the right order": [
+   "Bring ein einfaches Java-Programm in die richtige Reihenfolge",
+   "Pon en el orden correcto un programa Java sencillo"
+  ],
+  "A complete Java program that prints \"Hello World!\"": [
+   "Ein vollständiges Java-Programm, das \"Hello World!\" ausgibt",
+   "Un programa Java completo que muestra \"Hello World!\""
+  ],
+  "Mini Project: Introduce Yourself": [
+   "Mini-Projekt: Stell dich vor",
+   "Miniproyecto: preséntate"
+  ],
+  "Write a small program that introduces you using System.out.println()!": [
+   "Schreibe ein kleines Programm, das dich mit System.out.println() vorstellt!",
+   "¡Escribe un pequeño programa que te presente usando System.out.println()!"
+  ],
+  "Your First Code Is Written!": [
+   "Dein erster Code ist geschrieben!",
+   "¡Tu primer código está escrito!"
+  ],
+  "🎊 You wrote your first Java program!\\n\\n✓ You learned the class and main structure\\n✓ You used System.out.println()\\n✓ You did not forget the semicolon\\n\\nNext up: variables and data types!": [
+   "🎊 Du hast dein erstes Java-Programm geschrieben!\\n\\n✓ Du hast den Aufbau mit class und main gelernt\\n✓ Du hast System.out.println() benutzt\\n✓ Du hast das Semikolon nicht vergessen\\n\\nAls Nächstes: Variablen und Datentypen!",
+   "🎊 ¡Escribiste tu primer programa en Java!\\n\\n✓ Aprendiste la estructura de class y main\\n✓ Usaste System.out.println()\\n✓ No olvidaste el punto y coma\\n\\nSiguiente: ¡variables y tipos de datos!"
+  ],
+  "You earned the First Code badge!": [
+   "Du hast das Abzeichen «Erster Code» verdient!",
+   "¡Has ganado la insignia Primer Código!"
+  ],
+  "Variables and Data Types": [
+   "Variablen und Datentypen",
+   "Variables y tipos de datos"
+  ],
+  "Store information": [
+   "Informationen speichern",
+   "Guarda información"
+  ],
+  "Programs need to remember things - a name, an age, a score. For that we are going to use VARIABLES!": [
+   "Programme müssen sich Dinge merken – einen Namen, ein Alter, eine Punktzahl. Dafür benutzen wir VARIABLEN!",
+   "Los programas necesitan recordar cosas: un nombre, una edad, una puntuación. ¡Para eso vamos a usar VARIABLES!"
+  ],
+  "Declaring a Variable in Java": [
+   "Eine Variable in Java deklarieren",
+   "Declarar una variable en Java"
+  ],
+  "In Java you have to state the TYPE when you declare a variable:\\n\\nint age = 12;\\nString name = \"Alex\";\\ndouble height = 1.45;\\nboolean isStudent = true;\\n\\nType + name + = + value + ;": [
+   "In Java musst du beim Deklarieren einer Variablen den TYP angeben:\\n\\nint alter = 12;\\nString name = \"Alex\";\\ndouble groesse = 1.45;\\nboolean istSchueler = true;\\n\\nTyp + Name + = + Wert + ;",
+   "En Java tienes que indicar el TIPO al declarar una variable:\\n\\nint edad = 12;\\nString nombre = \"Alex\";\\ndouble altura = 1.45;\\nboolean esAlumno = true;\\n\\nTipo + nombre + = + valor + ;"
+  ],
+  "Java is a \"statically typed\" language - the type of every variable has to be clear from the start!": [
+   "Java ist eine «statisch typisierte» Sprache – der Typ jeder Variablen muss von Anfang an klar sein!",
+   "Java es un lenguaje de «tipado estático»: ¡el tipo de cada variable tiene que estar claro desde el principio!"
+  ],
+  "Which data type do we use for a whole number (like 12, 100, -5)?": [
+   "Welchen Datentyp benutzen wir für eine ganze Zahl (wie 12, 100, -5)?",
+   "¿Qué tipo de dato usamos para un número entero (como 12, 100, -5)?"
+  ],
+  "int (integer) is used for whole numbers!": [
+   "int (integer) wird für ganze Zahlen benutzt!",
+   "¡int (integer) se usa para los números enteros!"
+  ],
+  "The Basic Data Types": [
+   "Die grundlegenden Datentypen",
+   "Los tipos de datos básicos"
+  ],
+  "Java\\'s 4 basic data types:\\n\\nint: whole number (12, -5, 100)\\ndouble: decimal number (3.14, 1.45)\\nString: text (\"Hello\", \"Alex\")\\nboolean: true/false\\n\\nString starts with a capital S, the others are lowercase!": [
+   "Javas 4 grundlegende Datentypen:\\n\\nint: ganze Zahl (12, -5, 100)\\ndouble: Kommazahl (3.14, 1.45)\\nString: Text (\"Hallo\", \"Alex\")\\nboolean: wahr/falsch\\n\\nString beginnt mit großem S, die anderen werden kleingeschrieben!",
+   "Los 4 tipos de datos básicos de Java:\\n\\nint: número entero (12, -5, 100)\\ndouble: número decimal (3.14, 1.45)\\nString: texto (\"Hola\", \"Alex\")\\nboolean: verdadero/falso\\n\\n¡String empieza con S mayúscula, los demás van en minúscula!"
+  ],
+  "Which data type is used for text like \"Hello\"?": [
+   "Welcher Datentyp wird für Text wie \"Hallo\" benutzt?",
+   "¿Qué tipo de dato se usa para un texto como \"Hola\"?"
+  ],
+  "String is used to hold text. It is written with a capital S!": [
+   "String hält Text. Er wird mit großem S geschrieben!",
+   "String se usa para guardar texto. ¡Se escribe con S mayúscula!"
+  ],
+  "Using Variables": [
+   "Variablen benutzen",
+   "Usar variables"
+  ],
+  "Once you have declared a variable you can use it wherever you like:\\n\\nint age = 12;\\nSystem.out.println(\"My age: \" + age);\\n\\nThe + sign is used to JOIN text and a variable!": [
+   "Sobald du eine Variable deklariert hast, kannst du sie überall benutzen:\\n\\nint alter = 12;\\nSystem.out.println(\"Mein Alter: \" + alter);\\n\\nDas Zeichen + VERBINDET Text und eine Variable!",
+   "Una vez declarada una variable puedes usarla donde quieras:\\n\\nint edad = 12;\\nSystem.out.println(\"Mi edad: \" + edad);\\n\\n¡El signo + se usa para UNIR texto y una variable!"
+  ],
+  "Joining text like \"My age: \" + age is called \"concatenation\"!": [
+   "Text so zu verbinden wie \"Mein Alter: \" + alter nennt man «Konkatenation»!",
+   "¡A unir texto como \"Mi edad: \" + edad se le llama «concatenación»!"
+  ],
+  "With int score = 90; what does System.out.println(\"Score: \" + score); print?": [
+   "Was gibt System.out.println(\"Punkte: \" + punkte); bei int punkte = 90; aus?",
+   "Con int puntos = 90; ¿qué muestra System.out.println(\"Puntos: \" + puntos);?"
+  ],
+  "The + sign joins the text \"Score: \" with the value of the score variable (90)!": [
+   "Das Zeichen + verbindet den Text \"Punkte: \" mit dem Wert der Variablen punkte (90)!",
+   "¡El signo + une el texto \"Puntos: \" con el valor de la variable puntos (90)!"
+  ],
+  "Match each value with the right data type!": [
+   "Ordne jeden Wert seinem richtigen Datentyp zu!",
+   "¡Relaciona cada valor con su tipo de dato correcto!"
+  ],
+  "You tell the data types apart perfectly!": [
+   "Du hältst die Datentypen perfekt auseinander!",
+   "¡Distingues los tipos de datos a la perfección!"
+  ],
+  "Variable Master!": [
+   "Variablen-Meister!",
+   "¡Maestro de las variables!"
+  ],
+  "📦 You can store information now!\\n\\n✓ int, String, double, boolean\\n✓ Declaring a variable\\n✓ Joining with +\\n\\nNext module: control structures (if-else, loops)!": [
+   "📦 Jetzt kannst du Informationen speichern!\\n\\n✓ int, String, double, boolean\\n✓ Eine Variable deklarieren\\n✓ Mit + verbinden\\n\\nNächstes Modul: Kontrollstrukturen (if-else, Schleifen)!",
+   "📦 ¡Ya puedes guardar información!\\n\\n✓ int, String, double, boolean\\n✓ Declarar una variable\\n✓ Unir con +\\n\\nSiguiente módulo: ¡estructuras de control (if-else, bucles)!"
+  ],
+  "You earned the Variable Master badge!": [
+   "Du hast das Abzeichen «Variablen-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de las Variables!"
+  ],
+  "If-Else": [
+   "If-Else",
+   "If-Else"
+  ],
+  "Letting your program decide": [
+   "Lass dein Programm entscheiden",
+   "Deja que tu programa decida"
+  ],
+  "Can programs make decisions? YES! With if-else we are going to teach your program the \"if this, then do that\" logic!": [
+   "Können Programme Entscheidungen treffen? JA! Mit if-else bringen wir deinem Programm die Logik «wenn das, dann mach jenes» bei!",
+   "¿Pueden los programas tomar decisiones? ¡SÍ! ¡Con if-else vamos a enseñarle a tu programa la lógica de «si pasa esto, haz aquello»!"
+  ],
+  "The if Statement": [
+   "Die if-Anweisung",
+   "La instrucción if"
+  ],
+  "if checks whether a condition is TRUE:\\n\\nint age = 15;\\nif (age >= 18) {\\n    System.out.println(\"You are an adult!\");\\n}\\n\\nIf the condition is true, the code inside { } runs!": [
+   "if prüft, ob eine Bedingung WAHR ist:\\n\\nint alter = 15;\\nif (alter >= 18) {\\n    System.out.println(\"Du bist erwachsen!\");\\n}\\n\\nIst die Bedingung wahr, läuft der Code in { }!",
+   "if comprueba si una condición es VERDADERA:\\n\\nint edad = 15;\\nif (edad >= 18) {\\n    System.out.println(\"¡Eres mayor de edad!\");\\n}\\n\\n¡Si la condición es verdadera, se ejecuta el código de dentro de { }!"
+  ],
+  "The condition is always written inside brackets ( )!": [
+   "Die Bedingung steht immer in runden Klammern ( )!",
+   "¡La condición se escribe siempre entre paréntesis ( )!"
+  ],
+  "What does the line if (age >= 18) mean?": [
+   "Was bedeutet die Zeile if (alter >= 18)?",
+   "¿Qué significa la línea if (edad >= 18)?"
+  ],
+  "The >= sign means \"greater than or equal to\" - if the age is 18 or more the condition is true!": [
+   "Das Zeichen >= heißt «größer oder gleich» – ist das Alter 18 oder mehr, ist die Bedingung wahr!",
+   "¡El signo >= significa «mayor o igual que»: si la edad es 18 o más, la condición es verdadera!"
+  ],
+  "else: What Happens Otherwise?": [
+   "else: Was passiert sonst?",
+   "else: ¿qué pasa si no?"
+  ],
+  "else says what happens when the condition is false:\\n\\nif (age >= 18) {\\n    System.out.println(\"You are an adult!\");\\n} else {\\n    System.out.println(\"You are a child!\");\\n}\\n\\nOnly ONE of them runs - never both at once!": [
+   "else sagt, was passiert, wenn die Bedingung falsch ist:\\n\\nif (alter >= 18) {\\n    System.out.println(\"Du bist erwachsen!\");\\n} else {\\n    System.out.println(\"Du bist ein Kind!\");\\n}\\n\\nEs läuft nur EINS von beiden – nie beide gleichzeitig!",
+   "else dice qué pasa cuando la condición es falsa:\\n\\nif (edad >= 18) {\\n    System.out.println(\"¡Eres mayor de edad!\");\\n} else {\\n    System.out.println(\"¡Eres un niño!\");\\n}\\n\\n¡Solo se ejecuta UNO de los dos, nunca los dos a la vez!"
+  ],
+  "Which comparison operator means \"is equal to\"?": [
+   "Welcher Vergleichsoperator bedeutet «ist gleich»?",
+   "¿Qué operador de comparación significa «es igual a»?"
+  ],
+  "In Java == is a comparison (is it equal?), while a single = assigns a value. Do not mix them up!": [
+   "In Java ist == ein Vergleich (ist es gleich?), ein einzelnes = weist dagegen einen Wert zu. Verwechsle sie nicht!",
+   "En Java == es una comparación (¿es igual?), mientras que un solo = asigna un valor. ¡No los confundas!"
+  ],
+  "else if: More Than One Option": [
+   "else if: mehr als eine Möglichkeit",
+   "else if: más de una opción"
+  ],
+  "For more than two cases we use else if:\\n\\nint score = 75;\\nif (score >= 90) {\\n    System.out.println(\"A\");\\n} else if (score >= 70) {\\n    System.out.println(\"B\");\\n} else {\\n    System.out.println(\"C\");\\n}\\n\\nJava checks the conditions in order and runs the first TRUE one!": [
+   "Für mehr als zwei Fälle benutzen wir else if:\\n\\nint punkte = 75;\\nif (punkte >= 90) {\\n    System.out.println(\"A\");\\n} else if (punkte >= 70) {\\n    System.out.println(\"B\");\\n} else {\\n    System.out.println(\"C\");\\n}\\n\\nJava prüft die Bedingungen der Reihe nach und führt die erste WAHRE aus!",
+   "Para más de dos casos usamos else if:\\n\\nint puntos = 75;\\nif (puntos >= 90) {\\n    System.out.println(\"A\");\\n} else if (puntos >= 70) {\\n    System.out.println(\"B\");\\n} else {\\n    System.out.println(\"C\");\\n}\\n\\n¡Java comprueba las condiciones en orden y ejecuta la primera VERDADERA!"
+  ],
+  "You can add as many else if branches as you like!": [
+   "Du kannst so viele else-if-Zweige anhängen, wie du willst!",
+   "¡Puedes añadir tantas ramas else if como quieras!"
+  ],
+  "With score = 85, what does the code above print?": [
+   "Was gibt der Code oben bei punkte = 85 aus?",
+   "Con puntos = 85, ¿qué muestra el código de arriba?"
+  ],
+  "85 >= 90 is false, but 85 >= 70 is true - so it prints \"B\"!": [
+   "85 >= 90 ist falsch, aber 85 >= 70 ist wahr – also gibt er \"B\" aus!",
+   "85 >= 90 es falso, pero 85 >= 70 es verdadero, ¡así que muestra \"B\"!"
+  ],
+  "Put the grade-checking code in the right order": [
+   "Bring den Code zur Notenprüfung in die richtige Reihenfolge",
+   "Pon en orden el código que comprueba la nota"
+  ],
+  "Code that prints A if the score is 90 or more, and \"Did not pass\" otherwise": [
+   "Code, der A ausgibt, wenn die Punktzahl 90 oder mehr ist, und sonst \"Nicht bestanden\"",
+   "Código que muestra A si la puntuación es 90 o más, y \"No aprobado\" en caso contrario"
+  ],
+  "Decision Making Master!": [
+   "Entscheidungs-Meister!",
+   "¡Maestro de las decisiones!"
+  ],
+  "🤔 You can make your programs decide now!\\n\\n✓ Checking a condition with if\\n✓ An alternative with else\\n✓ Many options with else if\\n\\nNext up: repeating work with loops!": [
+   "🤔 Jetzt können deine Programme entscheiden!\\n\\n✓ Eine Bedingung mit if prüfen\\n✓ Eine Alternative mit else\\n✓ Viele Möglichkeiten mit else if\\n\\nAls Nächstes: Arbeit mit Schleifen wiederholen!",
+   "🤔 ¡Ya puedes hacer que tus programas decidan!\\n\\n✓ Comprobar una condición con if\\n✓ Una alternativa con else\\n✓ Muchas opciones con else if\\n\\nSiguiente: ¡repetir trabajo con bucles!"
+  ],
+  "You earned the Decision Making Master badge!": [
+   "Du hast das Abzeichen «Entscheidungs-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de las Decisiones!"
+  ],
+  "Loops": [
+   "Schleifen",
+   "Bucles"
+  ],
+  "Repeat with for and while": [
+   "Wiederholen mit for und while",
+   "Repetir con for y while"
+  ],
+  "Would you like to write \"Hello\" 100 times? Of course not! Loops will do that job for us.": [
+   "Möchtest du 100-mal «Hallo» schreiben? Natürlich nicht! Schleifen erledigen diese Arbeit für uns.",
+   "¿Te gustaría escribir «Hola» 100 veces? ¡Claro que no! Los bucles harán ese trabajo por nosotros."
+  ],
+  "The for Loop": [
+   "Die for-Schleife",
+   "El bucle for"
+  ],
+  "A for loop repeats a set number of times:\\n\\nfor (int i = 0; i < 5; i++) {\\n    System.out.println(\"Hello \" + i);\\n}\\n\\n3 parts: the start (i=0), the condition (i<5), the step (i++)\\nThis code runs 5 times (0, 1, 2, 3, 4)!": [
+   "Eine for-Schleife wiederholt sich eine festgelegte Anzahl von Malen:\\n\\nfor (int i = 0; i < 5; i++) {\\n    System.out.println(\"Hallo \" + i);\\n}\\n\\n3 Teile: der Start (i=0), die Bedingung (i<5), der Schritt (i++)\\nDieser Code läuft 5-mal (0, 1, 2, 3, 4)!",
+   "Un bucle for se repite un número fijo de veces:\\n\\nfor (int i = 0; i < 5; i++) {\\n    System.out.println(\"Hola \" + i);\\n}\\n\\n3 partes: el inicio (i=0), la condición (i<5), el paso (i++)\\n¡Este código se ejecuta 5 veces (0, 1, 2, 3, 4)!"
+  ],
+  "i++ means \"increase i by one\" - the same as i = i + 1!": [
+   "i++ heißt «erhöhe i um eins» – dasselbe wie i = i + 1!",
+   "¡i++ significa «aumenta i en uno», lo mismo que i = i + 1!"
+  ],
+  "How many times does for (int i = 0; i < 5; i++) run?": [
+   "Wie oft läuft for (int i = 0; i < 5; i++)?",
+   "¿Cuántas veces se ejecuta for (int i = 0; i < 5; i++)?"
+  ],
+  "i starts at 0 and carries on while it is under 5: 0,1,2,3,4 - 5 times in total!": [
+   "i beginnt bei 0 und läuft weiter, solange es unter 5 ist: 0,1,2,3,4 – insgesamt 5-mal!",
+   "¡i empieza en 0 y sigue mientras sea menor que 5: 0,1,2,3,4, o sea 5 veces en total!"
+  ],
+  "The while Loop": [
+   "Die while-Schleife",
+   "El bucle while"
+  ],
+  "A while loop carries on as long as a condition is true:\\n\\nint counter = 0;\\nwhile (counter < 3) {\\n    System.out.println(\"Counter: \" + counter);\\n    counter++;\\n}\\n\\nThe difference from for: while suits you better when you do not know in advance how many times it will repeat!": [
+   "Eine while-Schleife läuft weiter, solange eine Bedingung wahr ist:\\n\\nint zaehler = 0;\\nwhile (zaehler < 3) {\\n    System.out.println(\"Zähler: \" + zaehler);\\n    zaehler++;\\n}\\n\\nDer Unterschied zu for: while passt besser, wenn du vorher nicht weißt, wie oft es sich wiederholt!",
+   "Un bucle while sigue mientras una condición sea verdadera:\\n\\nint contador = 0;\\nwhile (contador < 3) {\\n    System.out.println(\"Contador: \" + contador);\\n    contador++;\\n}\\n\\nLa diferencia con for: ¡while te viene mejor cuando no sabes de antemano cuántas veces se repetirá!"
+  ],
+  "What happens if we forget the counter++ line in a while loop?": [
+   "Was passiert, wenn wir die Zeile zaehler++ in einer while-Schleife vergessen?",
+   "¿Qué pasa si se nos olvida la línea contador++ en un bucle while?"
+  ],
+  "If the counter never goes up, the condition (counter < 3) stays true forever and the loop never stops - that is called an infinite loop!": [
+   "Geht der Zähler nie hoch, bleibt die Bedingung (zaehler < 3) für immer wahr und die Schleife hört nie auf – das nennt man eine Endlosschleife!",
+   "Si el contador nunca sube, la condición (contador < 3) se queda verdadera para siempre y el bucle no termina nunca: ¡a eso se le llama bucle infinito!"
+  ],
+  "Nested Loops": [
+   "Verschachtelte Schleifen",
+   "Bucles anidados"
+  ],
+  "Loops can be nested too - for a times table, for example:\\n\\nfor (int i = 1; i <= 3; i++) {\\n    for (int j = 1; j <= 3; j++) {\\n        System.out.println(i + \" x \" + j);\\n    }\\n}\\n\\nThe outer loop runs 3 times, and each time the inner loop runs 3 times too - 9 lines in total!": [
+   "Schleifen können auch verschachtelt werden – zum Beispiel für das Einmaleins:\\n\\nfor (int i = 1; i <= 3; i++) {\\n    for (int j = 1; j <= 3; j++) {\\n        System.out.println(i + \" x \" + j);\\n    }\\n}\\n\\nDie äußere Schleife läuft 3-mal, und jedes Mal läuft auch die innere 3-mal – insgesamt 9 Zeilen!",
+   "Los bucles también se pueden anidar, por ejemplo para una tabla de multiplicar:\\n\\nfor (int i = 1; i <= 3; i++) {\\n    for (int j = 1; j <= 3; j++) {\\n        System.out.println(i + \" x \" + j);\\n    }\\n}\\n\\nEl bucle de fuera se ejecuta 3 veces, y cada vez el de dentro también 3, ¡9 líneas en total!"
+  ],
+  "Nested loops can look a bit complicated, but they get easier with practice!": [
+   "Verschachtelte Schleifen sehen etwas kompliziert aus, aber mit Übung werden sie leichter!",
+   "¡Los bucles anidados parecen algo complicados, pero con práctica se hacen más fáciles!"
+  ],
+  "Match each scenario with the right kind of loop!": [
+   "Ordne jede Situation der richtigen Schleifenart zu!",
+   "¡Relaciona cada caso con el tipo de bucle adecuado!"
+  ],
+  "You learned which loop to use when!": [
+   "Du hast gelernt, wann man welche Schleife nimmt!",
+   "¡Aprendiste qué bucle usar en cada momento!"
+  ],
+  "Mini Project: Number Printer": [
+   "Mini-Projekt: Zahlen ausgeben",
+   "Miniproyecto: mostrar números"
+  ],
+  "Write a program that prints the numbers from 1 to 10 using a for loop!": [
+   "Schreibe ein Programm, das mit einer for-Schleife die Zahlen von 1 bis 10 ausgibt!",
+   "¡Escribe un programa que muestre los números del 1 al 10 usando un bucle for!"
+  ],
+  "Loop Master!": [
+   "Schleifen-Meister!",
+   "¡Maestro de los bucles!"
+  ],
+  "🔁 You can automate repeating work!\\n\\n✓ The for loop\\n✓ The while loop\\n✓ Nested loops\\n\\nNext up: several values at once with arrays!": [
+   "🔁 Du kannst wiederkehrende Arbeit automatisieren!\\n\\n✓ Die for-Schleife\\n✓ Die while-Schleife\\n✓ Verschachtelte Schleifen\\n\\nAls Nächstes: mehrere Werte auf einmal mit Arrays!",
+   "🔁 ¡Puedes automatizar el trabajo repetitivo!\\n\\n✓ El bucle for\\n✓ El bucle while\\n✓ Bucles anidados\\n\\nSiguiente: ¡varios valores a la vez con arrays!"
+  ],
+  "You earned the Loop Master badge!": [
+   "Du hast das Abzeichen «Schleifen-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de los Bucles!"
+  ],
+  "Arrays": [
+   "Arrays",
+   "Arrays"
+  ],
+  "Store more than one value": [
+   "Mehr als einen Wert speichern",
+   "Guarda más de un valor"
+  ],
+  "Keeping 5 students\\' grades in 5 separate variables is exhausting! With an array we can store them all in ONE structure.": [
+   "Die Noten von 5 Schülern in 5 einzelnen Variablen zu halten ist mühsam! Mit einem Array speichern wir sie alle in EINER Struktur.",
+   "¡Guardar las notas de 5 alumnos en 5 variables distintas es agotador! Con un array podemos guardarlas todas en UNA estructura."
+  ],
+  "Declaring an Array": [
+   "Ein Array deklarieren",
+   "Declarar un array"
+  ],
+  "An array holds several values of the same type:\\n\\nint[] grades = {85, 90, 78, 95, 88};\\nString[] names = {\"Alex\", \"Mia\", \"Sam\"};\\n\\nThe square brackets [] show that the variable is an array!": [
+   "Ein Array hält mehrere Werte desselben Typs:\\n\\nint[] noten = {85, 90, 78, 95, 88};\\nString[] namen = {\"Alex\", \"Mia\", \"Sam\"};\\n\\nDie eckigen Klammern [] zeigen, dass die Variable ein Array ist!",
+   "Un array guarda varios valores del mismo tipo:\\n\\nint[] notas = {85, 90, 78, 95, 88};\\nString[] nombres = {\"Alex\", \"Mia\", \"Sam\"};\\n\\n¡Los corchetes [] indican que la variable es un array!"
+  ],
+  "Think of an array as a shelf - you put one value in each slot!": [
+   "Stell dir ein Array wie ein Regal vor – in jedes Fach legst du einen Wert!",
+   "¡Imagina un array como una estantería: pones un valor en cada hueco!"
+  ],
+  "What does the line int[] numbers = {1, 2, 3}; define?": [
+   "Was legt die Zeile int[] zahlen = {1, 2, 3}; fest?",
+   "¿Qué define la línea int[] numeros = {1, 2, 3};?"
+  ],
+  "The [] shows that this is an array, and {1,2,3} shows the 3 items in it!": [
+   "Die [] zeigen, dass das ein Array ist, und {1,2,3} zeigt die 3 Einträge darin!",
+   "¡Los [] indican que esto es un array, y {1,2,3} muestra los 3 elementos que contiene!"
+  ],
+  "Reaching Array Items (Index)": [
+   "An Array-Einträge kommen (Index)",
+   "Acceder a los elementos de un array (índice)"
+  ],
+  "Array items are reached by their INDEX (position number). In Java the index starts AT 0!\\n\\nint[] grades = {85, 90, 78};\\nSystem.out.println(grades[0]); // prints 85\\nSystem.out.println(grades[1]); // prints 90\\n\\nThe first item is index 0 and the second is index 1!": [
+   "An Array-Einträge kommt man über ihren INDEX (Platznummer). In Java beginnt der Index BEI 0!\\n\\nint[] noten = {85, 90, 78};\\nSystem.out.println(noten[0]); // gibt 85 aus\\nSystem.out.println(noten[1]); // gibt 90 aus\\n\\nDer erste Eintrag hat Index 0 und der zweite Index 1!",
+   "A los elementos de un array se llega por su ÍNDICE (número de posición). ¡En Java el índice empieza EN 0!\\n\\nint[] notas = {85, 90, 78};\\nSystem.out.println(notas[0]); // muestra 85\\nSystem.out.println(notas[1]); // muestra 90\\n\\n¡El primer elemento es el índice 0 y el segundo el índice 1!"
+  ],
+  "This is one of the most confusing topics - in Java WE START COUNTING FROM 0!": [
+   "Das ist eines der verwirrendsten Themen – in Java ZÄHLEN WIR AB 0!",
+   "Este es uno de los temas más confusos: ¡en Java EMPEZAMOS A CONTAR DESDE 0!"
+  ],
+  "With int[] grades = {85, 90, 78};, what value does grades[1] give?": [
+   "Welchen Wert gibt noten[1] bei int[] noten = {85, 90, 78};?",
+   "Con int[] notas = {85, 90, 78};, ¿qué valor da notas[1]?"
+  ],
+  "The index starts at 0: grades[0]=85, grades[1]=90, grades[2]=78!": [
+   "Der Index beginnt bei 0: noten[0]=85, noten[1]=90, noten[2]=78!",
+   "¡El índice empieza en 0: notas[0]=85, notas[1]=90, notas[2]=78!"
+  ],
+  "Walking an Array With a Loop": [
+   "Ein Array mit einer Schleife durchlaufen",
+   "Recorrer un array con un bucle"
+  ],
+  "To see ALL the items in an array we use a for loop:\\n\\nint[] grades = {85, 90, 78, 95};\\nfor (int i = 0; i < grades.length; i++) {\\n    System.out.println(grades[i]);\\n}\\n\\ngrades.length gives you the number of items (4 here)!": [
+   "Um ALLE Einträge eines Arrays zu sehen, nehmen wir eine for-Schleife:\\n\\nint[] noten = {85, 90, 78, 95};\\nfor (int i = 0; i < noten.length; i++) {\\n    System.out.println(noten[i]);\\n}\\n\\nnoten.length gibt dir die Anzahl der Einträge (hier 4)!",
+   "Para ver TODOS los elementos de un array usamos un bucle for:\\n\\nint[] notas = {85, 90, 78, 95};\\nfor (int i = 0; i < notas.length; i++) {\\n    System.out.println(notas[i]);\\n}\\n\\n¡notas.length te da el número de elementos (aquí 4)!"
+  ],
+  ".length is the easiest way to find out the size of an array!": [
+   ".length ist der leichteste Weg, die Größe eines Arrays herauszufinden!",
+   "¡.length es la forma más fácil de saber el tamaño de un array!"
+  ],
+  "Put the code that prints an array from start to finish in order": [
+   "Bring den Code, der ein Array von vorne bis hinten ausgibt, in die richtige Reihenfolge",
+   "Pon en orden el código que muestra un array de principio a fin"
+  ],
+  "Code that prints every item in the grades array one by one": [
+   "Code, der jeden Eintrag des Arrays noten nacheinander ausgibt",
+   "Código que muestra uno a uno todos los elementos del array notas"
+  ],
+  "Mini Project: Grade Average": [
+   "Mini-Projekt: Notendurchschnitt",
+   "Miniproyecto: media de notas"
+  ],
+  "Create an array of grades and work out the average using a loop!": [
+   "Lege ein Array mit Noten an und berechne den Durchschnitt mit einer Schleife!",
+   "¡Crea un array de notas y calcula la media con un bucle!"
+  ],
+  "Array Master!": [
+   "Array-Meister!",
+   "¡Maestro de los arrays!"
+  ],
+  "📋 You can manage several values in one structure!\\n\\n✓ Declaring an array\\n✓ Reaching items by index (starting at 0!)\\n✓ Walking an array with a loop\\n\\nNext module: object-oriented programming!": [
+   "📋 Du kannst mehrere Werte in einer Struktur verwalten!\\n\\n✓ Ein Array deklarieren\\n✓ Über den Index an Einträge kommen (beginnt bei 0!)\\n✓ Ein Array mit einer Schleife durchlaufen\\n\\nNächstes Modul: objektorientierte Programmierung!",
+   "📋 ¡Puedes manejar varios valores en una sola estructura!\\n\\n✓ Declarar un array\\n✓ Acceder a los elementos por índice (¡empieza en 0!)\\n✓ Recorrer un array con un bucle\\n\\nSiguiente módulo: ¡programación orientada a objetos!"
+  ],
+  "You earned the Array Master badge!": [
+   "Du hast das Abzeichen «Array-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de los Arrays!"
+  ],
+  "Classes and Objects": [
+   "Klassen und Objekte",
+   "Clases y objetos"
+  ],
+  "Create your own data type": [
+   "Bau deinen eigenen Datentyp",
+   "Crea tu propio tipo de dato"
+  ],
+  "Java is an \"object-oriented\" language. Now we are going to learn how to create your own data types: CLASSES and OBJECTS!": [
+   "Java ist eine «objektorientierte» Sprache. Jetzt lernen wir, wie man eigene Datentypen baut: KLASSEN und OBJEKTE!",
+   "Java es un lenguaje «orientado a objetos». ¡Ahora vamos a aprender a crear tus propios tipos de datos: CLASES y OBJETOS!"
+  ],
+  "What Is a Class?": [
+   "Was ist eine Klasse?",
+   "¿Qué es una clase?"
+  ],
+  "A class is a \"template\" or a \"plan\". A Student class, for example:\\n\\nclass Student {\\n    String name;\\n    int age;\\n}\\n\\nThis says every student will have a name and an age - but there is no real student yet, only the PLAN!": [
+   "Eine Klasse ist eine «Vorlage» oder ein «Plan». Zum Beispiel eine Klasse Schueler:\\n\\nclass Schueler {\\n    String name;\\n    int alter;\\n}\\n\\nDas sagt: Jeder Schüler wird einen Namen und ein Alter haben – aber es gibt noch keinen echten Schüler, nur den PLAN!",
+   "Una clase es una «plantilla» o un «plano». Por ejemplo, una clase Alumno:\\n\\nclass Alumno {\\n    String nombre;\\n    int edad;\\n}\\n\\nEsto dice que todo alumno tendrá un nombre y una edad, ¡pero todavía no hay ningún alumno real, solo el PLANO!"
+  ],
+  "Think of a class as a \"cookie cutter\" - you can make as many cookies (objects) from it as you like!": [
+   "Stell dir eine Klasse als «Plätzchenform» vor – du kannst daraus so viele Plätzchen (Objekte) machen, wie du willst!",
+   "¡Imagina una clase como un «molde de galletas»: puedes hacer con él tantas galletas (objetos) como quieras!"
+  ],
+  "What is a class for?": [
+   "Wofür ist eine Klasse da?",
+   "¿Para qué sirve una clase?"
+  ],
+  "A class is a plan or template used to create real objects!": [
+   "Eine Klasse ist ein Plan oder eine Vorlage, mit der echte Objekte erstellt werden!",
+   "¡Una clase es un plano o plantilla que se usa para crear objetos reales!"
+  ],
+  "Creating an Object": [
+   "Ein Objekt erstellen",
+   "Crear un objeto"
+  ],
+  "To create a real OBJECT from the class we use new:\\n\\nStudent student1 = new Student();\\nstudent1.name = \"Alex\";\\nstudent1.age = 12;\\n\\nNow student1 is a REAL object - it has its own name and age!": [
+   "Um aus der Klasse ein echtes OBJEKT zu machen, benutzen wir new:\\n\\nSchueler schueler1 = new Schueler();\\nschueler1.name = \"Alex\";\\nschueler1.alter = 12;\\n\\nJetzt ist schueler1 ein ECHTES Objekt – es hat seinen eigenen Namen und sein eigenes Alter!",
+   "Para crear un OBJETO real a partir de la clase usamos new:\\n\\nAlumno alumno1 = new Alumno();\\nalumno1.nombre = \"Alex\";\\nalumno1.edad = 12;\\n\\n¡Ahora alumno1 es un objeto REAL: tiene su propio nombre y su propia edad!"
+  ],
+  "You can create several objects from the same class - each one holds its own values!": [
+   "Du kannst aus derselben Klasse mehrere Objekte erstellen – jedes hält seine eigenen Werte!",
+   "¡Puedes crear varios objetos de la misma clase; cada uno guarda sus propios valores!"
+  ],
+  "What do we write to create a new object from the Student class?": [
+   "Was schreiben wir, um aus der Klasse Schueler ein neues Objekt zu erstellen?",
+   "¿Qué escribimos para crear un objeto nuevo de la clase Alumno?"
+  ],
+  "The new keyword creates a new object from a class!": [
+   "Das Schlüsselwort new erstellt ein neues Objekt aus einer Klasse!",
+   "¡La palabra clave new crea un objeto nuevo a partir de una clase!"
+  ],
+  "More Than One Object From the Same Class": [
+   "Mehrere Objekte aus derselben Klasse",
+   "Más de un objeto de la misma clase"
+  ],
+  "Using one class you can create as many objects as you like:\\n\\nStudent s1 = new Student();\\ns1.name = \"Alex\";\\n\\nStudent s2 = new Student();\\ns2.name = \"Mia\";\\n\\ns1 and s2 are different objects - each carries its own name and does not affect the other!": [
+   "Mit einer Klasse kannst du so viele Objekte erstellen, wie du willst:\\n\\nSchueler s1 = new Schueler();\\ns1.name = \"Alex\";\\n\\nSchueler s2 = new Schueler();\\ns2.name = \"Mia\";\\n\\ns1 und s2 sind verschiedene Objekte – jedes trägt seinen eigenen Namen und beeinflusst das andere nicht!",
+   "Con una sola clase puedes crear tantos objetos como quieras:\\n\\nAlumno a1 = new Alumno();\\na1.nombre = \"Alex\";\\n\\nAlumno a2 = new Alumno();\\na2.nombre = \"Mia\";\\n\\n¡a1 y a2 son objetos distintos: cada uno lleva su propio nombre y no afecta al otro!"
+  ],
+  "Match the concepts with the right definitions!": [
+   "Ordne die Begriffe den richtigen Erklärungen zu!",
+   "¡Relaciona los conceptos con sus definiciones correctas!"
+  ],
+  "You understood the difference between a class and an object!": [
+   "Du hast den Unterschied zwischen Klasse und Objekt verstanden!",
+   "¡Entendiste la diferencia entre una clase y un objeto!"
+  ],
+  "Your OOP Journey Has Begun!": [
+   "Deine OOP-Reise hat begonnen!",
+   "¡Tu viaje por la POO ha empezado!"
+  ],
+  "🏗️ You laid the foundation of object-oriented programming!\\n\\n✓ Class = the plan\\n✓ Object = the real thing made from the plan\\n✓ Creating an object with new\\n\\nNext up: adding METHODS to a class!": [
+   "🏗️ Du hast das Fundament der objektorientierten Programmierung gelegt!\\n\\n✓ Klasse = der Plan\\n✓ Objekt = das echte Ding aus dem Plan\\n✓ Ein Objekt mit new erstellen\\n\\nAls Nächstes: einer Klasse METHODEN geben!",
+   "🏗️ ¡Pusiste los cimientos de la programación orientada a objetos!\\n\\n✓ Clase = el plano\\n✓ Objeto = la cosa real hecha con el plano\\n✓ Crear un objeto con new\\n\\nSiguiente: ¡añadir MÉTODOS a una clase!"
+  ],
+  "You earned the OOP Starter badge!": [
+   "Du hast das Abzeichen «OOP-Einsteiger» verdient!",
+   "¡Has ganado la insignia Principiante de POO!"
+  ],
+  "Methods": [
+   "Methoden",
+   "Métodos"
+  ],
+  "Give your objects behaviour": [
+   "Gib deinen Objekten Verhalten",
+   "Dale comportamiento a tus objetos"
+  ],
+  "So far our objects only held data. Now we are going to give them BEHAVIOUR: METHODS!": [
+   "Bisher hielten unsere Objekte nur Daten. Jetzt geben wir ihnen VERHALTEN: METHODEN!",
+   "Hasta ahora nuestros objetos solo guardaban datos. ¡Ahora vamos a darles COMPORTAMIENTO: MÉTODOS!"
+  ],
+  "What Is a Method?": [
+   "Was ist eine Methode?",
+   "¿Qué es un método?"
+  ],
+  "A method is something a class CAN DO:\\n\\nclass Student {\\n    String name;\\n\\n    void greet() {\\n        System.out.println(\"Hello, I am \" + name);\\n    }\\n}\\n\\ngreet() is a method of the Student class - every student object can do it!": [
+   "Eine Methode ist etwas, das eine Klasse TUN KANN:\\n\\nclass Schueler {\\n    String name;\\n\\n    void gruessen() {\\n        System.out.println(\"Hallo, ich bin \" + name);\\n    }\\n}\\n\\ngruessen() ist eine Methode der Klasse Schueler – jedes Schueler-Objekt kann das!",
+   "Un método es algo que una clase SABE HACER:\\n\\nclass Alumno {\\n    String nombre;\\n\\n    void saludar() {\\n        System.out.println(\"Hola, soy \" + nombre);\\n    }\\n}\\n\\n¡saludar() es un método de la clase Alumno: todo objeto Alumno puede hacerlo!"
+  ],
+  "Method names usually describe an \"action\": greet(), calculate(), print()": [
+   "Methodennamen beschreiben meist eine «Handlung»: gruessen(), berechnen(), ausgeben()",
+   "Los nombres de los métodos suelen describir una «acción»: saludar(), calcular(), mostrar()"
+  ],
+  "What is a method?": [
+   "Was ist eine Methode?",
+   "¿Qué es un método?"
+  ],
+  "A method is a function or a behaviour that a class has!": [
+   "Eine Methode ist eine Funktion oder ein Verhalten, das eine Klasse hat!",
+   "¡Un método es una función o un comportamiento que tiene una clase!"
+  ],
+  "Methods With Parameters": [
+   "Methoden mit Parametern",
+   "Métodos con parámetros"
+  ],
+  "Methods can take information (parameters) from outside:\\n\\nvoid greet(String name) {\\n    System.out.println(\"Hello, \" + name + \"!\");\\n}\\n\\n// Using it:\\ngreet(\"Alex\"); // prints \"Hello, Alex!\"\\ngreet(\"Mia\");  // prints \"Hello, Mia!\"\\n\\nYou can call the same method again and again with different values!": [
+   "Methoden können Informationen (Parameter) von außen bekommen:\\n\\nvoid gruessen(String name) {\\n    System.out.println(\"Hallo, \" + name + \"!\");\\n}\\n\\n// Benutzung:\\ngruessen(\"Alex\"); // gibt \"Hallo, Alex!\" aus\\ngruessen(\"Mia\");  // gibt \"Hallo, Mia!\" aus\\n\\nDu kannst dieselbe Methode immer wieder mit anderen Werten aufrufen!",
+   "Los métodos pueden recibir información (parámetros) desde fuera:\\n\\nvoid saludar(String nombre) {\\n    System.out.println(\"¡Hola, \" + nombre + \"!\");\\n}\\n\\n// Uso:\\nsaludar(\"Alex\"); // muestra \"¡Hola, Alex!\"\\nsaludar(\"Mia\");  // muestra \"¡Hola, Mia!\"\\n\\n¡Puedes llamar al mismo método una y otra vez con valores distintos!"
+  ],
+  "In the method int add(int a, int b), what are \"a\" and \"b\" called?": [
+   "Wie heißen \"a\" und \"b\" in der Methode int addiere(int a, int b)?",
+   "En el método int sumar(int a, int b), ¿cómo se llaman \"a\" y \"b\"?"
+  ],
+  "a and b are the values the method takes from outside - that is, its parameters!": [
+   "a und b sind die Werte, die die Methode von außen bekommt – also ihre Parameter!",
+   "¡a y b son los valores que el método recibe desde fuera, es decir, sus parámetros!"
+  ],
+  "Returning a Value With return": [
+   "Mit return einen Wert zurückgeben",
+   "Devolver un valor con return"
+  ],
+  "A method can work out a VALUE and send it back:\\n\\nint add(int a, int b) {\\n    return a + b;\\n}\\n\\n// Using it:\\nint result = add(3, 5); // result = 8\\n\\nWe wrote int instead of void because we are RETURNING a number now!": [
+   "Eine Methode kann einen WERT berechnen und zurückschicken:\\n\\nint addiere(int a, int b) {\\n    return a + b;\\n}\\n\\n// Benutzung:\\nint ergebnis = addiere(3, 5); // ergebnis = 8\\n\\nWir haben int statt void geschrieben, weil wir jetzt eine Zahl ZURÜCKGEBEN!",
+   "Un método puede calcular un VALOR y devolverlo:\\n\\nint sumar(int a, int b) {\\n    return a + b;\\n}\\n\\n// Uso:\\nint resultado = sumar(3, 5); // resultado = 8\\n\\n¡Escribimos int en lugar de void porque ahora DEVOLVEMOS un número!"
+  ],
+  "void = \"returns nothing\", int/String/double = \"returns something of that type\"": [
+   "void = «gibt nichts zurück», int/String/double = «gibt etwas von diesem Typ zurück»",
+   "void = «no devuelve nada», int/String/double = «devuelve algo de ese tipo»"
+  ],
+  "Put a method that adds two numbers in order": [
+   "Bring eine Methode, die zwei Zahlen addiert, in die richtige Reihenfolge",
+   "Pon en orden un método que suma dos números"
+  ],
+  "A method that adds the parameters a and b and returns the result": [
+   "Eine Methode, die die Parameter a und b addiert und das Ergebnis zurückgibt",
+   "Un método que suma los parámetros a y b y devuelve el resultado"
+  ],
+  "Mini Project: The Student Class": [
+   "Mini-Projekt: die Klasse Schueler",
+   "Miniproyecto: la clase Alumno"
+  ],
+  "Write a Student class that holds a name and grades and has a method to work out the average!": [
+   "Schreibe eine Klasse Schueler, die einen Namen und Noten hält und eine Methode zum Berechnen des Durchschnitts hat!",
+   "¡Escribe una clase Alumno que guarde un nombre y unas notas y tenga un método para calcular la media!"
+  ],
+  "Method Master!": [
+   "Methoden-Meister!",
+   "¡Maestro de los métodos!"
+  ],
+  "⚡ You can give objects behaviour!\\n\\n✓ Defining a method\\n✓ Taking parameters\\n✓ Sending a value back with return\\n\\nNext up: cutting down repeated code with inheritance!": [
+   "⚡ Du kannst Objekten Verhalten geben!\\n\\n✓ Eine Methode definieren\\n✓ Parameter entgegennehmen\\n✓ Mit return einen Wert zurückschicken\\n\\nAls Nächstes: doppelten Code mit Vererbung vermeiden!",
+   "⚡ ¡Puedes darles comportamiento a los objetos!\\n\\n✓ Definir un método\\n✓ Recibir parámetros\\n✓ Devolver un valor con return\\n\\nSiguiente: ¡reducir el código repetido con la herencia!"
+  ],
+  "You earned the Method Master badge!": [
+   "Du hast das Abzeichen «Methoden-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de los Métodos!"
+  ],
+  "Inheritance": [
+   "Vererbung",
+   "Herencia"
+  ],
+  "Pass class features down": [
+   "Gib Eigenschaften einer Klasse weiter",
+   "Transmite las características de una clase"
+  ],
+  "A Student class and a Teacher class can be very similar - they are both a \"Person\", right? With INHERITANCE we are going to avoid repeating code!": [
+   "Eine Klasse Schueler und eine Klasse Lehrer können sich sehr ähneln – beide sind eine «Person», oder? Mit VERERBUNG vermeiden wir doppelten Code!",
+   "Una clase Alumno y una clase Profesor pueden parecerse mucho: las dos son una «Persona», ¿verdad? ¡Con la HERENCIA vamos a evitar repetir código!"
+  ],
+  "What Is Inheritance?": [
+   "Was ist Vererbung?",
+   "¿Qué es la herencia?"
+  ],
+  "Inheritance is one class \"inheriting\" the features of another:\\n\\nclass Person {\\n    String name;\\n    int age;\\n}\\n\\nclass Student extends Person {\\n    String schoolName;\\n}\\n\\nStudent HAS ALL of Person\\'s features (name, age), plus its own schoolName!": [
+   "Vererbung heißt, dass eine Klasse die Eigenschaften einer anderen «erbt»:\\n\\nclass Person {\\n    String name;\\n    int alter;\\n}\\n\\nclass Schueler extends Person {\\n    String schulName;\\n}\\n\\nSchueler HAT ALLE Eigenschaften von Person (name, alter) und dazu den eigenen schulName!",
+   "La herencia es que una clase «herede» las características de otra:\\n\\nclass Persona {\\n    String nombre;\\n    int edad;\\n}\\n\\nclass Alumno extends Persona {\\n    String nombreEscuela;\\n}\\n\\n¡Alumno TIENE TODAS las características de Persona (nombre, edad), más su propio nombreEscuela!"
+  ],
+  "The extends keyword means \"inherits from...\"!": [
+   "Das Schlüsselwort extends heißt «erbt von …»!",
+   "¡La palabra clave extends significa «hereda de…»!"
+  ],
+  "In the line class Student extends Person, what does \"extends\" mean?": [
+   "Was heißt \"extends\" in der Zeile class Schueler extends Person?",
+   "En la línea class Alumno extends Persona, ¿qué significa \"extends\"?"
+  ],
+  "extends lets a class inherit features from another class (the parent or superclass)!": [
+   "extends lässt eine Klasse Eigenschaften von einer anderen Klasse (der Eltern- oder Oberklasse) erben!",
+   "¡extends hace que una clase herede características de otra clase (la clase padre o superclase)!"
+  ],
+  "Superclass and Subclass": [
+   "Oberklasse und Unterklasse",
+   "Superclase y subclase"
+  ],
+  "There are two sides to inheritance:\\n\\nPerson = the superclass (parent) - the general features\\nStudent = the subclass (child) - its own features plus everything from Person\\n\\nA Student object has name/age (from Person) and schoolName (its own)!": [
+   "Vererbung hat zwei Seiten:\\n\\nPerson = die Oberklasse (Elternklasse) – die allgemeinen Eigenschaften\\nSchueler = die Unterklasse (Kindklasse) – ihre eigenen Eigenschaften plus alles von Person\\n\\nEin Schueler-Objekt hat name/alter (von Person) und schulName (eigen)!",
+   "La herencia tiene dos caras:\\n\\nPersona = la superclase (padre): las características generales\\nAlumno = la subclase (hija): sus propias características más todo lo de Persona\\n\\n¡Un objeto Alumno tiene nombre/edad (de Persona) y nombreEscuela (propio)!"
+  ],
+  "When class Teacher extends Person { } is defined, what features does a Teacher object have?": [
+   "Welche Eigenschaften hat ein Lehrer-Objekt, wenn class Lehrer extends Person { } definiert ist?",
+   "Cuando se define class Profesor extends Persona { }, ¿qué características tiene un objeto Profesor?"
+  ],
+  "Thanks to inheritance, Teacher TAKES all of Person\\'s features and can ADD its own!": [
+   "Dank der Vererbung ÜBERNIMMT Lehrer alle Eigenschaften von Person und kann eigene HINZUFÜGEN!",
+   "¡Gracias a la herencia, Profesor TOMA todas las características de Persona y puede AÑADIR las suyas!"
+  ],
+  "Why Use Inheritance?": [
+   "Warum Vererbung benutzen?",
+   "¿Por qué usar la herencia?"
+  ],
+  "Without inheritance you would have to write name and age SEPARATELY in the Student and Teacher classes (repeated code!).\\n\\nWith inheritance:\\n1. Write the Person class once\\n2. Let Student and Teacher inherit it\\n3. No more repetition!\\n\\nThis is called the \"DRY\" principle (Don\\'t Repeat Yourself).": [
+   "Ohne Vererbung müsstest du name und alter in den Klassen Schueler und Lehrer EINZELN schreiben (doppelter Code!).\\n\\nMit Vererbung:\\n1. Die Klasse Person einmal schreiben\\n2. Schueler und Lehrer erben lassen\\n3. Keine Wiederholung mehr!\\n\\nDas nennt man das «DRY»-Prinzip (Don\\'t Repeat Yourself).",
+   "Sin herencia tendrías que escribir nombre y edad POR SEPARADO en las clases Alumno y Profesor (¡código repetido!).\\n\\nCon herencia:\\n1. Escribe la clase Persona una vez\\n2. Deja que Alumno y Profesor la hereden\\n3. ¡Se acabó la repetición!\\n\\nA esto se le llama el principio «DRY» (Don\\'t Repeat Yourself)."
+  ],
+  "Good programmers avoid repeating code - inheritance is a great tool for that!": [
+   "Gute Programmierer vermeiden doppelten Code – Vererbung ist dafür ein tolles Werkzeug!",
+   "¡Los buenos programadores evitan repetir código, y la herencia es una gran herramienta para eso!"
+  ],
+  "Drag each class into the right role!": [
+   "Zieh jede Klasse in ihre richtige Rolle!",
+   "¡Arrastra cada clase a su papel correcto!"
+  ],
+  "You grasped the superclass and subclass relationship!": [
+   "Du hast die Beziehung zwischen Ober- und Unterklasse verstanden!",
+   "¡Has entendido la relación entre superclase y subclase!"
+  ],
+  "Inheritance Master!": [
+   "Vererbungs-Meister!",
+   "¡Maestro de la herencia!"
+  ],
+  "👨‍👦 You learned how to avoid repeating code!\\n\\n✓ Inheritance with extends\\n✓ The superclass / subclass relationship\\n✓ The DRY principle\\n\\nNext module: we are going to build real projects!": [
+   "👨‍👦 Du hast gelernt, doppelten Code zu vermeiden!\\n\\n✓ Vererbung mit extends\\n✓ Die Beziehung Oberklasse / Unterklasse\\n✓ Das DRY-Prinzip\\n\\nNächstes Modul: Wir bauen echte Projekte!",
+   "👨‍👦 ¡Aprendiste a evitar el código repetido!\\n\\n✓ Herencia con extends\\n✓ La relación superclase / subclase\\n✓ El principio DRY\\n\\nSiguiente módulo: ¡vamos a construir proyectos de verdad!"
+  ],
+  "You earned the Inheritance Master badge!": [
+   "Du hast das Abzeichen «Vererbungs-Meister» verdient!",
+   "¡Has ganado la insignia Maestro de la Herencia!"
+  ],
+  "Project: Grade Calculator": [
+   "Projekt: Notenrechner",
+   "Proyecto: calculadora de notas"
+  ],
+  "Put what you learned together": [
+   "Bring das Gelernte zusammen",
+   "Junta lo que has aprendido"
+  ],
+  "Now we are going to put everything you learned together and build a real program: a system that works out letter grades!": [
+   "Jetzt bringen wir alles Gelernte zusammen und bauen ein echtes Programm: ein System, das Notenbuchstaben berechnet!",
+   "¡Ahora vamos a juntar todo lo que has aprendido y construir un programa de verdad: un sistema que calcula notas con letra!"
+  ],
+  "The Project Plan": [
+   "Der Projektplan",
+   "El plan del proyecto"
+  ],
+  "🎯 The goal: turn a number grade into a letter grade\\n\\n90-100: A\\n80-89: B\\n70-79: C\\nunder 70: F (fail)\\n\\nWe are going to use an if-else if chain for this!": [
+   "🎯 Das Ziel: aus einer Punktzahl einen Notenbuchstaben machen\\n\\n90-100: A\\n80-89: B\\n70-79: C\\nunter 70: F (nicht bestanden)\\n\\nDafür benutzen wir eine if-else-if-Kette!",
+   "🎯 El objetivo: convertir una nota numérica en una nota con letra\\n\\n90-100: A\\n80-89: B\\n70-79: C\\nmenos de 70: F (suspenso)\\n\\n¡Para esto vamos a usar una cadena if-else if!"
+  ],
+  "Step 1: Take the Grade and Check It": [
+   "Schritt 1: die Note entgegennehmen und prüfen",
+   "Paso 1: recoger la nota y comprobarla"
+  ],
+  "It matters that the if-else if chain is written in the RIGHT order, from the top down:\\n\\nint score = 85;\\nString letterGrade;\\n\\nif (score >= 90) {\\n    letterGrade = \"A\";\\n} else if (score >= 80) {\\n    letterGrade = \"B\";\\n} else if (score >= 70) {\\n    letterGrade = \"C\";\\n} else {\\n    letterGrade = \"F\";\\n}": [
+   "Es ist wichtig, dass die if-else-if-Kette in der RICHTIGEN Reihenfolge von oben nach unten geschrieben wird:\\n\\nint punkte = 85;\\nString notenBuchstabe;\\n\\nif (punkte >= 90) {\\n    notenBuchstabe = \"A\";\\n} else if (punkte >= 80) {\\n    notenBuchstabe = \"B\";\\n} else if (punkte >= 70) {\\n    notenBuchstabe = \"C\";\\n} else {\\n    notenBuchstabe = \"F\";\\n}",
+   "Es importante que la cadena if-else if se escriba en el ORDEN CORRECTO, de arriba abajo:\\n\\nint puntos = 85;\\nString notaLetra;\\n\\nif (puntos >= 90) {\\n    notaLetra = \"A\";\\n} else if (puntos >= 80) {\\n    notaLetra = \"B\";\\n} else if (puntos >= 70) {\\n    notaLetra = \"C\";\\n} else {\\n    notaLetra = \"F\";\\n}"
+  ],
+  "What happens if we do not write the if conditions IN ORDER, from highest to lowest?": [
+   "Was passiert, wenn wir die if-Bedingungen NICHT der Reihe nach von hoch nach niedrig schreiben?",
+   "¿Qué pasa si no escribimos las condiciones if EN ORDEN, de mayor a menor?"
+  ],
+  "Java checks the conditions in order and uses the first true one - if the order is wrong you get a logic error!": [
+   "Java prüft die Bedingungen der Reihe nach und nimmt die erste wahre – ist die Reihenfolge falsch, bekommst du einen Logikfehler!",
+   "¡Java comprueba las condiciones en orden y usa la primera verdadera: si el orden está mal, tienes un error de lógica!"
+  ],
+  "Step 2: Print the Result": [
+   "Schritt 2: das Ergebnis ausgeben",
+   "Paso 2: mostrar el resultado"
+  ],
+  "Finally, let\\'s show the result to the user:\\n\\nSystem.out.println(\"Your score: \" + score);\\nSystem.out.println(\"Your letter grade: \" + letterGrade);\\n\\nNow the user sees both the number and the letter!": [
+   "Zum Schluss zeigen wir dem Nutzer das Ergebnis:\\n\\nSystem.out.println(\"Deine Punktzahl: \" + punkte);\\nSystem.out.println(\"Dein Notenbuchstabe: \" + notenBuchstabe);\\n\\nJetzt sieht der Nutzer die Zahl und den Buchstaben!",
+   "Por último, mostremos el resultado al usuario:\\n\\nSystem.out.println(\"Tu puntuación: \" + puntos);\\nSystem.out.println(\"Tu nota con letra: \" + notaLetra);\\n\\n¡Ahora el usuario ve el número y la letra!"
+  ],
+  "Write a complete program that takes a number grade and turns it into a letter grade!": [
+   "Schreibe ein vollständiges Programm, das eine Punktzahl entgegennimmt und daraus einen Notenbuchstaben macht!",
+   "¡Escribe un programa completo que recoja una nota numérica y la convierta en una nota con letra!"
+  ],
+  "Your First Real Project Is Done!": [
+   "Dein erstes echtes Projekt ist fertig!",
+   "¡Tu primer proyecto de verdad está terminado!"
+  ],
+  "📊 You used control structures on a real problem!\\n\\n✓ The if-else if chain\\n✓ Sensible ordering\\n✓ Showing the result to the user\\n\\nNext up: a bigger project with a Student class!": [
+   "📊 Du hast Kontrollstrukturen auf ein echtes Problem angewendet!\\n\\n✓ Die if-else-if-Kette\\n✓ Eine sinnvolle Reihenfolge\\n✓ Das Ergebnis dem Nutzer zeigen\\n\\nAls Nächstes: ein größeres Projekt mit einer Klasse Schueler!",
+   "📊 ¡Has usado las estructuras de control en un problema real!\\n\\n✓ La cadena if-else if\\n✓ Un orden con sentido\\n✓ Mostrar el resultado al usuario\\n\\nSiguiente: ¡un proyecto más grande con una clase Alumno!"
+  ],
+  "You finished the Grade Calculator project!": [
+   "Du hast das Projekt «Notenrechner» geschafft!",
+   "¡Has terminado el proyecto de la calculadora de notas!"
+  ],
+  "Project: Student System": [
+   "Projekt: Schülersystem",
+   "Proyecto: sistema de alumnos"
+  ],
+  "Use classes in real life": [
+   "Klassen im echten Leben benutzen",
+   "Usa las clases en la vida real"
+  ],
+  "Putting together the class, object and method ideas you learned, we are going to build a small student management system!": [
+   "Wir bringen die Begriffe Klasse, Objekt und Methode zusammen und bauen ein kleines System zur Schülerverwaltung!",
+   "¡Juntando los conceptos de clase, objeto y método que has aprendido, vamos a construir un pequeño sistema de gestión de alumnos!"
+  ],
+  "🎯 The goal: a system that can manage several students\\n\\n1. A Student class (name, array of grades)\\n2. A calculateAverage() method\\n3. Create several Student objects\\n4. Print each one\\'s average": [
+   "🎯 Das Ziel: ein System, das mehrere Schüler verwalten kann\\n\\n1. Eine Klasse Schueler (Name, Array mit Noten)\\n2. Eine Methode berechneDurchschnitt()\\n3. Mehrere Schueler-Objekte erstellen\\n4. Den Durchschnitt jedes einzelnen ausgeben",
+   "🎯 El objetivo: un sistema capaz de gestionar varios alumnos\\n\\n1. Una clase Alumno (nombre, array de notas)\\n2. Un método calcularMedia()\\n3. Crear varios objetos Alumno\\n4. Mostrar la media de cada uno"
+  ],
+  "Step 1: The Student Class": [
+   "Schritt 1: die Klasse Schueler",
+   "Paso 1: la clase Alumno"
+  ],
+  "First let\\'s define our class:\\n\\nclass Student {\\n    String name;\\n    int[] grades;\\n\\n    double calculateAverage() {\\n        int total = 0;\\n        for (int i = 0; i < grades.length; i++) {\\n            total += grades[i];\\n        }\\n        return (double) total / grades.length;\\n    }\\n}": [
+   "Zuerst legen wir unsere Klasse fest:\\n\\nclass Schueler {\\n    String name;\\n    int[] noten;\\n\\n    double berechneDurchschnitt() {\\n        int summe = 0;\\n        for (int i = 0; i < noten.length; i++) {\\n            summe += noten[i];\\n        }\\n        return (double) summe / noten.length;\\n    }\\n}",
+   "Definamos primero nuestra clase:\\n\\nclass Alumno {\\n    String nombre;\\n    int[] notas;\\n\\n    double calcularMedia() {\\n        int total = 0;\\n        for (int i = 0; i < notas.length; i++) {\\n            total += notas[i];\\n        }\\n        return (double) total / notas.length;\\n    }\\n}"
+  ],
+  "class Student {\\n  String name;\\n  int[] grades;\\n}": [
+   "class Student {\\n  String name;\\n  int[] grades;\\n}",
+   "class Student {\\n  String name;\\n  int[] grades;\\n}"
+  ],
+  "What does the (double) in the line (double) total / grades.length do?": [
+   "Was macht das (double) in der Zeile (double) summe / noten.length?",
+   "¿Qué hace el (double) de la línea (double) total / notas.length?"
+  ],
+  "(double) turns the number into a decimal so the fractions are not lost in int division - this is called \"type casting\"!": [
+   "(double) macht aus der Zahl eine Kommazahl, damit bei der int-Division die Nachkommastellen nicht verloren gehen – das nennt man «Typumwandlung»!",
+   "¡(double) convierte el número en decimal para que no se pierdan las fracciones en la división entera: a esto se le llama «conversión de tipo»!"
+  ],
+  "Step 2: Create Several Objects": [
+   "Schritt 2: mehrere Objekte erstellen",
+   "Paso 2: crear varios objetos"
+  ],
+  "Now let\\'s create several students in the main method:\\n\\nStudent s1 = new Student();\\ns1.name = \"Alex\";\\ns1.grades = new int[]{80, 90, 70};\\n\\nStudent s2 = new Student();\\ns2.name = \"Mia\";\\ns2.grades = new int[]{95, 88, 92};\\n\\nSystem.out.println(s1.name + \": \" + s1.calculateAverage());\\nSystem.out.println(s2.name + \": \" + s2.calculateAverage());": [
+   "Jetzt erstellen wir in der main-Methode mehrere Schüler:\\n\\nSchueler s1 = new Schueler();\\ns1.name = \"Alex\";\\ns1.noten = new int[]{80, 90, 70};\\n\\nSchueler s2 = new Schueler();\\ns2.name = \"Mia\";\\ns2.noten = new int[]{95, 88, 92};\\n\\nSystem.out.println(s1.name + \": \" + s1.berechneDurchschnitt());\\nSystem.out.println(s2.name + \": \" + s2.berechneDurchschnitt());",
+   "Ahora creemos varios alumnos en el método main:\\n\\nAlumno a1 = new Alumno();\\na1.nombre = \"Alex\";\\na1.notas = new int[]{80, 90, 70};\\n\\nAlumno a2 = new Alumno();\\na2.nombre = \"Mia\";\\na2.notas = new int[]{95, 88, 92};\\n\\nSystem.out.println(a1.nombre + \": \" + a1.calcularMedia());\\nSystem.out.println(a2.nombre + \": \" + a2.calcularMedia());"
+  ],
+  "Every student object carries its own data - s1 and s2 do not affect each other!": [
+   "Jedes Schüler-Objekt trägt seine eigenen Daten – s1 und s2 beeinflussen einander nicht!",
+   "¡Cada objeto alumno lleva sus propios datos: a1 y a2 no se afectan entre sí!"
+  ],
+  "Project: Student Management System": [
+   "Projekt: Schülerverwaltungssystem",
+   "Proyecto: sistema de gestión de alumnos"
+  ],
+  "Write a program that manages several students and compares their averages!": [
+   "Schreibe ein Programm, das mehrere Schüler verwaltet und ihre Durchschnitte vergleicht!",
+   "¡Escribe un programa que gestione varios alumnos y compare sus medias!"
+  ],
+  "System Developer!": [
+   "System-Entwickler!",
+   "¡Desarrollador de sistemas!"
+  ],
+  "🎒 You built a real OOP system!\\n\\n✓ Designing a class\\n✓ Managing several objects\\n✓ Calculating with methods\\n\\nNext up: the final project, which uses inheritance too!": [
+   "🎒 Du hast ein echtes OOP-System gebaut!\\n\\n✓ Eine Klasse entwerfen\\n✓ Mehrere Objekte verwalten\\n✓ Mit Methoden rechnen\\n\\nAls Nächstes: das Abschlussprojekt, das auch Vererbung benutzt!",
+   "🎒 ¡Has construido un sistema de POO de verdad!\\n\\n✓ Diseñar una clase\\n✓ Gestionar varios objetos\\n✓ Calcular con métodos\\n\\nSiguiente: ¡el proyecto final, que también usa la herencia!"
+  ],
+  "You earned the System Developer badge!": [
+   "Du hast das Abzeichen «System-Entwickler» verdient!",
+   "¡Has ganado la insignia Desarrollador de Sistemas!"
+  ],
+  "Final Project: Calculator": [
+   "Abschlussprojekt: Taschenrechner",
+   "Proyecto final: calculadora"
+  ],
+  "Bring everything together!": [
+   "Bring alles zusammen!",
+   "¡Júntalo todo!"
+  ],
+  "Well done for getting this far! Now we are going to use EVERYTHING you learned to build a simple calculator class!": [
+   "Gut gemacht, dass du so weit gekommen bist! Jetzt benutzen wir ALLES, was du gelernt hast, um eine einfache Taschenrechner-Klasse zu bauen!",
+   "¡Muy bien por haber llegado hasta aquí! ¡Ahora vamos a usar TODO lo que has aprendido para construir una clase calculadora sencilla!"
+  ],
+  "🎯 The goal: a Calculator class that can add, subtract, multiply and divide\\n\\n📦 A class and its methods\\n🔀 Control structures (checking for division by zero)\\n🔁 An array for the history\\n\\nWe are going to combine all of it!": [
+   "🎯 Das Ziel: eine Klasse Calculator, die addieren, subtrahieren, multiplizieren und dividieren kann\\n\\n📦 Eine Klasse und ihre Methoden\\n🔀 Kontrollstrukturen (auf Division durch null prüfen)\\n🔁 Ein Array für den Verlauf\\n\\nAll das bringen wir zusammen!",
+   "🎯 El objetivo: una clase Calculator capaz de sumar, restar, multiplicar y dividir\\n\\n📦 Una clase y sus métodos\\n🔀 Estructuras de control (comprobar la división entre cero)\\n🔁 Un array para el historial\\n\\n¡Vamos a combinarlo todo!"
+  ],
+  "Step 1: The Class and Its Methods": [
+   "Schritt 1: die Klasse und ihre Methoden",
+   "Paso 1: la clase y sus métodos"
+  ],
+  "Let\\'s define our Calculator class:\\n\\nclass Calculator {\\n    double add(double a, double b) {\\n        return a + b;\\n    }\\n    double subtract(double a, double b) {\\n        return a - b;\\n    }\\n    double multiply(double a, double b) {\\n        return a * b;\\n    }\\n}": [
+   "Legen wir unsere Klasse Calculator fest:\\n\\nclass Calculator {\\n    double addiere(double a, double b) {\\n        return a + b;\\n    }\\n    double subtrahiere(double a, double b) {\\n        return a - b;\\n    }\\n    double multipliziere(double a, double b) {\\n        return a * b;\\n    }\\n}",
+   "Definamos nuestra clase Calculator:\\n\\nclass Calculator {\\n    double sumar(double a, double b) {\\n        return a + b;\\n    }\\n    double restar(double a, double b) {\\n        return a - b;\\n    }\\n    double multiplicar(double a, double b) {\\n        return a * b;\\n    }\\n}"
+  ],
+  "Step 2: Checking for Division by Zero": [
+   "Schritt 2: auf Division durch null prüfen",
+   "Paso 2: comprobar la división entre cero"
+  ],
+  "Division needs special care - dividing by 0 is an ERROR!\\n\\ndouble divide(double a, double b) {\\n    if (b == 0) {\\n        System.out.println(\"Error: cannot divide by zero!\");\\n        return 0;\\n    }\\n    return a / b;\\n}\\n\\nAn if check keeps our program from crashing!": [
+   "Die Division braucht besondere Vorsicht – durch 0 zu teilen ist ein FEHLER!\\n\\ndouble dividiere(double a, double b) {\\n    if (b == 0) {\\n        System.out.println(\"Fehler: durch null kann man nicht teilen!\");\\n        return 0;\\n    }\\n    return a / b;\\n}\\n\\nEine if-Prüfung bewahrt unser Programm vor dem Absturz!",
+   "La división necesita un cuidado especial: ¡dividir entre 0 es un ERROR!\\n\\ndouble dividir(double a, double b) {\\n    if (b == 0) {\\n        System.out.println(\"Error: ¡no se puede dividir entre cero!\");\\n        return 0;\\n    }\\n    return a / b;\\n}\\n\\n¡Una comprobación con if evita que nuestro programa se cuelgue!"
+  ],
+  "Good programmers always think ahead about \"what could go wrong\"!": [
+   "Gute Programmierer denken immer vorher darüber nach, «was schiefgehen könnte»!",
+   "¡Los buenos programadores piensan siempre de antemano en «qué podría salir mal»!"
+  ],
+  "Why does the b == 0 check matter in the divide method?": [
+   "Warum ist die Prüfung b == 0 in der Methode dividiere wichtig?",
+   "¿Por qué es importante la comprobación b == 0 en el método dividir?"
+  ],
+  "In maths a number cannot be divided by zero - without this check the program falls over!": [
+   "In der Mathematik kann man eine Zahl nicht durch null teilen – ohne diese Prüfung stürzt das Programm ab!",
+   "¡En matemáticas un número no se puede dividir entre cero: sin esta comprobación el programa se cae!"
+  ],
+  "Step 3: Use the Calculator": [
+   "Schritt 3: den Taschenrechner benutzen",
+   "Paso 3: usar la calculadora"
+  ],
+  "Now let\\'s test our calculator in the main method:\\n\\nCalculator calc = new Calculator();\\nSystem.out.println(\"Sum: \" + calc.add(5, 3));\\nSystem.out.println(\"Difference: \" + calc.subtract(5, 3));\\nSystem.out.println(\"Product: \" + calc.multiply(5, 3));\\nSystem.out.println(\"Quotient: \" + calc.divide(5, 0));\\n\\nThe last line will print \"Error: cannot divide by zero!\" and return 0!": [
+   "Jetzt testen wir unseren Taschenrechner in der main-Methode:\\n\\nCalculator calc = new Calculator();\\nSystem.out.println(\"Summe: \" + calc.addiere(5, 3));\\nSystem.out.println(\"Differenz: \" + calc.subtrahiere(5, 3));\\nSystem.out.println(\"Produkt: \" + calc.multipliziere(5, 3));\\nSystem.out.println(\"Quotient: \" + calc.dividiere(5, 0));\\n\\nDie letzte Zeile gibt \"Fehler: durch null kann man nicht teilen!\" aus und liefert 0 zurück!",
+   "Ahora probemos nuestra calculadora en el método main:\\n\\nCalculator calc = new Calculator();\\nSystem.out.println(\"Suma: \" + calc.sumar(5, 3));\\nSystem.out.println(\"Resta: \" + calc.restar(5, 3));\\nSystem.out.println(\"Producto: \" + calc.multiplicar(5, 3));\\nSystem.out.println(\"Cociente: \" + calc.dividir(5, 0));\\n\\n¡La última línea mostrará \"Error: ¡no se puede dividir entre cero!\" y devolverá 0!"
+  ],
+  "Final Project: The Complete Calculator": [
+   "Abschlussprojekt: der vollständige Taschenrechner",
+   "Proyecto final: la calculadora completa"
+  ],
+  "Put everything you learned together and build a complete calculator class!": [
+   "Bring alles Gelernte zusammen und baue eine vollständige Taschenrechner-Klasse!",
+   "¡Junta todo lo que has aprendido y construye una clase calculadora completa!"
+  ],
+  "🎓 YOU ARE A JAVA GRADUATE!": [
+   "🎓 DU BIST JAVA-ABSOLVENT!",
+   "🎓 ¡ERES GRADUADO EN JAVA!"
+  ],
+  "🎉☕🎉 YOU FINISHED THE JAVA COURSE!\\n\\n✓ Variables and data types\\n✓ Control structures (if-else, loops)\\n✓ Arrays\\n✓ Object-oriented programming (class, object, method, inheritance)\\n✓ You wrote a real calculator\\n\\nYou can write real programs in Java now!": [
+   "🎉☕🎉 DU HAST DEN JAVA-KURS GESCHAFFT!\\n\\n✓ Variablen und Datentypen\\n✓ Kontrollstrukturen (if-else, Schleifen)\\n✓ Arrays\\n✓ Objektorientierte Programmierung (Klasse, Objekt, Methode, Vererbung)\\n✓ Du hast einen echten Taschenrechner geschrieben\\n\\nJetzt kannst du echte Programme in Java schreiben!",
+   "🎉☕🎉 ¡HAS TERMINADO EL CURSO DE JAVA!\\n\\n✓ Variables y tipos de datos\\n✓ Estructuras de control (if-else, bucles)\\n✓ Arrays\\n✓ Programación orientada a objetos (clase, objeto, método, herencia)\\n✓ Has escrito una calculadora de verdad\\n\\n¡Ya puedes escribir programas de verdad en Java!"
+  ],
+  "You earned the Java Graduate badge! With these skills you can even step into Android apps.": [
+   "Du hast das Abzeichen «Java-Absolvent» verdient! Mit diesen Fähigkeiten kannst du sogar in Android-Apps einsteigen.",
+   "¡Has ganado la insignia Graduado en Java! Con estas habilidades puedes incluso entrar en el mundo de las aplicaciones Android."
+  ],
+  "You stepped into the world of Java!": [
+   "Du bist in die Welt von Java eingestiegen!",
+   "¡Has entrado en el mundo de Java!"
+  ],
+  "You wrote your first Java program!": [
+   "Du hast dein erstes Java-Programm geschrieben!",
+   "¡Escribiste tu primer programa en Java!"
+  ],
+  "You mastered data types!": [
+   "Du beherrschst die Datentypen!",
+   "¡Dominas los tipos de datos!"
+  ],
+  "You made your programs decide with if-else!": [
+   "Du hast deine Programme mit if-else entscheiden lassen!",
+   "¡Hiciste que tus programas decidieran con if-else!"
+  ],
+  "You mastered the for and while loops!": [
+   "Du beherrschst die for- und die while-Schleife!",
+   "¡Dominas los bucles for y while!"
+  ],
+  "You managed several values with arrays!": [
+   "Du hast mehrere Werte mit Arrays verwaltet!",
+   "¡Has manejado varios valores con arrays!"
+  ],
+  "You learned the class and object concepts!": [
+   "Du hast die Begriffe Klasse und Objekt gelernt!",
+   "¡Aprendiste los conceptos de clase y objeto!"
+  ],
+  "You gave your objects behaviour!": [
+   "Du hast deinen Objekten Verhalten gegeben!",
+   "¡Les diste comportamiento a tus objetos!"
+  ],
+  "You avoided repeated code with extends!": [
+   "Du hast doppelten Code mit extends vermieden!",
+   "¡Has evitado el código repetido con extends!"
+  ],
+  "You finished the whole Java course and the final project!": [
+   "Du hast den ganzen Java-Kurs und das Abschlussprojekt geschafft!",
+   "¡Has terminado todo el curso de Java y el proyecto final!"
+  ]
+ },
+ "listeler": [
+  {
+   "en": [
+    "Build Android apps",
+    "Enterprise software",
+    "Powerful and reliable"
+   ],
+   "de": [
+    "Android-Apps bauen",
+    "Unternehmenssoftware",
+    "Mächtig und verlässlich"
+   ],
+   "es": [
+    "Crear aplicaciones Android",
+    "Software empresarial",
+    "Potente y fiable"
+   ]
+  }
+ ]
+}
