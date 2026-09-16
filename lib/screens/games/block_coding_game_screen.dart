@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
-import '../../models/user_model.dart';
 import '../../services/score_cache_service.dart';
 import '../../models/leaderboard_model.dart';
 import '../../models/game_model.dart';
 import '../../services/leaderboard_service.dart';
 import '../../widgets/animated_rank_display.dart';
 import '../../providers/settings_provider.dart';
+import '../../services/sound_service.dart';
+import '../../ui/motion.dart';
+import '../../widgets/learning/how_to_play_demo.dart';
+import '../../utils/lang.dart';
 
 // Block types
 enum BlockType {
@@ -84,18 +87,59 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
   // Animation
   late AnimationController _animationController;
 
-  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
-  bool get _isEn => _lang == 'en';
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+
+  /// Bu ekrandaki kisa arayuz yazilari icin dort dilli yardimci.
+  ///
+  /// Onceki surumde her yerde `_isEn ? ingilizce : turkce` vardi; almanca
+  /// ya da ispanyolca secen cocuk oyunun tamamini turkce goruyordu.
+  String _tl(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
 
   @override
   void initState() {
     super.initState();
+    // Bu ekranin ses rengi (Blok kodlama). Butun oyunlarda ayni tonu
+    // calmak oyunlari birbirinden ayirt edilemez kiliyordu.
+    SoundService.useVoice(SfxVoice.deep);
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
     _startTime = DateTime.now();
     _loadLevel(_currentLevel);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showHowToPlay());
+  }
+
+  /// Ilk acilista "nasil oynanir": bir el blok havuzundan bir blogu alip
+  /// kod alanina birakiyor.
+  Future<void> _showHowToPlay({bool force = false}) async {
+    if (!mounted) return;
+    await HowToPlayDemo.maybeShow(
+      context,
+      gameKey: 'block_coding',
+      force: force,
+      demo: HowToPlayDemo(
+        // BU OYUNDA ESLESTIRME YOK.
+        //
+        // Onceden burada iki sutunlu eslestirme gosterimi cikiyordu:
+        // "1 Adım Git" ile "Kodun" arasinda bir ok. Cocuga bu oyunda
+        // hic yapmayacagi bir hareket ogretiliyordu. Blok kodlamada
+        // yapilan sey bir blogu ALIP KOD ALANINA BIRAKMAK — gosterim de
+        // artik onu gosteriyor.
+        scene: DemoScene.dragIntoArea,
+        title: _tl('Nasıl oynanır?', 'How to play', 'So wird gespielt', 'Cómo se juega'),
+        hint: _tl('Bir bloğu kod alanına sürükle, sonra Çalıştır\'a bas ve '
+                'robotu izle.', 'Drag a block into the code area, then press Run and watch '
+                'the robot move.', 'Zieh einen Block in den Codebereich, drück dann auf Ausführen und schau dem Roboter zu.', 'Arrastra un bloque al área de código, pulsa Ejecutar y observa al robot.'),
+        sourceLabel: _tl('1 Adım Git', 'Move 1 Step', '1 Schritt gehen', 'Avanzar 1 paso'),
+        decoyLabel: _tl('Sağa Dön', 'Turn Right', 'Nach rechts drehen', 'Girar a la derecha'),
+        targetLabel: _tl('Blokları buraya sürükle', 'Drop blocks here', 'Blöcke hierher ziehen', 'Suelta los bloques aquí'),
+        startLabel: _tl('Başla', 'Start', 'Start', 'Empezar'),
+        color: const Color(0xFF7E57C2),
+      ),
+    );
   }
 
   @override
@@ -136,8 +180,103 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
           _grid[2][2] = 1;
           _grid[1][3] = 2; // Star
           break;
+        // SEVIYE 4-10 AYNI BOS TAHTAYDI.
+        //
+        // Yedi seviye de `default` dalina dusuyordu: her seferinde bos
+        // bir 5x5 tahta, hedef sag alt kosede, tek bir yildiz bile yok.
+        // Yorumda "Random level" yaziyordu ama rastgele olan hicbir sey
+        // yoktu. Cocuk 4. seviyeden sonra ayni ekrani yedi kez
+        // oynuyordu.
+        //
+        // Yeni seviyeler kademeli: once tek duvar dolasma, sonra koridor,
+        // zikzak, uzun kosu (tekrar blogunun gercekten ise yaradigi yer),
+        // dar gecit. Hepsi COZULEBILIR; yildizlar yol ustunde ya da bir
+        // adim sapmayla ulasilabilir yerde. Izgara [y][x]: 0 bos,
+        // 1 duvar, 2 yildiz. Oyuncu (0,0)'da saga bakarak basliyor.
+        case 4:
+          // Duvari dolas: duz yol kapali, asagidan gecmek gerekiyor.
+          _goalX = 4;
+          _goalY = 0;
+          _grid = List.generate(5, (y) => List.generate(5, (x) => 0));
+          _grid[0][2] = 1;
+          _grid[1][2] = 2;
+          break;
+        case 5:
+          // Koridor: ortadaki duvar sirasi yalnizca kenarlardan geciyor.
+          _goalX = 4;
+          _goalY = 4;
+          _grid = List.generate(5, (y) => List.generate(5, (x) => 0));
+          _grid[2][1] = 1;
+          _grid[2][2] = 1;
+          _grid[2][3] = 1;
+          _grid[0][3] = 2;
+          _grid[3][4] = 2;
+          break;
+        case 6:
+          // Zikzak: once sol kenardan in, sonra saga kay, sonra sola don.
+          _goalX = 0;
+          _goalY = 4;
+          _grid = List.generate(5, (y) => List.generate(5, (x) => 0));
+          _grid[1][1] = 1;
+          _grid[1][2] = 1;
+          _grid[1][3] = 1;
+          _grid[1][4] = 1;
+          _grid[3][0] = 1;
+          _grid[3][1] = 1;
+          _grid[3][2] = 1;
+          _grid[2][4] = 2;
+          break;
+        case 7:
+          // Uzun kosu: dort adimlik iki duz parca — tekrar blogunun
+          // gercekten kisalttigi ilk seviye.
+          _goalX = 4;
+          _goalY = 4;
+          _grid = List.generate(5, (y) => List.generate(5, (x) => 0));
+          _grid[1][1] = 1;
+          _grid[2][1] = 1;
+          _grid[3][1] = 1;
+          _grid[0][2] = 2;
+          _grid[2][4] = 2;
+          break;
+        case 8:
+          // Dort donus: hedef alt kenarin ortasinda.
+          _goalX = 2;
+          _goalY = 4;
+          _grid = List.generate(5, (y) => List.generate(5, (x) => 0));
+          _grid[1][2] = 1;
+          _grid[2][2] = 1;
+          _grid[3][0] = 1;
+          _grid[3][1] = 1;
+          _grid[0][3] = 2;
+          _grid[4][3] = 2;
+          break;
+        case 9:
+          // Dar gecit: sol kenardan in, alt kenardan gec, sagdan cik.
+          _goalX = 4;
+          _goalY = 2;
+          _grid = List.generate(5, (y) => List.generate(5, (x) => 0));
+          _grid[1][1] = 1;
+          _grid[2][1] = 1;
+          _grid[3][1] = 1;
+          _grid[0][3] = 1;
+          _grid[4][2] = 2;
+          _grid[3][4] = 2;
+          break;
+        case 10:
+          // Usta: uc yildiz, dort donus, iki uzun parca.
+          _goalX = 4;
+          _goalY = 4;
+          _grid = List.generate(5, (y) => List.generate(5, (x) => 0));
+          _grid[0][2] = 1;
+          _grid[1][2] = 1;
+          _grid[2][2] = 1;
+          _grid[2][3] = 1;
+          _grid[2][4] = 1;
+          _grid[0][1] = 2;
+          _grid[3][2] = 2;
+          _grid[4][3] = 2;
+          break;
         default:
-          // Random level
           _goalX = 4;
           _goalY = 4;
           _grid = List.generate(5, (y) => List.generate(5, (x) => 0));
@@ -177,12 +316,14 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
 
       // Check if goal reached
       if (_playerX == _goalX && _playerY == _goalY) {
+        SoundService.playLevelComplete();
         _showLevelCompleteDialog();
       } else {
-        _showMessage(_isEn ? '❌ You did not reach the goal. Try again!' : '❌ Hedefe ulaşamadın. Tekrar dene!');
+        SoundService.playWrong();
+        _showMessage(_tl('❌ Hedefe ulaşamadın. Tekrar dene!', '❌ You did not reach the goal. Try again!', '❌ Du hast das Ziel nicht erreicht. Versuch es noch mal!', '❌ No llegaste a la meta. ¡Inténtalo otra vez!'));
       }
     } catch (e) {
-      _showMessage(_isEn ? '❌ Error: $e' : '❌ Hata: $e');
+      _showMessage(_tl('❌ Hata: $e', '❌ Error: $e', '❌ Fehler: $e', '❌ Error: $e'));
     }
 
     setState(() {
@@ -190,17 +331,44 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
     });
   }
 
+  /// Blok dizisini calistirir.
+  ///
+  /// TEKRAR BLOGU DONGUYU YANLIS OGRETIYORDU.
+  ///
+  /// Eskiden `repeat` blogu, cevresinde ne olursa olsun ILERI GIT
+  /// komutunu N kez calistiriyordu. Yani "Tekrarla 2x" aslinda
+  /// "2 adim ileri" demekti: donguyu ogretmiyor, gizli bir hareket
+  /// blogu gibi davraniyordu. Cocuk "Sağa Dön" blogunu tekrarlamak
+  /// istediginde de ileri gidiyordu.
+  ///
+  /// Dogrusu: tekrar blogu KENDINDEN SONRAKI blogu N kez calistirir ve
+  /// o blok bir daha tek basina calistirilmaz. Icine konacak blok yoksa
+  /// hicbir sey yapmaz (bos dongu).
   Future<void> _executeBlocks(List<CodeBlock> blocks) async {
-    for (var block in blocks) {
-      if (block.type == BlockType.repeat && block.repeatCount != null) {
-        for (int i = 0; i < block.repeatCount!; i++) {
-          await _executeCommand(BlockType.moveForward);
+    for (var i = 0; i < blocks.length; i++) {
+      final block = blocks[i];
+
+      if (block.type == BlockType.repeat) {
+        final tekrar = block.repeatCount ?? 0;
+        final icerdeki = i + 1 < blocks.length ? blocks[i + 1] : null;
+        if (icerdeki == null || icerdeki.type == BlockType.repeat) {
+          // Bos dongu: yapacak is yok.
+          continue;
         }
-      } else {
-        await _executeCommand(block.type);
+        for (var t = 0; t < tekrar; t++) {
+          await _executeCommand(icerdeki.type);
+        }
+        i++; // icerdeki blok bir daha tek basina calismasin
+        continue;
       }
+
+      await _executeCommand(block.type);
     }
   }
+
+  /// [index] numarali blok bir tekrar blogunun ICINDE mi?
+  bool _tekrarIcinde(int index) =>
+      index > 0 && _codeBlocks[index - 1].type == BlockType.repeat;
 
   Future<void> _executeCommand(BlockType type) async {
     await _animationController.forward(from: 0);
@@ -283,13 +451,14 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
       final totalDuration = DateTime.now().difference(_startTime!).inSeconds;
 
       // Calculate time bonus (faster = more points)
-      final timeBonus = (300 - totalDuration).clamp(0, 200); // Max 200 bonus for under 5 min
+      final timeBonus =
+          (300 - totalDuration).clamp(0, 200); // Max 200 bonus for under 5 min
       final finalScore = _score + timeBonus;
 
       final entry = LeaderboardEntry(
         id: '',
-        userId: user.id!,
-        userName: user.name ?? (_isEn ? 'Player' : 'Oyuncu'),
+        userId: user.id,
+        userName: user.name,
         userPhotoUrl: user.profilePictureUrl,
         gameType: GameType.blockCoding,
         score: finalScore,
@@ -325,7 +494,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
           builder: (context) => AnimatedRankDisplay(
             rank: userRank,
             totalScore: finalScore,
-            userName: user.name ?? (_isEn ? 'Player' : 'Oyuncu'),
+            userName: user.name,
             isNewRecord: false,
             onClose: () {
               Navigator.pop(context);
@@ -346,16 +515,17 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            Icon(Icons.emoji_events, color: Colors.amber[600], size: 32),
+            Icon(Icons.emoji_events_rounded,
+                color: Colors.amber[600], size: 32),
             const SizedBox(width: 12),
-            Text(_isEn ? '🎉 You Reached the Goal!' : '🎉 Hedefe Ulaştınız!'),
+            Text(_tl('🎉 Hedefe Ulaştınız!', '🎉 You Reached the Goal!', '🎉 Du hast das Ziel erreicht!', '🎉 ¡Llegaste a la meta!')),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              _isEn ? 'Level $_currentLevel Complete!' : 'Seviye $_currentLevel Tamamlandı!',
+              _tl('Seviye $_currentLevel Tamamlandı!', 'Level $_currentLevel Complete!', 'Level $_currentLevel geschafft!', '¡Nivel $_currentLevel completado!'),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -368,10 +538,10 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.star, color: Colors.amber),
+                  const Icon(Icons.star_rounded, color: Colors.amber),
                   const SizedBox(width: 8),
                   Text(
-                    _isEn ? 'Score: $_score' : 'Puan: $_score',
+                    _tl('Puan: $_score', 'Score: $_score', 'Punkte: $_score', 'Puntos: $_score'),
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -391,7 +561,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                 _loadLevel(_currentLevel);
               });
             },
-            child: Text(_isEn ? 'Play Again' : 'Tekrar Oyna'),
+            child: Text(_tl('Tekrar Oyna', 'Play Again', 'Noch mal spielen', 'Jugar otra vez')),
           ),
           if (_currentLevel < 10)
             ElevatedButton(
@@ -403,11 +573,12 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                 });
               },
               style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0FBD8C),  // Scratch green
+                backgroundColor: const Color(0xFF0FBD8C), // Scratch green
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
-              child: Text(_isEn ? 'Next Level' : 'Sonraki Seviye'),
+              child: Text(_tl('Sonraki Seviye', 'Next Level', 'Nächstes Level', 'Siguiente nivel')),
             ),
           if (_currentLevel >= 3)
             ElevatedButton(
@@ -423,9 +594,10 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
-              child: Text(_isEn ? 'Save Score' : 'Skoru Kaydet'),
+              child: Text(_tl('Skoru Kaydet', 'Save Score', 'Punktzahl speichern', 'Guardar puntuación')),
             ),
         ],
       ),
@@ -436,30 +608,31 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEn ? 'Code Blocks' : 'Kod Blokları'),
-            backgroundColor: const Color(0xFF0FBD8C),  // Scratch green
+        title: Text(_tl('Kod Blokları', 'Code Blocks', 'Code-Blöcke', 'Bloques de código')),
+        backgroundColor: const Color(0xFF0FBD8C), // Scratch green
         foregroundColor: Colors.white,
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Center(
               child: Text(
-                _isEn ? 'Level $_currentLevel | Score: $_score' : 'Seviye $_currentLevel | Puan: $_score',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                _tl('Seviye $_currentLevel | Puan: $_score', 'Level $_currentLevel | Score: $_score', 'Level $_currentLevel | Punkte: $_score', 'Nivel $_currentLevel | Puntos: $_score'),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
             ),
           ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final isWideScreen = constraints.maxWidth > 800;
+      body: SafeArea(
+          top: false,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isWideScreen = constraints.maxWidth > 800;
 
-          return isWideScreen
-              ? _buildWideLayout()
-              : _buildNarrowLayout();
-        },
-      ),
+              return isWideScreen ? _buildWideLayout() : _buildNarrowLayout();
+            },
+          )),
     );
   }
 
@@ -507,7 +680,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
           padding: const EdgeInsets.all(12),
           color: const Color(0xFF4CAF50),
           child: Text(
-            _isEn ? 'Blocks' : 'Bloklar',
+            _tl('Bloklar', 'Blocks', 'Blöcke', 'Bloques'),
             style: TextStyle(
               color: Colors.white,
               fontSize: 16,
@@ -582,23 +755,23 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
     switch (type) {
       case BlockType.moveForward:
         color = Colors.blue;
-        icon = Icons.arrow_upward;
-        label = _isEn ? 'Move 1 Step' : '1 Adım Git'; // Grid'de tek kare ileri gider
+        icon = Icons.arrow_upward_rounded;
+        label = _tl('1 Adım Git', 'Move 1 Step', '1 Schritt gehen', 'Avanzar 1 paso'); // Grid'de tek kare ileri gider
         break;
       case BlockType.turnRight:
         color = Colors.orange;
-        icon = Icons.rotate_right;
-        label = _isEn ? 'Turn Right' : 'Sağa Dön'; // Grid'de 90° sağa döner
+        icon = Icons.rotate_right_rounded;
+        label = _tl('Sağa Dön', 'Turn Right', 'Nach rechts drehen', 'Girar a la derecha'); // Grid'de 90° sağa döner
         break;
       case BlockType.turnLeft:
         color = Colors.purple;
-        icon = Icons.rotate_left;
-        label = _isEn ? 'Turn Left' : 'Sola Dön'; // Grid'de 90° sola döner
+        icon = Icons.rotate_left_rounded;
+        label = _tl('Sola Dön', 'Turn Left', 'Nach links drehen', 'Girar a la izquierda'); // Grid'de 90° sola döner
         break;
       case BlockType.repeat:
         color = Colors.green;
-        icon = Icons.repeat;
-        label = _isEn ? 'Repeat' : 'Tekrarla';
+        icon = Icons.repeat_rounded;
+        label = _tl('Tekrarla', 'Repeat', 'Wiederholen', 'Repetir');
         break;
     }
 
@@ -649,70 +822,99 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                 ),
               ],
             ),
-            child: GridView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(8),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 4,
-              ),
-              itemCount: 25,
-              itemBuilder: (context, index) {
-                final x = index % 5;
-                final y = index ~/ 5;
-                final isPlayer = x == _playerX && y == _playerY;
-                final isGoal = x == _goalX && y == _goalY;
-                final cellType = _grid[y][x];
-                final hasStar = cellType == 2;
-                final isCollected = _collectedStars.contains('$x,$y');
+            child: LayoutBuilder(
+              builder: (context, kutu) {
+                // Kukla hucrenin icinde cizilirse her komutta bir kareden
+                // kaybolup digerinde beliriyor. Izgara kuklasiz ciziliyor,
+                // kukla ustune AnimatedPositioned ile konuyor; donme de
+                // AnimatedRotation'a bagli, boylece "ileri git" ile "don"
+                // arasindaki fark gorunur oluyor.
+                const kenar = 8.0;
+                const bosluk = 4.0;
+                final hucre = (kutu.maxWidth - kenar * 2 - bosluk * 4) / 5;
+                double konum(int i) => kenar + i * (hucre + bosluk);
 
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  decoration: BoxDecoration(
-                    color: cellType == 1
-                        ? Colors.grey[800]
-                        : isGoal
-                            ? Colors.green[200]
-                            : Colors.grey[50],
-                    border: Border.all(color: Colors.grey[300]!, width: 1.5),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Stack(
-                    children: [
-                      if (isGoal)
-                        Center(
-                          child: Icon(Icons.flag, color: Colors.green[700], size: 28),
-                        ),
-                      if (hasStar && !isCollected)
-                        const Center(
-                          child: Icon(Icons.star, color: Colors.amber, size: 22),
-                        ),
-                      if (isPlayer)
-                        Center(
+                return Stack(
+                  children: [
+                    GridView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(kenar),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 5,
+                        mainAxisSpacing: bosluk,
+                        crossAxisSpacing: bosluk,
+                      ),
+                      itemCount: 25,
+                      itemBuilder: (context, index) {
+                        final x = index % 5;
+                        final y = index ~/ 5;
+                        final isGoal = x == _goalX && y == _goalY;
+                        final cellType = _grid[y][x];
+                        final hasStar = cellType == 2;
+                        final isCollected = _collectedStars.contains('$x,$y');
+
+                        return AnimatedContainer(
+                          duration: Motion.adapt(context, Motion.medium2),
+                          decoration: BoxDecoration(
+                            color: cellType == 1
+                                ? Colors.grey[800]
+                                : isGoal
+                                    ? Colors.green[200]
+                                    : Colors.grey[50],
+                            border: Border.all(
+                                color: Colors.grey[300]!, width: 1.5),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Stack(
+                            children: [
+                              if (isGoal)
+                                Center(
+                                  child: Icon(Icons.flag_rounded,
+                                      color: Colors.green[700], size: 28),
+                                ),
+                              if (hasStar && !isCollected)
+                                const Center(
+                                  child: Icon(Icons.star_rounded,
+                                      color: Colors.amber, size: 22),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    AnimatedPositioned(
+                      duration: Motion.adapt(context, Motion.short4),
+                      curve: Motion.emphasized,
+                      left: konum(_playerX),
+                      top: konum(_playerY),
+                      width: hucre,
+                      height: hucre,
+                      child: Center(
+                        child: AnimatedRotation(
+                          turns: _playerDirection.index / 4,
+                          duration: Motion.adapt(context, Motion.short4),
+                          curve: Motion.emphasized,
                           child: AnimatedBuilder(
                             animation: _animationController,
                             builder: (context, child) {
-                              // Kukla her zaman görünür, sadece hareket ederken hafifçe büyür
+                              // Kukla her zaman gorunur, sadece hareket
+                              // ederken hafifce buyur.
                               final scale = _isRunning
                                   ? 1.0 + (_animationController.value * 0.2)
                                   : 1.0;
-                              return Transform.scale(
-                                scale: scale,
-                                child: Transform.rotate(
-                                  angle: _playerDirection.index * 1.5708,
-                                  child: const Icon(
-                                    Icons.navigation,
-                                    color: Colors.blue,
-                                    size: 32,
-                                  ),
-                                ),
-                              );
+                              return Transform.scale(scale: scale, child: child);
                             },
+                            child: const Icon(
+                              Icons.navigation_rounded,
+                              color: Colors.blue,
+                              size: 32,
+                            ),
                           ),
                         ),
-                    ],
-                  ),
+                      ),
+                    ),
+                  ],
                 );
               },
             ),
@@ -732,13 +934,11 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
           margin: const EdgeInsets.all(12),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: candidateData.isNotEmpty
-                ? Colors.green[50]
-                : Colors.grey[50],
+            color:
+                candidateData.isNotEmpty ? Colors.green[50] : Colors.grey[50],
             border: Border.all(
-              color: candidateData.isNotEmpty
-                  ? Colors.green
-                  : Colors.grey[300]!,
+              color:
+                  candidateData.isNotEmpty ? Colors.green : Colors.grey[300]!,
               width: 2,
             ),
             borderRadius: BorderRadius.circular(12),
@@ -750,7 +950,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    _isEn ? 'Your Code' : 'Kodun',
+                    _tl('Kodun', 'Your Code', 'Dein Code', 'Tu código'),
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Flexible(
@@ -766,11 +966,18 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                                       _codeBlocks.clear();
                                     });
                                   },
-                            icon: const Icon(Icons.delete, size: 18),
+                            icon: const Icon(Icons.delete_rounded, size: 18),
                             color: Colors.red,
-                            tooltip: _isEn ? 'Clear' : 'Temizle',
+                            tooltip: _tl('Temizle', 'Clear', 'Löschen', 'Borrar'),
                             padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
+                            // Ikon kucuk ama BASILABILIR ALAN degil: bos
+                            // BoxConstraints(), IconButton'in 48x48 varsayilan
+                            // hedefini siliyordu ve geriye yalnizca ikonun kendi
+                            // boyu kaliyordu. En az 44x44 (Apple HIG).
+                            constraints: const BoxConstraints(
+                              minWidth: 44,
+                              minHeight: 44,
+                            ),
                           ),
                         const SizedBox(width: 4),
                         ElevatedButton.icon(
@@ -778,16 +985,21 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                               ? null
                               : _runCode,
                           icon: Icon(
-            _isRunning ? Icons.stop : Icons.flag,  // Scratch green flag
+                            _isRunning
+                                ? Icons.stop_rounded
+                                : Icons.flag_rounded, // Scratch green flag
                             size: 16,
                             color: Colors.white,
                           ),
                           label: Text(
-                            _isRunning ? (_isEn ? 'Running...' : 'Çalışıyor...') : (_isEn ? 'Run' : 'Çalıştır'),
+                            _isRunning
+                                ? (_tl('Çalışıyor...', 'Running...', 'Läuft ...', 'Ejecutando...'))
+                                : (_tl('Çalıştır', 'Run', 'Ausführen', 'Ejecutar')),
                             style: const TextStyle(fontSize: 12),
                           ),
                           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0FBD8C),  // Scratch green
+                            backgroundColor:
+                                const Color(0xFF0FBD8C), // Scratch green
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
@@ -807,11 +1019,11 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.drag_indicator,
+                            Icon(Icons.drag_indicator_rounded,
                                 size: 48, color: Colors.grey[400]),
                             const SizedBox(height: 8),
                             Text(
-                              _isEn ? 'Drag blocks here' : 'Blokları buraya sürükle',
+                              _tl('Blokları buraya sürükle', 'Drag blocks here', 'Blöcke hierher ziehen', 'Arrastra los bloques aquí'),
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 14,
@@ -852,32 +1064,50 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
     switch (block.type) {
       case BlockType.moveForward:
         color = Colors.blue;
-        icon = Icons.arrow_upward;
-        label = _isEn ? 'Move 1 Step' : '1 Adım Git';
+        icon = Icons.arrow_upward_rounded;
+        label = _tl('1 Adım Git', 'Move 1 Step', '1 Schritt gehen', 'Avanzar 1 paso');
         break;
       case BlockType.turnRight:
         color = Colors.orange;
-        icon = Icons.rotate_right;
-        label = _isEn ? 'Turn Right' : 'Sağa Dön';
+        icon = Icons.rotate_right_rounded;
+        label = _tl('Sağa Dön', 'Turn Right', 'Nach rechts drehen', 'Girar a la derecha');
         break;
       case BlockType.turnLeft:
         color = Colors.purple;
-        icon = Icons.rotate_left;
-        label = _isEn ? 'Turn Left' : 'Sola Dön';
+        icon = Icons.rotate_left_rounded;
+        label = _tl('Sola Dön', 'Turn Left', 'Nach links drehen', 'Girar a la izquierda');
         break;
       case BlockType.repeat:
         color = Colors.green;
-        icon = Icons.repeat;
-        label = _isEn ? 'Repeat ${block.repeatCount}x' : 'Tekrarla ${block.repeatCount}x';
+        icon = Icons.repeat_rounded;
+        // Etiket neyi tekrarladigini soyluyor: "Tekrarla 2x" cocuga
+        // neyin tekrarlandigini anlatmiyordu.
+        label = _tl(
+            'Sonrakini ${block.repeatCount}x tekrarla',
+            'Repeat the next one ${block.repeatCount}x',
+            'Wiederhole den nächsten ${block.repeatCount}x',
+            'Repite el siguiente ${block.repeatCount}x');
         break;
     }
 
+    // Tekrar blogunun ICINDEKI blok iceri giriyor ve solunda dongunun
+    // renginde bir sirt tasiyor: cocuk neyin tekrarlandigini duz bir
+    // listede goremiyordu.
+    final icerde = _tekrarIcinde(index);
+
     return Container(
       key: ValueKey(block.id),
-      margin: const EdgeInsets.only(bottom: 6),
+      margin: EdgeInsets.only(bottom: 6, left: icerde ? 22 : 0),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
-        border: Border.all(color: color, width: 2),
+        border: icerde
+            ? Border(
+                top: BorderSide(color: color, width: 2),
+                right: BorderSide(color: color, width: 2),
+                bottom: BorderSide(color: color, width: 2),
+                left: BorderSide(color: Colors.green, width: 8),
+              )
+            : Border.all(color: color, width: 2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: ListTile(
@@ -885,7 +1115,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
         leading: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.drag_handle, color: color, size: 18),
+            Icon(Icons.drag_handle_rounded, color: color, size: 18),
             const SizedBox(width: 4),
             Text(
               '${index + 1}.',
@@ -901,22 +1131,36 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
           children: [
             Icon(icon, color: color, size: 18),
             const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
+            // Almanca "Nach rechts drehen" ve ispanyolca "Girar a la
+            // derecha" bu satirdan tasiyordu; etiket artik sigmazsa
+            // kisaliyor.
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
               ),
             ),
           ],
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.close, size: 18),
+          icon: const Icon(Icons.close_rounded, size: 18),
           onPressed: () => _removeBlock(index),
           color: Colors.red,
           padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
+          // Ikon kucuk ama BASILABILIR ALAN degil: bos
+          // BoxConstraints(), IconButton'in 48x48 varsayilan
+          // hedefini siliyordu ve geriye yalnizca ikonun kendi
+          // boyu kaliyordu. En az 44x44 (Apple HIG).
+          constraints: const BoxConstraints(
+            minWidth: 44,
+            minHeight: 44,
+          ),
         ),
       ),
     );

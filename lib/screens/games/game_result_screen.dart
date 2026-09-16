@@ -8,6 +8,7 @@ import '../../services/leaderboard_service.dart';
 import '../../services/achievement_service.dart';
 import '../../providers/settings_provider.dart';
 import '../../theme.dart';
+import '../../utils/lang.dart';
 
 /// Game Result Screen
 /// Oyun bittiğinde gösterilen sonuç ekranı
@@ -52,8 +53,15 @@ class _GameResultScreenState extends State<GameResultScreen> {
   int? _userRank;
   bool _isLoading = true;
 
-  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
-  bool get _isEn => _lang == 'en';
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+
+  /// Bu ekrandaki kisa arayuz yazilari icin dort dilli yardimci.
+  ///
+  /// Onceki surumde her yerde `_isEn ? ingilizce : turkce` vardi; almanca
+  /// ya da ispanyolca secen cocuk oyunun tamamini turkce goruyordu.
+  String _tl(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
 
   @override
   void initState() {
@@ -75,7 +83,6 @@ class _GameResultScreenState extends State<GameResultScreen> {
       if (widget.correctCount != null && widget.totalQuestions != null) {
         final correctAnswers = widget.correctCount!;
         final totalQuestions = widget.totalQuestions!;
-        final wrongAnswers = totalQuestions - correctAnswers;
 
         await _achievementService.saveGameResult(
           userId: widget.userId,
@@ -90,10 +97,6 @@ class _GameResultScreenState extends State<GameResultScreen> {
       // Eğer correctCount yoksa ama score varsa, score-based kaydet
       else if (widget.score > 0) {
         // Score'u 100 üzerinden normalleştir ve doğru/yanlış olarak kaydet
-        final normalizedCorrect = widget.score;
-        final normalizedTotal = 100; // Varsayılan total
-        final wrongAnswers = normalizedTotal - normalizedCorrect;
-
         await _achievementService.saveGameResult(
           userId: widget.userId,
           gameId: widget.gameType.name,
@@ -140,40 +143,42 @@ class _GameResultScreenState extends State<GameResultScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEn ? 'Game Result' : 'Oyun Sonucu'),
+        title: Text(_tl('Oyun Sonucu', 'Game Result', 'Spielergebnis', 'Resultado del juego')),
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: AppTheme.white,
       ),
-      body: Stack(
-        children: [
-          // Main content
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _buildContent(),
+      body: SafeArea(
+          top: false,
+          child: Stack(
+            children: [
+              // Main content
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _buildContent(),
 
-          // Confetti
-          Align(
-            alignment: Alignment.topCenter,
-            child: ConfettiWidget(
-              confettiController: _confettiController,
-              blastDirection: pi / 2,
-              blastDirectionality: BlastDirectionality.explosive,
-              particleDrag: 0.05,
-              emissionFrequency: 0.05,
-              numberOfParticles: 50,
-              gravity: 0.1,
-              shouldLoop: false,
-              colors: const [
-                AppTheme.primaryBlue,
-                AppTheme.accentTeal,
-                AppTheme.accentYellow,
-                AppTheme.successGreen,
-                AppTheme.warningOrange,
-              ],
-            ),
-          ),
-        ],
-      ),
+              // Confetti
+              Align(
+                alignment: Alignment.topCenter,
+                child: ConfettiWidget(
+                  confettiController: _confettiController,
+                  blastDirection: pi / 2,
+                  blastDirectionality: BlastDirectionality.explosive,
+                  particleDrag: 0.05,
+                  emissionFrequency: 0.05,
+                  numberOfParticles: 50,
+                  gravity: 0.1,
+                  shouldLoop: false,
+                  colors: const [
+                    AppTheme.primaryBlue,
+                    AppTheme.accentTeal,
+                    AppTheme.accentYellow,
+                    AppTheme.successGreen,
+                    AppTheme.warningOrange,
+                  ],
+                ),
+              ),
+            ],
+          )),
     );
   }
 
@@ -286,7 +291,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
       return Column(
         children: [
           Text(
-            _isEn ? 'Correct: ${widget.correctCount}/${widget.totalQuestions}' : 'Doğru: ${widget.correctCount}/${widget.totalQuestions}',
+            _tl('Doğru: ${widget.correctCount}/${widget.totalQuestions}', 'Correct: ${widget.correctCount}/${widget.totalQuestions}', 'Richtig: ${widget.correctCount}/${widget.totalQuestions}', 'Aciertos: ${widget.correctCount}/${widget.totalQuestions}'),
             style: const TextStyle(
               fontSize: 18,
               color: AppTheme.white,
@@ -295,7 +300,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            _isEn ? 'Time: ${_formatTime(widget.timeSeconds ?? 0)}' : 'Süre: ${_formatTime(widget.timeSeconds ?? 0)}',
+            _tl('Süre: ${_formatTime(widget.timeSeconds ?? 0)}', 'Time: ${_formatTime(widget.timeSeconds ?? 0)}', 'Zeit: ${_formatTime(widget.timeSeconds ?? 0)}', 'Tiempo: ${_formatTime(widget.timeSeconds ?? 0)}'),
             style: const TextStyle(
               fontSize: 16,
               color: AppTheme.white,
@@ -310,7 +315,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
       case LeaderboardType.highScore:
       case LeaderboardType.winRate:
         return Text(
-          _isEn ? 'Score: ${widget.score}' : 'Puan: ${widget.score}',
+          _tl('Puan: ${widget.score}', 'Score: ${widget.score}', 'Punkte: ${widget.score}', 'Puntos: ${widget.score}'),
           style: const TextStyle(
             fontSize: 20,
             color: AppTheme.white,
@@ -319,7 +324,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
         );
       case LeaderboardType.fastestTime:
         return Text(
-          _isEn ? 'Time: ${_formatTime(widget.timeSeconds ?? 0)}' : 'Süre: ${_formatTime(widget.timeSeconds ?? 0)}',
+          _tl('Süre: ${_formatTime(widget.timeSeconds ?? 0)}', 'Time: ${_formatTime(widget.timeSeconds ?? 0)}', 'Zeit: ${_formatTime(widget.timeSeconds ?? 0)}', 'Tiempo: ${_formatTime(widget.timeSeconds ?? 0)}'),
           style: const TextStyle(
             fontSize: 20,
             color: AppTheme.white,
@@ -339,20 +344,21 @@ class _GameResultScreenState extends State<GameResultScreen> {
   }
 
   String _getRankMessage() {
-    if (_userRank == null) return _isEn ? 'Great performance!' : 'Harika bir performans!';
+    if (_userRank == null)
+      return _tl('Harika bir performans!', 'Great performance!', 'Eine starke Leistung!', '¡Qué buen resultado!');
 
     switch (_userRank) {
       case 1:
-        return _isEn ? 'Congratulations! 🥇\nYou\'re #1!' : 'Tebrikler! 🥇\n1. Oldunuz!';
+        return _tl('Tebrikler! 🥇\n1. Oldunuz!', 'Congratulations! 🥇\nYou\'re #1!', 'Glückwunsch! 🥇\nDu bist Erste!', '¡Felicidades! 🥇\n¡Eres el número 1!');
       case 2:
-        return _isEn ? 'Awesome! 🥈\nYou Ranked #2!' : 'Harika! 🥈\n2. Sıraya Yerleştiniz!';
+        return _tl('Harika! 🥈\n2. Sıraya Yerleştiniz!', 'Awesome! 🥈\nYou Ranked #2!', 'Klasse! 🥈\nDu bist Zweite!', '¡Genial! 🥈\n¡Quedaste en el puesto 2!');
       case 3:
-        return _isEn ? 'Amazing! 🥉\nYou Ranked #3!' : 'Muhteşem! 🥉\n3. Sıraya Yerleştiniz!';
+        return _tl('Muhteşem! 🥉\n3. Sıraya Yerleştiniz!', 'Amazing! 🥉\nYou Ranked #3!', 'Fantastisch! 🥉\nDu bist Dritte!', '¡Increíble! 🥉\n¡Quedaste en el puesto 3!');
       default:
         if (_userRank! <= 10) {
-          return _isEn ? 'Very Good! 🎯\nYou Ranked #$_userRank!' : 'Çok İyi! 🎯\n${_userRank}. Sıraya Yerleştiniz!';
+          return _tl('Çok İyi! 🎯\n${_userRank}. Sıraya Yerleştiniz!', 'Very Good! 🎯\nYou Ranked #$_userRank!', 'Sehr gut! 🎯\nDu bist auf Platz $_userRank!', '¡Muy bien! 🎯\n¡Quedaste en el puesto $_userRank!');
         }
-        return _isEn ? 'Congratulations! 🎮\nYou Made the Leaderboard!' : 'Tebrikler! 🎮\nSkor Tabelasına Girdiniz!';
+        return _tl('Tebrikler! 🎮\nSkor Tabelasına Girdiniz!', 'Congratulations! 🎮\nYou Made the Leaderboard!', 'Glückwunsch! 🎮\nDu stehst auf der Bestenliste!', '¡Felicidades! 🎮\n¡Entraste en la clasificación!');
     }
   }
 
@@ -390,10 +396,11 @@ class _GameResultScreenState extends State<GameResultScreen> {
         padding: const EdgeInsets.all(32),
         child: Column(
           children: [
-            Icon(Icons.emoji_events_outlined, size: 80, color: AppTheme.mediumGray),
+            Icon(Icons.emoji_events_outlined,
+                size: 80, color: AppTheme.mediumGray),
             const SizedBox(height: 16),
             Text(
-              _isEn ? 'No one has played this game yet!' : 'Henüz kimse bu oyunu oynamamış!',
+              _tl('Henüz kimse bu oyunu oynamamış!', 'No one has played this game yet!', 'Dieses Spiel hat noch niemand gespielt!', '¡Nadie ha jugado todavía a este juego!'),
               style: TextStyle(
                 fontSize: 18,
                 color: AppTheme.darkGray,
@@ -419,7 +426,8 @@ class _GameResultScreenState extends State<GameResultScreen> {
     );
   }
 
-  Widget _buildLeaderboardTile(LeaderboardEntry entry, int rank, bool isCurrentUser) {
+  Widget _buildLeaderboardTile(
+      LeaderboardEntry entry, int rank, bool isCurrentUser) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -476,11 +484,16 @@ class _GameResultScreenState extends State<GameResultScreen> {
             ),
             child: Center(
               child: Text(
-                entry.userName[0].toUpperCase(),
+                // Bos bir kullanici adi `[0]` ile RangeError atiyor ve
+                // BUTUN skor tablosunu cokertiyordu. Tek bir bos ad
+                // yeterliydi.
+                entry.userName.isEmpty ? '?' : entry.userName[0].toUpperCase(),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: isCurrentUser ? AppTheme.accentYellow : AppTheme.primaryBlue,
+                  color: isCurrentUser
+                      ? AppTheme.accentYellow
+                      : AppTheme.primaryBlue,
                 ),
               ),
             ),
@@ -509,13 +522,14 @@ class _GameResultScreenState extends State<GameResultScreen> {
                     if (isCurrentUser) ...[
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: AppTheme.accentYellow,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          _isEn ? 'YOU' : 'SİZ',
+                          _tl('SİZ', 'YOU', 'DU', 'TÚ'),
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -528,7 +542,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
                 ),
                 if (entry.difficulty != null)
                   Text(
-                    _isEn ? 'Difficulty: ${entry.difficulty}' : 'Zorluk: ${entry.difficulty}',
+                    _tl('Zorluk: ${entry.difficulty}', 'Difficulty: ${entry.difficulty}', 'Schwierigkeit: ${entry.difficulty}', 'Dificultad: ${entry.difficulty}'),
                     style: TextStyle(
                       fontSize: 12,
                       color: AppTheme.mediumGray,
@@ -547,7 +561,9 @@ class _GameResultScreenState extends State<GameResultScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: isCurrentUser ? AppTheme.accentYellow : AppTheme.primaryBlue,
+                  color: isCurrentUser
+                      ? AppTheme.accentYellow
+                      : AppTheme.primaryBlue,
                 ),
               ),
               Text(

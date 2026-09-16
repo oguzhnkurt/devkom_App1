@@ -18,6 +18,8 @@ import 'game_result_screen.dart';
 import 'dart:ui' as ui;
 import 'package:provider/provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../services/sound_service.dart';
+import '../../utils/lang.dart';
 
 class ChessGameScreen extends StatefulWidget {
   final ChessDifficulty? initialDifficulty;
@@ -43,7 +45,6 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
   GameResult _gameResult = GameResult.ongoing;
   bool _isGameStarted = false;
   bool _isAIThinking = false;
-  bool _isSaving = false;
   BoardColor _selectedBoardColor = BoardColor.brown;
 
   // Game data
@@ -54,31 +55,54 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
   Timer? _gameTimer;
   int _elapsedSeconds = 0;
   String? _lastAIMove;
-  String? _lastPlayerMove;
   String? _lastMoveFrom;
   String? _lastMoveTo;
 
   // User data
   UserModel? _currentUser;
 
-  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
-  bool get _isEn => _lang == 'en';
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+
+  /// Bu ekrandaki kisa arayuz yazilari icin dort dilli yardimci.
+  ///
+  /// Onceki surumde her yerde `_isEn ? ingilizce : turkce` vardi; almanca
+  /// ya da ispanyolca secen cocuk oyunun tamamini turkce goruyordu.
+  String _tl(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
 
   @override
   void initState() {
     super.initState();
+    // Bu ekranin ses rengi (Satranc). Ekran tamamen sessizdi ve
+    // bir onceki oyunun ses rengini devraliyordu.
+    SoundService.useVoice(SfxVoice.deep);
     _selectedDifficulty = widget.initialDifficulty;
     _boardController = ChessBoardController();
     _loadUserData();
 
     if (_selectedDifficulty != null) {
-      _startGame();
+      // ILK KAREDEN SONRA: _startGame() showDialog ve ScaffoldMessenger
+      // cagiriyor, ikisi de Localizations'a bagimli. initState'in
+      // icinden cagrilinca Flutter "dependOnInheritedWidgetOfExactType
+      // ... initState tamamlanmadan cagrildi" diye atiyor ve ekran hic
+      // cizilmiyordu. Zorluk secerek giren cocuk bunu gormuyordu cunku
+      // orada _startGame bir dokunustan sonra calisiyor; yalnizca
+      // ekrana initialDifficulty ile GIRILDIGINDE patliyordu.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _startGame();
+      });
     }
   }
 
   @override
   void dispose() {
     _gameTimer?.cancel();
+    // Stockfish AYRI BIR SUREC. Ekran kapanirken durdurulmazsa arka
+    // planda calismaya devam ediyordu: cocuk satranci birakip derse
+    // donse bile pil ve bellek tuketiliyor, birkac kez girip cikinca
+    // ust uste birikiyordu.
+    _aiService.dispose();
     super.dispose();
   }
 
@@ -116,7 +140,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                 ),
               ),
               const SizedBox(width: 16),
-              Text(_isEn ? 'Starting chess engine...' : 'Satranç motoru başlatılıyor...'),
+              Text(_tl('Satranç motoru başlatılıyor...', 'Starting chess engine...', 'Schach-Engine wird gestartet ...', 'Iniciando el motor de ajedrez...')),
             ],
           ),
           duration: const Duration(seconds: 3),
@@ -138,7 +162,6 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
         _moveHistory.clear();
         _gameResult = GameResult.ongoing;
         _lastAIMove = null;
-        _lastPlayerMove = null;
         _lastMoveFrom = null;
         _lastMoveTo = null;
       });
@@ -154,21 +177,23 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isEn ? 'Game started! Good luck!' : 'Oyun başladı! İyi şanslar!'),
+            content: Text(_tl('Oyun başladı! İyi şanslar!', 'Game started! Good luck!', 'Spiel gestartet! Viel Glück!', '¡Partida iniciada! ¡Buena suerte!')),
             backgroundColor: AppTheme.successGreen,
             duration: const Duration(seconds: 2),
           ),
         );
       }
 
-      debugPrint('🎮 Chess game started with difficulty: ${_selectedDifficulty?.name}');
+      debugPrint(
+          '🎮 Chess game started with difficulty: ${_selectedDifficulty?.name}');
     } catch (e) {
       debugPrint('❌ Failed to start game: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isEn ? 'Failed to start game: $e' : 'Oyun başlatılamadı: $e'),
+            content: Text(
+                _tl('Oyun başlatılamadı: $e', 'Failed to start game: $e', 'Spiel konnte nicht gestartet werden: $e', 'No se pudo iniciar la partida: $e')),
             backgroundColor: AppTheme.errorRed,
             duration: const Duration(seconds: 4),
           ),
@@ -180,6 +205,15 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
       }
     }
   }
+
+  /// Cocuk su an hamle yapabilir mi?
+  ///
+  /// Uc kosul: oyun suruyor, bilgisayar dusunmuyor ve sira BEYAZDA
+  /// (cocuk her zaman beyaz oynuyor, tahta da ona gore cevrili).
+  bool get _cocukOynayabilir =>
+      _gameResult == GameResult.ongoing &&
+      !_isAIThinking &&
+      _boardController.game.turn == chess_lib.Color.WHITE;
 
   Future<void> _onMove() async {
     if (_gameResult != GameResult.ongoing || _isAIThinking) return;
@@ -202,7 +236,6 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     // Get the last move's from/to squares for highlighting
     final lastMove = _boardController.game.history.last;
     setState(() {
-      _lastPlayerMove = lastMoveSan;
       _lastMoveFrom = lastMove.move.fromAlgebraic;
       _lastMoveTo = lastMove.move.toAlgebraic;
     });
@@ -251,10 +284,19 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
         }
       }
     } catch (e) {
+      // Ham istisna metni cocuga gosterilmiyordu kuralina aykiriydi:
+      // ekranda "AI hareketi başarısız: SocketException ..." yaziyordu.
+      // Ayrinti gunluge, cocuga ne oldugunu anlatan bir cumle.
       debugPrint('❌ AI move error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_isEn ? 'AI move failed: $e' : 'AI hareketi başarısız: $e')),
+          SnackBar(
+            content: Text(_tl(
+                'Bilgisayar bu hamlede takıldı. Yeniden başlatmayı dene.',
+                'The computer got stuck on this move. Try starting again.',
+                'Der Computer ist bei diesem Zug hängengeblieben. Starte neu.',
+                'El ordenador se atascó en esta jugada. Empieza de nuevo.')),
+          ),
         );
       }
     } finally {
@@ -273,7 +315,9 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
             : GameResult.win;
       });
       debugPrint('🏁 Checkmate! Result: ${_gameResult.name}');
-    } else if (_boardController.game.in_stalemate || _boardController.game.in_draw || _boardController.game.in_threefold_repetition) {
+    } else if (_boardController.game.in_stalemate ||
+        _boardController.game.in_draw ||
+        _boardController.game.in_threefold_repetition) {
       setState(() => _gameResult = GameResult.draw);
       debugPrint('🏁 Draw!');
     }
@@ -294,8 +338,6 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
 
   Future<void> _saveGame() async {
     if (_currentUser == null || _gameId == null) return;
-
-    setState(() => _isSaving = true);
 
     try {
       final gameModel = ChessGameModel(
@@ -321,12 +363,14 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
         try {
           // Calculate score (higher is better: faster wins get more points)
           final baseScore = 1000;
-          final timeBonus = (_elapsedSeconds > 0) ? (3600 ~/ _elapsedSeconds) : 0;
-          final difficultyMultiplier = _selectedDifficulty == ChessDifficulty.advanced
-              ? 3
-              : _selectedDifficulty == ChessDifficulty.intermediate
-                  ? 2
-                  : 1;
+          final timeBonus =
+              (_elapsedSeconds > 0) ? (3600 ~/ _elapsedSeconds) : 0;
+          final difficultyMultiplier =
+              _selectedDifficulty == ChessDifficulty.advanced
+                  ? 3
+                  : _selectedDifficulty == ChessDifficulty.intermediate
+                      ? 2
+                      : 1;
           final score = (baseScore + timeBonus) * difficultyMultiplier;
 
           final leaderboardEntry = LeaderboardEntry(
@@ -349,7 +393,8 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
 
           // Jeton ödülü: skorla orantılı (Market'te harcanabilir)
           final jeton = (score / 60).round().clamp(15, 120);
-          await UserProgressService().addJeton(_currentUser!.uid, jeton, source: 'chess');
+          await UserProgressService()
+              .addJeton(_currentUser!.uid, jeton, source: 'chess');
         } catch (e) {
           debugPrint('❌ Error adding to leaderboard: $e');
         }
@@ -358,7 +403,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isEn ? 'Game saved!' : 'Oyun kaydedildi!'),
+            content: Text(_tl('Oyun kaydedildi!', 'Game saved!', 'Spiel gespeichert!', '¡Partida guardada!')),
             backgroundColor: AppTheme.successGreen,
           ),
         );
@@ -367,12 +412,9 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
       debugPrint('❌ Error saving game: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_isEn ? 'Failed to save game: $e' : 'Oyun kaydedilemedi: $e')),
+          SnackBar(
+              content: Text(_tl('Oyun kaydedilemedi: $e', 'Failed to save game: $e', 'Spiel konnte nicht gespeichert werden: $e', 'No se pudo guardar la partida: $e'))),
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isSaving = false);
       }
     }
   }
@@ -397,25 +439,19 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     ui.Color color;
 
     if (_gameResult == GameResult.win) {
-      title = _isEn ? '🎉 Congratulations!' : '🎉 Tebrikler!';
-      message = _isEn
-          ? 'Checkmate! You beat the AI with a great game.'
-          : 'Şah mat ettiniz! Harika bir oyun sergileyerek yapay zekayı yendiniz.';
-      icon = Icons.emoji_events;
+      title = _tl('🎉 Tebrikler!', '🎉 Congratulations!', '🎉 Glückwunsch!', '🎉 ¡Felicidades!');
+      message = _tl('Şah mat ettiniz! Harika bir oyun sergileyerek yapay zekayı yendiniz.', 'Checkmate! You beat the AI with a great game.', 'Schachmatt! Du hast die KI mit einer starken Partie geschlagen.', '¡Jaque mate! Has ganado a la IA con una gran partida.');
+      icon = Icons.emoji_events_rounded;
       color = AppTheme.successGreen;
     } else if (_gameResult == GameResult.loss) {
-      title = _isEn ? '😔 You Were Checkmated' : '😔 Mat Oldunuz';
-      message = _isEn
-          ? 'The AI delivered checkmate. Keep practicing to improve!'
-          : 'Yapay zeka şah mat yaptı. Daha fazla pratik yaparak gelişebilirsiniz!';
-      icon = Icons.psychology;
+      title = _tl('😔 Mat Oldunuz', '😔 You Were Checkmated', '😔 Du wurdest mattgesetzt', '😔 Te han hecho jaque mate');
+      message = _tl('Yapay zeka şah mat yaptı. Daha fazla pratik yaparak gelişebilirsiniz!', 'The AI delivered checkmate. Keep practicing to improve!', 'Die KI hat mattgesetzt. Mit mehr Übung wirst du besser!', 'La IA dio jaque mate. ¡Con más práctica mejorarás!');
+      icon = Icons.psychology_rounded;
       color = AppTheme.errorRed;
     } else {
-      title = _isEn ? '🤝 Draw' : '🤝 Berabere';
-      message = _isEn
-          ? 'The game ended in a draw. You held off the AI with a solid defense.'
-          : 'Oyun berabere bitti. İyi bir savunma sergileyerek yapay zekayı durdurdunuz.';
-      icon = Icons.handshake;
+      title = _tl('🤝 Berabere', '🤝 Draw', '🤝 Unentschieden', '🤝 Tablas');
+      message = _tl('Oyun berabere bitti. İyi bir savunma sergileyerek yapay zekayı durdurdunuz.', 'The game ended in a draw. You held off the AI with a solid defense.', 'Die Partie endet unentschieden. Mit solider Verteidigung hast du die KI aufgehalten.', 'La partida terminó en tablas. Detuviste a la IA con una buena defensa.');
+      icon = Icons.handshake_rounded;
       color = AppTheme.accentTeal;
     }
 
@@ -456,13 +492,17 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               ),
               child: Column(
                 children: [
-                  _buildStatRow(_isEn ? '⏱️ Duration' : '⏱️ Süre', _formatDuration(_elapsedSeconds)),
+                  _buildStatRow(_tl('⏱️ Süre', '⏱️ Duration', '⏱️ Dauer', '⏱️ Duración'),
+                      _formatDuration(_elapsedSeconds)),
                   const SizedBox(height: 8),
-                  _buildStatRow(_isEn ? '🎯 Move Count' : '🎯 Hamle Sayısı', '${_moveHistory.length}'),
+                  _buildStatRow(_tl('🎯 Hamle Sayısı', '🎯 Move Count', '🎯 Anzahl der Züge', '🎯 Número de jugadas'),
+                      '${_moveHistory.length}'),
                   const SizedBox(height: 8),
-                  _buildStatRow(_isEn ? '🏆 Score' : '🏆 Puan', score.toString()),
+                  _buildStatRow(
+                      _tl('🏆 Puan', '🏆 Score', '🏆 Punkte', '🏆 Puntos'), score.toString()),
                   const SizedBox(height: 8),
-                  _buildStatRow(_isEn ? '📊 Difficulty' : '📊 Zorluk', _selectedDifficulty?.displayNameFor(_lang) ?? ''),
+                  _buildStatRow(_tl('📊 Zorluk', '📊 Difficulty', '📊 Schwierigkeit', '📊 Dificultad'),
+                      _selectedDifficulty?.displayNameFor(_lang) ?? ''),
                 ],
               ),
             ),
@@ -474,7 +514,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               Navigator.of(context).pop();
               Navigator.of(context).pop(); // Go back to games list
             },
-            child: Text(_isEn ? 'Back to Games' : 'Oyunlara Dön'),
+            child: Text(_tl('Oyunlara Dön', 'Back to Games', 'Zurück zu den Spielen', 'Volver a los juegos')),
           ),
           ElevatedButton(
             onPressed: () {
@@ -484,7 +524,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryBlue,
             ),
-            child: Text(_isEn ? 'New Game' : 'Yeni Oyun'),
+            child: Text(_tl('Yeni Oyun', 'New Game', 'Neue Partie', 'Nueva partida')),
           ),
           if (_gameResult != GameResult.loss)
             ElevatedButton(
@@ -507,7 +547,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.successGreen,
               ),
-              child: Text(_isEn ? 'Leaderboard' : 'Skor Tablosu'),
+              child: Text(_tl('Skor Tablosu', 'Leaderboard', 'Bestenliste', 'Clasificación')),
             ),
         ],
       ),
@@ -554,7 +594,6 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
       _startTime = null;
       _endTime = null;
       _lastAIMove = null;
-      _lastPlayerMove = null;
       _lastMoveFrom = null;
       _lastMoveTo = null;
     });
@@ -570,7 +609,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEn ? 'Chess Game' : 'Satranç Oyunu'),
+        title: Text(_tl('Satranç Oyunu', 'Chess Game', 'Schachspiel', 'Juego de ajedrez')),
         actions: [
           if (_isGameStarted) ...[
             Center(
@@ -586,14 +625,17 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               onPressed: () => _showResetConfirmation(),
-              tooltip: _isEn ? 'New Game' : 'Yeni Oyun',
+              tooltip: _tl('Yeni Oyun', 'New Game', 'Neue Partie', 'Nueva partida'),
             ),
           ],
         ],
       ),
-      body: _isGameStarted ? _buildGameView() : _buildDifficultySelection(),
+      body: SafeArea(
+          top: false,
+          child:
+              _isGameStarted ? _buildGameView() : _buildDifficultySelection()),
     );
   }
 
@@ -605,13 +647,13 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.psychology,
+              Icons.psychology_rounded,
               size: 80,
               color: AppTheme.primaryBlue,
             ),
             const SizedBox(height: 24),
             Text(
-              _isEn ? 'Select Difficulty Level' : 'Zorluk Seviyesi Seçin',
+              _tl('Zorluk Seviyesi Seçin', 'Select Difficulty Level', 'Schwierigkeitsgrad wählen', 'Elige el nivel de dificultad'),
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -635,7 +677,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     switch (difficulty) {
       case ChessDifficulty.beginner:
         cardColor = AppTheme.successGreen;
-        icon = Icons.sports_esports;
+        icon = Icons.sports_esports_rounded;
         break;
       case ChessDifficulty.intermediate:
         cardColor = AppTheme.accentTeal;
@@ -643,7 +685,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
         break;
       case ChessDifficulty.advanced:
         cardColor = AppTheme.errorRed;
-        icon = Icons.military_tech;
+        icon = Icons.military_tech_rounded;
         break;
     }
 
@@ -690,7 +732,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.star, size: 16, color: cardColor),
+                          Icon(Icons.star_rounded, size: 16, color: cardColor),
                           const SizedBox(width: 4),
                           Text(
                             'ELO: ~${difficulty.estimatedElo}',
@@ -704,7 +746,8 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                     ],
                   ),
                 ),
-                Icon(Icons.arrow_forward_ios, color: AppTheme.mediumGray),
+                Icon(Icons.arrow_forward_ios_rounded,
+                    color: AppTheme.mediumGray),
               ],
             ),
           ),
@@ -734,7 +777,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  _isEn ? 'AI is thinking...' : 'AI düşünüyor...',
+                  _tl('AI düşünüyor...', 'AI is thinking...', 'Die KI denkt nach ...', 'La IA está pensando...'),
                   style: TextStyle(
                     color: AppTheme.darkBlue,
                     fontWeight: FontWeight.w500,
@@ -753,15 +796,13 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.smart_toy,
+                  Icons.smart_toy_rounded,
                   size: 20,
                   color: AppTheme.primaryBlue,
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  _isEn
-                      ? 'Opponent move: ${_lastAIMove!}'
-                      : 'Rakip hamle: ${_convertMoveToTurkish(_lastAIMove!)}',
+                  _tl('Rakip hamle: ${_convertMoveToTurkish(_lastAIMove!)}', 'Opponent move: ${_lastAIMove!}', 'Zug der Gegnerin: ${_lastAIMove!}', 'Jugada del rival: ${_lastAIMove!}'),
                   style: TextStyle(
                     color: AppTheme.darkBlue,
                     fontWeight: FontWeight.bold,
@@ -781,7 +822,8 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                 // Chess board with coordinates
                 LayoutBuilder(
                   builder: (context, constraints) {
-                    final maxWidth = constraints.maxWidth - 24; // Space for rank numbers
+                    final maxWidth =
+                        constraints.maxWidth - 24; // Space for rank numbers
                     final squareSize = maxWidth / 8;
                     return Column(
                       mainAxisSize: MainAxisSize.min,
@@ -796,15 +838,26 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                               height: maxWidth,
                               child: Stack(
                                 children: [
+                                  // SIRA KIMDEYSE O OYNAR.
+                                  //
+                                  // `enableUserMoves` sabit true idi:
+                                  // bilgisayar dusunurken ya da hamle
+                                  // uretemeyip sira siyahta kalinca
+                                  // cocuk BILGISAYARIN taslarini
+                                  // oynatabiliyordu. Oyun iki tarafi da
+                                  // cocugun oynadigi bir seye donuyor,
+                                  // ustelik "neden benim sıram gelmiyor"
+                                  // diye anlasilmaz hale geliyordu.
                                   ChessBoard(
                                     controller: _boardController,
                                     boardColor: _selectedBoardColor,
                                     boardOrientation: PlayerColor.white,
                                     onMove: _onMove,
-                                    enableUserMoves: true,
+                                    enableUserMoves: _cocukOynayabilir,
                                   ),
                                   // Last move highlight overlay
-                                  if (_lastMoveFrom != null && _lastMoveTo != null)
+                                  if (_lastMoveFrom != null &&
+                                      _lastMoveTo != null)
                                     _buildMoveHighlightOverlay(),
                                 ],
                               ),
@@ -839,7 +892,8 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                           width: maxWidth,
                           height: 20,
                           child: Row(
-                            children: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].map((file) {
+                            children: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+                                .map((file) {
                               return SizedBox(
                                 width: squareSize,
                                 child: Center(
@@ -882,15 +936,15 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildInfoChip(
-                icon: Icons.timer,
+                icon: Icons.timer_rounded,
                 label: _formatDuration(_elapsedSeconds),
               ),
               _buildInfoChip(
-                icon: Icons.swap_horiz,
-                label: _isEn ? '${_moveHistory.length} moves' : '${_moveHistory.length} hamle',
+                icon: Icons.swap_horiz_rounded,
+                label: _tl('${_moveHistory.length} hamle', '${_moveHistory.length} moves', '${_moveHistory.length} Züge', '${_moveHistory.length} jugadas'),
               ),
               _buildInfoChip(
-                icon: Icons.psychology,
+                icon: Icons.psychology_rounded,
                 label: _selectedDifficulty?.displayNameFor(_lang) ?? '',
               ),
             ],
@@ -936,20 +990,26 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  _isEn ? 'Select Theme' : 'Tema Seçin',
+                  _tl('Tema Seçin', 'Select Theme', 'Design wählen', 'Elige un tema'),
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 24),
-                _buildThemeOption(BoardColor.brown, _isEn ? 'Classic Brown' : 'Klasik Kahverengi', setDialogState),
+                _buildThemeOption(
+                    BoardColor.brown,
+                    _tl('Klasik Kahverengi', 'Classic Brown', 'Klassisches Braun', 'Marrón clásico'),
+                    setDialogState),
                 const SizedBox(height: 12),
-                _buildThemeOption(BoardColor.darkBrown, _isEn ? 'Dark Brown' : 'Koyu Kahverengi', setDialogState),
+                _buildThemeOption(BoardColor.darkBrown,
+                    _tl('Koyu Kahverengi', 'Dark Brown', 'Dunkelbraun', 'Marrón oscuro'), setDialogState),
                 const SizedBox(height: 12),
-                _buildThemeOption(BoardColor.orange, _isEn ? 'Orange' : 'Turuncu', setDialogState),
+                _buildThemeOption(BoardColor.orange,
+                    _tl('Turuncu', 'Orange', 'Orange', 'Naranja'), setDialogState),
                 const SizedBox(height: 12),
-                _buildThemeOption(BoardColor.green, _isEn ? 'Green' : 'Yeşil', setDialogState),
+                _buildThemeOption(BoardColor.green, _tl('Yeşil', 'Green', 'Grün', 'Verde'),
+                    setDialogState),
                 const SizedBox(height: 32),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -957,7 +1017,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(false),
                       child: Text(
-                        _isEn ? 'Cancel' : 'İptal',
+                        _tl('İptal', 'Cancel', 'Abbrechen', 'Cancelar'),
                         style: const TextStyle(fontSize: 16),
                       ),
                     ),
@@ -965,11 +1025,15 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                       onPressed: () => Navigator.of(context).pop(true),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.successGreen,
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 12),
                       ),
                       child: Text(
-                        _isEn ? 'Start' : 'Başlat',
-                        style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                        _tl('Başlat', 'Start', 'Starten', 'Empezar'),
+                        style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -982,7 +1046,8 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     );
   }
 
-  Widget _buildThemeOption(BoardColor color, String name, StateSetter setDialogState) {
+  Widget _buildThemeOption(
+      BoardColor color, String name, StateSetter setDialogState) {
     final isSelected = _selectedBoardColor == color;
     return InkWell(
       onTap: () {
@@ -1063,8 +1128,6 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
         return const ui.Color(0xFFFFCE9E);
       case BoardColor.green:
         return const ui.Color(0xFFEEEED2);
-      default:
-        return const ui.Color(0xFFF0D9B5);
     }
   }
 
@@ -1078,8 +1141,6 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
         return const ui.Color(0xFFD18B47);
       case BoardColor.green:
         return const ui.Color(0xFF769656);
-      default:
-        return const ui.Color(0xFFB58863);
     }
   }
 
@@ -1087,19 +1148,19 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(_isEn ? 'Reset Game' : 'Oyunu Sıfırla'),
-        content: Text(_isEn ? 'The current game will be lost. Are you sure?' : 'Mevcut oyun kaybolacak. Emin misiniz?'),
+        title: Text(_tl('Oyunu Sıfırla', 'Reset Game', 'Partie zurücksetzen', 'Reiniciar la partida')),
+        content: Text(_tl('Mevcut oyun kaybolacak. Emin misiniz?', 'The current game will be lost. Are you sure?', 'Die aktuelle Partie geht verloren. Bist du sicher?', 'Se perderá la partida actual. ¿Seguro?')),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text(_isEn ? 'Cancel' : 'İptal'),
+            child: Text(_tl('İptal', 'Cancel', 'Abbrechen', 'Cancelar')),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorRed,
             ),
-            child: Text(_isEn ? 'Reset' : 'Sıfırla'),
+            child: Text(_tl('Sıfırla', 'Reset', 'Zurücksetzen', 'Reiniciar')),
           ),
         ],
       ),
@@ -1200,7 +1261,8 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
 
     // Get piece name in Turkish
     final firstChar = move[0];
-    if (firstChar.toUpperCase() == firstChar && RegExp(r'[A-Z]').hasMatch(firstChar)) {
+    if (firstChar.toUpperCase() == firstChar &&
+        RegExp(r'[A-Z]').hasMatch(firstChar)) {
       // It's a piece (not a pawn)
       switch (firstChar) {
         case 'N':

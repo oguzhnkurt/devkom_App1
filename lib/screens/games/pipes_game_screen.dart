@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../utils/score_calculator.dart';
 import '../../services/sound_service.dart';
 import '../../providers/settings_provider.dart';
+import '../../theme.dart';
 
 /// Pipes Puzzle Game - Boruları döndürerek bağlantı yap
 class PipesGameScreen extends StatelessWidget {
@@ -14,37 +15,47 @@ class PipesGameScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Bu ekranin ses rengi (devre/boru). Butun oyunlarda ayni tonu
+    // calmak oyunlari birbirinden ayirt edilemez kiliyordu.
+    SoundService.useVoice(SfxVoice.deep);
+
+    final isEnglish = Provider.of<SettingsProvider>(context, listen: false)
+            .locale
+            .languageCode ==
+        'en';
     return Scaffold(
       backgroundColor: const Color(0xFF1a1a2e),
       appBar: AppBar(
-        title: const Text(
-          'Pipes Puzzle',
-          style: TextStyle(
+        // Kart 'Boru Bulmacası' diyor; baslik da ayni dilde olmalı.
+        title: Text(
+          isEnglish ? 'Pipes Puzzle' : 'Boru Bulmacası',
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.info_outline),
+            icon: const Icon(Icons.info_outline_rounded),
             onPressed: () => _showGameInfo(context),
           ),
         ],
       ),
       body: GameWidget(
-        game: PipesGame(
-          isEnglish: Provider.of<SettingsProvider>(context, listen: false).locale.languageCode == 'en',
-        ),
+        game: PipesGame(isEnglish: isEnglish),
       ),
     );
   }
 
   void _showGameInfo(BuildContext context) {
-    final isEn = Provider.of<SettingsProvider>(context, listen: false).locale.languageCode == 'en';
+    final isEn = Provider.of<SettingsProvider>(context, listen: false)
+            .locale
+            .languageCode ==
+        'en';
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('🎮 Pipes Puzzle'),
+        title: Text(isEn ? '🎮 Pipes Puzzle' : '🎮 Boru Bulmacası'),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,13 +72,13 @@ class PipesGameScreen extends StatelessWidget {
               Text(
                 isEn
                     ? '• Build a pipeline from the green dot (source) to the red dot (target)\n'
-                      '• Tap pipe pieces to rotate them\n'
-                      '• Connect all the pipes to reach the target\n'
-                      '• Try to finish with as few moves as possible!'
+                        '• Tap pipe pieces to rotate them\n'
+                        '• Connect all the pipes to reach the target\n'
+                        '• Try to finish with as few moves as possible!'
                     : '• Yeşil noktadan (kaynak) kırmızı noktaya (hedef) boru hattı oluşturun\n'
-                      '• Boru parçalarına dokunarak döndürün\n'
-                      '• Tüm boruları bağlayarak hedefe ulaşın\n'
-                      '• En az hamleyle tamamlamaya çalışın!',
+                        '• Boru parçalarına dokunarak döndürün\n'
+                        '• Tüm boruları bağlayarak hedefe ulaşın\n'
+                        '• En az hamleyle tamamlamaya çalışın!',
               ),
               const SizedBox(height: 16),
               Text(
@@ -81,13 +92,13 @@ class PipesGameScreen extends StatelessWidget {
               Text(
                 isEn
                     ? '🟢 Green: Starting point\n'
-                      '🔴 Red: Target point\n'
-                      '━ Straight pipe: Two-way connection\n'
-                      '┛ Corner pipe: 90 degree turn'
+                        '🔴 Red: Target point\n'
+                        '━ Straight pipe: Two-way connection\n'
+                        '┛ Corner pipe: 90 degree turn'
                     : '🟢 Yeşil: Başlangıç noktası\n'
-                      '🔴 Kırmızı: Hedef noktası\n'
-                      '━ Düz boru: İki yönlü bağlantı\n'
-                      '┛ Köşe boru: 90 derece dönüş',
+                        '🔴 Kırmızı: Hedef noktası\n'
+                        '━ Düz boru: İki yönlü bağlantı\n'
+                        '┛ Köşe boru: 90 derece dönüş',
               ),
             ],
           ),
@@ -226,7 +237,11 @@ class PipesGame extends FlameGame with TapCallbacks {
       text: isEnglish ? 'Level: $currentLevel' : 'Seviye: $currentLevel',
       position: Vector2(20, 20),
       textRenderer: TextPaint(
+        // Flame'in TextPaint'i uygulama temasini DEVRALMIYOR; yazi tipi
+        // burada acikca verilmezse HUD Nunito degil Roboto ciziliyor ve
+        // ustteki AppBar yazisiyla yan yana farkli goruniyordu.
         style: const TextStyle(
+          fontFamily: AppTheme.fontFamily,
           color: Colors.cyan,
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -241,7 +256,11 @@ class PipesGame extends FlameGame with TapCallbacks {
       position: Vector2(size.x - 20, 20),
       anchor: Anchor.topRight,
       textRenderer: TextPaint(
+        // Flame'in TextPaint'i uygulama temasini DEVRALMIYOR; yazi tipi
+        // burada acikca verilmezse HUD Nunito degil Roboto ciziliyor ve
+        // ustteki AppBar yazisiyla yan yana farkli goruniyordu.
         style: const TextStyle(
+          fontFamily: AppTheme.fontFamily,
           color: Colors.amber,
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -254,7 +273,11 @@ class PipesGame extends FlameGame with TapCallbacks {
       text: isEnglish ? 'Moves: 0' : 'Hamle: 0',
       position: Vector2(20, 50),
       textRenderer: TextPaint(
+        // Flame'in TextPaint'i uygulama temasini DEVRALMIYOR; yazi tipi
+        // burada acikca verilmezse HUD Nunito degil Roboto ciziliyor ve
+        // ustteki AppBar yazisiyla yan yana farkli goruniyordu.
         style: const TextStyle(
+          fontFamily: AppTheme.fontFamily,
           color: Colors.white,
           fontSize: 18,
           fontWeight: FontWeight.bold,
@@ -268,7 +291,11 @@ class PipesGame extends FlameGame with TapCallbacks {
       position: Vector2(size.x / 2, 90),
       anchor: Anchor.center,
       textRenderer: TextPaint(
+        // Flame'in TextPaint'i uygulama temasini DEVRALMIYOR; yazi tipi
+        // burada acikca verilmezse HUD Nunito degil Roboto ciziliyor ve
+        // ustteki AppBar yazisiyla yan yana farkli goruniyordu.
         style: const TextStyle(
+          fontFamily: AppTheme.fontFamily,
           color: Colors.green,
           fontSize: 24,
           fontWeight: FontWeight.bold,
@@ -277,10 +304,15 @@ class PipesGame extends FlameGame with TapCallbacks {
     );
     add(statusText);
 
+    // Tus ile skor yazisi UST USTE BINIYORDU: skor `topRight`
+    // (size.x - 20, 20) noktasina, tus da (size.x - 160, 20) ile
+    // (size.x - 20, 60) arasina cizilyordu. Tus artik skorun altinda,
+    // ve 40 yerine 44 yuksekliginde (dokunma hedefi alt siniri).
     newGameButton = NewGameButton(
-      position: Vector2(size.x - 160, 20),
-      size: Vector2(140, 40),
+      position: Vector2(size.x - 160, 56),
+      size: Vector2(140, 44),
       onPressed: _newGame,
+      isEnglish: isEnglish,
     );
     add(newGameButton);
 
@@ -291,7 +323,8 @@ class PipesGame extends FlameGame with TapCallbacks {
     // Tüm oyunu sıfırla (seviye 1'den başla)
     currentLevel = 1;
     score = 0;
-    levelText.text = isEnglish ? 'Level: $currentLevel' : 'Seviye: $currentLevel';
+    levelText.text =
+        isEnglish ? 'Level: $currentLevel' : 'Seviye: $currentLevel';
     scoreText.text = isEnglish ? 'Score: $score' : 'Skor: $score';
     resetGame();
   }
@@ -306,7 +339,9 @@ class PipesGame extends FlameGame with TapCallbacks {
     _computeTileSize();
     _computeGridOffset();
 
-    children.whereType<PipeTileComponent>().forEach((tile) => tile.removeFromParent());
+    children
+        .whereType<PipeTileComponent>()
+        .forEach((tile) => tile.removeFromParent());
 
     _generateGrid();
     _renderGrid();
@@ -339,7 +374,8 @@ class PipesGame extends FlameGame with TapCallbacks {
     // Rastgele pipe'lar ekle — seviyeye göre yoğunluk artar
     for (int i = 0; i < gridSize; i++) {
       for (int j = 0; j < gridSize; j++) {
-        if (grid[i][j].type == PipeType.empty && random.nextDouble() < _decoyFillRate) {
+        if (grid[i][j].type == PipeType.empty &&
+            random.nextDouble() < _decoyFillRate) {
           grid[i][j] = PipeTile(
             type: random.nextBool() ? PipeType.straight : PipeType.corner,
             rotation: random.nextInt(4),
@@ -351,7 +387,9 @@ class PipesGame extends FlameGame with TapCallbacks {
     // Tüm pipe'ları rastgele döndür (zorlaştırma için)
     for (int i = 0; i < gridSize; i++) {
       for (int j = 0; j < gridSize; j++) {
-        if (grid[i][j].type != PipeType.source && grid[i][j].type != PipeType.sink && grid[i][j].type != PipeType.empty) {
+        if (grid[i][j].type != PipeType.source &&
+            grid[i][j].type != PipeType.sink &&
+            grid[i][j].type != PipeType.empty) {
           grid[i][j].rotation = random.nextInt(4);
         }
       }
@@ -379,14 +417,17 @@ class PipesGame extends FlameGame with TapCallbacks {
       if (grid[currentY][currentX].type == PipeType.empty) {
         grid[currentY][currentX] = PipeTile(
           type: PipeType.corner,
-          rotation: currentX < endX ? 2 : 1, // Sağa gidiyorsa 2 (┐), sola gidiyorsa 1 (┌)
+          rotation: currentX < endX
+              ? 2
+              : 1, // Sağa gidiyorsa 2 (┐), sola gidiyorsa 1 (┌)
         );
       }
 
       // Yatay hareketi tamamla
       while (currentX != endX) {
         currentX += currentX < endX ? 1 : -1;
-        if (currentX != endX && grid[currentY][currentX].type == PipeType.empty) {
+        if (currentX != endX &&
+            grid[currentY][currentX].type == PipeType.empty) {
           grid[currentY][currentX] = PipeTile(
             type: PipeType.straight,
             rotation: 0, // Yatay
@@ -468,7 +509,8 @@ class PipesGame extends FlameGame with TapCallbacks {
         final newY = newPos.y.toInt();
 
         // Sınır kontrolü
-        if (newX < 0 || newX >= gridSize || newY < 0 || newY >= gridSize) continue;
+        if (newX < 0 || newX >= gridSize || newY < 0 || newY >= gridSize)
+          continue;
 
         final neighborKey = '$newX,$newY';
         if (visited.contains(neighborKey)) continue;
@@ -515,13 +557,16 @@ class PipesGame extends FlameGame with TapCallbacks {
       // Skor kazanma sesi
       SoundService.playScore();
 
-      statusText.text = isEnglish ? '🎉 Congratulations! +$levelScore points!' : '🎉 Tebrikler! +$levelScore puan!';
+      statusText.text = isEnglish
+          ? '🎉 Congratulations! +$levelScore points!'
+          : '🎉 Tebrikler! +$levelScore puan!';
       scoreText.text = isEnglish ? 'Score: $score' : 'Skor: $score';
 
       // 2 saniye sonra sonraki seviyeye geç
       Future.delayed(const Duration(seconds: 2), () {
         currentLevel++;
-        levelText.text = isEnglish ? 'Level: $currentLevel' : 'Seviye: $currentLevel';
+        levelText.text =
+            isEnglish ? 'Level: $currentLevel' : 'Seviye: $currentLevel';
         resetGame();
       });
     }
@@ -694,10 +739,15 @@ class NewGameButton extends PositionComponent with TapCallbacks {
   late Paint buttonPaint;
   late TextComponent buttonText;
 
+  /// Tus yazisi Turkce sabitti; ekranin geri kalani `isEnglish` ile
+  /// ceviriliyken Ingilizce kullanici "Yeni Oyun" goruyordu.
+  final bool isEnglish;
+
   NewGameButton({
     required Vector2 position,
     required Vector2 size,
     required this.onPressed,
+    required this.isEnglish,
   }) : super(position: position, size: size);
 
   @override
@@ -707,11 +757,15 @@ class NewGameButton extends PositionComponent with TapCallbacks {
     buttonPaint = Paint()..color = const Color(0xFF4CAF50);
 
     buttonText = TextComponent(
-      text: 'Yeni Oyun',
+      text: isEnglish ? 'New Game' : 'Yeni Oyun',
       anchor: Anchor.center,
       position: size / 2,
       textRenderer: TextPaint(
+        // Flame'in TextPaint'i uygulama temasini DEVRALMIYOR; yazi tipi
+        // burada acikca verilmezse HUD Nunito degil Roboto ciziliyor ve
+        // ustteki AppBar yazisiyla yan yana farkli goruniyordu.
         style: const TextStyle(
+          fontFamily: AppTheme.fontFamily,
           color: Colors.white,
           fontSize: 16,
           fontWeight: FontWeight.bold,

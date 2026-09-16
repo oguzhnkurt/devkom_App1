@@ -10,6 +10,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../utils/score_calculator.dart';
 import '../../widgets/play_time_gate.dart';
+import '../../utils/lang.dart';
 
 /// Değişken Ustası Oyunu
 /// Değişken kavramını, atama işlemlerini ve değişken değerlerini takip etmeyi öğreten oyun
@@ -18,7 +19,10 @@ class VariableMasterGameScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isEn = Provider.of<SettingsProvider>(context, listen: false).locale.languageCode == 'en';
+    final isEn = Provider.of<SettingsProvider>(context, listen: false)
+            .locale
+            .languageCode ==
+        'en';
     return PlayTimeGate(
       gameName: isEn ? 'Variable Master' : 'Değişken Ustası',
       child: const _VariableMasterGameContent(),
@@ -27,13 +31,15 @@ class VariableMasterGameScreen extends StatelessWidget {
 }
 
 class _VariableMasterGameContent extends StatefulWidget {
-  const _VariableMasterGameContent({super.key});
+  const _VariableMasterGameContent();
 
   @override
-  State<_VariableMasterGameContent> createState() => _VariableMasterGameContentState();
+  State<_VariableMasterGameContent> createState() =>
+      _VariableMasterGameContentState();
 }
 
-class _VariableMasterGameContentState extends State<_VariableMasterGameContent> {
+class _VariableMasterGameContentState
+    extends State<_VariableMasterGameContent> {
   // Oyun ayarları
   final int maxLevels = 20;
   final Random _random = Random();
@@ -42,7 +48,6 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
   // Oyun durumu
   int currentLevel = 1;
   double score = 0;
-  int lives = 3;
   List<VariableOperation> operations = [];
   Map<String, int> currentVariables = {};
   String questionVariable = '';
@@ -56,24 +61,49 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
 
   // Değişken isimleri
   final List<String> variableNames = [
-    'x', 'y', 'z', 'a', 'b', 'c', 'n', 'm', 'k', 'i', 'j', 'p', 'q', 'r', 's', 't'
+    'x',
+    'y',
+    'z',
+    'a',
+    'b',
+    'c',
+    'n',
+    'm',
+    'k',
+    'i',
+    'j',
+    'p',
+    'q',
+    'r',
+    's',
+    't'
   ];
 
-  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
-  bool get _isEn => _lang == 'en';
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+
+  /// Bu ekrandaki kisa arayuz yazilari icin dort dilli yardimci.
+  ///
+  /// Onceki surumde her yerde `_isEn ? ingilizce : turkce` vardi; almanca
+  /// ya da ispanyolca secen cocuk oyunun tamamini turkce goruyordu.
+  String _tl(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
 
   @override
   void initState() {
     super.initState();
+    // Bu ekranin ses rengi (Degisken). Butun oyunlarda ayni tonu
+    // calmak oyunlari birbirinden ayirt edilemez kiliyordu.
+    SoundService.useVoice(SfxVoice.deep);
     startTime = DateTime.now();
     _generateNewLevel();
   }
 
   int get operationCount {
-    if (currentLevel <= 5) return 2;  // Seviye 1-5: 2 işlem
+    if (currentLevel <= 5) return 2; // Seviye 1-5: 2 işlem
     if (currentLevel <= 10) return 3; // Seviye 6-10: 3 işlem
     if (currentLevel <= 15) return 4; // Seviye 11-15: 4 işlem
-    return 5;                         // Seviye 16-20: 5 işlem
+    return 5; // Seviye 16-20: 5 işlem
   }
 
   void _generateNewLevel() {
@@ -88,7 +118,8 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
     // İşlemler oluştur
     for (int i = 0; i < operationCount; i++) {
       final variable = usedVars[_random.nextInt(usedVars.length)];
-      final operationType = _random.nextInt(5); // 0: atama, 1: toplama, 2: çıkarma, 3: çarpma, 4: kopyalama
+      final operationType = _random.nextInt(
+          5); // 0: atama, 1: toplama, 2: çıkarma, 3: çarpma, 4: kopyalama
 
       if (operationType == 0) {
         // Basit atama: x = 5
@@ -101,7 +132,8 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
         currentVariables[variable] = value;
       } else if (operationType == 4 && currentVariables.isNotEmpty) {
         // Kopyalama: x = y
-        final sourceVar = currentVariables.keys.elementAt(_random.nextInt(currentVariables.length));
+        final sourceVar = currentVariables.keys
+            .elementAt(_random.nextInt(currentVariables.length));
         operations.add(VariableOperation(
           variable: variable,
           operation: '=',
@@ -120,7 +152,8 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
             break;
           case 2:
             op = '-';
-            currentVariables[variable] = max(0, currentVariables[variable]! - value);
+            currentVariables[variable] =
+                max(0, currentVariables[variable]! - value);
             break;
           case 3:
             op = '*';
@@ -149,7 +182,8 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
     }
 
     // Soru değişkenini seç
-    questionVariable = currentVariables.keys.elementAt(_random.nextInt(currentVariables.length));
+    questionVariable = currentVariables.keys
+        .elementAt(_random.nextInt(currentVariables.length));
     correctAnswer = currentVariables[questionVariable]!;
 
     // Yanlış seçenekler üret
@@ -166,7 +200,16 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
     setState(() {});
   }
 
+  /// Ayni soruya iki kez puan verilmesini engeller.
+  ///
+  /// Secenekler 500 ms'lik bekleme boyunca canli kaliyordu; hizli iki
+  /// dokunus ayni soruyu iki kez puanliyor ve bir seviyeyi atliyordu.
+  bool _resolving = false;
+
   void _checkAnswer(int selectedAnswer) async {
+    if (_resolving) return;
+    _resolving = true;
+
     if (selectedAnswer == correctAnswer) {
       // Doğru cevap
       await SoundService.playCorrectSound();
@@ -183,24 +226,25 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
       });
 
       if (currentLevel > maxLevels) {
+        _resolving = false;
         _completeGame();
       } else {
         await Future.delayed(const Duration(milliseconds: 500));
+        if (!mounted) return;
         _generateNewLevel();
+        _resolving = false;
       }
     } else {
-      // Yanlış cevap
-      await SoundService.playWrongSound();
-
-      setState(() {
-        lives--;
-      });
-
-      if (lives <= 0) {
-        _endGame();
-      } else {
-        _showWrongAnswerDialog();
-      }
+      // CAN SISTEMI KALDIRILDI.
+      //
+      // Yanlis cevap bir can goturuyor, uc yanlista 20 seviyelik oyun
+      // bitiyordu. Bu yas grubu icin alinmis karara aykiri: yanlislarin
+      // buyuk kismi bilgi hatasi degil parmak hatasi, ve butun ilerlemeyi
+      // silmek puan kirmaktan cok daha agir bir ceza. Artik cocuk dogru
+      // cevabi goruyor ve ayni soruyu tekrar deniyor.
+      await SoundService.playWrong();
+      _showWrongAnswerDialog();
+      _resolving = false;
     }
   }
 
@@ -211,22 +255,17 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.close, color: AppTheme.errorRed),
+            Icon(Icons.close_rounded, color: AppTheme.errorRed),
             const SizedBox(width: 8),
-            Text(_isEn ? 'Wrong Answer' : 'Yanlış Cevap'),
+            Text(_tl('Yanlış Cevap', 'Wrong Answer', 'Falsche Antwort', 'Respuesta incorrecta')),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              _isEn ? 'Correct answer: $correctAnswer' : 'Doğru cevap: $correctAnswer',
+              _tl('Doğru cevap: $correctAnswer', 'Correct answer: $correctAnswer', 'Richtige Antwort: $correctAnswer', 'Respuesta correcta: $correctAnswer'),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              _isEn ? 'Lives left: $lives' : 'Kalan can: $lives',
-              style: const TextStyle(fontSize: 16),
             ),
           ],
         ),
@@ -240,7 +279,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
               backgroundColor: AppTheme.primaryBlue,
               foregroundColor: Colors.white,
             ),
-            child: Text(_isEn ? 'Continue' : 'Devam Et'),
+            child: Text(_tl('Devam Et', 'Continue', 'Weiter', 'Continuar')),
           ),
         ],
       ),
@@ -267,17 +306,6 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
     _saveToLeaderboard();
   }
 
-  void _endGame() {
-    final endTime = DateTime.now();
-    finalTimeSeconds = endTime.difference(startTime!).inSeconds;
-
-    setState(() {
-      gameOver = true;
-    });
-
-    _saveToLeaderboard();
-  }
-
   Future<void> _saveToLeaderboard() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final userId = authProvider.currentUser?.uid;
@@ -287,7 +315,8 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
     final entry = LeaderboardEntry(
       id: '',
       userId: userId,
-      userName: authProvider.currentUser?.displayName ?? (_isEn ? 'Player' : 'Oyuncu'),
+      userName: authProvider.currentUser?.displayName ??
+          (_tl('Oyuncu', 'Player', 'Spieler', 'Jugador')),
       score: score.round(),
       difficulty: currentLevel,
       gameType: GameType.variableMaster,
@@ -303,9 +332,9 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.lightbulb, color: AppTheme.warningOrange),
+            Icon(Icons.lightbulb_rounded, color: AppTheme.warningOrange),
             const SizedBox(width: 8),
-            Text(_isEn ? 'Hint' : 'İpucu'),
+            Text(_tl('İpucu', 'Hint', 'Tipp', 'Pista')),
           ],
         ),
         content: Column(
@@ -313,7 +342,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _isEn ? 'Track the Variable Values:' : 'Değişken Değerlerini Takip Et:',
+              _tl('Değişken Değerlerini Takip Et:', 'Track the Variable Values:', 'Verfolge die Werte der Variablen:', 'Sigue los valores de las variables:'),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 12),
@@ -323,7 +352,8 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: entry.key == questionVariable
                             ? AppTheme.warningOrange.withValues(alpha: 0.2)
@@ -367,7 +397,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
               backgroundColor: AppTheme.primaryBlue,
               foregroundColor: Colors.white,
             ),
-            child: Text(_isEn ? 'OK' : 'Tamam'),
+            child: Text(_tl('Tamam', 'OK', 'OK', 'Aceptar')),
           ),
         ],
       ),
@@ -385,49 +415,52 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
         elevation: 3,
-        title: Text(_isEn ? 'Variable Master' : 'Değişken Ustası', style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(_tl('Değişken Ustası', 'Variable Master', 'Variablen-Meister', 'Maestro de variables'),
+            style: const TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.lightbulb_outline),
+            icon: const Icon(Icons.lightbulb_outline_rounded),
             onPressed: _showHintDialog,
-            tooltip: _isEn ? 'Hint' : 'İpucu',
+            tooltip: _tl('İpucu', 'Hint', 'Tipp', 'Pista'),
           ),
         ],
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppTheme.primaryBlue.withValues(alpha: 0.05),
-              Colors.white,
-            ],
-          ),
-        ),
-        child: Column(
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 16),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    _buildInstructionCard(),
-                    const SizedBox(height: 24),
-                    _buildCodeEditor(),
-                    const SizedBox(height: 24),
-                    _buildQuestionCard(),
-                    const SizedBox(height: 24),
-                    _buildOptionsGrid(),
-                  ],
-                ),
+      body: SafeArea(
+          top: false,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppTheme.primaryBlue.withValues(alpha: 0.05),
+                  Colors.white,
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+            child: Column(
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _buildInstructionCard(),
+                        const SizedBox(height: 24),
+                        _buildCodeEditor(),
+                        const SizedBox(height: 24),
+                        _buildQuestionCard(),
+                        const SizedBox(height: 24),
+                        _buildOptionsGrid(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )),
     );
   }
 
@@ -447,15 +480,18 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem(_isEn ? 'Level' : 'Seviye', '$currentLevel/$maxLevels', Icons.trending_up, AppTheme.primaryBlue),
-          _buildStatItem(_isEn ? 'Score' : 'Skor', '$score', Icons.stars, AppTheme.warningOrange),
-          _buildLivesIndicator(),
+          _buildStatItem(_tl('Seviye', 'Level', 'Level', 'Nivel'), '$currentLevel/$maxLevels',
+              Icons.trending_up_rounded, AppTheme.primaryBlue),
+          _buildStatItem(_tl('Skor', 'Score', 'Punkte', 'Puntos'), '${score.round()}',
+              Icons.stars_rounded, AppTheme.warningOrange),
+          _buildProgressIndicator(),
         ],
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
+  Widget _buildStatItem(
+      String label, String value, IconData icon, Color color) {
     return Column(
       children: [
         Icon(icon, color: color, size: 24),
@@ -476,24 +512,18 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
     );
   }
 
-  Widget _buildLivesIndicator() {
+  /// Kalp sirasinin yerini alan ilerleme gostergesi.
+  ///
+  /// Uc kalp, "uc yanlista her sey biter" demenin gorsel haliydi. Ceza
+  /// kalkinca gosterge de anlamsizlasti; yerine cocugun nerede oldugunu
+  /// soyleyen bir sey koyduk.
+  Widget _buildProgressIndicator() {
     return Column(
       children: [
-        Row(
-          children: List.generate(3, (index) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: Icon(
-                index < lives ? Icons.favorite : Icons.favorite_border,
-                color: AppTheme.errorRed,
-                size: 20,
-              ),
-            );
-          }),
-        ),
+        Icon(Icons.flag_rounded, color: AppTheme.primaryBlue, size: 20),
         const SizedBox(height: 4),
         Text(
-          _isEn ? 'Lives' : 'Can',
+          _tl('Seviye', 'Level', 'Level', 'Nivel'),
           style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         ),
       ],
@@ -513,7 +543,8 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
                 color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.code, color: AppTheme.primaryBlue, size: 28),
+              child: Icon(Icons.code_rounded,
+                  color: AppTheme.primaryBlue, size: 28),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -521,7 +552,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _isEn ? 'Code Execution' : 'Kod Yürütme',
+                    _tl('Kod Yürütme', 'Code Execution', 'Code-Ausführung', 'Ejecución del código'),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -529,7 +560,7 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _isEn ? 'Follow the code and find the variable value' : 'Kodu takip et ve değişken değerini bul',
+                    _tl('Kodu takip et ve değişken değerini bul', 'Follow the code and find the variable value', 'Folge dem Code und finde den Wert der Variablen', 'Sigue el código y encuentra el valor de la variable'),
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
@@ -553,14 +584,15 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppTheme.primaryBlue,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     children: const [
-                      Icon(Icons.code, color: Colors.white, size: 16),
+                      Icon(Icons.code_rounded, color: Colors.white, size: 16),
                       SizedBox(width: 6),
                       Text(
                         'main.dart',
@@ -660,10 +692,11 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.help_outline, color: AppTheme.warningOrange, size: 28),
+                Icon(Icons.help_outline_rounded,
+                    color: AppTheme.warningOrange, size: 28),
                 const SizedBox(width: 12),
                 Text(
-                  _isEn ? 'Question' : 'Soru',
+                  _tl('Soru', 'Question', 'Frage', 'Pregunta'),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -765,73 +798,88 @@ class _VariableMasterGameContentState extends State<_VariableMasterGameContent> 
       appBar: AppBar(
         backgroundColor: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
         foregroundColor: Colors.white,
-        title: Text(gameWon ? (_isEn ? 'Congratulations!' : 'Tebrikler!') : (_isEn ? 'Game Over' : 'Oyun Bitti')),
+        title: Text(gameWon
+            ? (_tl('Tebrikler!', 'Congratulations!', 'Glückwunsch!', '¡Felicidades!'))
+            : (_tl('Oyun Bitti', 'Game Over', 'Spiel vorbei', 'Fin del juego'))),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                gameWon ? Icons.emoji_events : Icons.refresh,
-                size: 100,
-                color: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                gameWon ? (_isEn ? 'Great Job!' : 'Harika İş!') : (_isEn ? 'Try Again!' : 'Tekrar Dene!'),
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildResultCard(_isEn ? 'Level' : 'Seviye', '$currentLevel/$maxLevels', Icons.trending_up),
-              _buildResultCard(_isEn ? 'Score' : 'Skor', '$score', Icons.stars),
-              if (finalTimeSeconds != null)
-                _buildResultCard(_isEn ? 'Duration' : 'Süre', _isEn ? '$finalTimeSeconds seconds' : '$finalTimeSeconds saniye', Icons.timer),
-              const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      body: SafeArea(
+          top: false,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.home),
-                    label: Text(_isEn ? 'Main Menu' : 'Ana Menü'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBlue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  Icon(
+                    gameWon
+                        ? Icons.emoji_events_rounded
+                        : Icons.refresh_rounded,
+                    size: 100,
+                    color: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    gameWon
+                        ? (_tl('Harika İş!', 'Great Job!', 'Gut gemacht!', '¡Buen trabajo!'))
+                        : (_tl('Tekrar Dene!', 'Try Again!', 'Versuch es noch mal!', '¡Inténtalo otra vez!')),
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color:
+                          gameWon ? AppTheme.successGreen : AppTheme.errorRed,
                     ),
                   ),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        currentLevel = 1;
-                        score = 0;
-                        lives = 3;
-                        gameWon = false;
-                        gameOver = false;
-                        startTime = DateTime.now();
-                        _generateNewLevel();
-                      });
-                    },
-                    icon: const Icon(Icons.replay),
-                    label: Text(_isEn ? 'Play Again' : 'Tekrar Oyna'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.successGreen,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    ),
+                  const SizedBox(height: 16),
+                  _buildResultCard(_tl('Seviye', 'Level', 'Level', 'Nivel'),
+                      '$currentLevel/$maxLevels', Icons.trending_up_rounded),
+                  _buildResultCard(_tl('Skor', 'Score', 'Punkte', 'Puntos'), '${score.round()}',
+                      Icons.stars_rounded),
+                  if (finalTimeSeconds != null)
+                    _buildResultCard(
+                        _tl('Süre', 'Duration', 'Dauer', 'Duración'),
+                        _tl('$finalTimeSeconds saniye', '$finalTimeSeconds seconds', '$finalTimeSeconds Sekunden', '$finalTimeSeconds segundos'),
+                        Icons.timer_rounded),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.home_rounded),
+                        label: Text(_tl('Ana Menü', 'Main Menu', 'Hauptmenü', 'Menú principal')),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryBlue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 16),
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            currentLevel = 1;
+                            score = 0;
+                            gameWon = false;
+                            gameOver = false;
+                            startTime = DateTime.now();
+                            _generateNewLevel();
+                          });
+                        },
+                        icon: const Icon(Icons.replay_rounded),
+                        label: Text(_tl('Tekrar Oyna', 'Play Again', 'Noch mal spielen', 'Jugar otra vez')),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.successGreen,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 16),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+          )),
     );
   }
 

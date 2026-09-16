@@ -1,76 +1,19 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flame/components.dart';
-import 'package:flame/events.dart';
+import 'package:flame/effects.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 // TODO: Migrate to Supabase
 // import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart' as app_auth;
-import '../../models/user_model.dart';
-import '../auth/login_screen.dart';
-import '../../widgets/animated_rank_display.dart';
-import '../../services/leaderboard_service.dart';
-import '../../models/game_model.dart';
 import '../../providers/settings_provider.dart';
-
-/// Puppet types for character selection
-enum PuppetType {
-  fox,
-  lion,
-  crocodile,
-  cat,
-  dog,
-}
-
-extension PuppetTypeExtension on PuppetType {
-  String get name {
-    switch (this) {
-      case PuppetType.fox:
-        return 'Tilki';
-      case PuppetType.lion:
-        return 'Aslan';
-      case PuppetType.crocodile:
-        return 'Timsah';
-      case PuppetType.cat:
-        return 'Kedi';
-      case PuppetType.dog:
-        return 'Köpek';
-    }
-  }
-
-  String get emoji {
-    switch (this) {
-      case PuppetType.fox:
-        return '🦊';
-      case PuppetType.lion:
-        return '🦁';
-      case PuppetType.crocodile:
-        return '🐊';
-      case PuppetType.cat:
-        return '🐱';
-      case PuppetType.dog:
-        return '🐶';
-    }
-  }
-
-  String nameFor(String languageCode) {
-    if (languageCode != 'en') return name;
-    switch (this) {
-      case PuppetType.fox:
-        return 'Fox';
-      case PuppetType.lion:
-        return 'Lion';
-      case PuppetType.crocodile:
-        return 'Crocodile';
-      case PuppetType.cat:
-        return 'Cat';
-      case PuppetType.dog:
-        return 'Dog';
-    }
-  }
-}
+import '../../services/sound_service.dart';
+import '../../theme.dart';
+import '../../ui/motion.dart';
+import '../../utils/lang.dart';
+import 'kukla_cizimi.dart';
 
 /// Sağım-Solum Kodlama Oyunu (Flame 2D)
 /// Wordwall tarzı hızlı tempolu oyun
@@ -80,7 +23,8 @@ class LeftRightCodingGameScreen extends StatefulWidget {
   const LeftRightCodingGameScreen({super.key, this.gameData});
 
   @override
-  State<LeftRightCodingGameScreen> createState() => _LeftRightCodingGameScreenState();
+  State<LeftRightCodingGameScreen> createState() =>
+      _LeftRightCodingGameScreenState();
 }
 
 class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
@@ -90,16 +34,25 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
   int _moves = 0;
   DateTime? _startTime;
   bool _gameStarted = false;
-  bool _gameOver = false;
   bool _showingQuestion = false;
   PuppetType? _selectedPuppet;
 
-  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
-  bool get _isEn => _lang == 'en';
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+
+  /// Bu ekrandaki kisa arayuz yazilari icin dort dilli yardimci.
+  ///
+  /// Onceki surumde her yerde `_isEn ? ingilizce : turkce` vardi; almanca
+  /// ya da ispanyolca secen cocuk oyunun tamamini turkce goruyordu.
+  String _tl(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
 
   @override
   void initState() {
     super.initState();
+    // Bu ekranin ses rengi (Sag-sol). Ekran tamamen sessizdi ve
+    // bir onceki oyunun ses rengini devraliyordu.
+    SoundService.useVoice(SfxVoice.soft);
     // Show puppet selection dialog on first load
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showPuppetSelectionDialog();
@@ -115,14 +68,11 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
       onBonusSquare: _handleBonusSquare,
       onUnansweredQuestions: _handleUnansweredQuestions,
       puppetType: _selectedPuppet!,
-      isEnglish: _isEn,
+      lang: _lang,
     );
   }
 
   void _handleGameOver() {
-    setState(() {
-      _gameOver = true;
-    });
     _showGameOverDialog();
   }
 
@@ -137,9 +87,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          _isEn
-              ? '⚠️ You reached the goal but $unansweredCount question(s) were not answered!\nAnswer the questions in the red flashing squares.'
-              : '⚠️ Hedefe ulaştın ama $unansweredCount soru cevaplanmadı!\nKırmızı yanan karelerdeki soruları cevapla.',
+          _tl('⚠️ Hedefe ulaştın ama $unansweredCount soru cevaplanmadı!\nKırmızı yanan karelerdeki soruları cevapla.', '⚠️ You reached the goal but $unansweredCount question(s) were not answered!\nAnswer the questions in the red flashing squares.', '⚠️ Du hast das Ziel erreicht, aber $unansweredCount Frage(n) blieben offen!\nBeantworte die Fragen in den rot blinkenden Feldern.', '⚠️ Llegaste a la meta, pero quedaron $unansweredCount pregunta(s) sin responder.\nResponde las preguntas de las casillas que parpadean en rojo.'),
           textAlign: TextAlign.center,
         ),
         duration: const Duration(seconds: 3),
@@ -148,62 +96,97 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
     );
   }
 
+  /// Kukla secme ekrani.
+  ///
+  /// Eskiden emoji gosteriyordu: cocuk 🦊 secip tahtada bambaska cizilmis
+  /// bir tilki goruyordu — secilen sey ile oynanan sey ayni degildi.
+  /// Simdi kartlar oyundaki cizimin birebir aynisini ve kuklanin kendi
+  /// rengini tasiyor.
   Future<void> _showPuppetSelectionDialog() async {
     final selectedPuppet = await showDialog<PuppetType>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text(
-          _isEn ? '🎭 Choose a Character' : '🎭 Kukla Seç',
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      builder: (context) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28),
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              _isEn ? 'Choose the character you want to use in the game:' : 'Oyunda kullanmak istediğin kuklayı seç:',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 20),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              alignment: WrapAlignment.center,
-              children: PuppetType.values.map((puppet) {
-                return InkWell(
-                  onTap: () => Navigator.pop(context, puppet),
-                  child: Container(
-                    width: 100,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue.shade200, width: 2),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          puppet.emoji,
-                          style: const TextStyle(fontSize: 48),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          puppet.nameFor(_lang),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _tl('Kiminle oynayalım?', 'Who are we playing with?',
+                    'Mit wem spielen wir?', '¿Con quién jugamos?'),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.darkGray,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                _tl('Seçtiğin karakter tahtada seninle yürüyecek.',
+                    'Your character will walk the board with you.',
+                    'Deine Figur läuft mit dir über das Feld.',
+                    'Tu personaje caminará contigo por el tablero.'),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppTheme.mediumGray,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                alignment: WrapAlignment.center,
+                children: PuppetType.values.map((puppet) {
+                  final renk = KuklaCizimi.anaRenk(puppet);
+                  return Semantics(
+                    button: true,
+                    label: puppet.nameFor(_lang),
+                    child: Material(
+                      color: renk.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(20),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: () => Navigator.pop(context, puppet),
+                        child: Container(
+                          // 96 + 12 bosluk: dar telefonda bile satira uc
+                          // kart siğıyor, bes karakter 3+2 diziliyor.
+                          width: 96,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                                color: renk.withValues(alpha: 0.35), width: 2),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              KuklaOnizleme(kukla: puppet, boyut: 68),
+                              const SizedBox(height: 10),
+                              Text(
+                                puppet.nameFor(_lang),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: renk,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -245,7 +228,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
     if (level < 10) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_isEn ? '🎉 Level $level Complete! +$score points' : '🎉 Level $level Tamamlandı! +$score puan'),
+          content: Text(_tl('🎉 Level $level Tamamlandı! +$score puan', '🎉 Level $level Complete! +$score points', '🎉 Level $level geschafft! +$score Punkte', '🎉 ¡Nivel $level completado! +$score puntos')),
           duration: const Duration(seconds: 2),
           backgroundColor: Colors.green,
         ),
@@ -279,18 +262,21 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
         _totalScore += points;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isEn ? '✅ Correct! +$points points' : '✅ Doğru! +$points puan'),
+            content: Text(_tl('✅ Doğru! +$points puan', '✅ Correct! +$points points', '✅ Richtig! +$points Punkte', '✅ ¡Correcto! +$points puntos')),
             duration: const Duration(seconds: 2),
             backgroundColor: Colors.green,
           ),
         );
       } else {
-        _totalScore = (_totalScore - points).clamp(0, 999999);
+        // Yanlis cevapta puan KESILMEZ. Ceza, denemekten cekinmeye yol
+        // aciyor; cocuk oyununda dogru davranis yeniden denemeyi
+        // desteklemek.
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isEn ? '❌ Wrong! -$points points' : '❌ Yanlış! -$points puan'),
+            content: Text(_tl('Bu olmadı, tekrar dene!', 'Not quite — try again!',
+                'Leider nicht — versuch es noch mal!', 'Casi — ¡inténtalo otra vez!')),
             duration: const Duration(seconds: 2),
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.orange,
           ),
         );
       }
@@ -304,19 +290,20 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text(_isEn ? '💥 You Hit an Obstacle!' : '💥 Engele Çarptın!', textAlign: TextAlign.center),
+        title: Text(_tl('💥 Engele Çarptın!', '💥 You Hit an Obstacle!', '💥 Du bist gegen ein Hindernis gestoßen!', '💥 ¡Chocaste con un obstáculo!'),
+            textAlign: TextAlign.center),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.dangerous, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             Text(
-              _isEn ? 'Level: $_currentLevel' : 'Level: $_currentLevel',
+              _tl('Level: $_currentLevel', 'Level: $_currentLevel', 'Level: $_currentLevel', 'Nivel: $_currentLevel'),
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text(_isEn ? 'Total Score: $_totalScore' : 'Toplam Skor: $_totalScore'),
-            Text(_isEn ? 'Moves: $_moves' : 'Hamle: $_moves'),
+            Text(_tl('Toplam Skor: $_totalScore', 'Total Score: $_totalScore', 'Gesamtpunkte: $_totalScore', 'Puntuación total: $_totalScore')),
+            Text(_tl('Hamle: $_moves', 'Moves: $_moves', 'Züge: $_moves', 'Movimientos: $_moves')),
           ],
         ),
         actions: [
@@ -325,7 +312,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: Text(_isEn ? 'Home' : 'Ana Sayfa'),
+            child: Text(_tl('Ana Sayfa', 'Home', 'Startseite', 'Inicio')),
           ),
           ElevatedButton(
             onPressed: () {
@@ -336,7 +323,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
               backgroundColor: const Color(0xFFFF5722),
               foregroundColor: Colors.white,
             ),
-            child: Text(_isEn ? 'Try Again' : 'Tekrar Dene'),
+            child: Text(_tl('Tekrar Dene', 'Try Again', 'Noch mal versuchen', 'Intentar de nuevo')),
           ),
         ],
       ),
@@ -355,17 +342,18 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text(_isEn ? '🏆 Game Complete!' : '🏆 Oyun Tamamlandı!', textAlign: TextAlign.center),
+        title: Text(_tl('🏆 Oyun Tamamlandı!', '🏆 Game Complete!', '🏆 Spiel geschafft!', '🏆 ¡Juego completado!'),
+            textAlign: TextAlign.center),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              _isEn ? 'Total Score: $_totalScore' : 'Toplam Skor: $_totalScore',
+              _tl('Toplam Skor: $_totalScore', 'Total Score: $_totalScore', 'Gesamtpunkte: $_totalScore', 'Puntuación total: $_totalScore'),
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text(_isEn ? 'Moves: $_moves' : 'Hamle: $_moves'),
-            Text(_isEn ? 'Duration: $duration seconds' : 'Süre: $duration saniye'),
+            Text(_tl('Hamle: $_moves', 'Moves: $_moves', 'Züge: $_moves', 'Movimientos: $_moves')),
+            Text(_tl('Süre: $duration saniye', 'Duration: $duration seconds', 'Dauer: $duration Sekunden', 'Duración: $duration segundos')),
           ],
         ),
         actions: [
@@ -374,147 +362,21 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: Text(_isEn ? 'Home' : 'Ana Sayfa'),
+            child: Text(_tl('Ana Sayfa', 'Home', 'Startseite', 'Inicio')),
           ),
+          // Eskiden 'Siralama Gor' vardi; arkasindaki liderlik tablosu
+          // Supabase gecisinde kaldirilmisti ve tus cocugu oyundan
+          // atiyordu. Yerine gercekten calisan 'Tekrar Oyna' koyuldu.
           ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _showRankDisplay();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2196F3),
-              foregroundColor: Colors.white,
-            ),
-            child: Text(_isEn ? 'View Ranking' : 'Sıralama Gör'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _showRankDisplay() async {
-    try {
-      // TODO: Migrate to Supabase
-      // Replace FirebaseAuth with Supabase Auth
-      /*
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
-
-      // Get user rank from leaderboard
-      final leaderboardService = LeaderboardService();
-      final firestore = FirebaseFirestore.instance;
-
-      // Get top scores
-      final snapshot = await firestore
-          .collection('left_right_scores')
-          .orderBy('score', descending: true)
-          .orderBy('duration', descending: false)
-          .limit(100)
-          .get();
-
-      final scores = snapshot.docs;
-      final userRank = scores.indexWhere((doc) => doc['userId'] == user.uid) + 1;
-
-      if (mounted && userRank > 0) {
-        // Show animated rank display
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => AnimatedRankDisplay(
-            rank: userRank,
-            totalScore: _totalScore,
-            userName: user.displayName ?? 'Oyuncu',
-            isNewRecord: false,
-            onClose: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-          ),
-        );
-      }
-      */
-
-      // Placeholder - TODO: Implement with Supabase
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      debugPrint('Error showing rank: $e');
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    }
-  }
-
-  Future<void> _showLoginRequiredDialog() async {
-    if (!mounted) return;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            const Icon(Icons.lock, color: Colors.orange, size: 32),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                _isEn ? 'Sign In to Continue' : 'Devam Etmek İçin Giriş Yapın',
-                style: const TextStyle(fontSize: 20),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.emoji_events, size: 64, color: Colors.amber),
-            const SizedBox(height: 16),
-            Text(
-              _isEn ? 'You completed the first 3 levels!' : 'İlk 3 seviyeyi tamamladınız!',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _isEn ? 'Total Score: $_totalScore' : 'Toplam Skor: $_totalScore',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              _isEn ? 'Sign in to continue and access all levels.' : 'Devam etmek ve tüm seviyelere erişmek için giriş yapın.',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pop(context);
+              _resetGame();
             },
-            child: Text(_isEn ? 'Home' : 'Ana Sayfa'),
-          ),
-          ElevatedButton.icon(
-            onPressed: () async {
-              // Sign out visitor
-              final authProvider = Provider.of<app_auth.AuthProvider>(context, listen: false);
-              await authProvider.signOut();
-
-              if (!mounted) return;
-
-              // Navigate to login screen
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-                (route) => false,
-              );
-            },
-            icon: const Icon(Icons.login),
-            label: Text(_isEn ? 'Sign In' : 'Giriş Yap'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2196F3),
               foregroundColor: Colors.white,
             ),
+            child: Text(_tl('Tekrar Oyna', 'Play Again', 'Noch mal spielen', 'Jugar de nuevo')),
           ),
         ],
       ),
@@ -556,7 +418,6 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
       _moves = 0;
       _startTime = DateTime.now();
       _gameStarted = true;
-      _gameOver = false;
       _showingQuestion = false;
       _game = LeftRightCodingGame(
         onLevelComplete: _handleLevelComplete,
@@ -566,7 +427,7 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
         onBonusSquare: _handleBonusSquare,
         onUnansweredQuestions: _handleUnansweredQuestions,
         puppetType: _selectedPuppet!,
-        isEnglish: _isEn,
+        lang: _lang,
       );
     });
   }
@@ -583,107 +444,136 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
     }
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF2F5F9),
       body: SafeArea(
         child: Column(
           children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.blue.shade700, Colors.blue.shade500],
+            _ustPanel(),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: GameWidget(game: _game),
                 ),
               ),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
+            ),
+            _yonPaneli(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Ust panel.
+  ///
+  /// Eskiden mavi bir seride "Level 1 • Skor: 0 • Hamle: 0" diye tek satir
+  /// yaziyordu: uc ayri sayi ayni puntoda, ayni renkte, yan yana. Cocuk
+  /// hangisinin ne oldugunu okumadan anlayamiyordu. Ucu de kendi ikonu ve
+  /// kendi kutusu olan birer rozete ayrildi; "Level" de artik dile
+  /// cevriliyor.
+  Widget _ustPanel() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back_rounded),
+                color: AppTheme.darkGray,
+                tooltip: _tl('Geri', 'Back', 'Zurück', 'Atrás'),
+                onPressed: () => Navigator.pop(context),
+              ),
+              Expanded(
+                child: Text(
+                  _tl('Sağım-Solum', 'Left-Right Coding',
+                      'Links-Rechts-Coding', 'Código izquierda-derecha'),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.darkGray,
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _isEn ? 'Left-Right Coding' : 'Sağım-Solum',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        if (_gameStarted)
-                          Text(
-                            _isEn
-                                ? 'Level $_currentLevel • Score: $_totalScore • Moves: $_moves'
-                                : 'Level $_currentLevel • Skor: $_totalScore • Hamle: $_moves',
-                            style: const TextStyle(color: Colors.white70, fontSize: 12),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
+              ),
+              if (_selectedPuppet != null)
+                KuklaOnizleme(kukla: _selectedPuppet!, boyut: 52),
+            ],
+          ),
+          if (_gameStarted) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _rozet(
+                  Icons.flag_rounded,
+                  _tl('Seviye', 'Level', 'Level', 'Nivel'),
+                  '$_currentLevel',
+                  AppTheme.primaryBlue,
+                ),
+                const SizedBox(width: 8),
+                _rozet(
+                  Icons.star_rounded,
+                  _tl('Puan', 'Score', 'Punkte', 'Puntos'),
+                  '$_totalScore',
+                  AppTheme.warningOrange,
+                ),
+                const SizedBox(width: 8),
+                _rozet(
+                  Icons.directions_walk_rounded,
+                  _tl('Hamle', 'Moves', 'Züge', 'Movimientos'),
+                  '$_moves',
+                  AppTheme.accentTeal,
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _rozet(IconData ikon, String etiket, String deger, Color renk) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+        decoration: BoxDecoration(
+          color: renk.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          children: [
+            Icon(ikon, size: 18, color: renk),
+            const SizedBox(height: 2),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                etiket,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: renk,
+                ),
               ),
             ),
-
-            // Game Area
-            Expanded(
-              child: GameWidget(game: _game),
-            ),
-
-            // Controls
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Up Button
-                  _buildControlButton(
-                    icon: Icons.arrow_upward,
-                    label: _isEn ? 'UP' : 'YUKARI',
-                    color: Colors.blue,
-                    onPressed: () => _game.moveUp(),
-                  ),
-                  const SizedBox(height: 8),
-                  // Left, Down, Right Buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Left Button
-                      _buildControlButton(
-                        icon: Icons.arrow_back,
-                        label: _isEn ? 'LEFT' : 'SOL',
-                        color: Colors.orange,
-                        onPressed: () => _game.moveLeft(),
-                      ),
-                      // Down Button
-                      _buildControlButton(
-                        icon: Icons.arrow_downward,
-                        label: _isEn ? 'DOWN' : 'AŞAĞI',
-                        color: Colors.red,
-                        onPressed: () => _game.moveDown(),
-                      ),
-                      // Right Button
-                      _buildControlButton(
-                        icon: Icons.arrow_forward,
-                        label: _isEn ? 'RIGHT' : 'SAĞ',
-                        color: Colors.green,
-                        onPressed: () => _game.moveRight(),
-                      ),
-                    ],
-                  ),
-                ],
+            Text(
+              deger,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: renk,
               ),
             ),
           ],
@@ -692,33 +582,86 @@ class _LeftRightCodingGameScreenState extends State<LeftRightCodingGameScreen> {
     );
   }
 
-  Widget _buildControlButton({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onPressed,
-  }) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        elevation: 4,
+  /// Yon tuslari.
+  ///
+  /// Eskiden dort buyuk dikdortgen vardi ve her biri BASKA renkteydi:
+  /// yukari mavi, sol turuncu, asagi KIRMIZI, sag yesil. Kirmizi bir
+  /// "asagi" tusu cocuga tehlike/yanlis diye okunuyor, yesil "sag" ise
+  /// dogru cevap gibi. Halbuki dordu de ayni seyin dort yonu.
+  ///
+  /// Simdi gercek bir yon pedi: ayni renk, ayni agirlik, capraz dizilim.
+  /// Her tus 64x64 — Apple'in 44pt alt siniri rahatlikla asiliyor ve
+  /// bashparmakla tek elle kullanilabiliyor.
+  Widget _yonPaneli() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 18,
+            offset: const Offset(0, -4),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 32),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          _yonTusu(Icons.keyboard_arrow_up_rounded,
+              _tl('Yukarı', 'Up', 'Oben', 'Arriba'), _game.moveUp),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _yonTusu(Icons.keyboard_arrow_left_rounded,
+                  _tl('Sol', 'Left', 'Links', 'Izquierda'), _game.moveLeft),
+              const SizedBox(width: 10),
+              // Pedin ortasi: hangi kukla ile oynadigini surekli
+              // gosteren sabit nokta.
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF2F5F9),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                alignment: Alignment.center,
+                child: KuklaOnizleme(kukla: _selectedPuppet!, boyut: 62),
+              ),
+              const SizedBox(width: 10),
+              _yonTusu(Icons.keyboard_arrow_right_rounded,
+                  _tl('Sağ', 'Right', 'Rechts', 'Derecha'), _game.moveRight),
+            ],
           ),
+          const SizedBox(height: 10),
+          _yonTusu(Icons.keyboard_arrow_down_rounded,
+              _tl('Aşağı', 'Down', 'Unten', 'Abajo'), _game.moveDown),
         ],
+      ),
+    );
+  }
+
+  Widget _yonTusu(IconData ikon, String etiket, VoidCallback basinca) {
+    return Semantics(
+      button: true,
+      label: etiket,
+      child: Material(
+        color: AppTheme.primaryBlue,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            basinca();
+          },
+          child: SizedBox(
+            width: 64,
+            height: 64,
+            child: Icon(ikon, size: 38, color: Colors.white),
+          ),
+        ),
       ),
     );
   }
@@ -742,8 +685,12 @@ class _QuestionDialogContentState extends State<_QuestionDialogContent> {
   int? _selectedAnswerIndex;
   bool _answered = false;
 
-  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
-  bool get _isEn => _lang == 'en';
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+
+  /// Bu sinifin kisa arayuz yazilari icin dort dilli yardimci.
+  String _tl(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
 
   Future<void> _selectAnswer(int index) async {
     if (_answered) return;
@@ -774,7 +721,9 @@ class _QuestionDialogContentState extends State<_QuestionDialogContent> {
 
     // If this is the selected answer
     if (index == _selectedAnswerIndex) {
-      return index == correctAnswer ? Colors.green.shade100 : Colors.red.shade100;
+      return index == correctAnswer
+          ? Colors.green.shade100
+          : Colors.red.shade100;
     }
 
     // If this is the correct answer and user selected wrong
@@ -794,7 +743,9 @@ class _QuestionDialogContentState extends State<_QuestionDialogContent> {
 
     // If this is the selected answer
     if (index == _selectedAnswerIndex) {
-      return index == correctAnswer ? Colors.green.shade700 : Colors.red.shade700;
+      return index == correctAnswer
+          ? Colors.green.shade700
+          : Colors.red.shade700;
     }
 
     // If this is the correct answer and user selected wrong
@@ -812,12 +763,14 @@ class _QuestionDialogContentState extends State<_QuestionDialogContent> {
 
     // If this is the selected answer
     if (index == _selectedAnswerIndex) {
-      return index == correctAnswer ? Icons.check_circle : Icons.cancel;
+      return index == correctAnswer
+          ? Icons.check_circle_rounded
+          : Icons.cancel_rounded;
     }
 
     // If this is the correct answer and user selected wrong
     if (index == correctAnswer && _selectedAnswerIndex != correctAnswer) {
-      return Icons.check_circle;
+      return Icons.check_circle_rounded;
     }
 
     return null;
@@ -830,7 +783,9 @@ class _QuestionDialogContentState extends State<_QuestionDialogContent> {
 
     // If this is the selected answer
     if (index == _selectedAnswerIndex) {
-      return index == correctAnswer ? Colors.green.shade700 : Colors.red.shade700;
+      return index == correctAnswer
+          ? Colors.green.shade700
+          : Colors.red.shade700;
     }
 
     // If this is the correct answer and user selected wrong
@@ -846,11 +801,12 @@ class _QuestionDialogContentState extends State<_QuestionDialogContent> {
     return AlertDialog(
       title: Row(
         children: [
-          Icon(Icons.help_outline, color: Colors.purple.shade700, size: 32),
+          Icon(Icons.help_outline_rounded,
+              color: Colors.purple.shade700, size: 32),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              _isEn ? 'Bonus Question!' : 'Bonus Soru!',
+              _tl('Bonus Soru!', 'Bonus Question!', 'Bonusfrage!', '¡Pregunta extra!'),
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
@@ -929,14 +885,20 @@ class _QuestionDialogContentState extends State<_QuestionDialogContent> {
 
 /// Scratch Question Bank organized by difficulty
 class ScratchQuestions {
-  static List<Map<String, dynamic>> getQuestionsByDifficulty(int difficulty, {bool isEnglish = false}) {
+  static List<Map<String, dynamic>> getQuestionsByDifficulty(int difficulty,
+      {String lang = 'tr'}) {
     final allQuestions = [
       // Easy Questions (Difficulty 1)
       {
-        'question': 'Bir karakteri hareket ettirmek için hangi blok kullanılır?',
+        'question':
+            'Bir karakteri hareket ettirmek için hangi blok kullanılır?',
         'questionEn': 'Which block is used to move a character?',
+        'questionDe': 'Mit welchem Block bewegt man eine Figur?',
+        'questionEs': '¿Qué bloque se usa para mover un objeto?',
         'options': ['Adım At', 'Döndür', 'Bekle', 'Ses Çıkar'],
         'optionsEn': ['Move Steps', 'Turn', 'Wait', 'Play Sound'],
+        'optionsDe': ['Gehe Schritte', 'Drehe dich', 'Warte', 'Spiele Klang'],
+        'optionsEs': ['Mover pasos', 'Girar', 'Esperar', 'Iniciar sonido'],
         'correctAnswer': 0,
         'points': 50,
         'difficulty': 1,
@@ -944,8 +906,12 @@ class ScratchQuestions {
       {
         'question': 'Yeşil bayrak neyi başlatır?',
         'questionEn': 'What does the green flag start?',
+        'questionDe': 'Was startet die grüne Flagge?',
+        'questionEs': '¿Qué inicia la bandera verde?',
         'options': ['Programı', 'Oyunu', 'Projeyi', 'Hepsini'],
         'optionsEn': ['The program', 'The game', 'The project', 'All of them'],
+        'optionsDe': ['Das Programm', 'Das Spiel', 'Das Projekt', 'Alles davon'],
+        'optionsEs': ['El programa', 'El juego', 'El proyecto', 'Todo lo anterior'],
         'correctAnswer': 3,
         'points': 50,
         'difficulty': 1,
@@ -953,8 +919,12 @@ class ScratchQuestions {
       {
         'question': 'Ekrandaki karaktere ne denir?',
         'questionEn': 'What is the character on the screen called?',
+        'questionDe': 'Wie heißt die Spielfigur auf dem Bildschirm?',
+        'questionEs': '¿Cómo se llama el personaje de la pantalla?',
         'options': ['Kukla', 'Kutu', 'Şekil', 'Figür'],
         'optionsEn': ['Sprite', 'Box', 'Shape', 'Figure'],
+        'optionsDe': ['Figur', 'Kasten', 'Form', 'Bild'],
+        'optionsEs': ['Objeto', 'Caja', 'Forma', 'Imagen'],
         'correctAnswer': 0,
         'points': 50,
         'difficulty': 1,
@@ -962,8 +932,12 @@ class ScratchQuestions {
       {
         'question': 'Sahneye arka plan eklemek için ne kullanılır?',
         'questionEn': 'What is used to add a background to the stage?',
+        'questionDe': 'Womit fügt man der Bühne einen Hintergrund hinzu?',
+        'questionEs': '¿Qué se usa para añadir un fondo al escenario?',
         'options': ['Fon', 'Arkaplan', 'Kukla', 'Kostüm'],
         'optionsEn': ['Backdrop', 'Background', 'Sprite', 'Costume'],
+        'optionsDe': ['Bühnenbild', 'Hintergrundbild', 'Figur', 'Kostüm'],
+        'optionsEs': ['Fondo', 'Imagen de fondo', 'Objeto', 'Disfraz'],
         'correctAnswer': 0,
         'points': 50,
         'difficulty': 1,
@@ -973,8 +947,17 @@ class ScratchQuestions {
       {
         'question': 'Bir işlemi 10 kez tekrarlamak için hangi blok kullanılır?',
         'questionEn': 'Which block is used to repeat an action 10 times?',
-        'options': ['Sürekli Tekrarla', '10 Kez Tekrarla', 'Eğer Koşul', 'Bekle'],
+        'questionDe': 'Welcher Block wiederholt eine Aktion 10-mal?',
+        'questionEs': '¿Qué bloque repite una acción 10 veces?',
+        'options': [
+          'Sürekli Tekrarla',
+          '10 Kez Tekrarla',
+          'Eğer Koşul',
+          'Bekle'
+        ],
         'optionsEn': ['Forever', 'Repeat 10 Times', 'If Condition', 'Wait'],
+        'optionsDe': ['wiederhole fortlaufend', 'wiederhole 10 mal', 'falls ... dann', 'warte'],
+        'optionsEs': ['por siempre', 'repetir 10', 'si ... entonces', 'esperar'],
         'correctAnswer': 1,
         'points': 75,
         'difficulty': 2,
@@ -982,8 +965,22 @@ class ScratchQuestions {
       {
         'question': 'Değişken oluşturmak ne işe yarar?',
         'questionEn': 'What is a variable used for?',
-        'options': ['Veri saklamak', 'Ses eklemek', 'Renk değiştirmek', 'Döndürmek'],
-        'optionsEn': ['Storing data', 'Adding sound', 'Changing color', 'Turning'],
+        'questionDe': 'Wofür ist eine Variable da?',
+        'questionEs': '¿Para qué sirve una variable?',
+        'options': [
+          'Veri saklamak',
+          'Ses eklemek',
+          'Renk değiştirmek',
+          'Döndürmek'
+        ],
+        'optionsEn': [
+          'Storing data',
+          'Adding sound',
+          'Changing color',
+          'Turning'
+        ],
+        'optionsDe': ['Daten speichern', 'Klang hinzufügen', 'Farbe ändern', 'Drehen'],
+        'optionsEs': ['Guardar datos', 'Añadir sonido', 'Cambiar el color', 'Girar'],
         'correctAnswer': 0,
         'points': 75,
         'difficulty': 2,
@@ -991,8 +988,12 @@ class ScratchQuestions {
       {
         'question': 'Koşullu ifade için hangi blok kullanılır?',
         'questionEn': 'Which block is used for a conditional statement?',
+        'questionDe': 'Welcher Block wird für eine Bedingung benutzt?',
+        'questionEs': '¿Qué bloque se usa para una condición?',
         'options': ['Eğer-O zaman', 'Tekrarla', 'Bekle', 'Gönder'],
         'optionsEn': ['If-Then', 'Repeat', 'Wait', 'Broadcast'],
+        'optionsDe': ['falls ... dann', 'wiederhole', 'warte', 'sende an alle'],
+        'optionsEs': ['si ... entonces', 'repetir', 'esperar', 'enviar'],
         'correctAnswer': 0,
         'points': 75,
         'difficulty': 2,
@@ -1000,8 +1001,12 @@ class ScratchQuestions {
       {
         'question': 'İki kukla arasında mesaj göndermek için ne kullanılır?',
         'questionEn': 'What is used to send a message between two sprites?',
+        'questionDe': 'Womit schickt man eine Nachricht von einer Figur zur anderen?',
+        'questionEs': '¿Qué se usa para enviar un mensaje entre dos objetos?',
         'options': ['Mesaj Gönder', 'Konuş', 'Ses Çal', 'Değişken'],
         'optionsEn': ['Broadcast', 'Say', 'Play Sound', 'Variable'],
+        'optionsDe': ['sende an alle', 'sage', 'spiele Klang', 'Variable'],
+        'optionsEs': ['enviar', 'decir', 'iniciar sonido', 'variable'],
         'correctAnswer': 0,
         'points': 75,
         'difficulty': 2,
@@ -1011,8 +1016,22 @@ class ScratchQuestions {
       {
         'question': 'Klon oluşturmak ne işe yarar?',
         'questionEn': 'What does creating a clone do?',
-        'options': ['Kukla kopyası yaratır', 'Proje kaydeder', 'Ses kopyalar', 'Renk değiştirir'],
-        'optionsEn': ['Creates a copy of the sprite', 'Saves the project', 'Copies a sound', 'Changes the color'],
+        'questionDe': 'Was bewirkt das Erzeugen eines Klons?',
+        'questionEs': '¿Qué hace crear un clon?',
+        'options': [
+          'Kukla kopyası yaratır',
+          'Proje kaydeder',
+          'Ses kopyalar',
+          'Renk değiştirir'
+        ],
+        'optionsEn': [
+          'Creates a copy of the sprite',
+          'Saves the project',
+          'Copies a sound',
+          'Changes the color'
+        ],
+        'optionsDe': ['Es erstellt eine Kopie der Figur', 'Es speichert das Projekt', 'Es kopiert einen Klang', 'Es ändert die Farbe'],
+        'optionsEs': ['Crea una copia del objeto', 'Guarda el proyecto', 'Copia un sonido', 'Cambia el color'],
         'correctAnswer': 0,
         'points': 100,
         'difficulty': 3,
@@ -1020,8 +1039,22 @@ class ScratchQuestions {
       {
         'question': 'Sürekli tekrarla bloğunun içindeki kodlar ne zaman durur?',
         'questionEn': 'When does the code inside a forever block stop?',
-        'options': ['Program durdurulunca', '10 saniye sonra', 'Otomatik durur', 'Asla çalışmaz'],
-        'optionsEn': ['When the program is stopped', 'After 10 seconds', 'It stops automatically', 'It never runs'],
+        'questionDe': 'Wann stoppt der Code in der Endlosschleife?',
+        'questionEs': '¿Cuándo se detiene el código dentro del bucle infinito?',
+        'options': [
+          'Program durdurulunca',
+          '10 saniye sonra',
+          'Otomatik durur',
+          'Asla çalışmaz'
+        ],
+        'optionsEn': [
+          'When the program is stopped',
+          'After 10 seconds',
+          'It stops automatically',
+          'It never runs'
+        ],
+        'optionsDe': ['Wenn das Programm gestoppt wird', 'Nach 10 Sekunden', 'Er stoppt von allein', 'Er läuft nie'],
+        'optionsEs': ['Cuando se detiene el programa', 'Después de 10 segundos', 'Se detiene solo', 'Nunca se ejecuta'],
         'correctAnswer': 0,
         'points': 100,
         'difficulty': 3,
@@ -1029,8 +1062,22 @@ class ScratchQuestions {
       {
         'question': 'Algılayıcı blokları ne yapar?',
         'questionEn': 'What do sensing blocks do?',
-        'options': ['Çevreden veri alır', 'Ses çalar', 'Renk değiştirir', 'Hareket ettirir'],
-        'optionsEn': ['Get data from the environment', 'Play sound', 'Change color', 'Move'],
+        'questionDe': 'Was machen die Fühlen-Blöcke?',
+        'questionEs': '¿Qué hacen los bloques de sensores?',
+        'options': [
+          'Çevreden veri alır',
+          'Ses çalar',
+          'Renk değiştirir',
+          'Hareket ettirir'
+        ],
+        'optionsEn': [
+          'Get data from the environment',
+          'Play sound',
+          'Change color',
+          'Move'
+        ],
+        'optionsDe': ['Sie holen Daten aus der Umgebung', 'Sie spielen Klänge ab', 'Sie ändern die Farbe', 'Sie bewegen die Figur'],
+        'optionsEs': ['Obtienen datos del entorno', 'Reproducen sonidos', 'Cambian el color', 'Mueven el objeto'],
         'correctAnswer': 0,
         'points': 100,
         'difficulty': 3,
@@ -1038,21 +1085,32 @@ class ScratchQuestions {
       {
         'question': 'İşlemci blokları hangi kategoridedir?',
         'questionEn': 'What category do operator blocks belong to?',
+        'questionDe': 'Wofür sind die Operatoren-Blöcke da?',
+        'questionEs': '¿Para qué sirven los bloques de operadores?',
         'options': ['Matematiksel işlemler', 'Hareket', 'Görünüm', 'Ses'],
         'optionsEn': ['Mathematical operations', 'Motion', 'Looks', 'Sound'],
+        'optionsDe': ['Für Rechenoperationen', 'Für Bewegung', 'Für das Aussehen', 'Für Klang'],
+        'optionsEs': ['Para operaciones matemáticas', 'Para el movimiento', 'Para la apariencia', 'Para el sonido'],
         'correctAnswer': 0,
         'points': 100,
         'difficulty': 3,
       },
     ];
 
-    final filtered = allQuestions.where((q) => q['difficulty'] == difficulty).toList();
-    if (!isEnglish) return filtered;
+    final filtered =
+        allQuestions.where((q) => q['difficulty'] == difficulty).toList();
+    if (lang == 'tr') return filtered;
+
+    // Almanca/Ispanyolca oyuncu artik Ingilizce soru gormuyor. Eksik bir
+    // dil olursa zincir kendi dili -> Ingilizce -> Turkce olarak isler.
+    const ekler = {'en': 'En', 'de': 'De', 'es': 'Es'};
+    final ek = ekler[lang];
+    if (ek == null) return filtered;
 
     return filtered.map((q) {
       final copy = Map<String, dynamic>.from(q);
-      if (copy['questionEn'] != null) copy['question'] = copy['questionEn'];
-      if (copy['optionsEn'] != null) copy['options'] = copy['optionsEn'];
+      copy['question'] = q['question$ek'] ?? q['questionEn'] ?? q['question'];
+      copy['options'] = q['options$ek'] ?? q['optionsEn'] ?? q['options'];
       return copy;
     }).toList();
   }
@@ -1067,7 +1125,7 @@ class LeftRightCodingGame extends FlameGame {
   final Function(Map<String, dynamic>) onBonusSquare;
   final Function(int unansweredCount) onUnansweredQuestions;
   final PuppetType puppetType;
-  final bool isEnglish;
+  final String lang;
 
   late RobotPlayer robot;
   late TargetStar target;
@@ -1082,6 +1140,11 @@ class LeftRightCodingGame extends FlameGame {
   bool _gameStarted = false;
   bool _gameOver = false;
 
+  /// Tahtanin disinda kalan kenar payi. Varsayilan siyah, yuvarlatilmis
+  /// kose maskesinin altinda koyu bir cerceve gibi duruyordu.
+  @override
+  Color backgroundColor() => Colors.white;
+
   LeftRightCodingGame({
     required this.onLevelComplete,
     required this.onMove,
@@ -1090,7 +1153,7 @@ class LeftRightCodingGame extends FlameGame {
     required this.onBonusSquare,
     required this.onUnansweredQuestions,
     required this.puppetType,
-    this.isEnglish = false,
+    this.lang = 'tr',
   });
 
   @override
@@ -1115,11 +1178,10 @@ class LeftRightCodingGame extends FlameGame {
 
     // Remove old components
     removeWhere((component) =>
-      component is RobotPlayer ||
-      component is TargetStar ||
-      component is Obstacle ||
-      component is BonusSquare
-    );
+        component is RobotPlayer ||
+        component is TargetStar ||
+        component is Obstacle ||
+        component is BonusSquare);
     obstacles.clear();
     bonusSquares.clear();
     answeredBonusSquares.clear();
@@ -1172,7 +1234,8 @@ class LeftRightCodingGame extends FlameGame {
       // Don't place obstacles on robot, target, or already occupied positions
       final isRobotPos = (obsX == robotX && obsY == robotY);
       final isTargetPos = (obsX == targetX && obsY == targetY);
-      final isOccupied = obstacles.any((obs) => obs.gridX == obsX && obs.gridY == obsY);
+      final isOccupied =
+          obstacles.any((obs) => obs.gridX == obsX && obs.gridY == obsY);
 
       if (!isRobotPos && !isTargetPos && !isOccupied) {
         final obstacle = Obstacle(
@@ -1206,25 +1269,31 @@ class LeftRightCodingGame extends FlameGame {
       // Don't place bonus squares on robot, target, obstacles, or already occupied positions
       final isRobotPos = (bonusX == robotX && bonusY == robotY);
       final isTargetPos = (bonusX == targetX && bonusY == targetY);
-      final isObstaclePos = obstacles.any((obs) => obs.gridX == bonusX && obs.gridY == bonusY);
-      final isBonusOccupied = bonusSquares.any((bonus) => bonus.gridX == bonusX && bonus.gridY == bonusY);
+      final isObstaclePos =
+          obstacles.any((obs) => obs.gridX == bonusX && obs.gridY == bonusY);
+      final isBonusOccupied = bonusSquares
+          .any((bonus) => bonus.gridX == bonusX && bonus.gridY == bonusY);
 
       if (!isRobotPos && !isTargetPos && !isObstaclePos && !isBonusOccupied) {
         // Get a random question of appropriate difficulty
-        final availableQuestions = ScratchQuestions.getQuestionsByDifficulty(questionDifficulty, isEnglish: isEnglish);
+        final availableQuestions = ScratchQuestions.getQuestionsByDifficulty(
+            questionDifficulty,
+            lang: lang);
         if (availableQuestions.isNotEmpty) {
           // Filter out already used questions
-          final unusedQuestions = availableQuestions.where((q) =>
-            !_usedQuestions.contains(q['question'])
-          ).toList();
+          final unusedQuestions = availableQuestions
+              .where((q) => !_usedQuestions.contains(q['question']))
+              .toList();
 
           // If all questions used, reset the used questions set
-          final questionsToUse = unusedQuestions.isNotEmpty ? unusedQuestions : availableQuestions;
+          final questionsToUse =
+              unusedQuestions.isNotEmpty ? unusedQuestions : availableQuestions;
           if (unusedQuestions.isEmpty) {
             _usedQuestions.clear();
           }
 
-          final question = questionsToUse[random.nextInt(questionsToUse.length)];
+          final question =
+              questionsToUse[random.nextInt(questionsToUse.length)];
 
           // Mark this question as used
           _usedQuestions.add(question['question']);
@@ -1315,7 +1384,8 @@ class LeftRightCodingGame extends FlameGame {
 
   void _checkBonusSquare() {
     for (final bonusSquare in bonusSquares) {
-      if (robot.gridX == bonusSquare.gridX && robot.gridY == bonusSquare.gridY) {
+      if (robot.gridX == bonusSquare.gridX &&
+          robot.gridY == bonusSquare.gridY) {
         final squareId = '${bonusSquare.gridX}_${bonusSquare.gridY}';
         // Only trigger question if not already answered
         if (!answeredBonusSquares.contains(squareId)) {
@@ -1368,7 +1438,8 @@ class LeftRightCodingGame extends FlameGame {
 }
 
 /// Grid Background Component
-class GridBackground extends PositionComponent with HasGameRef<LeftRightCodingGame> {
+class GridBackground extends PositionComponent
+    with HasGameRef<LeftRightCodingGame> {
   int gridSize;
 
   GridBackground({required this.gridSize});
@@ -1380,49 +1451,54 @@ class GridBackground extends PositionComponent with HasGameRef<LeftRightCodingGa
     size = gameRef.size;
   }
 
+  /// Oyun alani sonradan kuculdugunde (or. alt panel buyudugunde)
+  /// tahta eski olculeriyle cizilmeye devam ediyor ve alt siradaki
+  /// hedef ekranin disinda kaliyordu. Boyut artik her degisimde
+  /// yenileniyor.
+  @override
+  void onGameResize(Vector2 boyut) {
+    super.onGameResize(boyut);
+    size = boyut;
+  }
+
+  /// Tahtayi cizer.
+  ///
+  /// Eskiden once izgara cizgileri, SONRA damali zemin ciziliyordu:
+  /// zemin cizgilerin ustunu kapattigi icin o cizgiler hicbir zaman
+  /// gorunmedi. Simdi hucreler yuvarlatilmis kareler halinde, aralarinda
+  /// kucuk bosluklarla ciziliyor — "izgara" hissi cizgiden degil
+  /// boslugan geliyor ve tahta uygulamanin geri kalaniyla ayni dili
+  /// konusuyor. Renkler de daha yumusak: eski mavi damalar, uzerlerinde
+  /// duran kukladan daha cok dikkat cekiyordu.
   @override
   void render(Canvas canvas) {
     super.render(canvas);
 
     final cellWidth = size.x / gridSize;
     final cellHeight = size.y / gridSize;
+    const bosluk = 3.0;
+    final yaricap = Radius.circular(cellWidth * 0.18);
 
-    // Draw grid lines
-    final paint = Paint()
-      ..color = Colors.grey.shade300
-      ..strokeWidth = 1;
-
-    for (int i = 0; i <= gridSize; i++) {
-      // Vertical lines
-      canvas.drawLine(
-        Offset(i * cellWidth, 0),
-        Offset(i * cellWidth, size.y),
-        paint,
-      );
-
-      // Horizontal lines
-      canvas.drawLine(
-        Offset(0, i * cellHeight),
-        Offset(size.x, i * cellHeight),
-        paint,
-      );
-    }
-
-    // Draw checkerboard pattern
-    final lightPaint = Paint()..color = Colors.blue.shade50;
-    final darkPaint = Paint()..color = Colors.blue.shade100;
+    // Iki ton da ZEMINDEN ayirt edilebilir olmali. Ilk denemede acik
+    // hucre ile oyunun arka plani ayni renkti; tahta 5x5 bir izgara
+    // gibi degil, dagilmis gri kareler gibi goruniyordu.
+    final acik = Paint()..color = const Color(0xFFE9F0F8);
+    final koyu = Paint()..color = const Color(0xFFD7E3F1);
 
     for (int x = 0; x < gridSize; x++) {
       for (int y = 0; y < gridSize; y++) {
         final isLight = (x + y) % 2 == 0;
-        canvas.drawRect(
-          Rect.fromLTWH(
-            y * cellWidth,
-            x * cellHeight,
-            cellWidth,
-            cellHeight,
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(
+              y * cellWidth + bosluk,
+              x * cellHeight + bosluk,
+              cellWidth - bosluk * 2,
+              cellHeight - bosluk * 2,
+            ),
+            yaricap,
           ),
-          isLight ? lightPaint : darkPaint,
+          isLight ? acik : koyu,
         );
       }
     }
@@ -1430,7 +1506,8 @@ class GridBackground extends PositionComponent with HasGameRef<LeftRightCodingGa
 }
 
 /// Robot Player Component
-class RobotPlayer extends PositionComponent with HasGameRef<LeftRightCodingGame> {
+class RobotPlayer extends PositionComponent
+    with HasGameRef<LeftRightCodingGame> {
   int gridX;
   int gridY;
   int gridSize;
@@ -1449,313 +1526,63 @@ class RobotPlayer extends PositionComponent with HasGameRef<LeftRightCodingGame>
     _updatePosition();
   }
 
+  @override
+  void onGameResize(Vector2 boyut) {
+    super.onGameResize(boyut);
+    if (isMounted) _updatePosition();
+  }
+
   void moveTo(int newX, int newY) {
     gridX = newX;
     gridY = newY;
-    _updatePosition();
+    _boyutlandir();
+
+    // Eskiden kukla bir kareden digerine isinlaniyordu: komut calisinca
+    // aniden yeni hucrede beliriyor, cocuk hangi yone gittigini
+    // goremiyordu. Artik aradaki mesafeyi kayarak geciyor.
+    final hedef = _hedefKonum();
+    if (Motion.reducedRaw) {
+      position = hedef;
+      return;
+    }
+    removeAll(children.whereType<MoveToEffect>().toList());
+    add(MoveToEffect(
+      hedef,
+      EffectController(duration: 0.22, curve: Motion.emphasized),
+    ));
   }
 
-  void _updatePosition() {
+  Vector2 _hedefKonum() {
     final cellWidth = gameRef.size.x / gridSize;
     final cellHeight = gameRef.size.y / gridSize;
-
-    position = Vector2(
+    return Vector2(
       gridY * cellWidth + cellWidth / 2,
       gridX * cellHeight + cellHeight / 2,
     );
+  }
 
+  void _boyutlandir() {
+    final cellWidth = gameRef.size.x / gridSize;
+    final cellHeight = gameRef.size.y / gridSize;
     size = Vector2(cellWidth * 0.6, cellHeight * 0.6);
     anchor = Anchor.center;
   }
 
-  Color _getPuppetColor() {
-    switch (puppetType) {
-      case PuppetType.fox:
-        return Colors.orange.shade700;
-      case PuppetType.lion:
-        return Colors.amber.shade700;
-      case PuppetType.crocodile:
-        return Colors.green.shade700;
-      case PuppetType.cat:
-        return Colors.grey.shade700;
-      case PuppetType.dog:
-        return Colors.brown.shade700;
-    }
+  void _updatePosition() {
+    _boyutlandir();
+    position = _hedefKonum();
   }
 
-  Color _getSecondaryColor() {
-    switch (puppetType) {
-      case PuppetType.fox:
-        return Colors.orange.shade300;
-      case PuppetType.lion:
-        return Colors.amber.shade300;
-      case PuppetType.crocodile:
-        return Colors.green.shade300;
-      case PuppetType.cat:
-        return Colors.grey.shade300;
-      case PuppetType.dog:
-        return Colors.brown.shade300;
-    }
-  }
-
-  @override
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-
-    final center = size / 2;
-    final primaryColor = _getPuppetColor();
-    final secondaryColor = _getSecondaryColor();
-
-    // Shadow for all puppets
-    final shadowPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.2)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
-    canvas.drawCircle(Offset(center.x, center.y + size.y * 0.45), size.x * 0.35, shadowPaint);
-
-    // Draw based on puppet type with unique features
-    switch (puppetType) {
-      case PuppetType.fox:
-        _drawEnhancedFox(canvas, center, primaryColor, secondaryColor);
-        break;
-      case PuppetType.lion:
-        _drawEnhancedLion(canvas, center, primaryColor, secondaryColor);
-        break;
-      case PuppetType.crocodile:
-        _drawEnhancedCrocodile(canvas, center, primaryColor, secondaryColor);
-        break;
-      case PuppetType.cat:
-        _drawEnhancedCat(canvas, center, primaryColor, secondaryColor);
-        break;
-      case PuppetType.dog:
-        _drawEnhancedDog(canvas, center, primaryColor, secondaryColor);
-        break;
-    }
+    KuklaCizimi.ciz(canvas, size / 2, size, puppetType);
   }
-
-  void _drawEnhancedFox(Canvas canvas, Vector2 center, Color primaryColor, Color secondaryColor) {
-    final bodyPaint = Paint()..color = primaryColor;
-    final whitePaint = Paint()..color = Colors.white;
-    final blackPaint = Paint()..color = Colors.black;
-
-    // Body with white chest
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y + size.y * 0.05), width: size.x * 0.7, height: size.y * 0.75), bodyPaint);
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y + size.y * 0.15), width: size.x * 0.45, height: size.y * 0.55), whitePaint);
-
-    // Head
-    canvas.drawCircle(Offset(center.x, center.y - size.y * 0.15), size.x * 0.35, bodyPaint);
-
-    // Pointed ears with white inner
-    canvas.drawPath(Path()..moveTo(center.x - size.x * 0.25, center.y - size.y * 0.35)..lineTo(center.x - size.x * 0.15, center.y - size.y * 0.5)..lineTo(center.x - size.x * 0.05, center.y - size.y * 0.35)..close(), bodyPaint);
-    canvas.drawPath(Path()..moveTo(center.x + size.x * 0.25, center.y - size.y * 0.35)..lineTo(center.x + size.x * 0.15, center.y - size.y * 0.5)..lineTo(center.x + size.x * 0.05, center.y - size.y * 0.35)..close(), bodyPaint);
-    canvas.drawPath(Path()..moveTo(center.x - size.x * 0.22, center.y - size.y * 0.36)..lineTo(center.x - size.x * 0.15, center.y - size.y * 0.45)..lineTo(center.x - size.x * 0.08, center.y - size.y * 0.36)..close(), whitePaint);
-    canvas.drawPath(Path()..moveTo(center.x + size.x * 0.22, center.y - size.y * 0.36)..lineTo(center.x + size.x * 0.15, center.y - size.y * 0.45)..lineTo(center.x + size.x * 0.08, center.y - size.y * 0.36)..close(), whitePaint);
-
-    // Snout
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y - size.y * 0.05), width: size.x * 0.25, height: size.y * 0.2), whitePaint);
-
-    // Eyes with highlight
-    canvas.drawCircle(Offset(center.x - size.x * 0.15, center.y - size.y * 0.2), size.x * 0.08, whitePaint);
-    canvas.drawCircle(Offset(center.x - size.x * 0.15, center.y - size.y * 0.2), size.x * 0.045, blackPaint);
-    canvas.drawCircle(Offset(center.x - size.x * 0.13, center.y - size.y * 0.22), size.x * 0.02, whitePaint);
-    canvas.drawCircle(Offset(center.x + size.x * 0.15, center.y - size.y * 0.2), size.x * 0.08, whitePaint);
-    canvas.drawCircle(Offset(center.x + size.x * 0.15, center.y - size.y * 0.2), size.x * 0.045, blackPaint);
-    canvas.drawCircle(Offset(center.x + size.x * 0.17, center.y - size.y * 0.22), size.x * 0.02, whitePaint);
-
-    // Nose & smile
-    canvas.drawPath(Path()..moveTo(center.x, center.y - size.y * 0.02)..lineTo(center.x - size.x * 0.04, center.y + size.y * 0.02)..lineTo(center.x + size.x * 0.04, center.y + size.y * 0.02)..close(), blackPaint);
-    final smilePaint = Paint()..color = Colors.black..style = PaintingStyle.stroke..strokeWidth = 1.5;
-    canvas.drawPath(Path()..moveTo(center.x, center.y + size.y * 0.02)..lineTo(center.x, center.y + size.y * 0.05), smilePaint);
-    canvas.drawPath(Path()..moveTo(center.x - size.x * 0.1, center.y + size.y * 0.05)..quadraticBezierTo(center.x, center.y + size.y * 0.1, center.x + size.x * 0.1, center.y + size.y * 0.05), smilePaint);
-  }
-
-  void _drawEnhancedLion(Canvas canvas, Vector2 center, Color primaryColor, Color secondaryColor) {
-    final bodyPaint = Paint()..color = primaryColor;
-    final blackPaint = Paint()..color = Colors.black;
-    final whitePaint = Paint()..color = Colors.white;
-
-    // Majestic double-layer mane
-    final maneOuter = Paint()..color = Colors.orange.shade900;
-    final maneInner = Paint()..color = Colors.orange.shade700;
-    for (int i = 0; i < 16; i++) {
-      final angle = (i * 2 * 3.14159 / 16);
-      canvas.drawCircle(Offset(center.x + cos(angle) * size.x * 0.42, center.y - size.y * 0.1 + sin(angle) * size.y * 0.42), size.x * 0.13, maneOuter);
-    }
-    for (int i = 0; i < 16; i++) {
-      final angle = (i * 2 * 3.14159 / 16) + 0.2;
-      canvas.drawCircle(Offset(center.x + cos(angle) * size.x * 0.35, center.y - size.y * 0.1 + sin(angle) * size.y * 0.35), size.x * 0.11, maneInner);
-    }
-
-    // Body
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y + size.y * 0.1), width: size.x * 0.65, height: size.y * 0.7), bodyPaint);
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y + size.y * 0.18), width: size.x * 0.4, height: size.y * 0.5), Paint()..color = secondaryColor);
-
-    // Head & muzzle
-    canvas.drawCircle(Offset(center.x, center.y - size.y * 0.1), size.x * 0.32, bodyPaint);
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y), width: size.x * 0.35, height: size.y * 0.25), Paint()..color = secondaryColor);
-
-    // Eyes with highlights
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x - size.x * 0.13, center.y - size.y * 0.15), width: size.x * 0.12, height: size.y * 0.1), whitePaint);
-    canvas.drawCircle(Offset(center.x - size.x * 0.13, center.y - size.y * 0.15), size.x * 0.05, blackPaint);
-    canvas.drawCircle(Offset(center.x - size.x * 0.11, center.y - size.y * 0.17), size.x * 0.02, whitePaint);
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x + size.x * 0.13, center.y - size.y * 0.15), width: size.x * 0.12, height: size.y * 0.1), whitePaint);
-    canvas.drawCircle(Offset(center.x + size.x * 0.13, center.y - size.y * 0.15), size.x * 0.05, blackPaint);
-    canvas.drawCircle(Offset(center.x + size.x * 0.15, center.y - size.y * 0.17), size.x * 0.02, whitePaint);
-
-    // Nose with nostrils
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y + size.y * 0.02), width: size.x * 0.12, height: size.y * 0.08), Paint()..color = Colors.brown.shade900);
-    canvas.drawCircle(Offset(center.x - size.x * 0.03, center.y + size.y * 0.02), size.x * 0.015, blackPaint);
-    canvas.drawCircle(Offset(center.x + size.x * 0.03, center.y + size.y * 0.02), size.x * 0.015, blackPaint);
-
-    // Confident smile
-    final smilePaint = Paint()..color = Colors.black..style = PaintingStyle.stroke..strokeWidth = 1.5;
-    canvas.drawPath(Path()..moveTo(center.x - size.x * 0.12, center.y + size.y * 0.08)..quadraticBezierTo(center.x, center.y + size.y * 0.15, center.x + size.x * 0.12, center.y + size.y * 0.08), smilePaint);
-  }
-
-  void _drawEnhancedCrocodile(Canvas canvas, Vector2 center, Color primaryColor, Color secondaryColor) {
-    final bodyPaint = Paint()..color = primaryColor;
-    final blackPaint = Paint()..color = Colors.black;
-
-    // Body with scale texture
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromCenter(center: Offset(center.x, center.y + size.y * 0.1), width: size.x * 0.75, height: size.y * 0.7), Radius.circular(size.x * 0.15)), bodyPaint);
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromCenter(center: Offset(center.x, center.y + size.y * 0.15), width: size.x * 0.45, height: size.y * 0.55), Radius.circular(size.x * 0.1)), Paint()..color = secondaryColor);
-
-    // Scale lines
-    final scalePaint = Paint()..color = primaryColor.withValues(alpha: 0.3)..style = PaintingStyle.stroke..strokeWidth = 1;
-    for (int i = 0; i < 5; i++) {
-      final y = center.y - size.y * 0.05 + i * size.y * 0.12;
-      canvas.drawLine(Offset(center.x - size.x * 0.18, y), Offset(center.x + size.x * 0.18, y), scalePaint);
-    }
-
-    // Head & long snout
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y - size.y * 0.1), width: size.x * 0.55, height: size.y * 0.35), bodyPaint);
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromCenter(center: Offset(center.x, center.y - size.y * 0.25), width: size.x * 0.4, height: size.y * 0.18), Radius.circular(size.x * 0.05)), bodyPaint);
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromCenter(center: Offset(center.x, center.y - size.y * 0.23), width: size.x * 0.35, height: size.y * 0.12), Radius.circular(size.x * 0.04)), Paint()..color = secondaryColor);
-
-    // Sharp teeth
-    final toothPaint = Paint()..color = Colors.white;
-    for (int i = -2; i <= 2; i++) {
-      canvas.drawPath(Path()..moveTo(center.x + i * size.x * 0.08, center.y - size.y * 0.3)..lineTo(center.x + i * size.x * 0.08 - size.x * 0.02, center.y - size.y * 0.26)..lineTo(center.x + i * size.x * 0.08 + size.x * 0.02, center.y - size.y * 0.26)..close(), toothPaint);
-    }
-
-    // Reptilian eyes
-    final eyeBase = Paint()..color = Colors.yellow.shade700;
-    canvas.drawCircle(Offset(center.x - size.x * 0.15, center.y - size.y * 0.15), size.x * 0.09, eyeBase);
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x - size.x * 0.15, center.y - size.y * 0.15), width: size.x * 0.03, height: size.y * 0.08), blackPaint);
-    canvas.drawCircle(Offset(center.x + size.x * 0.15, center.y - size.y * 0.15), size.x * 0.09, eyeBase);
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x + size.x * 0.15, center.y - size.y * 0.15), width: size.x * 0.03, height: size.y * 0.08), blackPaint);
-
-    // Fierce eye ridges
-    final ridgePaint = Paint()..color = primaryColor..style = PaintingStyle.stroke..strokeWidth = 2;
-    canvas.drawPath(Path()..moveTo(center.x - size.x * 0.22, center.y - size.y * 0.18)..lineTo(center.x - size.x * 0.08, center.y - size.y * 0.18), ridgePaint);
-    canvas.drawPath(Path()..moveTo(center.x + size.x * 0.22, center.y - size.y * 0.18)..lineTo(center.x + size.x * 0.08, center.y - size.y * 0.18), ridgePaint);
-
-    // Nostrils
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x - size.x * 0.1, center.y - size.y * 0.3), width: size.x * 0.03, height: size.y * 0.02), blackPaint);
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x + size.x * 0.1, center.y - size.y * 0.3), width: size.x * 0.03, height: size.y * 0.02), blackPaint);
-  }
-
-  void _drawEnhancedCat(Canvas canvas, Vector2 center, Color primaryColor, Color secondaryColor) {
-    final bodyPaint = Paint()..color = primaryColor;
-    final whitePaint = Paint()..color = Colors.white;
-    final blackPaint = Paint()..color = Colors.black;
-
-    // Curled tail
-    final tailPaint = Paint()..color = primaryColor..style = PaintingStyle.stroke..strokeWidth = size.x * 0.08..strokeCap = StrokeCap.round;
-    canvas.drawPath(Path()..moveTo(center.x - size.x * 0.25, center.y + size.y * 0.3)..quadraticBezierTo(center.x - size.x * 0.4, center.y + size.y * 0.15, center.x - size.x * 0.35, center.y - size.y * 0.05), tailPaint);
-
-    // Body
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y + size.y * 0.05), width: size.x * 0.65, height: size.y * 0.75), bodyPaint);
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y + size.y * 0.12), width: size.x * 0.4, height: size.y * 0.55), Paint()..color = secondaryColor);
-
-    // Head
-    canvas.drawCircle(Offset(center.x, center.y - size.y * 0.15), size.x * 0.35, bodyPaint);
-
-    // Triangular ears with pink inner
-    canvas.drawPath(Path()..moveTo(center.x - size.x * 0.28, center.y - size.y * 0.32)..lineTo(center.x - size.x * 0.15, center.y - size.y * 0.48)..lineTo(center.x - size.x * 0.02, center.y - size.y * 0.32)..close(), bodyPaint);
-    canvas.drawPath(Path()..moveTo(center.x + size.x * 0.28, center.y - size.y * 0.32)..lineTo(center.x + size.x * 0.15, center.y - size.y * 0.48)..lineTo(center.x + size.x * 0.02, center.y - size.y * 0.32)..close(), bodyPaint);
-    final pinkPaint = Paint()..color = Colors.pink.shade200;
-    canvas.drawPath(Path()..moveTo(center.x - size.x * 0.24, center.y - size.y * 0.33)..lineTo(center.x - size.x * 0.15, center.y - size.y * 0.43)..lineTo(center.x - size.x * 0.06, center.y - size.y * 0.33)..close(), pinkPaint);
-    canvas.drawPath(Path()..moveTo(center.x + size.x * 0.24, center.y - size.y * 0.33)..lineTo(center.x + size.x * 0.15, center.y - size.y * 0.43)..lineTo(center.x + size.x * 0.06, center.y - size.y * 0.33)..close(), pinkPaint);
-
-    // Fluffy cheeks
-    canvas.drawCircle(Offset(center.x - size.x * 0.22, center.y - size.y * 0.08), size.x * 0.15, Paint()..color = secondaryColor);
-    canvas.drawCircle(Offset(center.x + size.x * 0.22, center.y - size.y * 0.08), size.x * 0.15, Paint()..color = secondaryColor);
-
-    // Big anime eyes
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x - size.x * 0.13, center.y - size.y * 0.18), width: size.x * 0.13, height: size.y * 0.15), whitePaint);
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x - size.x * 0.13, center.y - size.y * 0.17), width: size.x * 0.06, height: size.y * 0.1), blackPaint);
-    canvas.drawCircle(Offset(center.x - size.x * 0.11, center.y - size.y * 0.2), size.x * 0.025, whitePaint);
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x + size.x * 0.13, center.y - size.y * 0.18), width: size.x * 0.13, height: size.y * 0.15), whitePaint);
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x + size.x * 0.13, center.y - size.y * 0.17), width: size.x * 0.06, height: size.y * 0.1), blackPaint);
-    canvas.drawCircle(Offset(center.x + size.x * 0.15, center.y - size.y * 0.2), size.x * 0.025, whitePaint);
-
-    // Pink nose
-    canvas.drawPath(Path()..moveTo(center.x, center.y - size.y * 0.05)..lineTo(center.x - size.x * 0.03, center.y - size.y * 0.08)..lineTo(center.x + size.x * 0.03, center.y - size.y * 0.08)..close(), Paint()..color = Colors.pink.shade300);
-
-    // Whiskers
-    final whiskerPaint = Paint()..color = Colors.black.withValues(alpha: 0.6)..style = PaintingStyle.stroke..strokeWidth = 1;
-    canvas.drawLine(Offset(center.x - size.x * 0.22, center.y - size.y * 0.08), Offset(center.x - size.x * 0.38, center.y - size.y * 0.12), whiskerPaint);
-    canvas.drawLine(Offset(center.x - size.x * 0.22, center.y - size.y * 0.05), Offset(center.x - size.x * 0.4, center.y - size.y * 0.05), whiskerPaint);
-    canvas.drawLine(Offset(center.x - size.x * 0.22, center.y - size.y * 0.02), Offset(center.x - size.x * 0.38, center.y + size.y * 0.02), whiskerPaint);
-    canvas.drawLine(Offset(center.x + size.x * 0.22, center.y - size.y * 0.08), Offset(center.x + size.x * 0.38, center.y - size.y * 0.12), whiskerPaint);
-    canvas.drawLine(Offset(center.x + size.x * 0.22, center.y - size.y * 0.05), Offset(center.x + size.x * 0.4, center.y - size.y * 0.05), whiskerPaint);
-    canvas.drawLine(Offset(center.x + size.x * 0.22, center.y - size.y * 0.02), Offset(center.x + size.x * 0.38, center.y + size.y * 0.02), whiskerPaint);
-
-    // Cute smile
-    final smilePaint = Paint()..color = Colors.black..style = PaintingStyle.stroke..strokeWidth = 1.5;
-    canvas.drawPath(Path()..moveTo(center.x, center.y - size.y * 0.05)..lineTo(center.x, center.y - size.y * 0.01), smilePaint);
-    canvas.drawPath(Path()..moveTo(center.x, center.y - size.y * 0.01)..quadraticBezierTo(center.x - size.x * 0.05, center.y + size.y * 0.02, center.x - size.x * 0.08, center.y + size.y * 0.01), smilePaint);
-    canvas.drawPath(Path()..moveTo(center.x, center.y - size.y * 0.01)..quadraticBezierTo(center.x + size.x * 0.05, center.y + size.y * 0.02, center.x + size.x * 0.08, center.y + size.y * 0.01), smilePaint);
-  }
-
-  void _drawEnhancedDog(Canvas canvas, Vector2 center, Color primaryColor, Color secondaryColor) {
-    final bodyPaint = Paint()..color = primaryColor;
-    final whitePaint = Paint()..color = Colors.white;
-    final blackPaint = Paint()..color = Colors.black;
-
-    // Wagging tail
-    final tailPaint = Paint()..color = primaryColor..style = PaintingStyle.stroke..strokeWidth = size.x * 0.1..strokeCap = StrokeCap.round;
-    canvas.drawPath(Path()..moveTo(center.x - size.x * 0.28, center.y + size.y * 0.25)..quadraticBezierTo(center.x - size.x * 0.45, center.y + size.y * 0.1, center.x - size.x * 0.35, center.y - size.y * 0.1), tailPaint);
-
-    // Body
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y + size.y * 0.05), width: size.x * 0.7, height: size.y * 0.75), bodyPaint);
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y + size.y * 0.15), width: size.x * 0.45, height: size.y * 0.6), Paint()..color = secondaryColor);
-
-    // Head
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y - size.y * 0.12), width: size.x * 0.55, height: size.y * 0.5), bodyPaint);
-
-    // Floppy ears
-    canvas.drawPath(Path()..moveTo(center.x - size.x * 0.25, center.y - size.y * 0.3)..quadraticBezierTo(center.x - size.x * 0.35, center.y - size.y * 0.2, center.x - size.x * 0.3, center.y - size.y * 0.05)..quadraticBezierTo(center.x - size.x * 0.2, center.y - size.y * 0.1, center.x - size.x * 0.15, center.y - size.y * 0.25)..close(), bodyPaint);
-    canvas.drawPath(Path()..moveTo(center.x + size.x * 0.25, center.y - size.y * 0.3)..quadraticBezierTo(center.x + size.x * 0.35, center.y - size.y * 0.2, center.x + size.x * 0.3, center.y - size.y * 0.05)..quadraticBezierTo(center.x + size.x * 0.2, center.y - size.y * 0.1, center.x + size.x * 0.15, center.y - size.y * 0.25)..close(), bodyPaint);
-    canvas.drawPath(Path()..moveTo(center.x - size.x * 0.23, center.y - size.y * 0.28)..quadraticBezierTo(center.x - size.x * 0.3, center.y - size.y * 0.2, center.x - size.x * 0.27, center.y - size.y * 0.1)..lineTo(center.x - size.x * 0.18, center.y - size.y * 0.25)..close(), Paint()..color = secondaryColor);
-    canvas.drawPath(Path()..moveTo(center.x + size.x * 0.23, center.y - size.y * 0.28)..quadraticBezierTo(center.x + size.x * 0.3, center.y - size.y * 0.2, center.x + size.x * 0.27, center.y - size.y * 0.1)..lineTo(center.x + size.x * 0.18, center.y - size.y * 0.25)..close(), Paint()..color = secondaryColor);
-
-    // Snout
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y - size.y * 0.02), width: size.x * 0.3, height: size.y * 0.25), Paint()..color = secondaryColor);
-
-    // Happy eyes
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x - size.x * 0.14, center.y - size.y * 0.18), width: size.x * 0.12, height: size.y * 0.13), whitePaint);
-    canvas.drawCircle(Offset(center.x - size.x * 0.14, center.y - size.y * 0.17), size.x * 0.05, blackPaint);
-    canvas.drawCircle(Offset(center.x - size.x * 0.12, center.y - size.y * 0.19), size.x * 0.025, whitePaint);
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x + size.x * 0.14, center.y - size.y * 0.18), width: size.x * 0.12, height: size.y * 0.13), whitePaint);
-    canvas.drawCircle(Offset(center.x + size.x * 0.14, center.y - size.y * 0.17), size.x * 0.05, blackPaint);
-    canvas.drawCircle(Offset(center.x + size.x * 0.16, center.y - size.y * 0.19), size.x * 0.025, whitePaint);
-
-    // Big nose & pink tongue
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y + size.y * 0.03), width: size.x * 0.1, height: size.y * 0.07), blackPaint);
-    canvas.drawOval(Rect.fromCenter(center: Offset(center.x, center.y + size.y * 0.12), width: size.x * 0.12, height: size.y * 0.1), Paint()..color = Colors.pink.shade400);
-
-    // Big happy smile
-    final smilePaint = Paint()..color = Colors.black..style = PaintingStyle.stroke..strokeWidth = 1.5;
-    canvas.drawPath(Path()..moveTo(center.x, center.y + size.y * 0.03)..lineTo(center.x, center.y + size.y * 0.08), smilePaint);
-    canvas.drawPath(Path()..moveTo(center.x - size.x * 0.15, center.y + size.y * 0.08)..quadraticBezierTo(center.x, center.y + size.y * 0.18, center.x + size.x * 0.15, center.y + size.y * 0.08), smilePaint);
-  }
-
 }
 
 /// Target Star Component
-class TargetStar extends PositionComponent with HasGameRef<LeftRightCodingGame> {
+class TargetStar extends PositionComponent
+    with HasGameRef<LeftRightCodingGame> {
   int gridX;
   int gridY;
   int gridSize;
@@ -1771,6 +1598,14 @@ class TargetStar extends PositionComponent with HasGameRef<LeftRightCodingGame> 
   Future<void> onLoad() async {
     await super.onLoad();
     _updatePosition();
+  }
+
+  @override
+  void onGameResize(Vector2 boyut) {
+    super.onGameResize(boyut);
+    // onGameResize mount'tan ONCE de cagriliyor; gameRef o an hazir
+    // olmayabilir.
+    if (isMounted) _updatePosition();
   }
 
   void _updatePosition() {
@@ -1856,6 +1691,14 @@ class Obstacle extends PositionComponent with HasGameRef<LeftRightCodingGame> {
   Future<void> onLoad() async {
     await super.onLoad();
     _updatePosition();
+  }
+
+  @override
+  void onGameResize(Vector2 boyut) {
+    super.onGameResize(boyut);
+    // onGameResize mount'tan ONCE de cagriliyor; gameRef o an hazir
+    // olmayabilir.
+    if (isMounted) _updatePosition();
   }
 
   void _updatePosition() {
@@ -1995,7 +1838,8 @@ class Obstacle extends PositionComponent with HasGameRef<LeftRightCodingGame> {
 }
 
 /// Bonus Square Component (Question Squares)
-class BonusSquare extends PositionComponent with HasGameRef<LeftRightCodingGame> {
+class BonusSquare extends PositionComponent
+    with HasGameRef<LeftRightCodingGame> {
   int gridX;
   int gridY;
   int gridSize;
@@ -2016,6 +1860,14 @@ class BonusSquare extends PositionComponent with HasGameRef<LeftRightCodingGame>
   Future<void> onLoad() async {
     await super.onLoad();
     _updatePosition();
+  }
+
+  @override
+  void onGameResize(Vector2 boyut) {
+    super.onGameResize(boyut);
+    // onGameResize mount'tan ONCE de cagriliyor; gameRef o an hazir
+    // olmayabilir.
+    if (isMounted) _updatePosition();
   }
 
   void _updatePosition() {
@@ -2065,7 +1917,8 @@ class BonusSquare extends PositionComponent with HasGameRef<LeftRightCodingGame>
     if (_highlightedRed) {
       // Red flashing for unanswered questions when reached goal
       final flashIntensity = (sin(_redFlashTimer) + 1) / 2; // 0 to 1
-      squareColor = Color.lerp(Colors.red.shade700, Colors.red.shade300, flashIntensity)!;
+      squareColor =
+          Color.lerp(Colors.red.shade700, Colors.red.shade300, flashIntensity)!;
     } else {
       // Normal color based on difficulty
       final difficulty = questionData['difficulty'] ?? 1;

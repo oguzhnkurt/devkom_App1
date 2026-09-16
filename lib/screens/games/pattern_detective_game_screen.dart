@@ -10,6 +10,7 @@ import '../../providers/auth_provider.dart';
 import '../../utils/score_calculator.dart';
 import '../../widgets/play_time_gate.dart';
 import '../../providers/settings_provider.dart';
+import '../../utils/lang.dart';
 
 /// Kod Dedektifi Oyunu
 /// Pattern matching ve dizi tamamlama yeteneklerini geliştiren oyun
@@ -18,7 +19,10 @@ class PatternDetectiveGameScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isEn = Provider.of<SettingsProvider>(context, listen: false).locale.languageCode == 'en';
+    final isEn = Provider.of<SettingsProvider>(context, listen: false)
+            .locale
+            .languageCode ==
+        'en';
     return PlayTimeGate(
       gameName: isEn ? 'Code Detective' : 'Kod Dedektifi',
       child: const _PatternDetectiveGameContent(),
@@ -27,13 +31,15 @@ class PatternDetectiveGameScreen extends StatelessWidget {
 }
 
 class _PatternDetectiveGameContent extends StatefulWidget {
-  const _PatternDetectiveGameContent({super.key});
+  const _PatternDetectiveGameContent();
 
   @override
-  State<_PatternDetectiveGameContent> createState() => _PatternDetectiveGameContentState();
+  State<_PatternDetectiveGameContent> createState() =>
+      _PatternDetectiveGameContentState();
 }
 
-class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameContent> {
+class _PatternDetectiveGameContentState
+    extends State<_PatternDetectiveGameContent> {
   // Oyun ayarları
   final int maxLevels = 20;
   final Random _random = Random();
@@ -52,26 +58,33 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
   DateTime? startTime;
   int? finalTimeSeconds;
 
-  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
-  bool get _isEn => _lang == 'en';
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+
+  /// Bu ekrandaki kisa arayuz yazilari icin dort dilli yardimci.
+  ///
+  /// Onceki surumde her yerde `_isEn ? ingilizce : turkce` vardi; almanca
+  /// ya da ispanyolca secen cocuk oyunun tamamini turkce goruyordu.
+  String _tl(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
 
   // Pattern türleri
   final List<String> patternTypes = [
-    'numeric',      // Sayı dizileri (1,2,3,4,?)
-    'arithmetic',   // Aritmetik işlemler (2,4,6,8,?)
-    'geometric',    // Geometrik şekiller
-    'color',        // Renk desenleri
-    'letter',       // Harf dizileri (A,B,C,D,?)
-    'symbol',       // Sembol desenleri
+    'numeric', // Sayı dizileri (1,2,3,4,?)
+    'arithmetic', // Aritmetik işlemler (2,4,6,8,?)
+    'geometric', // Geometrik şekiller
+    'color', // Renk desenleri
+    'letter', // Harf dizileri (A,B,C,D,?)
+    'symbol', // Sembol desenleri
   ];
 
   // Şekiller, renkler ve semboller
   final List<IconData> shapes = [
-    Icons.circle,
-    Icons.square,
-    Icons.change_history, // Üçgen
-    Icons.star,
-    Icons.favorite,
+    Icons.circle_rounded,
+    Icons.square_rounded,
+    Icons.change_history_rounded, // Üçgen
+    Icons.star_rounded,
+    Icons.favorite_rounded,
     Icons.hexagon_outlined,
   ];
 
@@ -89,6 +102,9 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
   @override
   void initState() {
     super.initState();
+    // Bu ekranin ses rengi (Desen). Butun oyunlarda ayni tonu
+    // calmak oyunlari birbirinden ayirt edilemez kiliyordu.
+    SoundService.useVoice(SfxVoice.soft);
     startTime = DateTime.now();
     _generateNewPattern();
   }
@@ -203,57 +219,175 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
     options = [correctAnswer!, ...wrongAnswers]..shuffle();
   }
 
+  /// Gercekten TEKRAR EDEN bir desen uretir: A B A B ? ya da A B C A B ?
+  ///
+  /// SEKIL, RENK VE SEMBOL DESENLERINDE CIKARILABILIR BIR KURAL YOKTU.
+  ///
+  /// Eski uretici `pattern`e listenin ilk 2-3 ogesini koyuyor, dogru
+  /// cevap olarak da bir SONRAKI ogeyi aliyordu:
+  ///
+  ///     pattern = [shape_0, shape_1]      correctAnswer = shape_2
+  ///
+  /// Yani ekranda tekrar eden hicbir sey yoktu; cocuktan koddaki gizli
+  /// sekil sirasini bilmesi bekleniyordu. Ipucu ise "sıra tekrar ediyor"
+  /// diyordu. Oyun cozulebilir degildi, tahmin oyunuydu.
+  ///
+  /// Simdi havuzdan 2 ya da 3 ogelik bir dongu seciliyor ve ekranda EN AZ
+  /// IKI TUR gorunuyor; dogru cevap dongunun bir sonraki ogesi.
+  /// Yanlis secenekler ayni dongunun obur ogelerini de iceriyor: en
+  /// cezbedici yanlis odur, ve onu elemek icin deseni saymak gerekir.
+  void _dongulukDesenKur(List<String> havuz) {
+    final karisik = [...havuz]..shuffle(_random);
+    final donguBoyu = _random.nextInt(2) + 2; // 2 ya da 3
+    final dongu = karisik.take(donguBoyu).toList();
+
+    final gorunen = donguBoyu == 2 ? 4 : 5; // iki tam tur (ya da 1,67)
+    pattern = List.generate(gorunen, (i) => dongu[i % donguBoyu]);
+    correctAnswer = dongu[gorunen % donguBoyu];
+
+    final yanlislar = <String>{};
+    // Once dongunun obur ogeleri: en mantikli yanlis secenek.
+    for (final o in dongu) {
+      if (o != correctAnswer) yanlislar.add(o);
+    }
+    // Sonra havuzdan doldur.
+    while (yanlislar.length < 3) {
+      final o = havuz[_random.nextInt(havuz.length)];
+      if (o != correctAnswer) yanlislar.add(o);
+    }
+
+    options = [correctAnswer!, ...yanlislar.take(3)]..shuffle();
+  }
+
   // Geometrik şekiller
   void _generateGeometricPattern() {
-    final repeatCount = _random.nextInt(2) + 2; // 2 veya 3 kez tekrar
-
-    pattern = [];
-    for (int i = 0; i < repeatCount; i++) {
-      pattern.add('shape_${i % shapes.length}');
-    }
-
-    correctAnswer = 'shape_${repeatCount % shapes.length}';
-
-    // Yanlış şekiller
-    final wrongAnswers = <String>{};
-    while (wrongAnswers.length < 3) {
-      final idx = _random.nextInt(shapes.length);
-      if ('shape_$idx' != correctAnswer) {
-        wrongAnswers.add('shape_$idx');
-      }
-    }
-
-    options = [correctAnswer!, ...wrongAnswers]..shuffle();
+    _dongulukDesenKur(List.generate(shapes.length, (i) => 'shape_$i'));
   }
+
 
   // Renk desenleri
   void _generateColorPattern() {
-    final repeatCount = _random.nextInt(2) + 2;
-
-    pattern = [];
-    for (int i = 0; i < repeatCount; i++) {
-      pattern.add('color_${i % colors.length}');
-    }
-
-    correctAnswer = 'color_${repeatCount % colors.length}';
-
-    // Yanlış renkler
-    final wrongAnswers = <String>{};
-    while (wrongAnswers.length < 3) {
-      final idx = _random.nextInt(colors.length);
-      if ('color_$idx' != correctAnswer) {
-        wrongAnswers.add('color_$idx');
-      }
-    }
-
-    options = [correctAnswer!, ...wrongAnswers]..shuffle();
+    _dongulukDesenKur(List.generate(colors.length, (i) => 'color_$i'));
   }
 
+
   // Harf dizileri
+  /// Bir cevabi cocugun okuyabilecegi bir isme cevirir.
+  ///
+  /// Sayi ve harf desenlerinde cevap zaten okunabilir. Sekil, renk ve
+  /// sembol desenlerinde ise ic bir anahtar ('shape_2', 'color_3') ve
+  /// bu anahtar dogrudan ekrana basiliyordu.
+  String _readableAnswer(String? answer) {
+    if (answer == null) return '';
+    if (!answer.contains('_')) return answer;
+
+    final parts = answer.split('_');
+    final index = int.tryParse(parts.length > 1 ? parts[1] : '');
+    if (index == null) return answer;
+
+    // Sekil ve renk adlari dort dilde. Onceki hali
+    // `_lang == 'tr' ? ...Tr : ...En` idi; Almanca ve Ispanyolca oynayan
+    // cocuk ipucunda "circle" ve "blue" goruyordu.
+    const shapeNamesTr = [
+      'daire',
+      'kare',
+      'üçgen',
+      'yıldız',
+      'kalp',
+      'altıgen'
+    ];
+    const shapeNamesEn = [
+      'circle',
+      'square',
+      'triangle',
+      'star',
+      'heart',
+      'hexagon'
+    ];
+    const shapeNamesDe = [
+      'Kreis',
+      'Quadrat',
+      'Dreieck',
+      'Stern',
+      'Herz',
+      'Sechseck'
+    ];
+    const shapeNamesEs = [
+      'círculo',
+      'cuadrado',
+      'triángulo',
+      'estrella',
+      'corazón',
+      'hexágono'
+    ];
+    const colorNamesTr = [
+      'mavi',
+      'yeşil',
+      'kırmızı',
+      'turuncu',
+      'turkuaz',
+      'mor'
+    ];
+    const colorNamesEn = ['blue', 'green', 'red', 'orange', 'teal', 'purple'];
+    const colorNamesDe = [
+      'blau',
+      'grün',
+      'rot',
+      'orange',
+      'türkis',
+      'lila'
+    ];
+    const colorNamesEs = [
+      'azul',
+      'verde',
+      'rojo',
+      'naranja',
+      'turquesa',
+      'morado'
+    ];
+
+    switch (parts[0]) {
+      case 'shape':
+        final names = AppLang.pickOf(
+          _lang,
+          tr: shapeNamesTr,
+          en: shapeNamesEn,
+          de: shapeNamesDe,
+          es: shapeNamesEs,
+        );
+        return index < names.length ? names[index] : answer;
+      case 'color':
+        final names = AppLang.pickOf(
+          _lang,
+          tr: colorNamesTr,
+          en: colorNamesEn,
+          de: colorNamesDe,
+          es: colorNamesEs,
+        );
+        return index < names.length ? names[index] : answer;
+      case 'symbol':
+        return index < symbols.length ? symbols[index] : answer;
+      default:
+        return answer;
+    }
+  }
+
   void _generateLetterPattern() {
-    final start = _random.nextInt(20); // A-T arası başlangıç
     final step = _random.nextInt(2) + 1;
     final length = min(4 + (currentLevel ~/ 5), 6);
+
+    // DIZI ALFABENIN DISINA TASIYORDU.
+    //
+    // Baslangic 0-19 arasindan seciliyor, adim 2 olabiliyor ve dizi 6
+    // uzunluga cikiyordu: 19 + 5*2 = 29, yani 'Z'yi (25) asip '\' ve '^'
+    // karakterlerine varan diziler cikiyordu. Yanlis secenekler ise
+    // yalnizca A-Z'den uretildigi icin, harf olmayan karakter HER ZAMAN
+    // dogru cevap oluyordu: cocuk deseni cozmeden kazaniyordu.
+    //
+    // Artik baslangic, dizinin son harfi 'Z'yi asmayacak sekilde
+    // siniralaniyor.
+    final span = (length - 1) * step;
+    final start = _random.nextInt(26 - span);
 
     pattern = List.generate(
       length - 1,
@@ -277,26 +411,9 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
 
   // Sembol desenleri
   void _generateSymbolPattern() {
-    final repeatCount = _random.nextInt(2) + 2;
-
-    pattern = [];
-    for (int i = 0; i < repeatCount; i++) {
-      pattern.add(symbols[i % symbols.length]);
-    }
-
-    correctAnswer = symbols[repeatCount % symbols.length];
-
-    // Yanlış semboller
-    final wrongAnswers = <String>{};
-    while (wrongAnswers.length < 3) {
-      final symbol = symbols[_random.nextInt(symbols.length)];
-      if (symbol != correctAnswer && !pattern.contains(symbol)) {
-        wrongAnswers.add(symbol);
-      }
-    }
-
-    options = [correctAnswer!, ...wrongAnswers]..shuffle();
+    _dongulukDesenKur(symbols);
   }
+
 
   void _checkAnswer(String selectedAnswer) async {
     if (selectedAnswer == correctAnswer) {
@@ -346,13 +463,21 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.close, color: AppTheme.errorRed),
+            Icon(Icons.close_rounded, color: AppTheme.errorRed),
             const SizedBox(width: 8),
-            Text(_isEn ? 'Wrong Answer' : 'Yanlış Cevap'),
+            Text(_tl('Yanlış Cevap', 'Wrong Answer', 'Falsche Antwort', 'Respuesta incorrecta')),
           ],
         ),
+        // HAM ANAHTAR GOSTERILIYORDU.
+        //
+        // Sekil, renk ve sembol seviyelerinde `correctAnswer` bir ic
+        // anahtar ('shape_2', 'color_3'). Cocuk "Dogru cevap: color_3"
+        // yazisini okuyordu. Artik anahtarlar okunabilir bir isme
+        // cevriliyor.
         content: Text(
-          _isEn ? 'Correct answer: $correctAnswer\nLives left: $lives' : 'Doğru cevap: $correctAnswer\nKalan can: $lives',
+          _tl('Doğru cevap: ${_readableAnswer(correctAnswer)}'
+                  '\nKalan can: $lives', 'Correct answer: ${_readableAnswer(correctAnswer)}'
+                  '\nLives left: $lives', 'Richtige Antwort: ${_readableAnswer(correctAnswer)}\nVerbleibende Leben: $lives', 'Respuesta correcta: ${_readableAnswer(correctAnswer)}\nVidas restantes: $lives'),
           style: const TextStyle(fontSize: 16),
         ),
         actions: [
@@ -368,7 +493,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
               backgroundColor: AppTheme.primaryBlue,
               foregroundColor: Colors.white,
             ),
-            child: Text(_isEn ? 'Continue' : 'Devam Et'),
+            child: Text(_tl('Devam Et', 'Continue', 'Weiter', 'Continuar')),
           ),
         ],
       ),
@@ -415,7 +540,8 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
     final entry = LeaderboardEntry(
       id: '',
       userId: userId,
-      userName: authProvider.currentUser?.displayName ?? (_isEn ? 'Player' : 'Oyuncu'),
+      userName: authProvider.currentUser?.displayName ??
+          (_tl('Oyuncu', 'Player', 'Spieler', 'Jugador')),
       score: score.round(),
       difficulty: currentLevel,
       gameType: GameType.patternDetective,
@@ -426,50 +552,51 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
   }
 
   void _showHintDialog() {
-    String hintText = '';
-
-    if (_isEn) {
-      switch (currentPatternType) {
-        case 'numeric':
-          hintText = 'Hint: Find the difference between the numbers!';
-          break;
-        case 'arithmetic':
-          hintText = 'Hint: Which operation is repeating?';
-          break;
-        case 'geometric':
-          hintText = 'Hint: The order of shapes is repeating!';
-          break;
-        case 'color':
-          hintText = 'Hint: The color order is repeating!';
-          break;
-        case 'letter':
-          hintText = 'Hint: How many letters does it skip in the alphabet?';
-          break;
-        case 'symbol':
-          hintText = 'Hint: The symbol order is repeating!';
-          break;
-      }
-    } else {
-      switch (currentPatternType) {
-        case 'numeric':
-          hintText = 'İpucu: Sayılar arasındaki farkı bul!';
-          break;
-        case 'arithmetic':
-          hintText = 'İpucu: Hangi işlem tekrar ediyor?';
-          break;
-        case 'geometric':
-          hintText = 'İpucu: Şekillerin sırası tekrar ediyor!';
-          break;
-        case 'color':
-          hintText = 'İpucu: Renk sırası tekrar ediyor!';
-          break;
-        case 'letter':
-          hintText = 'İpucu: Alfabede kaç harf atlıyor?';
-          break;
-        case 'symbol':
-          hintText = 'İpucu: Sembol sırası tekrar ediyor!';
-          break;
-      }
+    // Ipuclari yalnizca Turkce ve Ingilizce idi; almanca ya da
+    // ispanyolca secen cocuk Ingilizce ipucu goruyordu.
+    String hintText;
+    switch (currentPatternType) {
+      case 'numeric':
+        hintText = _tl(
+            'İpucu: Sayılar arasındaki farkı bul!',
+            'Hint: Find the difference between the numbers!',
+            'Tipp: Finde den Abstand zwischen den Zahlen!',
+            'Pista: ¡Busca la diferencia entre los números!');
+        break;
+      case 'arithmetic':
+        hintText = _tl(
+            'İpucu: Hangi işlem tekrar ediyor?',
+            'Hint: Which operation is repeating?',
+            'Tipp: Welche Rechenart wiederholt sich?',
+            'Pista: ¿Qué operación se repite?');
+        break;
+      case 'geometric':
+        hintText = _tl(
+            'İpucu: Şekillerin sırası tekrar ediyor!',
+            'Hint: The order of shapes is repeating!',
+            'Tipp: Die Reihenfolge der Formen wiederholt sich!',
+            'Pista: ¡El orden de las formas se repite!');
+        break;
+      case 'color':
+        hintText = _tl(
+            'İpucu: Renk sırası tekrar ediyor!',
+            'Hint: The color order is repeating!',
+            'Tipp: Die Reihenfolge der Farben wiederholt sich!',
+            'Pista: ¡El orden de los colores se repite!');
+        break;
+      case 'letter':
+        hintText = _tl(
+            'İpucu: Alfabede kaç harf atlıyor?',
+            'Hint: How many letters does it skip in the alphabet?',
+            'Tipp: Wie viele Buchstaben überspringt es im Alphabet?',
+            'Pista: ¿Cuántas letras salta en el alfabeto?');
+        break;
+      default:
+        hintText = _tl(
+            'İpucu: Sembol sırası tekrar ediyor!',
+            'Hint: The symbol order is repeating!',
+            'Tipp: Die Reihenfolge der Zeichen wiederholt sich!',
+            'Pista: ¡El orden de los símbolos se repite!');
     }
 
     showDialog(
@@ -477,9 +604,9 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.lightbulb, color: AppTheme.warningOrange),
+            Icon(Icons.lightbulb_rounded, color: AppTheme.warningOrange),
             const SizedBox(width: 8),
-            Text(_isEn ? 'Hint' : 'İpucu'),
+            Text(_tl('İpucu', 'Hint', 'Tipp', 'Pista')),
           ],
         ),
         content: Text(hintText, style: const TextStyle(fontSize: 16)),
@@ -493,7 +620,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
               backgroundColor: AppTheme.primaryBlue,
               foregroundColor: Colors.white,
             ),
-            child: Text(_isEn ? 'OK' : 'Tamam'),
+            child: Text(_tl('Tamam', 'OK', 'OK', 'Aceptar')),
           ),
         ],
       ),
@@ -511,47 +638,50 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
         elevation: 3,
-        title: Text(_isEn ? 'Code Detective' : 'Kod Dedektifi', style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(_tl('Kod Dedektifi', 'Code Detective', 'Code-Detektiv', 'Detective de código'),
+            style: const TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.lightbulb_outline),
+            icon: const Icon(Icons.lightbulb_outline_rounded),
             onPressed: _showHintDialog,
-            tooltip: _isEn ? 'Hint' : 'İpucu',
+            tooltip: _tl('İpucu', 'Hint', 'Tipp', 'Pista'),
           ),
         ],
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppTheme.primaryBlue.withValues(alpha: 0.05),
-              Colors.white,
-            ],
-          ),
-        ),
-        child: Column(
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 16),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    _buildInstructionCard(),
-                    const SizedBox(height: 24),
-                    _buildPatternDisplay(),
-                    const SizedBox(height: 32),
-                    _buildOptionsGrid(),
-                  ],
-                ),
+      body: SafeArea(
+          top: false,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppTheme.primaryBlue.withValues(alpha: 0.05),
+                  Colors.white,
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+            child: Column(
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _buildInstructionCard(),
+                        const SizedBox(height: 24),
+                        _buildPatternDisplay(),
+                        const SizedBox(height: 32),
+                        _buildOptionsGrid(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )),
     );
   }
 
@@ -571,15 +701,18 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem(_isEn ? 'Level' : 'Seviye', '$currentLevel/$maxLevels', Icons.trending_up, AppTheme.primaryBlue),
-          _buildStatItem(_isEn ? 'Score' : 'Skor', '$score', Icons.stars, AppTheme.warningOrange),
+          _buildStatItem(_tl('Seviye', 'Level', 'Level', 'Nivel'), '$currentLevel/$maxLevels',
+              Icons.trending_up_rounded, AppTheme.primaryBlue),
+          _buildStatItem(_tl('Skor', 'Score', 'Punkte', 'Puntos'), '${score.round()}',
+              Icons.stars_rounded, AppTheme.warningOrange),
           _buildLivesIndicator(),
         ],
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
+  Widget _buildStatItem(
+      String label, String value, IconData icon, Color color) {
     return Column(
       children: [
         Icon(icon, color: color, size: 24),
@@ -608,7 +741,9 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: Icon(
-                index < lives ? Icons.favorite : Icons.favorite_border,
+                index < lives
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
                 color: AppTheme.errorRed,
                 size: 20,
               ),
@@ -617,7 +752,7 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
         ),
         const SizedBox(height: 4),
         Text(
-          _isEn ? 'Lives' : 'Can',
+          _tl('Can', 'Lives', 'Leben', 'Vidas'),
           style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         ),
       ],
@@ -625,50 +760,34 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
   }
 
   Widget _buildInstructionCard() {
-    String instruction = '';
-
-    if (_isEn) {
-      switch (currentPatternType) {
-        case 'numeric':
-          instruction = 'Complete the number sequence';
-          break;
-        case 'arithmetic':
-          instruction = 'Find the operation pattern';
-          break;
-        case 'geometric':
-          instruction = 'Complete the shape order';
-          break;
-        case 'color':
-          instruction = 'Complete the color pattern';
-          break;
-        case 'letter':
-          instruction = 'Complete the letter sequence';
-          break;
-        case 'symbol':
-          instruction = 'Complete the symbol pattern';
-          break;
-      }
-    } else {
-      switch (currentPatternType) {
-        case 'numeric':
-          instruction = 'Sayı dizisini tamamla';
-          break;
-        case 'arithmetic':
-          instruction = 'İşlem desenini bul';
-          break;
-        case 'geometric':
-          instruction = 'Şekil sırasını tamamla';
-          break;
-        case 'color':
-          instruction = 'Renk desenini tamamla';
-          break;
-        case 'letter':
-          instruction = 'Harf dizisini tamamla';
-          break;
-        case 'symbol':
-          instruction = 'Sembol desenini tamamla';
-          break;
-      }
+    // Yonerge de yalnizca iki dildeydi.
+    final String instruction;
+    switch (currentPatternType) {
+      case 'numeric':
+        instruction = _tl('Sayı dizisini tamamla', 'Complete the number sequence',
+            'Vervollständige die Zahlenreihe', 'Completa la serie de números');
+        break;
+      case 'arithmetic':
+        instruction = _tl('İşlem desenini bul', 'Find the operation pattern',
+            'Finde das Rechenmuster', 'Encuentra el patrón de la operación');
+        break;
+      case 'geometric':
+        instruction = _tl('Şekil sırasını tamamla', 'Complete the shape order',
+            'Vervollständige die Formenreihe', 'Completa el orden de las formas');
+        break;
+      case 'color':
+        instruction = _tl('Renk desenini tamamla', 'Complete the color pattern',
+            'Vervollständige das Farbmuster', 'Completa el patrón de colores');
+        break;
+      case 'letter':
+        instruction = _tl('Harf dizisini tamamla', 'Complete the letter sequence',
+            'Vervollständige die Buchstabenreihe',
+            'Completa la serie de letras');
+        break;
+      default:
+        instruction = _tl('Sembol desenini tamamla',
+            'Complete the symbol pattern', 'Vervollständige das Zeichenmuster',
+            'Completa el patrón de símbolos');
     }
 
     return Card(
@@ -699,7 +818,10 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _isEn ? 'Select the value that completes the pattern' : 'Deseni tamamlayan değeri seç',
+                    _tl('Deseni tamamlayan değeri seç',
+                        'Select the value that completes the pattern',
+                        'Wähle den Wert, der das Muster vervollständigt',
+                        'Elige el valor que completa el patrón'),
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
@@ -872,73 +994,89 @@ class _PatternDetectiveGameContentState extends State<_PatternDetectiveGameConte
       appBar: AppBar(
         backgroundColor: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
         foregroundColor: Colors.white,
-        title: Text(gameWon ? (_isEn ? 'Congratulations!' : 'Tebrikler!') : (_isEn ? 'Game Over' : 'Oyun Bitti')),
+        title: Text(gameWon
+            ? (_tl('Tebrikler!', 'Congratulations!', 'Glückwunsch!', '¡Felicidades!'))
+            : (_tl('Oyun Bitti', 'Game Over', 'Spiel vorbei', 'Fin del juego'))),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                gameWon ? Icons.emoji_events : Icons.refresh,
-                size: 100,
-                color: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                gameWon ? (_isEn ? 'Great Job!' : 'Harika İş!') : (_isEn ? 'Try Again!' : 'Tekrar Dene!'),
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildResultCard(_isEn ? 'Level' : 'Seviye', '$currentLevel/$maxLevels', Icons.trending_up),
-              _buildResultCard(_isEn ? 'Score' : 'Skor', '$score', Icons.stars),
-              if (finalTimeSeconds != null)
-                _buildResultCard(_isEn ? 'Duration' : 'Süre', _isEn ? '$finalTimeSeconds seconds' : '$finalTimeSeconds saniye', Icons.timer),
-              const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      body: SafeArea(
+          top: false,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.home),
-                    label: Text(_isEn ? 'Main Menu' : 'Ana Menü'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBlue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  Icon(
+                    gameWon
+                        ? Icons.emoji_events_rounded
+                        : Icons.refresh_rounded,
+                    size: 100,
+                    color: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    gameWon
+                        ? (_tl('Harika İş!', 'Great Job!', 'Gut gemacht!', '¡Buen trabajo!'))
+                        : (_tl('Tekrar Dene!', 'Try Again!', 'Versuch es noch mal!', '¡Inténtalo otra vez!')),
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color:
+                          gameWon ? AppTheme.successGreen : AppTheme.errorRed,
                     ),
                   ),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        currentLevel = 1;
-                        score = 0;
-                        lives = 3;
-                        gameWon = false;
-                        gameOver = false;
-                        startTime = DateTime.now();
-                        _generateNewPattern();
-                      });
-                    },
-                    icon: const Icon(Icons.replay),
-                    label: Text(_isEn ? 'Play Again' : 'Tekrar Oyna'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.successGreen,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    ),
+                  const SizedBox(height: 16),
+                  _buildResultCard(_tl('Seviye', 'Level', 'Level', 'Nivel'),
+                      '$currentLevel/$maxLevels', Icons.trending_up_rounded),
+                  _buildResultCard(_tl('Skor', 'Score', 'Punkte', 'Puntos'), '${score.round()}',
+                      Icons.stars_rounded),
+                  if (finalTimeSeconds != null)
+                    _buildResultCard(
+                        _tl('Süre', 'Duration', 'Dauer', 'Duración'),
+                        _tl('$finalTimeSeconds saniye', '$finalTimeSeconds seconds', '$finalTimeSeconds Sekunden', '$finalTimeSeconds segundos'),
+                        Icons.timer_rounded),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.home_rounded),
+                        label: Text(_tl('Ana Menü', 'Main Menu', 'Hauptmenü', 'Menú principal')),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryBlue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 16),
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            currentLevel = 1;
+                            score = 0;
+                            lives = 3;
+                            gameWon = false;
+                            gameOver = false;
+                            startTime = DateTime.now();
+                            _generateNewPattern();
+                          });
+                        },
+                        icon: const Icon(Icons.replay_rounded),
+                        label: Text(_tl('Tekrar Oyna', 'Play Again', 'Noch mal spielen', 'Jugar otra vez')),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.successGreen,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 16),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+          )),
     );
   }
 

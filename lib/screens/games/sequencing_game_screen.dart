@@ -4,6 +4,14 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart' as app_auth;
 import '../auth/login_screen.dart';
 import '../../providers/settings_provider.dart';
+import '../../theme.dart';
+import '../../ui/answer_feedback.dart';
+import '../../ui/count_up.dart';
+import '../../ui/press_button.dart';
+import '../../services/sound_service.dart';
+import '../../widgets/learning/how_to_play_demo.dart';
+import '../../widgets/learning/token_sequence_builder.dart';
+import '../../utils/lang.dart';
 
 class SequencingGameScreen extends StatefulWidget {
   final Map<String, dynamic> gameData;
@@ -26,8 +34,28 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
   bool _isChecking = false;
   int _score = 0;
 
-  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
-  bool get _isEn => _lang == 'en';
+  /// Cevap kontrol edildikten sonra alt seritte gosterilen sonuc.
+  /// null ise serit ekranda degil.
+  AnswerResult? _feedback;
+  String? _feedbackDetail;
+
+  /// Her yanlis cevapta artiyor; siralama alanini sallamak icin tetikleyici.
+  int _wrongTick = 0;
+
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  /// Oyun ICERIGI (kod satirlari, seviye basliklari, eslestirme ciftleri)
+  /// yalnizca turkce ve ingilizce yazildi. Almanca ya da ispanyolca secen
+  /// cocuga turkce icerik vermek yerine ingilizcesini veriyoruz; ceviriler
+  /// gelene kadar dogru olan bu.
+  bool get _isEn => _lang != 'tr';
+
+  /// Bu ekrandaki kisa arayuz yazilari icin dort dilli yardimci.
+  ///
+  /// Onceki surumde her yerde `_isEn ? ingilizce : turkce` vardi; almanca
+  /// ya da ispanyolca secen cocuk oyunun tamamini turkce goruyordu.
+  String _tl(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
 
   String _levelTitle(Map<String, dynamic> level) {
     if (_isEn && level['titleEn'] != null) return level['titleEn'];
@@ -47,7 +75,38 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
   @override
   void initState() {
     super.initState();
+    // Bu ekranin ses rengi (Siralama). Butun oyunlarda ayni tonu
+    // calmak oyunlari birbirinden ayirt edilemez kiliyordu.
+    SoundService.useVoice(SfxVoice.warm);
     _loadLevels();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showHowToPlay());
+  }
+
+  /// Ilk acilista "nasil oynanir" gosterimi: bir el komutu alip dogru
+  /// siradaki yuvaya birakiyor. Sirali komut kurmayi bir cumleyle
+  /// anlatmak zor; hareketle anlatmak kolay.
+  Future<void> _showHowToPlay({bool force = false}) async {
+    if (!mounted) return;
+    await HowToPlayDemo.maybeShow(
+      context,
+      gameKey: 'sequencing',
+      force: force,
+      demo: HowToPlayDemo(
+        // Bu oyunda iki sutun arasinda eslestirme yok; komutlara DOGRU
+        // SIRAYLA dokunuluyor. Gosterim de tam olarak onu yapiyor:
+        // el uc komuta sirayla dokunuyor, her biri numarasini aliyor.
+        scene: DemoScene.tapInOrder,
+        title: _tl('Nasıl oynanır?', 'How to play', 'So wird gespielt', 'Cómo se juega'),
+        hint: _tl('Komutlara doğru sırayla dokun. Sürükleyerek yerlerini '
+                'değiştirebilirsin.', 'Tap the commands in the right order. Drag to swap them.', 'Tippe die Befehle in der richtigen Reihenfolge an. Zum Tauschen kannst du sie ziehen.', 'Toca los comandos en el orden correcto. Arrástralos para cambiarlos de sitio.'),
+        sourceLabel: _tl('İleri git', 'Move', 'Vorwärts', 'Avanzar'),
+        decoyLabel: _tl('Sağa dön', 'Turn', 'Drehen', 'Girar'),
+        extraLabel: _tl('Dur', 'Stop', 'Stopp', 'Detener'),
+        targetLabel: _tl('Dur', 'Stop', 'Stopp', 'Detener'),
+        startLabel: _tl('Başla', 'Start', 'Start', 'Empezar'),
+        color: const Color(0xFF7E57C2),
+      ),
+    );
   }
 
   void _loadLevels() {
@@ -68,11 +127,36 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
         'description': 'Sabah rutinini doğru sıraya koy',
         'descriptionEn': 'Put the morning routine in the right order',
         'commands': [
-          {'id': 'wake', 'label': 'Uyan', 'labelEn': 'Wake Up', 'icon': 'alarm'},
-          {'id': 'wash', 'label': 'Yüzünü Yıka', 'labelEn': 'Wash Your Face', 'icon': 'wash'},
-          {'id': 'dress', 'label': 'Giyim', 'labelEn': 'Get Dressed', 'icon': 'checkroom'},
-          {'id': 'breakfast', 'label': 'Kahvaltı Yap', 'labelEn': 'Have Breakfast', 'icon': 'breakfast_dining'},
-          {'id': 'school', 'label': 'Okula Git', 'labelEn': 'Go to School', 'icon': 'school'},
+          {
+            'id': 'wake',
+            'label': 'Uyan',
+            'labelEn': 'Wake Up',
+            'icon': 'alarm'
+          },
+          {
+            'id': 'wash',
+            'label': 'Yüzünü Yıka',
+            'labelEn': 'Wash Your Face',
+            'icon': 'wash'
+          },
+          {
+            'id': 'dress',
+            'label': 'Giyim',
+            'labelEn': 'Get Dressed',
+            'icon': 'checkroom'
+          },
+          {
+            'id': 'breakfast',
+            'label': 'Kahvaltı Yap',
+            'labelEn': 'Have Breakfast',
+            'icon': 'breakfast_dining'
+          },
+          {
+            'id': 'school',
+            'label': 'Okula Git',
+            'labelEn': 'Go to School',
+            'icon': 'school'
+          },
         ],
         'correctOrder': ['wake', 'wash', 'dress', 'breakfast', 'school'],
         'hasRobotMap': false,
@@ -83,10 +167,30 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
         'description': 'Robotu hedefe ulaştırmak için komutları sırala',
         'descriptionEn': 'Order the commands to get the robot to the goal',
         'commands': [
-          {'id': 'start', 'label': 'Başla', 'labelEn': 'Start', 'icon': 'play_arrow'},
-          {'id': 'forward', 'label': 'İleri Git', 'labelEn': 'Move Forward', 'icon': 'arrow_upward'},
-          {'id': 'turn', 'label': 'Sola Dön', 'labelEn': 'Turn Left', 'icon': 'turn_left'},
-          {'id': 'forward2', 'label': 'İleri Git', 'labelEn': 'Move Forward', 'icon': 'arrow_upward'},
+          {
+            'id': 'start',
+            'label': 'Başla',
+            'labelEn': 'Start',
+            'icon': 'play_arrow'
+          },
+          {
+            'id': 'forward',
+            'label': 'İleri Git',
+            'labelEn': 'Move Forward',
+            'icon': 'arrow_upward'
+          },
+          {
+            'id': 'turn',
+            'label': 'Sola Dön',
+            'labelEn': 'Turn Left',
+            'icon': 'turn_left'
+          },
+          {
+            'id': 'forward2',
+            'label': 'İleri Git',
+            'labelEn': 'Move Forward',
+            'icon': 'arrow_upward'
+          },
           {'id': 'stop', 'label': 'Dur', 'labelEn': 'Stop', 'icon': 'stop'},
         ],
         'correctOrder': ['start', 'forward', 'turn', 'forward2', 'stop'],
@@ -105,15 +209,53 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
         'description': 'Robotu engelleri aşarak hedefe götür',
         'descriptionEn': 'Get the robot past the obstacles to the goal',
         'commands': [
-          {'id': 'start', 'label': 'Başla', 'labelEn': 'Start', 'icon': 'play_arrow'},
-          {'id': 'forward1', 'label': 'İleri Git', 'labelEn': 'Move Forward', 'icon': 'arrow_upward'},
-          {'id': 'turn_right', 'label': 'Sağa Dön', 'labelEn': 'Turn Right', 'icon': 'turn_right'},
-          {'id': 'forward2', 'label': 'İleri Git', 'labelEn': 'Move Forward', 'icon': 'arrow_upward'},
-          {'id': 'forward3', 'label': 'İleri Git', 'labelEn': 'Move Forward', 'icon': 'arrow_upward'},
-          {'id': 'forward4', 'label': 'İleri Git', 'labelEn': 'Move Forward', 'icon': 'arrow_upward'},
+          {
+            'id': 'start',
+            'label': 'Başla',
+            'labelEn': 'Start',
+            'icon': 'play_arrow'
+          },
+          {
+            'id': 'forward1',
+            'label': 'İleri Git',
+            'labelEn': 'Move Forward',
+            'icon': 'arrow_upward'
+          },
+          {
+            'id': 'turn_right',
+            'label': 'Sağa Dön',
+            'labelEn': 'Turn Right',
+            'icon': 'turn_right'
+          },
+          {
+            'id': 'forward2',
+            'label': 'İleri Git',
+            'labelEn': 'Move Forward',
+            'icon': 'arrow_upward'
+          },
+          {
+            'id': 'forward3',
+            'label': 'İleri Git',
+            'labelEn': 'Move Forward',
+            'icon': 'arrow_upward'
+          },
+          {
+            'id': 'forward4',
+            'label': 'İleri Git',
+            'labelEn': 'Move Forward',
+            'icon': 'arrow_upward'
+          },
           {'id': 'stop', 'label': 'Dur', 'labelEn': 'Stop', 'icon': 'stop'},
         ],
-        'correctOrder': ['start', 'forward1', 'turn_right', 'forward2', 'forward3', 'forward4', 'stop'],
+        'correctOrder': [
+          'start',
+          'forward1',
+          'turn_right',
+          'forward2',
+          'forward3',
+          'forward4',
+          'stop'
+        ],
         'hasRobotMap': true,
         'robotStartX': 0,
         'robotStartY': 0,
@@ -132,14 +274,41 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
         'description': 'Döngü kullanarak hareketi optimize et',
         'descriptionEn': 'Optimize the movement using a loop',
         'commands': [
-          {'id': 'start', 'label': 'Başla', 'labelEn': 'Start', 'icon': 'play_arrow'},
-          {'id': 'loop_start', 'label': '3 Kez Tekrarla {', 'labelEn': 'Repeat 3 Times {', 'icon': 'repeat'},
-          {'id': 'forward', 'label': '  İleri Git', 'labelEn': '  Move Forward', 'icon': 'arrow_upward'},
-          {'id': 'turn', 'label': '  Sağa Dön', 'labelEn': '  Turn Right', 'icon': 'turn_right'},
+          {
+            'id': 'start',
+            'label': 'Başla',
+            'labelEn': 'Start',
+            'icon': 'play_arrow'
+          },
+          {
+            'id': 'loop_start',
+            'label': '3 Kez Tekrarla {',
+            'labelEn': 'Repeat 3 Times {',
+            'icon': 'repeat'
+          },
+          {
+            'id': 'forward',
+            'label': '  İleri Git',
+            'labelEn': '  Move Forward',
+            'icon': 'arrow_upward'
+          },
+          {
+            'id': 'turn',
+            'label': '  Sağa Dön',
+            'labelEn': '  Turn Right',
+            'icon': 'turn_right'
+          },
           {'id': 'loop_end', 'label': '}', 'labelEn': '}', 'icon': 'repeat_on'},
           {'id': 'stop', 'label': 'Dur', 'labelEn': 'Stop', 'icon': 'stop'},
         ],
-        'correctOrder': ['start', 'loop_start', 'forward', 'turn', 'loop_end', 'stop'],
+        'correctOrder': [
+          'start',
+          'loop_start',
+          'forward',
+          'turn',
+          'loop_end',
+          'stop'
+        ],
       },
       {
         'title': 'Koşullu Hareket',
@@ -147,15 +316,53 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
         'description': 'If-else yapısını kullan',
         'descriptionEn': 'Use an if-else structure',
         'commands': [
-          {'id': 'start', 'label': 'Başla', 'labelEn': 'Start', 'icon': 'play_arrow'},
-          {'id': 'if', 'label': 'Eğer (sensör aktif)', 'labelEn': 'If (sensor active)', 'icon': 'help'},
-          {'id': 'turn_left', 'label': '  Sola Dön', 'labelEn': '  Turn Left', 'icon': 'turn_left'},
-          {'id': 'else', 'label': 'Değilse', 'labelEn': 'Else', 'icon': 'help_outline'},
-          {'id': 'turn_right', 'label': '  Sağa Dön', 'labelEn': '  Turn Right', 'icon': 'turn_right'},
-          {'id': 'endif', 'label': 'Bitir', 'labelEn': 'End If', 'icon': 'done'},
+          {
+            'id': 'start',
+            'label': 'Başla',
+            'labelEn': 'Start',
+            'icon': 'play_arrow'
+          },
+          {
+            'id': 'if',
+            'label': 'Eğer (sensör aktif)',
+            'labelEn': 'If (sensor active)',
+            'icon': 'help'
+          },
+          {
+            'id': 'turn_left',
+            'label': '  Sola Dön',
+            'labelEn': '  Turn Left',
+            'icon': 'turn_left'
+          },
+          {
+            'id': 'else',
+            'label': 'Değilse',
+            'labelEn': 'Else',
+            'icon': 'help_outline'
+          },
+          {
+            'id': 'turn_right',
+            'label': '  Sağa Dön',
+            'labelEn': '  Turn Right',
+            'icon': 'turn_right'
+          },
+          {
+            'id': 'endif',
+            'label': 'Bitir',
+            'labelEn': 'End If',
+            'icon': 'done'
+          },
           {'id': 'stop', 'label': 'Dur', 'labelEn': 'Stop', 'icon': 'stop'},
         ],
-        'correctOrder': ['start', 'if', 'turn_left', 'else', 'turn_right', 'endif', 'stop'],
+        'correctOrder': [
+          'start',
+          'if',
+          'turn_left',
+          'else',
+          'turn_right',
+          'endif',
+          'stop'
+        ],
       },
     ];
   }
@@ -171,6 +378,8 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
       _correctSequence = List<String>.from(level['correctOrder']);
       _userSequence.clear();
       _isChecking = false;
+      _feedback = null;
+      _feedbackDetail = null;
 
       // Shuffle commands for display (except for robot map levels)
       _shuffledCommands = List<Map<String, dynamic>>.from(level['commands']);
@@ -180,23 +389,7 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
     });
   }
 
-  void _onCommandTap(String commandId) {
-    if (_isChecking) return;
-
-    setState(() {
-      if (_userSequence.contains(commandId)) {
-        _userSequence.remove(commandId);
-      } else {
-        _userSequence.add(commandId);
-      }
-    });
-  }
-
   void _checkAnswer() {
-    setState(() {
-      _isChecking = true;
-    });
-
     bool isCorrect = _userSequence.length == _correctSequence.length;
     if (isCorrect) {
       for (int i = 0; i < _userSequence.length; i++) {
@@ -207,124 +400,109 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
       }
     }
 
-    if (isCorrect) {
-      setState(() {
+    // Geri bildirim artik ekranin ortasinda acilan bir AlertDialog degil,
+    // alttan giren bir serit: soru ve kullanicinin kurdugu sira ekranda
+    // kaliyor, cocuk neyi yanlis yaptigini gorerek okuyor.
+    setState(() {
+      _isChecking = true;
+      _feedback = isCorrect ? AnswerResult.correct : AnswerResult.wrong;
+      if (isCorrect) {
         _score += 20;
-      });
-      _showFeedbackDialog(true);
+        _feedbackDetail = _tl('Harika! Komutları doğru sıraladın.', 'Great! You ordered the commands correctly.', 'Super! Du hast die Befehle richtig sortiert.', '¡Genial! Ordenaste los comandos correctamente.');
+      } else {
+        _wrongTick++;
+        _feedbackDetail = (_tl('Doğru sıralama: ', 'Correct order: ', 'Richtige Reihenfolge: ', 'Orden correcto: ')) +
+            _correctSequence.map(_labelForId).join(' → ');
+      }
+    });
+    // Titresim zaten seritten geliyordu; ses eksikti.
+    if (isCorrect) {
+      SoundService.playCorrect();
     } else {
-      _showFeedbackDialog(false);
+      SoundService.playWrong();
     }
   }
 
-  void _showFeedbackDialog(bool isCorrect) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text(isCorrect ? (_isEn ? '🎉 Correct!' : '🎉 Doğru!') : (_isEn ? '❌ Wrong' : '❌ Yanlış')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              isCorrect
-                  ? (_isEn ? 'Great! You ordered the commands correctly.' : 'Harika! Komutları doğru sıraladın.')
-                  : (_isEn ? 'Wrong order!' : 'Yanlış sıralama!'),
-              style: const TextStyle(fontSize: 16),
-            ),
-            if (!isCorrect) ...[
-              const SizedBox(height: 16),
-              Text(
-                _isEn ? 'Correct Order:' : 'Doğru Sıralama:',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-              ),
-              const SizedBox(height: 8),
-              ..._correctSequence.asMap().entries.map((entry) {
-                final index = entry.key;
-                final commandId = entry.value;
-                final cmd = _shuffledCommands.firstWhere(
-                  (c) => c['id'] == commandId,
-                );
+  /// Serit uzerindeki "Devam"/"Anladim" tusuna basildiginda.
+  void _onFeedbackContinue() {
+    final wasCorrect = _feedback == AnswerResult.correct;
+    setState(() {
+      _feedback = null;
+      _feedbackDetail = null;
+      _isChecking = false;
+    });
+    if (wasCorrect) {
+      // Ilk seviye bitince giris istemi akisi korunuyor.
+      final isGuest = Provider.of<app_auth.AuthProvider>(context, listen: false)
+              .currentUser ==
+          null;
+      if (_currentLevel == 0 && isGuest) {
+        _showLoginRequiredDialog();
+        return;
+      }
+      setState(() => _currentLevel++);
+      _loadLevel(_currentLevel);
+    } else {
+      setState(() => _userSequence.clear());
+    }
+  }
 
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 4),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green.shade200),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircleAvatar(
-                        radius: 12,
-                        backgroundColor: Colors.green,
-                        child: Text(
-                          '${index + 1}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Icon(
-                        _getIcon(cmd['icon']),
-                        size: 20,
-                        color: Colors.green.shade700,
-                      ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          _cmdLabel(cmd),
-                          style: TextStyle(
-                            color: Colors.green.shade900,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            ],
-          ],
-        ),
-        actions: [
-          if (!isCorrect)
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                setState(() {
-                  _isChecking = false;
-                });
-              },
-              child: Text(_isEn ? 'Try Again' : 'Tekrar Dene'),
-            ),
-          if (isCorrect)
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                setState(() {
-                  _currentLevel++;
-                });
-                _loadLevel(_currentLevel);
-              },
-              child: Text(_isEn ? 'Next Level' : 'Sonraki Seviye'),
-            ),
-        ],
-      ),
-    );
+  String _labelForId(String id) {
+    final list = _shuffledCommands.isNotEmpty
+        ? _shuffledCommands
+        : List<Map<String, dynamic>>.from(
+            _levels[_currentLevel]['commands'] as List);
+    for (final c in list) {
+      if (c['id'] == id) return _cmdLabel(c);
+    }
+    return id;
+  }
+
+  // --- Siralama etkinligi icin veri donusumleri ---------------------------
+  //
+  // Ekran komutlari `Map<String, dynamic>` olarak tutuyor (seviye verisinden
+  // geldigi gibi), etkinlik widget'i ise tipli `SequenceToken` istiyor.
+  // Donusumu tek yerde yapiyoruz ki id/etiket eslesmesi bozulmasin.
+
+  SequenceToken _tokenFor(Map<String, dynamic> cmd) => SequenceToken(
+        id: cmd['id'] as String,
+        label: _cmdLabel(cmd),
+        icon: _getIcon((cmd['icon'] as String?) ?? ''),
+      );
+
+  Map<String, dynamic>? _cmdById(List<dynamic> commands, String id) {
+    for (final c in commands) {
+      final map = Map<String, dynamic>.from(c as Map);
+      if (map['id'] == id) return map;
+    }
+    return null;
+  }
+
+  List<SequenceToken> _answerTokens(List<dynamic> commands) {
+    final out = <SequenceToken>[];
+    for (final id in _userSequence) {
+      final cmd = _cmdById(commands, id);
+      if (cmd != null) out.add(_tokenFor(cmd));
+    }
+    return out;
+  }
+
+  List<SequenceToken> _bankTokens(List<dynamic> commands) {
+    return commands
+        .map((c) => Map<String, dynamic>.from(c as Map))
+        .where((c) => !_userSequence.contains(c['id']))
+        .map(_tokenFor)
+        .toList();
+  }
+
+  /// Kontrol sonrasi her pozisyonun dogru olup olmadigi; parca parca
+  /// renklendirmek icin. Tek bir "yanlis" yerine hangi adimin yanlis
+  /// oldugunu gostermek ogrenme acisindan cok daha ise yariyor.
+  List<bool> _correctnessFlags() {
+    return [
+      for (int i = 0; i < _userSequence.length; i++)
+        i < _correctSequence.length && _userSequence[i] == _correctSequence[i],
+    ];
   }
 
   void _showCompletionDialog() {
@@ -332,14 +510,14 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text(_isEn ? '🏆 Congratulations!' : '🏆 Tebrikler!'),
+        title: Text(_tl('🏆 Tebrikler!', '🏆 Congratulations!', '🏆 Glückwunsch!', '🏆 ¡Felicidades!')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(_isEn ? 'You completed all levels!' : 'Tüm seviyeleri tamamladın!'),
+            Text(_tl('Tüm seviyeleri tamamladın!', 'You completed all levels!', 'Du hast alle Level geschafft!', '¡Completaste todos los niveles!')),
             const SizedBox(height: 16),
             Text(
-              _isEn ? 'Total Score: $_score' : 'Toplam Puan: $_score',
+              _tl('Toplam Puan: $_score', 'Total Score: $_score', 'Gesamtpunkte: $_score', 'Puntuación total: $_score'),
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -358,14 +536,14 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
               });
               _loadLevel(0);
             },
-            child: Text(_isEn ? 'Start Over' : 'Yeniden Başla'),
+            child: Text(_tl('Yeniden Başla', 'Start Over', 'Neu starten', 'Empezar de nuevo')),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: Text(_isEn ? 'Finish' : 'Bitir'),
+            child: Text(_tl('Bitir', 'Finish', 'Beenden', 'Terminar')),
           ),
         ],
       ),
@@ -376,6 +554,8 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
     setState(() {
       _userSequence.clear();
       _isChecking = false;
+      _feedback = null;
+      _feedbackDetail = null;
     });
   }
 
@@ -390,44 +570,44 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
       case 'breakfast_dining':
         return Icons.breakfast_dining;
       case 'school':
-        return Icons.school;
+        return Icons.school_rounded;
       case 'play_arrow':
-        return Icons.play_arrow;
+        return Icons.play_arrow_rounded;
       case 'arrow_upward':
-        return Icons.arrow_upward;
+        return Icons.arrow_upward_rounded;
       case 'turn_right':
         return Icons.turn_right;
       case 'turn_left':
         return Icons.turn_left;
       case 'stop':
-        return Icons.stop;
+        return Icons.stop_rounded;
       case 'repeat':
-        return Icons.repeat;
+        return Icons.repeat_rounded;
       case 'repeat_on':
         return Icons.repeat_on;
       case 'help':
-        return Icons.help;
+        return Icons.help_rounded;
       case 'help_outline':
-        return Icons.help_outline;
+        return Icons.help_outline_rounded;
       case 'done':
         return Icons.done;
       default:
-        return Icons.code;
+        return Icons.code_rounded;
     }
   }
 
   IconData _getDirectionIcon(String direction) {
     switch (direction.toLowerCase()) {
       case 'up':
-        return Icons.arrow_upward;
+        return Icons.arrow_upward_rounded;
       case 'down':
-        return Icons.arrow_downward;
+        return Icons.arrow_downward_rounded;
       case 'left':
-        return Icons.arrow_back;
+        return Icons.arrow_back_rounded;
       case 'right':
-        return Icons.arrow_forward;
+        return Icons.arrow_forward_rounded;
       default:
-        return Icons.arrow_upward;
+        return Icons.arrow_upward_rounded;
     }
   }
 
@@ -466,7 +646,8 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
 
                   final isRobotStart = x == robotStartX && y == robotStartY;
                   final isGoal = x == goalX && y == goalY;
-                  final isObstacle = obstacles.any((obs) => obs['x'] == x && obs['y'] == y);
+                  final isObstacle =
+                      obstacles.any((obs) => obs['x'] == x && obs['y'] == y);
 
                   return Container(
                     decoration: BoxDecoration(
@@ -486,7 +667,7 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
                               alignment: Alignment.center,
                               children: [
                                 const Icon(
-                                  Icons.smart_toy,
+                                  Icons.smart_toy_rounded,
                                   color: Colors.blue,
                                   size: 32,
                                 ),
@@ -513,7 +694,7 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
                             )
                           : isGoal
                               ? const Icon(
-                                  Icons.flag,
+                                  Icons.flag_rounded,
                                   color: Colors.green,
                                   size: 32,
                                 )
@@ -550,267 +731,192 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEn ? 'Command Sequencing - Level ${_currentLevel + 1}' : 'Komut Dizilimi - Seviye ${_currentLevel + 1}'),
+        title: Text(_tl('Komut Dizilimi - Seviye ${_currentLevel + 1}', 'Command Sequencing - Level ${_currentLevel + 1}', 'Befehlsfolge - Level ${_currentLevel + 1}', 'Secuencia de comandos - Nivel ${_currentLevel + 1}')),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Center(
-              child: Text(
-                _isEn ? 'Score: $_score' : 'Puan: $_score',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              // Puan bir anda siciramaz: sayarak geciyor ki kazanc
+              // fark edilsin. Tabular rakamlar sayesinde 9 -> 10 gecisinde
+              // sayac titremiyor.
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _tl('Puan: ', 'Score: ', 'Punkte: ', 'Puntos: '),
+                    style: const TextStyle(
+                      fontFamily: AppTheme.fontFamily,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  CountUpText(value: _score, fontSize: 19),
+                ],
               ),
             ),
           ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Level info
-                Card(
-                  color: Colors.blue.shade50,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _levelTitle(level),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+      body: AnswerFeedbackBar.host(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Level info
+                  Card(
+                    color: Colors.blue.shade50,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _levelTitle(level),
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _levelDescription(level),
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[700],
+                          const SizedBox(height: 8),
+                          Text(
+                            _levelDescription(level),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Robot map visualization (if level has robot map)
+                  if (level['hasRobotMap'] == true) ...[
+                    Text(
+                      _tl('Robot Haritası:', 'Robot Map:', 'Roboterkarte:', 'Mapa del robot:'),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.smart_toy_rounded,
+                            color: Colors.blue, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _tl('Robot (Altındaki sarı ok başlangıç yönünü gösterir)', 'Robot (the yellow arrow below shows the start direction)', 'Roboter (der gelbe Pfeil darunter zeigt die Startrichtung)', 'Robot (la flecha amarilla de abajo indica la dirección inicial)'),
+                            style: const TextStyle(fontSize: 13),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Robot map visualization (if level has robot map)
-                if (level['hasRobotMap'] == true) ...[
-                  Text(
-                    _isEn ? 'Robot Map:' : 'Robot Haritası:',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.flag_rounded, color: Colors.green, size: 20),
+                        const SizedBox(width: 8),
+                        Text(_tl('Hedef', 'Goal', 'Ziel', 'Meta')),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.smart_toy, color: Colors.blue, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          _isEn ? 'Robot (the yellow arrow below shows the start direction)' : 'Robot (Altındaki sarı ok başlangıç yönünü gösterir)',
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.flag, color: Colors.green, size: 20),
-                      const SizedBox(width: 8),
-                      Text(_isEn ? 'Goal' : 'Hedef'),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.block, color: Colors.grey[800], size: 20),
-                      const SizedBox(width: 8),
-                      Text(_isEn ? 'Obstacle' : 'Engel'),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  _buildRobotMapWidget(level),
-                  const SizedBox(height: 24),
-                ],
-
-                // Available commands
-                Text(
-                  _isEn ? 'Commands:' : 'Komutlar:',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: commands.map((cmd) {
-                    final commandId = cmd['id'] as String;
-                    final isSelected = _userSequence.contains(commandId);
-                    final orderIndex = _userSequence.indexOf(commandId);
-
-                    return InkWell(
-                      onTap: () => _onCommandTap(commandId),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? Colors.green.shade300
-                              : Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: isSelected ? Colors.green : Colors.grey,
-                            width: 2,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (isSelected) ...[
-                              CircleAvatar(
-                                radius: 12,
-                                backgroundColor: Colors.white,
-                                child: Text(
-                                  '${orderIndex + 1}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                            ],
-                            Icon(
-                              _getIcon(cmd['icon']),
-                              color: isSelected ? Colors.white : Colors.black87,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              _cmdLabel(cmd),
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.black87,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 24),
-
-                // User sequence
-                Text(
-                  _isEn ? 'Your Order:' : 'Senin Sıralaman:',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  constraints: const BoxConstraints(minHeight: 100),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.blue, width: 2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: _userSequence.isEmpty
-                      ? Center(
-                          child: Text(
-                            _isEn ? 'Select above to order the commands' : 'Komutları sıralamak için yukarıdan seç',
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                        )
-                      : Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: _userSequence.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final commandId = entry.value;
-                            final cmd = commands.firstWhere(
-                              (c) => c['id'] == commandId,
-                            );
-
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.blue.shade100,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    '${index + 1}.',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Icon(
-                                    _getIcon(cmd['icon']),
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(_cmdLabel(cmd)),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                ),
-                const SizedBox(height: 24),
-
-                // Action buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    OutlinedButton.icon(
-                      onPressed: _resetLevel,
-                      icon: const Icon(Icons.refresh),
-                      label: Text(_isEn ? 'Reset' : 'Sıfırla'),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.block, color: Colors.grey[800], size: 20),
+                        const SizedBox(width: 8),
+                        Text(_tl('Engel', 'Obstacle', 'Hindernis', 'Obstáculo')),
+                      ],
                     ),
-                    ElevatedButton.icon(
-                      onPressed: _userSequence.length == _correctSequence.length &&
-                              !_isChecking
-                          ? _checkAnswer
-                          : null,
-                      icon: const Icon(Icons.check),
-                      label: Text(_isEn ? 'Check' : 'Kontrol Et'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 12),
+                    _buildRobotMapWidget(level),
+                    const SizedBox(height: 24),
                   ],
-                ),
-              ],
-            ),
-          );
-        },
+
+                  // Siralama etkinligi.
+                  //
+                  // Eskiden iki ayri blok vardi: ustte "Komutlar" listesi,
+                  // altta salt okunur bir "Senin Siralaman" kutusu. Bir komutu
+                  // yanlis yere koyduysan tek care hepsini sifirlamakti — sirayi
+                  // duzeltmenin yolu yoktu. Simdi cevap alanindaki parcalar
+                  // basili tutulup birbirinin uzerine birakilarak yer
+                  // degistirebiliyor; dokunma da caliismaya devam ediyor
+                  // (ekran okuyucu icin tek erisilebilir yol o).
+                  Text(
+                    _tl('Senin Sıralaman:', 'Your Order:', 'Deine Reihenfolge:', 'Tu orden:'),
+                    style: const TextStyle(
+                      fontFamily: AppTheme.fontFamily,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ShakeOnChange(
+                    trigger: _wrongTick,
+                    child: TokenSequenceBuilder(
+                      answer: _answerTokens(commands),
+                      bank: _bankTokens(commands),
+                      locked: _isChecking,
+                      correctness:
+                          _feedback == null ? null : _correctnessFlags(),
+                      emptyHint: _tl('Aşağıdaki komutlara dokun ya da buraya sürükle', 'Tap a command below, or drag it here', 'Tippe unten auf einen Befehl oder zieh ihn hierher', 'Toca un comando de abajo o arrástralo aquí'),
+                      onChanged: (next) {
+                        setState(() {
+                          _userSequence
+                            ..clear()
+                            ..addAll(next.map((t) => t.id));
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: TextButton.icon(
+                          onPressed: _isChecking ? null : _resetLevel,
+                          icon: const Icon(Icons.refresh_rounded, size: 18),
+                          label: Text(_tl('Sıfırla', 'Reset', 'Zurücksetzen', 'Reiniciar')),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 3,
+                        child: PressButton(
+                          label: _tl('Kontrol Et', 'Check', 'Prüfen', 'Comprobar'),
+                          // Cevap eksikken buton pasif: cocuk bos cevabi
+                          // gonderip bosuna "yanlis" yemesin.
+                          onPressed:
+                              _userSequence.length == _correctSequence.length &&
+                                      !_isChecking
+                                  ? _checkAnswer
+                                  : null,
+                          height: 52,
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Alt seride yer birak.
+                  SizedBox(height: _feedback == null ? 8 : 180),
+                ],
+              ),
+            );
+          },
+        ),
+        bar: _feedback == null
+            ? null
+            : AnswerFeedbackBar(
+                result: _feedback!,
+                detail: _feedbackDetail,
+                onContinue: _onFeedbackContinue,
+              ),
       ),
     );
   }
@@ -824,11 +930,11 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            const Icon(Icons.lock, color: Colors.orange, size: 32),
+            const Icon(Icons.lock_rounded, color: Colors.orange, size: 32),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                _isEn ? 'Sign In to Continue' : 'Devam Etmek İçin Giriş Yapın',
+                _tl('Devam Etmek İçin Giriş Yapın', 'Sign In to Continue', 'Zum Weiterspielen anmelden', 'Inicia sesión para continuar'),
                 style: const TextStyle(fontSize: 20),
               ),
             ),
@@ -837,20 +943,21 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.emoji_events, size: 64, color: Colors.amber),
+            const Icon(Icons.emoji_events_rounded,
+                size: 64, color: Colors.amber),
             const SizedBox(height: 16),
             Text(
-              _isEn ? 'You completed the first level!' : 'İlk seviyeyi tamamladınız!',
+              _tl('İlk seviyeyi tamamladınız!', 'You completed the first level!', 'Du hast das erste Level geschafft!', '¡Completaste el primer nivel!'),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              _isEn ? 'Score: $_score' : 'Skor: $_score',
+              _tl('Skor: $_score', 'Score: $_score', 'Punkte: $_score', 'Puntos: $_score'),
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
             Text(
-              _isEn ? 'Sign in to continue and access all levels.' : 'Devam etmek ve tüm seviyelere erişmek için giriş yapın.',
+              _tl('Devam etmek ve tüm seviyelere erişmek için giriş yapın.', 'Sign in to continue and access all levels.', 'Melde dich an, um weiterzuspielen und alle Level freizuschalten.', 'Inicia sesión para seguir y acceder a todos los niveles.'),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
@@ -862,11 +969,12 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: Text(_isEn ? 'Home' : 'Ana Sayfa'),
+            child: Text(_tl('Ana Sayfa', 'Home', 'Startseite', 'Inicio')),
           ),
           ElevatedButton.icon(
             onPressed: () async {
-              final authProvider = Provider.of<app_auth.AuthProvider>(context, listen: false);
+              final authProvider =
+                  Provider.of<app_auth.AuthProvider>(context, listen: false);
               await authProvider.signOut();
 
               if (!context.mounted) return;
@@ -876,8 +984,8 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
                 (route) => false,
               );
             },
-            icon: const Icon(Icons.login),
-            label: Text(_isEn ? 'Sign In' : 'Giriş Yap'),
+            icon: const Icon(Icons.login_rounded),
+            label: Text(_tl('Giriş Yap', 'Sign In', 'Anmelden', 'Iniciar sesión')),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2196F3),
               foregroundColor: Colors.white,

@@ -6,6 +6,9 @@ import '../../providers/auth_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../services/store_service.dart';
 import '../../services/user_progress_service.dart';
+import '../../services/sound_service.dart';
+import '../../ui/motion.dart';
+import '../../utils/lang.dart';
 
 /// Robot Simülatörü
 /// Basit bir grid üzerinde sanal robotu sensörlerle birlikte programlayıp
@@ -23,7 +26,8 @@ class RobotSimulatorGameScreen extends StatefulWidget {
   const RobotSimulatorGameScreen({super.key, this.gameData});
 
   @override
-  State<RobotSimulatorGameScreen> createState() => _RobotSimulatorGameScreenState();
+  State<RobotSimulatorGameScreen> createState() =>
+      _RobotSimulatorGameScreenState();
 }
 
 class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
@@ -53,13 +57,25 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
 
   late final AnimationController _pulseController;
 
-  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
-  bool get _isEn => _lang == 'en';
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+
+  /// Bu ekrandaki kisa arayuz yazilari icin dort dilli yardimci.
+  ///
+  /// Onceki surumde her yerde `_isEn ? ingilizce : turkce` vardi; almanca
+  /// ya da ispanyolca secen cocuk oyunun tamamini turkce goruyordu.
+  String _tl(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
 
   @override
   void initState() {
     super.initState();
-    _pulseController = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat();
+    // Bu ekranin ses rengi (Robot). Ekran tamamen sessizdi ve
+    // bir onceki oyunun ses rengini devraliyordu.
+    SoundService.useVoice(SfxVoice.deep);
+    _pulseController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 3))
+          ..repeat();
     _generateLevel();
     _loadEquippedSkin();
   }
@@ -72,11 +88,13 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
 
   Future<void> _loadEquippedSkin() async {
     try {
-      final skin = await _storeService.getEquippedItem(StoreItemCategory.robotSkin);
+      final skin =
+          await _storeService.getEquippedItem(StoreItemCategory.robotSkin);
       if (!mounted) return;
       setState(() {
         if (skin != null) {
-          _robotColor = Color(int.parse(skin.colorHex.replaceFirst('#', '0xFF')));
+          _robotColor =
+              Color(int.parse(skin.colorHex.replaceFirst('#', '0xFF')));
           _isRainbowSkin = skin.itemKey == 'robot_rainbow';
         }
         _robotSkinLoaded = true;
@@ -199,12 +217,12 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
     final newY = _robotY + dy;
 
     if (newX < 0 || newX >= gridSize || newY < 0 || newY >= gridSize) {
-      _showMessage(_isEn ? '🚧 Edge reached, can\'t move further!' : '🚧 Sınıra ulaşıldı, ilerlenemiyor!');
+      _showMessage(_tl('🚧 Sınıra ulaşıldı, ilerlenemiyor!', '🚧 Edge reached, can\'t move further!', '🚧 Rand erreicht, es geht nicht weiter!', '🚧 Llegaste al borde, no se puede avanzar.'));
       return;
     }
 
     if (_grid[newY][newX] == 1) {
-      _showMessage(_isEn ? '🚧 Sensor detected an obstacle, collision avoided!' : '🚧 Sensör engel algıladı, çarpışma önlendi!');
+      _showMessage(_tl('🚧 Sensör engel algıladı, çarpışma önlendi!', '🚧 Sensor detected an obstacle, collision avoided!', '🚧 Sensor hat ein Hindernis erkannt, Zusammenstoß verhindert!', '🚧 El sensor detectó un obstáculo y evitó el choque.'));
       return;
     }
 
@@ -230,14 +248,16 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
     final jeton = (gained / 4).round().clamp(5, 40);
     setState(() => _sessionJeton += jeton);
     await auth.addXP((gained / 5).round());
-    await UserProgressService().addJeton(userId, jeton, source: 'robot_simulator');
+    await UserProgressService()
+        .addJeton(userId, jeton, source: 'robot_simulator');
     if (mounted) await auth.refreshProgress();
   }
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: const Duration(milliseconds: 800)),
+      SnackBar(
+          content: Text(message), duration: const Duration(milliseconds: 800)),
     );
   }
 
@@ -248,18 +268,23 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(_isEn ? '🤖 Mission Complete!' : '🤖 Görev Tamamlandı!'),
+        title: Text(_tl('🤖 Görev Tamamlandı!', '🤖 Mission Complete!', '🤖 Auftrag erfüllt!', '🤖 ¡Misión cumplida!')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(_isEn ? 'Level $_level completed.' : 'Seviye $_level tamamlandı.', style: const TextStyle(fontSize: 16)),
+            Text(
+                _tl('Seviye $_level tamamlandı.', 'Level $_level completed.', 'Level $_level geschafft.', 'Nivel $_level completado.'),
+                style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 12),
-            Text(_isEn ? 'Score: $_score' : 'Puan: $_score', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            Text(_isEn ? 'Moves: $_moves' : 'Hamle sayısı: $_moves'),
+            Text(_tl('Puan: $_score', 'Score: $_score', 'Punkte: $_score', 'Puntos: $_score'),
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(_tl('Hamle sayısı: $_moves', 'Moves: $_moves', 'Züge: $_moves', 'Movimientos: $_moves')),
             const SizedBox(height: 8),
             Text(
-              _isEn ? 'You earned +$jeton 🪙 coins!' : '+$jeton 🪙 jeton kazandın!',
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFB8860B)),
+              _tl('+$jeton 🪙 jeton kazandın!', 'You earned +$jeton 🪙 coins!', 'Du hast +$jeton 🪙 Münzen verdient!', '¡Ganaste +$jeton 🪙 monedas!'),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: Color(0xFFB8860B)),
             ),
           ],
         ),
@@ -269,7 +294,7 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
               Navigator.pop(context);
               _generateLevel();
             },
-            child: Text(_isEn ? 'Play Again' : 'Tekrar Oyna'),
+            child: Text(_tl('Tekrar Oyna', 'Play Again', 'Noch mal spielen', 'Jugar otra vez')),
           ),
           ElevatedButton(
             onPressed: () {
@@ -281,7 +306,7 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
               backgroundColor: const Color(0xFF6C63FF),
               foregroundColor: Colors.white,
             ),
-            child: Text(_isEn ? 'Next Level' : 'Sonraki Seviye'),
+            child: Text(_tl('Sonraki Seviye', 'Next Level', 'Nächstes Level', 'Siguiente nivel')),
           ),
         ],
       ),
@@ -291,13 +316,13 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
   IconData get _directionIcon {
     switch (_direction) {
       case RobotDirection.up:
-        return Icons.arrow_upward;
+        return Icons.arrow_upward_rounded;
       case RobotDirection.right:
-        return Icons.arrow_forward;
+        return Icons.arrow_forward_rounded;
       case RobotDirection.down:
-        return Icons.arrow_downward;
+        return Icons.arrow_downward_rounded;
       case RobotDirection.left:
-        return Icons.arrow_back;
+        return Icons.arrow_back_rounded;
     }
   }
 
@@ -320,7 +345,7 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEn ? 'Robot Simulator' : 'Robot Simülatörü'),
+        title: Text(_tl('Robot Simülatörü', 'Robot Simulator', 'Roboter-Simulator', 'Simulador de robots')),
         backgroundColor: const Color(0xFF6C63FF),
         foregroundColor: Colors.white,
         actions: [
@@ -328,131 +353,180 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  _isEn ? 'Lv.$_level · $_score pts · $_sessionJeton 🪙' : 'Sv.$_level · $_score puan · $_sessionJeton 🪙',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.white),
+                  _tl('Sv.$_level · $_score puan · $_sessionJeton 🪙', 'Lv.$_level · $_score pts · $_sessionJeton 🪙', 'Lv.$_level · $_score Punkte · $_sessionJeton 🪙', 'Nv.$_level · $_score ptos · $_sessionJeton 🪙'),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.white),
                 ),
               ),
             ),
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            color: const Color(0xFF6C63FF).withValues(alpha: 0.08),
-            child: Row(
-              children: [
-                const Icon(Icons.sensors, color: Color(0xFF6C63FF)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    sensorDistance == 0
-                        ? (_isEn ? '⚠️ Ultrasonic sensor: obstacle right ahead!' : '⚠️ Ultrasonik sensör: hemen önde engel var!')
-                        : (_isEn ? '📡 Ultrasonic sensor: $sensorDistance cells of open space ahead' : '📡 Ultrasonik sensör: önde $sensorDistance kare boşluk var'),
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Center(
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4)),
-                      ],
-                    ),
-                    child: GridView.builder(
-                      padding: const EdgeInsets.all(8),
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: gridSize,
-                        mainAxisSpacing: 3,
-                        crossAxisSpacing: 3,
+      body: SafeArea(
+          top: false,
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                color: const Color(0xFF6C63FF).withValues(alpha: 0.08),
+                child: Row(
+                  children: [
+                    const Icon(Icons.sensors_rounded, color: Color(0xFF6C63FF)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        sensorDistance == 0
+                            ? (_tl('⚠️ Ultrasonik sensör: hemen önde engel var!', '⚠️ Ultrasonic sensor: obstacle right ahead!', '⚠️ Ultraschallsensor: direkt voraus ist ein Hindernis!', '⚠️ Sensor ultrasónico: ¡hay un obstáculo justo delante!'))
+                            : (_tl('📡 Ultrasonik sensör: önde $sensorDistance kare boşluk var', '📡 Ultrasonic sensor: $sensorDistance cells of open space ahead', '📡 Ultraschallsensor: $sensorDistance freie Felder voraus', '📡 Sensor ultrasónico: $sensorDistance casillas libres por delante')),
+                        style: const TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w600),
                       ),
-                      itemCount: gridSize * gridSize,
-                      itemBuilder: (context, index) {
-                        final x = index % gridSize;
-                        final y = index ~/ gridSize;
-                        final isRobot = x == _robotX && y == _robotY;
-                        final isGoal = x == _goalX && y == _goalY;
-                        final isObstacle = _grid[y][x] == 1;
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4)),
+                          ],
+                        ),
+                        child: LayoutBuilder(
+                          builder: (context, kutu) {
+                            // Robot hucrenin icine cizilirse her komutta bir
+                            // kareden kaybolup digerinde beliriyordu. Izgara
+                            // artik robotsuz ciziliyor, robot ustune
+                            // AnimatedPositioned ile konuyor; boylece komut
+                            // calistiginda gercekten yuruyor gibi gorunuyor.
+                            const kenar = 8.0;
+                            const bosluk = 3.0;
+                            final hucre = (kutu.maxWidth -
+                                    kenar * 2 -
+                                    bosluk * (gridSize - 1)) /
+                                gridSize;
+                            double konum(int i) => kenar + i * (hucre + bosluk);
 
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: isObstacle
-                                ? Colors.grey[800]
-                                : isGoal
-                                    ? Colors.green[200]
-                                    : Colors.grey[50],
-                            border: Border.all(color: Colors.grey[300]!),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Center(
-                            child: isRobot
-                                ? _buildAnimatedRobot()
-                                : isGoal
-                                    ? const Icon(Icons.flag, color: Colors.green, size: 22)
-                                    : null,
-                          ),
-                        );
-                      },
+                            return Stack(
+                              children: [
+                                GridView.builder(
+                                  padding: const EdgeInsets.all(kenar),
+                                  physics:
+                                      const NeverScrollableScrollPhysics(),
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: gridSize,
+                                    mainAxisSpacing: bosluk,
+                                    crossAxisSpacing: bosluk,
+                                  ),
+                                  itemCount: gridSize * gridSize,
+                                  itemBuilder: (context, index) {
+                                    final x = index % gridSize;
+                                    final y = index ~/ gridSize;
+                                    final isGoal = x == _goalX && y == _goalY;
+                                    final isObstacle = _grid[y][x] == 1;
+
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        color: isObstacle
+                                            ? Colors.grey[800]
+                                            : isGoal
+                                                ? Colors.green[200]
+                                                : Colors.grey[50],
+                                        border: Border.all(
+                                            color: Colors.grey[300]!),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Center(
+                                        child: isGoal
+                                            ? const Icon(Icons.flag_rounded,
+                                                color: Colors.green, size: 22)
+                                            : null,
+                                      ),
+                                    );
+                                  },
+                                ),
+                                AnimatedPositioned(
+                                  duration:
+                                      Motion.adapt(context, Motion.short4),
+                                  curve: Motion.emphasized,
+                                  left: konum(_robotX),
+                                  top: konum(_robotY),
+                                  width: hucre,
+                                  height: hucre,
+                                  child: Center(child: _buildAnimatedRobot()),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _controlButton(icon: Icons.rotate_left, label: _isEn ? 'Turn Left' : 'Sola Dön', onTap: _turnLeft),
-                      const SizedBox(width: 16),
-                      _controlButton(
-                        icon: _directionIcon,
-                        label: _isEn ? 'Move Forward' : 'İleri Git',
-                        onTap: _moveForward,
-                        primary: true,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _controlButton(
+                              icon: Icons.rotate_left_rounded,
+                              label: _tl('Sola Dön', 'Turn Left', 'Nach links drehen', 'Girar a la izquierda'),
+                              onTap: _turnLeft),
+                          const SizedBox(width: 16),
+                          _controlButton(
+                            icon: _directionIcon,
+                            label: _tl('İleri Git', 'Move Forward', 'Vorwärts gehen', 'Avanzar'),
+                            onTap: _moveForward,
+                            primary: true,
+                          ),
+                          const SizedBox(width: 16),
+                          _controlButton(
+                              icon: Icons.rotate_right_rounded,
+                              label: _tl('Sağa Dön', 'Turn Right', 'Nach rechts drehen', 'Girar a la derecha'),
+                              onTap: _turnRight),
+                        ],
                       ),
-                      const SizedBox(width: 16),
-                      _controlButton(icon: Icons.rotate_right, label: _isEn ? 'Turn Right' : 'Sağa Dön', onTap: _turnRight),
+                      const SizedBox(height: 12),
+                      TextButton.icon(
+                        onPressed: _generateLevel,
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: Text(_tl('Haritayı Yenile', 'Refresh Map', 'Karte aktualisieren', 'Actualizar el mapa')),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  TextButton.icon(
-                    onPressed: _generateLevel,
-                    icon: const Icon(Icons.refresh),
-                    label: Text(_isEn ? 'Refresh Map' : 'Haritayı Yenile'),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-        ],
-      ),
+            ],
+          )),
     );
   }
 
@@ -461,7 +535,7 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
     if (!_robotSkinLoaded) {
       return Transform.rotate(
         angle: _directionAngle,
-        child: Icon(Icons.smart_toy, color: _robotColor, size: 24),
+        child: Icon(Icons.smart_toy_rounded, color: _robotColor, size: 24),
       );
     }
 
@@ -490,9 +564,23 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
                   height: 40,
                   child: Stack(
                     children: [
-                      Positioned(top: 0, left: 18, child: Icon(Icons.auto_awesome, size: 9, color: animatedColor)),
-                      Positioned(bottom: 0, right: 2, child: Icon(Icons.auto_awesome, size: 7, color: animatedColor.withValues(alpha: 0.7))),
-                      Positioned(bottom: 2, left: 0, child: Icon(Icons.auto_awesome, size: 6, color: animatedColor.withValues(alpha: 0.5))),
+                      Positioned(
+                          top: 0,
+                          left: 18,
+                          child: Icon(Icons.auto_awesome_rounded,
+                              size: 9, color: animatedColor)),
+                      Positioned(
+                          bottom: 0,
+                          right: 2,
+                          child: Icon(Icons.auto_awesome_rounded,
+                              size: 7,
+                              color: animatedColor.withValues(alpha: 0.7))),
+                      Positioned(
+                          bottom: 2,
+                          left: 0,
+                          child: Icon(Icons.auto_awesome_rounded,
+                              size: 6,
+                              color: animatedColor.withValues(alpha: 0.5))),
                     ],
                   ),
                 ),
@@ -504,7 +592,10 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: animatedColor.withValues(alpha: 0.6), blurRadius: (10 + (tier * 2)).toDouble(), spreadRadius: (1 + tier).toDouble()),
+                    BoxShadow(
+                        color: animatedColor.withValues(alpha: 0.6),
+                        blurRadius: (10 + (tier * 2)).toDouble(),
+                        spreadRadius: (1 + tier).toDouble()),
                   ],
                 ),
               ),
@@ -512,7 +603,8 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
               scale: pulseScale,
               child: Transform.rotate(
                 angle: _directionAngle,
-                child: Icon(Icons.smart_toy, color: animatedColor, size: 24),
+                child: Icon(Icons.smart_toy_rounded,
+                    color: animatedColor, size: 24),
               ),
             ),
           ],
@@ -534,13 +626,26 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
           iconSize: primary ? 40 : 32,
           onPressed: onTap,
           style: IconButton.styleFrom(
-            backgroundColor: primary ? const Color(0xFF6C63FF) : const Color(0xFF6C63FF).withValues(alpha: 0.15),
+            backgroundColor: primary
+                ? const Color(0xFF6C63FF)
+                : const Color(0xFF6C63FF).withValues(alpha: 0.15),
             foregroundColor: primary ? Colors.white : const Color(0xFF6C63FF),
             padding: const EdgeInsets.all(16),
           ),
         ),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+        // Almanca ve ispanyolca etiketler ("Nach rechts drehen") bu
+        // dugmenin altinda tasiyordu; genisligi sinirlayip sariyoruz.
+        SizedBox(
+          width: 92,
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+          ),
+        ),
       ],
     );
   }

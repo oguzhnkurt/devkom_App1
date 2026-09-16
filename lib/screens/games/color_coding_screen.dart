@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import '../../theme.dart';
-import '../../models/game_model.dart';
 import '../../utils/score_calculator.dart';
 import '../../services/sound_service.dart';
 import '../../providers/settings_provider.dart';
+import '../../utils/lang.dart';
+import '../../ui/motion.dart';
 
 /// Renkli Kodlar Oyunu
 /// Renk kodları ile programlama öğretir
@@ -28,25 +29,60 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
   bool isShowingSequence = false; // Dizi gösterilme durumu
   int currentShowingIndex = 0; // Şu an gösterilen renk index'i
 
-  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
-  bool get _isEn => _lang == 'en';
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+
+  /// Bu ekrandaki kisa arayuz yazilari icin dort dilli yardimci.
+  ///
+  /// Onceki surumde her yerde `_isEn ? ingilizce : turkce` vardi; almanca
+  /// ya da ispanyolca secen cocuk oyunun tamamini turkce goruyordu.
+  String _tl(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
 
   // Renk-Komut mapping
   Map<String, Map<String, dynamic>> get colorCommands {
     // Seviye 10'dan sonra 5. renk (turuncu) ekle
     // Seviye 15'ten sonra 6. renk (mor) ekle
     final baseColors = {
-      'red': {'name': _isEn ? 'Move Forward' : 'İleri Git', 'icon': Icons.arrow_upward, 'color': Colors.red},
-      'blue': {'name': _isEn ? 'Turn Right' : 'Sağa Dön', 'icon': Icons.arrow_forward, 'color': Colors.blue},
-      'green': {'name': _isEn ? 'Turn Left' : 'Sola Dön', 'icon': Icons.arrow_back, 'color': Colors.green},
-      'yellow': {'name': _isEn ? 'Collect' : 'Topla', 'icon': Icons.star, 'color': Colors.amber},
+      'red': {
+        'name': _tl('İleri Git', 'Move Forward', 'Vorwärts gehen', 'Avanzar'),
+        'icon': Icons.arrow_upward_rounded,
+        'color': Colors.red
+      },
+      'blue': {
+        'name': _tl('Sağa Dön', 'Turn Right', 'Nach rechts drehen', 'Girar a la derecha'),
+        'icon': Icons.arrow_forward_rounded,
+        'color': Colors.blue
+      },
+      'green': {
+        'name': _tl('Sola Dön', 'Turn Left', 'Nach links drehen', 'Girar a la izquierda'),
+        'icon': Icons.arrow_back_rounded,
+        'color': Colors.green
+      },
+      'yellow': {
+        'name': _tl('Topla', 'Collect', 'Einsammeln', 'Recoger'),
+        'icon': Icons.star_rounded,
+        'color': Colors.amber
+      },
     };
 
     if (currentLevel >= 15) {
-      baseColors['orange'] = {'name': _isEn ? 'Jump' : 'Zıpla', 'icon': Icons.trending_up, 'color': Colors.orange};
-      baseColors['purple'] = {'name': _isEn ? 'Wait' : 'Bekle', 'icon': Icons.pause, 'color': Colors.purple};
+      baseColors['orange'] = {
+        'name': _tl('Zıpla', 'Jump', 'Springen', 'Saltar'),
+        'icon': Icons.trending_up_rounded,
+        'color': Colors.orange
+      };
+      baseColors['purple'] = {
+        'name': _tl('Bekle', 'Wait', 'Warten', 'Esperar'),
+        'icon': Icons.pause_rounded,
+        'color': Colors.purple
+      };
     } else if (currentLevel >= 10) {
-      baseColors['orange'] = {'name': _isEn ? 'Jump' : 'Zıpla', 'icon': Icons.trending_up, 'color': Colors.orange};
+      baseColors['orange'] = {
+        'name': _tl('Zıpla', 'Jump', 'Springen', 'Saltar'),
+        'icon': Icons.trending_up_rounded,
+        'color': Colors.orange
+      };
     }
 
     return baseColors;
@@ -65,6 +101,9 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
   @override
   void initState() {
     super.initState();
+    // Bu ekranin ses rengi (Renk). Butun oyunlarda ayni tonu
+    // calmak oyunlari birbirinden ayirt edilemez kiliyordu.
+    SoundService.useVoice(SfxVoice.soft);
     _generateLevel();
   }
 
@@ -164,8 +203,8 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
 
       _showMessage(
         isPracticeMode
-            ? (_isEn ? 'Great! Correct! 🎉' : 'Harika! Doğru! 🎉')
-            : (_isEn ? 'Great! +$levelScore points! 🎉' : 'Harika! +$levelScore puan! 🎉'),
+            ? (_tl('Harika! Doğru! 🎉', 'Great! Correct! 🎉', 'Super! Richtig! 🎉', '¡Genial! ¡Correcto! 🎉'))
+            : (_tl('Harika! +$levelScore puan! 🎉', 'Great! +$levelScore points! 🎉', 'Super! +$levelScore Punkte! 🎉', '¡Genial! ¡+$levelScore puntos! 🎉')),
         AppTheme.successGreen,
       );
 
@@ -175,7 +214,9 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
     } else {
       // Yanlış cevap sesi
       SoundService.playWrong();
-      _showMessage(_isEn ? 'Wrong order. Try again!' : 'Yanlış sıralama. Tekrar dene!', AppTheme.errorRed);
+      _showMessage(
+          _tl('Yanlış sıralama. Tekrar dene!', 'Wrong order. Try again!', 'Falsche Reihenfolge. Versuch es noch mal!', 'Orden incorrecto. ¡Inténtalo otra vez!'),
+          AppTheme.errorRed);
       setState(() {
         selectedSequence.clear();
       });
@@ -206,19 +247,21 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isPracticeMode
-            ? (_isEn ? 'Color Codes (Practice)' : 'Renkli Kodlar (Pratik)')
-            : (_isEn ? 'Color Codes' : 'Renkli Kodlar')),
+            ? (_tl('Renkli Kodlar (Pratik)', 'Color Codes (Practice)', 'Farbcodes (Übung)', 'Códigos de colores (práctica)'))
+            : (_tl('Renkli Kodlar', 'Color Codes', 'Farbcodes', 'Códigos de colores'))),
         actions: [
           // Pratik Modu Toggle
           IconButton(
             icon: Icon(
-              isPracticeMode ? Icons.school : Icons.emoji_events,
+              isPracticeMode
+                  ? Icons.school_rounded
+                  : Icons.emoji_events_rounded,
               color: isPracticeMode ? Colors.blue : AppTheme.warningOrange,
             ),
             onPressed: _togglePracticeMode,
             tooltip: isPracticeMode
-                ? (_isEn ? 'Switch to Competition Mode' : 'Yarışma Moduna Geç')
-                : (_isEn ? 'Switch to Practice Mode' : 'Pratik Moduna Geç'),
+                ? (_tl('Yarışma Moduna Geç', 'Switch to Competition Mode', 'In den Wettkampfmodus wechseln', 'Cambiar al modo competición'))
+                : (_tl('Pratik Moduna Geç', 'Switch to Practice Mode', 'In den Übungsmodus wechseln', 'Cambiar al modo práctica')),
           ),
           if (!isPracticeMode)
             Center(
@@ -226,10 +269,10 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
-                    Icon(Icons.star, color: AppTheme.warningOrange),
+                    Icon(Icons.star_rounded, color: AppTheme.warningOrange),
                     const SizedBox(width: 4),
                     Text(
-                      _isEn ? 'Score: $score' : 'Skor: $score',
+                      _tl('Skor: $score', 'Score: $score', 'Punkte: $score', 'Puntos: $score'),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -241,240 +284,269 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
             ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Level bilgisi
-            Card(
-              elevation: 4,
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    Text(
-                      _isEn ? 'Level $currentLevel' : 'Seviye $currentLevel',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.primaryBlue,
-                          ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      _isEn ? 'Remember the Target Color Sequence:' : 'Hedef Renk Dizilimini Hatırla:',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(height: 16),
-                    // Hedef renk dizilimi - animasyonlu gösterim
-                    // Sadece o an sırası gelen renk kısaca açığa çıkar, geri kalanı
-                    // gizli kalır ki öğrenci diziyi ezberlemeye çalışsın (Simon Says mantığı).
-                    Wrap(
-                      spacing: 8,
-                      children: targetSequence.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final color = entry.value;
-                        final cmd = colorCommands[color]!;
-                        final isHighlighted = isShowingSequence && currentShowingIndex == index;
-
-                        return AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: isHighlighted ? cmd['color'] : Colors.grey.shade300,
-                            shape: BoxShape.circle,
-                            boxShadow: isHighlighted
-                                ? [
-                                    BoxShadow(
-                                      color: (cmd['color'] as Color).withValues(alpha: 0.8),
-                                      blurRadius: 20,
-                                      spreadRadius: 5,
-                                    ),
-                                  ]
-                                : null,
-                          ),
-                          transform: isHighlighted
-                              ? (Matrix4.identity()..scale(1.2))
-                              : Matrix4.identity(),
-                          child: isHighlighted
-                              ? Icon(
-                                  cmd['icon'],
-                                  color: Colors.white,
-                                  size: 32,
-                                )
-                              : Icon(
-                                  Icons.question_mark_rounded,
-                                  color: Colors.grey.shade500,
-                                  size: 20,
-                                ),
-                        );
-                      }).toList(),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12),
-                      child: Text(
-                        isShowingSequence
-                            ? (_isEn ? 'Watch closely...' : 'Dikkatle izle...')
-                            : (_isEn ? 'Try to remember the sequence!' : 'Diziyi aklında tutmaya çalış!'),
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Seçilen dizilim
-            Card(
-              color: AppTheme.lightBlue.withValues(alpha: 0.3),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Text(
-                      _isEn ? 'Your Selection:' : 'Senin Seçimin:',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      height: 60,
-                      child: selectedSequence.isEmpty
-                          ? Center(
-                              child: Text(
-                                _isEn ? 'Select the colors in order' : 'Renkleri sırayla seç',
-                                style: const TextStyle(color: Colors.grey),
-                              ),
-                            )
-                          : Wrap(
-                              spacing: 8,
-                              children: selectedSequence.map((color) {
-                                final cmd = colorCommands[color]!;
-                                return Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    color: cmd['color'],
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(cmd['icon'], color: Colors.white),
-                                );
-                              }).toList(),
-                            ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Renk butonları
-            Text(
-              isShowingSequence
-                  ? (_isEn ? 'Watch Closely...' : 'Dikkatle İzle...')
-                  : (_isEn ? 'Select the Colors:' : 'Renkleri Seç:'),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: isShowingSequence ? Colors.grey : null,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Opacity(
-              opacity: isShowingSequence ? 0.5 : 1.0,
-              child: Wrap(
-                spacing: 16,
-                runSpacing: 16,
-                alignment: WrapAlignment.center,
-                children: colorCommands.entries.map((entry) {
-                  final color = entry.key;
-                  final cmd = entry.value;
-                  return GestureDetector(
-                    onTap: () => _selectColor(color),
+      body: SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                // Level bilgisi
+                Card(
+                  elevation: 4,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: cmd['color'],
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: (cmd['color'] as Color).withValues(alpha: 0.5),
-                                blurRadius: 10,
-                                spreadRadius: 2,
-                              ),
-                            ],
-                          ),
-                          child: Icon(cmd['icon'], color: Colors.white, size: 40),
-                        ),
-                        const SizedBox(height: 8),
                         Text(
-                          cmd['name'],
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                          _tl('Seviye $currentLevel', 'Level $currentLevel', 'Level $currentLevel', 'Nivel $currentLevel'),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryBlue,
+                              ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          _tl('Hedef Renk Dizilimini Hatırla:', 'Remember the Target Color Sequence:', 'Merk dir die Zielfarbfolge:', 'Recuerda la secuencia de colores:'),
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 16),
+                        // Hedef renk dizilimi - animasyonlu gösterim
+                        // Sadece o an sırası gelen renk kısaca açığa çıkar, geri kalanı
+                        // gizli kalır ki öğrenci diziyi ezberlemeye çalışsın (Simon Says mantığı).
+                        Wrap(
+                          spacing: 8,
+                          children: targetSequence.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final color = entry.value;
+                            final cmd = colorCommands[color]!;
+                            final isHighlighted = isShowingSequence &&
+                                currentShowingIndex == index;
+
+                            // Dizinin sirayla yanmasi oyunun MEKANIGI
+                            // (Simon Says); `displaySpeed` hareket azaltma
+                            // ayarinda bile kisaltilmaz, yoksa oyun
+                            // oynanamaz hale gelir. Kisaltilan tek sey
+                            // rengin yanip sonme gecisi: hareket
+                            // duyarliligi olan cocukta bu gecis anlik olur,
+                            // sinyal yine gorunur.
+                            return AnimatedContainer(
+                              duration:
+                                  Motion.adapt(context, Motion.short4),
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: isHighlighted
+                                    ? cmd['color']
+                                    : Colors.grey.shade300,
+                                shape: BoxShape.circle,
+                                boxShadow: isHighlighted
+                                    ? [
+                                        BoxShadow(
+                                          color: (cmd['color'] as Color)
+                                              .withValues(alpha: 0.8),
+                                          blurRadius: 20,
+                                          spreadRadius: 5,
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              transform: isHighlighted
+                                  ? (Matrix4.identity()..scale(1.2))
+                                  : Matrix4.identity(),
+                              child: isHighlighted
+                                  ? Icon(
+                                      cmd['icon'],
+                                      color: Colors.white,
+                                      size: 32,
+                                    )
+                                  : Icon(
+                                      Icons.question_mark_rounded,
+                                      color: Colors.grey.shade500,
+                                      size: 20,
+                                    ),
+                            );
+                          }).toList(),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Text(
+                            isShowingSequence
+                                ? (_tl('Dikkatle izle...', 'Watch closely...', 'Genau hinschauen ...', 'Observa con atención...'))
+                                : (_tl('Diziyi aklında tutmaya çalış!', 'Try to remember the sequence!', 'Versuch dir die Folge zu merken!', '¡Intenta memorizar la secuencia!')),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                              fontStyle: FontStyle.italic,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  );
-                }).toList(),
-              ),
-            ),
+                  ),
+                ),
 
-            const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-            // Butonlar
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Tekrar Göster butonu
-                if (!isShowingSequence)
-                  ElevatedButton.icon(
-                    onPressed: _showSequenceAnimation,
-                    icon: const Icon(Icons.replay),
-                    label: Text(_isEn ? 'Show Again' : 'Tekrar Göster'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBlue,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
+                // Seçilen dizilim
+                Card(
+                  color: AppTheme.lightBlue.withValues(alpha: 0.3),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Text(
+                          _tl('Senin Seçimin:', 'Your Selection:', 'Deine Auswahl:', 'Tu selección:'),
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 12),
+                        // SABIT 60 PIKSEL TASIYORDU.
+                        //
+                        // Secilen renkler bir Wrap icinde 50x50 daireler
+                        // olarak diziliyor. Dizi 12 adima ciktiginda (10.
+                        // seviyeden sonra) dar telefonda uc satira
+                        // sariyor, ama kutunun yuksekligi 60 piksele
+                        // sabitlenmisti: cocuk kendi sectigi renklerin
+                        // yarisini goremiyordu. Artik 60 en AZ deger.
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 60),
+                          child: selectedSequence.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    _tl('Renkleri sırayla seç', 'Select the colors in order', 'Wähle die Farben der Reihe nach', 'Selecciona los colores en orden'),
+                                    style: const TextStyle(color: Colors.grey),
+                                  ),
+                                )
+                              : Wrap(
+                                  spacing: 8,
+                                  children: selectedSequence.map((color) {
+                                    final cmd = colorCommands[color]!;
+                                    return Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        color: cmd['color'],
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(cmd['icon'],
+                                          color: Colors.white),
+                                    );
+                                  }).toList(),
+                                ),
+                        ),
+                      ],
                     ),
                   ),
-                if (!isShowingSequence && selectedSequence.isNotEmpty)
-                  const SizedBox(width: 12),
-                // Temizle butonu
-                if (selectedSequence.isNotEmpty && !isShowingSequence)
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        selectedSequence.clear();
-                      });
-                    },
-                    icon: const Icon(Icons.refresh),
-                    label: Text(_isEn ? 'Clear' : 'Temizle'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.errorRed,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                    ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Renk butonları
+                Text(
+                  isShowingSequence
+                      ? (_tl('Dikkatle İzle...', 'Watch Closely...', 'Genau hinschauen ...', 'Observa con atención...'))
+                      : (_tl('Renkleri Seç:', 'Select the Colors:', 'Farben auswählen:', 'Selecciona los colores:')),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isShowingSequence ? Colors.grey : null,
                   ),
+                ),
+                const SizedBox(height: 16),
+                Opacity(
+                  opacity: isShowingSequence ? 0.5 : 1.0,
+                  child: Wrap(
+                    spacing: 16,
+                    runSpacing: 16,
+                    alignment: WrapAlignment.center,
+                    children: colorCommands.entries.map((entry) {
+                      final color = entry.key;
+                      final cmd = entry.value;
+                      return GestureDetector(
+                        onTap: () => _selectColor(color),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: cmd['color'],
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (cmd['color'] as Color)
+                                        .withValues(alpha: 0.5),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: Icon(cmd['icon'],
+                                  color: Colors.white, size: 40),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              cmd['name'],
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Butonlar
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Tekrar Göster butonu
+                    if (!isShowingSequence)
+                      ElevatedButton.icon(
+                        onPressed: _showSequenceAnimation,
+                        icon: const Icon(Icons.replay_rounded),
+                        label: Text(_tl('Tekrar Göster', 'Show Again', 'Noch mal zeigen', 'Mostrar otra vez')),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryBlue,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
+                    if (!isShowingSequence && selectedSequence.isNotEmpty)
+                      const SizedBox(width: 12),
+                    // Temizle butonu
+                    if (selectedSequence.isNotEmpty && !isShowingSequence)
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            selectedSequence.clear();
+                          });
+                        },
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: Text(_tl('Temizle', 'Clear', 'Löschen', 'Borrar')),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.errorRed,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
-      ),
+          )),
     );
   }
 }

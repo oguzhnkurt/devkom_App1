@@ -1,7 +1,11 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../providers/settings_provider.dart';
+import '../../services/sound_service.dart';
+import '../../ui/motion.dart';
+import '../../utils/lang.dart';
 
 class MazeExplorerGameScreen extends StatefulWidget {
   final Map<String, dynamic> gameData;
@@ -26,12 +30,22 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
   // 0 = path, 1 = wall, 2 = coin
   List<List<int>> _maze = [];
 
-  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
-  bool get _isEn => _lang == 'en';
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+
+  /// Bu ekrandaki kisa arayuz yazilari icin dort dilli yardimci.
+  ///
+  /// Onceki surumde her yerde `_isEn ? ingilizce : turkce` vardi; almanca
+  /// ya da ispanyolca secen cocuk oyunun tamamini turkce goruyordu.
+  String _tl(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
 
   @override
   void initState() {
     super.initState();
+    // Bu ekranin ses rengi (Labirent kasifi). Ekran tamamen sessizdi ve
+    // bir onceki oyunun ses rengini devraliyordu.
+    SoundService.useVoice(SfxVoice.soft);
     _generateMaze();
   }
 
@@ -96,7 +110,7 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
 
     // Check walls
     if (_maze[newY][newX] == 1) {
-      _showMessage(_isEn ? '❌ You hit a wall!' : '❌ Duvara çarptın!');
+      _showMessage(_tl('❌ Duvara çarptın!', '❌ You hit a wall!', '❌ Du bist gegen eine Wand gelaufen!', '❌ ¡Chocaste con una pared!'));
       return;
     }
 
@@ -109,7 +123,7 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
       if (_maze[newY][newX] == 2) {
         _maze[newY][newX] = 0;
         _score += 10;
-        _showMessage(_isEn ? '🪙 +10 points!' : '🪙 +10 puan!');
+        _showMessage(_tl('🪙 +10 puan!', '🪙 +10 points!', '🪙 +10 Punkte!', '🪙 ¡+10 puntos!'));
       }
 
       // Check goal
@@ -133,17 +147,17 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text(_isEn ? '🎉 Congratulations!' : '🎉 Tebrikler!'),
+        title: Text(_tl('🎉 Tebrikler!', '🎉 Congratulations!', '🎉 Glückwunsch!', '🎉 ¡Felicidades!')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(_isEn ? 'You completed the maze!' : 'Labirenti tamamladın!'),
+            Text(_tl('Labirenti tamamladın!', 'You completed the maze!', 'Du hast das Labyrinth geschafft!', '¡Completaste el laberinto!')),
             const SizedBox(height: 16),
             Text(
-              _isEn ? 'Score: $_score' : 'Puan: $_score',
+              _tl('Puan: $_score', 'Score: $_score', 'Punkte: $_score', 'Puntos: $_score'),
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Text(_isEn ? 'Moves: $_moves' : 'Hamle: $_moves'),
+            Text(_tl('Hamle: $_moves', 'Moves: $_moves', 'Züge: $_moves', 'Movimientos: $_moves')),
           ],
         ),
         actions: [
@@ -158,14 +172,14 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
                 _generateMaze();
               });
             },
-            child: Text(_isEn ? 'New Game' : 'Yeni Oyun'),
+            child: Text(_tl('Yeni Oyun', 'New Game', 'Neue Partie', 'Nueva partida')),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: Text(_isEn ? 'Finish' : 'Bitir'),
+            child: Text(_tl('Bitir', 'Finish', 'Beenden', 'Terminar')),
           ),
         ],
       ),
@@ -176,136 +190,169 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEn ? 'Maze Explorer' : 'Labirent Kaşifi'),
+        title: Text(_tl('Labirent Kaşifi', 'Maze Explorer', 'Labyrinth-Forscher', 'Explorador del laberinto')),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Center(
               child: Text(
-                _isEn ? 'Score: $_score | Moves: $_moves' : 'Puan: $_score | Hamle: $_moves',
+                _tl('Puan: $_score | Hamle: $_moves', 'Score: $_score | Moves: $_moves', 'Punkte: $_score | Züge: $_moves', 'Puntos: $_score | Movimientos: $_moves'),
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Instructions
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: Colors.blue.shade50,
-            child: Row(
-              children: [
-                const Icon(Icons.info_outline, color: Colors.blue),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _isEn
-                        ? 'Move with the arrow keys, collect coins, and reach the goal!'
-                        : 'Ok tuşları ile hareket et, paraları topla ve hedefe ulaş!',
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Maze
-          Expanded(
-            child: Center(
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 8,
-                    mainAxisSpacing: 2,
-                    crossAxisSpacing: 2,
-                  ),
-                  itemCount: 64,
-                  itemBuilder: (context, index) {
-                    final x = index % 8;
-                    final y = index ~/ 8;
-                    final isPlayer = x == _playerX && y == _playerY;
-                    final isGoal = x == _goalX && y == _goalY;
-                    final cellType = _maze[y][x];
-
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: cellType == 1
-                            ? Colors.grey[800]
-                            : isGoal
-                                ? Colors.green[200]
-                                : Colors.white,
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(4),
+      body: SafeArea(
+          top: false,
+          child: Column(
+            children: [
+              // Instructions
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: Colors.blue.shade50,
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline_rounded, color: Colors.blue),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _tl('Ok tuşları ile hareket et, paraları topla ve hedefe ulaş!', 'Move with the arrow keys, collect coins, and reach the goal!', 'Beweg dich mit den Pfeiltasten, sammle die Münzen und erreiche das Ziel!', '¡Muévete con las flechas, recoge las monedas y llega a la meta!'),
+                        style: const TextStyle(fontSize: 14),
                       ),
-                      child: Center(
-                        child: isPlayer
-                            ? const Icon(Icons.person, color: Colors.blue, size: 24)
-                            : isGoal
-                                ? const Icon(Icons.flag, color: Colors.green, size: 24)
-                                : cellType == 2
-                                    ? const Icon(Icons.circle, color: Colors.amber, size: 16)
-                                    : null,
-                      ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ),
 
-          // Controls
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_upward),
-                  iconSize: 48,
-                  onPressed: () => _movePlayer(0, -1),
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.blue.shade100,
+              // Maze
+              Expanded(
+                child: Center(
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: LayoutBuilder(
+                      builder: (context, kutu) {
+                        // Karakteri hucrenin icine cizersek her adimda bir
+                        // hucreden kaybolup digerinde beliriyor; cocuk
+                        // nereye gittigini goremiyor. Bu yuzden izgarayi
+                        // karakterisiz ciziyoruz ve karakteri ustune
+                        // AnimatedPositioned ile koyuyoruz: ayni kareler,
+                        // ama arada kayan bir hareket var.
+                        const kenar = 16.0;
+                        const bosluk = 2.0;
+                        final hucre =
+                            (kutu.maxWidth - kenar * 2 - bosluk * 7) / 8;
+                        double konum(int i) => kenar + i * (hucre + bosluk);
+
+                        return Stack(
+                          children: [
+                            GridView.builder(
+                              padding: const EdgeInsets.all(kenar),
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 8,
+                                mainAxisSpacing: bosluk,
+                                crossAxisSpacing: bosluk,
+                              ),
+                              itemCount: 64,
+                              itemBuilder: (context, index) {
+                                final x = index % 8;
+                                final y = index ~/ 8;
+                                final isGoal = x == _goalX && y == _goalY;
+                                final cellType = _maze[y][x];
+
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: cellType == 1
+                                        ? Colors.grey[800]
+                                        : isGoal
+                                            ? Colors.green[200]
+                                            : Colors.white,
+                                    border:
+                                        Border.all(color: Colors.grey[300]!),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Center(
+                                    child: isGoal
+                                        ? const Icon(Icons.flag_rounded,
+                                            color: Colors.green, size: 24)
+                                        : cellType == 2
+                                            ? const Icon(Icons.circle_rounded,
+                                                color: Colors.amber, size: 16)
+                                            : null,
+                                  ),
+                                );
+                              },
+                            ),
+                            AnimatedPositioned(
+                              duration: Motion.adapt(context, Motion.short4),
+                              curve: Motion.emphasized,
+                              left: konum(_playerX),
+                              top: konum(_playerY),
+                              width: hucre,
+                              height: hucre,
+                              child: const Center(
+                                child: Icon(Icons.person_rounded,
+                                    color: Colors.blue, size: 24),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              ),
+
+              // Controls
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back),
+                      icon: const Icon(Icons.arrow_upward_rounded),
                       iconSize: 48,
-                      onPressed: () => _movePlayer(-1, 0),
+                      onPressed: () => _movePlayer(0, -1),
                       style: IconButton.styleFrom(
                         backgroundColor: Colors.blue.shade100,
                       ),
                     ),
-                    const SizedBox(width: 80),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_rounded),
+                          iconSize: 48,
+                          onPressed: () => _movePlayer(-1, 0),
+                          style: IconButton.styleFrom(
+                            backgroundColor: Colors.blue.shade100,
+                          ),
+                        ),
+                        const SizedBox(width: 80),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_forward_rounded),
+                          iconSize: 48,
+                          onPressed: () => _movePlayer(1, 0),
+                          style: IconButton.styleFrom(
+                            backgroundColor: Colors.blue.shade100,
+                          ),
+                        ),
+                      ],
+                    ),
                     IconButton(
-                      icon: const Icon(Icons.arrow_forward),
+                      icon: const Icon(Icons.arrow_downward_rounded),
                       iconSize: 48,
-                      onPressed: () => _movePlayer(1, 0),
+                      onPressed: () => _movePlayer(0, 1),
                       style: IconButton.styleFrom(
                         backgroundColor: Colors.blue.shade100,
                       ),
                     ),
                   ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.arrow_downward),
-                  iconSize: 48,
-                  onPressed: () => _movePlayer(0, 1),
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.blue.shade100,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+              ),
+            ],
+          )),
     );
   }
 }

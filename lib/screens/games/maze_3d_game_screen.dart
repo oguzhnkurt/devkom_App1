@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 // TODO: Migrate to Supabase
 // import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../theme.dart';
 import '../../providers/settings_provider.dart';
+import '../../services/sound_service.dart';
+import '../../utils/lang.dart';
 
 /// 3D First-Person Maze Explorer Game
 /// Uses ray-casting technique for pseudo-3D rendering
@@ -43,8 +44,15 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
   // Collected coins tracker
   Set<String> _collectedCoins = {};
 
-  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
-  bool get _isEn => _lang == 'en';
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+
+  /// Bu ekrandaki kisa arayuz yazilari icin dort dilli yardimci.
+  ///
+  /// Onceki surumde her yerde `_isEn ? ingilizce : turkce` vardi; almanca
+  /// ya da ispanyolca secen cocuk oyunun tamamini turkce goruyordu.
+  String _tl(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
 
   // Movement constants
   static const double _moveSpeed = 0.15;
@@ -59,11 +67,13 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
   static const Color _ceilingColor = Color(0xFF87CEEB); // Sky blue
   static const Color _coinColor = Color(0xFFFFD700); // Gold
   static const Color _exitColor = Color(0xFF8B4513); // Castle brown
-  static const Color _playerColor = Color(0xFF5C4033); // Brown character
 
   @override
   void initState() {
     super.initState();
+    // Bu ekranin ses rengi (Labirent). Ekran tamamen sessizdi ve
+    // bir onceki oyunun ses rengini devraliyordu.
+    SoundService.useVoice(SfxVoice.deep);
     _startTime = DateTime.now();
     _generateMaze();
     _setupKeyboardListener();
@@ -112,14 +122,21 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
 
   void _carvePath(int x, int y) {
     final directions = [
-      [0, -2], [2, 0], [0, 2], [-2, 0]
+      [0, -2],
+      [2, 0],
+      [0, 2],
+      [-2, 0]
     ]..shuffle();
 
     for (var dir in directions) {
       final nx = x + dir[0];
       final ny = y + dir[1];
 
-      if (nx > 0 && nx < _mazeSize - 1 && ny > 0 && ny < _mazeSize - 1 && _maze[ny][nx] == 1) {
+      if (nx > 0 &&
+          nx < _mazeSize - 1 &&
+          ny > 0 &&
+          ny < _mazeSize - 1 &&
+          _maze[ny][nx] == 1) {
         _maze[ny][nx] = 0;
         _maze[y + dir[1] ~/ 2][x + dir[0] ~/ 2] = 0;
         _carvePath(nx, ny);
@@ -172,7 +189,7 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
               _maze[mapY][mapX] = 0;
               _coinsCollected++;
               _score += 10;
-              _showMessage(_isEn ? '🪙 You collected gold! +10 points' : '🪙 Altın topladın! +10 puan');
+              _showMessage(_tl('🪙 Altın topladın! +10 puan', '🪙 You collected gold! +10 points', '🪙 Du hast Gold gesammelt! +10 Punkte', '🪙 ¡Recogiste oro! +10 puntos'));
             }
           }
 
@@ -212,7 +229,8 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
 
   Future<void> _winGame() async {
     final duration = DateTime.now().difference(_startTime!).inSeconds;
-    final bonusScore = (_totalCoins > 0 ? (_coinsCollected / _totalCoins * 100).round() : 0);
+    final bonusScore =
+        (_totalCoins > 0 ? (_coinsCollected / _totalCoins * 100).round() : 0);
     final timeBonus = math.max(0, 300 - duration);
     final finalScore = _score + bonusScore + timeBonus;
 
@@ -247,9 +265,10 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
         builder: (context) => AlertDialog(
           title: Row(
             children: [
-              Icon(Icons.emoji_events, color: AppTheme.successGreen, size: 32),
+              Icon(Icons.emoji_events_rounded,
+                  color: AppTheme.successGreen, size: 32),
               const SizedBox(width: 12),
-              Text(_isEn ? '🎉 Congratulations!' : '🎉 Tebrikler!'),
+              Text(_tl('🎉 Tebrikler!', '🎉 Congratulations!', '🎉 Glückwunsch!', '🎉 ¡Felicidades!')),
             ],
           ),
           content: Column(
@@ -257,15 +276,21 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _isEn ? 'You successfully completed the maze!' : 'Labirenti başarıyla tamamladın!',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                _tl('Labirenti başarıyla tamamladın!', 'You successfully completed the maze!', 'Du hast das Labyrinth geschafft!', '¡Completaste el laberinto!'),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-              _buildStatRow(_isEn ? '🏆 Total Score' : '🏆 Toplam Puan', finalScore.toString()),
-              _buildStatRow(_isEn ? '🪙 Gold' : '🪙 Altınlar', '$_coinsCollected / $_totalCoins'),
-              _buildStatRow(_isEn ? '👣 Step Count' : '👣 Adım Sayısı', _moves.toString()),
-              _buildStatRow(_isEn ? '⏱️ Time' : '⏱️ Süre', '${duration}s'),
-              _buildStatRow(_isEn ? '⭐ Bonus' : '⭐ Bonus', _isEn ? '+$bonusScore (gold) +$timeBonus (time)' : '+$bonusScore (altın) +$timeBonus (zaman)'),
+              _buildStatRow(_tl('🏆 Toplam Puan', '🏆 Total Score', '🏆 Gesamtpunkte', '🏆 Puntos totales'),
+                  finalScore.toString()),
+              _buildStatRow(_tl('🪙 Altınlar', '🪙 Gold', '🪙 Gold', '🪙 Oro'),
+                  '$_coinsCollected / $_totalCoins'),
+              _buildStatRow(_tl('👣 Adım Sayısı', '👣 Step Count', '👣 Anzahl der Schritte', '👣 Número de pasos'),
+                  _moves.toString()),
+              _buildStatRow(_tl('⏱️ Süre', '⏱️ Time', '⏱️ Zeit', '⏱️ Tiempo'), '${duration}s'),
+              _buildStatRow(
+                  _tl('⭐ Bonus', '⭐ Bonus', '⭐ Bonus', '⭐ Bonus'),
+                  _tl('+$bonusScore (altın) +$timeBonus (zaman)', '+$bonusScore (gold) +$timeBonus (time)', '+$bonusScore (Gold) +$timeBonus (Zeit)', '+$bonusScore (oro) +$timeBonus (tiempo)')),
             ],
           ),
           actions: [
@@ -274,7 +299,7 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
                 Navigator.pop(context);
                 Navigator.pop(context);
               },
-              child: Text(_isEn ? 'Main Menu' : 'Ana Menü'),
+              child: Text(_tl('Ana Menü', 'Main Menu', 'Hauptmenü', 'Menú principal')),
             ),
             ElevatedButton(
               onPressed: () {
@@ -296,7 +321,7 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
                 backgroundColor: AppTheme.successGreen,
                 foregroundColor: Colors.white,
               ),
-              child: Text(_isEn ? 'New Game' : 'Yeni Oyun'),
+              child: Text(_tl('Yeni Oyun', 'New Game', 'Neue Partie', 'Nueva partida')),
             ),
           ],
         ),
@@ -328,177 +353,192 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF87CEEB), // Sky blue background
-      body: Stack(
-        children: [
-          // Main game view
-          Column(
+      body: SafeArea(
+          top: false,
+          child: Stack(
             children: [
-              // 3D View with outdoor theme
-              Expanded(
-                child: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0xFF87CEEB), // Sky blue
-                        Color(0xFF4CAF50), // Grass green at horizon
+              // Main game view
+              Column(
+                children: [
+                  // 3D View with outdoor theme
+                  Expanded(
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color(0xFF87CEEB), // Sky blue
+                            Color(0xFF4CAF50), // Grass green at horizon
+                          ],
+                        ),
+                      ),
+                      child: CustomPaint(
+                        size: Size.infinite,
+                        painter: _Maze3DPainter(
+                          playerX: _playerX,
+                          playerY: _playerY,
+                          playerAngle: _playerAngle,
+                          maze: _maze,
+                          mazeSize: _mazeSize,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Controls at bottom
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.5),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(20)),
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      children: [
+                        // Forward
+                        _buildControlButton(Icons.arrow_upward_rounded,
+                            _moveForward, _tl('İleri', 'Forward', 'Vorwärts', 'Adelante')),
+                        const SizedBox(height: 4),
+                        // Left/Right movement and rotation
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildControlButton(
+                                Icons.rotate_left_rounded, _rotateLeft, '←'),
+                            _buildControlButton(
+                                Icons.arrow_back_rounded, _strafeLeft, '◀'),
+                            _buildControlButton(Icons.arrow_downward_rounded,
+                                _moveBackward, '▼'),
+                            _buildControlButton(
+                                Icons.arrow_forward_rounded, _strafeRight, '▶'),
+                            _buildControlButton(
+                                Icons.rotate_right_rounded, _rotateRight, '→'),
+                          ],
+                        ),
                       ],
                     ),
                   ),
-                  child: CustomPaint(
-                    size: Size.infinite,
-                    painter: _Maze3DPainter(
-                      playerX: _playerX,
-                      playerY: _playerY,
-                      playerAngle: _playerAngle,
-                      maze: _maze,
-                      mazeSize: _mazeSize,
-                    ),
-                  ),
-                ),
+                ],
               ),
 
-              // Controls at bottom
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                padding: const EdgeInsets.all(12),
-                child: Column(
+              // HUD Overlay - Top stats
+              Positioned(
+                top: 40,
+                left: 16,
+                right: 16,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Forward
-                    _buildControlButton(Icons.arrow_upward, _moveForward, _isEn ? 'Forward' : 'İleri'),
-                    const SizedBox(height: 4),
-                    // Left/Right movement and rotation
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildControlButton(Icons.rotate_left, _rotateLeft, '←'),
-                        _buildControlButton(Icons.arrow_back, _strafeLeft, '◀'),
-                        _buildControlButton(Icons.arrow_downward, _moveBackward, '▼'),
-                        _buildControlButton(Icons.arrow_forward, _strafeRight, '▶'),
-                        _buildControlButton(Icons.rotate_right, _rotateRight, '→'),
-                      ],
+                    // Time and coins
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.amber, width: 2),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.access_time_rounded,
+                              color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${DateTime.now().difference(_startTime!).inSeconds}s',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Coins collected
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.amber, width: 2),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '$_coinsCollected/$_totalCoins',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.circle_rounded,
+                              color: Colors.amber, size: 20),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
+
+              // Mini-map overlay
+              Positioned(
+                top: 100,
+                right: 16,
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.amber, width: 2),
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.5),
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: CustomPaint(
+                      painter: _MiniMapPainter(
+                        playerX: _playerX,
+                        playerY: _playerY,
+                        playerAngle: _playerAngle,
+                        maze: _maze,
+                        mazeSize: _mazeSize,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Back button
+              Positioned(
+                top: 40,
+                left: 16,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back_rounded,
+                      color: Colors.white, size: 28),
+                  onPressed: () => Navigator.pop(context),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.black.withValues(alpha: 0.6),
+                    padding: const EdgeInsets.all(12),
+                  ),
+                ),
+              ),
             ],
-          ),
-
-          // HUD Overlay - Top stats
-          Positioned(
-            top: 40,
-            left: 16,
-            right: 16,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Time and coins
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.amber, width: 2),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.access_time, color: Colors.white, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${DateTime.now().difference(_startTime!).inSeconds}s',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Coins collected
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.amber, width: 2),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '$_coinsCollected/$_totalCoins',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.circle, color: Colors.amber, size: 20),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Mini-map overlay
-          Positioned(
-            top: 100,
-            right: 16,
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.amber, width: 2),
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    blurRadius: 8,
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: CustomPaint(
-                  painter: _MiniMapPainter(
-                    playerX: _playerX,
-                    playerY: _playerY,
-                    playerAngle: _playerAngle,
-                    maze: _maze,
-                    mazeSize: _mazeSize,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // Back button
-          Positioned(
-            top: 40,
-            left: 16,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
-              onPressed: () => Navigator.pop(context),
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.black.withValues(alpha: 0.6),
-                padding: const EdgeInsets.all(12),
-              ),
-            ),
-          ),
-        ],
-      ),
+          )),
     );
   }
 
-  Widget _buildControlButton(IconData icon, VoidCallback onPressed, String tooltip) {
+  Widget _buildControlButton(
+      IconData icon, VoidCallback onPressed, String tooltip) {
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
@@ -568,7 +608,9 @@ class _Maze3DPainter extends CustomPainter {
     );
     canvas.drawRect(
       Rect.fromLTWH(0, 0, screenWidth, screenHeight / 2),
-      Paint()..shader = skyGradient.createShader(Rect.fromLTWH(0, 0, screenWidth, screenHeight / 2)),
+      Paint()
+        ..shader = skyGradient
+            .createShader(Rect.fromLTWH(0, 0, screenWidth, screenHeight / 2)),
     );
 
     // Draw floor with grass texture effect
@@ -582,7 +624,9 @@ class _Maze3DPainter extends CustomPainter {
     );
     canvas.drawRect(
       Rect.fromLTWH(0, screenHeight / 2, screenWidth, screenHeight / 2),
-      Paint()..shader = floorGradient.createShader(Rect.fromLTWH(0, screenHeight / 2, screenWidth, screenHeight / 2)),
+      Paint()
+        ..shader = floorGradient.createShader(
+            Rect.fromLTWH(0, screenHeight / 2, screenWidth, screenHeight / 2)),
     );
 
     // Ray casting
@@ -630,7 +674,8 @@ class _Maze3DPainter extends CustomPainter {
       distance *= math.cos(rayAngle - playerAngle);
 
       // Calculate wall height
-      final wallHeight = distance > 0 ? (screenHeight / distance) : screenHeight;
+      final wallHeight =
+          distance > 0 ? (screenHeight / distance) : screenHeight;
       final wallTop = (screenHeight - wallHeight) / 2;
 
       // Draw wall slice
@@ -648,7 +693,8 @@ class _Maze3DPainter extends CustomPainter {
         canvas.drawCircle(
           coinCenter,
           coinRadius + 5,
-          Paint()..color = _Maze3DGameScreenState._coinColor.withValues(alpha: 0.3),
+          Paint()
+            ..color = _Maze3DGameScreenState._coinColor.withValues(alpha: 0.3),
         );
 
         // Coin body with gradient
@@ -662,11 +708,19 @@ class _Maze3DPainter extends CustomPainter {
         canvas.drawCircle(
           coinCenter,
           coinRadius,
-          Paint()..shader = coinGradient.createShader(
-            Rect.fromCircle(center: coinCenter, radius: coinRadius),
-          ),
+          Paint()
+            ..shader = coinGradient.createShader(
+              Rect.fromCircle(center: coinCenter, radius: coinRadius),
+            ),
         );
-        return; // Don't draw wall behind coin
+        // BURADA `return` VARDI.
+        //
+        // Isin taramasi ekrani soldan saga dilim dilim ciziyor. Bir dilim
+        // madeni paraya carptiginda `return` butun donguyu bitiriyor,
+        // yani o paranin SAGINDA kalan her duvar dilimi hic cizilmiyordu:
+        // ekranin sag tarafi bos gokyuzu/zemin olarak kaliyordu. Kodda
+        // bir korumaya benziyor, aslinda cizimi yarida kesiyor.
+        continue;
       } else if (hitType == 3) {
         // Exit - castle/door with texture
         final shade = (1.0 - (distance / maxDistance)).clamp(0.0, 1.0);
@@ -705,9 +759,10 @@ class _Maze3DPainter extends CustomPainter {
 
       canvas.drawRect(
         Rect.fromLTWH(x, wallTop, sliceWidth + 1, wallHeight),
-        Paint()..shader = wallGradient.createShader(
-          Rect.fromLTWH(x, wallTop, sliceWidth + 1, wallHeight),
-        ),
+        Paint()
+          ..shader = wallGradient.createShader(
+            Rect.fromLTWH(x, wallTop, sliceWidth + 1, wallHeight),
+          ),
       );
     }
   }

@@ -10,6 +10,7 @@ import '../../providers/auth_provider.dart';
 import '../../utils/score_calculator.dart';
 import '../../widgets/play_time_gate.dart';
 import '../../providers/settings_provider.dart';
+import '../../utils/lang.dart';
 
 /// Bug Hunter Oyunu
 /// Koddaki hataları bulma ve debug yapma yeteneklerini geliştiren oyun
@@ -26,7 +27,7 @@ class BugHunterGameScreen extends StatelessWidget {
 }
 
 class _BugHunterGameContent extends StatefulWidget {
-  const _BugHunterGameContent({super.key});
+  const _BugHunterGameContent();
 
   @override
   State<_BugHunterGameContent> createState() => _BugHunterGameContentState();
@@ -53,23 +54,38 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
   DateTime? startTime;
   int? finalTimeSeconds;
 
-  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
-  bool get _isEn => _lang == 'en';
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  /// Oyun ICERIGI (kod satirlari, seviye basliklari, eslestirme ciftleri)
+  /// yalnizca turkce ve ingilizce yazildi. Almanca ya da ispanyolca secen
+  /// cocuga turkce icerik vermek yerine ingilizcesini veriyoruz; ceviriler
+  /// gelene kadar dogru olan bu.
+  bool get _isEn => _lang != 'tr';
+
+  /// Bu ekrandaki kisa arayuz yazilari icin dort dilli yardimci.
+  ///
+  /// Onceki surumde her yerde `_isEn ? ingilizce : turkce` vardi; almanca
+  /// ya da ispanyolca secen cocuk oyunun tamamini turkce goruyordu.
+  String _tl(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
 
   // Bug türleri
   final List<String> bugTypes = [
-    'syntax',           // Sözdizimi hatası
-    'logic',            // Mantık hatası
-    'variable',         // Değişken hatası
-    'operator',         // Operatör hatası
-    'comparison',       // Karşılaştırma hatası
-    'loop',             // Döngü hatası
-    'condition',        // Koşul hatası
+    'syntax', // Sözdizimi hatası
+    'logic', // Mantık hatası
+    'variable', // Değişken hatası
+    'operator', // Operatör hatası
+    'comparison', // Karşılaştırma hatası
+    'loop', // Döngü hatası
+    'condition', // Koşul hatası
   ];
 
   @override
   void initState() {
     super.initState();
+    // Bu ekranin ses rengi (Kod okuma). Butun oyunlarda ayni tonu
+    // calmak oyunlari birbirinden ayirt edilemez kiliyordu.
+    SoundService.useVoice(SfxVoice.bright);
     startTime = DateTime.now();
     _generateNewLevel();
   }
@@ -136,24 +152,58 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
     final bugIndex = _random.nextInt(bugs.length);
     bugDescription = bugs[bugIndex];
 
+    // BU URETEC IKI SEKILDE BOZUKTU, IKISI DE SESSIZDI:
+    //
+    //  * `bugIndex == 3` ("tirnak kapanmamis") secildiginde HICBIR satir
+    //    hatali isaretlenmiyordu. `indexWhere` -1 donuyor, cocuk hangi
+    //    satira dokunursa dokunsun yanlis sayiliyor, uc canini da
+    //    kaybediyor ve yanlis cevap kutusu "Dogru satir: 0" yaziyordu.
+    //    Dort seviye turunden biri, yani her uc oyundan birinde
+    //    kazanilmasi imkansiz bir bolum.
+    //
+    //  * `bugIndex == 0` ("noktali virgul eksik") secildiginde IKI satir
+    //    birden hatali isaretleniyordu. `indexWhere` ilkini seciyor;
+    //    ikinci satirdaki gercekten eksik noktali virgulu bulan cocuga
+    //    "yanlis" deniyordu.
+    //
+    // Simdi her hata turu icin tam olarak BIR satir hatali, ve hatasiz
+    // durumdaki satirlar gercekten dogru yazilmis kod.
     codeLines = _isEn
         ? [
             CodeLine('int x = 10;', false),
             CodeLine('int y = 20;', false),
-            CodeLine('int total = x + y', bugIndex == 0), // Missing semicolon
-            CodeLine('print(total;', bugIndex == 1), // Unclosed parenthesis
+            CodeLine(
+              bugIndex == 0 ? 'int total = x + y' : 'int total = x + y;',
+              bugIndex == 0,
+            ),
+            CodeLine(
+              bugIndex == 1 ? 'print(total;' : 'print(total);',
+              bugIndex == 1,
+            ),
             CodeLine('if (total > 25) {', false),
-            CodeLine('  print("Big")', bugIndex == 0), // Missing semicolon
-            CodeLine(bugIndex == 2 ? '// Missing }' : '}', bugIndex == 2), // Missing curly brace
+            CodeLine(
+              bugIndex == 3 ? '  print("Big);' : '  print("Big");',
+              bugIndex == 3,
+            ),
+            CodeLine(bugIndex == 2 ? '// } is missing' : '}', bugIndex == 2),
           ]
         : [
             CodeLine('int x = 10;', false),
             CodeLine('int y = 20;', false),
-            CodeLine('int toplam = x + y', bugIndex == 0), // Noktalı virgül eksik
-            CodeLine('print(toplam;', bugIndex == 1),      // Parantez kapanmamış
+            CodeLine(
+              bugIndex == 0 ? 'int toplam = x + y' : 'int toplam = x + y;',
+              bugIndex == 0,
+            ),
+            CodeLine(
+              bugIndex == 1 ? 'print(toplam;' : 'print(toplam);',
+              bugIndex == 1,
+            ),
             CodeLine('if (toplam > 25) {', false),
-            CodeLine('  print("Büyük")', bugIndex == 0),   // Noktalı virgül eksik
-            CodeLine(bugIndex == 2 ? '// Eksik }' : '}', bugIndex == 2), // Süslü parantez eksik
+            CodeLine(
+              bugIndex == 3 ? '  print("Büyük);' : '  print("Büyük");',
+              bugIndex == 3,
+            ),
+            CodeLine(bugIndex == 2 ? '// } eksik' : '}', bugIndex == 2),
           ];
 
     bugLineIndex = codeLines.indexWhere((line) => line.hasBug);
@@ -172,20 +222,24 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
             'Bölme yerine çarpma',
           ];
 
-    bugDescription = bugs[_random.nextInt(bugs.length)];
+    // Aciklama RASTGELE seciliyordu ama koddaki hata her zaman ayni:
+    // carpma yerine toplama. Cocuk "Bolme yerine carpma" ipucusunu okuyup
+    // bolme ariyordu. Aciklama artik gercek hatayi anlatiyor.
+    bugDescription = bugs[1];
 
     codeLines = _isEn
         ? [
             CodeLine('int price = 100;', false),
             CodeLine('int quantity = 5;', false),
-            CodeLine('int total = price + quantity;', true), // should be * instead of +
+            CodeLine('int total = price + quantity;',
+                true), // should be * instead of +
             CodeLine('print(total);', false),
             CodeLine('// Total should be 500', false),
           ]
         : [
             CodeLine('int fiyat = 100;', false),
             CodeLine('int adet = 5;', false),
-            CodeLine('int toplam = fiyat + adet;', true),  // + yerine * olmalı
+            CodeLine('int toplam = fiyat + adet;', true), // + yerine * olmalı
             CodeLine('print(toplam);', false),
             CodeLine('// Toplam = 500 olmalı', false),
           ];
@@ -206,7 +260,8 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
             '> yerine < kullanılmalı',
           ];
 
-    bugDescription = bugs[_random.nextInt(bugs.length)];
+    // Koddaki hata her zaman `=` / `==`; aciklama da onu soylemeli.
+    bugDescription = bugs[1];
 
     codeLines = _isEn
         ? [
@@ -219,7 +274,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
           ]
         : [
             CodeLine('int yas = 15;', false),
-            CodeLine('if (yas = 18) {', true),             // = yerine == olmalı
+            CodeLine('if (yas = 18) {', true), // = yerine == olmalı
             CodeLine('  print("Yetişkin");', false),
             CodeLine('} else {', false),
             CodeLine('  print("Çocuk");', false),
@@ -242,7 +297,8 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
             'Değişken kullanılmadan önce atanmamış',
           ];
 
-    bugDescription = bugs[_random.nextInt(bugs.length)];
+    // Koddaki hata her zaman tanimlanmamis bir degisken.
+    bugDescription = bugs[0];
 
     codeLines = _isEn
         ? [
@@ -262,14 +318,15 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
   }
 
   void _generateLogicBug() {
-    bugDescription = _isEn ? 'Logic error - Wrong calculation' : 'Mantık hatası - Yanlış hesaplama';
+    bugDescription = _tl('Mantık hatası - Yanlış hesaplama', 'Logic error - Wrong calculation', 'Logikfehler - falsche Berechnung', 'Error de lógica: cálculo incorrecto');
 
     codeLines = _isEn
         ? [
             CodeLine('int grade1 = 80;', false),
             CodeLine('int grade2 = 90;', false),
             CodeLine('int grade3 = 70;', false),
-            CodeLine('double average = (grade1 + grade2) / 3;', true), // grade3 missing
+            CodeLine('double average = (grade1 + grade2) / 3;',
+                true), // grade3 missing
             CodeLine('print(average);', false),
             CodeLine('// Average should be 80', false),
           ]
@@ -277,7 +334,8 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
             CodeLine('int not1 = 80;', false),
             CodeLine('int not2 = 90;', false),
             CodeLine('int not3 = 70;', false),
-            CodeLine('double ortalama = (not1 + not2) / 3;', true), // not3 eksik
+            CodeLine(
+                'double ortalama = (not1 + not2) / 3;', true), // not3 eksik
             CodeLine('print(ortalama);', false),
             CodeLine('// Ortalama = 80 olmalı', false),
           ];
@@ -286,14 +344,15 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
   }
 
   void _generateConditionBug() {
-    bugDescription = _isEn ? 'Condition error - Wrong comparison' : 'Koşul hatası - Yanlış karşılaştırma';
+    bugDescription = _tl('Koşul hatası - Yanlış karşılaştırma', 'Condition error - Wrong comparison', 'Bedingungsfehler - falscher Vergleich', 'Error de condición: comparación incorrecta');
 
     codeLines = _isEn
         ? [
             CodeLine('int score = 85;', false),
             CodeLine('if (score > 90) {', false),
             CodeLine('  print("Excellent");', false),
-            CodeLine('} else if (score < 80) {', true), // should be >= instead of <
+            CodeLine(
+                '} else if (score < 80) {', true), // should be >= instead of <
             CodeLine('  print("Good");', false),
             CodeLine('} else {', false),
             CodeLine('  print("Average");', false),
@@ -303,7 +362,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
             CodeLine('int puan = 85;', false),
             CodeLine('if (puan > 90) {', false),
             CodeLine('  print("Mükemmel");', false),
-            CodeLine('} else if (puan < 80) {', true),     // < yerine >= olmalı
+            CodeLine('} else if (puan < 80) {', true), // < yerine >= olmalı
             CodeLine('  print("İyi");', false),
             CodeLine('} else {', false),
             CodeLine('  print("Orta");', false),
@@ -314,7 +373,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
   }
 
   void _generateLoopBug() {
-    bugDescription = _isEn ? 'Loop error - Infinite loop risk' : 'Döngü hatası - Sonsuz döngü riski';
+    bugDescription = _tl('Döngü hatası - Sonsuz döngü riski', 'Loop error - Infinite loop risk', 'Schleifenfehler - Gefahr einer Endlosschleife', 'Error de bucle: riesgo de bucle infinito');
 
     codeLines = _isEn
         ? [
@@ -328,7 +387,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
             CodeLine('int i = 0;', false),
             CodeLine('while (i < 10) {', false),
             CodeLine('  print(i);', false),
-            CodeLine('  // i++; eksik', true),             // i++ eksik - sonsuz döngü
+            CodeLine('  // i++; eksik', true), // i++ eksik - sonsuz döngü
             CodeLine('}', false),
           ];
 
@@ -385,16 +444,16 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.close, color: AppTheme.errorRed),
+            Icon(Icons.close_rounded, color: AppTheme.errorRed),
             const SizedBox(width: 8),
-            Text(_isEn ? 'Wrong Line' : 'Yanlış Satır'),
+            Text(_tl('Yanlış Satır', 'Wrong Line', 'Falsche Zeile', 'Línea incorrecta')),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              _isEn ? 'Correct line: ${bugLineIndex! + 1}' : 'Doğru satır: ${bugLineIndex! + 1}',
+              _tl('Doğru satır: ${bugLineIndex! + 1}', 'Correct line: ${bugLineIndex! + 1}', 'Richtige Zeile: ${bugLineIndex! + 1}', 'Línea correcta: ${bugLineIndex! + 1}'),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -405,7 +464,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
             ),
             const SizedBox(height: 12),
             Text(
-              _isEn ? 'Lives left: $lives' : 'Kalan can: $lives',
+              _tl('Kalan can: $lives', 'Lives left: $lives', 'Verbleibende Leben: $lives', 'Vidas restantes: $lives'),
               style: const TextStyle(fontSize: 16),
             ),
           ],
@@ -423,7 +482,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
               backgroundColor: AppTheme.primaryBlue,
               foregroundColor: Colors.white,
             ),
-            child: Text(_isEn ? 'Continue' : 'Devam Et'),
+            child: Text(_tl('Devam Et', 'Continue', 'Weiter', 'Continuar')),
           ),
         ],
       ),
@@ -470,7 +529,8 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
     final entry = LeaderboardEntry(
       id: '',
       userId: userId,
-      userName: authProvider.currentUser?.displayName ?? (_isEn ? 'Player' : 'Oyuncu'),
+      userName: authProvider.currentUser?.displayName ??
+          (_tl('Oyuncu', 'Player', 'Spieler', 'Jugador')),
       score: score.round(),
       difficulty: currentLevel,
       gameType: GameType.bugHunter,
@@ -510,7 +570,8 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
     } else {
       switch (bugType) {
         case 'syntax':
-          hintText = 'İpucu: Noktalama işaretlerini ve parantezleri kontrol et!';
+          hintText =
+              'İpucu: Noktalama işaretlerini ve parantezleri kontrol et!';
           break;
         case 'operator':
           hintText = 'İpucu: İşlem operatörü doğru mu?';
@@ -538,9 +599,9 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.lightbulb, color: AppTheme.warningOrange),
+            Icon(Icons.lightbulb_rounded, color: AppTheme.warningOrange),
             const SizedBox(width: 8),
-            Text(_isEn ? 'Hint' : 'İpucu'),
+            Text(_tl('İpucu', 'Hint', 'Tipp', 'Pista')),
           ],
         ),
         content: Column(
@@ -559,7 +620,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                _isEn ? 'Bug Type: $bugDescription' : 'Hata Türü: $bugDescription',
+                _tl('Hata Türü: $bugDescription', 'Bug Type: $bugDescription', 'Fehlerart: $bugDescription', 'Tipo de error: $bugDescription'),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -578,7 +639,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
               backgroundColor: AppTheme.primaryBlue,
               foregroundColor: Colors.white,
             ),
-            child: Text(_isEn ? 'OK' : 'Tamam'),
+            child: Text(_tl('Tamam', 'OK', 'OK', 'Aceptar')),
           ),
         ],
       ),
@@ -596,47 +657,52 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
         elevation: 3,
-        title: const Text('Bug Hunter', style: TextStyle(fontWeight: FontWeight.bold)),
+        // Kart adi 'Hata Avcisi' oldugu icin baslik da dile uymalı;
+        // aksi halde kullanici Turkce karttan Ingilizce bir ekrana giriyor.
+        title: Text(_tl('Hata Avcısı', 'Bug Hunter', 'Fehlerjäger', 'Cazador de errores'),
+            style: const TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.lightbulb_outline),
+            icon: const Icon(Icons.lightbulb_outline_rounded),
             onPressed: _showHintDialog,
-            tooltip: _isEn ? 'Hint' : 'İpucu',
+            tooltip: _tl('İpucu', 'Hint', 'Tipp', 'Pista'),
           ),
         ],
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppTheme.errorRed.withValues(alpha: 0.05),
-              Colors.white,
-            ],
-          ),
-        ),
-        child: Column(
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 16),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    _buildInstructionCard(),
-                    const SizedBox(height: 24),
-                    _buildBugTypeCard(),
-                    const SizedBox(height: 24),
-                    _buildCodeEditor(),
-                  ],
-                ),
+      body: SafeArea(
+          top: false,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppTheme.errorRed.withValues(alpha: 0.05),
+                  Colors.white,
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+            child: Column(
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _buildInstructionCard(),
+                        const SizedBox(height: 24),
+                        _buildBugTypeCard(),
+                        const SizedBox(height: 24),
+                        _buildCodeEditor(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )),
     );
   }
 
@@ -656,15 +722,18 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem(_isEn ? 'Level' : 'Seviye', '$currentLevel/$maxLevels', Icons.trending_up, AppTheme.primaryBlue),
-          _buildStatItem(_isEn ? 'Score' : 'Skor', '$score', Icons.stars, AppTheme.warningOrange),
+          _buildStatItem(_tl('Seviye', 'Level', 'Level', 'Nivel'), '$currentLevel/$maxLevels',
+              Icons.trending_up_rounded, AppTheme.primaryBlue),
+          _buildStatItem(_tl('Skor', 'Score', 'Punkte', 'Puntos'), '${score.round()}',
+              Icons.stars_rounded, AppTheme.warningOrange),
           _buildLivesIndicator(),
         ],
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
+  Widget _buildStatItem(
+      String label, String value, IconData icon, Color color) {
     return Column(
       children: [
         Icon(icon, color: color, size: 24),
@@ -693,7 +762,9 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: Icon(
-                index < lives ? Icons.favorite : Icons.favorite_border,
+                index < lives
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
                 color: AppTheme.errorRed,
                 size: 20,
               ),
@@ -702,7 +773,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
         ),
         const SizedBox(height: 4),
         Text(
-          _isEn ? 'Lives' : 'Can',
+          _tl('Can', 'Lives', 'Leben', 'Vidas'),
           style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         ),
       ],
@@ -722,7 +793,8 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
                 color: AppTheme.errorRed.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.bug_report, color: AppTheme.errorRed, size: 28),
+              child: Icon(Icons.bug_report_rounded,
+                  color: AppTheme.errorRed, size: 28),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -730,7 +802,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _isEn ? 'Bug Hunting' : 'Hata Avcılığı',
+                    _tl('Hata Avcılığı', 'Bug Hunting', 'Fehlerjagd', 'Caza de errores'),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -738,7 +810,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _isEn ? 'Find the line containing the bug in the code' : 'Koddaki hatayı içeren satırı bul',
+                    _tl('Koddaki hatayı içeren satırı bul', 'Find the line containing the bug in the code', 'Finde die Zeile mit dem Fehler im Code', 'Encuentra la línea con el error en el código'),
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
@@ -756,35 +828,35 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
 
     switch (bugType) {
       case 'syntax':
-        icon = Icons.format_quote;
+        icon = Icons.format_quote_rounded;
         color = AppTheme.errorRed;
         break;
       case 'operator':
-        icon = Icons.calculate;
+        icon = Icons.calculate_rounded;
         color = AppTheme.warningOrange;
         break;
       case 'comparison':
-        icon = Icons.compare;
+        icon = Icons.compare_rounded;
         color = Colors.purple;
         break;
       case 'variable':
-        icon = Icons.text_fields;
+        icon = Icons.text_fields_rounded;
         color = AppTheme.primaryBlue;
         break;
       case 'logic':
-        icon = Icons.psychology;
+        icon = Icons.psychology_rounded;
         color = AppTheme.accentTeal;
         break;
       case 'condition':
-        icon = Icons.alt_route;
+        icon = Icons.alt_route_rounded;
         color = Colors.indigo;
         break;
       case 'loop':
-        icon = Icons.loop;
+        icon = Icons.loop_rounded;
         color = Colors.orange;
         break;
       default:
-        icon = Icons.bug_report;
+        icon = Icons.bug_report_rounded;
         color = AppTheme.errorRed;
     }
 
@@ -811,7 +883,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _isEn ? 'Tap the faulty line' : 'Hatalı satırı tıkla',
+                    _tl('Hatalı satırı tıkla', 'Tap the faulty line', 'Tippe auf die fehlerhafte Zeile', 'Toca la línea incorrecta'),
                     style: TextStyle(fontSize: 12, color: Colors.grey[700]),
                   ),
                 ],
@@ -835,14 +907,16 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppTheme.errorRed,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     children: const [
-                      Icon(Icons.bug_report, color: Colors.white, size: 16),
+                      Icon(Icons.bug_report_rounded,
+                          color: Colors.white, size: 16),
                       SizedBox(width: 6),
                       Text(
                         'buggy_code.dart',
@@ -910,7 +984,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
             const SizedBox(width: 12),
             if (showResult)
               Icon(
-                isCorrect ? Icons.check_circle : Icons.cancel,
+                isCorrect ? Icons.check_circle_rounded : Icons.cancel_rounded,
                 color: isCorrect ? AppTheme.successGreen : AppTheme.errorRed,
                 size: 20,
               ),
@@ -927,7 +1001,8 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
               ),
             ),
             if (line.hasBug && showHint)
-              Icon(Icons.warning, color: AppTheme.warningOrange, size: 20),
+              Icon(Icons.warning_rounded,
+                  color: AppTheme.warningOrange, size: 20),
           ],
         ),
       ),
@@ -939,76 +1014,90 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
       appBar: AppBar(
         backgroundColor: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
         foregroundColor: Colors.white,
-        title: Text(gameWon ? (_isEn ? 'Congratulations!' : 'Tebrikler!') : (_isEn ? 'Game Over' : 'Oyun Bitti')),
+        title: Text(gameWon
+            ? (_tl('Tebrikler!', 'Congratulations!', 'Glückwunsch!', '¡Felicidades!'))
+            : (_tl('Oyun Bitti', 'Game Over', 'Spiel vorbei', 'Fin del juego'))),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                gameWon ? Icons.emoji_events : Icons.refresh,
-                size: 100,
-                color: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                gameWon
-                    ? (_isEn ? 'You\'re a Great Bug Hunter!' : 'Harika Bir Hata Avcısısın!')
-                    : (_isEn ? 'Try Again!' : 'Tekrar Dene!'),
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              _buildResultCard(_isEn ? 'Level' : 'Seviye', '$currentLevel/$maxLevels', Icons.trending_up),
-              _buildResultCard(_isEn ? 'Score' : 'Skor', '$score', Icons.stars),
-              if (finalTimeSeconds != null)
-                _buildResultCard(_isEn ? 'Duration' : 'Süre', _isEn ? '$finalTimeSeconds seconds' : '$finalTimeSeconds saniye', Icons.timer),
-              const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      body: SafeArea(
+          top: false,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.home),
-                    label: Text(_isEn ? 'Main Menu' : 'Ana Menü'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBlue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    ),
+                  Icon(
+                    gameWon
+                        ? Icons.emoji_events_rounded
+                        : Icons.refresh_rounded,
+                    size: 100,
+                    color: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
                   ),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        currentLevel = 1;
-                        score = 0;
-                        lives = 3;
-                        gameWon = false;
-                        gameOver = false;
-                        startTime = DateTime.now();
-                        _generateNewLevel();
-                      });
-                    },
-                    icon: const Icon(Icons.replay),
-                    label: Text(_isEn ? 'Play Again' : 'Tekrar Oyna'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.successGreen,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  const SizedBox(height: 24),
+                  Text(
+                    gameWon
+                        ? (_tl('Harika Bir Hata Avcısısın!', 'You\'re a Great Bug Hunter!', 'Du bist ein großartiger Fehlerjäger!', '¡Eres un gran cazador de errores!'))
+                        : (_tl('Tekrar Dene!', 'Try Again!', 'Versuch es noch mal!', '¡Inténtalo otra vez!')),
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color:
+                          gameWon ? AppTheme.successGreen : AppTheme.errorRed,
                     ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildResultCard(_tl('Seviye', 'Level', 'Level', 'Nivel'),
+                      '$currentLevel/$maxLevels', Icons.trending_up_rounded),
+                  _buildResultCard(_tl('Skor', 'Score', 'Punkte', 'Puntos'), '${score.round()}',
+                      Icons.stars_rounded),
+                  if (finalTimeSeconds != null)
+                    _buildResultCard(
+                        _tl('Süre', 'Duration', 'Dauer', 'Duración'),
+                        _tl('$finalTimeSeconds saniye', '$finalTimeSeconds seconds', '$finalTimeSeconds Sekunden', '$finalTimeSeconds segundos'),
+                        Icons.timer_rounded),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.home_rounded),
+                        label: Text(_tl('Ana Menü', 'Main Menu', 'Hauptmenü', 'Menú principal')),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryBlue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 16),
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            currentLevel = 1;
+                            score = 0;
+                            lives = 3;
+                            gameWon = false;
+                            gameOver = false;
+                            startTime = DateTime.now();
+                            _generateNewLevel();
+                          });
+                        },
+                        icon: const Icon(Icons.replay_rounded),
+                        label: Text(_tl('Tekrar Oyna', 'Play Again', 'Noch mal spielen', 'Jugar otra vez')),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.successGreen,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 16),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+          )),
     );
   }
 
