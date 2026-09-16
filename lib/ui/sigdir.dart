@@ -88,8 +88,28 @@ class RenderSigdir extends RenderBox
 
   /// null ise olcek 1: hicbir donusum uygulanmiyor.
   Matrix4? _donusum;
-  TransformLayer? _katman;
-  ClipRectLayer? _kirpmaKatmani;
+
+  // KATMANLAR DUZ ALANDA DEGIL, LayerHandle ICINDE.
+  //
+  // `context.pushTransform(..., oldLayer: ...)` cagrisina bir onceki
+  // karenin katmani veriliyor. O katmani duz bir alanda tutarsak
+  // cerceve onu sahiplenmis saymiyor, uygun gordugu anda atiyor ve
+  // bir sonraki karede atilmis katmani geri verdigimizde
+  // "Failed assertion: '!_debugDisposed'" ile patliyor. Simulatorde
+  // acilis ekrani bu hatayi saniyede onlarca kez basiyordu.
+  //
+  // LayerHandle katmani canli tutuyor; RenderTransform ve RenderClipRect
+  // da aynisini yapiyor.
+  final LayerHandle<TransformLayer> _katman = LayerHandle<TransformLayer>();
+  final LayerHandle<ClipRectLayer> _kirpmaKatmani =
+      LayerHandle<ClipRectLayer>();
+
+  @override
+  void dispose() {
+    _katman.layer = null;
+    _kirpmaKatmani.layer = null;
+    super.dispose();
+  }
 
   /// Taban olcege dayanildiginda icerik hala tasiyor; tasan kismi
   /// kirpiyoruz.
@@ -208,32 +228,32 @@ class RenderSigdir extends RenderBox
 
     final donusum = _donusum;
     if (donusum == null) {
-      _katman = null;
-      _kirpmaKatmani = null;
+      _katman.layer = null;
+      _kirpmaKatmani.layer = null;
       context.paintChild(cocuk, offset);
       return;
     }
 
     void ciz(PaintingContext ctx, Offset off) {
-      _katman = ctx.pushTransform(
+      _katman.layer = ctx.pushTransform(
         needsCompositing,
         off,
         donusum,
         (PaintingContext ic, Offset io) => ic.paintChild(cocuk, io),
-        oldLayer: _katman,
+        oldLayer: _katman.layer,
       );
     }
 
     if (_kirp) {
-      _kirpmaKatmani = context.pushClipRect(
+      _kirpmaKatmani.layer = context.pushClipRect(
         needsCompositing,
         offset,
         Offset.zero & size,
         ciz,
-        oldLayer: _kirpmaKatmani,
+        oldLayer: _kirpmaKatmani.layer,
       );
     } else {
-      _kirpmaKatmani = null;
+      _kirpmaKatmani.layer = null;
       ciz(context, offset);
     }
   }

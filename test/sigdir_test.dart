@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -113,5 +115,56 @@ void main() {
     );
     expect(tester.takeException(), isNull);
     expect(tester.getSize(find.byType(ListView)).height, 200);
+  });
+
+  testWidgets('tekrar tekrar cizilince katman hatasi vermiyor',
+      (tester) async {
+    // Kucultme bir Transform (ve gerekirse Clip) katmani aciyor. O
+    // katman duz bir alanda tutulursa cerceve onu atiyor ve bir sonraki
+    // karede "Failed assertion: '!_debugDisposed'" patliyor; simulatorde
+    // acilis ekrani bu hatayi saniyede onlarca kez basmisti. LayerHandle
+    // katmani canli tutuyor.
+    var adet = 5;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 300,
+              height: 300,
+              child: StatefulBuilder(
+                builder: (context, setState) => Column(
+                  children: [
+                    Expanded(child: Sigdir(child: liste(adet))),
+                    TextButton(
+                      onPressed: () => setState(() => adet = adet == 5 ? 8 : 5),
+                      child: const Text('degistir'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    for (var i = 0; i < 6; i++) {
+      await tester.tap(find.text('degistir'));
+      await tester.pump();
+      expect(tester.takeException(), isNull, reason: '$i. cizimde patladi');
+    }
+  });
+
+  test('katmanlar LayerHandle ile tutuluyor', () {
+    final kod = File('lib/ui/sigdir.dart')
+        .readAsLinesSync()
+        .where((s) => !s.trimLeft().startsWith('//'))
+        .join('\n');
+    expect(kod.contains('LayerHandle<TransformLayer>'), isTrue);
+    expect(kod.contains('LayerHandle<ClipRectLayer>'), isTrue);
+    expect(RegExp(r'^\s*TransformLayer\?\s', multiLine: true).hasMatch(kod),
+        isFalse,
+        reason: 'Duz alanda tutulan katman cerceve tarafindan atiliyor.');
   });
 }
