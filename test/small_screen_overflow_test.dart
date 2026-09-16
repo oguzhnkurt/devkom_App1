@@ -83,7 +83,7 @@ Widget? _adimWidget(LessonStep step, Course course) {
           step: step as ProjectStep,
           course: course,
           isDark: false,
-          onComplete: () {});
+          onComplete: (_) {});
     case StepType.codeComplete:
       return CodeCompleteStepWidget(
           step: step as CodeCompleteStep,

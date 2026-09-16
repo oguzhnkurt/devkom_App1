@@ -388,7 +388,11 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           step: step as ProjectStep,
           course: widget.course,
           isDark: isDark,
-          onComplete: () => _onStepCompleted(xpEarned: step.xpReward),
+          // Proje adimi artik iki cikisli: "Yaptim" (XP var) ve
+          // "Sonra yaparim" (ilerler, XP yok). Uygulama projeyi
+          // goremiyor; gordugunu iddia etmiyoruz.
+          onComplete: (yapti) =>
+              _onStepCompleted(xpEarned: yapti ? step.xpReward : 0),
         );
 
 

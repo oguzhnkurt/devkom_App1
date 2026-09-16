@@ -2686,11 +2686,83 @@ class _MiniGameStepWidgetState extends State<MiniGameStepWidget> {
 // PROJECT STEP WIDGET
 // ==========================================
 
-class ProjectStepWidget extends StatelessWidget {
+/// Projenin NEREDE yapilacagi.
+///
+/// Bu ekranin en uzun suren kusuru buydu: gereksinimler yaziyor,
+/// ipuclari yaziyor, altta "Projeyi Tamamladim!" dugmesi duruyordu —
+/// ama arada calisma alani yoktu. `starterCode` ve `validation`
+/// alanlari modelde vardi ve HICBIR YERDEN okunmuyordu, yani
+/// dogrulama diye bir sey de yoktu. Cocuk hicbir sey yapmadan dugmeye
+/// basiyor, 40 XP aliyordu. Ekranda duran cumle yalandi.
+///
+/// Uygulama ici editor yazilana kadar dogru olan sey bunu SAKLAMAK
+/// degil, DOGRU SOYLEMEK: proje bilgisayarda yapiliyor, adresi burada
+/// yaziyor, gereksinimleri cocuk kendi isaretliyor.
+///
+/// Adres BAGLANTI DEGIL, duz yazi. 4+ derecelendirmeli bir cocuk
+/// uygulamasindan disari acilan bir baglanti, ancak bir ebeveyn
+/// kapisinin arkasinda olabilir; adresi yazmak hem yeterli hem risksiz.
+String _nerede(String language, String lang) {
+  switch (language) {
+    case 'scratch':
+      return lessonText(lang,
+          'Bilgisayarında Scratch\'i aç: scratch.mit.edu — tarayıcıda '
+              'açılır, kurulum gerekmez.',
+          'Open Scratch on a computer: scratch.mit.edu — it runs in the '
+              'browser, nothing to install.',
+          'Öffne Scratch am Computer: scratch.mit.edu — läuft im Browser, '
+              'keine Installation nötig.',
+          'Abre Scratch en un ordenador: scratch.mit.edu — funciona en el '
+              'navegador, sin instalar nada.');
+    case 'mblock':
+      return lessonText(lang,
+          'Bilgisayarında mBlock 5\'i aç: mblock.cc adresinden indiriliyor.',
+          'Open mBlock 5 on a computer: you can download it from mblock.cc.',
+          'Öffne mBlock 5 am Computer: Download unter mblock.cc.',
+          'Abre mBlock 5 en un ordenador: se descarga desde mblock.cc.');
+    case 'cpp':
+      return lessonText(lang,
+          'Bilgisayarında mBlock 5 ya da Arduino IDE\'yi aç, kartını bağla.',
+          'Open mBlock 5 or the Arduino IDE on a computer and plug in your '
+              'board.',
+          'Öffne mBlock 5 oder die Arduino IDE am Computer und schließe dein '
+              'Board an.',
+          'Abre mBlock 5 o el IDE de Arduino en un ordenador y conecta tu '
+              'placa.');
+    case 'html':
+    case 'css':
+      return lessonText(lang,
+          'Bilgisayarında bir metin düzenleyicide yaz, dosyayı tarayıcıda aç.',
+          'Write it in a text editor on a computer, then open the file in a '
+              'browser.',
+          'Schreib es am Computer in einem Texteditor und öffne die Datei '
+              'im Browser.',
+          'Escríbelo en un editor de texto en el ordenador y abre el archivo '
+              'en un navegador.');
+    case 'python':
+      return lessonText(lang,
+          'Bilgisayarında Python\'la yaz: python.org adresinden kuruluyor.',
+          'Write it in Python on a computer: you can install it from '
+              'python.org.',
+          'Schreib es am Computer in Python: Installation über python.org.',
+          'Escríbelo en Python en un ordenador: se instala desde python.org.');
+    default:
+      return lessonText(lang,
+          'Bilgisayarında bir kod düzenleyicide yaz ve çalıştır.',
+          'Write and run it in a code editor on a computer.',
+          'Schreib und starte es am Computer in einem Code-Editor.',
+          'Escríbelo y ejecútalo en un editor de código en un ordenador.');
+  }
+}
+
+class ProjectStepWidget extends StatefulWidget {
   final ProjectStep step;
   final Course course;
   final bool isDark;
-  final VoidCallback onComplete;
+
+  /// `true` — cocuk projeyi yaptigini soyluyor (XP kazanir).
+  /// `false` — "sonra yaparim" (ilerler, XP yok, azar da yok).
+  final ValueChanged<bool> onComplete;
 
   const ProjectStepWidget({
     super.key,
@@ -2701,18 +2773,35 @@ class ProjectStepWidget extends StatelessWidget {
   });
 
   @override
+  State<ProjectStepWidget> createState() => _ProjectStepWidgetState();
+}
+
+class _ProjectStepWidgetState extends State<ProjectStepWidget> {
+  /// Cocugun kendi isaretledigi gereksinimler.
+  ///
+  /// Bu bir SINAV degil, bir kontrol listesi. Uygulama projeyi goremiyor
+  /// ve gordugunu iddia etmiyor; isaretlemenin isi cocugun kendi isini
+  /// gozden gecirmesi.
+  final Set<int> _isaretli = {};
+
+  @override
   Widget build(BuildContext context) {
     final lang = lessonLang(context);
-    final hints = step.hintsFor(lang);
+    final hints = widget.step.hintsFor(lang);
+    final gereksinimler = widget.step.requirementsFor(lang);
+    final hepsiIsaretli = _isaretli.length == gereksinimler.length;
+    final metinRengi =
+        widget.isDark ? Colors.grey.shade300 : Colors.grey.shade700;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header
+        // Baslik
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [course.primaryColor, course.secondaryColor],
+              colors: [widget.course.primaryColor, widget.course.secondaryColor],
             ),
             borderRadius: BorderRadius.circular(16),
           ),
@@ -2725,7 +2814,8 @@ class ProjectStepWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      lessonText(lang, 'PROJE', 'PROJECT', 'PROJEKT', 'PROYECTO'),
+                      lessonText(
+                          lang, 'PROJE', 'PROJECT', 'PROJEKT', 'PROYECTO'),
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 12,
@@ -2733,7 +2823,7 @@ class ProjectStepWidget extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      step.titleFor(lang),
+                      widget.step.titleFor(lang),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -2746,76 +2836,139 @@ class ProjectStepWidget extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
 
-        // Description
         Text(
-          step.descriptionFor(lang),
-          style: TextStyle(
-            fontSize: 16,
-            height: 1.6,
-            color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
-          ),
+          widget.step.descriptionFor(lang),
+          style: TextStyle(fontSize: 16, height: 1.6, color: metinRengi),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
 
-        // Requirements
-        Text(
-          lessonText(lang, 'Gereksinimler:', 'Requirements:', 'Anforderungen:', 'Requisitos:'),
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+        // NEREDE YAPILACAK
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: widget.course.primaryColor.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: widget.course.primaryColor.withValues(alpha: 0.25),
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        ...step.requirementsFor(lang).map((req) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                Icons.check_circle_outline,
-                color: course.primaryColor,
-                size: 20,
-              ),
+              Icon(Icons.computer_rounded,
+                  color: widget.course.primaryColor, size: 22),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  req,
-                  style: TextStyle(
-                    color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      lessonText(lang, 'Bunu bilgisayarında yapacaksın',
+                          'You will do this on a computer',
+                          'Das machst du am Computer',
+                          'Esto lo harás en un ordenador'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: widget.course.primaryColor,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _nerede(widget.step.language, lang),
+                      style: TextStyle(height: 1.45, color: metinRengi),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        )),
+        ),
+        const SizedBox(height: 20),
 
-        // Hints
+        Text(
+          lessonText(lang, 'Gereksinimler:', 'Requirements:', 'Anforderungen:',
+              'Requisitos:'),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
+          ),
+        ),
+        const SizedBox(height: 4),
+
+        // Gereksinimler: cocugun kendi isaretledigi liste.
+        for (var i = 0; i < gereksinimler.length; i++)
+          InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: () => setState(() {
+              if (!_isaretli.remove(i)) _isaretli.add(i);
+            }),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    _isaretli.contains(i)
+                        ? Icons.check_circle_rounded
+                        : Icons.radio_button_unchecked,
+                    color: _isaretli.contains(i)
+                        ? widget.course.primaryColor
+                        : Colors.grey.shade400,
+                    size: 22,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(gereksinimler[i],
+                        style: TextStyle(color: metinRengi, height: 1.35)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
         if (hints.isNotEmpty) ...[
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           ExpansionTile(
-            title: Text(lessonText(lang, 'İpuçları', 'Hints', 'Tipps', 'Pistas')),
+            title:
+                Text(lessonText(lang, 'İpuçları', 'Hints', 'Tipps', 'Pistas')),
             leading: const Icon(Icons.lightbulb_outline),
-            children: hints.map((hint) => ListTile(
-              leading: const Text('💡'),
-              title: Text(hint),
-            )).toList(),
+            children: hints
+                .map((hint) => ListTile(
+                      leading: const Text('💡'),
+                      title: Text(hint),
+                    ))
+                .toList(),
           ),
         ],
 
-        const SizedBox(height: 32),
+        const SizedBox(height: 24),
 
-        // Complete button
+        // Iki cikis: yaptim / sonra yaparim.
+        //
+        // "Sonra yaparim" bir basarisizlik degil ve oyle gosterilmiyor:
+        // cocuk bilgisayar basinda olmayabilir ve dersin geri kalani
+        // buna kilitlenmemeli. Tek fark XP: yapilmayan is odullenmiyor,
+        // ama cocuk da azarlanmiyor.
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: onComplete,
+            onPressed: hepsiIsaretli ? () => widget.onComplete(true) : null,
             icon: const Icon(Icons.check),
-            label: Text(lessonText(lang, 'Projeyi Tamamladim!', 'I Finished the Project!', 'Ich habe das Projekt fertig!', '¡He terminado el proyecto!')),
+            label: Text(lessonText(
+                lang,
+                'Yaptım',
+                'I did it',
+                'Hab ich gemacht',
+                'Lo hice')),
             style: ElevatedButton.styleFrom(
-              backgroundColor: course.primaryColor,
+              backgroundColor: widget.course.primaryColor,
               foregroundColor: Colors.white,
+              disabledBackgroundColor:
+                  widget.course.primaryColor.withValues(alpha: 0.35),
+              disabledForegroundColor: Colors.white70,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -2823,10 +2976,22 @@ class ProjectStepWidget extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(height: 4),
+        Center(
+          child: TextButton(
+            onPressed: () => widget.onComplete(false),
+            child: Text(
+              lessonText(lang, 'Sonra yaparım', 'I will do it later',
+                  'Mache ich später', 'Lo haré más tarde'),
+              style: TextStyle(color: metinRengi, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ),
       ],
     );
   }
 }
+
 
 // ==========================================
 // ANIMATION STEP WIDGET
