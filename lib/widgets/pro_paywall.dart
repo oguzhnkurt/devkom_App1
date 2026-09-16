@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/settings_provider.dart';
+import '../screens/robotics_games_screen.dart' show ProGames;
 import '../screens/subscription_screen.dart';
 import '../theme.dart';
+import '../ui/press_button.dart';
+import '../utils/lang.dart';
 
-/// Pro Paywall Widget - Shown when user hits a limit or tries to access Pro feature
+/// Bir Pro ozellige carpildiginda acilan alt sayfa.
+///
+/// ONEMLI DUZELTME: Bu widget daha once uygulamada karsiligi olmayan sozler
+/// veriyordu — "Sinirsiz AI asistan kullanimi", "Offline icerik indirme",
+/// "Oncelikli destek", "Sinirsiz paylasim" — ve butonun uzerinde magazadan
+/// gelmeyen, elle yazilmis bir fiyat duruyordu: "Pro'ya Gec - Ilk 3 Ay
+/// TL69.99". Ikisi de App Store Kural 3.1.2 acisindan riskli: fiyat her zaman
+/// StoreKit'ten okunmali ve yalnizca gercekten sunulan ozellikler
+/// listelenmeli. Liste artik abonelik ekranindakiyle ayni ve butonda fiyat
+/// yok; fiyat, planlarin bulundugu ekranda magazadan geliyor.
 class ProPaywall extends StatelessWidget {
   final String title;
   final String message;
@@ -17,7 +33,6 @@ class ProPaywall extends StatelessWidget {
     this.onUpgrade,
   });
 
-  /// Show paywall as bottom sheet
   static Future<void> show({
     required BuildContext context,
     required String title,
@@ -38,9 +53,59 @@ class ProPaywall extends StatelessWidget {
     );
   }
 
+  static const Color _ink = Color(0xFF14161A);
+  static const Color _inkSoft = Color(0xFF5B616E);
+
+  /// Yalnizca gercekten sunulanlar — ve DORT DILDE.
+  ///
+  /// Bu liste sabit ve tamamen Turkce idi: uygulamanin dili ne olursa
+  /// olsun Pro sayfasi Turkce aciliyordu. Oyun sayisi da elle yazilmisti
+  /// ("13 ek oyun"); gercek sayi [ProGames.lockedGameCount] ile
+  /// katalogdan geliyor.
+  List<(IconData, String)> _features(String lang) {
+    String t(String tr, String en, String de, String es) =>
+        AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
+    final n = ProGames.lockedGameCount;
+    return [
+      (
+        Icons.sports_esports_rounded,
+        t('$n ek oyun', '$n more games', '$n weitere Spiele', '$n juegos más'),
+      ),
+      (
+        Icons.school_rounded,
+        t('İleri seviye kurslar: Arduino IDE, Java, C#',
+            'Advanced courses: Arduino IDE, Java, C#',
+            'Fortgeschrittene Kurse: Arduino IDE, Java, C#',
+            'Cursos avanzados: Arduino IDE, Java, C#'),
+      ),
+      (
+        Icons.insights_rounded,
+        t('Kişisel ilerleme raporu', 'A personal progress report',
+            'Ein persönlicher Fortschrittsbericht',
+            'Un informe de progreso personal'),
+      ),
+      (
+        Icons.workspace_premium_rounded,
+        t('Kurs bitirme sertifikası', 'A certificate for each course',
+            'Ein Zertifikat für jeden Kurs', 'Un certificado por cada curso'),
+      ),
+      (
+        Icons.monetization_on_rounded,
+        t('1000 jeton hediye, her ay 300 jeton',
+            '1000 bonus tokens, 300 every month',
+            '1000 Bonus-Münzen, jeden Monat 300',
+            '1000 fichas de regalo, 300 cada mes'),
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final text = Theme.of(context).textTheme;
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
+    final features = _features(lang);
+    String t(String tr, String en, String de, String es) =>
+        AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
 
     return Container(
       decoration: const BoxDecoration(
@@ -50,168 +115,114 @@ class ProPaywall extends StatelessWidget {
           topRight: Radius.circular(28),
         ),
       ),
-      padding: const EdgeInsets.all(24),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Handle bar
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Pro Icon
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.amber.withValues(alpha: 0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.workspace_premium,
-                size: 48,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Title
-            Text(
-              title,
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppTheme.primaryBlue,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-
-            // Message
-            Text(
-              message,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[700],
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-
-            // Pro Features List
-            _buildFeaturesList(),
-            const SizedBox(height: 24),
-
-            // Upgrade Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: onUpgrade ?? () => _handleUpgrade(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Pro\'ya Geç - İlk 3 Ay ₺69.99',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 16),
+      child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDDE1E7),
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-
-            // Cancel Button
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Belki Daha Sonra',
-                style: TextStyle(color: Colors.grey[600]),
+              const SizedBox(height: 22),
+              Container(
+                width: 68,
+                height: 68,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(22),
+                  gradient: const LinearGradient(
+                    colors: [AppTheme.primaryBlue, Color(0xFF6D5AE8)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: const Icon(Icons.workspace_premium_rounded,
+                    size: 36, color: Colors.white),
               ),
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFeaturesList() {
-    return Column(
-      children: [
-        _buildFeatureItem(
-          icon: Icons.check_circle,
-          text: 'Sınırsız paylaşım yapın',
-        ),
-        _buildFeatureItem(
-          icon: Icons.smart_toy,
-          text: 'Sınırsız AI asistan kullanımı',
-        ),
-        _buildFeatureItem(
-          icon: Icons.analytics,
-          text: 'Detaylı ilerleme raporları',
-        ),
-        _buildFeatureItem(
-          icon: Icons.workspace_premium,
-          text: 'Özel sertifikalar',
-        ),
-        _buildFeatureItem(
-          icon: Icons.download,
-          text: 'Offline içerik indirme',
-        ),
-        _buildFeatureItem(
-          icon: Icons.support_agent,
-          text: 'Öncelikli destek',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFeatureItem({
-    required IconData icon,
-    required String text,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: Colors.green,
-            size: 24,
+              const SizedBox(height: 18),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: text.headlineSmall?.copyWith(color: _ink),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: text.bodyMedium?.copyWith(color: _inkSoft),
+              ),
+              if (featureDescription != null) ...[
+                const SizedBox(height: 6),
+                Text(
+                  featureDescription!,
+                  textAlign: TextAlign.center,
+                  style: text.bodySmall?.copyWith(color: _inkSoft),
+                ),
+              ],
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF6F7F9),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Column(
+                  children: [
+                    for (int i = 0; i < features.length; i++) ...[
+                      if (i > 0) const SizedBox(height: 12),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(features[i].$1,
+                              size: 19, color: AppTheme.primaryBlue),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              features[i].$2,
+                              style: text.bodyMedium?.copyWith(
+                                color: _ink,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Uygulamanın her yerindeki ana düğmeyle AYNI his.
+              //
+              // Burada düz bir `ElevatedButton` vardı: dokununca yalnızca
+              // soluk bir dalga çiziyordu. [PressButton] parmak değince
+              // gerçekten çöküyor — çocuk dokunuşunun kaydedildiğini
+              // görüyor ve iki kez basmıyor.
+              PressButton(
+                label: t('Pro seçeneklerine bak', 'See the Pro plans',
+                    'Pro-Pläne ansehen', 'Ver los planes Pro'),
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  (onUpgrade ?? () => _handleUpgrade(context))();
+                },
+              ),
+              const SizedBox(height: 4),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  t('Şimdi değil', 'Not now', 'Jetzt nicht', 'Ahora no'),
+                  style: text.labelMedium?.copyWith(color: _inkSoft),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -221,25 +232,6 @@ class ProPaywall extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
-    );
-  }
-}
-
-/// Quick helper to show limit reached paywall
-class LimitReachedPaywall {
-  static Future<void> showPostLimit(BuildContext context, int remaining) {
-    return ProPaywall.show(
-      context: context,
-      title: 'Günlük Paylaşım Limitine Ulaştınız',
-      message: 'Bugün $remaining/2 paylaşımınızı kullandınız. Pro ile sınırsız paylaşım yapın!',
-    );
-  }
-
-  static Future<void> showAiMessageLimit(BuildContext context, int remaining) {
-    return ProPaywall.show(
-      context: context,
-      title: 'AI Mesaj Limitine Ulaştınız',
-      message: 'Bugün $remaining/10 AI mesajınızı kullandınız. Pro ile sınırsız sohbet edin!',
     );
   }
 }
