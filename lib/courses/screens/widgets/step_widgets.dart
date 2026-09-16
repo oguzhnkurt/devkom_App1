@@ -10,6 +10,7 @@ import '../../models/interactive_lesson_model.dart';
 import '../../../providers/settings_provider.dart';
 import '../../../services/sound_service.dart';
 import 'catch_block_game.dart';
+import 'kod_tezgahi.dart';
 import 'coordinate_tap_game.dart';
 import '../../../widgets/scratch_block_widget.dart';
 import '../../../widgets/block_animation_player.dart';
@@ -2845,6 +2846,20 @@ class ProjectStepWidget extends StatefulWidget {
 }
 
 class _ProjectStepWidgetState extends State<ProjectStepWidget> {
+  /// Tezgahtaki kodun son hali (yalnizca html/css adimlarinda).
+  String _kod = '';
+
+  /// Bu adim uygulama icinde yapilabiliyor mu?
+  bool get _tezgahliDil =>
+      widget.step.language == 'html' || widget.step.language == 'css';
+
+  /// Bos bir alani bos birakmak, cocugu bos bir sayfayla bas basa
+  /// birakmak demek. Iskelet bir cevap DEGIL: yalnizca baslangic.
+  String _iskelet(String dil) => dil == 'css'
+      ? '<div class="kart">\n  <h2>Başlık</h2>\n  <p>Bir şeyler yaz.</p>\n</div>\n\n'
+          '<style>\n.kart {\n  \n}\n</style>'
+      : '<h1>Merhaba</h1>\n<p>Buraya yaz.</p>';
+
   /// Cocugun kendi isaretledigi gereksinimler.
   ///
   /// Bu bir SINAV degil, bir kontrol listesi. Uygulama projeyi goremiyor
@@ -2857,7 +2872,16 @@ class _ProjectStepWidgetState extends State<ProjectStepWidget> {
     final lang = lessonLang(context);
     final hints = widget.step.hintsFor(lang);
     final gereksinimler = widget.step.requirementsFor(lang);
-    final hepsiIsaretli = _isaretli.length == gereksinimler.length;
+    // "Yaptim" iki sart istiyor: gereksinimlerin hepsi isaretli VE —
+    // tezgahli bir adimsa — cocuk iskelete gercekten dokunmus olsun.
+    // Ikincisi bir dogrulama degil, bir durustluk sarti: uygulama
+    // tasarimin dogru olup olmadigini goremiyor ama hicbir sey
+    // yazilmadigini gorebiliyor.
+    final dokunuldu = !_tezgahliDil ||
+        (_kod.trim().isNotEmpty &&
+            _kod.trim() != _iskelet(widget.step.language).trim());
+    final hepsiIsaretli =
+        _isaretli.length == gereksinimler.length && dokunuldu;
     final metinRengi =
         widget.isDark ? Colors.grey.shade300 : Colors.grey.shade700;
 
@@ -2912,6 +2936,23 @@ class _ProjectStepWidgetState extends State<ProjectStepWidget> {
         ),
         const SizedBox(height: 20),
 
+        // HTML ve CSS PROJELERI UYGULAMA ICINDE YAPILIYOR.
+        //
+        // Editorun ilk asamasi bilerek burasi: HTML/CSS'i calistirmak
+        // icin yorumlayiciya gerek yok, tarayicinin kendisi zaten
+        // calistiriyor. Scratch ve Arduino projeleri (Blockly +
+        // JS-Interpreter) sonraki asamalar; onlar hala "bilgisayarinda
+        // yap" kartini goruyor.
+        if (_tezgahliDil) ...[
+          KodTezgahi(
+            adimId: widget.step.id,
+            baslangicKodu: widget.step.starterCode.trim().isEmpty
+                ? _iskelet(widget.step.language)
+                : widget.step.starterCode,
+            onDegisti: (kod) => setState(() => _kod = kod),
+          ),
+          const SizedBox(height: 20),
+        ] else
         // NEREDE YAPILACAK
         Container(
           padding: const EdgeInsets.all(16),

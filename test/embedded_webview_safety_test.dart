@@ -25,12 +25,30 @@ import 'package:flutter_test/flutter_test.dart';
 ///
 /// Bu testler dosyayi degil KURALI koruyor: ileride biri gomulu bir web
 /// oyunu eklerse ayni aciklar sessizce geri gelmesin.
+///
+/// KURALIN KAPSAMI: "JavaScript enjekte etme" yasagi UCUNCU TARAFIN
+/// sayfasina mudahale etmeyi yasakliyor. Uygulamanin kendi paketinden
+/// gelen bir sayfa (bkz. lib/courses/screens/widgets/kod_tezgahi.dart)
+/// baska bir seydir; orada da `runJavaScript` kullanilmiyor ama sebebi
+/// baska: cocugun yazdigi HTML'de betik hic calismasin diye
+/// JavaScript tamamen KAPALI.
 void main() {
   final webViewDosyalari = Directory('lib')
       .listSync(recursive: true)
       .whereType<File>()
       .where((f) => f.path.endsWith('.dart'))
-      .map((f) => MapEntry(f.path, f.readAsStringSync()))
+      // YORUM SATIRLARI ATILIYOR.
+      //
+      // Bu testler "su cagri YOK" diye sinar; aciklama yorumu da o
+      // cagrinin adini gecirdigi icin kural kendi gerekcesine takilip
+      // bosuna dusuyordu. (Ayni hata bu depoda uc kez yapildi:
+      // quiz_lesson_match, student_drawer ve kod_tezgahi.)
+      .map((f) => MapEntry(
+          f.path,
+          f
+              .readAsLinesSync()
+              .where((s) => !s.trimLeft().startsWith('//'))
+              .join('\n')))
       .where((e) => e.value.contains('WebViewController'))
       .toList();
 
