@@ -711,6 +711,26 @@ class MultipleChoiceStepWidget extends StatefulWidget {
   State<MultipleChoiceStepWidget> createState() => _MultipleChoiceStepWidgetState();
 }
 
+/// Sabit tohumlu karistirma — cozume esit olmadan.
+///
+/// NEDEN SABIT TOHUM: cocuk adimdan cikip geri gelince listeyi bambaska
+/// bir sirada bulmamali; "az once ustteydi" diye aradigi blok yerinde
+/// durmali. Tohum adimin kimliginden geliyor, yani her acilista ayni
+/// dizilim.
+///
+/// NEDEN COZUME ESIT OLMAMALI: iki ya da uc ogeli bir listede rastgele
+/// karistirma ciddi bir olasilikla dogru sirayi veriyor (uc ogede 1/6) ve
+/// gorev kendiliginden cozulmus oluyor. Esitse bir kaydirma uygulaniyor.
+List<T> karistir<T>(List<T> ogeler, String tohum, List<String> cozum,
+    String Function(T) kimlik) {
+  if (ogeler.length < 2) return List<T>.from(ogeler);
+  final liste = List<T>.from(ogeler)..shuffle(Random(tohum.hashCode));
+  if (liste.map(kimlik).join('|') == cozum.join('|')) {
+    liste.add(liste.removeAt(0));
+  }
+  return liste;
+}
+
 /// Cevap anahtari sizdiran emojiler.
 ///
 /// Icerik dosyalarinda dogru secenege `emoji: '✅'`, yanlislara `'❌'`
@@ -1305,6 +1325,21 @@ class BlockBuilderStepWidget extends StatefulWidget {
 
 class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
   final List<String> _placedBlocks = [];
+
+  /// Paletin gosterim sirasi.
+  ///
+  /// ONCEDEN palet `availableBlocks` sirasindaydi ve yirmi blok kurma
+  /// adiminin YIRMISINDE de o sira cozumun ta kendisiydi: fazladan blok
+  /// yok, sira dogru sira. Cocuk yukaridan asagi dokunup gecebiliyordu ve
+  /// adim siralama hakkinda hicbir sey ogretmiyordu.
+  late final List<ScratchBlock> _palet;
+
+  @override
+  void initState() {
+    super.initState();
+    _palet = karistir(widget.step.availableBlocks, widget.step.id,
+        widget.step.correctSequence, (b) => b.id);
+  }
   bool _completed = false;
 
   /// Dizi TAMAM ama sirasi yanlis. Yalnizca bu durumda uyari gosteriliyor;
@@ -1596,7 +1631,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: widget.step.availableBlocks.map((block) {
+          children: _palet.map((block) {
             return GestureDetector(
               onTap: () => _addBlock(block),
               child: _buildBlockWidget(block, lang),
@@ -1776,7 +1811,8 @@ class _OrderingStepWidgetState extends State<OrderingStepWidget> {
   @override
   void initState() {
     super.initState();
-    _orderedItems = List.from(widget.step.items)..shuffle();
+    _orderedItems = karistir(widget.step.items, widget.step.id,
+        widget.step.correctOrder, (e) => e.id);
   }
 
   /// ONCEDEN: her surukleme sonrasi sira sessizce kontrol ediliyor, dogru
@@ -2136,9 +2172,23 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
+                    // FittedBox: kucuk ekranda hap KIRPILMIYOR, kuculuyor.
+                    //
+                    // Sutun iPhone SE'de 140 piksel; "Bedingungen" hapi
+                    // 12 punto kalin yaziyla 159 piksel istiyor ve Row
+                    // 19 piksel tasiyordu (Almanca ve Ingilizcede; Turkce
+                    // "Kosullar" sigiyordu, o yuzden yalnizca Turkce cizen
+                    // eski tasma testi bunu hic gormedi). Kelimeyi ucu
+                    // noktali kesmek bir kategori etiketinde okunaksiz
+                    // olurdu; oran korunarak kuculuyor. Genis ekranda
+                    // olcek 1, yani hicbir sey degismiyor.
                     child: Row(
                       children: [
-                        Container(
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: widget.course.primaryColor.withValues(alpha: 0.15),
@@ -2150,6 +2200,8 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                               color: widget.course.primaryColor,
+                            ),
+                          ),
                             ),
                           ),
                         ),
@@ -2257,9 +2309,23 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
+                    // FittedBox: kucuk ekranda hap KIRPILMIYOR, kuculuyor.
+                    //
+                    // Sutun iPhone SE'de 140 piksel; "Bedingungen" hapi
+                    // 12 punto kalin yaziyla 159 piksel istiyor ve Row
+                    // 19 piksel tasiyordu (Almanca ve Ingilizcede; Turkce
+                    // "Kosullar" sigiyordu, o yuzden yalnizca Turkce cizen
+                    // eski tasma testi bunu hic gormedi). Kelimeyi ucu
+                    // noktali kesmek bir kategori etiketinde okunaksiz
+                    // olurdu; oran korunarak kuculuyor. Genis ekranda
+                    // olcek 1, yani hicbir sey degismiyor.
                     child: Row(
                       children: [
-                        Container(
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: widget.course.secondaryColor.withValues(alpha: 0.15),
@@ -2271,6 +2337,8 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                               color: widget.course.secondaryColor,
+                            ),
+                          ),
                             ),
                           ),
                         ),
@@ -3040,7 +3108,7 @@ class AnimationStepWidget extends StatelessWidget {
 
         // Animation based on type
         if (step.animationType == AnimationType.comparison)
-          _buildComparisonAnimation(),
+          _buildComparisonAnimation(lang),
 
         const SizedBox(height: 32),
 
@@ -3066,7 +3134,7 @@ class AnimationStepWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildComparisonAnimation() {
+  Widget _buildComparisonAnimation(String lang) {
     final beforeItems = step.animationData['before'] as List<dynamic>? ?? [];
     final afterItems = step.animationData['after'] as List<dynamic>? ?? [];
 
@@ -3094,11 +3162,19 @@ class AnimationStepWidget extends StatelessWidget {
                       size: 20,
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      'Dongusuz',
+                    // Iki kusur birden: metin dort dilde DEGILDI (ders
+                    // Almanca calisirken burada Turkce yaziyordu) ve
+                    // aksanlari soyulmustu. Ustune Row, iPhone SE'de 36
+                    // piksel tasiyordu — Expanded olmadan uzun bir etiket
+                    // ikonla birlikte sutuna sigmiyor.
+                    Expanded(
+                      child: Text(
+                      lessonText(lang, 'Döngüsüz', 'Without a loop',
+                          'Ohne Schleife', 'Sin bucle'),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
                       ),
                     ),
                   ],
@@ -3151,11 +3227,14 @@ class AnimationStepWidget extends StatelessWidget {
                       size: 20,
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      'Dongulu',
+                    Expanded(
+                      child: Text(
+                      lessonText(lang, 'Döngülü', 'With a loop',
+                          'Mit Schleife', 'Con bucle'),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
                       ),
                     ),
                   ],

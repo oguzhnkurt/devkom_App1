@@ -175,10 +175,15 @@ void main() {
             final w = _adimWidget(adim, kurs);
             if (w == null) continue;
             for (final giris in _boylar.entries) {
-              final hata = await _ciz(tester, w, giris.value, 'tr');
-              if (hata != null) {
-                tasanlar.add('${kurs.id}/${ders.id}/${adim.id} '
-                    '@ ${giris.key}: $hata');
+              // DORT DIL: Almanca en uzun kelimeleri, Ispanyolca en uzun
+              // cumleleri uretiyor. Yalnizca Turkce cizmek, tasmayi
+              // uretecek iki dili hic denememek demekti.
+              for (final dil in const ['tr', 'en', 'de', 'es']) {
+                final hata = await _ciz(tester, w, giris.value, dil);
+                if (hata != null) {
+                  tasanlar.add('${kurs.id}/${ders.id}/${adim.id} '
+                      '@ ${giris.key} [$dil]: $hata');
+                }
               }
             }
           }

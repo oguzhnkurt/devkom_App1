@@ -6,6 +6,10 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
+import 'package:devkom_app/courses/screens/widgets/step_widgets.dart';
+import 'package:devkom_app/courses/data/courses_data.dart';
+import 'package:devkom_app/courses/data/course_modules.dart';
 
 void main() {
   const yol = 'lib/courses/screens/widgets/step_widgets.dart';
@@ -80,4 +84,42 @@ void main() {
     expect(painter.contains('path.lineTo(size.width - indent'), isFalse);
     expect(painter.contains('_drawInnerNotch'), isTrue);
   });
+
+  test('palet karistirma cozume esit olmuyor ve sabit kaliyor', () {
+    var adimSayisi = 0;
+    for (final kurs in CoursesData.allCourses) {
+      for (final modul in CourseModules.forCourse(kurs.id)) {
+        for (final ders in modul.lessons) {
+          for (final adim in ders.steps) {
+            if (adim is! BlockBuilderStep) continue;
+            adimSayisi++;
+            final bir = karistir(adim.availableBlocks, adim.id,
+                adim.correctSequence, (b) => b.id);
+            final iki = karistir(adim.availableBlocks, adim.id,
+                adim.correctSequence, (b) => b.id);
+
+            // Sabit: cocuk adimdan cikip donunce ayni dizilimi bulmali.
+            expect(bir.map((b) => b.id).toList(),
+                iki.map((b) => b.id).toList(),
+                reason: '${adim.id} her acilista farkli diziliyor');
+
+            // Ve cozumun ta kendisi olmamali.
+            if (adim.availableBlocks.length > 1) {
+              expect(bir.map((b) => b.id).join('|'),
+                  isNot(adim.correctSequence.join('|')),
+                  reason: '${adim.id} paleti cozum sirasinda');
+            }
+
+            // Karistirma blok KAYBETMEMELI.
+            expect(bir.length, adim.availableBlocks.length);
+            expect(bir.map((b) => b.id).toSet(),
+                adim.availableBlocks.map((b) => b.id).toSet());
+          }
+        }
+      }
+    }
+    expect(adimSayisi, greaterThan(10));
+  });
+
 }
+
