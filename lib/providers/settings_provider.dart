@@ -1,5 +1,12 @@
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../utils/lang.dart';
+
+import '../services/sound_service.dart';
+import '../widgets/mascot_species.dart';
 
 class SettingsProvider extends ChangeNotifier {
   // Language/Locale
@@ -23,6 +30,16 @@ class SettingsProvider extends ChangeNotifier {
   // Onboarding
   bool _hasSeenOnboarding = false;
 
+  /// Seçili maskot. Açılışta Puf; çocuk mağazadan değiştirebiliyor.
+  MascotSpecies _mascot = MascotSpecies.puf;
+
+  /// Çocuğun maskota verdiği ad.
+  ///
+  /// Boşsa karakterin kendi adı (Puf, Mia, ...) kullanılıyor. Kurulumda
+  /// çocuğa "ona ne ad koyalım?" diye soruluyor: adını kendi koyduğu bir
+  /// karakter, kendisine verilen bir karakterden başka bir şey.
+  String _mascotName = '';
+
   // Getters
   Locale get locale => _locale;
   ThemeMode get themeMode => _themeMode;
@@ -33,21 +50,42 @@ class SettingsProvider extends ChangeNotifier {
   bool get highContrastMode => _highContrastMode;
   bool get shareDataForImprovement => _shareDataForImprovement;
   bool get hasSeenOnboarding => _hasSeenOnboarding;
+  MascotSpecies get mascot => _mascot;
+
+  /// Maskotun adı; çocuk ad vermediyse karakterin kendi adı.
+  String get mascotName =>
+      _mascotName.trim().isEmpty ? specOf(_mascot).name : _mascotName.trim();
+
+  /// Çocuk maskota kendi bir ad verdi mi?
+  bool get hasCustomMascotName => _mascotName.trim().isNotEmpty;
 
   // Language display names
-  String get currentLanguageName {
-    switch (_locale.languageCode) {
-      case 'tr':
-        return 'Türkçe';
-      case 'en':
-        return 'English';
-      default:
-        return 'Türkçe';
-    }
-  }
+  /// Secili dilin KENDI adi ("Deutsch", "Español").
+  ///
+  /// Bir dili secerken kullanicinin o dili zaten okuyor olmasini
+  /// bekleyemeyiz; bu yuzden "Almanca" degil "Deutsch" yaziyoruz.
+  String get currentLanguageName =>
+      AppLang.nativeName[_locale.languageCode] ?? 'English';
 
   SettingsProvider() {
     _loadSettings();
+  }
+
+  /// Desteklenen diller. Tek kaynak [AppLang.supported].
+  static const supportedLanguages = AppLang.supported;
+
+  /// Cihazin dili destekleniyorsa onu, degilse Ingilizce'yi dondurur.
+  ///
+  /// ONCEDEN desteklenmeyen bir cihaz dili TURKCE'ye dusuyordu. Iki dil
+  /// varken savunulabilirdi; dort dil varken degil. Fransizca bir
+  /// cihazda uygulamanin Turkce acilmasi, kullaniciya "bu uygulama sana
+  /// gore degil" demek olur. Ingilizce en genis anlasilan yedek.
+  static Locale _deviceLocaleOrDefault() {
+    final device = PlatformDispatcher.instance.locale;
+    if (supportedLanguages.contains(device.languageCode)) {
+      return Locale(device.languageCode, device.countryCode ?? '');
+    }
+    return const Locale(AppLang.en);
   }
 
   // Load settings from SharedPreferences
@@ -55,9 +93,18 @@ class SettingsProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
 
     // Load language
-    final languageCode = prefs.getString('language_code') ?? 'tr';
-    final countryCode = prefs.getString('country_code') ?? 'TR';
-    _locale = Locale(languageCode, countryCode);
+    //
+    // ONCEDEN: kayitli tercih yoksa her zaman 'tr' seciliyordu. App Store'dan
+    // indiren Ingilizce konusan bir kullanici uygulamayi bastan sona Turkce
+    // goruyor, dili degistirebilecegini de bilmiyordu. Artik ilk acilista
+    // cihazin diline bakiyoruz; destekledigimiz bir dil degilse Turkce'ye
+    // dusuyoruz. Kullanici bir kez sectiginde tercihi her zaman kazaniyor.
+    final savedLanguage = prefs.getString('language_code');
+    if (savedLanguage != null) {
+      _locale = Locale(savedLanguage, prefs.getString('country_code') ?? '');
+    } else {
+      _locale = _deviceLocaleOrDefault();
+    }
 
     // Load theme
     final themeModeIndex = prefs.getInt('theme_mode') ?? 0;
@@ -78,6 +125,15 @@ class SettingsProvider extends ChangeNotifier {
     // Load onboarding
     _hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
 
+    // Seçili maskot. Kayıtlı ad tanınmazsa (eski sürümden kalmış ya da
+    // elle bozulmuş) sessizce açılıştaki karaktere düşüyoruz.
+    final savedMascot = prefs.getString('mascot_species');
+    _mascot = MascotSpecies.values.firstWhere(
+      (m) => m.name == savedMascot,
+      orElse: () => MascotSpecies.puf,
+    );
+    _mascotName = prefs.getString('mascot_name') ?? '';
+
     notifyListeners();
   }
 
@@ -91,6 +147,25 @@ class SettingsProvider extends ChangeNotifier {
     await prefs.setString('language_code', locale.languageCode);
     await prefs.setString('country_code', locale.countryCode ?? '');
 
+    notifyListeners();
+  }
+
+  /// Maskotu değiştir.
+  Future<void> setMascot(MascotSpecies species) async {
+    if (_mascot == species) return;
+    _mascot = species;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('mascot_species', species.name);
+    notifyListeners();
+  }
+
+  /// Maskota ad ver. Boş verilirse karakterin kendi adına dönülüyor.
+  Future<void> setMascotName(String name) async {
+    final temiz = name.trim();
+    if (_mascotName == temiz) return;
+    _mascotName = temiz;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('mascot_name', temiz);
     notifyListeners();
   }
 
@@ -123,6 +198,7 @@ class SettingsProvider extends ChangeNotifier {
     if (_soundEnabled == enabled) return;
 
     _soundEnabled = enabled;
+    SoundService.configure(sound: enabled);
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('sound_enabled', enabled);
@@ -135,6 +211,7 @@ class SettingsProvider extends ChangeNotifier {
     if (_vibrationEnabled == enabled) return;
 
     _vibrationEnabled = enabled;
+    SoundService.configure(vibration: enabled);
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('vibration_enabled', enabled);
@@ -201,6 +278,7 @@ class SettingsProvider extends ChangeNotifier {
     _notificationsEnabled = true;
     _soundEnabled = true;
     _vibrationEnabled = true;
+    SoundService.configure(sound: true, vibration: true);
     _textScaleFactor = 1.0;
     _highContrastMode = false;
     _shareDataForImprovement = false;
