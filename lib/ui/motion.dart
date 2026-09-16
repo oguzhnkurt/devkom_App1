@@ -63,8 +63,21 @@ class Motion {
   /// animasyonlari kisaltiyoruz. Islevsel gecisler kaliyor ama 100 ms'yi
   /// gecmiyor; hareket duyarliligi olan cocuklar icin bu bir erisilebilirlik
   /// gerekliligi, tercih degil.
+  /// DIKKAT: `MediaQuery.maybeOf(context)` DEGIL.
+  ///
+  /// `maybeOf` widget'i MediaQueryData'nin TAMAMINA abone ediyor. Bu
+  /// bayragi okuyan her sey — acilistaki basligin her kelimesi, alt yazi,
+  /// sayfa gecisi, gezinme tuslari — boylece `viewInsets` degisince de
+  /// yeniden kuruluyordu. Klavye acilirken/kapanirken viewInsets her
+  /// karede degisiyor; sonuc, metinlerin saniyede 60 kez bastan
+  /// kurulmasi, yani gorunur bir titreme ve takilmaydi. "Adin ne?"
+  /// sayfasinda metin kutusuna dokunur dokunmaz basliyordu.
+  ///
+  /// `maybeDisableAnimationsOf` yalnizca o tek bayraga abone oluyor:
+  /// ayni bilgi, ama ekran olcusu ya da klavye degisince kimse
+  /// uyanmiyor.
   static bool reduced(BuildContext context) =>
-      MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+      MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
   static Duration adapt(BuildContext context, Duration d) =>
       reduced(context) ? const Duration(milliseconds: 80) : d;

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/student_drawer.dart';
+import '../../widgets/cam_nav_bar.dart';
+import '../../theme.dart';
 import '../auth/profile_screen.dart';
 import '../unified_home_screen.dart';
 import '../../courses/screens/course_catalog_screen.dart';
@@ -39,74 +41,34 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     return Scaffold(
       drawer: const StudentDrawer(),
       body: screens[safeIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: safeIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        destinations: [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined, color: Colors.blue.shade400),
-            selectedIcon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.blue.shade400, Colors.blue.shade600],
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.home, color: Colors.white, size: 20),
-            ),
-            label: loc.home,
+      extendBody: true,
+      bottomNavigationBar: CamNavBar(
+        secili: safeIndex,
+        onSec: (index) => setState(() => _selectedIndex = index),
+        maddeler: [
+          CamNavMaddesi(
+            icon: Icons.home_outlined,
+            seciliIcon: Icons.home_rounded,
+            etiket: loc.home,
+            renk: AppTheme.primaryBlue,
           ),
-          NavigationDestination(
-            icon: Icon(Icons.school_outlined, color: Colors.green.shade400),
-            selectedIcon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.green.shade400, Colors.green.shade600],
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.school, color: Colors.white, size: 20),
-            ),
-            label: loc.courses,
+          CamNavMaddesi(
+            icon: Icons.school_outlined,
+            seciliIcon: Icons.school_rounded,
+            etiket: loc.courses,
+            renk: const Color(0xFF2E9E5B),
           ),
-          NavigationDestination(
-            icon: ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-              ).createShader(bounds),
-              child: const Icon(Icons.auto_awesome, color: Colors.white),
-            ),
-            selectedIcon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-              child: const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
-            ),
-            label: loc.devAiChat,
+          CamNavMaddesi(
+            icon: Icons.auto_awesome_outlined,
+            seciliIcon: Icons.auto_awesome_rounded,
+            etiket: loc.devAiChat,
+            renk: const Color(0xFF6C5CE7),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline, color: Colors.purple.shade400),
-            selectedIcon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.purple.shade400, Colors.purple.shade600],
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.person, color: Colors.white, size: 20),
-            ),
-            label: loc.profile,
+          CamNavMaddesi(
+            icon: Icons.person_outline_rounded,
+            seciliIcon: Icons.person_rounded,
+            etiket: loc.profile,
+            renk: const Color(0xFF8E44AD),
           ),
         ],
       ),

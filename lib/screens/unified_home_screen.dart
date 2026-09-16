@@ -14,6 +14,7 @@ import 'robotics_games_screen.dart';
 
 import '../courses/screens/course_catalog_screen.dart';
 import '../widgets/student_drawer.dart';
+import '../widgets/cam_nav_bar.dart';
 import 'market_screen.dart';
 import 'activity_hub_screen.dart';
 import 'leaderboard/leaderboard_screen.dart';
@@ -61,83 +62,42 @@ class _UnifiedHomeScreenState extends State<UnifiedHomeScreen> {
     final safeIndex = _selectedIndex.clamp(0, screens.length - 1);
 
     return Scaffold(
+      // Cam cubugun arkasindan icerik gorunsun diye. Scaffold bu
+      // durumda govdenin MediaQuery alt bosluguna cubugun yuksekligini
+      // kendisi ekliyor, yani govdedeki SafeArea'lar dogru kaliyor.
+      extendBody: true,
       body: screens[safeIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: safeIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        destinations: [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined, color: Colors.blue.shade400),
-            selectedIcon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.blue.shade400, Colors.blue.shade600],
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.home, color: Colors.white, size: 20),
-            ),
-            label: 'Ana Sayfa',
+      bottomNavigationBar: CamNavBar(
+        secili: safeIndex,
+        onSec: (index) => setState(() => _selectedIndex = index),
+        maddeler: [
+          const CamNavMaddesi(
+            icon: Icons.home_outlined,
+            seciliIcon: Icons.home_rounded,
+            etiket: 'Ana Sayfa',
+            renk: AppTheme.primaryBlue,
           ),
-          NavigationDestination(
-            icon: Icon(
-              isAuthenticated ? Icons.message_outlined : Icons.games_outlined,
-              color: Colors.green.shade400,
-            ),
-            selectedIcon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.green.shade400, Colors.green.shade600],
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                isAuthenticated ? Icons.message : Icons.games,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-            label: isAuthenticated ? 'Mesajlar' : 'Oyunlar',
+          CamNavMaddesi(
+            icon: isAuthenticated
+                ? Icons.message_outlined
+                : Icons.sports_esports_outlined,
+            seciliIcon: isAuthenticated
+                ? Icons.message_rounded
+                : Icons.sports_esports_rounded,
+            etiket: isAuthenticated ? 'Mesajlar' : 'Oyunlar',
+            renk: const Color(0xFF2E9E5B),
           ),
-          NavigationDestination(
-            icon: ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-              ).createShader(bounds),
-              child: const Icon(Icons.auto_awesome, color: Colors.white),
-            ),
-            selectedIcon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-              child:
-                  const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
-            ),
-            label: 'DevAI',
+          const CamNavMaddesi(
+            icon: Icons.auto_awesome_outlined,
+            seciliIcon: Icons.auto_awesome_rounded,
+            etiket: 'DevAI',
+            renk: Color(0xFF6C5CE7),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline, color: Colors.purple.shade400),
-            selectedIcon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.purple.shade400, Colors.purple.shade600],
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.person, color: Colors.white, size: 20),
-            ),
-            label: 'Profil',
+          const CamNavMaddesi(
+            icon: Icons.person_outline_rounded,
+            seciliIcon: Icons.person_rounded,
+            etiket: 'Profil',
+            renk: Color(0xFF8E44AD),
           ),
         ],
       ),

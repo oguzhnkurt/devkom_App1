@@ -158,6 +158,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           final progress = authProvider.userProgress;
 
           return SingleChildScrollView(
+            // Alt cam gezinme cubugu icerigin uzerinde duruyor; son kart
+            // onun altinda kalmasin diye cubugun yuksegi kadar bosluk.
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.paddingOf(context).bottom),
             child: Column(
               children: [
                 _buildHeader(context, user, theme),

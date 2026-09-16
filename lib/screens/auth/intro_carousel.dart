@@ -146,7 +146,10 @@ class IntroCarouselState extends State<IntroCarousel> {
   @override
   Widget build(BuildContext context) {
     final slide = widget.slides[_index];
-    final size = MediaQuery.of(context).size;
+    // `MediaQuery.of` DEGIL: o, butun MediaQueryData'ya abone olur ve
+    // klavye acilirken viewInsets her karede degistigi icin karuselin
+    // tamami saniyede 60 kez yeniden kurulurdu. Bize sadece olcu lazim.
+    final size = MediaQuery.sizeOf(context);
 
     // Panel yuksekligi adimin turune gore.
     //
@@ -263,7 +266,7 @@ class IntroCarouselState extends State<IntroCarousel> {
             ),
           if (widget.trailing != null)
             Positioned(
-              top: MediaQuery.of(context).padding.top + 8,
+              top: MediaQuery.paddingOf(context).top + 8,
               right: 16,
               child: widget.trailing!,
             ),
@@ -277,7 +280,7 @@ class IntroCarouselState extends State<IntroCarousel> {
     final isLast = _index == widget.slides.length - 1;
     return Padding(
       padding: EdgeInsets.only(
-        bottom: 16 + MediaQuery.of(context).padding.bottom * 0.4,
+        bottom: 16 + MediaQuery.paddingOf(context).bottom * 0.4,
         top: 8,
       ),
       child: Row(
@@ -829,34 +832,53 @@ class _PageSwapState extends State<_PageSwap>
   Widget build(BuildContext context) {
     if (Motion.reduced(context)) return widget.child;
 
+    // AGACIN SEKLI HER KAREDE AYNI.
+    //
+    // Onceki surum t == 0 ya da t == 1 iken dogrudan `widget.child`
+    // donuyor, arada ise onu Opacity + Transform + RepaintBoundary
+    // icine sariyordu. Bu, gecisin BASINDA ve SONUNDA agacin seklini
+    // degistirmek demek: ayni slot'ta farkli bir widget zinciri
+    // bulan Flutter, icerigin State'ini eslestiremeyip bastan
+    // kuruyordu. Sonuc, baslik kelime kelime belirdikten hemen sonra
+    // BIR DAHA bastan belirmesiydi — "yazilar yenilenip duruyor".
+    //
+    // Simdi sarmalayicilar her zaman yerinde; bos gecerken Opacity 1
+    // ve oteleme 0 oldugu icin ne katman aciliyor ne de bir maliyeti
+    // oluyor.
     return AnimatedBuilder(
       animation: _c,
-      builder: (context, _) {
+      // Icerik `child` olarak veriliyor: gecisin her karesinde
+      // AnimatedBuilder yeniden calisiyor ama sayfanin kendisi (baslik,
+      // gorsel, secenek listesi) YENIDEN KURULMUYOR.
+      child: RepaintBoundary(child: widget.child),
+      builder: (context, child) {
         final t = _c.value;
-        if (t == 0 || t == 1) return widget.child;
+        // `_outgoing != null` SART: gecis `forward(from: 0)` ile
+        // basliyor ve o ilk karede t hala 0. Yalnizca t'ye baksaydik
+        // o tek karede YENI sayfa gorunur, hemen ardindan eskisi geri
+        // gelirdi — gecisin basinda bir kare sicrama.
+        final leaving = _outgoing != null && t < 0.5;
 
-        final leaving = t < 0.5;
         // 0 -> 1 arasi iki yariyi kendi icinde 0 -> 1'e aciyoruz.
-        final half = leaving ? t * 2 : (t - 0.5) * 2;
-        final eased = Curves.easeOut.transform(half);
+        final half = t == 0 || t == 1 ? 1.0 : (leaving ? t * 2 : (t - 0.5) * 2);
+        final eased = Curves.easeOut.transform(half.clamp(0.0, 1.0));
 
         // Cikan icerik ters yone kayiyor, giren icerik ayni yonden geliyor.
-        final dx = leaving
-            ? -widget.direction * 26.0 * eased
-            : widget.direction * 26.0 * (1 - eased);
-        final opacity = leaving ? 1 - eased : eased;
+        final dx = t == 0 || t == 1
+            ? 0.0
+            : (leaving
+                ? -widget.direction * 26.0 * eased
+                : widget.direction * 26.0 * (1 - eased));
+        final opacity =
+            t == 0 || t == 1 ? 1.0 : (leaving ? 1 - eased : eased);
 
-        // RepaintBoundary ONEMLI: Opacity butun sayfa icerigini
-        // (baslik, gorsel, secenek listesi) kapsiyor. Sinir olmadan bu
-        // agac gecisin HER karesinde bastan boyaniyordu; sinirla bir
-        // kez rasterlenip hazir katman olarak soluyor.
         return Opacity(
           opacity: opacity.clamp(0.0, 1.0),
           child: Transform.translate(
             offset: Offset(dx, 0),
-            child: RepaintBoundary(
-              child: leaving ? (_outgoing ?? widget.child) : widget.child,
-            ),
+            child: leaving
+                ? RepaintBoundary(child: _outgoing ?? widget.child)
+                : child,
           ),
         );
       },
