@@ -146,7 +146,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
               _buildStat(
                 icon: Icons.access_time,
                 value: course.estimatedTimeText,
-                label: 'Sure',
+                label: 'Süre',
                 color: Colors.orange,
                 isDark: isDark,
               ),
@@ -315,7 +315,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Ilerleme Durumu',
+                  'İlerleme Durumu',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -324,7 +324,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '$completedLessons / $totalLessons ders tamamlandi',
+                  '$completedLessons / $totalLessons ders tamamlandı',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 13,
@@ -357,7 +357,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
               ),
             ),
             child: Text(
-              completedLessons == 0 ? 'Basla' : 'Devam Et',
+              completedLessons == 0 ? 'Başla' : 'Devam Et',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
@@ -401,7 +401,6 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
           (context, index) {
             final lesson = lessons[index];
             final isCompleted = false; // TODO: Check user progress
-            final isLocked = index > 0 && !isCompleted; // Lock if previous not done
 
             return _LessonTile(
               lesson: lesson,

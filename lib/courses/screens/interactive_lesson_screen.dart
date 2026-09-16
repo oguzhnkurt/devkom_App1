@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../ui/ekran_olcusu.dart';
+import '../../widgets/playful_background.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/course_model.dart';
@@ -6,6 +8,11 @@ import '../models/interactive_lesson_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/user_progress_service.dart';
 import 'widgets/step_widgets.dart';
+import 'package:confetti/confetti.dart';
+import '../../theme.dart';
+import '../../ui/count_up.dart';
+import '../../ui/motion.dart';
+import '../../ui/press_button.dart';
 
 /// Modern, Interactive Lesson Screen
 /// FreeCodeCamp-inspired step-by-step learning experience
@@ -134,7 +141,17 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF8F9FB),
-      body: SafeArea(
+      // Ders ekraninin zemini duz griydi. Artik kursun renginde, cok
+      // yavas suzulen kodlama sembolleri var (blok, disli, ok, dugum,
+      // parantez). Dikkat calmiyor — metin hala en belirgin sey — ama
+      // ekran "bos bir form" gibi durmuyor. "Hareketi azalt" acikken
+      // PlayfulBackground hicbir sey cizmiyor.
+      body: PlayfulBackground(
+        baseColor:
+            isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF8F9FB),
+        tint: widget.course.primaryColor,
+        symbolCount: 14,
+        child: SafeArea(
         child: Column(
           children: [
             // Top bar with progress
@@ -154,6 +171,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
             // Bottom navigation
             _buildBottomBar(isDark),
           ],
+        ),
         ),
       ),
     );
@@ -199,7 +217,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
                 Text(
                   lessonLang(context) == 'en'
                       ? 'Step ${_currentStepIndex + 1} / ${widget.lesson.steps.length}'
-                      : 'Adim ${_currentStepIndex + 1} / ${widget.lesson.steps.length}',
+                      : 'Adım ${_currentStepIndex + 1} / ${widget.lesson.steps.length}',
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
@@ -275,10 +293,14 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
   Widget _buildStepContent(bool isDark) {
     final step = _currentStep;
 
+    // Dolgu ekran boyuna gore: iPhone SE'de her kenardan 20 pt,
+    // ustelik adimlarin kendi ic araliklariyla birlikte, icerigi
+    // gereksiz yere ekranin disina itiyordu.
+    final dolgu = EkranOlcusu.kisa(context) ? 12.0 : 20.0;
     return SingleChildScrollView(
       key: ValueKey(step.id),
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.fromLTRB(dolgu, dolgu, dolgu, dolgu + 8),
       child: _buildStepWidget(step, isDark),
     );
   }
@@ -289,6 +311,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
         return IntroStepWidget(
           step: step as IntroStep,
           course: widget.course,
+          isDark: isDark,
           onComplete: () => _onStepCompleted(),
         );
 
@@ -356,7 +379,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           course: widget.course,
           isDark: isDark,
           onComplete: (score) => _onStepCompleted(
-            xpEarned: score >= (step as MiniGameStep).targetScore ? step.xpReward : step.xpReward ~/ 2,
+            xpEarned: score >= step.targetScore ? step.xpReward : step.xpReward ~/ 2,
           ),
         );
 
@@ -369,6 +392,39 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
         );
 
 
+      // Bu uc tip icerikte VARDI ama ekranda karsiligi yoktu: Python,
+      // Arduino ve HTML derslerinde 24 adim "Step tipi henüz
+      // desteklenmiyor" yazisina dusuyordu.
+      case StepType.codeComplete:
+        return CodeCompleteStepWidget(
+          step: step as CodeCompleteStep,
+          course: widget.course,
+          isDark: isDark,
+          onComplete: (correct) => _onStepCompleted(
+            xpEarned: correct ? step.xpReward : 0,
+          ),
+        );
+
+      case StepType.typeTheCode:
+        return TypeCodeStepWidget(
+          step: step as TypeCodeStep,
+          course: widget.course,
+          isDark: isDark,
+          onComplete: (correct) => _onStepCompleted(
+            xpEarned: correct ? step.xpReward : 0,
+          ),
+        );
+
+      case StepType.spotTheError:
+        return SpotErrorStepWidget(
+          step: step as SpotErrorStep,
+          course: widget.course,
+          isDark: isDark,
+          onComplete: (correct) => _onStepCompleted(
+            xpEarned: correct ? step.xpReward : 0,
+          ),
+        );
+
       case StepType.animation:
         return AnimationStepWidget(
           step: step as AnimationStep,
@@ -379,7 +435,11 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
 default:
         return Center(
           child: Text(
-            'Step tipi henuz desteklenmiyor: ${step.type}',
+            lessonText(
+              lessonLang(context),
+              'Bu adım tipi henüz desteklenmiyor: ${step.type}',
+              'This step type is not supported yet: ${step.type}',
+            ),
             style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
           ),
         );
@@ -406,7 +466,7 @@ default:
             TextButton.icon(
               onPressed: _previousStep,
               icon: const Icon(Icons.arrow_back, size: 18),
-              label: const Text('Onceki'),
+              label: Text(lessonText(lessonLang(context), 'Önceki', 'Back')),
               style: TextButton.styleFrom(
                 foregroundColor: isDark ? Colors.white70 : Colors.grey.shade700,
               ),
@@ -454,16 +514,22 @@ default:
   }
 
   void _showExitConfirmation() {
+    // Dil build dışında okunuyor: `lessonLang` (context.watch) burada
+    // provider assertion atar ve diyalog SESSİZCE açılmaz.
+    // Bkz. nickname_button_test.dart — aynı hata "Başka bir tane öner"
+    // düğmesini çalışmaz hâle getirmişti.
+    final lang = lessonLangRead(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Dersten cikiliyor'),
-        content: const Text('Ilerleme kaybedilecek. Emin misin?'),
+        title: Text(lessonText(lang, 'Dersten çıkılıyor', 'Leaving the lesson')),
+        content: Text(lessonText(lang, 'İlerlemen kaybedilecek. Emin misin?',
+            'You will lose your progress. Are you sure?')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Devam Et'),
+            child: Text(lessonText(lang, 'Devam Et', 'Keep going')),
           ),
           ElevatedButton(
             onPressed: () {
@@ -473,7 +539,7 @@ default:
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red.shade400,
             ),
-            child: const Text('Cik'),
+            child: Text(lessonText(lang, 'Çık', 'Leave')),
           ),
         ],
       ),
@@ -501,177 +567,235 @@ class _LessonCompleteDialog extends StatefulWidget {
 
 class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _fadeAnimation;
+  /// Tek bir denetleyici, birden cok gecikmeli parca.
+  ///
+  /// ONCEDEN tum pencere birlikte `elasticOut` ile zipliyordu: bilgiler ayni
+  /// anda geldigi icin goz nereye bakacagini bilmiyor, kazanc (XP, rozet)
+  /// kutlamanin icinde kayboluyordu. Simdi parcalar 80 ms arayla sirayla
+  /// giriyor — once "tebrikler", sonra XP, sonra rozet — ve XP sayarak
+  /// yukseliyor.
+  late final AnimationController _controller = AnimationController(
+    duration: Motion.extraLong2,
+    vsync: this,
+  );
+
+  late final ConfettiController _confetti =
+      ConfettiController(duration: const Duration(milliseconds: 900));
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _scaleAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.elasticOut,
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
     _controller.forward();
     HapticFeedback.heavyImpact();
+    // MediaQuery'yi initState icinde okumak dogru degil (inherited widget
+    // henuz baglanmamis olabiliyor); ilk kareden sonra bakiyoruz.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !Motion.reduced(context)) _confetti.play();
+    });
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _confetti.dispose();
     super.dispose();
+  }
+
+  /// [order]. parcanin 0..1 ilerlemesi. Her parca bir oncekinden 80 ms sonra
+  /// basliyor.
+  Animation<double> _step(int order) {
+    const stagger = 0.14;
+    final begin = (order * stagger).clamp(0.0, 0.7);
+    return CurvedAnimation(
+      parent: _controller,
+      curve: Interval(begin, (begin + 0.45).clamp(0.0, 1.0),
+          curve: Motion.emphasizedDecelerate),
+    );
+  }
+
+  Widget _enter(int order, Widget child) {
+    final a = _step(order);
+    return AnimatedBuilder(
+      animation: a,
+      builder: (context, c) => Opacity(
+        opacity: a.value,
+        child: Transform.translate(
+          offset: Offset(0, 16 * (1 - a.value)),
+          child: c,
+        ),
+      ),
+      child: child,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: _scaleAnimation,
-      child: FadeTransition(
-        opacity: _fadeAnimation,
-        child: AlertDialog(
+    final isEn = lessonLang(context) == 'en';
+
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Celebration emoji
-              const Text('🎉', style: TextStyle(fontSize: 72)),
-              const SizedBox(height: 16),
-
-              // Title
-              ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [widget.course.primaryColor, widget.course.secondaryColor],
-                ).createShader(bounds),
-                child: Text(
-                  lessonLang(context) == 'en' ? 'CONGRATULATIONS!' : 'TEBRIKLER!',
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+              _enter(0, const Text('🎉', style: TextStyle(fontSize: 66))),
+              const SizedBox(height: 14),
+              _enter(
+                1,
+                ShaderMask(
+                  shaderCallback: (bounds) => LinearGradient(
+                    colors: [
+                      widget.course.primaryColor,
+                      widget.course.secondaryColor
+                    ],
+                  ).createShader(bounds),
+                  child: Text(
+                    isEn ? 'CONGRATULATIONS!' : 'TEBRİKLER!',
+                    style: const TextStyle(
+                      fontFamily: AppTheme.fontFamily,
+                      fontSize: 27,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 8),
-
-              Text(
-                lessonLang(context) == 'en'
-                    ? '"${widget.lesson.titleFor('en')}" completed!'
-                    : '"${widget.lesson.title}" tamamlandi!',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // XP earned
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.amber.shade400, Colors.orange.shade400],
+              _enter(
+                2,
+                Text(
+                  isEn
+                      ? '"${widget.lesson.titleFor('en')}" completed!'
+                      : '"${widget.lesson.title}" tamamlandı!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 15,
+                    color: Colors.grey.shade600,
                   ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.amber.withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.star, color: Colors.white, size: 28),
-                    const SizedBox(width: 8),
-                    Text(
-                      '+${widget.totalXp} XP',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
                 ),
               ),
-
-              // Badge if earned
-              if (widget.badge != null) ...[
-                const SizedBox(height: 24),
+              const SizedBox(height: 22),
+              _enter(
+                3,
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
                   decoration: BoxDecoration(
-                    color: widget.course.primaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: widget.course.primaryColor.withValues(alpha: 0.3),
+                    gradient: LinearGradient(
+                      colors: [Colors.amber.shade400, Colors.orange.shade400],
                     ),
-                  ),
-                  child: Column(
-                    children: [
-                      const Text(
-                        'YENI ROZET!',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _getBadgeEmoji(widget.badge!),
-                        style: const TextStyle(fontSize: 48),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _getBadgeName(widget.badge!),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: widget.course.primaryColor,
-                        ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.amber.withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
                       ),
                     ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.star_rounded,
+                          color: Colors.white, size: 26),
+                      const SizedBox(width: 8),
+                      // Sayarak yukselen XP: kazanc bir olay haline geliyor.
+                      CountUpText(
+                        value: widget.totalXp,
+                        prefix: '+',
+                        suffix: ' XP',
+                        fontSize: 24,
+                        color: Colors.white,
+                        duration: Motion.extraLong2,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (widget.badge != null) ...[
+                const SizedBox(height: 20),
+                _enter(
+                  4,
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: widget.course.primaryColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color:
+                            widget.course.primaryColor.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          isEn ? 'NEW BADGE!' : 'YENİ ROZET!',
+                          style: const TextStyle(
+                            fontFamily: AppTheme.fontFamily,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.6,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _getBadgeEmoji(widget.badge!),
+                          style: const TextStyle(fontSize: 46),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _getBadgeName(widget.badge!, isEn),
+                          style: TextStyle(
+                            fontFamily: AppTheme.fontFamily,
+                            fontWeight: FontWeight.w700,
+                            color: widget.course.primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ],
           ),
           actions: [
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
+            _enter(
+              5,
+              PressButton(
+                label: isEn ? 'Awesome!' : 'Harika!',
+                color: widget.course.primaryColor,
+                height: 52,
                 onPressed: () {
                   Navigator.pop(context);
                   Navigator.pop(context);
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: widget.course.primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Harika!',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
               ),
             ),
           ],
         ),
-      ),
+        // Konfeti pencerenin ustunden dokuluyor; dokunuslari engellemesin
+        // diye IgnorePointer icinde.
+        IgnorePointer(
+          child: ConfettiWidget(
+            confettiController: _confetti,
+            blastDirectionality: BlastDirectionality.explosive,
+            emissionFrequency: 0,
+            numberOfParticles: 26,
+            maxBlastForce: 22,
+            minBlastForce: 9,
+            gravity: 0.28,
+            colors: [
+              widget.course.primaryColor,
+              widget.course.secondaryColor,
+              Colors.amber,
+              AppTheme.successGreen,
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -687,15 +811,28 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
     return badges[badgeId] ?? '🏆';
   }
 
-  String _getBadgeName(String badgeId) {
-    final names = {
-      'scratch_starter': 'Scratch Baslangic',
-      'first_code': 'Ilk Kod',
-      'loop_master': 'Dongu Ustasi',
-      'condition_wizard': 'Kosul Buyucusu',
-      'coordinate_explorer': 'Koordinat Kaptani',
-      'game_developer': 'Oyun Gelistirici',
+  /// Rozet adı — kutlama ekranında çocuğa gösteriliyor.
+  ///
+  /// Rozet adları burada SABİT yazılı olduğu için İngilizce ekranda da
+  /// Türkçe çıkıyordu: ders İngilizce bitiyor, kutlama "Döngü Ustası"
+  /// diyordu.
+  String _getBadgeName(String badgeId, bool isEn) {
+    const tr = {
+      'scratch_starter': 'Scratch Başlangıç',
+      'first_code': 'İlk Kod',
+      'loop_master': 'Döngü Ustası',
+      'condition_wizard': 'Koşul Büyücüsü',
+      'coordinate_explorer': 'Koordinat Kaptanı',
+      'game_developer': 'Oyun Geliştirici',
     };
-    return names[badgeId] ?? 'Rozet';
+    const en = {
+      'scratch_starter': 'Scratch Starter',
+      'first_code': 'First Code',
+      'loop_master': 'Loop Master',
+      'condition_wizard': 'Condition Wizard',
+      'coordinate_explorer': 'Coordinate Captain',
+      'game_developer': 'Game Developer',
+    };
+    return (isEn ? en[badgeId] : tr[badgeId]) ?? (isEn ? 'Badge' : 'Rozet');
   }
 }

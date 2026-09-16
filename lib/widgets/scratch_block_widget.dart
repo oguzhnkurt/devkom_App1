@@ -8,12 +8,37 @@ class ScratchBlockWidget extends StatelessWidget {
   final VoidCallback? onTap;
   final bool showRemoveIcon;
 
+  /// C blogunun yalnizca UST CUBUGUNU ciz.
+  ///
+  /// Kod alaninda C blogunun agzini ve ayagini liste cizici kendisi
+  /// ciziyor (icindeki bloklarin gercek yuksekligini ancak o biliyor).
+  /// Boyle olmazsa blok, icine hicbir sey almayan 64 piksellik bos bir
+  /// agiz tasiyor ve altindaki blok agzin DISINDA duruyormus gibi
+  /// gorunuyordu. Paletteki blok tam C silueti ile ciziliyor.
+  final bool cHeadOnly;
+
+  /// Bloğun yazısının hangi dilde çizileceği.
+  ///
+  /// ZORUNLU, ve bilerek öyle. Bu widget önceden doğrudan `block.label`
+  /// okuyordu: modelde `labelEn` vardı, ders içeriğinde çevirisi de
+  /// vardı, ama İngilizce seçen çocuk blokların üstünde Türkçe yazı
+  /// görüyordu ("dijital ayarla pin 9 çıkış yüksek"). mBlock kursunun
+  /// tek amacı çocuğun uygulamada gördüğü bloğu mBlock'ta BİREBİR aynı
+  /// yazıyla bulması olduğu için bu, kursun işini bozan bir hataydı.
+  ///
+  /// Varsayılan bir değer VERİLMİYOR: varsayılan olsaydı yeni bir çağrı
+  /// yeri dili geçirmeyi unutur ve hata sessizce geri gelirdi. Böyle
+  /// derleyici soruyor.
+  final String lang;
+
   const ScratchBlockWidget({
     super.key,
     required this.block,
+    required this.lang,
     this.isPlaced = false,
     this.onTap,
     this.showRemoveIcon = false,
+    this.cHeadOnly = false,
   });
 
   @override
@@ -24,6 +49,7 @@ class ScratchBlockWidget extends StatelessWidget {
         painter: _ScratchBlockPainter(
           color: block.color,
           shape: block.shape,
+          cHeadOnly: cHeadOnly,
         ),
         child: Container(
           padding: EdgeInsets.only(
@@ -58,13 +84,22 @@ class ScratchBlockWidget extends StatelessWidget {
   /// Parse label and build content with inline boolean inputs
   List<Widget> _buildLabelContent() {
     final widgets = <Widget>[];
+    final label = block.labelFor(lang);
     final regex = RegExp(r'<([^>]+)>');
-    final matches = regex.allMatches(block.label);
+    final matches = regex.allMatches(label);
 
     if (matches.isEmpty) {
-      // No special inputs, just show text
-      widgets.add(Text(
-        block.label,
+      // TAŞMAYA KARŞI ESNEK.
+      //
+      // Blok yazısı sabit genişlikte bir satırdaydı. Türkçe etiketler
+      // kısa olduğu için sorun görünmüyordu; İngilizce karşılıkları
+      // ("set digital pin 9 output as high") dar ekranda 41 piksel
+      // taşıyor ve çocuk sarı-siyah taşma şeridini görüyordu.
+      // Flexible + softWrap: uzun etiket ikinci satıra iniyor.
+      widgets.add(Flexible(
+        child: Text(
+        label,
+        softWrap: true,
         style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
@@ -77,6 +112,7 @@ class ScratchBlockWidget extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ));
       return widgets;
     }
@@ -86,10 +122,12 @@ class ScratchBlockWidget extends StatelessWidget {
     for (final match in matches) {
       // Add text before this match
       if (match.start > lastEnd) {
-        final textBefore = block.label.substring(lastEnd, match.start);
+        final textBefore = label.substring(lastEnd, match.start);
         if (textBefore.isNotEmpty) {
-          widgets.add(Text(
+          widgets.add(Flexible(
+            child: Text(
             textBefore,
+            softWrap: true,
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -102,6 +140,7 @@ class ScratchBlockWidget extends StatelessWidget {
                 ),
               ],
             ),
+          ),
           ));
         }
       }
@@ -114,11 +153,13 @@ class ScratchBlockWidget extends StatelessWidget {
     }
 
     // Add remaining text after last match
-    if (lastEnd < block.label.length) {
-      final textAfter = block.label.substring(lastEnd);
+    if (lastEnd < label.length) {
+      final textAfter = label.substring(lastEnd);
       if (textAfter.isNotEmpty) {
-        widgets.add(Text(
+        widgets.add(Flexible(
+          child: Text(
           textAfter,
+          softWrap: true,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -131,6 +172,7 @@ class ScratchBlockWidget extends StatelessWidget {
               ),
             ],
           ),
+        ),
         ));
       }
     }
@@ -139,8 +181,12 @@ class ScratchBlockWidget extends StatelessWidget {
   }
 
   /// Build a hexagonal boolean input slot
+  ///
+  /// Altıgen yuva da esnek: içindeki metin uzun olduğunda
+  /// ("read analog pin (A) 0 / 4") blok satırı taşıyordu.
   Widget _buildBooleanInput(String text) {
-    return Container(
+    return Flexible(
+      child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       child: CustomPaint(
         painter: _HexagonPainter(
@@ -151,6 +197,7 @@ class ScratchBlockWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Text(
             text,
+            softWrap: true,
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -165,6 +212,7 @@ class ScratchBlockWidget extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }
@@ -196,7 +244,8 @@ class ScratchBlockWidget extends StatelessWidget {
       case ScratchBlockShape.stack:
         return 20;
       case ScratchBlockShape.cBlock:
-        return 64; // Kompakt C için daha az padding
+        // Yalnizca ust cubuk ciziliyorsa agiz payi gerekmiyor.
+        return cHeadOnly ? 20 : 64;
       case ScratchBlockShape.reporter:
         return 14;
       case ScratchBlockShape.boolean:
@@ -211,6 +260,16 @@ class _ScratchBlockPainter extends CustomPainter {
   final Color color;
   final ScratchBlockShape shape;
 
+  /// C blogunun yalnizca ust cubugu ciziliyor (bkz. ScratchBlockWidget).
+  final bool cHeadOnly;
+
+  /// Boş yuva çizimi: aynı yapboz silueti, ama içi boş.
+  ///
+  /// Yuvanın da blokla AYNI şekilde olması önemli — çocuk oraya neyin
+  /// oturacağını şekilden anlıyor. Düz bir dikdörtgen yuva, yapbozun
+  /// öğrettiği şeyi bozuyor.
+  final bool ghost;
+
   // GERÇEK SCRATCH ÖLÇÜLERİ - From actual Scratch SVG paths
   static const double cornerRadius = 4.0;
   static const double notchStartX = 12.0;  // Where notch begins
@@ -222,7 +281,12 @@ class _ScratchBlockPainter extends CustomPainter {
   // Total notch height = curveH + diagonal + curveH = 2 + 4 + 2 = 8
   static const double totalNotchHeight = 8.0;
 
-  _ScratchBlockPainter({required this.color, required this.shape});
+  _ScratchBlockPainter({
+    required this.color,
+    required this.shape,
+    this.ghost = false,
+    this.cHeadOnly = false,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -240,20 +304,26 @@ class _ScratchBlockPainter extends CustomPainter {
     );
 
     final paint = Paint()
-      ..shader = gradient.createShader(rect)
-      ..style = PaintingStyle.fill
-      ..isAntiAlias = true;
+      ..isAntiAlias = true
+      ..style = PaintingStyle.fill;
+    if (ghost) {
+      paint.color = color.withValues(alpha: 0.12);
+    } else {
+      paint.shader = gradient.createShader(rect);
+    }
 
     // Koyu border
     final borderPaint = Paint()
-      ..color = _darkenColor(color, 0.35)
+      ..color = ghost
+          ? color.withValues(alpha: 0.55)
+          : _darkenColor(color, 0.35)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0
+      ..strokeWidth = ghost ? 2.5 : 2.0
       ..isAntiAlias = true;
 
-    // Gölge
+    // Gölge (hayalette yok — yuva yüzeyin altında duruyor)
     final shadowPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.25)
+      ..color = Colors.black.withValues(alpha: ghost ? 0.0 : 0.25)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
 
     switch (shape) {
@@ -264,7 +334,11 @@ class _ScratchBlockPainter extends CustomPainter {
         _drawStackBlock(canvas, size, paint, borderPaint, shadowPaint);
         break;
       case ScratchBlockShape.cBlock:
-        _drawCBlock(canvas, size, paint, borderPaint, shadowPaint);
+        if (cHeadOnly) {
+          _drawStackBlock(canvas, size, paint, borderPaint, shadowPaint);
+        } else {
+          _drawCBlock(canvas, size, paint, borderPaint, shadowPaint);
+        }
         break;
       case ScratchBlockShape.reporter:
         _drawReporterBlock(canvas, size, paint, borderPaint, shadowPaint);
@@ -355,62 +429,76 @@ class _ScratchBlockPainter extends CustomPainter {
     canvas.drawPath(path, borderPaint);
   }
 
-  void _drawCBlock(Canvas canvas, Size size, Paint paint, Paint borderPaint, Paint shadowPaint) {
-    final path = Path();
-    const innerHeight = 32.0; // İç boşluk yüksekliği
-    const indent = 10.0; // Girinti derinliği
+  /// C blogu (tekrarla / eger) — agiz SOLDAN degil, ICERIDEN acilir.
+  ///
+  /// Onceki cizimde isirik SAG KENARDAN aliniyordu: blok, sag tarafinda
+  /// centik olan bir dikdortgen gibi gorunuyordu; icine blok alan bir C
+  /// gibi degil. Cocuk "bu blogun ICI var" fikrini sekilden alamiyordu.
+  /// Dogrusu: tam genislikte ust cubuk, solda ince bir sirt, altta ayak.
+  void _drawCBlock(Canvas canvas, Size size, Paint paint, Paint borderPaint,
+      Paint shadowPaint) {
+    const indent = 16.0;    // sol sirtin kalinligi
+    const footH = 20.0;     // alt ayak yuksekligi
+    final mouthBottom = size.height - totalNotchHeight - footH;
+    final mouthTop = mouthBottom - 32.0;
 
-    // Üst sol köşe
+    final path = Path();
     path.moveTo(0, totalNotchHeight + cornerRadius);
     path.arcToPoint(
       Offset(cornerRadius, totalNotchHeight),
       radius: const Radius.circular(cornerRadius),
     );
-
-    // Üst notch
     _drawTopNotch(path, totalNotchHeight);
-
-    // Üst sağ köşe
     path.lineTo(size.width - cornerRadius, totalNotchHeight);
     path.arcToPoint(
       Offset(size.width, totalNotchHeight + cornerRadius),
       radius: const Radius.circular(cornerRadius),
     );
 
-    // Sağ kenar yukarı
-    path.lineTo(size.width, totalNotchHeight + 12);
+    // Ust cubugun sag kenari, agzin ust hizasina kadar
+    path.lineTo(size.width, mouthTop);
 
-    // İç boşluk başlangıcı - sağ üst
-    path.lineTo(size.width - indent, totalNotchHeight + 12);
-    path.lineTo(size.width - indent, totalNotchHeight + 12 + innerHeight);
+    // Agzin ust kenari: sagdan sola, icerideki blogun oturacagi centikle
+    _drawInnerNotch(path, indent, mouthTop);
+    path.lineTo(indent, mouthTop);
 
-    // İç boşluk bitişi - sağ alt
-    path.lineTo(size.width, totalNotchHeight + 12 + innerHeight);
+    // Sol sirt asagi
+    path.lineTo(indent, mouthBottom);
 
-    // Sağ kenar aşağı
-    path.lineTo(size.width, totalNotchHeight + 12 + innerHeight + 8);
+    // Agzin alt kenari: soldan saga
+    path.lineTo(size.width, mouthBottom);
 
-    // Alt sağ köşe
+    // Ayak
+    path.lineTo(size.width, size.height - totalNotchHeight - cornerRadius);
     path.arcToPoint(
-      Offset(size.width - cornerRadius, totalNotchHeight + 12 + innerHeight + 8 + cornerRadius),
+      Offset(size.width - cornerRadius, size.height - totalNotchHeight),
       radius: const Radius.circular(cornerRadius),
     );
-
-    // Alt tab
-    _drawBottomTab(path, size.width, totalNotchHeight + 12 + innerHeight + 8 + cornerRadius);
-
-    // Alt sol köşe
+    _drawBottomTab(path, size.width, size.height - totalNotchHeight);
     path.arcToPoint(
-      Offset(0, totalNotchHeight + 12 + innerHeight + 8),
+      Offset(0, size.height - totalNotchHeight - cornerRadius),
       radius: const Radius.circular(cornerRadius),
     );
-
     path.close();
 
     canvas.drawPath(path.shift(const Offset(0, 3)), shadowPaint);
     canvas.drawPath(path, paint);
     canvas.drawPath(path, borderPaint);
   }
+
+  /// Agzin ust kenarindaki centik — icerideki blogun tirnaginin oturdugu
+  /// yer. Sagdan sola cizildigi icin yonler ters.
+  void _drawInnerNotch(Path path, double left, double y) {
+    final x0 = left + notchStartX;
+    path.lineTo(x0 + curveW + diagonal + middleW + diagonal + curveW, y);
+    path.relativeLineTo(-curveW, curveH);
+    path.relativeLineTo(-diagonal, totalNotchHeight - 2 * curveH);
+    path.relativeLineTo(-middleW, 0);
+    path.relativeLineTo(-diagonal, -(totalNotchHeight - 2 * curveH));
+    path.relativeLineTo(-curveW, -curveH);
+    path.lineTo(x0, y);
+  }
+
 
   void _drawReporterBlock(Canvas canvas, Size size, Paint paint, Paint borderPaint, Paint shadowPaint) {
     final rect = RRect.fromRectAndRadius(
@@ -620,5 +708,44 @@ class _HexagonPainter extends CustomPainter {
   @override
   bool shouldRepaint(_HexagonPainter oldDelegate) {
     return oldDelegate.color != color || oldDelegate.borderColor != borderColor;
+  }
+}
+
+/// Bir bloğun oturacağı BOŞ YUVA.
+///
+/// Bloğun kendisiyle aynı yapboz siluetini çiziyor: üstte girinti,
+/// altta çıkıntı. Çocuk sürüklerken neyin nereye oturacağını şekilden
+/// görüyor — karşılama ekranındaki ilk görev bunun üzerine kurulu.
+class ScratchBlockSlot extends StatelessWidget {
+  const ScratchBlockSlot({
+    super.key,
+    required this.width,
+    required this.height,
+    required this.color,
+    this.shape = ScratchBlockShape.stack,
+    this.highlighted = false,
+  });
+
+  final double width;
+  final double height;
+  final Color color;
+  final ScratchBlockShape shape;
+
+  /// Sürüklenen blok yuvanın üstündeyken.
+  final bool highlighted;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      height: height,
+      child: CustomPaint(
+        painter: _ScratchBlockPainter(
+          color: highlighted ? color : const Color(0xFF9AA3AF),
+          shape: shape,
+          ghost: true,
+        ),
+      ),
+    );
   }
 }

@@ -24,6 +24,22 @@ class Course {
   final String name;
   final String slug;           // URL-friendly name
   final String description;
+
+  /// Kurs adinin ve aciklamasinin diger dillerdeki karsiliklari.
+  ///
+  /// ONCEDEN HIC YOKTU: kurs adlari ve aciklamalari dort dilde de
+  /// Turkce goruntyordu — Ingilizce dahil. Uygulamanin en gorunur
+  /// icerigi (ana sayfadaki yol, katalog, sertifika adlari) bundan
+  /// besleniyor.
+  ///
+  /// Verilmemisse Ingilizcesine, o da yoksa Turkcesine dusuyor; boylece
+  /// bir kursun cevirisi eklenene kadar ekran calismaya devam ediyor.
+  final String? nameEn;
+  final String? nameDe;
+  final String? nameEs;
+  final String? descriptionEn;
+  final String? descriptionDe;
+  final String? descriptionEs;
   final String icon;           // Emoji or asset path
   final Color primaryColor;
   final Color secondaryColor;
@@ -34,6 +50,29 @@ class Course {
   final int estimatedMinutes;  // Total estimated time
   final bool isPremium;
   final int sortOrder;
+
+  /// Ogrenme yolundaki sira (1'den baslar). 0 = yolun disinda, sadece
+  /// katalogda gorunur. Katalog ekrani filtre yokken kurslari bu siraya
+  /// gore "adim adim" gosterir.
+  final int pathStep;
+
+  /// Bu kursa baslamadan once tamamlanmasi onerilen kursun id'si.
+  /// Zorlayici degil, kullaniciya yol gostermek icin.
+  final String? prerequisiteId;
+
+  String nameFor(String lang) => switch (lang) {
+        'en' => nameEn ?? name,
+        'de' => nameDe ?? nameEn ?? name,
+        'es' => nameEs ?? nameEn ?? name,
+        _ => name,
+      };
+
+  String descriptionFor(String lang) => switch (lang) {
+        'en' => descriptionEn ?? description,
+        'de' => descriptionDe ?? descriptionEn ?? description,
+        'es' => descriptionEs ?? descriptionEn ?? description,
+        _ => description,
+      };
 
   const Course({
     required this.id,
@@ -50,49 +89,66 @@ class Course {
     this.estimatedMinutes = 0,
     this.isPremium = false,
     this.sortOrder = 0,
+    this.pathStep = 0,
+    this.prerequisiteId,
+    this.nameEn,
+    this.nameDe,
+    this.nameEs,
+    this.descriptionEn,
+    this.descriptionDe,
+    this.descriptionEs,
   });
 
   String get difficultyText {
     switch (difficulty) {
       case DifficultyLevel.beginner:
-        return 'Baslangic';
+        return 'Başlangıç';
       case DifficultyLevel.intermediate:
         return 'Orta';
       case DifficultyLevel.advanced:
-        return 'Ileri';
+        return 'İleri';
     }
   }
 
-  String get categoryText {
-    switch (category) {
-      case CourseCategory.kids:
-        return 'Gorsel Programlama';
-      case CourseCategory.web:
-        return 'Web Gelistirme';
-      case CourseCategory.mobile:
-        return 'Mobil & Masaustu';
-      case CourseCategory.systems:
-        return 'Sistem Programlama';
-      case CourseCategory.robotics:
-        return 'Robotik & IoT';
-      case CourseCategory.data:
-        return 'Veri & Yapay Zeka';
-      case CourseCategory.scripting:
-        return 'Script Dilleri';
-    }
-  }
+  // `categoryText` KALDIRILDI.
+  //
+  // Kurs kataloğundaki yatay kategori şeridi kaldırılınca bu getter'ı
+  // okuyan hiçbir yer kalmadı; üstelik tek dilliydi (Türkçe sabit).
+  // `category` alanı veri olarak duruyor — bir gün gerekirse yeniden
+  // kullanılabilir — ama artık hiçbir ekranı beslemiyor.
 
-  String get estimatedTimeText {
-    if (estimatedMinutes < 60) {
-      return '$estimatedMinutes dk';
-    }
+
+
+  /// Turkce sure metni. Yeni kod `estimatedTimeTextFor(lang)`
+  /// kullanmali; bu getter geriye donuk uyumluluk icin duruyor.
+  String get estimatedTimeText => estimatedTimeTextFor('tr');
+
+  /// Sure metni — dile gore.
+  ///
+  /// Kurs katalogu magaza slaytinda kullaniliyor ve Ingilizce
+  /// kosuda "4 saat" yaziyordu: ekranin geri kalani cevrilmisken
+  /// sure ve ders sayisi Turkce kaliyordu.
+  String estimatedTimeTextFor(String lang) {
     final hours = estimatedMinutes ~/ 60;
     final mins = estimatedMinutes % 60;
-    if (mins == 0) {
-      return '$hours saat';
-    }
-    return '$hours saat $mins dk';
+    final (h, m) = switch (lang) {
+      'en' => ('h', 'min'),
+      'de' => ('Std.', 'Min.'),
+      'es' => ('h', 'min'),
+      _ => ('saat', 'dk'),
+    };
+    if (estimatedMinutes < 60) return '$estimatedMinutes $m';
+    if (mins == 0) return '$hours $h';
+    return '$hours $h $mins $m';
   }
+
+  /// "12 ders" / "12 lessons" — dile gore.
+  String lessonCountTextFor(String lang) => switch (lang) {
+        'en' => '$totalLessons lessons',
+        'de' => '$totalLessons Lektionen',
+        'es' => '$totalLessons lecciones',
+        _ => '$totalLessons ders',
+      };
 }
 
 /// Lesson within a course
@@ -100,6 +156,11 @@ class Lesson {
   final String id;
   final String courseId;
   final String title;
+  // Quiz ekraninin baslik cubugunda gorunuyor; cevirisi olmayan ders
+  // Turkce kaliyor (bkz. titleFor).
+  final String? titleEn;
+  final String? titleDe;
+  final String? titleEs;
   final String description;
   final int order;
   final int estimatedMinutes;
@@ -112,6 +173,9 @@ class Lesson {
     required this.id,
     required this.courseId,
     required this.title,
+    this.titleEn,
+    this.titleDe,
+    this.titleEs,
     required this.description,
     required this.order,
     this.estimatedMinutes = 5,
@@ -120,6 +184,18 @@ class Lesson {
     this.quiz,
     this.xpReward = 10,
   });
+
+  /// Ders basligi — quiz sorularindakiyle ayni yedek zinciri.
+  String titleFor(String lang) {
+    String? own;
+    if (lang == 'de') own = titleDe;
+    if (lang == 'es') own = titleEs;
+    if (own != null && own.trim().isNotEmpty) return own;
+    if (lang != 'tr' && titleEn != null && titleEn!.trim().isNotEmpty) {
+      return titleEn!;
+    }
+    return title;
+  }
 }
 
 /// Type of lesson
@@ -180,24 +256,106 @@ class Quiz {
 }
 
 /// Quiz question
+///
+/// DORT DILLI
+/// ----------
+/// Sorular uzun sure yalnizca Turkce yaziliydi. Almanca secen bir cocuk
+/// dersi Almanca/Ingilizce goruyor, quize girince "HTML ne anlama
+/// gelir?" ile karsilasiyordu — dort dil vaadinin en gorunur sekilde
+/// kirildigi yer burasiydi.
+///
+/// Yedek zinciri ders icerigiyle AYNI olmali (bkz. `pickLang`):
+/// `tr` → Turkce; baska her dil → varsa kendi dili, yoksa Ingilizce,
+/// o da yoksa Turkce. Boylece yeni bir dil eklenirken ceviri yetismese
+/// bile ekranda bos ya da Turkce metin cikmiyor.
+///
+/// [correctAnswer] CEVRILMEZ: coktan secmelide dogru siktaki INDEKS,
+/// dogru/yanlista bool. Bu yuzden ceviri listelerinin sirasi Turkce
+/// listeyle birebir ayni olmak zorunda — `test/quiz_localization_test.dart`
+/// uzunlugu ve sirayi kilitliyor.
 class QuizQuestion {
   final String id;
   final String question;
+  final String? questionEn;
+  final String? questionDe;
+  final String? questionEs;
   final QuestionType type;
   final List<String> options;  // For multiple choice
+  final List<String>? optionsEn;
+  final List<String>? optionsDe;
+  final List<String>? optionsEs;
   final dynamic correctAnswer; // Index for MC, string for fill-in
   final String? explanation;
+  final String? explanationEn;
+  final String? explanationDe;
+  final String? explanationEs;
   final String? codeSnippet;
+  // Kod parcasi da ceviriliyor: icindeki degisken adlari ve yazdirilan
+  // metinler ("Cocuk", "Merhaba") siklarda birebir gecmek zorunda.
+  // Snippet Turkce kalip sik Ingilizce olursa soru cevapsiz kaliyor.
+  final String? codeSnippetEn;
+  final String? codeSnippetDe;
+  final String? codeSnippetEs;
 
   const QuizQuestion({
     required this.id,
     required this.question,
+    this.questionEn,
+    this.questionDe,
+    this.questionEs,
     required this.type,
     this.options = const [],
+    this.optionsEn,
+    this.optionsDe,
+    this.optionsEs,
     required this.correctAnswer,
     this.explanation,
+    this.explanationEn,
+    this.explanationDe,
+    this.explanationEs,
     this.codeSnippet,
+    this.codeSnippetEn,
+    this.codeSnippetDe,
+    this.codeSnippetEs,
   });
+
+  static String _pick(
+      String tr, String? en, String? de, String? es, String lang) {
+    String? own;
+    if (lang == 'de') own = de;
+    if (lang == 'es') own = es;
+    if (own != null && own.trim().isNotEmpty) return own;
+    if (lang != 'tr' && en != null && en.trim().isNotEmpty) return en;
+    return tr;
+  }
+
+  String questionFor(String lang) =>
+      _pick(question, questionEn, questionDe, questionEs, lang);
+
+  List<String> optionsFor(String lang) {
+    List<String>? own;
+    if (lang == 'de') own = optionsDe;
+    if (lang == 'es') own = optionsEs;
+    if (own != null && own.length == options.length) return own;
+    if (lang != 'tr' &&
+        optionsEn != null &&
+        optionsEn!.length == options.length) {
+      return optionsEn!;
+    }
+    return options;
+  }
+
+  String? explanationFor(String lang) {
+    if (explanation == null) return null;
+    return _pick(
+        explanation!, explanationEn, explanationDe, explanationEs, lang);
+  }
+
+  String? codeSnippetFor(String lang) {
+    if (codeSnippet == null) return null;
+    return _pick(
+        codeSnippet!, codeSnippetEn, codeSnippetDe, codeSnippetEs, lang);
+  }
 }
 
 /// Type of quiz question

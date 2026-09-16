@@ -10,6 +10,9 @@ import 'quizzes_data.dart';
 class QuizCategory {
   final String courseId;
   final String title;
+  final String titleEn;
+  final String titleDe;
+  final String titleEs;
   final String emoji;
   final Color color;
   final Color secondaryColor;
@@ -21,11 +24,29 @@ class QuizCategory {
   QuizCategory({
     required this.courseId,
     required this.title,
+    required this.titleEn,
+    required this.titleDe,
+    required this.titleEs,
     required this.emoji,
     required this.color,
     required this.secondaryColor,
     required this.quizKeys,
   });
+
+  /// Kart basligi — kursun kendi cok dilli adindan geliyor
+  /// (bkz. Course.nameFor); burada ayri bir ceviri tutulmuyor.
+  String titleFor(String lang) {
+    switch (lang) {
+      case 'en':
+        return titleEn;
+      case 'de':
+        return titleDe;
+      case 'es':
+        return titleEs;
+      default:
+        return title;
+    }
+  }
 
   int get questionCount {
     var total = 0;
@@ -60,6 +81,9 @@ class QuizCategoriesData {
       categories.add(QuizCategory(
         courseId: course.id,
         title: course.name,
+        titleEn: course.nameFor('en'),
+        titleDe: course.nameFor('de'),
+        titleEs: course.nameFor('es'),
         emoji: course.icon,
         color: course.primaryColor,
         secondaryColor: course.secondaryColor,

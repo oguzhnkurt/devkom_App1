@@ -95,7 +95,7 @@ class _LessonScreenState extends State<LessonScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Dersi tamamladin!',
+              'Dersi tamamladın!',
               style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 16),
@@ -166,7 +166,7 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
       // Last lesson - go back to course
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kursu tamamladin! 🎉')),
+        const SnackBar(content: Text('Kursu tamamladın! 🎉')),
       );
     }
   }
@@ -339,11 +339,18 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
                     final text = controller?.text ?? content.content;
                     Clipboard.setData(ClipboardData(text: text));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Kod kopyalandi!')),
+                      const SnackBar(content: Text('Kod kopyalandı!')),
                     );
                   },
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
+                  // Ikon kucuk ama BASILABILIR ALAN degil: bos
+                  // BoxConstraints(), IconButton'in 48x48 varsayilan
+                  // hedefini siliyordu ve geriye yalnizca ikonun kendi
+                  // boyu kaliyordu. En az 44x44 (Apple HIG).
+                  constraints: const BoxConstraints(
+                    minWidth: 44,
+                    minHeight: 44,
+                  ),
                 ),
               ],
             ),
@@ -480,7 +487,7 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
               ),
               const SizedBox(width: 12),
               Text(
-                'Gorev',
+                'Görev',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -512,7 +519,7 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Ipucu: ${content.hint}',
+                      'İpucu: ${content.hint}',
                       style: TextStyle(
                         fontSize: 13,
                         fontStyle: FontStyle.italic,
@@ -578,7 +585,7 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
                 }
               },
               icon: const Icon(Icons.arrow_back, size: 18),
-              label: const Text('Onceki'),
+              label: const Text('Önceki'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: isDark ? Colors.white70 : Colors.grey.shade700,
                 side: BorderSide(color: isDark ? Colors.grey.shade700 : Colors.grey.shade300),
@@ -589,7 +596,7 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
             ElevatedButton.icon(
               onPressed: _isCompleted ? null : _completeLesson,
               icon: Icon(_isCompleted ? Icons.check : Icons.done_all, size: 20),
-              label: Text(_isCompleted ? 'Tamamlandi' : 'Tamamla'),
+              label: Text(_isCompleted ? 'Tamamlandı' : 'Tamamla'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _isCompleted ? Colors.green : widget.course.primaryColor,
                 foregroundColor: Colors.white,
@@ -626,9 +633,9 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
           ),
           const SizedBox(width: 16),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(_quizPassed ? 'Quiz Tamamlandi!' : 'Bilgini Test Et', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(_quizPassed ? 'Quiz Tamamlandı!' : 'Bilgini Test Et', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            Text(_quizPassed ? 'Tebrikler, quizi gectin!' : '${_quiz!.questions.length} soru ile ogrendiklerini pekistir', style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14)),
+            Text(_quizPassed ? 'Tebrikler, quizi geçtin!' : '${_quiz!.questions.length} soru ile öğrendiklerini pekistir', style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14)),
           ])),
         ]),
         const SizedBox(height: 16),
@@ -642,7 +649,7 @@ void _startQuiz() async {    if (_quiz == null) return;    final result = await 
           ElevatedButton.icon(
             onPressed: _quizPassed ? null : _startQuiz,
             icon: Icon(_quizPassed ? Icons.check : Icons.play_arrow),
-            label: Text(_quizPassed ? 'Gecildi' : 'Quize Basla'),
+            label: Text(_quizPassed ? 'Gecildi' : 'Quize Başla'),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: _quizPassed ? Colors.green : Colors.purple, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
           ),
         ]),

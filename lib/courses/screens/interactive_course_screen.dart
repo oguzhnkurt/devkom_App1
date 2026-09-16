@@ -1,17 +1,16 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/ad_unlock_service.dart';
+import '../../utils/lang.dart';
+import '../../utils/pro_gate.dart';
 import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
-import '../data/scratch_lessons_data.dart';
-import '../data/python_lessons_data.dart';
-import '../data/arduino_lessons_data.dart';
-import '../data/html_lessons_data.dart';
-import '../data/css_lessons_data.dart';
-import '../data/java_lessons_data.dart';
-import '../data/csharp_lessons_data.dart';
+import '../data/course_modules.dart';
 import 'interactive_lesson_screen.dart';
 import 'module_quiz_screen.dart';
-import 'widgets/step_widgets.dart' show lessonLang;
+import 'widgets/step_widgets.dart' show lessonLang, lessonText;
 
 /// Genel Interaktif Kurs Ekrani
 /// Tum kurslar icin kullanilabilir
@@ -26,304 +25,63 @@ class InteractiveCourseScreen extends StatefulWidget {
 
 class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
   int _selectedModule = 0;
-  late List<_ModuleInfo> _modules;
+  late List<CourseModule> _modules;
+
+  /// Dersin KURS icindeki sifir tabanli sirasi (moduller duzlestirilmis).
+  ///
+  /// Pro bir kursta ilk iki ders odullu reklamla aciliyor; hangi dersin
+  /// "ilk iki" oldugunu bilmek icin modul ici sira degil, kurs geneli
+  /// sira gerekiyor.
+  final Map<String, int> _dersSirasi = {};
+
+  /// Reklamla acilmis derslerin id'leri. Kart kilidini cizmek icin
+  /// bellekte tutuluyor; kalici kayit [AdUnlockService] tarafinda.
+  Set<String> _acilanDersler = {};
 
   @override
   void initState() {
     super.initState();
     _loadCourseModules();
+    _acilanlariYukle();
   }
 
   void _loadCourseModules() {
-    switch (widget.course.id) {
-      case 'scratch':
-        _modules = [
-          _ModuleInfo(
-            title: 'Scratch\'a Merhaba',
-            description: 'Blok programlamaya ilk adim',
-            emoji: '👋',
-            lessons: ScratchLessonsData.module1,
-          ),
-          _ModuleInfo(
-            title: 'Etkilesim & Kontrol',
-            description: 'Kosullar ve hareket',
-            emoji: '🎮',
-            lessons: ScratchLessonsData.module2,
-          ),
-          _ModuleInfo(
-            title: 'Ilk Oyunun',
-            description: 'Gercek bir oyun yap!',
-            emoji: '🚀',
-            lessons: ScratchLessonsData.module3,
-          ),
-          _ModuleInfo(
-            title: 'Degiskenler & Puan',
-            description: 'Bilgiyi sakla, puan tut',
-            emoji: '🔢',
-            lessons: ScratchLessonsData.module4,
-          ),
-          _ModuleInfo(
-            title: 'Klonlar',
-            description: 'Kuklalari cogalt',
-            emoji: '👯',
-            lessons: ScratchLessonsData.module5,
-          ),
-          _ModuleInfo(
-            title: 'Mesajlar & Yayinlar',
-            description: 'Kuklalar arasi iletisim',
-            emoji: '📢',
-            lessons: ScratchLessonsData.module6,
-          ),
-          _ModuleInfo(
-            title: 'Ses & Muzik',
-            description: 'Oyununa ses ekle',
-            emoji: '🎵',
-            lessons: ScratchLessonsData.module7,
-          ),
-        ];
-        break;
-      case 'html':
-        _modules = [
-          _ModuleInfo(
-            title: 'HTML\'e Giris',
-            titleEn: 'Getting Started with HTML',
-            description: 'Web sayfalarinin iskeleti',
-            descriptionEn: 'The skeleton of web pages',
-            emoji: '🌐',
-            lessons: HtmlLessonsData.module1,
-          ),
-          _ModuleInfo(
-            title: 'Metin Etiketleri',
-            titleEn: 'Text Tags',
-            description: 'Baslik ve paragraflar',
-            descriptionEn: 'Headings and paragraphs',
-            emoji: '📝',
-            lessons: HtmlLessonsData.module2,
-          ),
-          _ModuleInfo(
-            title: 'Baglanti ve Gorseller',
-            titleEn: 'Links and Images',
-            description: 'Sayfalari birbirine bagla',
-            descriptionEn: 'Connect pages together',
-            emoji: '🔗',
-            lessons: HtmlLessonsData.module3,
-          ),
-          _ModuleInfo(
-            title: 'Listeler ve Tablolar',
-            titleEn: 'Lists and Tables',
-            description: 'Veriyi duzenli goster',
-            descriptionEn: 'Present data in an organized way',
-            emoji: '📋',
-            lessons: HtmlLessonsData.module4,
-          ),
-          _ModuleInfo(
-            title: 'Formlar',
-            titleEn: 'Forms',
-            description: 'Kullanicidan veri al',
-            descriptionEn: 'Collect data from users',
-            emoji: '📮',
-            lessons: HtmlLessonsData.module5,
-          ),
-          _ModuleInfo(
-            title: 'Semantik HTML ve Proje',
-            titleEn: 'Semantic HTML and Project',
-            description: 'Anlamli yapi ve final proje',
-            descriptionEn: 'Meaningful structure and a final project',
-            emoji: '🚀',
-            lessons: HtmlLessonsData.module6,
-          ),
-        ];
-        break;
-      case 'css':
-        _modules = [
-          _ModuleInfo(
-            title: 'CSS\'e Giris',
-            description: 'Renkler, yazi tipleri, seciciler',
-            emoji: '🎨',
-            lessons: CssLessonsData.module1,
-          ),
-          _ModuleInfo(
-            title: 'Kutu Modeli',
-            description: 'Boyut, kenarlik, golge',
-            emoji: '📦',
-            lessons: CssLessonsData.module2,
-          ),
-          _ModuleInfo(
-            title: 'Yerlesim (Layout)',
-            description: 'Flexbox ile modern tasarim',
-            emoji: '📐',
-            lessons: CssLessonsData.module3,
-          ),
-          _ModuleInfo(
-            title: 'Tasarim ve Proje',
-            description: 'Hover, animasyon, final proje',
-            emoji: '🚀',
-            lessons: CssLessonsData.module4,
-          ),
-        ];
-        break;
-      case 'java':
-        _modules = [
-          _ModuleInfo(
-            title: 'Java\'ya Giris',
-            description: 'Degiskenler ve ilk programin',
-            emoji: '☕',
-            lessons: JavaLessonsData.module1,
-          ),
-          _ModuleInfo(
-            title: 'Kontrol Yapilari',
-            description: 'if-else, donguler, diziler',
-            emoji: '🔀',
-            lessons: JavaLessonsData.module2,
-          ),
-          _ModuleInfo(
-            title: 'Nesne Yonelimi',
-            description: 'Sinif, metod, kalitim',
-            emoji: '🏗️',
-            lessons: JavaLessonsData.module3,
-          ),
-          _ModuleInfo(
-            title: 'Projeler',
-            description: 'Gercek programlar yaz',
-            emoji: '🚀',
-            lessons: JavaLessonsData.module4,
-          ),
-        ];
-        break;
-      case 'csharp':
-        _modules = [
-          _ModuleInfo(
-            title: 'C#\'a Giris',
-            description: 'Degiskenler ve ilk programin',
-            emoji: '💜',
-            lessons: CSharpLessonsData.module1,
-          ),
-          _ModuleInfo(
-            title: 'Kontrol Yapilari',
-            description: 'if-else, donguler, diziler',
-            emoji: '🔀',
-            lessons: CSharpLessonsData.module2,
-          ),
-          _ModuleInfo(
-            title: 'Nesne Yonelimi',
-            description: 'Sinif, metod, kalitim',
-            emoji: '🏗️',
-            lessons: CSharpLessonsData.module3,
-          ),
-          _ModuleInfo(
-            title: 'Projeler',
-            description: 'Gercek programlar yaz',
-            emoji: '🚀',
-            lessons: CSharpLessonsData.module4,
-          ),
-        ];
-        break;
-      case 'python':
-        _modules = [
-          _ModuleInfo(
-            title: 'Python Temelleri',
-            description: 'print, degiskenler, matematik',
-            emoji: '🐍',
-            lessons: PythonLessonsData.module1,
-          ),
-          _ModuleInfo(
-            title: 'Kullanici Etkilesimi',
-            description: 'input() ile veri al',
-            emoji: '⌨️',
-            lessons: PythonLessonsData.module2,
-          ),
-          _ModuleInfo(
-            title: 'If-Else Kosullar',
-            description: 'Programin karar vermesi',
-            emoji: '🔀',
-            lessons: PythonLessonsData.module3,
-          ),
-          _ModuleInfo(
-            title: 'Donguler',
-            description: 'for ve while dongusu',
-            emoji: '🔁',
-            lessons: PythonLessonsData.module4,
-          ),
-          _ModuleInfo(
-            title: 'Listeler',
-            description: 'Birden fazla veri',
-            emoji: '📋',
-            lessons: PythonLessonsData.module5,
-          ),
-          _ModuleInfo(
-            title: 'Fonksiyonlar',
-            description: 'Kendi komutlarin',
-            emoji: '⚡',
-            lessons: PythonLessonsData.module6,
-          ),
-          _ModuleInfo(
-            title: 'Sozlukler',
-            description: 'Anahtar-deger ciftleri',
-            emoji: '📖',
-            lessons: PythonLessonsData.module7,
-          ),
-          _ModuleInfo(
-            title: 'Dosya Islemleri',
-            description: 'Dosya oku ve yaz',
-            emoji: '📂',
-            lessons: PythonLessonsData.module8,
-          ),
-          _ModuleInfo(
-            title: 'Ileri Seviye Python',
-            titleEn: 'Advanced Python',
-            description: 'Hata yonetimi, kutuphaneler, comprehension, OOP',
-            descriptionEn: 'Error handling, libraries, comprehensions, OOP',
-            emoji: '🎓',
-            lessons: PythonLessonsData.module9,
-          ),
-        ];
-        break;
-      case 'arduino':
-        _modules = [
-          _ModuleInfo(
-            title: 'Arduino\'ya Giris',
-            description: 'Elektronik + kod dunyasi',
-            emoji: '🤖',
-            lessons: ArduinoLessonsData.module1,
-          ),
-          _ModuleInfo(
-            title: 'Butonlar',
-            description: 'Sayaç ve aç/kapa dugmesi',
-            emoji: '🔘',
-            lessons: ArduinoLessonsData.module2,
-          ),
-          _ModuleInfo(
-            title: 'Trafik Isigi & Potansiyometre',
-            description: 'Coklu LED ve analog giris',
-            emoji: '🚦',
-            lessons: ArduinoLessonsData.module3,
-          ),
-          _ModuleInfo(
-            title: 'Buzzer & LDR',
-            description: 'Melodi ve gece lambasi',
-            emoji: '🔊',
-            lessons: ArduinoLessonsData.module4,
-          ),
-          _ModuleInfo(
-            title: 'Sensorler & Final Proje',
-            description: 'Park sensoru ve cam sileceği',
-            emoji: '📏',
-            lessons: ArduinoLessonsData.module5,
-          ),
-          _ModuleInfo(
-            title: 'Ileri Seviye: Gercek Kod ile Arduino',
-            titleEn: 'Advanced: Real Code with Arduino',
-            description: 'Bloklardan C++ koduna, LCD ekran ve akilli sulama projesi',
-            descriptionEn: 'From blocks to C++, LCD screens, and a smart watering project',
-            emoji: '💻',
-            lessons: ArduinoLessonsData.module6,
-          ),
-        ];
-        break;
-      default:
-        _modules = [];
+    // Esleme artik CourseModules'te; ekran yalnizca okuyor. Boylece test de
+    // ayni kaynagi dogrulayabiliyor (bkz. test/course_content_test.dart).
+    _modules = CourseModules.forCourse(widget.course.id);
+
+    var sira = 0;
+    for (final modul in _modules) {
+      for (final ders in modul.lessons) {
+        _dersSirasi[ders.id] = sira++;
+      }
     }
   }
+
+  Future<void> _acilanlariYukle() async {
+    if (!widget.course.isPremium) return;
+    final acilan = <String>{};
+    for (final modul in _modules) {
+      for (final ders in modul.lessons) {
+        if (await AdUnlockService.instance.acikMi(widget.course.id, ders.id)) {
+          acilan.add(ders.id);
+        }
+      }
+    }
+    if (!mounted) return;
+    setState(() => _acilanDersler = acilan);
+  }
+
+  /// Bu ders su an kilitli mi? (Pro uyede hicbir zaman.)
+  bool _kilitli(InteractiveLesson lesson) =>
+      widget.course.isPremium &&
+      !ProGate.watchIsPro(context) &&
+      !_acilanDersler.contains(lesson.id);
+
+  /// Kilitliyse reklamla acilabilir mi, yoksa yalnizca Pro mu?
+  bool _reklamlaAcilir(InteractiveLesson lesson) =>
+      AdUnlockService.instance
+          .reklamlaAcilabilir(_dersSirasi[lesson.id] ?? 1 << 30);
 
   String _getCourseEmoji() {
     switch (widget.course.id) {
@@ -341,6 +99,8 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         return '🐍';
       case 'arduino':
         return '🤖';
+      case 'arduino_ide':
+        return '💻';
       case 'java':
         return '☕';
       case 'csharp':
@@ -360,7 +120,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         body: Center(
           child: Text(lessonLang(context) == 'en'
               ? 'Interactive content for this course is not ready yet.'
-              : 'Bu kurs icin interaktif icerik henuz hazir degil.'),
+              : 'Bu kurs için interaktif içerik henüz hazır değil.'),
         ),
       );
     }
@@ -516,7 +276,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Ilerleme',
+                      lessonText(lessonLang(context), 'İlerleme', 'Progress'),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -558,14 +318,15 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                 ),
                 elevation: 4,
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.play_arrow, size: 24),
-                  SizedBox(width: 8),
+                  const Icon(Icons.play_arrow, size: 24),
+                  const SizedBox(width: 8),
                   Text(
-                    'Ogrenmeye Basla',
-                    style: TextStyle(
+                    lessonText(lessonLang(context), 'Öğrenmeye Başla',
+                        'Start learning'),
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -656,7 +417,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    lessonLang(context) == 'en' ? 'Module ${index + 1}' : 'Modul ${index + 1}',
+                    lessonLang(context) == 'en' ? 'Module ${index + 1}' : 'Modül ${index + 1}',
                     style: TextStyle(
                       fontSize: 11,
                       color: isSelected
@@ -755,7 +516,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
     );
   }
 
-  Widget _buildModuleQuizCard(_ModuleInfo module, bool isDark) {
+  Widget _buildModuleQuizCard(CourseModule module, bool isDark) {
     final questions = ModuleQuizScreen.collectQuestions(module.lessons);
     if (questions.length < 3) {
       return const SizedBox.shrink();
@@ -774,6 +535,8 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                 course: widget.course,
                 moduleTitle: module.title,
                 moduleTitleEn: module.titleEn,
+                moduleTitleDe: module.titleDe,
+                moduleTitleEs: module.titleEs,
                 questions: questions,
               ),
             ),
@@ -812,7 +575,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      lang == 'en' ? 'Module Quiz' : 'Modul Quizi',
+                      lang == 'en' ? 'Module Quiz' : 'Modül Quizi',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -838,11 +601,27 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
   }
 
   Widget _buildLessonCard(InteractiveLesson lesson, int index, bool isDark) {
-    const isCompleted = false; // TODO: Get from user data
-    const isLocked = false; // For now, don't lock
+    // BİTEN DERSİN İŞARETİ GERÇEK VERİDEN GELİYOR.
+    //
+    // Burada `const isCompleted = false; // TODO` duruyordu: kurs
+    // listesindeki HİÇBİR ders, bitirilmiş olsa bile bitmiş
+    // görünmüyordu. Yeşil çerçeve, yeşil rozet ve tik hep ölü koddu —
+    // analyzer da onları "erişilemez kod" diye işaretliyordu. Çocuğun
+    // nerede kaldığını göremediği bir liste, listenin işini yapmıyor.
+    //
+    // Ders KİLİTLENMİYOR: yol bir öneri, bir kapı değil. (Apple 5.1.4(a)
+    // uygulamanın yaştan bağımsız işe yarar olmasını istiyor; ayrıca
+    // sırayı atlamak isteyen çocuğu durdurmak bu uygulamanın işi değil.)
+    final completedIds = context
+            .watch<AuthProvider>()
+            .userProgress
+            ?.completedLessonIds
+            .toSet() ??
+        const <String>{};
+    final isCompleted = completedIds.contains(lesson.id);
 
     return GestureDetector(
-      onTap: isLocked ? null : () => _openLesson(lesson),
+      onTap: () => _openLesson(lesson),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
@@ -863,7 +642,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
-            onTap: isLocked ? null : () => _openLesson(lesson),
+            onTap: () => _openLesson(lesson),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -898,16 +677,14 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                     child: Center(
                       child: isCompleted
                           ? const Icon(Icons.check, color: Colors.white, size: 24)
-                          : (isLocked
-                              ? const Icon(Icons.lock, color: Colors.white, size: 20)
-                              : Text(
-                                  '${index + 1}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                )),
+                          : Text(
+                              '${index + 1}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -922,9 +699,8 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: isLocked
-                                ? Colors.grey
-                                : (isDark ? Colors.white : const Color(0xFF1A1A1A)),
+                            color:
+                                isDark ? Colors.white : const Color(0xFF1A1A1A),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -940,7 +716,10 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                           children: [
                             _buildLessonStat(
                               Icons.flash_on,
-                              '${lesson.steps.length} adim',
+                              lessonText(
+                                  lessonLang(context),
+                                  '${lesson.steps.length} adım',
+                                  '${lesson.steps.length} steps'),
                               Colors.blue,
                             ),
                             const SizedBox(width: 16),
@@ -962,6 +741,24 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                       ],
                     ),
                   ),
+
+                  // Kilit durumu: ya "reklamla ac" ya da PRO rozeti.
+                  if (_kilitli(lesson)) ...[
+                    if (_reklamlaAcilir(lesson))
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF6C3CE0).withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Icon(Icons.play_circle_outline_rounded,
+                            size: 18, color: Color(0xFF6C3CE0)),
+                      )
+                    else
+                      ProGate.badge(),
+                    const SizedBox(width: 6),
+                  ],
 
                   // Arrow
                   Icon(
@@ -995,7 +792,69 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
     );
   }
 
-  void _openLesson(InteractiveLesson lesson) {
+  /// Dersi acar; gerekiyorsa once kilidi cozer.
+  ///
+  /// KILIT NEDEN BURADA
+  /// ------------------
+  /// Eskiden kilit KURS acilisindaydi: Pro olmayan cocuk Java kursunun
+  /// icini hic goremiyordu. Simdi liste aciliyor, kilit ders basina:
+  ///
+  ///  - Kursun ilk IKI dersi: odullu reklamla acilir ve acik kalir.
+  ///  - Ucuncu ders ve sonrasi: yalnizca Pro.
+  ///
+  /// Boylece cocuk icerigi gercekten gorup ailesine anlatabiliyor, ama
+  /// kursun tamami reklamla bitirilemiyor — yani ilerlemek icin reklam
+  /// izlemek ZORUNDA kalmiyor.
+  Future<void> _openLesson(InteractiveLesson lesson) async {
+    if (_kilitli(lesson)) {
+      final sira = _dersSirasi[lesson.id] ?? 1 << 30;
+      final baslik = lesson.titleFor(lessonLang(context));
+
+      if (!_reklamlaAcilir(lesson)) {
+        final ok = await ProGate.ensure(
+          context,
+          featureName: baslik,
+          explanation: lessonText(
+            lessonLang(context),
+            'Bu kursun ilk iki dersi herkese açık. Gerisi Pro üyelikte.',
+            'The first two lessons of this course are open to everyone. '
+                'The rest is part of Pro.',
+            'Die ersten zwei Lektionen dieses Kurses sind für alle offen. '
+                'Der Rest gehört zu Pro.',
+            'Las dos primeras lecciones de este curso son para todos. '
+                'El resto forma parte de Pro.',
+          ),
+        );
+        if (!ok || !mounted) return;
+      } else {
+        final sonuc = await ProGate.ensureOrAd(
+          context,
+          featureName: baslik,
+          explanation: lessonText(
+            lessonLang(context),
+            'Bu ileri seviye kursun ilk iki dersini deneyebilirsin.',
+            'You can try the first two lessons of this advanced course.',
+            'Du kannst die ersten zwei Lektionen dieses Kurses ausprobieren.',
+            'Puedes probar las dos primeras lecciones de este curso.',
+          ),
+          reklamEtiketi: (lang) => AppLang.pick(
+            lang,
+            tr: 'Reklam izle, bu dersi aç',
+            en: 'Watch an ad, open this lesson',
+            de: 'Werbung ansehen, Lektion öffnen',
+            es: 'Ver un anuncio y abrir la lección',
+          ),
+        );
+        if (sonuc == ProUnlock.kapali || !mounted) return;
+        if (sonuc == ProUnlock.reklam) {
+          await AdUnlockService.instance.ac(widget.course.id, lesson.id, sira);
+          if (!mounted) return;
+          setState(() => _acilanDersler = {..._acilanDersler, lesson.id});
+        }
+      }
+    }
+
+    if (!mounted) return;
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -1007,34 +866,11 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
     );
   }
 
-  void _startFirstAvailableLesson() {
+  Future<void> _startFirstAvailableLesson() async {
     if (_modules.isNotEmpty && _modules[0].lessons.isNotEmpty) {
-      _openLesson(_modules[0].lessons.first);
+      await _openLesson(_modules[0].lessons.first);
     }
   }
-}
-
-class _ModuleInfo {
-  final String title;
-  final String description;
-  final String emoji;
-  final List<InteractiveLesson> lessons;
-
-  // Bilingual (optional - falls back to TR)
-  final String? titleEn;
-  final String? descriptionEn;
-
-  const _ModuleInfo({
-    required this.title,
-    required this.description,
-    required this.emoji,
-    required this.lessons,
-    this.titleEn,
-    this.descriptionEn,
-  });
-
-  String titleFor(String lang) => pickLang(title, titleEn, lang);
-  String descriptionFor(String lang) => pickLang(description, descriptionEn, lang);
 }
 
 /// Animated Emoji Widget

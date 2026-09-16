@@ -8,6 +8,8 @@ import '../../services/user_progress_service.dart';
 import '../../models/leaderboard_model.dart';
 import '../../models/game_model.dart';
 import '../../core/service_locator.dart';
+import 'widgets/step_widgets.dart' show lessonLangRead;
+import '../../utils/lang.dart';
 
 /// Quiz Screen - Interactive quiz experience
 class QuizScreen extends StatefulWidget {
@@ -37,7 +39,17 @@ class _QuizScreenState extends State<QuizScreen> {
   late final ConfettiController _confettiController =
       ConfettiController(duration: const Duration(seconds: 2));
 
-  QuizQuestion get _currentQuestion => widget.quiz.questions[_currentQuestionIndex];
+  QuizQuestion get _currentQuestion =>
+      widget.quiz.questions[_currentQuestionIndex];
+
+  /// Ekranin dili.
+  ///
+  /// `lessonLangRead` kullaniliyor, `context.watch` DEGIL: bu getter
+  /// build disindan (onPressed, sonuc ekrani kurulumu) da cagriliyor;
+  /// watch orada provider assertion firlatip islemi SESSIZCE iptal
+  /// ediyor. Ayni hata daha once takma ad kaydini ve onboarding
+  /// isaretini kaybettirmisti.
+  String get _lang => lessonLangRead(context);
   bool get _isLastQuestion => _currentQuestionIndex == widget.quiz.questions.length - 1;
   bool get _hasAnswered => _answers.containsKey(_currentQuestionIndex);
 
@@ -60,7 +72,7 @@ class _QuizScreenState extends State<QuizScreen> {
           onPressed: () => _showExitDialog(),
         ),
         title: Text(
-          'Quiz: ${widget.lesson.title}',
+          'Quiz: ${widget.lesson.titleFor(_lang)}',
           style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
         actions: [
@@ -134,7 +146,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   _buildQuestion(isDark),
                   const SizedBox(height: 20),
                   _buildOptions(isDark),
-                  if (_hintVisible && _currentQuestion.explanation != null) ...[
+                  if (_hintVisible && _currentQuestion.explanationFor(_lang) != null) ...[
                     const SizedBox(height: 16),
                     _buildHintCard(isDark),
                   ],
@@ -186,7 +198,7 @@ class _QuizScreenState extends State<QuizScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              _currentQuestion.explanation!,
+              _currentQuestion.explanationFor(_lang)!,
               style: TextStyle(
                 fontSize: 13,
                 color: isDark ? Colors.amber.shade100 : Colors.amber.shade900,
@@ -206,27 +218,47 @@ class _QuizScreenState extends State<QuizScreen> {
     switch (_currentQuestion.type) {
       case QuestionType.multipleChoice:
         icon = Icons.check_circle_outline;
-        typeText = 'Coktan Secmeli';
+        typeText = AppLang.pick(_lang,
+            tr: 'Çoktan Seçmeli',
+            en: 'Multiple choice',
+            de: 'Multiple Choice',
+            es: 'Opción múltiple');
         typeColor = Colors.blue;
         break;
       case QuestionType.trueFalse:
         icon = Icons.thumbs_up_down_outlined;
-        typeText = 'Dogru/Yanlis';
+        typeText = AppLang.pick(_lang,
+            tr: 'Doğru/Yanlış',
+            en: 'True / False',
+            de: 'Richtig / Falsch',
+            es: 'Verdadero / Falso');
         typeColor = Colors.purple;
         break;
       case QuestionType.fillInBlank:
         icon = Icons.edit_outlined;
-        typeText = 'Bosluk Doldur';
+        typeText = AppLang.pick(_lang,
+            tr: 'Boşluk Doldur',
+            en: 'Fill in the blank',
+            de: 'Lücke füllen',
+            es: 'Completa el hueco');
         typeColor = Colors.orange;
         break;
       case QuestionType.codeOutput:
         icon = Icons.code;
-        typeText = 'Kod Ciktisi';
+        typeText = AppLang.pick(_lang,
+            tr: 'Kod Çıktısı',
+            en: 'Code output',
+            de: 'Code-Ausgabe',
+            es: 'Salida del código');
         typeColor = Colors.green;
         break;
       case QuestionType.findError:
         icon = Icons.bug_report_outlined;
-        typeText = 'Hata Bul';
+        typeText = AppLang.pick(_lang,
+            tr: 'Hatayı Bul',
+            en: 'Find the error',
+            de: 'Finde den Fehler',
+            es: 'Encuentra el error');
         typeColor = Colors.red;
         break;
     }
@@ -261,7 +293,7 @@ class _QuizScreenState extends State<QuizScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _currentQuestion.question,
+          _currentQuestion.questionFor(_lang),
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -269,7 +301,7 @@ class _QuizScreenState extends State<QuizScreen> {
             color: isDark ? Colors.white : const Color(0xFF1A1A1A),
           ),
         ),
-        if (_currentQuestion.codeSnippet != null) ...[
+        if (_currentQuestion.codeSnippetFor(_lang) != null) ...[
           const SizedBox(height: 16),
           Container(
             width: double.infinity,
@@ -282,7 +314,7 @@ class _QuizScreenState extends State<QuizScreen> {
               ),
             ),
             child: SelectableText(
-              _currentQuestion.codeSnippet!,
+              _currentQuestion.codeSnippetFor(_lang)!,
               style: const TextStyle(
                 fontFamily: 'monospace',
                 fontSize: 14,
@@ -313,9 +345,9 @@ class _QuizScreenState extends State<QuizScreen> {
     final selectedIndex = _answers[_currentQuestionIndex];
 
     return Column(
-      children: List.generate(_currentQuestion.options.length, (index) {
+      children: List.generate(_currentQuestion.optionsFor(_lang).length, (index) {
         final isSelected = selectedIndex == index;
-        final option = _currentQuestion.options[index];
+        final option = _currentQuestion.optionsFor(_lang)[index];
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
@@ -389,7 +421,8 @@ class _QuizScreenState extends State<QuizScreen> {
         Expanded(
           child: _buildTrueFalseOption(
             isDark,
-            'Dogru',
+            AppLang.pick(_lang,
+                tr: 'Doğru', en: 'True', de: 'Richtig', es: 'Verdadero'),
             Icons.check_circle,
             Colors.green,
             true,
@@ -400,7 +433,8 @@ class _QuizScreenState extends State<QuizScreen> {
         Expanded(
           child: _buildTrueFalseOption(
             isDark,
-            'Yanlis',
+            AppLang.pick(_lang,
+                tr: 'Yanlış', en: 'False', de: 'Falsch', es: 'Falso'),
             Icons.cancel,
             Colors.red,
             false,
@@ -465,7 +499,11 @@ class _QuizScreenState extends State<QuizScreen> {
         setState(() => _answers[_currentQuestionIndex] = value);
       },
       decoration: InputDecoration(
-        hintText: 'Cevabinizi yazin...',
+        hintText: AppLang.pick(_lang,
+            tr: 'Cevabını yaz...',
+            en: 'Type your answer...',
+            de: 'Antwort eingeben...',
+            es: 'Escribe tu respuesta...'),
         filled: true,
         fillColor: isDark ? const Color(0xFF1E1E2E) : Colors.white,
         border: OutlineInputBorder(
@@ -508,7 +546,8 @@ class _QuizScreenState extends State<QuizScreen> {
               child: IconButton(
                 onPressed: _toggleHint,
                 icon: const Icon(Icons.lightbulb, color: Colors.amber),
-                tooltip: 'İpucu',
+                tooltip: AppLang.pick(_lang,
+                    tr: 'İpucu', en: 'Hint', de: 'Tipp', es: 'Pista'),
               ),
             ),
             const SizedBox(width: 8),
@@ -521,7 +560,11 @@ class _QuizScreenState extends State<QuizScreen> {
                   });
                 },
                 icon: const Icon(Icons.arrow_back, size: 18),
-                label: const Text('Onceki'),
+                label: Text(AppLang.pick(_lang,
+                    tr: 'Önceki',
+                    en: 'Previous',
+                    de: 'Zurück',
+                    es: 'Anterior')),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: isDark ? Colors.white70 : Colors.grey.shade700,
                   side: BorderSide(color: isDark ? Colors.grey.shade700 : Colors.grey.shade300),
@@ -536,7 +579,14 @@ class _QuizScreenState extends State<QuizScreen> {
                 _isLastQuestion ? Icons.check_circle : Icons.arrow_forward,
                 size: 20,
               ),
-              label: Text(_isLastQuestion ? 'Bitir' : 'Sonraki'),
+              label: Text(_isLastQuestion
+                  ? AppLang.pick(_lang,
+                      tr: 'Bitir', en: 'Finish', de: 'Fertig', es: 'Terminar')
+                  : AppLang.pick(_lang,
+                      tr: 'Sonraki',
+                      en: 'Next',
+                      de: 'Weiter',
+                      es: 'Siguiente')),
               style: ElevatedButton.styleFrom(
                 backgroundColor: widget.course.primaryColor,
                 foregroundColor: Colors.white,
@@ -559,9 +609,14 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _toggleHint() {
-    if (_currentQuestion.explanation == null) {
+    if (_currentQuestion.explanationFor(_lang) == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bu soru için ipucu yok, ama tahmin etmekten çekinme!')),
+        SnackBar(
+            content: Text(AppLang.pick(_lang,
+                tr: 'Bu soru için ipucu yok, ama tahmin etmekten çekinme!',
+                en: "There's no hint for this one, but go ahead and guess!",
+                de: 'Für diese Frage gibt es keinen Tipp — rate ruhig!',
+                es: 'Esta pregunta no tiene pista, ¡pero anímate a probar!'))),
       );
       return;
     }
@@ -675,8 +730,16 @@ class _QuizScreenState extends State<QuizScreen> {
           const SizedBox(height: 8),
           Text(
             passed
-                ? 'Quizi basariyla tamamladin!'
-                : 'Biraz daha calisarak basarabilirsin!',
+                ? AppLang.pick(_lang,
+                    tr: 'Quizi başarıyla tamamladın!',
+                    en: 'You finished the quiz!',
+                    de: 'Du hast das Quiz geschafft!',
+                    es: '¡Has completado el cuestionario!')
+                : AppLang.pick(_lang,
+                    tr: 'Biraz daha çalışınca başaracaksın!',
+                    en: "A little more practice and you've got this!",
+                    de: 'Noch ein bisschen üben, dann klappt es!',
+                    es: '¡Con un poco más de práctica lo consigues!'),
             style: TextStyle(
               fontSize: 16,
               color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
@@ -715,7 +778,11 @@ class _QuizScreenState extends State<QuizScreen> {
                     ),
                   ),
                   Text(
-                    'Basari',
+                    AppLang.pick(_lang,
+                        tr: 'Başarı',
+                        en: 'Score',
+                        de: 'Ergebnis',
+                        es: 'Resultado'),
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white.withValues(alpha: 0.9),
@@ -754,7 +821,11 @@ class _QuizScreenState extends State<QuizScreen> {
                   isDark,
                   Icons.check_circle_outline,
                   '${(_score * widget.quiz.questions.length / 100).round()}',
-                  'Dogru',
+                  AppLang.pick(_lang,
+                      tr: 'Doğru',
+                      en: 'Correct',
+                      de: 'Richtig',
+                      es: 'Aciertos'),
                   Colors.green,
                 ),
                 _buildStatItem(
@@ -771,7 +842,11 @@ class _QuizScreenState extends State<QuizScreen> {
           // Review answers
           if (!passed) ...[
             Text(
-              'Cevaplari Incele',
+              AppLang.pick(_lang,
+                  tr: 'Cevapları İncele',
+                  en: 'Review answers',
+                  de: 'Antworten ansehen',
+                  es: 'Revisar respuestas'),
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -888,7 +963,11 @@ class _QuizScreenState extends State<QuizScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'Soru ${index + 1}',
+                AppLang.pick(_lang,
+                    tr: 'Soru ${index + 1}',
+                    en: 'Question ${index + 1}',
+                    de: 'Frage ${index + 1}',
+                    es: 'Pregunta ${index + 1}'),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: isDark ? Colors.white : const Color(0xFF1A1A1A),
@@ -898,13 +977,13 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            question.question,
+            question.questionFor(_lang),
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
             ),
           ),
-          if (!isCorrect && question.explanation != null) ...[
+          if (!isCorrect && question.explanationFor(_lang) != null) ...[
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(12),
@@ -919,7 +998,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      question.explanation!,
+                      question.explanationFor(_lang)!,
                       style: const TextStyle(
                         fontSize: 13,
                         color: Colors.blue,
@@ -940,12 +1019,24 @@ class _QuizScreenState extends State<QuizScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Quiz\'den Cik'),
-        content: const Text('Ilerlemen kaydedilmeyecek. Cikmak istediginize emin misiniz?'),
+        title: Text(AppLang.pick(_lang,
+            tr: 'Quizden çık',
+            en: 'Leave the quiz',
+            de: 'Quiz verlassen',
+            es: 'Salir del cuestionario')),
+        content: Text(AppLang.pick(_lang,
+            tr: 'İlerlemen kaydedilmeyecek. Çıkmak istediğine emin misin?',
+            en: "Your progress won't be saved. Are you sure you want to quit?",
+            de: 'Dein Fortschritt wird nicht gespeichert. Wirklich beenden?',
+            es: 'Tu progreso no se guardará. ¿Seguro que quieres salir?')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Iptal'),
+            child: Text(AppLang.pick(_lang,
+                tr: 'İptal',
+                en: 'Cancel',
+                de: 'Abbrechen',
+                es: 'Cancelar')),
           ),
           ElevatedButton(
             onPressed: () {
@@ -955,7 +1046,8 @@ class _QuizScreenState extends State<QuizScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Cik'),
+            child: Text(AppLang.pick(_lang,
+                tr: 'Çık', en: 'Quit', de: 'Beenden', es: 'Salir')),
           ),
         ],
       ),

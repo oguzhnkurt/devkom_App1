@@ -2,6 +2,11 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+
+import '../../../providers/settings_provider.dart';
+import '../../../services/sound_service.dart';
+import '../../../utils/lang.dart';
 import '../../models/course_model.dart';
 import '../../models/interactive_lesson_model.dart';
 
@@ -43,6 +48,8 @@ class _CoordinateTapGameState extends State<CoordinateTapGame> {
   @override
   void initState() {
     super.initState();
+    // Koordinat/renk/desen oyunlarinin ses rengi.
+    SoundService.useVoice(SfxVoice.soft);
     _gridSize = widget.step.gameConfig['grid_size'] as int? ?? 5;
     _totalTargets = widget.step.gameConfig['targets'] as int? ?? 10;
     _generateNewTarget();
@@ -73,6 +80,13 @@ class _CoordinateTapGameState extends State<CoordinateTapGame> {
       }
     });
 
+    // Ekran tamamen sessizdi.
+    if (isCorrect) {
+      SoundService.playCorrect();
+    } else {
+      SoundService.playWrong();
+    }
+
     Future.delayed(const Duration(milliseconds: 800), () {
       if (!mounted) return;
 
@@ -92,8 +106,16 @@ class _CoordinateTapGameState extends State<CoordinateTapGame> {
     });
   }
 
+  /// Bu ekranin arayuz metinleri.
+  ///
+  /// Dosyanin tamami Turkce sabitti: Almanca ya da Ispanyolca secen cocuk
+  /// dersin icinde birden Turkce bir oyun buluyordu.
+  String _t(String lang, String tr, String en, String de, String es) =>
+      AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
+
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
     if (_gameOver) {
       return Center(
         child: Column(
@@ -102,7 +124,8 @@ class _CoordinateTapGameState extends State<CoordinateTapGame> {
             const Text('🎯', style: TextStyle(fontSize: 80)),
             const SizedBox(height: 24),
             Text(
-              'Oyun Bitti!',
+              _t(lang, 'Oyun Bitti!', 'Game Over!', 'Spiel vorbei!',
+                  '¡Fin del juego!'),
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
@@ -111,7 +134,7 @@ class _CoordinateTapGameState extends State<CoordinateTapGame> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Puanın: $_score / ${_totalTargets * 10}',
+              '${_t(lang, 'Puanın', 'Your score', 'Deine Punkte', 'Tu puntuación')}: $_score / ${_totalTargets * 10}',
               style: TextStyle(
                 fontSize: 24,
                 color: widget.course.primaryColor,
@@ -121,8 +144,14 @@ class _CoordinateTapGameState extends State<CoordinateTapGame> {
             const SizedBox(height: 8),
             Text(
               _score >= widget.step.targetScore
-                  ? 'Harika! Hedefi geçtin! 🎯'
-                  : 'İyi deneme! Tekrar dene! 💪',
+                  ? _t(lang, 'Harika! Hedefi geçtin! 🎯',
+                      'Great! You beat the target! 🎯',
+                      'Super! Du hast das Ziel geschafft! 🎯',
+                      '¡Genial! ¡Superaste el objetivo! 🎯')
+                  : _t(lang, 'İyi deneme! Tekrar dene! 💪',
+                      'Good try! Give it another go! 💪',
+                      'Guter Versuch! Probier es noch mal! 💪',
+                      '¡Buen intento! ¡Prueba otra vez! 💪'),
               style: TextStyle(
                 fontSize: 16,
                 color: widget.isDark ? Colors.grey.shade400 : Colors.grey.shade600,
@@ -163,7 +192,7 @@ class _CoordinateTapGameState extends State<CoordinateTapGame> {
                     ],
                   ),
                   Text(
-                    'Hedef ${_currentTarget + 1}/$_totalTargets',
+                    '${_t(lang, 'Hedef', 'Target', 'Ziel', 'Objetivo')} ${_currentTarget + 1}/$_totalTargets',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -189,7 +218,7 @@ class _CoordinateTapGameState extends State<CoordinateTapGame> {
                     const Icon(Icons.gps_fixed, size: 28),
                     const SizedBox(width: 12),
                     Text(
-                      'Hedef: X: $_targetX, Y: $_targetY',
+                      '${_t(lang, 'Hedef', 'Target', 'Ziel', 'Objetivo')}: X: $_targetX, Y: $_targetY',
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -249,7 +278,11 @@ class _CoordinateTapGameState extends State<CoordinateTapGame> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  _wasCorrect ? 'Doğru! 🎯' : 'Yanlış koordinat!',
+                  _wasCorrect
+                      ? _t(lang, 'Doğru! 🎯', 'Correct! 🎯', 'Richtig! 🎯',
+                          '¡Correcto! 🎯')
+                      : _t(lang, 'Yanlış koordinat!', 'Wrong coordinate!',
+                          'Falsche Koordinate!', '¡Coordenada equivocada!'),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -310,22 +343,11 @@ class _CoordinateTapGameState extends State<CoordinateTapGame> {
                           ? Colors.green.withValues(alpha: 0.3)
                           : Colors.red.withValues(alpha: 0.3))
                       : Colors.transparent,
-                  border: Border.all(
-                    color: Colors.transparent,
-                    width: 1,
-                  ),
+                  // Hicbir sey cizmeyen seffaf cerceve kaldirildi.
                 ),
-                child: Center(
-                  child: Text(
-                    '($x,$y)',
-                    style: TextStyle(
-                      fontSize: 9,
-                      color: widget.isDark
-                          ? Colors.grey.shade600
-                          : Colors.grey.shade400,
-                    ),
-                  ),
-                ),
+                // Karenin icinde koordinat YAZMIYOR. Cocuk sayilari
+                // eksenlerden okuyup saymali.
+                child: const SizedBox.expand(),
               ),
             );
           },
@@ -394,8 +416,53 @@ class _GridPainter extends CustomPainter {
       Offset(centerX, size.height),
       centerPaint,
     );
+
+    _eksenSayilari(canvas, size, cellWidth, cellHeight, centerX, centerY);
+  }
+
+  /// Eksenlerin uzerine sayilari yazar.
+  ///
+  /// Eskiden HER KARENIN icinde kendi koordinati yaziyordu ve ustte de
+  /// hedef ayni yazimla duruyordu — cocuk eksenlere hic bakmadan, ayni
+  /// yaziyi bulup dokunarak kazanabiliyordu. Sayilar artik yalnizca
+  /// eksenlerde: karenin yerini bulmak icin saymak gerekiyor. Gercek bir
+  /// koordinat duzlemi de boyle gorunur.
+  void _eksenSayilari(Canvas canvas, Size size, double cellWidth,
+      double cellHeight, double centerX, double centerY) {
+    final yari = gridSize ~/ 2;
+    final renk = isDark ? Colors.grey.shade400 : Colors.grey.shade700;
+
+    void yaz(String metin, Offset merkez) {
+      final tp = TextPainter(
+        text: TextSpan(
+          text: metin,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: renk,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(canvas, merkez - Offset(tp.width / 2, tp.height / 2));
+    }
+
+    for (int i = 0; i < gridSize; i++) {
+      final deger = i - yari;
+      if (deger == 0) continue; // sifir iki kez yazilmasin
+
+      // X ekseni: sayilar yatay cizginin hemen altinda
+      yaz('$deger',
+          Offset((i + 0.5) * cellWidth, centerY + cellHeight * 0.32));
+
+      // Y ekseni: yukari dogru buyuyor, o yuzden satir sirasi ters
+      final satir = yari - deger;
+      yaz('$deger',
+          Offset(centerX - cellWidth * 0.32, (satir + 0.5) * cellHeight));
+    }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _GridPainter oldDelegate) =>
+      oldDelegate.gridSize != gridSize || oldDelegate.isDark != isDark;
 }

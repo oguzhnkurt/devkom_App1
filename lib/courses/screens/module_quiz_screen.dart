@@ -10,6 +10,8 @@ import '../../models/leaderboard_model.dart';
 import '../../models/game_model.dart';
 import '../../core/service_locator.dart';
 import 'widgets/step_widgets.dart' show lessonLang;
+import '../../ui/press_button.dart';
+import '../../utils/lang.dart';
 
 /// Modul Quizi - gercek kullanicilarin gordugu InteractiveLesson/System B
 /// akisinda, bir modulun derslerinin icine gomulu MultipleChoiceStep
@@ -22,6 +24,8 @@ class ModuleQuizScreen extends StatefulWidget {
   final Course course;
   final String moduleTitle;
   final String? moduleTitleEn;
+  final String? moduleTitleDe;
+  final String? moduleTitleEs;
   final List<MultipleChoiceStep> questions;
 
   const ModuleQuizScreen({
@@ -29,6 +33,8 @@ class ModuleQuizScreen extends StatefulWidget {
     required this.course,
     required this.moduleTitle,
     this.moduleTitleEn,
+    this.moduleTitleDe,
+    this.moduleTitleEs,
     required this.questions,
   });
 
@@ -77,6 +83,14 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
   bool get _hasAnswered => _answers.containsKey(_currentIndex);
   String get _lang => lessonLang(context);
 
+  /// Bu ekrandaki kisa arayuz yazilari icin dort dilli yardimci.
+  ///
+  /// Onceki surumde her yerde `_lang == 'en' ? ingilizce : turkce`
+  /// vardi; almanca ya da ispanyolca secen cocuk quizin arayuzunu
+  /// bastan sona Turkce goruyordu.
+  String _t(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
+
   @override
   void dispose() {
     _confettiController.dispose();
@@ -86,7 +100,16 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final title = _lang == 'en' ? (widget.moduleTitleEn ?? widget.moduleTitle) : widget.moduleTitle;
+    // Modulun dort dilde basligi var (CourseModule.titleDe/titleEs);
+    // eskiden bu ekran yalnizca tr/en aliyordu ve Almanca secen cocuga
+    // modul adi Ingilizce gorunuyordu.
+    final title = AppLang.pick(
+      _lang,
+      tr: widget.moduleTitle,
+      en: widget.moduleTitleEn ?? widget.moduleTitle,
+      de: widget.moduleTitleDe,
+      es: widget.moduleTitleEs,
+    );
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF5F7FA),
@@ -97,7 +120,7 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
           onPressed: () => _showExitDialog(),
         ),
         title: Text(
-          _lang == 'en' ? 'Module Quiz: $title' : 'Modul Quizi: $title',
+          _t('Modül Quizi: $title', 'Module Quiz: $title', 'Modul-Quiz: $title', 'Cuestionario del módulo: $title'),
           style: const TextStyle(color: Colors.white, fontSize: 15),
           overflow: TextOverflow.ellipsis,
         ),
@@ -226,7 +249,7 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
           const Icon(Icons.check_circle_outline, size: 18, color: Colors.blue),
           const SizedBox(width: 8),
           Text(
-            _lang == 'en' ? 'Multiple Choice' : 'Coktan Secmeli',
+            _t('Çoktan Seçmeli', 'Multiple Choice', 'Multiple Choice', 'Opción múltiple'),
             style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w600, fontSize: 13),
           ),
         ],
@@ -347,7 +370,7 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
               child: IconButton(
                 onPressed: _toggleHint,
                 icon: const Icon(Icons.lightbulb, color: Colors.amber),
-                tooltip: _lang == 'en' ? 'Hint' : 'Ipucu',
+                tooltip: _t('İpucu', 'Hint', 'Tipp', 'Pista'),
               ),
             ),
             const SizedBox(width: 8),
@@ -358,25 +381,30 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
                   _hintVisible = false;
                 }),
                 icon: const Icon(Icons.arrow_back, size: 18),
-                label: Text(_lang == 'en' ? 'Previous' : 'Onceki'),
+                label: Text(_t('Önceki', 'Previous', 'Zurück', 'Anterior')),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: isDark ? Colors.white70 : Colors.grey.shade700,
                   side: BorderSide(color: isDark ? Colors.grey.shade700 : Colors.grey.shade300),
                 ),
               ),
-            const Spacer(),
-            ElevatedButton.icon(
-              onPressed: _hasAnswered ? (_isLastQuestion ? _submitQuiz : _nextQuestion) : null,
-              icon: Icon(_isLastQuestion ? Icons.check_circle : Icons.arrow_forward, size: 20),
-              label: Text(_isLastQuestion
-                  ? (_lang == 'en' ? 'Finish' : 'Bitir')
-                  : (_lang == 'en' ? 'Next' : 'Sonraki')),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: widget.course.primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                disabledBackgroundColor: Colors.grey.shade400,
+            const SizedBox(width: 12),
+            // Ana eylem butonu her ekranda ayni davransin diye ortak
+            // PressButton: basildiginda gercekten cokuyor, dokunusun
+            // kaydedildigi ekrandan goruluyor.
+            Expanded(
+              child: PressButton(
+                label: _isLastQuestion
+                    ? (_t('Bitir', 'Finish', 'Fertig', 'Terminar'))
+                    : (_t('Sonraki', 'Next', 'Weiter', 'Siguiente')),
+                icon: _isLastQuestion
+                    ? Icons.check_circle_rounded
+                    : Icons.arrow_forward_rounded,
+                color: widget.course.primaryColor,
+                loading: _isSubmitting,
+                onPressed: _hasAnswered
+                    ? (_isLastQuestion ? _submitQuiz : _nextQuestion)
+                    : null,
+                height: 50,
               ),
             ),
           ],
@@ -452,9 +480,191 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
     }
   }
 
+  /// Dogru cevaplanan soru sayisi.
+  int get _yanlisOlmayanSayisi {
+    var n = 0;
+    for (var i = 0; i < widget.questions.length; i++) {
+      if (_answers[i] == widget.questions[i].correctIndex) n++;
+    }
+    return n;
+  }
+
+  /// Yanlis (ya da hic cevaplanmamis) sorularin sira numaralari.
+  List<int> get _yanlisSorular {
+    final liste = <int>[];
+    for (var i = 0; i < widget.questions.length; i++) {
+      if (_answers[i] != widget.questions[i].correctIndex) liste.add(i);
+    }
+    return liste;
+  }
+
+  /// Sonuc ekranindaki "yanlislarini gozden gecir" bolumu.
+  ///
+  /// Quiz bitince yalnizca yuzde ve dogru sayisi gosteriliyordu: cocuk
+  /// HANGI soruyu yanlis bildigini, dogrusunun ne oldugunu hic
+  /// ogrenemiyordu. Quizin ogretici kismi burasi.
+  Widget _buildYanlisInceleme(bool isDark) {
+    final yanlislar = _yanlisSorular;
+    final kartRengi = isDark ? const Color(0xFF1E1E2E) : Colors.white;
+
+    if (yanlislar.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.green.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.verified_rounded, color: Colors.green),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                _t('Bütün soruları doğru bildin — gözden geçirecek bir şey yok.',
+                    'You got every question right — nothing to review.',
+                    'Du hast alle Fragen richtig — nichts zu wiederholen.',
+                    'Acertaste todas las preguntas: no hay nada que repasar.'),
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.35,
+                  color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.fact_check_outlined, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              _t('Yanlış bildiklerin (${yanlislar.length})',
+                  'What you missed (${yanlislar.length})',
+                  'Was du verpasst hast (${yanlislar.length})',
+                  'Lo que fallaste (${yanlislar.length})'),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        ...yanlislar.map((i) {
+          final soru = widget.questions[i];
+          final verilen = _answers[i];
+          final dogruMetin = soru.options[soru.correctIndex].textFor(_lang);
+          final aciklama = soru.explanationFor(_lang);
+
+          return Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: kartRengi,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${i + 1}. ${soru.questionFor(_lang)}',
+                  style: TextStyle(
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w700,
+                    height: 1.35,
+                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Cocugun verdigi cevap. Hic cevaplamadiysa onu soyluyoruz;
+                // bos birakmak "yanlis bildim" ile ayni sey degil.
+                _cevapSatiri(
+                  isDark,
+                  Icons.cancel_rounded,
+                  Colors.red,
+                  _t('Senin cevabın', 'Your answer', 'Deine Antwort',
+                      'Tu respuesta'),
+                  verilen == null
+                      ? _t('Boş bıraktın', 'Left blank', 'Nicht beantwortet',
+                          'Sin responder')
+                      : soru.options[verilen].textFor(_lang),
+                ),
+                const SizedBox(height: 6),
+                _cevapSatiri(
+                  isDark,
+                  Icons.check_circle_rounded,
+                  Colors.green,
+                  _t('Doğrusu', 'Correct answer', 'Richtige Antwort',
+                      'Respuesta correcta'),
+                  dogruMetin,
+                ),
+                if (aciklama.trim().isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Text(
+                    aciklama,
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.4,
+                      color:
+                          isDark ? Colors.grey.shade400 : Colors.grey.shade700,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _cevapSatiri(bool isDark, IconData ikon, Color renk, String etiket,
+      String metin) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(ikon, size: 18, color: renk),
+        const SizedBox(width: 8),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              style: TextStyle(
+                fontSize: 13.5,
+                height: 1.35,
+                color: isDark ? Colors.grey.shade300 : Colors.grey.shade800,
+              ),
+              children: [
+                TextSpan(
+                  text: '$etiket: ',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                TextSpan(text: metin),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildResultScreen(bool isDark) {
     final passed = _score >= passingScore;
-    final correct = (_score * widget.questions.length / 100).round();
+    // Eskiden dogru sayisi yuzdeden GERI hesaplaniyordu
+    // ((_score * soru / 100).round()); yuvarlama yuzunden 7 dogruyu
+    // 8 gosterebiliyordu. Artik dogrudan sayiliyor.
+    final correct = _yanlisOlmayanSayisi;
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -474,15 +684,15 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
           const SizedBox(height: 24),
           Text(
             passed
-                ? (_lang == 'en' ? 'Congratulations!' : 'Tebrikler!')
-                : (_lang == 'en' ? 'Try Again!' : 'Tekrar Dene!'),
+                ? (_t('Tebrikler!', 'Congratulations!', 'Glückwunsch!', '¡Felicidades!'))
+                : (_t('Tekrar Dene!', 'Try Again!', 'Noch mal versuchen!', '¡Inténtalo otra vez!')),
             style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1A1A1A)),
           ),
           const SizedBox(height: 8),
           Text(
             passed
-                ? (_lang == 'en' ? 'You completed the module quiz!' : 'Modul quizini basariyla tamamladin!')
-                : (_lang == 'en' ? 'A bit more practice and you\'ll get it!' : 'Biraz daha calisarak basarabilirsin!'),
+                ? (_t('Modül quizini başarıyla tamamladın!', 'You completed the module quiz!', 'Du hast das Modul-Quiz geschafft!', '¡Completaste el cuestionario del módulo!'))
+                : (_t('Biraz daha çalışırsan başarırsın!', 'A bit more practice and you\'ll get it!', 'Mit etwas mehr Übung schaffst du es!', 'Con un poco más de práctica lo consigues!')),
             style: TextStyle(fontSize: 16, color: isDark ? Colors.grey.shade400 : Colors.grey.shade600),
             textAlign: TextAlign.center,
           ),
@@ -511,7 +721,7 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
                   children: [
                     Text('$_score%', style: const TextStyle(fontSize: 42, fontWeight: FontWeight.bold, color: Colors.white)),
                     Text(
-                      _lang == 'en' ? 'Score' : 'Basari',
+                      _t('Başarı', 'Score', 'Ergebnis', 'Resultado'),
                       style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.9)),
                     ),
                   ],
@@ -530,12 +740,14 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStatItem(isDark, Icons.help_outline, '${widget.questions.length}', _lang == 'en' ? 'Questions' : 'Soru', Colors.blue),
-                _buildStatItem(isDark, Icons.check_circle_outline, '$correct', _lang == 'en' ? 'Correct' : 'Dogru', Colors.green),
+                _buildStatItem(isDark, Icons.help_outline, '${widget.questions.length}', _t('Soru', 'Questions', 'Fragen', 'Preguntas'), Colors.blue),
+                _buildStatItem(isDark, Icons.check_circle_outline, '$correct', _t('Doğru', 'Correct', 'Richtig', 'Correctas'), Colors.green),
                 _buildStatItem(isDark, Icons.star_outline, passed ? '+$xpReward' : '0', 'XP', Colors.amber),
               ],
             ),
           ),
+          const SizedBox(height: 24),
+          _buildYanlisInceleme(isDark),
           const SizedBox(height: 32),
           Row(
             children: [
@@ -552,7 +764,7 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
                       });
                     },
                     icon: const Icon(Icons.refresh),
-                    label: Text(_lang == 'en' ? 'Try Again' : 'Tekrar Dene'),
+                    label: Text(_t('Tekrar Dene', 'Try Again', 'Noch mal', 'Otra vez')),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       foregroundColor: widget.course.primaryColor,
@@ -566,8 +778,8 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
                   onPressed: () => Navigator.pop(context, passed),
                   icon: const Icon(Icons.arrow_forward),
                   label: Text(passed
-                      ? (_lang == 'en' ? 'Continue' : 'Devam Et')
-                      : (_lang == 'en' ? 'Back to Course' : 'Kursa Don')),
+                      ? (_t('Devam Et', 'Continue', 'Weiter', 'Continuar'))
+                      : (_t('Kursa Dön', 'Back to Course', 'Zurück zum Kurs', 'Volver al curso'))),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     backgroundColor: widget.course.primaryColor,
@@ -598,12 +810,12 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(_lang == 'en' ? 'Exit quiz' : 'Quizden cik'),
-        content: Text(_lang == 'en' ? 'Your progress will be lost. Are you sure?' : 'Ilerleme kaybedilecek. Emin misin?'),
+        title: Text(_t('Quizden çık', 'Exit quiz', 'Quiz verlassen', 'Salir del cuestionario')),
+        content: Text(_t('İlerlemen kaybedilecek. Emin misin?', 'Your progress will be lost. Are you sure?', 'Dein Fortschritt geht verloren. Bist du sicher?', 'Perderás tu progreso. ¿Seguro?')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(_lang == 'en' ? 'Continue' : 'Devam Et'),
+            child: Text(_t('Devam Et', 'Continue', 'Weiter', 'Continuar')),
           ),
           ElevatedButton(
             onPressed: () {
@@ -611,7 +823,7 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade400),
-            child: Text(_lang == 'en' ? 'Exit' : 'Cik'),
+            child: Text(_t('Çık', 'Exit', 'Verlassen', 'Salir')),
           ),
         ],
       ),

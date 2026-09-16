@@ -1,16 +1,24 @@
 import 'dart:async';
+import '../../../ui/ekran_olcusu.dart';
 import 'dart:math';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../models/course_model.dart';
 import '../../models/interactive_lesson_model.dart';
 import '../../../providers/settings_provider.dart';
+import '../../../services/sound_service.dart';
 import 'catch_block_game.dart';
 import 'coordinate_tap_game.dart';
 import '../../../widgets/scratch_block_widget.dart';
-import '../../../widgets/walking_cat_widget.dart';
 import '../../../widgets/block_animation_player.dart';
+import '../../../theme.dart';
+import '../../../utils/lang.dart';
+import '../../../ui/answer_feedback.dart';
+import '../../../ui/motion.dart';
+import '../../../ui/appear_in.dart';
+import '../../../ui/press_button.dart';
 
 /// Current app language code ('tr' | 'en') for lesson content.
 /// Listens so that switching the language rebuilds lesson content in place.
@@ -24,6 +32,12 @@ String lessonLang(BuildContext context) =>
 String lessonLangRead(BuildContext context) =>
     Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
 
+/// Adim widget'larindaki kisa arayuz metinleri ("Kontrol Et" gibi).
+/// Almanca/Ispanyolca verilmezse Ingilizceye duser — ders icerigiyle
+/// ayni kural (bkz. pickLang).
+String lessonText(String lang, String tr, String en, [String? de, String? es]) =>
+    AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
+
 // ==========================================
 // INTRO STEP WIDGET
 // ==========================================
@@ -31,6 +45,7 @@ String lessonLangRead(BuildContext context) =>
 class IntroStepWidget extends StatefulWidget {
   final IntroStep step;
   final Course course;
+  final bool isDark;
   final VoidCallback onComplete;
 
   const IntroStepWidget({
@@ -38,6 +53,7 @@ class IntroStepWidget extends StatefulWidget {
     required this.step,
     required this.course,
     required this.onComplete,
+    this.isDark = false,
   });
 
   @override
@@ -45,25 +61,40 @@ class IntroStepWidget extends StatefulWidget {
 }
 
 class _IntroStepWidgetState extends State<IntroStepWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _bounceAnimation;
+    with TickerProviderStateMixin {
+  late final AnimationController _float;
+  late final AnimationController _orbit;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+    _float = AnimationController(
+      duration: const Duration(milliseconds: 2600),
       vsync: this,
-    )..repeat(reverse: true);
-    _bounceAnimation = Tween<double>(begin: 0, end: 15).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    _orbit = AnimationController(
+      duration: const Duration(seconds: 18),
+      vsync: this,
     );
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Hareket azaltilmisken tik bile atmiyor.
+    if (Motion.reduced(context)) {
+      _float.stop();
+      _orbit.stop();
+    } else {
+      if (!_float.isAnimating) _float.repeat(reverse: true);
+      if (!_orbit.isAnimating) _orbit.repeat();
+    }
+  }
+
+  @override
   void dispose() {
-    _controller.dispose();
+    _float.dispose();
+    _orbit.dispose();
     super.dispose();
   }
 
@@ -71,97 +102,360 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
   Widget build(BuildContext context) {
     final lang = lessonLang(context);
     final highlights = widget.step.highlightsFor(lang);
+    final accent = widget.course.primaryColor;
+    final second = widget.course.secondaryColor;
+    final reduced = Motion.reduced(context);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Mascot with bounce animation
-        AnimatedBuilder(
-          animation: _bounceAnimation,
-          builder: (context, child) {
-            return Transform.translate(
-              offset: Offset(0, -_bounceAnimation.value),
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      widget.course.primaryColor.withValues(alpha: 0.2),
-                      widget.course.secondaryColor.withValues(alpha: 0.2),
-                    ],
+        // --- Sahne: kursun konusuyla ilgili simgeler maskotun etrafinda
+        //     donuyor, arkada yumusak bir isik var.
+        AppearIn(
+          child: SizedBox(
+            height: 230,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                _IntroHalo(accent: accent, second: second, listenable: _float),
+                if (!reduced)
+                  _IntroOrbit(
+                    listenable: _orbit,
+                    accent: accent,
+                    icons: _courseIcons(widget.course.id),
                   ),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    widget.step.mascotEmoji ?? '🤖',
-                    style: const TextStyle(fontSize: 64),
+                AnimatedBuilder(
+                  animation: _float,
+                  builder: (context, child) => Transform.translate(
+                    offset: Offset(
+                      0,
+                      -10 * Curves.easeInOut.transform(_float.value),
+                    ),
+                    child: child,
                   ),
-                ),
-              ),
-            );
-          },
-        ),
-        const SizedBox(height: 32),
-
-        // Speech bubble
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: widget.course.primaryColor.withValues(alpha: 0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Text(
-                widget.step.mascotMessageFor(lang),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 18,
-                  height: 1.6,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              if (highlights.isNotEmpty) ...[
-                const SizedBox(height: 24),
-                ...highlights.map((highlight) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: widget.course.primaryColor,
-                          shape: BoxShape.circle,
-                        ),
+                  child: Container(
+                    width: 128,
+                    height: 128,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color.alphaBlend(
+                              accent.withValues(alpha: 0.16), Colors.white),
+                          Color.alphaBlend(
+                              second.withValues(alpha: 0.30), Colors.white),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          highlight,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.grey.shade700,
-                          ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: accent.withValues(alpha: 0.28),
+                          blurRadius: 26,
+                          offset: const Offset(0, 12),
                         ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        widget.step.mascotEmoji ?? widget.course.icon,
+                        style: const TextStyle(fontSize: 64),
                       ),
-                    ],
+                    ),
                   ),
-                )),
+                ),
               ],
-            ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        // --- Konusma balonu
+        AppearIn(
+          delay: const Duration(milliseconds: 90),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
+            decoration: BoxDecoration(
+              color: widget.isDark ? const Color(0xFF1E1E2E) : Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: accent.withValues(alpha: 0.14)),
+              boxShadow: [
+                BoxShadow(
+                  color: accent.withValues(alpha: 0.10),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Text(
+                  widget.step.mascotMessageFor(lang),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    // ONCEDEN fontFamily verilmiyordu: ders acilis ekrani
+                    // uygulamanin geri kalanindan baska bir yazi tipiyle
+                    // aciliyordu.
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 17.5,
+                    height: 1.55,
+                    fontWeight: FontWeight.w600,
+                    color: widget.isDark
+                        ? Colors.white
+                        : const Color(0xFF1A1A1A),
+                  ),
+                ),
+                if (highlights.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  Divider(
+                    height: 1,
+                    color: accent.withValues(alpha: 0.14),
+                  ),
+                  const SizedBox(height: 16),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      lessonText(lang, 'Bu derste', 'In this lesson',
+                          'In dieser Lektion', 'En esta lección'),
+                      style: TextStyle(
+                        fontFamily: AppTheme.fontFamily,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.1,
+                        color: accent,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Maddeler sirayla beliriyor: hepsi birden gelince bir
+                  // liste, sirayla gelince bir anlatim oluyor.
+                  ...List.generate(highlights.length, (i) {
+                    return AppearIn(
+                      delay: Duration(milliseconds: 180 + i * 110),
+                      offset: 10,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 26,
+                              height: 26,
+                              decoration: BoxDecoration(
+                                color: accent.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.check_rounded,
+                                size: 16,
+                                color: accent,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 3),
+                                child: Text(
+                                  highlights[i],
+                                  style: TextStyle(
+                                    fontFamily: AppTheme.fontFamily,
+                                    fontSize: 15,
+                                    height: 1.35,
+                                    fontWeight: FontWeight.w600,
+                                    color: widget.isDark
+                                        ? Colors.grey.shade300
+                                        : Colors.grey.shade800,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ],
+            ),
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Kursun konusuna gore maskotun etrafinda donen simgeler.
+///
+/// Her kurs kendi simgelerini aliyor: Scratch'ta bloklar ve bayrak,
+/// Arduino'da ampul, dalga ve pil, Python'da terminal ve liste...
+/// Ayni sahne her derste tekrar ediyor ama icerigi dersin konusunu
+/// soyluyor — cocuk hangi kursta oldugunu okumadan once anliyor.
+List<IconData> _courseIcons(String courseId) {
+  switch (courseId) {
+    case 'scratch':
+      return const [
+        Icons.extension_rounded,
+        Icons.flag_rounded,
+        Icons.repeat_rounded,
+        Icons.pets_rounded,
+      ];
+    case 'arduino':
+    case 'arduino_ide':
+      return const [
+        Icons.lightbulb_rounded,
+        Icons.memory_rounded,
+        Icons.graphic_eq_rounded,
+        Icons.battery_charging_full_rounded,
+      ];
+    case 'html':
+      return const [
+        Icons.code_rounded,
+        Icons.title_rounded,
+        Icons.link_rounded,
+        Icons.image_rounded,
+      ];
+    case 'css':
+      return const [
+        Icons.palette_rounded,
+        Icons.format_paint_rounded,
+        Icons.crop_square_rounded,
+        Icons.animation_rounded,
+      ];
+    case 'python':
+      return const [
+        Icons.terminal_rounded,
+        Icons.data_array_rounded,
+        Icons.functions_rounded,
+        Icons.description_rounded,
+      ];
+    case 'java':
+    case 'csharp':
+      return const [
+        Icons.account_tree_rounded,
+        Icons.widgets_rounded,
+        Icons.settings_ethernet_rounded,
+        Icons.calculate_rounded,
+      ];
+    default:
+      return const [
+        Icons.code_rounded,
+        Icons.lightbulb_rounded,
+        Icons.extension_rounded,
+        Icons.star_rounded,
+      ];
+  }
+}
+
+/// Maskotun arkasindaki nefes alan isik halkasi.
+class _IntroHalo extends StatelessWidget {
+  const _IntroHalo({
+    required this.accent,
+    required this.second,
+    required this.listenable,
+  });
+
+  final Color accent;
+  final Color second;
+  final Listenable listenable;
+
+  @override
+  Widget build(BuildContext context) {
+    if (Motion.reduced(context)) {
+      return _ring(0.5);
+    }
+    return AnimatedBuilder(
+      animation: listenable,
+      builder: (context, _) {
+        final t = (listenable as AnimationController).value;
+        return _ring(t);
+      },
+    );
+  }
+
+  Widget _ring(double t) {
+    final scale = 0.94 + 0.10 * t;
+    return Transform.scale(
+      scale: scale,
+      child: Container(
+        width: 186,
+        height: 186,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [
+              accent.withValues(alpha: 0.16),
+              second.withValues(alpha: 0.05),
+              Colors.transparent,
+            ],
+            stops: const [0.0, 0.62, 1.0],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Simgeleri sabit bir yorunge uzerinde yavasca dondurur.
+class _IntroOrbit extends StatelessWidget {
+  const _IntroOrbit({
+    required this.listenable,
+    required this.accent,
+    required this.icons,
+  });
+
+  final Listenable listenable;
+  final Color accent;
+  final List<IconData> icons;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: listenable,
+      builder: (context, _) {
+        final t = (listenable as AnimationController).value;
+        return SizedBox(
+          width: 230,
+          height: 230,
+          child: Stack(
+            alignment: Alignment.center,
+            children: List.generate(icons.length, (i) {
+              final angle =
+                  (t + i / icons.length) * 2 * math.pi;
+              // Hafif elips: dairesel bir yorunge duz ve mekanik duruyor.
+              final dx = math.cos(angle) * 96;
+              final dy = math.sin(angle) * 62;
+              // Arkadakiler kuculup soluyor -> derinlik hissi.
+              final depth = (math.sin(angle) + 1) / 2;
+              return Transform.translate(
+                offset: Offset(dx, dy),
+                child: Transform.scale(
+                  scale: 0.78 + depth * 0.30,
+                  child: Opacity(
+                    opacity: 0.35 + depth * 0.45,
+                    child: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: accent.withValues(alpha: 0.20),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Icon(icons[i], size: 19, color: accent),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+        );
+      },
     );
   }
 }
@@ -215,7 +509,7 @@ class ExplanationStepWidget extends StatelessWidget {
 
         // Visual elements
         if (step.visuals.isNotEmpty) ...[
-          ...step.visuals.map((visual) => _buildVisual(visual)),
+          ...step.visuals.map((visual) => _buildVisual(visual, lang)),
         ],
 
         // Tip box
@@ -227,26 +521,61 @@ class ExplanationStepWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildVisual(VisualElement visual) {
+  /// Görsel öğe.
+  ///
+  /// `visual.content` ve `visual.label` DOĞRUDAN okunmuyor — çeviriye
+  /// düşen `contentFor(lang)` / `labelFor(lang)` kullanılıyor. Model'e
+  /// bu alanlar sonradan eklendi; doğrudan okunursa Ingilizce ekranda
+  /// blok görsellerinin üstünde Türkçe yazılar kalıyor.
+  Widget _buildVisual(VisualElement visual, String lang) {
+    // Çözülmüş metinler AŞAĞIYA GEÇİRİLİYOR.
+    //
+    // Daha önce burada `contentFor(lang)` çağrılıyor, sonuç bir yerel
+    // değişkene yazılıyor ve KULLANILMADAN bırakılıyordu; çizim yapan
+    // yardımcılar hâlâ ham `visual.content`'i okuyordu. Yani model
+    // alanları da, bu çağrı da vardı ama İngilizce ekranda blokların
+    // üstünde Türkçe yazı görünmeye devam ediyordu. Analyzer bunu
+    // "kullanılmayan değişken" uyarısı olarak söylüyordu.
+    final vContent = visual.contentFor(lang);
+    final vLabel = visual.labelFor(lang);
     switch (visual.type) {
       case VisualType.scratchBlock:
-        return _buildScratchBlock(visual);
+        return _buildScratchBlock(visual, vContent, vLabel);
       case VisualType.codeSnippet:
-        return _buildCodeSnippet(visual);
+        return _buildCodeSnippet(vContent);
       default:
         return const SizedBox();
     }
   }
 
-  Widget _buildScratchBlock(VisualElement visual) {
-    // Check if this is a green flag block
+  Widget _buildScratchBlock(
+    VisualElement visual,
+    String content,
+    String? label,
+  ) {
+    // Yeşil bayrak yalnızca Scratch'in başlangıç bloğunda çizilir.
+    //
+    // Karşılaştırma ÇEVİRİDEN ÖNCEKİ Türkçe metne bakıyor: dil değişince
+    // bayrak kaybolmasın diye. Arduino/mBlock derslerinin başlangıç
+    // bloğu "when Arduino Uno starts up" ve ona bayrak çizilmemeli —
+    // yükleme modunda yeşil bayrak gridir, tıklanacak bir bayrak yoktur.
     final bool isGreenFlag = visual.content == 'tıklandığında';
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
+          // TAŞMAYA KARŞI: blok da, yanındaki açıklama da esnek.
+          //
+          // Blok kutusu sabit genişlikteydi ve açıklama Row'un kalanına
+          // yayılıyordu. Türkçe etiketler kısa olduğu için sorun
+          // görünmüyordu; İngilizce etiketler ("set digital pin 9 output
+          // as high") ekrandan 55-95 piksel taşıyor ve çocuk sarı-siyah
+          // taşma şeridini görüyordu. Ekran görüntüsü üreten araç
+          // (test/appstore_shots_test.dart) bunu yakaladı.
+          Flexible(
+            child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: visual.color ?? course.primaryColor,
@@ -269,18 +598,24 @@ class ExplanationStepWidget extends StatelessWidget {
                         size: 18,
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        visual.content,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                      // Bayraklı blokta da esnek: "when green flag
+                      // clicked" Türkçesinden ("tıklandığında") çok
+                      // daha uzun ve dar ekranda taşıyordu.
+                      Flexible(
+                        child: Text(
+                          content,
+                          softWrap: true,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
                         ),
                       ),
                     ],
                   )
                 : Text(
-                    visual.content,
+                    content,
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -288,13 +623,16 @@ class ExplanationStepWidget extends StatelessWidget {
                     ),
                   ),
           ),
-          if (visual.label != null) ...[
-            const SizedBox(width: 16),
-            Text(
-              visual.label!,
-              style: TextStyle(
-                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-                fontSize: 13,
+          ),
+          if (label != null) ...[
+            const SizedBox(width: 12),
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                  fontSize: 13,
+                ),
               ),
             ),
           ],
@@ -303,7 +641,7 @@ class ExplanationStepWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildCodeSnippet(VisualElement visual) {
+  Widget _buildCodeSnippet(String content) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
@@ -312,7 +650,7 @@ class ExplanationStepWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        visual.content,
+        content,
         style: const TextStyle(
           fontFamily: 'monospace',
           color: Color(0xFFD4D4D4),
@@ -373,10 +711,37 @@ class MultipleChoiceStepWidget extends StatefulWidget {
   State<MultipleChoiceStepWidget> createState() => _MultipleChoiceStepWidgetState();
 }
 
+/// Cevap anahtari sizdiran emojiler.
+///
+/// Icerik dosyalarinda dogru secenege `emoji: '✅'`, yanlislara `'❌'`
+/// yazilmis. Bu emojiler seceneklerin YANINDA, cocuk cevabi vermeden
+/// once ciziliyordu — yani her coktan secmeli soru cevabini ekranda
+/// gosteriyordu. Modul sinavi ekrani bunu zaten bastiriyordu
+/// (module_quiz_screen.dart), ders ekrani bastirmiyordu.
+const Set<String> _answerKeyEmojis = {'✅', '❌', '✔️', '✔', '❎', '✖️'};
+
 class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
   int? _selectedIndex;
   bool _answered = false;
   bool get _isCorrect => _selectedIndex == widget.step.correctIndex;
+
+  /// Seceneklerin gosterim sirasi.
+  ///
+  /// Icerikte dogru cevap neredeyse her zaman ILK secenek: modul 3-4'teki
+  /// 18 sorunun 18'inde `correctIndex: 0`. Cocuk bunu iki soruda fark
+  /// ediyor ve soruyu okumayi birakiyor. Sirayi burada, ders kimligine
+  /// bagli SABIT bir tohumla karistiriyoruz: dizilim her acilista ayni
+  /// (cocuk "az once A idi" diye kafasi karismiyor) ama artik dogru
+  /// cevabin yeri sorudan soruya degisiyor. Icerik dosyalarindaki
+  /// `correctIndex` degerlerine dokunmadan tum kurslarda duzeliyor.
+  late final List<int> _order;
+
+  @override
+  void initState() {
+    super.initState();
+    _order = List<int>.generate(widget.step.options.length, (i) => i)
+      ..shuffle(Random(widget.step.id.hashCode));
+  }
 
   void _selectAnswer(int index) {
     if (_answered) return;
@@ -396,7 +761,6 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
   @override
   Widget build(BuildContext context) {
     final lang = lessonLang(context);
-    final isEn = lang == 'en';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -452,7 +816,8 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
         ],
 
         // Options
-        ...List.generate(widget.step.options.length, (index) {
+        ...List.generate(widget.step.options.length, (slot) {
+          final index = _order[slot];
           final option = widget.step.options[index];
           final isSelected = _selectedIndex == index;
           final isCorrectAnswer = widget.step.correctIndex == index;
@@ -493,8 +858,35 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
               ),
               child: Row(
                 children: [
-                  if (option.emoji != null) ...[
+                  // Emoji yalnizca ANLAMLI ise gosteriliyor; cevap
+                  // anahtari emojileri (✅/❌) hic cizilmiyor.
+                  if (option.emoji != null &&
+                      !_answerKeyEmojis.contains(option.emoji)) ...[
                     Text(option.emoji!, style: const TextStyle(fontSize: 24)),
+                    const SizedBox(width: 12),
+                  ] else ...[
+                    // Yerine notr bir harf rozeti: secenekleri konusurken
+                    // isaret etmeyi kolaylastiriyor, hicbir sey ele vermiyor.
+                    Container(
+                      width: 28,
+                      height: 28,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: borderColor.withValues(alpha: 0.14),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        String.fromCharCode(65 + slot),
+                        style: TextStyle(
+                          fontFamily: AppTheme.fontFamily,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: widget.isDark
+                              ? Colors.grey.shade300
+                              : Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
                     const SizedBox(width: 12),
                   ],
                   Expanded(
@@ -549,8 +941,8 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
                     children: [
                       Text(
                         _isCorrect
-                            ? (isEn ? 'Correct!' : 'Dogru!')
-                            : (isEn ? 'Wrong!' : 'Yanlis!'),
+                            ? lessonText(lang, 'Doğru!', 'Correct!', 'Richtig!', '¡Correcto!')
+                            : lessonText(lang, 'Yanlış!', 'Wrong!', 'Falsch!', '¡Incorrecto!'),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: _isCorrect ? Colors.green : Colors.orange,
@@ -599,7 +991,10 @@ class DragDropStepWidget extends StatefulWidget {
 }
 
 class _DragDropStepWidgetState extends State<DragDropStepWidget> {
-  final Map<String, String?> _placements = {}; // itemId -> zoneId
+  final Map<String, String?> _placements = {};
+
+  /// Butun parcalar yerlesti ama dizilim yanlis.
+  bool _yanlisYerlesim = false; // itemId -> zoneId
   bool _completed = false;
 
   @override
@@ -623,12 +1018,24 @@ class _DragDropStepWidgetState extends State<DragDropStepWidget> {
       }
     }
 
+    // YANLIS YERLESTIRMEDE DE GERI BILDIRIM VAR.
+    //
+    // Eskiden yalnizca dogru dalda bir sey oluyordu: yanlis dizilimde ne
+    // yazi, ne renk, ne titresim. Cocuk parcalari yesil kutu cikana kadar
+    // bedavaya deneyebiliyordu.
+    setState(() {
+      _completed = allCorrect;
+      _yanlisYerlesim = !allCorrect;
+    });
+
     if (allCorrect) {
-      setState(() => _completed = true);
       HapticFeedback.heavyImpact();
+      SoundService.playCorrect();
       Future.delayed(const Duration(milliseconds: 500), () {
         widget.onComplete(true);
       });
+    } else {
+      SoundService.playWrong();
     }
   }
 
@@ -668,6 +1075,41 @@ class _DragDropStepWidgetState extends State<DragDropStepWidget> {
               .map((item) => _buildDraggableItem(item))
               .toList(),
         ),
+
+        // Yanlis dizilim uyarisi. Cevabi SOYLEMIYOR — yalnizca
+        // "burada bir sey yanlis" diyor ki cocuk tekrar baksin.
+        if (_yanlisYerlesim) ...[
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.orange.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.orange.withValues(alpha: 0.35)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.refresh_rounded,
+                    color: Colors.orange, size: 22),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    lessonText(
+                        lang,
+                        'Hepsi yerlesti ama bir yeri yanlis. Bir daha bak.',
+                        'Everything is placed, but one is in the wrong spot. Take another look.',
+                        'Alles liegt, aber eins ist am falschen Platz. Schau noch mal.',
+                        'Están todos colocados, pero uno está en el sitio equivocado. Míralo otra vez.'),
+                    style: const TextStyle(
+                      color: Colors.orange,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
 
         // Success message
         if (_completed) ...[
@@ -864,7 +1306,10 @@ class BlockBuilderStepWidget extends StatefulWidget {
 class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
   final List<String> _placedBlocks = [];
   bool _completed = false;
-  bool _isCorrect = false;
+
+  /// Dizi TAMAM ama sirasi yanlis. Yalnizca bu durumda uyari gosteriliyor;
+  /// yarim dizide cocugu erken uyarmanin anlami yok.
+  bool _yanlisDizi = false;
   bool _showAnimation = false;
 
   void _addBlock(ScratchBlock block) {
@@ -879,6 +1324,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
     setState(() {
       _placedBlocks.removeAt(index);
       _completed = false;
+      _yanlisDizi = false;
     });
   }
 
@@ -886,7 +1332,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
     if (_placedBlocks.length != widget.step.correctSequence.length) {
       setState(() {
         _completed = false;
-        _isCorrect = false;
+        _yanlisDizi = false;
       });
       return;
     }
@@ -899,19 +1345,33 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
       }
     }
 
+    // TAM AMA YANLIS DIZIDE ARTIK GERI BILDIRIM VAR.
+    //
+    // Eskiden yanlis dizi hicbir sey uretmiyordu: ne yazi, ne renk, ne
+    // titresim. Cocuk blok ekleyip cikararak yesil cerceve cikana kadar
+    // deniyordu — uc dort blokla kaba kuvvet birkac saniye suruyor ve
+    // hicbir sey ogretmiyor.
     setState(() {
-      _isCorrect = correct;
+      _yanlisDizi = !correct;
       if (correct) {
         _completed = true;
         HapticFeedback.heavyImpact();
       }
     });
+    if (correct) {
+      SoundService.playCorrect();
+    } else {
+      SoundService.playWrong();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final lang = lessonLang(context);
-    final goalLabel = lang == 'en' ? 'Goal' : 'Hedef';
+    final goalLabel = lessonText(lang, 'Hedef', 'Goal', 'Ziel', 'Objetivo');
+    // Araliklar ekran boyuna gore. iPhone SE'de yonerge + hedef + kod
+    // alani + palet birlikte ekrana sigmiyordu.
+    final ara = EkranOlcusu.bosluk(context, 24);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -948,12 +1408,12 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: ara),
 
         // Code area
         Container(
-          padding: const EdgeInsets.all(16),
-          constraints: const BoxConstraints(minHeight: 150),
+          padding: EdgeInsets.all(EkranOlcusu.kisa(context) ? 12 : 16),
+          constraints: BoxConstraints(minHeight: EkranOlcusu.kisa(context) ? 110 : 150),
           decoration: BoxDecoration(
             color: const Color(0xFF1E1E2E),
             borderRadius: BorderRadius.circular(12),
@@ -965,7 +1425,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Kod Alani:',
+                lessonText(lang, 'Kod Alanı:', 'Code area:', 'Codebereich:', 'Zona de código:'),
                 style: TextStyle(
                   color: Colors.grey.shade500,
                   fontSize: 12,
@@ -977,7 +1437,8 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: Text(
-                      'Bloklari buraya surukle',
+                      lessonText(lang, 'Blokları buraya sürükle',
+                          'Drag the blocks here', 'Zieh die Blöcke hierher', 'Arrastra los bloques aquí'),
                       style: TextStyle(
                         color: Colors.grey.shade600,
                         fontStyle: FontStyle.italic,
@@ -986,45 +1447,69 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
                   ),
                 )
               else
-                ..._placedBlocks.asMap().entries.map((entry) {
-                  final block = widget.step.availableBlocks
-                      .firstWhere((b) => b.id == entry.value);
-                  return _buildPlacedBlock(block, entry.key);
-                }),
+                ..._buildPlacedList(lang),
             ],
           ),
         ),
-        const SizedBox(height: 24),
-
-        // Available blocks
-        Text(
-          'Kullanilabilir Bloklar:',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: widget.isDark ? Colors.white70 : Colors.grey.shade700,
+        // GERI BILDIRIM ARTIK KOD ALANININ HEMEN ALTINDA.
+        //
+        // Uyari, basari kutusu ve DEVAM tusu sayfanin EN ALTINDA, blok
+        // paletinin de altindaydi. Telefonda bunlar ekranin disinda
+        // kaliyordu: cocuk siralamayi yanlis yapiyor, hicbir sey
+        // olmuyor sanip "kodu yazdim ama devam gelmiyor" diyordu.
+        // Yanlis dizilim uyarisi. Cevabi SOYLEMIYOR — yalnizca
+        // "burada bir sey yanlis" diyor ki cocuk tekrar baksin.
+        if (_yanlisDizi) ...[
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.orange.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.orange.withValues(alpha: 0.35)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.refresh_rounded,
+                    color: Colors.orange, size: 22),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    lessonText(
+                        lang,
+                        'Blok sayisi dogru ama sira yanlis. Sirayi bir daha dusun.',
+                        'The right number of blocks, but the order is wrong. Think about the order again.',
+                        'Die Anzahl der Blöcke stimmt, aber die Reihenfolge nicht. Denk noch mal darüber nach.',
+                        'El número de bloques es correcto, pero el orden no. Piensa otra vez en el orden.'),
+                    style: const TextStyle(
+                      color: Colors.orange,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: widget.step.availableBlocks.map((block) {
-            return GestureDetector(
-              onTap: () => _addBlock(block),
-              child: _buildBlockWidget(block),
-            );
-          }).toList(),
-        ),
+        ],
 
         // Success indicator
         if (_completed) ...[
-          const SizedBox(height: 24),
+          SizedBox(height: ara),
 
           // Kedi animasyonu göster
           if (_showAnimation)
+            // Oynaticiya artik yalnizca kimlikler degil BLOKLARIN KENDISI
+            // gidiyor: her adimda calisan blogun yazisini gosterebilmesi
+            // ve konusma metnini blogun kendi etiketinden cikarabilmesi
+            // icin. Dili de gecirmek zorunda; eskiden sahnedeki metinler
+            // Turkce sabitti.
             BlockAnimationPlayer(
               key: UniqueKey(), // Her seferinde yeni widget oluştur
-              blockIds: _placedBlocks,
+              blocks: _placedBlocks
+                  .map((id) => widget.step.availableBlocks
+                      .firstWhere((b) => b.id == id))
+                  .toList(),
+              lang: lang,
               size: 50,
             )
           else
@@ -1034,13 +1519,14 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
                 color: Colors.green.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Text('✅', style: TextStyle(fontSize: 24)),
-                  SizedBox(width: 12),
+                  const Text('✅', style: TextStyle(fontSize: 24)),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Mukemmel! Dogru siralamayi buldun!',
+                      lessonText(lang, 'Mükemmel! Doğru sıralamayı buldun!',
+                          'Perfect! You found the right order!', 'Perfekt! Du hast die richtige Reihenfolge gefunden!', '¡Perfecto! ¡Has encontrado el orden correcto!'),
                       style: TextStyle(
                         color: Colors.green,
                         fontWeight: FontWeight.bold,
@@ -1062,7 +1548,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
                       });
                     },
                     icon: const Icon(Icons.play_arrow),
-                    label: const Text('KODU ÇALIŞTIR'),
+                    label: Text(lessonText(lang, 'KODU ÇALIŞTIR', 'RUN THE CODE', 'CODE AUSFÜHREN', 'EJECUTAR EL CÓDIGO')),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
@@ -1085,35 +1571,172 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'DEVAM',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  child: Text(
+                    lessonText(lang, 'DEVAM', 'CONTINUE', 'WEITER', 'CONTINUAR'),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
             ],
           ),
         ],
+
+        SizedBox(height: ara),
+
+        // Available blocks
+        Text(
+          lessonText(lang, 'Kullanılabilir Bloklar:', 'Available blocks:', 'Verfügbare Blöcke:', 'Bloques disponibles:'),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: widget.isDark ? Colors.white70 : Colors.grey.shade700,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: widget.step.availableBlocks.map((block) {
+            return GestureDetector(
+              onTap: () => _addBlock(block),
+              child: _buildBlockWidget(block, lang),
+            );
+          }).toList(),
+        ),
+
       ],
     );
   }
 
-  Widget _buildBlockWidget(ScratchBlock block) {
+  Widget _buildBlockWidget(ScratchBlock block, String lang) {
     return ScratchBlockWidget(
       block: block,
+      lang: lang,
       onTap: null, // Zaten tap handler dışarıda
     );
   }
 
-  Widget _buildPlacedBlock(ScratchBlock block, int index) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 4),
-      child: ScratchBlockWidget(
-        block: block,
-        isPlaced: true,
-        showRemoveIcon: true,
-        onTap: () => _removeBlock(index),
-      ),
+  /// Yerlestirilen bloklari C-blogunun ICINI gosterecek sekilde cizer.
+  ///
+  /// Onceki surumde kod alani duz bir listeydi: `4 kere tekrarla` ile
+  /// `Miyav! de` alt alta iki blok olarak duruyordu. Cocuk acisindan
+  /// "once soyle, sonra tekrarla" ile "tekrarlanin icinde soyle"
+  /// arasinda gorsel hicbir fark yoktu — ders tam da bu farki ogretmeye
+  /// calisiyorken. Artik C-blogundan sonraki bloklar iceri giriyor,
+  /// solunda dongunun renginde bir ray ve altinda dongunun ayagi var.
+  List<Widget> _buildPlacedList(String lang) {
+    final ogeler = <Widget>[];
+    var girinti = 0;
+    Color? rayRengi;
+
+    for (var i = 0; i < _placedBlocks.length; i++) {
+      final block = widget.step.availableBlocks
+          .firstWhere((b) => b.id == _placedBlocks[i]);
+
+      Widget blokWidget = _buildPlacedBlock(block, i, lang);
+      if (girinti > 0 && rayRengi != null) {
+        // Sol sirt: C blogunun govdesi. Genisligi painter'daki
+        // `indent` ile ayni (16) ki ust cubukla hizali gorunsun.
+        blokWidget = Container(
+          margin: EdgeInsets.only(left: (girinti - 1) * 16.0),
+          padding: const EdgeInsets.only(left: 6),
+          decoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(color: rayRengi, width: 16),
+            ),
+          ),
+          child: blokWidget,
+        );
+      }
+      ogeler.add(blokWidget);
+
+      if (block.shape == ScratchBlockShape.cBlock) {
+        girinti++;
+        rayRengi = block.color;
+      }
+    }
+
+    if (girinti > 0 && rayRengi != null) {
+      // Dongunun ici bos mu? Oyleyse bos yuvayi gosteriyoruz: cocuk
+      // "tekrarla" blogunu koyup icine bir sey koymadigini boylece
+      // goruyor. Cevabi soylemiyor, eksigi gosteriyor.
+      final sonuncuCBlok = widget.step.availableBlocks
+              .firstWhere((b) => b.id == _placedBlocks.last)
+              .shape ==
+          ScratchBlockShape.cBlock;
+
+      if (sonuncuCBlok) {
+        ogeler.add(
+          Container(
+            margin: EdgeInsets.only(left: (girinti - 1) * 16.0),
+            padding: const EdgeInsets.only(left: 6),
+            decoration: BoxDecoration(
+              border: Border(left: BorderSide(color: rayRengi, width: 16)),
+            ),
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.35),
+                  width: 1.5,
+                ),
+              ),
+              child: Text(
+                lessonText(
+                    lang,
+                    'Bu döngünün içi boş',
+                    'This loop is empty',
+                    'Diese Schleife ist leer',
+                    'Este bucle está vacío'),
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.75),
+                  fontSize: 13,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
+      // Dongunun ayagi.
+      ogeler.add(
+        Container(
+          margin: EdgeInsets.only(left: (girinti - 1) * 16.0),
+          width: 120,
+          height: 20,
+          decoration: BoxDecoration(
+            color: rayRengi,
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(8),
+              bottomRight: Radius.circular(8),
+              topRight: Radius.circular(8),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return ogeler;
+  }
+
+  Widget _buildPlacedBlock(ScratchBlock block, int index, String lang) {
+    // ARALIK YOK.
+    //
+    // Bloklarin arasinda 4 piksel bosluk vardi: yapboz tirnagi bir
+    // sonraki blogun centigine oturmuyor, bloklar birbirine takilmis
+    // gibi degil ayri ayri kartlar gibi duruyordu. Scratch'te bloklar
+    // birbirine DEGER; cocuk "bunlar tek bir program" fikrini bundan
+    // aliyor.
+    return ScratchBlockWidget(
+      block: block,
+      lang: lang,
+      isPlaced: true,
+      showRemoveIcon: true,
+      cHeadOnly: block.shape == ScratchBlockShape.cBlock,
+      onTap: () => _removeBlock(index),
     );
   }
 }
@@ -1142,7 +1765,13 @@ class OrderingStepWidget extends StatefulWidget {
 
 class _OrderingStepWidgetState extends State<OrderingStepWidget> {
   late List<OrderItem> _orderedItems;
-  bool _completed = false;
+
+  /// Kontrol edildikten sonra dolu; her satirin dogru yerde olup olmadigi.
+  List<bool>? _correctness;
+  AnswerResult? _result;
+
+  /// Her yanlis denemede artiyor; listeyi sallamak icin.
+  int _wrongTick = 0;
 
   @override
   void initState() {
@@ -1150,27 +1779,50 @@ class _OrderingStepWidgetState extends State<OrderingStepWidget> {
     _orderedItems = List.from(widget.step.items)..shuffle();
   }
 
-  void _checkOrder() {
-    final currentOrder = _orderedItems.map((e) => e.id).toList();
-    if (currentOrder.join(',') == widget.step.correctOrder.join(',')) {
-      setState(() => _completed = true);
-      HapticFeedback.heavyImpact();
-    } else {
-      setState(() => _completed = false);
-    }
+  /// ONCEDEN: her surukleme sonrasi sira sessizce kontrol ediliyor, dogru
+  /// olunca yesil kutu beliriyordu. Yanlista hicbir sey olmuyordu — cocuk
+  /// dogruyu bulana kadar rastgele deniyordu ve hangi satirin yanlis
+  /// oldugunu ogrenmiyordu. Artik kontrol acik bir eylem ve sonuc satir
+  /// satir gosteriliyor.
+  void _check() {
+    final current = _orderedItems.map((e) => e.id).toList();
+    final flags = [
+      for (int i = 0; i < current.length; i++)
+        i < widget.step.correctOrder.length &&
+            current[i] == widget.step.correctOrder[i],
+    ];
+    final ok = !flags.contains(false) &&
+        current.length == widget.step.correctOrder.length;
+
+    setState(() {
+      _correctness = flags;
+      _result = ok ? AnswerResult.correct : AnswerResult.wrong;
+      if (!ok) _wrongTick++;
+    });
+    AnswerFeedbackBar.haptic(_result!);
+  }
+
+  void _retry() {
+    setState(() {
+      _correctness = null;
+      _result = null;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final lang = lessonLang(context);
+    final locked = _result == AnswerResult.correct;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           widget.step.instructionFor(lang),
           style: TextStyle(
+            fontFamily: AppTheme.fontFamily,
             fontSize: 18,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
             color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
           ),
         ),
@@ -1178,144 +1830,162 @@ class _OrderingStepWidgetState extends State<OrderingStepWidget> {
         Text(
           widget.step.contextFor(lang),
           style: TextStyle(
+            fontFamily: AppTheme.fontFamily,
+            height: 1.45,
             color: widget.isDark ? Colors.grey.shade400 : Colors.grey.shade600,
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
 
-        ReorderableListView.builder(
-          shrinkWrap: true,
-          physics: const ClampingScrollPhysics(),
-          buildDefaultDragHandles: false,
-          itemCount: _orderedItems.length,
-          onReorder: (oldIndex, newIndex) {
-            setState(() {
-              if (oldIndex < newIndex) newIndex--;
-              final item = _orderedItems.removeAt(oldIndex);
-              _orderedItems.insert(newIndex, item);
-            });
-            _checkOrder();
-          },
-          itemBuilder: (context, index) {
-            final item = _orderedItems[index];
-            return ReorderableDragStartListener(
-              key: ValueKey(item.id),
-              index: index,
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(
-                  color: widget.isDark ? const Color(0xFF1E1E2E) : Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: widget.isDark ? Colors.grey.shade800 : Colors.grey.shade300,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.drag_handle,
-                      color: widget.isDark ? Colors.grey.shade600 : Colors.grey.shade400,
-                      size: 24,
-                    ),
-                    const SizedBox(width: 12),
-                    Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: widget.course.primaryColor.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${index + 1}',
-                          style: TextStyle(
-                            color: widget.course.primaryColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: item.content == 'tıklandığında'
-                          ? Row(
-                              children: [
-                                const Icon(
-                                  Icons.flag,
-                                  color: Color(0xFF0FBD8C),
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  item.contentFor(lang),
-                                  style: TextStyle(
-                                    fontFamily: item.isCode ? 'monospace' : null,
-                                    color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Text(
-                              item.contentFor(lang),
-                              style: TextStyle(
-                                fontFamily: item.isCode ? 'monospace' : null,
-                                color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
-                              ),
-                            ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+        ShakeOnChange(
+          trigger: _wrongTick,
+          child: ReorderableListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            buildDefaultDragHandles: false,
+            itemCount: _orderedItems.length,
+            onReorder: (oldIndex, newIndex) {
+              if (locked) return;
+              setState(() {
+                if (oldIndex < newIndex) newIndex--;
+                final item = _orderedItems.removeAt(oldIndex);
+                _orderedItems.insert(newIndex, item);
+                // Sira degisti: onceki kontrolun rengi artik gecersiz.
+                _correctness = null;
+                _result = null;
+              });
+              HapticFeedback.selectionClick();
+            },
+            itemBuilder: (context, index) =>
+                _buildRow(context, index, lang, locked),
+          ),
         ),
 
-        if (_completed) ...[
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.green.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Row(
-              children: [
-                Text('✅', style: TextStyle(fontSize: 24)),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Dogru sira! Harika!',
-                    style: TextStyle(
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+        if (_result != null) ...[
+          const SizedBox(height: 18),
+          AnswerFeedbackBar(
+            inline: true,
+            result: _result!,
+            detail: _result == AnswerResult.correct
+                ? lessonText(lang, 'Sıralama doğru.', 'That is the right order.', 'Die Reihenfolge stimmt.', 'El orden es correcto.')
+                : lessonText(
+                    lang,
+                    'Kırmızı işaretli satırlar yanlış yerde. Onları taşıyıp tekrar dene.',
+                    'The rows with a red mark are in the wrong place. Move them and check again.',
+                    'Die rot markierten Zeilen stehen falsch. Verschieb sie und prüf noch mal.',
+                    'Las filas marcadas en rojo están mal colocadas. Muévelas y comprueba otra vez.'),
+            continueLabel: _result == AnswerResult.correct
+                ? lessonText(lang, 'Devam', 'Continue', 'Weiter', 'Continuar')
+                : lessonText(lang, 'Tekrar dene', 'Try again', 'Noch mal versuchen', 'Inténtalo otra vez'),
+            onContinue: _result == AnswerResult.correct
+                ? () => widget.onComplete(true)
+                : _retry,
           ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => widget.onComplete(true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: widget.course.primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'DEVAM',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
+        ] else ...[
+          const SizedBox(height: 18),
+          PressButton(
+            label: lessonText(lang, 'Kontrol Et', 'Check', 'Prüfen', 'Comprobar'),
+            color: widget.course.primaryColor,
+            onPressed: _check,
+            height: 52,
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildRow(
+      BuildContext context, int index, String lang, bool locked) {
+    final item = _orderedItems[index];
+    final ok = _correctness != null && index < _correctness!.length
+        ? _correctness![index]
+        : null;
+
+    // Renk tek basina anlam tasimiyor: dogru/yanlis satirin ayrica bir ikonu
+    // var (renk korlugu icin gereklilik).
+    late final Color border;
+    late final Color? tint;
+    if (ok == null) {
+      border = widget.isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+      tint = null;
+    } else if (ok) {
+      border = const Color(0xFF2E7D32);
+      tint = const Color(0xFF2E7D32).withValues(alpha: 0.08);
+    } else {
+      border = const Color(0xFFC62828);
+      tint = const Color(0xFFC62828).withValues(alpha: 0.08);
+    }
+
+    final row = AnimatedContainer(
+      duration: Motion.short3,
+      curve: Motion.emphasized,
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      decoration: BoxDecoration(
+        color: tint ??
+            (widget.isDark ? const Color(0xFF1E1E2E) : Colors.white),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: border, width: ok == null ? 1 : 1.6),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.drag_indicator_rounded,
+            color: widget.isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+            size: 22,
+          ),
+          const SizedBox(width: 10),
+          Container(
+            width: 28,
+            height: 28,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: widget.course.primaryColor.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              '${index + 1}',
+              style: AppTheme.number(
+                fontSize: 13,
+                color: widget.course.primaryColor,
+                letterSpacing: 0,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              item.contentFor(lang),
+              style: TextStyle(
+                // Kod satirlari tek genislikte yazi ile: girintiler ve
+                // hizalama ancak oyle okunuyor.
+                fontFamily: item.isCode ? 'monospace' : AppTheme.fontFamily,
+                fontSize: item.isCode ? 13.5 : 14.5,
+                fontWeight: FontWeight.w600,
+                color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
+              ),
+            ),
+          ),
+          if (ok != null) ...[
+            const SizedBox(width: 8),
+            Icon(
+              ok ? Icons.check_rounded : Icons.close_rounded,
+              size: 19,
+              color: border,
+            ),
+          ],
+        ],
+      ),
+    );
+
+    // Dogru cevaptan sonra siraya dokunulmasin: satirlar artik salt okunur.
+    if (locked) {
+      return KeyedSubtree(key: ValueKey(item.id), child: row);
+    }
+    return ReorderableDragStartListener(
+      key: ValueKey(item.id),
+      index: index,
+      child: row,
     );
   }
 }
@@ -1347,13 +2017,38 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
   final Map<String, String> _matches = {}; // leftId -> rightId
   final Map<String, bool> _matchCorrectness = {}; // leftId -> isCorrect
   bool _completed = false;
+
+  /// Butun ciftler eslesmeden once hicbir sey notlanmaz.
+  ///
+  /// Eskiden her eslestirme aninda yesil/kirmiz oluyordu. Dort ciftlik bir
+  /// adimda bu, dusunmeyi tamamen gereksiz kiliyordu: cocuk rastgele
+  /// dokunuyor, kirmiziysa geri aliyor, birkac denemede garanti
+  /// tamamliyordu. Artik geri bildirim tahtanin tamami dolunca geliyor;
+  /// geri alma yine serbest ve yanlista puan kesilmiyor, ama karar bir
+  /// kerede veriliyor.
+  bool _kontrolEdildi = false;
+
+  /// Notlanmadiysa `null` (notr goster), notlandiysa dogru/yanlis.
+  bool? _durum(String leftId) =>
+      _kontrolEdildi ? (_matchCorrectness[leftId] ?? false) : null;
   late List<MatchPair> _shuffledPairs;
+
+  /// Sag sutunun sirasi.
+  ///
+  /// Eskiden `build()` icinde `..shuffle()` ile uretiliyordu. Her
+  /// `setState` yeni bir sira demekti: cocuk soldaki karta dokunuyor,
+  /// sag taraftaki secenekler ve A/B/C rozetleri parmagi oraya
+  /// varmadan yer degistiriyordu. Bir kez, adima bagli sabit bir
+  /// tohumla karistiriliyor.
+  late List<MatchPair> _rightItems;
 
   @override
   void initState() {
     super.initState();
-    // Shuffle both left and right items
-    _shuffledPairs = List.from(widget.step.pairs)..shuffle();
+    _shuffledPairs = List.from(widget.step.pairs)
+      ..shuffle(Random(widget.step.id.hashCode));
+    _rightItems = List.from(widget.step.pairs)
+      ..shuffle(Random(widget.step.id.hashCode ^ 0x5A17));
   }
 
   void _selectLeft(String id) {
@@ -1361,7 +2056,8 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
     if (_matches.containsKey(id)) {
       setState(() {
         _matches.remove(id);
-        _matchCorrectness.remove(id);
+        _matchCorrectness.clear();
+        _kontrolEdildi = false;
         _selectedLeft = null;
       });
       return;
@@ -1373,13 +2069,8 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
   void _selectRight(String rightId) {
     if (_selectedLeft == null) return;
 
-    // Find the correct right answer for selected left
-    final selectedPair = _shuffledPairs.firstWhere((p) => p.id == _selectedLeft);
-    final isCorrect = selectedPair.id == rightId;
-
     setState(() {
       _matches[_selectedLeft!] = rightId;
-      _matchCorrectness[_selectedLeft!] = isCorrect;
       _selectedLeft = null;
     });
 
@@ -1390,22 +2081,36 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
   void _checkCompletion() {
     if (_matches.length != widget.step.pairs.length) return;
 
-    // Check if ALL matches are correct
-    bool allCorrect = _matchCorrectness.values.every((correct) => correct);
+    // Tahta doldu: simdi hepsini birden notluyoruz.
+    setState(() {
+      _matchCorrectness
+        ..clear()
+        ..addEntries(
+          _matches.entries.map((e) => MapEntry(e.key, e.key == e.value)),
+        );
+      _kontrolEdildi = true;
+    });
+
+    final allCorrect = _matchCorrectness.values.every((correct) => correct);
 
     if (allCorrect) {
       setState(() => _completed = true);
       HapticFeedback.heavyImpact();
+      SoundService.playCorrect();
       Future.delayed(const Duration(milliseconds: 500), () {
         widget.onComplete(true);
       });
+    } else {
+      // Puan KESILMEZ. Yanlis eslesmeler kirmizi isaretlenir, cocuk
+      // uzerine dokunup cozer.
+      HapticFeedback.lightImpact();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final lang = lessonLang(context);
-    final rightItems = List<MatchPair>.from(_shuffledPairs)..shuffle();
+    final rightItems = _rightItems;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1440,7 +2145,7 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            'Koşullar',
+                            lessonText(lang, 'Koşullar', 'Conditions', 'Bedingungen', 'Condiciones'),
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -1455,10 +2160,13 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                     final pair = _shuffledPairs[index];
                     final isSelected = _selectedLeft == pair.id;
                     final isMatched = _matches.containsKey(pair.id);
-                    final isCorrect = _matchCorrectness[pair.id] ?? false;
+                    final isCorrect = _durum(pair.id);
+                    final vurgu = isCorrect == null
+                        ? widget.course.primaryColor
+                        : (isCorrect ? Colors.green : Colors.red);
 
                     return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
+                      duration: Motion.adapt(context, Motion.short4),
                       margin: const EdgeInsets.only(bottom: 12),
                       child: Material(
                         elevation: isSelected ? 4 : (isMatched ? 2 : 0),
@@ -1470,16 +2178,14 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                             decoration: BoxDecoration(
                               color: isMatched
-                                  ? (isCorrect
-                                      ? Colors.green.withValues(alpha: 0.1)
-                                      : Colors.red.withValues(alpha: 0.1))
+                                  ? vurgu.withValues(alpha: 0.1)
                                   : (isSelected
                                       ? widget.course.primaryColor.withValues(alpha: 0.1)
                                       : (widget.isDark ? const Color(0xFF1E1E2E) : Colors.white)),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: isMatched
-                                    ? (isCorrect ? Colors.green : Colors.red)
+                                    ? vurgu
                                     : (isSelected
                                         ? widget.course.primaryColor
                                         : Colors.grey.shade300),
@@ -1493,7 +2199,7 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                                   height: 32,
                                   decoration: BoxDecoration(
                                     color: isMatched
-                                        ? (isCorrect ? Colors.green : Colors.red)
+                                        ? vurgu
                                         : (isSelected
                                             ? widget.course.primaryColor
                                             : Colors.grey.shade400),
@@ -1522,12 +2228,16 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                                     ),
                                   ),
                                 ),
-                                if (isMatched)
+                                if (isMatched && isCorrect != null)
                                   Icon(
                                     isCorrect ? Icons.check_circle : Icons.cancel,
                                     color: isCorrect ? Colors.green : Colors.red,
                                     size: 20,
-                                  ),
+                                  )
+                                else if (isMatched)
+                                  Icon(Icons.link_rounded,
+                                      color: widget.course.primaryColor,
+                                      size: 20),
                               ],
                             ),
                           ),
@@ -1556,7 +2266,7 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            'Sonuçlar',
+                            lessonText(lang, 'Sonuçlar', 'Results', 'Ergebnisse', 'Resultados'),
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -1573,7 +2283,7 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                     bool? isCorrect;
                     for (var entry in _matches.entries) {
                       if (entry.value == pair.id) {
-                        isCorrect = _matchCorrectness[entry.key];
+                        isCorrect = _durum(entry.key);
                         break;
                       }
                     }
@@ -1683,7 +2393,12 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
+                    lessonText(
+                    lang,
                     'Şimdi sağ taraftan uygun sonucu seç',
+                    'Now pick the matching result on the right',
+                    'Wähle jetzt rechts das passende Ergebnis',
+                    'Ahora elige a la derecha el resultado que corresponde'),
                     style: TextStyle(
                       color: widget.course.primaryColor,
                       fontWeight: FontWeight.w500,
@@ -1721,12 +2436,17 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                   child: const Icon(Icons.check, color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Harika! Tüm eşleştirmeler doğru!',
+                        lessonText(
+                          lang,
+                          'Harika! Tüm eşleştirmeler doğru!',
+                          'Great! Every match is correct!',
+                          'Super! Alle Zuordnungen stimmen!',
+                          '¡Genial! ¡Todas las parejas son correctas!'),
                         style: TextStyle(
                           color: Colors.green,
                           fontWeight: FontWeight.bold,
@@ -1735,7 +2455,12 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        'Tebrikler, devam edebilirsin!',
+                        lessonText(
+                            lang,
+                            'Tebrikler, devam edebilirsin!',
+                            'Well done, you can carry on!',
+                            'Gut gemacht, du kannst weitermachen!',
+                            '¡Muy bien, puedes continuar!'),
                         style: TextStyle(
                           color: Colors.green,
                           fontSize: 14,
@@ -1816,7 +2541,8 @@ class _MiniGameStepWidgetState extends State<MiniGameStepWidget> {
               });
             },
             icon: const Icon(Icons.play_arrow),
-            label: Text(lang == 'en' ? 'Start Game' : 'Oyunu Baslat'),
+            label: Text(lessonText(lang, 'Oyunu Başlat', 'Start Game',
+                'Spiel starten', 'Empezar el juego')),
             style: ElevatedButton.styleFrom(
               backgroundColor: widget.course.primaryColor,
               foregroundColor: Colors.white,
@@ -1908,9 +2634,12 @@ class _MiniGameStepWidgetState extends State<MiniGameStepWidget> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                lang == 'en'
-                    ? 'This game is coming soon! You can continue for now.'
-                    : 'Oyun yakinda eklenecek! Simdilik devam edebilirsin.',
+                lessonText(
+                    lang,
+                    'Oyun yakında eklenecek! Şimdilik devam edebilirsin.',
+                    'This game is coming soon! You can continue for now.',
+                    'Dieses Spiel kommt bald! Du kannst erst mal weitermachen.',
+                    'Este juego llegará pronto. De momento puedes continuar.'),
                 style: TextStyle(
                   fontSize: 14,
                   color: widget.isDark ? Colors.grey.shade300 : Colors.grey.shade700,
@@ -1923,7 +2652,14 @@ class _MiniGameStepWidgetState extends State<MiniGameStepWidget> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  widget.onComplete(widget.step.targetScore);
+                  // PUAN VERMIYOR.
+                  //
+                  // Eskiden burasi `targetScore` veriyordu: henuz
+                  // yazilmamis bir oyun, tek bir dokunusla TAM PUAN
+                  // demekti. Su an bu dala hicbir ders girmiyor ama
+                  // yeni bir MiniGameType eklendiginde sessizce
+                  // bedava puan dagitmaya baslardi.
+                  widget.onComplete(0);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: widget.course.primaryColor,
@@ -1933,7 +2669,10 @@ class _MiniGameStepWidgetState extends State<MiniGameStepWidget> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Devam Et', style: TextStyle(fontSize: 16)),
+                child: Text(
+                    lessonText(lang, 'Devam Et', 'Continue', 'Weiter',
+                        'Continuar'),
+                    style: const TextStyle(fontSize: 16)),
               ),
             ),
           ],
@@ -1964,7 +2703,6 @@ class ProjectStepWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = lessonLang(context);
-    final isEn = lang == 'en';
     final hints = step.hintsFor(lang);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1987,7 +2725,7 @@ class ProjectStepWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isEn ? 'PROJECT' : 'PROJE',
+                      lessonText(lang, 'PROJE', 'PROJECT', 'PROJEKT', 'PROYECTO'),
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 12,
@@ -2023,7 +2761,7 @@ class ProjectStepWidget extends StatelessWidget {
 
         // Requirements
         Text(
-          isEn ? 'Requirements:' : 'Gereksinimler:',
+          lessonText(lang, 'Gereksinimler:', 'Requirements:', 'Anforderungen:', 'Requisitos:'),
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -2057,7 +2795,7 @@ class ProjectStepWidget extends StatelessWidget {
         if (hints.isNotEmpty) ...[
           const SizedBox(height: 24),
           ExpansionTile(
-            title: Text(isEn ? 'Hints' : 'Ipuclari'),
+            title: Text(lessonText(lang, 'İpuçları', 'Hints', 'Tipps', 'Pistas')),
             leading: const Icon(Icons.lightbulb_outline),
             children: hints.map((hint) => ListTile(
               leading: const Text('💡'),
@@ -2074,7 +2812,7 @@ class ProjectStepWidget extends StatelessWidget {
           child: ElevatedButton.icon(
             onPressed: onComplete,
             icon: const Icon(Icons.check),
-            label: Text(isEn ? 'I Finished the Project!' : 'Projeyi Tamamladim!'),
+            label: Text(lessonText(lang, 'Projeyi Tamamladim!', 'I Finished the Project!', 'Ich habe das Projekt fertig!', '¡He terminado el proyecto!')),
             style: ElevatedButton.styleFrom(
               backgroundColor: course.primaryColor,
               foregroundColor: Colors.white,
@@ -2154,7 +2892,9 @@ class AnimationStepWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: Text(lang == 'en' ? 'Continue' : 'Devam', style: const TextStyle(fontSize: 16)),
+            child: Text(
+                lessonText(lang, 'Devam', 'Continue', 'Weiter', 'Continuar'),
+                style: const TextStyle(fontSize: 16)),
           ),
         ),
       ],
@@ -2320,9 +3060,19 @@ class _LoopCalculatorGameState extends State<LoopCalculatorGame> {
     {'stepSize': 12, 'target': 60},
   ];
 
+  /// Bu seviyenin siklari.
+  ///
+  /// Eskiden `build()` icinde uretiliyordu: cocuk bir sikka dokundugu
+  /// anda setState calisiyor, YANLIS siklar yeni degerler aliyor ve
+  /// dortu birden yer degistiriyordu. Yesil "dogru" isareti de o an
+  /// dogru sayinin bulundugu karonun uzerine duruyordu — geri bildirim
+  /// karesi tamamen tutarsizdi. Seviye basina bir kez uretiliyor.
+  late List<int> _siklar;
+
   @override
   void initState() {
     super.initState();
+    _siklar = _generateAnswers();
   }
 
   int _getCorrectAnswer() {
@@ -2364,6 +3114,7 @@ class _LoopCalculatorGameState extends State<LoopCalculatorGame> {
           currentLevel++;
           selectedAnswer = null;
           isCorrect = null;
+          _siklar = _generateAnswers();
         });
       } else {
         widget.onComplete(score);
@@ -2373,8 +3124,9 @@ class _LoopCalculatorGameState extends State<LoopCalculatorGame> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = lessonLang(context);
     final level = levels[currentLevel];
-    final answers = _generateAnswers();
+    final answers = _siklar;
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -2429,8 +3181,13 @@ class _LoopCalculatorGameState extends State<LoopCalculatorGame> {
             ),
             child: Column(
               children: [
-                const Text(
+                Text(
+                  lessonText(
+                  lang,
                   '🐱 Kediyi yürütmek için:',
+                  '🐱 To make the cat walk:',
+                  '🐱 Damit die Katze läuft:',
+                  '🐱 Para que el gato camine:'),
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 16),
@@ -2441,7 +3198,12 @@ class _LoopCalculatorGameState extends State<LoopCalculatorGame> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '"${level['stepSize']} adım git" bloğunu',
+                    lessonText(
+                        lang,
+                        '"${level['stepSize']} adım git" bloğunu',
+                        'the "move ${level['stepSize']} steps" block',
+                        'den Block "gehe ${level['stepSize']} er Schritt"',
+                        'el bloque "mover ${level['stepSize']} pasos"'),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -2450,12 +3212,22 @@ class _LoopCalculatorGameState extends State<LoopCalculatorGame> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Toplam ${level['target']} adım gitmek için',
+                  lessonText(
+                      lang,
+                      'Toplam ${level['target']} adım gitmek için',
+                      'to travel ${level['target']} steps in total',
+                      'um insgesamt ${level['target']} Schritte zu gehen',
+                      'para recorrer ${level['target']} pasos en total'),
                   style: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 8),
                 Text(
+                  lessonText(
+                  lang,
                   'kaç kere tekrarlamalıyız?',
+                  'how many times should we repeat it?',
+                  'wie oft müssen wir das wiederholen?',
+                  '¿cuántas veces hay que repetirlo?'),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -2516,9 +3288,12 @@ class _LoopCalculatorGameState extends State<LoopCalculatorGame> {
                               color: Colors.white,
                             ),
                           ),
-                          const Text(
-                            'kere',
-                            style: TextStyle(
+                          Text(
+                            // Dort dilde de ayni karonun altinda duruyor;
+                            // `const` oldugu icin Almancada da "kere"
+                            // yaziyordu.
+                            lessonText(lang, 'kere', 'times', 'mal', 'veces'),
+                            style: const TextStyle(
                               fontSize: 20,
                               color: Colors.white,
                             ),
@@ -2533,6 +3308,671 @@ class _LoopCalculatorGameState extends State<LoopCalculatorGame> {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ==========================================
+// CODE COMPLETE / TYPE CODE / SPOT ERROR
+// ==========================================
+//
+// Bu uc adim tipi icerikte VARDI ama ekranda hicbir karsiligi yoktu:
+// interactive_lesson_screen.dart'in `default` dali "Step tipi henüz
+// desteklenmiyor: StepType.typeTheCode" yaziyordu. Python, Arduino ve
+// HTML derslerinde toplam 24 adim boyle bir hata metnine dusuyordu —
+// yani ders ortasinda cocuk bos bir ekranla karsilasip devam ediyordu.
+
+/// Ortak kod govdesi: koyu zeminli, tek aralikli, kaydirilabilir.
+class _CodeSurface extends StatelessWidget {
+  const _CodeSurface({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E2E),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: child,
+      ),
+    );
+  }
+}
+
+/// Adimin basindaki yonerge kartı.
+class _StepPrompt extends StatelessWidget {
+  const _StepPrompt({
+    required this.emoji,
+    required this.text,
+    required this.isDark,
+  });
+
+  final String emoji;
+  final String text;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 36)),
+          const SizedBox(height: 12),
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              fontSize: 17,
+              height: 1.45,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Kodu tamamla: sablondaki `___` yerlerine dogru parcayi sec.
+///
+/// Yazdirmak yerine SECTIRIYORUZ. 7-14 yas araligindaki bir cocuk icin
+/// telefon klavyesinde `range(` yazmak dersin konusu degil, engeli;
+/// yanlislarin cogu yazim hatasi oluyor ve cocuk neyi bilmedigini degil
+/// nereye dokunacagini ogreniyor. Secenekler dogru cevap + diger
+/// bosluklarin cevaplari + kabul edilen alternatiflerden uretiliyor,
+/// yani sasirtici ama ilgili.
+class CodeCompleteStepWidget extends StatefulWidget {
+  final CodeCompleteStep step;
+  final Course course;
+  final bool isDark;
+  final Function(bool correct) onComplete;
+
+  const CodeCompleteStepWidget({
+    super.key,
+    required this.step,
+    required this.course,
+    required this.isDark,
+    required this.onComplete,
+  });
+
+  @override
+  State<CodeCompleteStepWidget> createState() => _CodeCompleteStepWidgetState();
+}
+
+class _CodeCompleteStepWidgetState extends State<CodeCompleteStepWidget> {
+  /// Bosluk sirasina gore secilen cevaplar.
+  late List<String?> _filled;
+  bool _answered = false;
+
+  List<CodeBlank> get _blanks {
+    final list = [...widget.step.blanks]..sort((a, b) => a.index.compareTo(b.index));
+    return list;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _filled = List<String?>.filled(_blanks.length, null);
+  }
+
+  /// Bir bosluk icin secenekler.
+  List<String> _choicesFor(int i) {
+    final blank = _blanks[i];
+    final set = <String>{blank.correctAnswer};
+    for (final alt in blank.acceptableAlternatives ?? const <String>[]) {
+      set.add(alt);
+    }
+    for (var j = 0; j < _blanks.length; j++) {
+      if (j != i) set.add(_blanks[j].correctAnswer);
+    }
+    final list = set.toList()..shuffle(Random('${widget.step.id}_$i'.hashCode));
+    return list;
+  }
+
+  bool _isRight(int i, String value) {
+    final blank = _blanks[i];
+    if (value == blank.correctAnswer) return true;
+    return (blank.acceptableAlternatives ?? const <String>[]).contains(value);
+  }
+
+  bool get _allFilled => !_filled.contains(null);
+  bool get _allRight {
+    for (var i = 0; i < _filled.length; i++) {
+      if (_filled[i] == null || !_isRight(i, _filled[i]!)) return false;
+    }
+    return true;
+  }
+
+  /// Sablonu `___` isaretlerinden bolup boslukları gomulu rozet yapiyor.
+  Widget _template(String lang) {
+    final parts = widget.step.codeTemplate.split('___');
+    final spans = <InlineSpan>[];
+    for (var i = 0; i < parts.length; i++) {
+      spans.add(TextSpan(
+        text: parts[i],
+        style: const TextStyle(
+          fontFamily: 'monospace',
+          color: Color(0xFFD4D4D4),
+          fontSize: 14,
+          height: 1.55,
+        ),
+      ));
+      if (i < parts.length - 1 && i < _filled.length) {
+        final value = _filled[i];
+        final ok = value != null && _isRight(i, value);
+        spans.add(WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: value == null
+                  ? Colors.white.withValues(alpha: 0.10)
+                  : (_answered
+                          ? (ok
+                              ? const Color(0xFF2E7D32)
+                              : const Color(0xFFC62828))
+                          : widget.course.primaryColor)
+                      .withValues(alpha: 0.85),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.25),
+              ),
+            ),
+            child: Text(
+              value ?? '?',
+              style: const TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 13.5,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ));
+      }
+    }
+    return RichText(text: TextSpan(children: spans));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = lessonLang(context);
+    final blanks = _blanks;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _StepPrompt(
+          emoji: '🧩',
+          text: widget.step.instructionFor(lang),
+          isDark: widget.isDark,
+        ),
+        const SizedBox(height: 20),
+        _CodeSurface(child: _template(lang)),
+        const SizedBox(height: 20),
+
+        for (var i = 0; i < blanks.length; i++) ...[
+          Text(
+            '${i + 1}. ${blanks[i].hintFor(lang)}',
+            style: TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w700,
+              color: widget.isDark ? Colors.grey.shade300 : Colors.grey.shade700,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _choicesFor(i).map((choice) {
+              final selected = _filled[i] == choice;
+              return GestureDetector(
+                onTap: _answered
+                    ? null
+                    : () {
+                        HapticFeedback.selectionClick();
+                        setState(() => _filled[i] = choice);
+                      },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 160),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? widget.course.primaryColor.withValues(alpha: 0.14)
+                        : (widget.isDark
+                            ? const Color(0xFF1E1E2E)
+                            : Colors.white),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: selected
+                          ? widget.course.primaryColor
+                          : (widget.isDark
+                              ? Colors.grey.shade800
+                              : Colors.grey.shade300),
+                      width: 2,
+                    ),
+                  ),
+                  child: Text(
+                    choice,
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 14,
+                      fontWeight:
+                          selected ? FontWeight.w700 : FontWeight.normal,
+                      color: widget.isDark
+                          ? Colors.white
+                          : const Color(0xFF1A1A1A),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        if (!_answered)
+          PressButton(
+            label: lessonText(lang, 'Kontrol Et', 'Check', 'Prüfen', 'Comprobar'),
+            icon: Icons.check_rounded,
+            color: widget.course.primaryColor,
+            onPressed: _allFilled
+                ? () {
+                    setState(() => _answered = true);
+                    HapticFeedback.mediumImpact();
+                  }
+                : null,
+          )
+        else
+          AnswerFeedbackBar(
+            inline: true,
+            result: _allRight ? AnswerResult.correct : AnswerResult.wrong,
+            detail: _allRight
+                ? widget.step.expectedOutput
+                : blanks
+                    .map((b) => b.correctAnswer)
+                    .join('  •  '),
+            onContinue: () => widget.onComplete(_allRight),
+          ),
+      ],
+    );
+  }
+}
+
+/// Kodu kendin yaz.
+///
+/// Karsilastirma bilerek TOLERANSLI: bastaki/sondaki bosluklar, satir
+/// sonlari ve satir aralarindaki fazla bosluk yok sayiliyor. Tek nokta
+/// virgul farkindan dolayi "yanlis" demek, dersin ogretmek istedigi seyi
+/// degil klavye kullanimini olcer.
+class TypeCodeStepWidget extends StatefulWidget {
+  final TypeCodeStep step;
+  final Course course;
+  final bool isDark;
+  final Function(bool correct) onComplete;
+
+  const TypeCodeStepWidget({
+    super.key,
+    required this.step,
+    required this.course,
+    required this.isDark,
+    required this.onComplete,
+  });
+
+  @override
+  State<TypeCodeStepWidget> createState() => _TypeCodeStepWidgetState();
+}
+
+class _TypeCodeStepWidgetState extends State<TypeCodeStepWidget> {
+  late final TextEditingController _controller;
+  bool _answered = false;
+  bool _correct = false;
+  int _hintsShown = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.step.starterCode ?? '');
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  /// Bosluk ve satir sonu farklarini yok sayan karsilastirma.
+  String _normalise(String code) => code
+      .split('\n')
+      .map((line) => line.trim().replaceAll(RegExp(r'\s+'), ' '))
+      .where((line) => line.isNotEmpty)
+      .join('\n');
+
+  void _check() {
+    final ok = _normalise(_controller.text) == _normalise(widget.step.targetCode);
+    setState(() {
+      _answered = true;
+      _correct = ok;
+    });
+    HapticFeedback.mediumImpact();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = lessonLang(context);
+    final hints = widget.step.hintsFor(lang);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _StepPrompt(
+          emoji: '⌨️',
+          text: widget.step.instructionFor(lang),
+          isDark: widget.isDark,
+        ),
+        const SizedBox(height: 20),
+
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E2E),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _answered
+                  ? (_correct ? const Color(0xFF2E7D32) : const Color(0xFFC62828))
+                  : Colors.white.withValues(alpha: 0.10),
+              width: 2,
+            ),
+          ),
+          padding: const EdgeInsets.all(14),
+          child: TextField(
+            controller: _controller,
+            enabled: !_answered,
+            maxLines: null,
+            minLines: 4,
+            autocorrect: false,
+            enableSuggestions: false,
+            keyboardType: TextInputType.multiline,
+            style: const TextStyle(
+              fontFamily: 'monospace',
+              fontSize: 14,
+              height: 1.5,
+              color: Color(0xFFD4D4D4),
+            ),
+            decoration: InputDecoration(
+              isDense: true,
+              border: InputBorder.none,
+              hintText: lessonText(lang, 'Kodu buraya yaz...', 'Type the code here...', 'Schreib den Code hierher …', 'Escribe el código aquí…'),
+              hintStyle: TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 14,
+                color: Colors.white.withValues(alpha: 0.28),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Ipuclari tek tek aciliyor: hepsi birden acilirsa cevap bedava.
+        if (hints.isNotEmpty && !_answered) ...[
+          for (var i = 0; i < _hintsShown && i < hints.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('💡', style: TextStyle(fontSize: 16)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      hints[i],
+                      style: TextStyle(
+                        fontFamily: AppTheme.fontFamily,
+                        fontSize: 13.5,
+                        height: 1.4,
+                        color: widget.isDark
+                            ? Colors.grey.shade300
+                            : Colors.grey.shade700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (_hintsShown < hints.length)
+            TextButton.icon(
+              onPressed: () => setState(() => _hintsShown++),
+              icon: const Icon(Icons.lightbulb_outline_rounded, size: 18),
+              label: Text(
+                lessonText(lang, 'İpucu ver', 'Give me a hint', 'Gib mir einen Tipp', 'Dame una pista'),
+                style: const TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: widget.course.primaryColor,
+              ),
+            ),
+          const SizedBox(height: 8),
+        ],
+
+        if (!_answered)
+          PressButton(
+            label: lessonText(lang, 'Kontrol Et', 'Check', 'Prüfen', 'Comprobar'),
+            icon: Icons.play_arrow_rounded,
+            color: widget.course.primaryColor,
+            onPressed: _controller.text.trim().isEmpty ? null : _check,
+          )
+        else ...[
+          if (!_correct) ...[
+            Text(
+              lessonText(lang, 'Doğrusu:', 'The answer:', 'Die Antwort:', 'La respuesta:'),
+              style: TextStyle(
+                fontFamily: AppTheme.fontFamily,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: widget.isDark ? Colors.grey.shade300 : Colors.grey.shade700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            _CodeSurface(
+              child: Text(
+                widget.step.targetCode,
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 13.5,
+                  height: 1.5,
+                  color: Color(0xFFD4D4D4),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+          AnswerFeedbackBar(
+            inline: true,
+            result: _correct ? AnswerResult.correct : AnswerResult.wrong,
+            detail: _correct ? widget.step.expectedOutput : null,
+            onContinue: () => widget.onComplete(_correct),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Hatayi bul: kod satir satir, dokunulan satir secim.
+class SpotErrorStepWidget extends StatefulWidget {
+  final SpotErrorStep step;
+  final Course course;
+  final bool isDark;
+  final Function(bool correct) onComplete;
+
+  const SpotErrorStepWidget({
+    super.key,
+    required this.step,
+    required this.course,
+    required this.isDark,
+    required this.onComplete,
+  });
+
+  @override
+  State<SpotErrorStepWidget> createState() => _SpotErrorStepWidgetState();
+}
+
+class _SpotErrorStepWidgetState extends State<SpotErrorStepWidget> {
+  int? _picked;
+  bool get _answered => _picked != null;
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = lessonLang(context);
+    final lines = widget.step.code.split('\n');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _StepPrompt(
+          emoji: '🔍',
+          text: widget.step.instructionFor(lang),
+          isDark: widget.isDark,
+        ),
+        const SizedBox(height: 20),
+
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E2E),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Column(
+            children: List.generate(lines.length, (i) {
+              final lineNo = i + 1;
+              final isError = lineNo == widget.step.errorLine;
+              final isPicked = _picked == lineNo;
+
+              Color background = Colors.transparent;
+              if (_answered) {
+                if (isError) {
+                  background = const Color(0xFF2E7D32).withValues(alpha: 0.35);
+                } else if (isPicked) {
+                  background = const Color(0xFFC62828).withValues(alpha: 0.35);
+                }
+              }
+
+              return GestureDetector(
+                onTap: _answered
+                    ? null
+                    : () {
+                        HapticFeedback.mediumImpact();
+                        setState(() => _picked = lineNo);
+                      },
+                behavior: HitTestBehavior.opaque,
+                child: Container(
+                  color: background,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 22,
+                        child: Text(
+                          '$lineNo',
+                          style: TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 13,
+                            color: Colors.white.withValues(alpha: 0.35),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          lines[i].isEmpty ? ' ' : lines[i],
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 13.5,
+                            height: 1.45,
+                            color: Color(0xFFD4D4D4),
+                          ),
+                        ),
+                      ),
+                      if (_answered && isError)
+                        const Icon(Icons.bug_report_rounded,
+                            size: 18, color: Colors.white),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        if (_answered) ...[
+          Text(
+            lessonText(lang, 'Düzeltilmiş hâli:', 'The fix:', 'So ist es richtig:', 'Así queda bien:'),
+            style: TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: widget.isDark ? Colors.grey.shade300 : Colors.grey.shade700,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _CodeSurface(
+            child: Text(
+              widget.step.correctCode,
+              style: const TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 13.5,
+                height: 1.5,
+                color: Color(0xFFD4D4D4),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          AnswerFeedbackBar(
+            inline: true,
+            result: _picked == widget.step.errorLine
+                ? AnswerResult.correct
+                : AnswerResult.wrong,
+            detail: widget.step.explanationFor(lang),
+            onContinue: () =>
+                widget.onComplete(_picked == widget.step.errorLine),
+          ),
+        ] else
+          Text(
+            lessonText(lang, 'Hatalı satıra dokun.', 'Tap the line with the bug.', 'Tippe auf die Zeile mit dem Fehler.', 'Toca la línea que tiene el fallo.'),
+            style: TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              fontSize: 13.5,
+              color: widget.isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+            ),
+          ),
+      ],
     );
   }
 }
