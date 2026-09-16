@@ -15,13 +15,48 @@ enum SubscriptionLoadFailure {
   error,
 }
 
+/// [SubscriptionService.claimProJeton] sonucu.
+class ProJetonGrant {
+  const ProJetonGrant({
+    required this.granted,
+    required this.isWelcome,
+    required this.isMonthly,
+    required this.balance,
+  });
+
+  /// Bu cagrida eklenen jeton. 0 ise verilecek bir sey yoktu.
+  final int granted;
+
+  /// Bir kerelik "Pro'ya hos geldin" paketi mi?
+  final bool isWelcome;
+
+  /// Bu ayin duzenli Pro jetonu mu?
+  final bool isMonthly;
+
+  /// Islem sonrasi toplam bakiye.
+  final int balance;
+
+  bool get hasReward => granted > 0;
+}
+
 class SubscriptionService {
   static const String _placementId = 'main_paywall';
   static const String _accessLevelId = 'premium';
 
   // App Store Connect / Google Play ürün kimlikleri ile birebir aynı olmalı.
+  static const String weeklyProductId = 'com.devkom.app.pro.weekly';
   static const String monthlyProductId = 'com.devkom.app.pro.monthly';
   static const String yearlyProductId = 'com.devkom.app.pro.yearly';
+
+  /// Cikista sunulan indirimli yillik plan.
+  ///
+  /// NOT: Bu bir GERCEK urun olmali. App Store Connect'te ayri bir abonelik
+  /// urunu (ya da yillik urune bagli bir promosyon teklifi) tanimlanmadan
+  /// uygulama uydurma bir indirimli fiyat gosteremez — fiyat her zaman
+  /// StoreKit'ten okunur. Urun yoksa cikis teklifi indirim iddia etmez,
+  /// yalnizca yillik planin gercek aylik karsiligini gosterir.
+  static const String yearlyDiscountProductId =
+      'com.devkom.app.pro.yearly.offer';
 
   AdaptyPaywall? _cachedPaywall;
 
@@ -29,7 +64,8 @@ class SubscriptionService {
     try {
       final configuration = AdaptyConfiguration(
         apiKey: dotenv.env['ADAPTY_PUBLIC_KEY'] ?? '',
-      )..withLogLevel(kDebugMode ? AdaptyLogLevel.verbose : AdaptyLogLevel.warn);
+      )..withLogLevel(
+          kDebugMode ? AdaptyLogLevel.verbose : AdaptyLogLevel.warn);
 
       await Adapty().activate(configuration: configuration);
       debugPrint('✅ Adapty initialized');
@@ -96,14 +132,14 @@ class SubscriptionService {
         //  * Urun ID'leri App Store Connect ile birebir ayni degil
         lastFailure = SubscriptionLoadFailure.noProducts;
         debugPrint(
-          '⚠️ Adapty: paywall "${paywall.placementId}" alindi ama urun listesi BOS. '
+          '⚠️ Adapty: paywall "${paywall.placementId}" alındı ama ürün listesi BOS. '
           'Beklenen ID\'ler: $monthlyProductId, $yearlyProductId. '
-          'Simulator kullaniyorsan bu normaldir (StoreKit Configuration dosyasi gerekir).',
+          'Simulator kullanıyorsan bu normaldir (StoreKit Configuration dosyasi gerekir).',
         );
         return [];
       }
 
-      debugPrint('✅ Adapty: ${products.length} urun yuklendi '
+      debugPrint('✅ Adapty: ${products.length} ürün yüklendi '
           '(${products.map((p) => p.vendorProductId).join(", ")})');
       return products;
     } catch (e) {
@@ -123,14 +159,42 @@ class SubscriptionService {
       debugPrint('⚠️ Adapty getProducts error: $e');
       if (isNoProducts) {
         debugPrint(
-          'ℹ️ StoreKit bu ID\'ler icin urun dondurmedi: '
+          'ℹ️ StoreKit bu ID\'ler için ürün dondurmedi: '
           '$monthlyProductId, $yearlyProductId. Olasi nedenler: '
           'iOS Simulator (StoreKit Configuration dosyasi gerekir), '
           'App Store Connect Paid Applications sozlesmesi aktif degil, '
-          'urunler henuz yayilmamis, ya da Adapty paywall\'inda urunler ekli degil.',
+          'urunler henüz yayilmamis, ya da Adapty paywall\'inda urunler ekli degil.',
         );
       }
       return [];
+    }
+  }
+
+  /// Pro jetonlarini talep eder.
+  ///
+  /// Sunucudaki `claim_pro_jeton()` fonksiyonu bir kerelik hos geldin paketini
+  /// ve icinde bulunulan ayin jetonunu veriyor. Ayni donem icin ikinci kez
+  /// jeton vermiyor, o yuzden bu metodu istedigimiz kadar cagirabiliriz.
+  /// Pro degilse ya da oturum yoksa `granted: 0` doner.
+  Future<ProJetonGrant?> claimProJeton() async {
+    try {
+      final result = await Supabase.instance.client.rpc('claim_pro_jeton');
+      if (result is! Map) return null;
+      final granted = (result['granted'] as num?)?.toInt() ?? 0;
+      if (granted > 0) {
+        debugPrint('🪙 Pro jetonu eklendi: $granted');
+      }
+      return ProJetonGrant(
+        granted: granted,
+        isWelcome: result['welcome'] == true,
+        isMonthly: result['monthly'] == true,
+        balance: (result['balance'] as num?)?.toInt() ?? 0,
+      );
+    } catch (e) {
+      // Jeton verilemedi diye satin almayi basarisiz saymiyoruz; kullanici
+      // uygulamayi bir dahaki acisinda tekrar denenecek.
+      debugPrint('⚠️ claim_pro_jeton error: $e');
+      return null;
     }
   }
 
@@ -188,10 +252,10 @@ class SubscriptionService {
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) return;
-      await Supabase.instance.client
-          .from('users')
-          .update({'is_pro': isPro, 'updated_at': DateTime.now().toIso8601String()})
-          .eq('id', userId);
+      await Supabase.instance.client.from('users').update({
+        'is_pro': isPro,
+        'updated_at': DateTime.now().toIso8601String()
+      }).eq('id', userId);
     } catch (e) {
       debugPrint('⚠️ Supabase pro sync error: $e');
     }

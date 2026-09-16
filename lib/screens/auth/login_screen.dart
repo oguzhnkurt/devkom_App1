@@ -1,16 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
-import '../../widgets/animated_tech_background.dart';
-import '../../widgets/permission_sheet.dart';
-import '../../services/permission_manager.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../models/user_model.dart';
-import '../role_based_home_screen.dart';
-import 'register_screen.dart';
-import 'dart:math' as math;
-import '../../utils/app_localizations.dart';
 
+import '../../providers/auth_provider.dart';
+import '../../providers/settings_provider.dart';
+import '../../services/permission_manager.dart';
+import '../../theme.dart';
+import '../../widgets/code_hero_background.dart';
+import '../../widgets/permission_sheet.dart';
+import '../role_based_home_screen.dart';
+import 'auth_wrapper.dart';
+import 'register_screen.dart';
+import '../../utils/lang.dart';
+
+/// Giriş ekranı.
+///
+/// Eskiden yanıp sönen turkuaz/mor glow katmanları, dönen bir halka ve eski
+/// "DEVKOM YAZILIM" logosu vardı; uygulamanın geri kalanıyla hiçbir ilgisi
+/// yoktu ve marka bile yanlıştı. Artık karşılama ekranıyla aynı dili
+/// konuşuyor: akan kod arka planı, üzerinde sade beyaz bir kart.
+///
+/// Önemli not: bu ekran artık zorunlu bir kapı değil. Uygulama açılışta
+/// sessizce anonim oturum açıyor, ilerleme ilk saniyeden itibaren
+/// kaydediliyor. Buraya yalnızca daha önce hesap açmış biri gelir.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -18,491 +31,174 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen> {
+  /// Arayuz dili. Giris ekrani da bugune kadar tamamen Turkce sabitti.
+  ///
+  /// `listen: false`: bu getter form dogrulayicilarindan da cagriliyor ve
+  /// onlar build disinda calisiyor; `watch` orada istisna firlatir.
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  /// Metin secici.
+  ///
+  /// [de] ve [es] verilmemisse Ingilizcesi gosteriliyor. Boylece bir
+  /// cumlenin Almancasi henuz yazilmamis olsa bile ekran dogru
+  /// calisiyor ve ceviri sonradan tek bir arguman eklenerek
+  /// tamamlanabiliyor — 500'den fazla cagri yerini bir anda cevirmek
+  /// zorunda kalmadan.
+  String _t(String tr, String en, [String? de, String? es]) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
+
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
 
-  late AnimationController _glowController;
-  late AnimationController _logoController;
-  late AnimationController _borderController;
-  late Animation<double> _glowAnimation;
-  late Animation<double> _logoRotation;
-  late Animation<Color?> _borderColorAnimation1;
-  late Animation<Color?> _borderColorAnimation2;
+  bool _obscurePassword = true;
+  bool _busy = false;
+  bool _appleAvailable = false;
 
   @override
   void initState() {
     super.initState();
+    _checkApple();
+  }
 
-    // Glow animation
-    _glowController = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat(reverse: true);
+  Future<void> _checkApple() async {
+    final ok = await context.read<AuthProvider>().isAppleSignInAvailable();
+    if (mounted) setState(() => _appleAvailable = ok);
+  }
 
-    _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
-    );
+  /// Apple ile giris.
+  ///
+  /// Cocuk kullanicilar icin birincil yol: sifre yok, tek dokunus ve
+  /// "E-postami Gizle" sayesinde gercek e-postayi hic saklamiyoruz.
+  Future<void> _appleSignIn() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    final authProvider = context.read<AuthProvider>();
+    final ok = await authProvider.signInWithApple();
+    if (!mounted) return;
+    setState(() => _busy = false);
 
-    // Logo rotation
-    _logoController = AnimationController(
-      duration: const Duration(seconds: 15),
-      vsync: this,
-    )..repeat();
-
-    _logoRotation = Tween<double>(begin: 0, end: 2 * math.pi).animate(_logoController);
-
-    // Border color animation (turquoise to purple)
-    _borderController = AnimationController(
-      duration: const Duration(seconds: 4),
-      vsync: this,
-    )..repeat();
-
-    _borderColorAnimation1 = ColorTween(
-      begin: const Color(0xFF00D9FF), // Turquoise
-      end: const Color(0xFF9D4EDD),   // Purple
-    ).animate(CurvedAnimation(
-      parent: _borderController,
-      curve: Curves.easeInOut,
-    ));
-
-    _borderColorAnimation2 = ColorTween(
-      begin: const Color(0xFF9D4EDD), // Purple
-      end: const Color(0xFF00D9FF),   // Turquoise
-    ).animate(CurvedAnimation(
-      parent: _borderController,
-      curve: Curves.easeInOut,
-    ));
+    if (ok) {
+      await _showPermissionSheetIfNeeded();
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const RoleBasedHomeScreen()),
+        (route) => false,
+      );
+    } else if (authProvider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(authProvider.errorMessage!),
+          backgroundColor: AppTheme.errorRed,
+        ),
+      );
+    }
   }
 
   @override
   void dispose() {
-    _glowController.dispose();
-    _logoController.dispose();
-    _borderController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) {
-      debugPrint('❌ _login: Form validation failed');
-      return;
-    }
+    if (!_formKey.currentState!.validate() || _busy) return;
 
-    debugPrint('🔐 _login: Starting login process...');
-    debugPrint('📧 Email: ${_emailController.text.trim()}');
-
+    setState(() => _busy = true);
     final authProvider = context.read<AuthProvider>();
     final success = await authProvider.signIn(
       email: _emailController.text.trim(),
       password: _passwordController.text,
     );
 
-    debugPrint('🔐 _login: Login result = $success');
-
     if (!mounted) return;
+    setState(() => _busy = false);
 
     if (success && authProvider.currentUser != null) {
-      debugPrint('✅ _login: Login successful! User: ${authProvider.currentUser!.displayName}');
-      // Show permission sheet based on user role (only if not granted yet)
-      await _showPermissionSheetIfNeeded(authProvider.currentUser!.role);
-
-      // Navigate directly to home screen
-      if (mounted) {
-        // Remove all previous routes and push home screen
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const RoleBasedHomeScreen(),
-          ),
-          (route) => false, // Remove all routes
-        );
-      }
+      await _showPermissionSheetIfNeeded();
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const RoleBasedHomeScreen()),
+        (route) => false,
+      );
     } else if (authProvider.errorMessage != null) {
-      debugPrint('❌ _login: Error - ${authProvider.errorMessage}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(authProvider.errorMessage!),
-          backgroundColor: Colors.red,
+          backgroundColor: AppTheme.errorRed,
         ),
       );
     }
   }
 
-  /// Show permission sheet with role-specific permissions (only if needed)
-  Future<void> _showPermissionSheetIfNeeded(UserRole role) async {
-    List<AppPermission> permissions = [];
-
-    // Define permissions based on role
-    switch (role) {
-      case UserRole.student:
-        permissions = [AppPermission.notification];
-        break;
-      case UserRole.parent:
-        permissions = [AppPermission.notification, AppPermission.camera];
-        break;
-      case UserRole.teacher:
-        permissions = [AppPermission.notification, AppPermission.photos];
-        break;
-      case UserRole.visitor:
-        permissions = [AppPermission.notification];
-        break;
-      case UserRole.admin:
-        permissions = [AppPermission.notification, AppPermission.photos];
-        break;
-    }
-
-    if (permissions.isEmpty) return;
-
-    // Check if permission sheet was already shown
+  /// "Hesapsız devam et".
+  ///
+  /// Burada eskiden `Navigator.pop` vardi ve siyah ekran veriyordu: bu ekrana
+  /// onboarding'den `pushReplacement` ile gelindigi icin altta hicbir rota
+  /// kalmiyor, pop da bos bir Navigator birakiyordu. Geri gitmek yerine ileri
+  /// gidiyoruz: uygulama zaten anonim oturumla calisiyor, dogrudan ana ekrana
+  /// devam etmek dogru davranis.
+  Future<void> _continueWithoutAccount() async {
     final prefs = await SharedPreferences.getInstance();
-    final alreadyShown = prefs.getBool('permission_sheet_shown') ?? false;
-    if (alreadyShown) return;
+    await prefs.setBool('has_seen_onboarding', true);
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const AuthWrapper()),
+      (route) => false,
+    );
+  }
+
+  /// Bildirim izni sayfası — yalnızca bir kez.
+  ///
+  /// Eskiden role göre kamera/fotoğraf izni de isteniyordu; uygulama tek
+  /// kullanıcı tipine geçtiği ve veli kamerası kaldırıldığı için geriye
+  /// yalnızca bildirim kaldı.
+  Future<void> _showPermissionSheetIfNeeded() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('permission_sheet_shown') ?? false) return;
     await prefs.setBool('permission_sheet_shown', true);
 
-    // Show permission sheet
+    if (!mounted) return;
     await PermissionSheet.show(
       context,
-      permissions: permissions,
-      onComplete: () async {},
+      permissions: [AppPermission.notification],
+      onComplete: () {},
       canSkip: true,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-
     return Scaffold(
-      body: AnimatedTechBackground(
+      backgroundColor: const Color(0xFF1B3A8C),
+      body: CodeHeroBackground(
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
-              child: AnimatedBuilder(
-                animation: Listenable.merge([_glowAnimation, _borderController]),
-                builder: (context, child) {
-                  return Container(
-                    constraints: const BoxConstraints(maxWidth: 450),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        // Çok parlak turkuaz glow
-                        BoxShadow(
-                          color: _borderColorAnimation1.value!.withValues(alpha: 0.8 + _glowAnimation.value * 0.2),
-                          blurRadius: 60 + _glowAnimation.value * 40,
-                          spreadRadius: 10 + _glowAnimation.value * 15,
-                        ),
-                        // Çok parlak mor glow
-                        BoxShadow(
-                          color: _borderColorAnimation2.value!.withValues(alpha: 0.7 + _glowAnimation.value * 0.3),
-                          blurRadius: 50 + _glowAnimation.value * 30,
-                          spreadRadius: 8 + _glowAnimation.value * 12,
-                        ),
-                        // Ekstra parlak iç glow
-                        BoxShadow(
-                          color: _borderColorAnimation1.value!.withValues(alpha: 0.9),
-                          blurRadius: 30,
-                          spreadRadius: 5,
-                        ),
-                      ],
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
-                        // Parlak gradient border
-                        border: Border.all(
-                          width: 4,
-                          color: Colors.transparent,
-                        ),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            _borderColorAnimation1.value!.withValues(alpha: 0.9),
-                            _borderColorAnimation2.value!.withValues(alpha: 0.9),
-                            _borderColorAnimation1.value!.withValues(alpha: 0.9),
-                          ],
-                          stops: const [0.0, 0.5, 1.0],
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 440),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildCard(),
+                    const SizedBox(height: 18),
+                    TextButton.icon(
+                      onPressed: _busy ? null : _continueWithoutAccount,
+                      icon: const Icon(Icons.arrow_back_rounded,
+                          size: 18, color: Colors.white),
+                      label: Text(
+                        _t('Hesapsız devam et', 'Continue without an account', 'Ohne Konto fortfahren', 'Continuar sin cuenta'),
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: 14,
                         ),
                       ),
-                      child: Container(
-                        margin: const EdgeInsets.all(4),
-                        padding: const EdgeInsets.all(32),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: _borderColorAnimation1.value!.withValues(alpha: 0.3),
-                              blurRadius: 20,
-                              spreadRadius: -5,
-                            ),
-                          ],
-                        ),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    // Animated Logo with rotating glow
-                                    AnimatedBuilder(
-                                      animation: _logoController,
-                                      builder: (context, child) {
-                                        return Transform.scale(
-                                          scale: 1.0 + math.sin(_glowAnimation.value * math.pi) * 0.05,
-                                          child: Container(
-                                            height: 150,
-                                            padding: const EdgeInsets.all(20),
-                                            child: Stack(
-                                              alignment: Alignment.center,
-                                              children: [
-                                                // Rotating gradient glow
-                                                Transform.rotate(
-                                                  angle: _logoRotation.value,
-                                                  child: Container(
-                                                    width: 140,
-                                                    height: 140,
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      gradient: SweepGradient(
-                                                        colors: [
-                                                          Colors.transparent,
-                                                          _borderColorAnimation1.value!.withValues(alpha: 0.6),
-                                                          _borderColorAnimation2.value!.withValues(alpha: 0.6),
-                                                          Colors.transparent,
-                                                        ],
-                                                        stops: const [0.0, 0.25, 0.75, 1.0],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                // Static glow ring
-                                                Container(
-                                                  width: 130,
-                                                  height: 130,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: _borderColorAnimation1.value!.withValues(alpha: 0.3),
-                                                        blurRadius: 30,
-                                                        spreadRadius: 10,
-                                                      ),
-                                                      BoxShadow(
-                                                        color: _borderColorAnimation2.value!.withValues(alpha: 0.3),
-                                                        blurRadius: 20,
-                                                        spreadRadius: 5,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                // Logo container
-                                                Container(
-                                                  width: 100,
-                                                  height: 100,
-                                                  padding: const EdgeInsets.all(15),
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: Colors.white,
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: _borderColorAnimation1.value!.withValues(alpha: 0.4),
-                                                        blurRadius: 20,
-                                                        spreadRadius: 2,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: Image.asset(
-                                                    'assets/images/logo.png',
-                                                    fit: BoxFit.contain,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    const SizedBox(height: 24),
-
-                                    // Title with gradient
-                                    ShaderMask(
-                                      shaderCallback: (bounds) => LinearGradient(
-                                        colors: [
-                                          _borderColorAnimation1.value!,
-                                          _borderColorAnimation2.value!,
-                                        ],
-                                      ).createShader(bounds),
-                                      child: Text(
-                                        loc.login,
-                                        style: theme.textTheme.headlineSmall?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      loc.softwareRoboticsEducation,
-                                      style: theme.textTheme.bodyMedium?.copyWith(
-                                        color: Colors.grey[600],
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    const SizedBox(height: 32),
-
-                                    // Email Field with animated border
-                                    _buildGlowingTextField(
-                                      controller: _emailController,
-                                      labelText: loc.email,
-                                      prefixIcon: Icons.email_outlined,
-                                      hintText: loc.emailHint,
-                                      keyboardType: TextInputType.emailAddress,
-                                      textInputAction: TextInputAction.next,
-                                      validator: (value) {
-                                        if (value == null || value.trim().isEmpty) {
-                                          return loc.pleaseEnterEmail;
-                                        }
-                                        if (!value.contains('@')) {
-                                          return loc.enterValidEmail;
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-
-                                    // Password Field with animated border
-                                    _buildGlowingTextField(
-                                      controller: _passwordController,
-                                      labelText: loc.password,
-                                      prefixIcon: Icons.lock_outlined,
-                                      obscureText: _obscurePassword,
-                                      textInputAction: TextInputAction.done,
-                                      onFieldSubmitted: (_) => _login(),
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                          _obscurePassword
-                                              ? Icons.visibility_off
-                                              : Icons.visibility,
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            _obscurePassword = !_obscurePassword;
-                                          });
-                                        },
-                                      ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return loc.pleaseEnterPassword;
-                                        }
-                                        if (value.length < 6) {
-                                          return loc.passwordMinLength;
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 24),
-
-                                    // Login Button with gradient
-                                    Consumer<AuthProvider>(
-                                      builder: (context, authProvider, _) {
-                                        return Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(12),
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                _borderColorAnimation1.value!,
-                                                _borderColorAnimation2.value!,
-                                              ],
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: _borderColorAnimation1.value!.withValues(alpha: 0.5),
-                                                blurRadius: 20,
-                                                spreadRadius: 2,
-                                                offset: const Offset(0, 5),
-                                              ),
-                                            ],
-                                          ),
-                                          child: ElevatedButton(
-                                            onPressed: authProvider.isLoading ? null : _login,
-                                            style: ElevatedButton.styleFrom(
-                                              padding: const EdgeInsets.symmetric(vertical: 16),
-                                              backgroundColor: Colors.transparent,
-                                              shadowColor: Colors.transparent,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                              ),
-                                            ),
-                                            child: authProvider.isLoading
-                                                ? const SizedBox(
-                                                    height: 20,
-                                                    width: 20,
-                                                    child: CircularProgressIndicator(
-                                                      strokeWidth: 2,
-                                                      color: Colors.white,
-                                                    ),
-                                                  )
-                                                : Text(
-                                                    loc.login,
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-
-                                    // Register Link
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(loc.noAccount),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => const RegisterScreen(),
-                                              ),
-                                            );
-                                          },
-                                          child: ShaderMask(
-                                            shaderCallback: (bounds) => LinearGradient(
-                                              colors: [
-                                                _borderColorAnimation1.value!,
-                                                _borderColorAnimation2.value!,
-                                              ],
-                                            ).createShader(bounds),
-                                            child: Text(
-                                              loc.register,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -511,98 +207,233 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     );
   }
 
-  Widget _buildGlowingTextField({
-    required TextEditingController controller,
-    required String labelText,
-    required IconData prefixIcon,
-    String? hintText,
-    TextInputType? keyboardType,
-    TextInputAction? textInputAction,
-    bool obscureText = false,
-    Widget? suffixIcon,
-    void Function(String)? onFieldSubmitted,
-    String? Function(String?)? validator,
-  }) {
-    return AnimatedBuilder(
-      animation: Listenable.merge([_glowAnimation, _borderController]),
-      builder: (context, child) {
-        return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: _borderColorAnimation1.value!.withValues(alpha: 0.2 + _glowAnimation.value * 0.2),
-                blurRadius: 15 + _glowAnimation.value * 10,
-                spreadRadius: 1 + _glowAnimation.value * 3,
-              ),
-              BoxShadow(
-                color: _borderColorAnimation2.value!.withValues(alpha: 0.15 + _glowAnimation.value * 0.15),
-                blurRadius: 10 + _glowAnimation.value * 8,
-                spreadRadius: 1 + _glowAnimation.value * 2,
-              ),
-            ],
+  Widget _buildCard() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 30, 24, 24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.22),
+            blurRadius: 30,
+            offset: const Offset(0, 12),
           ),
-          child: TextFormField(
-            controller: controller,
-            decoration: InputDecoration(
-              labelText: labelText,
-              prefixIcon: ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    _borderColorAnimation1.value!,
-                    _borderColorAnimation2.value!,
-                  ],
-                ).createShader(bounds),
-                child: Icon(prefixIcon, color: Colors.white),
+        ],
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 76,
+              height: 76,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.08),
               ),
-              suffixIcon: suffixIcon,
-              hintText: hintText,
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: _borderColorAnimation1.value!.withValues(alpha: 0.3),
-                  width: 2,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: _borderColorAnimation1.value!.withValues(alpha: 0.4 + _glowAnimation.value * 0.3),
-                  width: 2,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: _borderColorAnimation1.value!,
-                  width: 2.5,
-                ),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: Colors.red,
-                  width: 2,
-                ),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: Colors.red,
-                  width: 2.5,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
+                  'assets/images/app_icon.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const Icon(
+                    Icons.school_rounded,
+                    size: 38,
+                    color: AppTheme.primaryBlue,
+                  ),
                 ),
               ),
             ),
-            keyboardType: keyboardType,
-            textInputAction: textInputAction,
-            obscureText: obscureText,
-            onFieldSubmitted: onFieldSubmitted,
-            validator: validator,
-          ),
-        );
-      },
+            const SizedBox(height: 18),
+            Text(
+              _t('Tekrar hoş geldin', 'Welcome back', 'Willkommen zurück', 'Bienvenido de nuevo'),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.darkGray,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              _t('Hesabına giriş yap, ilerlemen seni bekliyor.',
+                  'Sign in — your progress is waiting for you.', 'Melde dich an — dein Fortschritt wartet auf dich.', 'Inicia sesión: tu progreso te espera.'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 14, color: AppTheme.mediumGray),
+            ),
+            const SizedBox(height: 26),
+            if (_appleAvailable) ...[
+              SizedBox(
+                width: double.infinity,
+                child: SignInWithAppleButton(
+                  onPressed: _busy ? () {} : _appleSignIn,
+                  text: _t('Apple ile devam et', 'Continue with Apple', 'Mit Apple fortfahren', 'Continuar con Apple'),
+                  height: 52,
+                  borderRadius: const BorderRadius.all(Radius.circular(14)),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      _t('ya da e-posta ile', 'or with email', 'oder mit E-Mail', 'o con correo electrónico'),
+                      style: TextStyle(
+                        color: AppTheme.mediumGray,
+                        fontSize: 12.5,
+                      ),
+                    ),
+                  ),
+                  const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+                ],
+              ),
+              const SizedBox(height: 18),
+            ],
+            _field(
+              controller: _emailController,
+              hint: _t('E-posta', 'Email', 'E-Mail', 'Correo electrónico'),
+              icon: Icons.mail_outline_rounded,
+              keyboardType: TextInputType.emailAddress,
+              validator: (v) {
+                final value = (v ?? '').trim();
+                if (value.isEmpty) {
+                  return _t('E-posta gerekli', 'Email is required', 'E-Mail ist erforderlich', 'El correo es obligatorio');
+                }
+                if (!value.contains('@') || !value.contains('.')) {
+                  return _t(
+                      'Geçerli bir e-posta yaz', 'Enter a valid email address', 'Gib eine gültige E-Mail-Adresse ein', 'Escribe un correo válido');
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+            _field(
+              controller: _passwordController,
+              hint: _t('Şifre', 'Password', 'Passwort', 'Contraseña'),
+              icon: Icons.lock_outline_rounded,
+              obscure: _obscurePassword,
+              validator: (v) => (v ?? '').isEmpty
+                  ? _t('Şifre gerekli', 'Password is required', 'Passwort ist erforderlich', 'La contraseña es obligatoria')
+                  : null,
+              suffix: IconButton(
+                icon: Icon(
+                  _obscurePassword
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: AppTheme.mediumGray,
+                  size: 20,
+                ),
+                onPressed: () =>
+                    setState(() => _obscurePassword = !_obscurePassword),
+              ),
+              onSubmitted: (_) => _login(),
+            ),
+            const SizedBox(height: 22),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: _busy ? null : _login,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryBlue,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                child: _busy
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text(
+                        _t('Giriş Yap', 'Sign In', 'Anmelden', 'Iniciar sesión'),
+                        style: const TextStyle(
+                            fontSize: 16.5, fontWeight: FontWeight.w700),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  _t('Hesabın yok mu?', "Don't have an account?", 'Noch kein Konto?', '¿No tienes cuenta?'),
+                  style:
+                      const TextStyle(color: AppTheme.mediumGray, fontSize: 14),
+                ),
+                TextButton(
+                  onPressed: _busy
+                      ? null
+                      : () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const RegisterScreen()),
+                          ),
+                  child: Text(
+                    _t('Kayıt ol', 'Sign up', 'Registrieren', 'Regístrate'),
+                    style: const TextStyle(
+                      color: AppTheme.primaryBlue,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _field({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    String? Function(String?)? validator,
+    TextInputType? keyboardType,
+    bool obscure = false,
+    Widget? suffix,
+    void Function(String)? onSubmitted,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscure,
+      keyboardType: keyboardType,
+      validator: validator,
+      onFieldSubmitted: onSubmitted,
+      style: const TextStyle(fontSize: 15.5, color: AppTheme.darkGray),
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: Icon(icon, color: AppTheme.mediumGray, size: 21),
+        suffixIcon: suffix,
+        filled: true,
+        fillColor: AppTheme.lightGray,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 1.6),
+        ),
+      ),
     );
   }
 }

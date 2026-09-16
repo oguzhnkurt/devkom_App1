@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/lang.dart';
 import '../../widgets/slide_to_start_button.dart';
 import 'quiz_home_screen.dart';
 
@@ -12,6 +13,7 @@ class QuizIntroScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = Localizations.localeOf(context).languageCode;
     return Scaffold(
       backgroundColor: const Color(0xFFF6F3FF),
       body: Stack(
@@ -68,7 +70,14 @@ class QuizIntroScreen extends StatelessWidget {
                     alignment: Alignment.topRight,
                     child: TextButton(
                       onPressed: () => _enter(context),
-                      child: Text('Geç', style: TextStyle(color: _purple.withValues(alpha: 0.7))),
+                      child: Text(
+                          AppLang.pick(lang,
+                              tr: 'Geç',
+                              en: 'Skip',
+                              de: 'Überspringen',
+                              es: 'Saltar'),
+                          style:
+                              TextStyle(color: _purple.withValues(alpha: 0.7))),
                     ),
                   ),
                   const Spacer(),
@@ -81,8 +90,12 @@ class QuizIntroScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Konu Seç,\nOyna, Kazan!',
+                  Text(
+                    AppLang.pick(lang,
+                        tr: 'Konu Seç,\nOyna, Kazan!',
+                        en: 'Pick a Topic,\nPlay, Win!',
+                        de: 'Thema wählen,\nspielen, gewinnen!',
+                        es: 'Elige un tema,\n¡juega y gana!'),
                     style: TextStyle(
                       fontSize: 40,
                       fontWeight: FontWeight.w800,
@@ -92,13 +105,26 @@ class QuizIntroScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    'Kodlama derslerine göre onlarca soru seni bekliyor.\n'
-                    'Doğru cevapla, jeton ve XP kazan!',
+                    AppLang.pick(lang,
+                        tr: 'Kodlama derslerine göre onlarca soru seni '
+                            'bekliyor.\nDoğru cevapla, jeton ve XP kazan!',
+                        en: 'Dozens of questions from the coding lessons are '
+                            'waiting.\nAnswer correctly to earn coins and XP!',
+                        de: 'Dutzende Fragen aus den Programmierlektionen '
+                            'warten auf dich.\nAntworte richtig und verdiene '
+                            'Münzen und XP!',
+                        es: 'Decenas de preguntas de las lecciones de '
+                            'programación te esperan.\n¡Acierta y gana '
+                            'monedas y XP!'),
                     style: TextStyle(fontSize: 15, color: Colors.grey.shade600, height: 1.4),
                   ),
                   const Spacer(flex: 2),
                   SlideToStartButton(
-                    label: 'Başlamak için kaydır',
+                    label: AppLang.pick(lang,
+                        tr: 'Başlamak için kaydır',
+                        en: 'Slide to start',
+                        de: 'Zum Starten wischen',
+                        es: 'Desliza para empezar'),
                     thumbColor: _purple,
                     labelColor: _purple,
                     onConfirmed: () => _enter(context),

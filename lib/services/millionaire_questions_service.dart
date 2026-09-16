@@ -1,4 +1,5 @@
 import '../models/millionaire_question.dart';
+import '../utils/lang.dart';
 
 class MillionaireQuestionsService {
   static List<MillionaireQuestion> getQuestions() {
@@ -1145,7 +1146,7 @@ class MillionaireQuestionsService {
         optionsEn: ['Whether every quickly verifiable problem can also be quickly solved', 'Internet speed', 'Screen resolution', 'Battery life'],
       ),
       MillionaireQuestion(
-        question: 'Yapay sinir ağları (Neural Networks) hangi biyolojik yapıdan ilham alır?',
+        question: 'Yapay sınır ağları (Neural Networks) hangi biyolojik yapıdan ilham alır?',
         options: ['Kalp', 'Beyin/Nöronlar', 'Akciğer', 'Kas yapısı'],
         correctAnswerIndex: 1,
         difficulty: 12,
@@ -1248,15 +1249,26 @@ class MillionaireQuestionsService {
 
   /// Ödül tutarını dile göre biçimlendirir (varsayılan Türkçe).
   static String formatPrize(int prize, {String lang = 'tr'}) {
-    final isEn = lang == 'en';
+    // Onceki surumde yalnizca 'en' biliniyordu: almanca ya da ispanyolca
+    // secen cocuk odul merdivenini "100 Bin ₺" diye goruyordu.
     if (prize >= 1000000) {
-      final value = (prize / 1000000).toStringAsFixed(prize % 1000000 == 0 ? 0 : 3);
-      return isEn ? '₺$value Million' : '$value Milyon ₺';
+      final value =
+          (prize / 1000000).toStringAsFixed(prize % 1000000 == 0 ? 0 : 3);
+      return AppLang.pick(lang,
+          tr: '$value Milyon ₺',
+          en: '₺$value Million',
+          de: '$value Mio. ₺',
+          es: '$value millones ₺');
     } else if (prize >= 1000) {
       final value = (prize / 1000).toStringAsFixed(prize % 1000 == 0 ? 0 : 3);
-      return isEn ? '₺$value Thousand' : '$value Bin ₺';
+      return AppLang.pick(lang,
+          tr: '$value Bin ₺',
+          en: '₺$value Thousand',
+          de: '$value Tsd. ₺',
+          es: '$value mil ₺');
     } else {
-      return isEn ? '₺$prize' : '$prize ₺';
+      return AppLang.pick(lang,
+          tr: '$prize ₺', en: '₺$prize', de: '$prize ₺', es: '$prize ₺');
     }
   }
 }

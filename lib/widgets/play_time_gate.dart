@@ -349,7 +349,14 @@ class PlayTimeWarningBanner extends StatelessWidget {
               icon: const Icon(Icons.close, color: Colors.white, size: 20),
               onPressed: onClose,
               padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
+              // Ikon kucuk ama BASILABILIR ALAN degil: bos
+              // BoxConstraints(), IconButton'in 48x48 varsayilan
+              // hedefini siliyordu ve geriye yalnizca ikonun kendi
+              // boyu kaliyordu. En az 44x44 (Apple HIG).
+              constraints: const BoxConstraints(
+                minWidth: 44,
+                minHeight: 44,
+              ),
             ),
         ],
       ),

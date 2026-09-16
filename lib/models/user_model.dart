@@ -1,4 +1,5 @@
-import 'homework_model.dart' show AgeGroup;
+import 'homework_model.dart' show AgeGroup, AgeGroupExtension;
+import 'learner_profile.dart';
 
 enum UserRole {
   student, // Öğrenci - Student access with games and homework
@@ -41,6 +42,13 @@ class UserModel {
   final DateTime? birthDate; // Birth date (optional, for age-based features)
   final bool hasSelectedPurpose; // Whether user has selected their purpose
 
+  // Onboarding'de sorulan ogrenci profili. Kisisel ogrenme yolunu bu uc
+  // cevap belirliyor - bkz. LearningPathService.
+  final LearnerAgeBand? ageBand;
+  final SkillLevel? skillLevel;
+  final LearningGoal? learningGoal;
+  final DateTime? onboardingCompletedAt;
+
   UserModel({
     required this.uid,
     required this.email,
@@ -67,7 +75,21 @@ class UserModel {
     this.lastQuestionDate,
     this.birthDate,
     this.hasSelectedPurpose = false,
+    this.ageBand,
+    this.skillLevel,
+    this.learningGoal,
+    this.onboardingCompletedAt,
   });
+
+  /// Onboarding cevaplarinin tek nesne halindeki gorunumu.
+  LearnerProfile get learnerProfile => LearnerProfile(
+        ageBand: ageBand,
+        skillLevel: skillLevel,
+        goal: learningGoal,
+      );
+
+  /// Kisisel yol kurulabiliyor mu?
+  bool get hasLearnerProfile => learnerProfile.isComplete;
 
   // Convert to Map for legacy compatibility
   Map<String, dynamic> toMap() {
@@ -108,7 +130,7 @@ class UserModel {
       'display_name': displayName,
       'profile_picture_url': profilePictureUrl,
       'role': role.name,
-      'age_group': ageGroup?.name,
+      'age_group': ageGroup?.toSupabaseValue(),
       'parent_id': parentId,
       'student_ids': studentIds,
       'class_id': classId,
@@ -126,8 +148,11 @@ class UserModel {
       'last_ai_reset_date': lastAiResetDate?.toIso8601String(),
       'daily_question_count': dailyQuestionCount,
       'last_question_date': lastQuestionDate?.toIso8601String(),
-      'birth_date': birthDate?.toIso8601String(),
       'has_selected_purpose': hasSelectedPurpose,
+      'age_band': ageBand?.dbValue,
+      'skill_level': skillLevel?.dbValue,
+      'learning_goal': learningGoal?.dbValue,
+      'onboarding_completed_at': onboardingCompletedAt?.toIso8601String(),
     };
   }
 
@@ -162,6 +187,12 @@ class UserModel {
       lastQuestionDate: data['last_question_date'] != null ? DateTime.parse(data['last_question_date']) : null,
       birthDate: data['birth_date'] != null ? DateTime.parse(data['birth_date']) : null,
       hasSelectedPurpose: data['has_selected_purpose'] ?? false,
+      ageBand: LearnerAgeBandX.fromDb(data['age_band'] as String?),
+      skillLevel: SkillLevelX.fromDb(data['skill_level'] as String?),
+      learningGoal: LearningGoalX.fromDb(data['learning_goal'] as String?),
+      onboardingCompletedAt: data['onboarding_completed_at'] != null
+          ? DateTime.parse(data['onboarding_completed_at'])
+          : null,
     );
   }
 
@@ -215,16 +246,27 @@ class UserModel {
   }
 
   // Parse age group from string
+  /// age_group hem Dart enum adiyla (yerel map/cache) hem de Supabase enum
+  /// degeriyle (age_6_9 / age_10_14 / age_15_18) gelebilir; ikisini de tanir.
+  ///
+  /// NOT: DB'deki age_10_14 araligi 13 yasi kapsiyor ama 13 alti da iceriyor.
+  /// Yas dogrulanamadigi icin SocialFeedAccess acisindan guvenli taraf olan
+  /// age10to12'ye (feed kapali) esleniyor - bkz. utils/social_feed_access.dart
   static AgeGroup? _parseAgeGroup(String? ageGroupString) {
     switch (ageGroupString?.toLowerCase()) {
       case 'age4to6':
         return AgeGroup.age4to6;
       case 'age7to9':
+      case 'age_6_9':
         return AgeGroup.age7to9;
       case 'age10to12':
+      case 'age_10_14':
         return AgeGroup.age10to12;
       case 'age13plus':
+      case 'age_15_18':
         return AgeGroup.age13plus;
+      case 'all':
+        return AgeGroup.all;
       default:
         return null;
     }
@@ -331,6 +373,10 @@ class UserModel {
     DateTime? lastQuestionDate,
     DateTime? birthDate,
     bool? hasSelectedPurpose,
+    LearnerAgeBand? ageBand,
+    SkillLevel? skillLevel,
+    LearningGoal? learningGoal,
+    DateTime? onboardingCompletedAt,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -358,6 +404,10 @@ class UserModel {
       lastQuestionDate: lastQuestionDate ?? this.lastQuestionDate,
       birthDate: birthDate ?? this.birthDate,
       hasSelectedPurpose: hasSelectedPurpose ?? this.hasSelectedPurpose,
+      ageBand: ageBand ?? this.ageBand,
+      skillLevel: skillLevel ?? this.skillLevel,
+      learningGoal: learningGoal ?? this.learningGoal,
+      onboardingCompletedAt: onboardingCompletedAt ?? this.onboardingCompletedAt,
     );
   }
 }

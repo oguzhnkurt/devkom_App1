@@ -1,5 +1,12 @@
+import 'dart:convert';
+import 'dart:io' show Platform;
+import 'dart:math';
+
+import 'package:crypto/crypto.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'app_auth_exception.dart';
 import '../models/user_model.dart';
 import '../models/homework_model.dart';
 import '../main.dart';
@@ -162,6 +169,264 @@ class AuthServiceSupabase {
     } catch (e) {
       debugPrint('❌ Sign in Error: $e');
       throw Exception('Giriş başarısız: $e');
+    }
+  }
+
+  // ==========================================================================
+  // APPLE ILE GIRIS
+  // ==========================================================================
+  //
+  // Neden Apple birincil yol: uygulamayi 7-12 yasindaki cocuklar kullaniyor.
+  // Bir cocuga e-posta adresi ve sifre yazdirmak pratikte calismiyor - sifreyi
+  // unutuyor, e-postasi yok, ya da annesininkini giriyor. Apple ile giris tek
+  // dokunus, sifre yok ve "E-postami Gizle" secenegi sayesinde cocugun gercek
+  // e-postasini hic saklamiyoruz; bu KVKK/COPPA tarafinda da yukumuzu azaltiyor.
+  //
+  // Ilerleme korumasi: cocuk zaten anonim bir oturumda XP, jeton ve rozet
+  // biriktirmis oluyor. Apple girisi Supabase'de YENI bir kullanici acabilir;
+  // onlem alinmazsa o ilerleme eski satirda kalir. Bu yuzden giristen HEMEN
+  // ONCE, hala anonim kullaniciyken sunucudan bir "birlestirme anahtari"
+  // aliyoruz ve giristen sonra onu ibraz edip ilerlemeyi tasitiyoruz
+  // (bkz. supabase/migrations/30_account_merge_tokens.sql).
+
+  /// Cihaz Apple ile girisi destekliyor mu?
+  Future<bool> isAppleSignInAvailable() async {
+    try {
+      if (!Platform.isIOS && !Platform.isMacOS) return false;
+      return await SignInWithApple.isAvailable();
+    } catch (e) {
+      debugPrint('⚠️ Apple Sign In kullanilabilirlik kontrolu basarisiz: $e');
+      return false;
+    }
+  }
+
+  /// Kriptografik rastgele nonce. Apple id_token'inin bu oturuma ait
+  /// oldugunu dogrulamak icin gerekli (replay saldirisina karsi).
+  String _generateNonce([int length = 32]) {
+    const chars =
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-._';
+    final random = Random.secure();
+    return List.generate(length, (_) => chars[random.nextInt(chars.length)])
+        .join();
+  }
+
+  String _sha256(String input) =>
+      sha256.convert(utf8.encode(input)).toString();
+
+  /// Apple ile giris yapar, gerekiyorsa anonim ilerlemeyi yeni hesaba tasir.
+  ///
+  /// Kullanici vazgecerse null doner (hata firlatmaz).
+  Future<UserModel?> signInWithApple() async {
+    final previousUser = _supabase.auth.currentUser;
+    final wasAnonymous = previousUser?.isAnonymous ?? false;
+
+    // 1) Hala anonimken birlestirme anahtarini al. Giristen sonra bunu
+    //    isteyemeyiz: o an artik baska bir kullanici olmus oluruz ve
+    //    "su kullanicinin ilerlemesi benim" demenin ispati kalmaz.
+    String? mergeToken;
+    if (wasAnonymous) {
+      try {
+        final result = await _supabase.rpc('create_account_merge_token');
+        mergeToken = result as String?;
+      } catch (e) {
+        debugPrint('⚠️ Birlestirme anahtari alinamadi: $e');
+      }
+    }
+
+    try {
+      final rawNonce = _generateNonce();
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: const [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: _sha256(rawNonce),
+      );
+
+      final idToken = credential.identityToken;
+      if (idToken == null) {
+        throw Exception('Apple kimlik dogrulamasi eksik dondu.');
+      }
+
+      await _supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.apple,
+        idToken: idToken,
+        nonce: rawNonce,
+      );
+
+      final user = _supabase.auth.currentUser;
+      if (user == null) throw Exception('Apple girisi tamamlanamadi.');
+
+      // 2) Ilerlemeyi tasi. Ayni kullaniciya baglandiysa sunucu zaten
+      //    "same_user" deyip hicbir sey yapmiyor.
+      if (mergeToken != null) {
+        try {
+          final merge = await _supabase
+              .rpc('claim_account_merge_token', params: {'p_token': mergeToken});
+          debugPrint('🔀 Ilerleme tasima sonucu: $merge');
+        } catch (e) {
+          // Tasima basarisiz olsa bile giris gecerli; kullaniciyi kapida
+          // birakmiyoruz. Anahtar 30 dakika gecerli, tekrar denenebilir.
+          debugPrint('⚠️ Ilerleme tasinamadi: $e');
+        }
+      }
+
+      // 3) Apple ilk giriste ad verir, sonrakilerde vermez. Elimizde ad varsa
+      //    ve kullanicinin adi yoksa yaziyoruz.
+      final givenName = credential.givenName?.trim();
+      if (givenName != null && givenName.isNotEmpty) {
+        final existing = await _supabase
+            .from('users')
+            .select('display_name')
+            .eq('id', user.id)
+            .maybeSingle();
+        final current = (existing?['display_name'] as String?)?.trim() ?? '';
+        if (current.isEmpty) {
+          await _supabase
+              .from('users')
+              .update({'display_name': givenName}).eq('id', user.id);
+        }
+      }
+
+      // Tetikleyicinin users satirini yazmasi bir an surebiliyor.
+      Map<String, dynamic>? userData;
+      for (var i = 0; i < 6; i++) {
+        userData = await _supabase
+            .from('users')
+            .select()
+            .eq('id', user.id)
+            .maybeSingle();
+        if (userData != null) break;
+        await Future.delayed(const Duration(milliseconds: 400));
+      }
+      if (userData == null) return null;
+
+      debugPrint('✅ Apple ile giris: ${user.id}');
+      return _userModelFromMap(userData, user.id);
+    } on SignInWithAppleAuthorizationException catch (e) {
+      // Kullanici vazgecti - hata degil, sessizce donuyoruz.
+      if (e.code == AuthorizationErrorCode.canceled) {
+        debugPrint('ℹ️ Apple girisinden vazgecildi');
+        return null;
+      }
+      debugPrint('❌ Apple yetkilendirme hatasi: ${e.code} / ${e.message}');
+      throw AppAuthException(_appleErrorMessage(e.code), debugDetail: '${e.code}: ${e.message}');
+    } on AuthException catch (e) {
+      debugPrint('❌ Supabase Apple giris hatasi: ${e.message}');
+      throw AppAuthException(
+        'Apple hesabın doğrulandı ama girişin tamamlanamadı. '
+        'Birazdan tekrar dener misin?',
+        debugDetail: e.message,
+      );
+    } on AppAuthException {
+      rethrow;
+    } catch (e) {
+      debugPrint('❌ Apple giris hatasi: $e');
+      throw AppAuthException(
+        'Şu an giriş yapılamadı. İnternet bağlantını kontrol edip '
+        'tekrar dene.',
+        debugDetail: e.toString(),
+      );
+    }
+  }
+
+  /// Apple'in hata kodunu cocugun anlayacagi bir cumleye cevirir.
+  ///
+  /// Ham metni asla ekrana basmiyoruz: "AuthorizationError hatasi 1000"
+  /// kullaniciya hicbir sey anlatmiyor, uygulamayi da amator gosteriyor.
+  ///
+  /// Not: switch bilerek `default` ile bitiyor. sign_in_with_apple paketi
+  /// yeni iOS surumleriyle bu enum'a deger ekleyebiliyor; tum degerleri tek
+  /// tek yazmak paket guncellendiginde derlemeyi kirardi.
+  String _appleErrorMessage(AuthorizationErrorCode code) {
+    switch (code) {
+      case AuthorizationErrorCode.notHandled:
+      case AuthorizationErrorCode.notInteractive:
+      case AuthorizationErrorCode.unknown:
+        // En sik neden: cihazda Apple hesabiyla oturum acik degil.
+        return 'Apple hesabına ulaşılamadı. Cihazının Ayarlar bölümünden '
+            'Apple hesabınla giriş yaptığından emin olup tekrar dene.';
+      case AuthorizationErrorCode.canceled:
+        return 'Giriş yarıda kaldı.';
+      default:
+        return 'Apple ile giriş tamamlanamadı. Birazdan tekrar dener misin?';
+    }
+  }
+
+  /// Anonim oturum acar.
+  ///
+  /// Uygulama ilk acilista kimlik sormuyor: Supabase anonim bir kullanici
+  /// yaratiyor, `handle_new_user` tetikleyicisi de users tablosuna Turkce
+  /// bir takma adla satir ekliyor. Kullanici isterse sonradan e-posta
+  /// baglayip ilerlemesini kalici hale getiriyor ([linkEmailToAnonymous]).
+  Future<UserModel?> signInAnonymously() async {
+    try {
+      debugPrint('👤 Anonim oturum aciliyor...');
+      final response = await _supabase.auth.signInAnonymously();
+      final user = response.user;
+      if (user == null) {
+        debugPrint('❌ Anonim oturum acilamadi');
+        return null;
+      }
+
+      // Tetikleyicinin users satirini yazmasi bir an surebiliyor.
+      Map<String, dynamic>? userData;
+      for (var i = 0; i < 5; i++) {
+        userData = await _supabase
+            .from('users')
+            .select()
+            .eq('id', user.id)
+            .maybeSingle();
+        if (userData != null) break;
+        await Future.delayed(const Duration(milliseconds: 400));
+      }
+
+      if (userData == null) {
+        debugPrint('❌ Anonim kullanici satiri olusmadi');
+        return null;
+      }
+
+      debugPrint('✅ Anonim oturum acildi: ${user.id}');
+      return _userModelFromMap(userData, user.id);
+    } catch (e) {
+      debugPrint('❌ Anonim oturum hatasi: $e');
+      return null;
+    }
+  }
+
+  /// Anonim hesabi e-posta + sifre ile kalici hale getirir.
+  ///
+  /// Supabase'de anonim kullaniciya e-posta eklemek yeni hesap acmak degil,
+  /// mevcut kullaniciyi yukseltmek demek: `auth.uid()` degismedigi icin
+  /// XP, jeton, rozetler ve satin alinan karakterler oldugu gibi kalir.
+  Future<void> linkEmailToAnonymous({
+    required String email,
+    required String password,
+    String? displayName,
+  }) async {
+    final current = _supabase.auth.currentUser;
+    if (current == null) {
+      throw Exception('Once uygulamayi acmalisin.');
+    }
+    if (current.isAnonymous != true) {
+      throw Exception('Bu hesap zaten bir e-postaya bagli.');
+    }
+
+    try {
+      await _supabase.auth.updateUser(
+        UserAttributes(email: email, password: password),
+      );
+
+      final updates = <String, dynamic>{'email': email};
+      if (displayName != null && displayName.trim().isNotEmpty) {
+        updates['display_name'] = displayName.trim();
+      }
+      await _supabase.from('users').update(updates).eq('id', current.id);
+
+      debugPrint('✅ Anonim hesap e-postaya baglandi: $email');
+    } on AuthException catch (e) {
+      debugPrint('❌ Hesap baglama hatasi: ${e.message}');
+      throw Exception(_getErrorMessage(e.message));
     }
   }
 

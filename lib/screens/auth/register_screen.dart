@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/user_model.dart';
 import '../../utils/app_localizations.dart';
-import 'purpose_selection_screen.dart';
+import '../role_based_home_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -89,10 +89,10 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     if (success) {
       final loc = AppLocalizations.of(context);
 
-      // Navigate to Purpose Selection Screen
+      // Amac secimi adimi kaldirildi (tek kullanici tipi): dogrudan ana ekran.
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const PurposeSelectionScreen(),
+          builder: (context) => const RoleBasedHomeScreen(),
         ),
       );
 

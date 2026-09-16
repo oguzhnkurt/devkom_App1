@@ -24,8 +24,18 @@ class GamesService {
     return await gamesService.getGameProgress(userId, gameId);
   }
 
+  /// Kategoriye gore oyunlar.
+  ///
+  /// Burasi bos liste donduren bir stub'ti: oyunlar ekraninda ustteki
+  /// kategori secicisinden herhangi bir kategoriye dokununca liste
+  /// bombos kaliyordu. getAllGames gibi Supabase servisine yonlendiriyoruz;
+  /// o da gomulu oyunlari filtreleyip donduruyor.
   Future<List<dynamic>> getGamesByCategory(String category) async {
-    debugPrint('⚠️  getGamesByCategory - stub');
-    return [];
+    final parsed = GameCategory.values.where((c) => c.name == category);
+    if (parsed.isEmpty) {
+      debugPrint('⚠️ Bilinmeyen oyun kategorisi: $category');
+      return [];
+    }
+    return await gamesService.getGamesByCategory(parsed.first).first;
   }
 }

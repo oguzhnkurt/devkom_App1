@@ -9,6 +9,10 @@ class UserProgress {
   final int dailyLessonsCompleted;
   final int dailyGamesPlayed;
   final int dailyQuizzesCompleted;
+
+  /// Bugune kadar cozulen toplam quiz. Gunluk sayac sifirlanirken bu artmaya
+  /// devam eder; gorev sisteminin kumulatif hedefleri buna bakar.
+  final int totalQuizzesCompleted;
   final DateTime? lastGoalResetDate;
   final List<String> completedLessonIds;
   final List<String> earnedBadgeIds;
@@ -28,6 +32,7 @@ class UserProgress {
     this.dailyLessonsCompleted = 0,
     this.dailyGamesPlayed = 0,
     this.dailyQuizzesCompleted = 0,
+    this.totalQuizzesCompleted = 0,
     this.lastGoalResetDate,
     this.completedLessonIds = const [],
     this.earnedBadgeIds = const [],
@@ -147,6 +152,7 @@ class UserProgress {
       dailyLessonsCompleted: data['daily_lessons_completed'] ?? 0,
       dailyGamesPlayed: data['daily_games_played'] ?? 0,
       dailyQuizzesCompleted: data['daily_quizzes_completed'] ?? 0,
+      totalQuizzesCompleted: data['total_quizzes_completed'] ?? 0,
       lastGoalResetDate: data['last_goal_reset_date'] != null
           ? DateTime.parse(data['last_goal_reset_date'])
           : null,
@@ -176,6 +182,7 @@ class UserProgress {
       'daily_lessons_completed': dailyLessonsCompleted,
       'daily_games_played': dailyGamesPlayed,
       'daily_quizzes_completed': dailyQuizzesCompleted,
+      'total_quizzes_completed': totalQuizzesCompleted,
       'last_goal_reset_date': lastGoalResetDate?.toIso8601String(),
       'completed_lesson_ids': completedLessonIds,
       'earned_badge_ids': earnedBadgeIds,
@@ -207,6 +214,7 @@ class UserProgress {
     int? dailyLessonsCompleted,
     int? dailyGamesPlayed,
     int? dailyQuizzesCompleted,
+    int? totalQuizzesCompleted,
     DateTime? lastGoalResetDate,
     List<String>? completedLessonIds,
     List<String>? earnedBadgeIds,
@@ -223,6 +231,7 @@ class UserProgress {
       dailyLessonsCompleted: dailyLessonsCompleted ?? this.dailyLessonsCompleted,
       dailyGamesPlayed: dailyGamesPlayed ?? this.dailyGamesPlayed,
       dailyQuizzesCompleted: dailyQuizzesCompleted ?? this.dailyQuizzesCompleted,
+      totalQuizzesCompleted: totalQuizzesCompleted ?? this.totalQuizzesCompleted,
       lastGoalResetDate: lastGoalResetDate ?? this.lastGoalResetDate,
       completedLessonIds: completedLessonIds ?? this.completedLessonIds,
       earnedBadgeIds: earnedBadgeIds ?? this.earnedBadgeIds,

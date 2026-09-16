@@ -216,7 +216,7 @@ extension GameTypeLeaderboard on GameType {
       case GameType.leftRightCoding:
         return 'Sağım-Solum Şampiyonları';
       case GameType.arduinoSimulator:
-        return 'Arduino Simülatörü Uzmanları';
+        return 'Arduino Atölyesi Ustaları';
       case GameType.pipesPuzzle:
         return 'Boru Bulmacası Ustaları';
       case GameType.patternDetective:
@@ -274,7 +274,7 @@ extension GameTypeLeaderboard on GameType {
       case GameType.leftRightCoding:
         return 'Left-Right Coding Champions';
       case GameType.arduinoSimulator:
-        return 'Arduino Simulator Experts';
+        return 'Arduino Workshop Masters';
       case GameType.pipesPuzzle:
         return 'Pipe Puzzle Masters';
       case GameType.patternDetective:

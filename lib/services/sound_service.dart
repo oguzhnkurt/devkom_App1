@@ -1,162 +1,203 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
-/// Oyun sesleri için merkezi servis
+/// Oyun sesleri ve dokunsal geri bildirim.
 ///
-/// Kullanım:
-/// - SoundService.playCorrect() - Doğru cevap sesi
-/// - SoundService.playWrong() - Yanlış cevap sesi
-/// - SoundService.playLevelComplete() - Seviye tamamlama sesi
-/// - SoundService.playGameOver() - Oyun bitti sesi
-/// - SoundService.playClick() - Tıklama sesi
+/// Bu servis daha once hicbir ses CALMIYORDU: her cagri ya
+/// `SystemSound.play(click)` ya da bir titresim yapiyordu, gercek ses
+/// dosyalarini kullanan satirlar yorum icinde bekliyordu ve
+/// `assets/sounds/` klasoru bostu. Cocuk dogru cevabi verdiginde duydugu
+/// sey klavye tikirtisiydi.
 ///
+/// Artik klasorde gercek sesler var (uygulama icin uretildi, lisans
+/// sorunu yok): Do majorde yumusak sinus tonlari. "Dogru" yukselen bir
+/// ucluyu (do-mi-sol), "yanlis" kisa ve alcak inen bir ikiliyi calar —
+/// yanlis sesi bilerek cezalandirici degil, cunku yanlis denemek
+/// ogrenmenin parcasi.
+///
+/// Ses ve titresim ayrı ayrı kapatilabilir; ikisi de ayarlardaki
+/// anahtarlara bagli ([configure] ile guncelleniyor).
+/// Bir oyunun ses rengi.
+///
+/// Butun oyunlarda ayni "dogru" sesini calmak, oyunlari birbirinden
+/// ayirt edilemez kiliyordu — cocuk hangi oyunda oldugunu sesten
+/// anlamiyor, ve ayni ton gun boyu tekrarlaninca yipraniyor.
+///
+/// Sesler AILE olarak tasarlandi: hepsi ayni muzikal fikir (yukselen
+/// bir uclu), ama farkli kok perde ve farkli ton rengi. Yani "bu
+/// uygulamanin sesi" hissi bozulmadan her oyun kendi sesini aliyor.
+enum SfxVoice {
+  /// Parlak, cok harmonikli. Kelime/dil oyunlari.
+  bright('bright'),
+
+  /// Yumusak ve bir perde alttan. Eslestirme, siralama.
+  warm('warm'),
+
+  /// Neredeyse saf sinus, en sakini. Renk, desen, koordinat.
+  soft('soft'),
+
+  /// Kalin ve biraz daha uzun. Robotik, devre, blok kodlama.
+  deep('deep');
+
+  const SfxVoice(this.suffix);
+  final String suffix;
+}
+
 class SoundService {
-  static final AudioPlayer _player = AudioPlayer();
-  static bool _isEnabled = true;
-  static double _volume = 0.5;
+  SoundService._();
 
-  /// Sesleri etkinleştir/devre dışı bırak
-  static void setEnabled(bool enabled) {
-    _isEnabled = enabled;
+  /// Ekranlar her cagrida ses rengini gecmek zorunda kalmasin diye,
+  /// oyun acilirken bir kere ayarlaniyor.
+  static SfxVoice _voice = SfxVoice.bright;
+
+  /// Bu ekranin ses rengini secer. Oyun ekranlari `initState` icinde
+  /// cagiriyor.
+  static void useVoice(SfxVoice voice) => _voice = voice;
+
+  static SfxVoice get voice => _voice;
+
+  /// Kisa efektler ust uste binebilsin diye tek oynatici yerine kucuk bir
+  /// havuz kullaniyoruz. Tek oynatici olsaydi hizli eslestirmede ikinci ses
+  /// birinciyi kesecekti.
+  static final List<AudioPlayer> _pool =
+      List.generate(3, (_) => AudioPlayer(playerId: 'sfx_$_'));
+  static int _next = 0;
+
+  static bool _soundEnabled = true;
+  static bool _vibrationEnabled = true;
+  static double _volume = 0.6;
+
+  /// Ayarlar ekranindaki anahtarlari servise baglar.
+  static void configure({bool? sound, bool? vibration, double? volume}) {
+    if (sound != null) _soundEnabled = sound;
+    if (vibration != null) _vibrationEnabled = vibration;
+    if (volume != null) _volume = volume.clamp(0.0, 1.0);
   }
 
-  /// Ses seviyesini ayarla (0.0 - 1.0)
-  static void setVolume(double volume) {
-    _volume = volume.clamp(0.0, 1.0);
-  }
+  static void setEnabled(bool enabled) => _soundEnabled = enabled;
+  static void setVibrationEnabled(bool enabled) => _vibrationEnabled = enabled;
+  static void setVolume(double volume) => _volume = volume.clamp(0.0, 1.0);
 
-  /// Doğru cevap sesi (Başarı tonu - yüksek pitch)
-  static Future<void> playCorrect() async {
-    if (!_isEnabled) return;
+  static bool get soundEnabled => _soundEnabled;
+  static bool get vibrationEnabled => _vibrationEnabled;
 
+  static Future<void> _play(String file, {double gain = 1.0}) async {
+    if (!_soundEnabled) return;
     try {
-      await _player.stop();
-      // Sistem sesini kullan veya gelecekte asset eklenebilir
-      await SystemSound.play(SystemSoundType.click);
-
-      // Asset varsa kullan
-      // await _player.play(AssetSource('sounds/correct.mp3'), volume: _volume);
+      final player = _pool[_next];
+      _next = (_next + 1) % _pool.length;
+      await player.stop();
+      await player.play(
+        AssetSource('sounds/$file.wav'),
+        volume: (_volume * gain).clamp(0.0, 1.0),
+      );
     } catch (e) {
-      // Sessiz başarısızlık - ses çalmasa da uygulama çalışmaya devam eder
-      debugPrint('Sound play error: $e');
+      // Ses cikmamasi oyunu durdurmamali: simulatorde ve sessiz moddaki
+      // cihazlarda burasi normal olarak hata veriyor.
+      debugPrint('SoundService play error ($file): $e');
     }
   }
 
-  /// Yanlış cevap sesi (Hata tonu - düşük pitch)
-  static Future<void> playWrong() async {
-    if (!_isEnabled) return;
-
+  static Future<void> _haptic(Future<void> Function() f) async {
+    if (!_vibrationEnabled) return;
     try {
-      await _player.stop();
-      // Sistem sesini kullan
-      await HapticFeedback.vibrate();
-
-      // Asset varsa kullan
-      // await _player.play(AssetSource('sounds/wrong.mp3'), volume: _volume);
+      await f();
     } catch (e) {
-      debugPrint('Sound play error: $e');
+      debugPrint('SoundService haptic error: $e');
     }
   }
 
-  /// Seviye tamamlama sesi (Zafer müziği)
-  static Future<void> playLevelComplete() async {
-    if (!_isEnabled) return;
-
-    try {
-      await _player.stop();
-      // Başarı için hafif titreşim
-      await HapticFeedback.mediumImpact();
-
-      // Asset varsa kullan
-      // await _player.play(AssetSource('sounds/level_complete.mp3'), volume: _volume);
-    } catch (e) {
-      debugPrint('Sound play error: $e');
-    }
+  /// Dogru cevap: yukselen uclu + hafif titresim.
+  ///
+  /// [voice] verilmezse ekranin [useVoice] ile sectigi renk kullanilir.
+  static Future<void> playCorrect({SfxVoice? voice}) async {
+    await Future.wait([
+      _play('correct_${(voice ?? _voice).suffix}'),
+      _haptic(HapticFeedback.lightImpact),
+    ]);
   }
 
-  /// Oyun bitti sesi (Game Over)
+  /// Yanlis cevap.
+  ///
+  /// Ayni ses ailesinin alt bolgesinde, kisa ve inen. Bilerek
+  /// cezalandirici degil: yanlis denemek ogrenmenin parcasi, ve bu yas
+  /// grubunda yanlislarin buyuk kismi bilgi degil parmak hatasi.
+  /// Titresim de en hafifi.
+  static Future<void> playWrong({SfxVoice? voice}) async {
+    await Future.wait([
+      _play('wrong_${(voice ?? _voice).suffix}', gain: 0.8),
+      _haptic(HapticFeedback.selectionClick),
+    ]);
+  }
+
+  /// Bir parca yerine oturdugunda (surukle-birak).
+  static Future<void> playDrop() async {
+    await Future.wait([
+      _play('drop', gain: 0.9),
+      _haptic(HapticFeedback.selectionClick),
+    ]);
+  }
+
+  /// Seviye/bolum tamamlandi: ayni renkte kucuk fanfar.
+  static Future<void> playLevelComplete({SfxVoice? voice}) async {
+    await Future.wait([
+      _play('complete_${(voice ?? _voice).suffix}'),
+      _haptic(HapticFeedback.mediumImpact),
+    ]);
+  }
+
+  /// Oyun bitti.
   static Future<void> playGameOver() async {
-    if (!_isEnabled) return;
-
-    try {
-      await _player.stop();
-      // Ağır titreşim
-      await HapticFeedback.heavyImpact();
-
-      // Asset varsa kullan
-      // await _player.play(AssetSource('sounds/game_over.mp3'), volume: _volume);
-    } catch (e) {
-      debugPrint('Sound play error: $e');
-    }
+    await Future.wait([
+      _play('wrong_${_voice.suffix}', gain: 0.9),
+      // Burada da agir degil orta siddet: oyunun bitmesi bir kaza degil.
+      _haptic(HapticFeedback.mediumImpact),
+    ]);
   }
 
-
-  /// Doğru cevap sesi (alias)
-  static Future<void> playCorrectSound() async {
-    return playCorrect();
-  }
-
-  /// Yanlış cevap sesi (alias)
-  static Future<void> playWrongSound() async {
-    return playWrong();
-  }
-
-  /// Başarı sesi (alias)
-  static Future<void> playSuccessSound() async {
-    return playLevelComplete();
-  }
-
-  /// Buton tıklama sesi
+  /// Buton/kart dokunusu.
   static Future<void> playClick() async {
-    if (!_isEnabled) return;
-
-    try {
-      await SystemSound.play(SystemSoundType.click);
-      await HapticFeedback.lightImpact();
-    } catch (e) {
-      debugPrint('Sound play error: $e');
-    }
+    await Future.wait([
+      _play('tap', gain: 0.7),
+      _haptic(HapticFeedback.selectionClick),
+    ]);
   }
 
-  /// Puan kazanma sesi (Coin collect)
-  static Future<void> playScore() async {
-    if (!_isEnabled) return;
+  /// Puan kazanma.
+  static Future<void> playScore() => playDrop();
 
-    try {
-      await _player.stop();
-      await HapticFeedback.selectionClick();
+  // Eski cagri adlari — ekranlarda hala kullaniliyor.
+  static Future<void> playCorrectSound() => playCorrect();
+  static Future<void> playWrongSound() => playWrong();
+  static Future<void> playSuccessSound() => playLevelComplete();
 
-      // Asset varsa kullan
-      // await _player.play(AssetSource('sounds/score.mp3'), volume: _volume);
-    } catch (e) {
-      debugPrint('Sound play error: $e');
-    }
-  }
-
-  /// Özel ses çal (asset path ile)
+  /// Ozel bir ses dosyasi (assets/ altindaki yol).
   static Future<void> playCustom(String assetPath) async {
-    if (!_isEnabled) return;
-
+    if (!_soundEnabled) return;
     try {
-      await _player.stop();
-      await _player.play(AssetSource(assetPath), volume: _volume);
+      final player = _pool[_next];
+      _next = (_next + 1) % _pool.length;
+      await player.stop();
+      await player.play(AssetSource(assetPath), volume: _volume);
     } catch (e) {
-      debugPrint('Sound play error: $e');
+      debugPrint('SoundService play error ($assetPath): $e');
     }
   }
 
-  /// Tüm sesleri durdur
   static Future<void> stopAll() async {
-    try {
-      await _player.stop();
-    } catch (e) {
-      debugPrint('Sound stop error: $e');
+    for (final p in _pool) {
+      try {
+        await p.stop();
+      } catch (e) {
+        debugPrint('SoundService stop error: $e');
+      }
     }
   }
 
-  /// Servis temizleme
   static void dispose() {
-    _player.dispose();
+    for (final p in _pool) {
+      p.dispose();
+    }
   }
 }

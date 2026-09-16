@@ -9,89 +9,45 @@ class AppConstants {
   /// AI Chat Service Name
   static const String aiChatName = 'DevAiChat';
 
-  /// AI Chat Welcome Message (Turkish)
+  /// Asistan karsilama mesaji (Turkce)
   static const String aiWelcomeMessageTr =
-      'Merhaba! Ben $aiChatName, senin AI asistanınım. Robotik, kodlama, matematik ve ödevlerinle ilgili her konuda yardımcı olabilirim. Nasıl yardımcı olabilirim?';
+      'Merhaba! Ben $aiChatName, DevEducation yardım asistanıyım. Scratch, Python, HTML, '
+      'Arduino ve robotik konularında; ayrıca XP, jeton ve oyunlar hakkında sorularını '
+      'yanıtlarım. Ne öğrenmek istersin?';
 
-  /// AI Chat Welcome Message (English)
+  /// Asistan karsilama mesaji (Ingilizce)
   static const String aiWelcomeMessageEn =
-      'Hello! I\'m $aiChatName, your AI assistant. I can help you with robotics, coding, math, and homework. How can I help you?';
+      'Hi! I am $aiChatName, the DevEducation help assistant. I answer questions about '
+      'Scratch, Python, HTML, Arduino and robotics, plus XP, coins and games. '
+      'What would you like to learn?';
 
-  /// AI System Prompt Template (Turkish)
-  static const String aiSystemPromptTr = '''Sen $aiChatName'sin! Devkom Yazılım tarafından üretilmiş samimi ve yardımsever bir yapay zeka asistanısın.
+  /// Asistan karsilama mesaji (Almanca)
+  static const String aiWelcomeMessageDe =
+      'Hallo! Ich bin $aiChatName, der Lernhelfer von DevEducation. Ich beantworte '
+      'Fragen zu Scratch, Python, HTML, Arduino und Robotik sowie zu XP, Münzen und '
+      'Spielen. Was möchtest du lernen?';
 
-Kendini Tanıt (sorulduğunda):
-"Merhaba ben $aiChatName! Devkom Yazılım tarafından üretilmiş bir yapay zeka asistanıyım. Robotik, kodlama, matematik ve ödevlerinizle ilgili her konuda size yardımcı olmak için buradayım! 😊"
+  /// Asistan karsilama mesaji (Ispanyolca)
+  static const String aiWelcomeMessageEs =
+      '¡Hola! Soy $aiChatName, el asistente de DevEducation. Respondo preguntas sobre '
+      'Scratch, Python, HTML, Arduino y robótica, y también sobre XP, monedas y '
+      'juegos. ¿Qué te gustaría aprender?';
 
-Görevin:
-- Öğrencilere robotik, kodlama, Arduino, Python, Scratch konularında yardım etmek
-- Matematik ve algoritma sorularını çözmek
-- Ödevlerinde rehberlik etmek
-- Basit, anlaşılır ve eğitici şekilde açıklamak
-- Türkçe olarak cevap vermek
-
-Özellikler:
-- Samimi ve arkadaş canlısı ol
-- Sabırlı ve destekleyici ol
-- Karmaşık konuları basitleştir
-- Örnekler ve kod parçaları ver
-- Öğrencinin seviyesine uygun açıkla
-- Pozitif ve motivasyon verici ol
-
-Unutma: Sen bir eğitim asistanısın, öğrencilerin öğrenmesine yardımcı ol, direkt cevap vermek yerine düşünmelerini sağla.''';
-
-  /// AI System Prompt Template (English)
-  static const String aiSystemPromptEn = '''You are $aiChatName! A friendly and helpful AI assistant created by Devkom Software.
-
-Introduce Yourself (when asked):
-"Hello, I'm $aiChatName! I'm an AI assistant created by Devkom Software. I'm here to help you with robotics, coding, math, and homework! 😊"
-
-Your Tasks:
-- Help students with robotics, coding, Arduino, Python, Scratch topics
-- Solve math and algorithm questions
-- Guide them with homework
-- Explain in a simple, understandable and educational way
-- Respond in English
-
-Your Characteristics:
-- Be friendly and approachable
-- Be patient and supportive
-- Simplify complex topics
-- Provide examples and code snippets
-- Explain at the student's level
-- Be positive and motivating
-
-Remember: You are an educational assistant, help students learn, encourage them to think rather than giving direct answers.''';
-
-  /// AI Initial Response (Turkish)
-  static const String aiInitialResponseTr =
-      'Anladım! Merhaba ben $aiChatName! Devkom Yazılım tarafından üretilmiş bir yapay zeka asistanıyım. Öğrencilere yardımcı olmak için buradayım! 😊';
-
-  /// AI Initial Response (English)
-  static const String aiInitialResponseEn =
-      'Understood! Hello, I\'m $aiChatName! I\'m an AI assistant created by Devkom Software. I\'m here to help students! 😊';
-
-  // ==================== API Configuration ====================
-
-  /// Gemini AI Model Name
-  static const String geminiModelName = 'gemini-2.5-flash';
-
-  /// API Temperature (0.0 - 1.0)
-  static const double aiTemperature = 0.7;
-
-  /// API Top K
-  static const int aiTopK = 40;
-
-  /// API Top P
-  static const double aiTopP = 0.95;
-
-  /// Max Output Tokens
-  static const int aiMaxOutputTokens = 1024;
+  /// Karsilama mesajini dile gore secer.
+  static String aiWelcomeMessageFor(String lang) {
+    switch (lang) {
+      case 'en':
+        return aiWelcomeMessageEn;
+      case 'de':
+        return aiWelcomeMessageDe;
+      case 'es':
+        return aiWelcomeMessageEs;
+      default:
+        return aiWelcomeMessageTr;
+    }
+  }
 
   // ==================== Rate Limiting ====================
-
-  /// Daily Free Question Limit
-  static const int dailyFreeQuestionLimit = 15;
 
   /// Retry Attempts for API Failures
   static const int maxRetryAttempts = 3;
@@ -112,10 +68,6 @@ Remember: You are an educational assistant, help students learn, encourage them 
 
   // ==================== Error Messages ====================
 
-  /// API Key Not Found Error
-  static const String errorApiKeyNotFound =
-      '⚠️ API key bulunamadı. Lütfen yapılandırmayı kontrol edin.';
-
   /// Message Empty Error
   static const String errorMessageEmpty =
       'Lütfen bir mesaj yazın.';
@@ -123,23 +75,6 @@ Remember: You are an educational assistant, help students learn, encourage them 
   /// Message Too Long Error
   static const String errorMessageTooLong =
       'Mesajınız çok uzun. Lütfen $maxMessageLength karakterden kısa olacak şekilde yazın.';
-
-  /// API Overloaded Error
-  static const String errorApiOverloaded =
-      'API şu anda yoğun. Lütfen birkaç dakika sonra tekrar deneyin.';
-
-  /// Generic API Error
-  static const String errorGenericApi =
-      'Bir hata oluştu. Lütfen tekrar deneyin.';
-
-  /// API Key Invalid/Rejected Error (Google tarafinda reddedilen key)
-  static const String errorApiKeyInvalid =
-      '⚠️ AI servisi şu anda yapılandırma sorunu nedeniyle kullanılamıyor. '
-      'Basit yanıtlarla devam ediliyor.';
-
-  /// Daily Limit Exceeded
-  static const String errorDailyLimitExceeded =
-      'Günlük soru limitiniz doldu ($dailyFreeQuestionLimit/15)';
 
   // ==================== UI Constants ====================
 
@@ -165,8 +100,4 @@ Remember: You are an educational assistant, help students learn, encourage them 
   /// Field: Is Pro
   static const String fieldIsPro = 'isPro';
 
-  // ==================== Environment Variables ====================
-
-  /// Gemini API Key Environment Variable
-  static const String envGeminiApiKey = 'GEMINI_API_KEY';
 }

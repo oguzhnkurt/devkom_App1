@@ -1,0 +1,13 @@
+# Ekran görüntüsü üreten dosya normal koşuda çalışmasın.
+#
+# test/appstore_shots_test.dart bir test değil, araç: App Store için
+# PNG üretiyor ve outputs/ altına dosya yazıyor. Her `flutter test`
+# çalıştığında dosya üretmesi hem yavaş hem de kafa karıştırıcı.
+#
+# Üretmek için:
+#   flutter test --run-skipped --tags shots test/appstore_shots_test.dart
+tags:
+  shots:
+    skip: "Ekran görüntüsü aracı - elle: flutter test --tags shots"
+  overflow:
+    skip: "Kucuk ekran tasma denetimi - elle: flutter test --run-skipped --tags overflow"

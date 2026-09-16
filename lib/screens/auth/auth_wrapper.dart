@@ -4,13 +4,15 @@ import '../../providers/auth_provider.dart';
 import '../splash_screen.dart';
 import '../role_based_home_screen.dart';
 import '../unified_home_screen.dart';
-import 'purpose_selection_screen.dart';
 
-/// AuthWrapper handles app navigation flow:
-/// 1. Loading: Splash screen
-/// 2. Authenticated + no purpose: Purpose selection
-/// 3. Authenticated: Role-based home screen
-/// 4. Unauthenticated: UnifiedHomeScreen (visitor mode - NO login forced)
+/// Uygulamanin acilis yonlendirmesi:
+/// 1. Yukleniyor: SplashScreen
+/// 2. Oturum var (anonim ya da kayitli): RoleBasedHomeScreen
+/// 3. Oturum yok (cevrimdisi): UnifiedHomeScreen - giris zorunlu degil
+///
+/// Not: Eskiden burada "Ne icin kullanmak istiyorsunuz?" (PurposeSelectionScreen)
+/// adimi vardi. Uygulama tek kullanici tipine gectigi icin bu soru kaldirildi;
+/// ilk acilista tanitim akisi bitince kullanici dogrudan ana ekrana giriyor.
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -18,32 +20,18 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, _) {
-        debugPrint('🟣 AuthWrapper: build() - isLoading: ${authProvider.isLoading}, isAuthenticated: ${authProvider.isAuthenticated}');
-
-        // Show loading screen while checking auth state
         if (authProvider.isLoading) {
-          debugPrint('🟣 AuthWrapper: Showing SplashScreen');
           return const SplashScreen();
         }
 
-        // Get current user
         final user = authProvider.currentUser;
 
-        // If authenticated but hasn't selected purpose, show purpose selection
-        if (user != null && !(user.hasSelectedPurpose)) {
-          debugPrint('🟣 AuthWrapper: Showing PurposeSelectionScreen (no purpose selected)');
-          return const PurposeSelectionScreen();
-        }
-
-        // If user is authenticated, show role-based home screen
-        if (authProvider.isAuthenticated) {
-          debugPrint('🟣 AuthWrapper: Showing RoleBasedHomeScreen');
+        if (user != null || authProvider.isAuthenticated) {
           return const RoleBasedHomeScreen();
         }
 
-        // For unauthenticated users: Show home screen directly (visitor mode)
-        // NO login screen forced - users can explore freely
-        debugPrint('🟣 AuthWrapper: Showing UnifiedHomeScreen (visitor mode)');
+        // Oturum acilamadiysa (ornegin internet yoksa) yine de uygulamayi
+        // kullanabilsin.
         return const UnifiedHomeScreen();
       },
     );

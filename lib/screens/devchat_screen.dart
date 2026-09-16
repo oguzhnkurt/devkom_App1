@@ -1,29 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-// TODO: Migrate to Supabase - import 'package:cloud_firestore/cloud_firestore.dart';
-import '../providers/auth_provider.dart';
+
 import '../providers/settings_provider.dart';
 import '../theme.dart';
 import '../constants/app_constants.dart';
+import '../data/dev_assistant_knowledge.dart';
+import '../services/dev_assistant_service.dart';
 import '../services/input_validator.dart';
 import '../services/logger_service.dart';
 import '../utils/app_localizations.dart';
-import 'auth/register_screen.dart';
 
-/// DevAiChat - AI Chatbot Screen with Google Gemini AI
-/// Following Clean Code principles with proper validation and logging
+/// Devkom yardim asistani.
+///
+/// Bu ekran daha once Google Gemini'ye bagliydi. Uygulama 4-12 yas araligindaki
+/// cocuklara yonelik ve App Store'da 4+ derecelendirmesiyle listeleniyor; serbest
+/// metinli bir dil modeli hem ciktisi onceden bilinemeyen icerik hem de cocugun
+/// yazdigi metnin ucuncu tarafa gonderilmesi anlamina geliyordu. Bu yuzden
+/// asistan, elle yazilmis ve gozden gecirilmis cevaplardan olusan sabit bir bilgi
+/// tabanina baglandi (bkz. data/dev_assistant_knowledge.dart).
+///
+/// Cevaplar cihazda uretildigi icin ag istegi, API anahtari ve gunluk soru
+/// limiti yok - kullanici istedigi kadar soru sorabilir.
 class DevAiChatScreen extends StatefulWidget {
-  /// Bu ekran iki farkli sekilde kullaniliyor:
+  /// Ekran bir sekme icinde gomulu kullanildiginda geri butonu gizlenir.
+  ///
   /// 1) Navigator.push ile ayri bir sayfa olarak acildiginda (showBackButton: true,
-  ///    varsayilan) - geri okuna basinca bu sayfayi kapatmak dogru davranis.
-  /// 2) Alt navigasyon bar'inda bir "tab" icerigi olarak dogrudan gomuldugunde
-  ///    (showBackButton: false) - bu durumda ekranin kendi route'u yoktur,
-  ///    Navigator.pop(context) cagrisi yanlislikla ustteki ana ekrani navigator'dan
-  ///    kapatir ve altinda kalan ekran aciga cikarak siyah/donmus bir ekranla
-  ///    sonuclanir. Bu yuzden tab kullaniminda geri oku hic gosterilmemeli.
+  ///    varsayilan) geri oku gosterilir.
+  /// 2) Alt sekme cubugunun icinde gosterildiginde (showBackButton: false) ekranin
+  ///    kendi route'u yoktur, geri oku basilirsa ana ekran kapanir.
   final bool showBackButton;
 
   const DevAiChatScreen({super.key, this.showBackButton = true});
@@ -35,99 +39,47 @@ class DevAiChatScreen extends StatefulWidget {
 class _DevAiChatScreenState extends State<DevAiChatScreen> {
   final _logger = LoggerService.instance;
   final _validator = InputValidator.instance;
+  final _assistant = DevAssistantService.instance;
+
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final List<ChatMessage> _messages = [];
-  bool _isTyping = false;
-  GenerativeModel? _model;
-  ChatSession? _chat;
 
-  // Misafir (giriş yapmamış) kullanıcılar için günlük soru hakkı.
-  // Misafirlerin backend'de kullanıcı kaydı olmadığından bu sayaç cihazda
-  // (SharedPreferences) tutulur ve her gün sıfırlanır.
-  static const int _visitorDailyLimit = 3;
-  static const String _visitorCountKey = 'visitor_ai_question_count';
-  static const String _visitorDateKey = 'visitor_ai_question_date';
+  bool _isTyping = false;
+
+  /// En son cevabin altinda gosterilecek oneri butonlari.
+  List<String> _suggestions = const [];
 
   @override
   void initState() {
     super.initState();
     _logger.info('DevAiChat screen initialized', tag: 'DEVAICHAT');
-
-    // Initialize AI will be called in didChangeDependencies after we can access context
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Initialize AI with the current language
     if (_messages.isEmpty) {
-      _initializeAI();
-
-      // Get current language
-      final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
-      final isEnglish = settingsProvider.locale.languageCode == 'en';
-
-      // Welcome message based on language
+      final lang = _lang;
       _addMessage(
         ChatMessage(
-          text: isEnglish
-              ? AppConstants.aiWelcomeMessageEn
-              : AppConstants.aiWelcomeMessageTr,
+          text: AppConstants.aiWelcomeMessageFor(lang),
           isUser: false,
           timestamp: DateTime.now(),
         ),
       );
+      // Karsilama onerileri her acilista ayni dort soru olmasin diye
+      // karistiriliyor; liste 32 soru iceriyor.
+      final oneriler = List<String>.from(kSuggestedQuestionsFor(lang))
+        ..shuffle();
+      _suggestions = oneriler.take(4).toList();
     }
   }
 
-  /// Initialize Google Gemini AI with proper error handling
-  void _initializeAI() {
-    try {
-      final apiKey = dotenv.env[AppConstants.envGeminiApiKey] ?? '';
-
-      if (apiKey.isEmpty || apiKey == 'your_api_key_here') {
-        _logger.warning(AppConstants.errorApiKeyNotFound, tag: 'DEVAICHAT');
-        return;
-      }
-
-      // Get current language
-      final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
-      final isEnglish = settingsProvider.locale.languageCode == 'en';
-
-      _model = GenerativeModel(
-        model: AppConstants.geminiModelName,
-        apiKey: apiKey,
-        generationConfig: GenerationConfig(
-          temperature: AppConstants.aiTemperature,
-          topK: AppConstants.aiTopK,
-          topP: AppConstants.aiTopP,
-          maxOutputTokens: AppConstants.aiMaxOutputTokens,
-        ),
-        safetySettings: [
-          SafetySetting(HarmCategory.harassment, HarmBlockThreshold.medium),
-          SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.medium),
-        ],
-      );
-
-      // System prompt ile chat başlat - dile göre farklı prompt kullan
-      _chat = _model?.startChat(history: [
-        Content.text(isEnglish
-            ? AppConstants.aiSystemPromptEn
-            : AppConstants.aiSystemPromptTr),
-        Content.model([
-          TextPart(isEnglish
-              ? AppConstants.aiInitialResponseEn
-              : AppConstants.aiInitialResponseTr)
-        ]),
-      ]);
-
-      _logger.success('Gemini AI başarıyla başlatıldı', tag: 'DEVAICHAT');
-    } catch (e, stackTrace) {
-      _logger.error('Gemini AI başlatılamadı', tag: 'DEVAICHAT', error: e, stackTrace: stackTrace);
-    }
-  }
+  /// Ekranin dili. Bilgi tabani tr, en, de ve es destekliyor.
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
 
   void _addMessage(ChatMessage message) {
     setState(() {
@@ -137,22 +89,19 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
   }
 
   void _scrollToBottom() {
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     });
   }
 
-  /// Send message with validation and security checks
-  Future<void> _sendMessage() async {
-    final userMessage = _messageController.text.trim();
+  Future<void> _sendMessage({String? preset}) async {
+    final userMessage = (preset ?? _messageController.text).trim();
 
-    // Input validation
     final validationError = _validator.validateMessage(userMessage);
     if (validationError != null) {
       _logger.warning('Message validation failed: $validationError', tag: 'DEVAICHAT');
@@ -160,7 +109,6 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
       return;
     }
 
-    // Security check for malicious input
     final securityError = _validator.performSecurityCheck(userMessage);
     if (securityError != null) {
       _logger.warning('Security check failed for message', tag: 'DEVAICHAT');
@@ -168,37 +116,10 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
       return;
     }
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final user = authProvider.currentUser;
-
-    if (user == null) {
-      // Misafir modu: hesabı olmayan kullanıcılar günde 3 soru sorabilir.
-      final guestCount = await _getGuestQuestionCountToday();
-      if (guestCount >= _visitorDailyLimit) {
-        _logger.info('Guest daily limit exceeded ($guestCount/$_visitorDailyLimit)', tag: 'DEVAICHAT');
-        _showGuestLimitDialog();
-        return;
-      }
-      await _incrementGuestQuestionCount();
-      if (mounted) setState(() {});
-      _logger.info('Guest question count incremented', tag: 'DEVAICHAT');
-    } else if (!user.isPro) {
-      // Günlük soru limiti kontrolü ve sayaç artırma
-      final canAsk = await _checkDailyLimit(user.uid);
-      if (!canAsk) {
-        _logger.info('Daily limit exceeded for user: ${user.uid}', tag: 'DEVAICHAT');
-        _showProDialog();
-        return;
-      }
-
-      // Sayacı HEMEN artır (mesaj başarılı olmasa bile)
-      await _incrementDailyQuestionCount(user.uid);
-      _logger.info('Daily question count incremented', tag: 'DEVAICHAT');
-    }
-
-    // Sanitize input before sending
     final sanitizedMessage = _validator.sanitizeInput(userMessage);
-    _logger.userAction('Send message', metadata: {'messageLength': sanitizedMessage.length});
+    _logger.userAction('Send message',
+        metadata: {'messageLength': sanitizedMessage.length});
+
     _addMessage(
       ChatMessage(
         text: sanitizedMessage,
@@ -208,424 +129,49 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
     );
 
     _messageController.clear();
-
     setState(() {
       _isTyping = true;
+      _suggestions = const [];
     });
 
-    try {
-      final startTime = DateTime.now();
-      String response;
+    final reply = _assistant.reply(sanitizedMessage, lang: _lang);
 
-      if (_chat != null && _model != null) {
-        // Google Gemini AI'dan gerçek cevap al (retry ile)
-        _logger.apiRequest('Gemini AI', params: {'messageLength': sanitizedMessage.length});
-        response = await _sendMessageWithRetry(sanitizedMessage);
+    // Cevap aninda hazir; yazma animasyonunu gostermek icin kisa bir gecikme
+    // birakiyoruz, aksi halde balon aniden beliriyor ve sohbet hissi kayboluyor.
+    await Future.delayed(const Duration(milliseconds: 450));
+    if (!mounted) return;
 
-        final duration = DateTime.now().difference(startTime);
-        _logger.performance('AI Response', duration);
-        _logger.apiResponse('Gemini AI', statusCode: 200);
-      } else {
-        // Fallback: API key yoksa basit yanıtlar
-        response = _generateFallbackResponse(sanitizedMessage.toLowerCase());
-      }
+    setState(() {
+      _isTyping = false;
+    });
 
-      setState(() {
-        _isTyping = false;
-      });
+    _logger.info(
+      'Assistant reply (matched: ${reply.matched})',
+      tag: 'DEVAICHAT',
+    );
 
-      _addMessage(
-        ChatMessage(
-          text: response,
-          isUser: false,
-          timestamp: DateTime.now(),
-        ),
-      );
-    } catch (e, stackTrace) {
-      setState(() {
-        _isTyping = false;
-      });
+    _addMessage(
+      ChatMessage(
+        text: reply.text,
+        isUser: false,
+        timestamp: DateTime.now(),
+      ),
+    );
 
-      _logger.error('Mesaj gönderme hatası', tag: 'DEVAICHAT', error: e, stackTrace: stackTrace);
-
-      final errorText = e.toString().toLowerCase();
-      final isInvalidKeyError = errorText.contains('api_key_invalid') ||
-          errorText.contains('api key not valid') ||
-          errorText.contains('permission_denied') ||
-          errorText.contains('unauthenticated') ||
-          errorText.contains('unregistered callers') ||
-          errorText.contains('403');
-
-      if (isInvalidKeyError) {
-        // Gemini key Google tarafindan reddediliyor. Bu oturumun geri kalaninda
-        // her mesajda tekrar basarisiz API istegi denemek yerine (kotu UX +
-        // gereksiz gecikme), fallback moduna gecip kullaniciya yine de bir yanit
-        // veriyoruz. Kok neden (gecersiz/kotasi dolmus API key) sunucu tarafinda
-        // (Google Cloud Console) duzeltilmeli.
-        _logger.error(
-          'Gemini API key gecersiz/reddedildi - fallback moduna geciliyor',
-          tag: 'DEVAICHAT',
-          error: e,
-        );
-        setState(() {
-          _model = null;
-          _chat = null;
-        });
-        _addMessage(
-          ChatMessage(
-            text:
-                '${AppConstants.errorApiKeyInvalid}\n\n${_generateFallbackResponse(sanitizedMessage.toLowerCase())}',
-            isUser: false,
-            timestamp: DateTime.now(),
-          ),
-        );
-        return;
-      }
-
-      _addMessage(
-        ChatMessage(
-          text: errorText.contains('overloaded')
-              ? AppConstants.errorApiOverloaded
-              : AppConstants.errorGenericApi,
-          isUser: false,
-          timestamp: DateTime.now(),
-        ),
-      );
-    }
+    setState(() {
+      _suggestions = reply.suggestions;
+    });
   }
 
-  /// Show error message to user
   void _showErrorSnackBar(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red[700],
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    }
-  }
-
-  /// Send message with exponential backoff retry logic
-  /// Implements retry pattern for API resilience
-  Future<String> _sendMessageWithRetry(String message) async {
-    int retryCount = 0;
-
-    while (retryCount < AppConstants.maxRetryAttempts) {
-      try {
-        final content = Content.text(message);
-        final aiResponse = await _chat!.sendMessage(content);
-        return aiResponse.text ?? 'Üzgünüm, yanıt oluşturamadım.';
-      } catch (e) {
-        retryCount++;
-
-        if (e.toString().contains('overloaded') && retryCount < AppConstants.maxRetryAttempts) {
-          // Sunucu yoğun, bekle ve tekrar dene (Exponential backoff)
-          final delaySeconds = AppConstants.baseRetryDelaySeconds * retryCount;
-          _logger.warning(
-            'API yoğun, ${retryCount}. deneme başarısız. ${AppConstants.maxRetryAttempts - retryCount} deneme kaldı. ${delaySeconds}s bekleniyor...',
-            tag: 'DEVAICHAT',
-          );
-          await Future.delayed(Duration(seconds: delaySeconds));
-          continue;
-        }
-
-        // Diğer hatalar veya son deneme başarısız
-        _logger.apiError('Gemini AI', e);
-        rethrow;
-      }
-    }
-
-    throw Exception(AppConstants.errorApiOverloaded);
-  }
-
-  /// Check if user has reached daily question limit
-  /// Returns true if user can ask more questions
-  /// TODO: Migrate to Supabase
-  Future<bool> _checkDailyLimit(String userId) async {
-    try {
-      _logger.info('Daily limit check - stub (Firebase disabled)', tag: 'DEVAICHAT');
-      // Always return true during migration to avoid blocking users
-      return true;
-
-      // TODO: Migrate to Supabase
-      // _logger.dbOperation('Check daily limit', collection: AppConstants.collectionUsers);
-      //
-      // final userDoc = await FirebaseFirestore.instance
-      //     .collection(AppConstants.collectionUsers)
-      //     .doc(userId)
-      //     .get();
-      //
-      // if (!userDoc.exists) {
-      //   _logger.info('User document not found, allowing question', tag: 'DEVAICHAT');
-      //   return true;
-      // }
-      //
-      // final data = userDoc.data()!;
-      // final dailyCount = data[AppConstants.fieldDailyQuestionCount] ?? 0;
-      // final lastQuestionDate = data[AppConstants.fieldLastQuestionDate] as Timestamp?;
-      //
-      // _logger.debug(
-      //   'Current daily question count: $dailyCount / ${AppConstants.dailyFreeQuestionLimit}',
-      //   tag: 'DEVAICHAT',
-      // );
-      //
-      // // Günlük limiti sıfırla (yeni gün başlamışsa)
-      // if (lastQuestionDate != null) {
-      //   final lastDate = lastQuestionDate.toDate();
-      //   final today = DateTime.now();
-      //
-      //   if (lastDate.day != today.day ||
-      //       lastDate.month != today.month ||
-      //       lastDate.year != today.year) {
-      //     // Yeni gün başladı, sayacı sıfırla
-      //     _logger.info('New day started, resetting counter', tag: 'DEVAICHAT');
-      //     await FirebaseFirestore.instance
-      //         .collection(AppConstants.collectionUsers)
-      //         .doc(userId)
-      //         .set({
-      //       AppConstants.fieldDailyQuestionCount: 0,
-      //       AppConstants.fieldLastQuestionDate: Timestamp.now(),
-      //     }, SetOptions(merge: true));
-      //     return true;
-      //   }
-      // }
-      //
-      // // Günlük limit kontrolü
-      // final canAsk = dailyCount < AppConstants.dailyFreeQuestionLimit;
-      // if (!canAsk) {
-      //   _logger.info(
-      //     'Daily limit exceeded: $dailyCount / ${AppConstants.dailyFreeQuestionLimit}',
-      //     tag: 'DEVAICHAT',
-      //   );
-      // }
-      // return canAsk;
-    } catch (e, stackTrace) {
-      _logger.error('Limit check error', tag: 'DEVAICHAT', error: e, stackTrace: stackTrace);
-      return true; // Hata durumunda kullanıcıyı engellemiyoruz
-    }
-  }
-
-  /// Increment daily question count for user
-  /// TODO: Migrate to Supabase
-  Future<void> _incrementDailyQuestionCount(String userId) async {
-    try {
-      _logger.info('Increment question count - stub (Firebase disabled)', tag: 'DEVAICHAT');
-      // Stub implementation during migration
-
-      // TODO: Migrate to Supabase
-      // _logger.dbOperation('Increment question count', collection: AppConstants.collectionUsers);
-      //
-      // final userDoc = await FirebaseFirestore.instance
-      //     .collection(AppConstants.collectionUsers)
-      //     .doc(userId)
-      //     .get();
-      //
-      // if (userDoc.exists) {
-      //   // Document exists, use update
-      //   await FirebaseFirestore.instance
-      //       .collection(AppConstants.collectionUsers)
-      //       .doc(userId)
-      //       .update({
-      //     AppConstants.fieldDailyQuestionCount: FieldValue.increment(1),
-      //     AppConstants.fieldLastQuestionDate: Timestamp.now(),
-      //   });
-      //   _logger.debug('Question counter updated (update)', tag: 'DEVAICHAT');
-      // } else {
-      //   // Document doesn't exist, create it with initial values
-      //   await FirebaseFirestore.instance
-      //       .collection(AppConstants.collectionUsers)
-      //       .doc(userId)
-      //       .set({
-      //     AppConstants.fieldDailyQuestionCount: 1,
-      //     AppConstants.fieldLastQuestionDate: Timestamp.now(),
-      //   }, SetOptions(merge: true));
-      //   _logger.debug('Question counter created (set with merge)', tag: 'DEVAICHAT');
-      // }
-    } catch (e, stackTrace) {
-      _logger.error('Question counter update error', tag: 'DEVAICHAT', error: e, stackTrace: stackTrace);
-    }
-  }
-
-  /// Misafir kullanıcının bugün kaç soru sorduğunu döndürür.
-  /// Gün değiştiyse sayaç otomatik olarak sıfırlanır.
-  Future<int> _getGuestQuestionCountToday() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final todayKey = _todayKey();
-      final storedDate = prefs.getString(_visitorDateKey);
-
-      if (storedDate != todayKey) {
-        // Yeni gün: sayaç sıfırlanır
-        await prefs.setString(_visitorDateKey, todayKey);
-        await prefs.setInt(_visitorCountKey, 0);
-        return 0;
-      }
-
-      return prefs.getInt(_visitorCountKey) ?? 0;
-    } catch (e) {
-      _logger.error('Guest limit read error', tag: 'DEVAICHAT', error: e);
-      return 0;
-    }
-  }
-
-  /// Misafir soru sayacını 1 artırır.
-  Future<void> _incrementGuestQuestionCount() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final current = await _getGuestQuestionCountToday();
-      await prefs.setString(_visitorDateKey, _todayKey());
-      await prefs.setInt(_visitorCountKey, current + 1);
-    } catch (e) {
-      _logger.error('Guest limit increment error', tag: 'DEVAICHAT', error: e);
-    }
-  }
-
-  String _todayKey() {
-    final now = DateTime.now();
-    return '${now.year}-${now.month}-${now.day}';
-  }
-
-  void _showGuestLimitDialog() {
-    _logger.userAction('Show guest limit dialog');
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.lock_clock, color: Colors.amber[700]),
-            const SizedBox(width: 8),
-            const Text('Günlük Misafir Limiti Doldu'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Misafir olarak günde $_visitorDailyLimit soru sorabilirsiniz.',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              '✨ Ücretsiz hesap oluşturarak:',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const SizedBox(height: 8),
-            const Text('• Daha fazla günlük soru hakkı'),
-            const Text('• İlerlemeni kaydet'),
-            const Text('• Oyunlara ve ödevlere eriş'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const RegisterScreen()),
-              );
-            },
-            icon: const Icon(Icons.person_add, color: Colors.white),
-            label: const Text('Hesap Oluştur'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryBlue,
-              foregroundColor: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showProDialog() {
-    _logger.userAction('Show Pro upgrade dialog');
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.workspace_premium, color: Colors.amber[700]),
-            const SizedBox(width: 8),
-            const Text('Günlük Limit Aşıldı'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Ücretsiz kullanıcılar günde ${AppConstants.dailyFreeQuestionLimit} soru sorabilir.',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              '✨ Pro üyelik ile:',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const SizedBox(height: 8),
-            const Text('• Sınırsız soru'),
-            const Text('• Daha hızlı yanıtlar'),
-            const Text('• Öncelikli destek'),
-            const Text('• Özel özellikler'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              _logger.userAction('Dismiss Pro dialog');
-              Navigator.pop(context);
-            },
-            child: const Text('İptal'),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              _logger.userAction('Click Pro upgrade button');
-              Navigator.pop(context);
-              _navigateToProPurchase();
-            },
-            icon: const Icon(Icons.workspace_premium, color: Colors.white),
-            label: const Text('Pro Üyelik Al'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber[700],
-              foregroundColor: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _navigateToProPurchase() {
-    // TODO: Pro üyelik sayfasına yönlendir
-    _logger.userAction('Navigate to Pro purchase');
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Pro üyelik sistemi yakında aktif olacak!'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+        duration: const Duration(seconds: 3),
       ),
     );
-  }
-
-  /// Generate fallback response when API key is not available
-  String _generateFallbackResponse(String message) {
-    _logger.info('Using fallback response (no API key)', tag: 'DEVAICHAT');
-
-    // API key olmadan basit yanıtlar
-    if (message.contains('merhaba') || message.contains('selam')) {
-      return 'Merhaba! Size nasıl yardımcı olabilirim? Robotik, kodlama veya ödevlerinizle ilgili sorularınızı cevaplayabilirim.\n\n💡 İpucu: Daha iyi yanıtlar için .env dosyasına Gemini API key ekleyin.';
-    } else if (message.contains('arduino')) {
-      return 'Arduino ile ilgili sorularınızı cevaplayabilirim! Arduino, elektronik projeler için harika bir platformdur. Sensörler, motorlar ve LED\'ler gibi birçok komponenti kontrol edebilirsiniz.\n\n💡 Gerçek AI yanıtları için API key gerekli.';
-    } else if (message.contains('robot')) {
-      return 'Robotik çok heyecan verici! Robot yapımında sensörler, motorlar ve programlama çok önemlidir.\n\n💡 Detaylı yardım için API key ekleyin.';
-    } else {
-      return 'İlginç bir soru! Daha detaylı cevaplar için .env dosyasına Google Gemini API key eklemelisiniz.\n\nÜcretsiz API key için: https://makersuite.google.com/app/apikey';
-    }
   }
 
   @override
@@ -637,10 +183,6 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    final authProvider = Provider.of<AuthProvider>(context);
-    final user = authProvider.currentUser;
-
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -679,16 +221,12 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
                     width: 1,
                   ),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
-                      Icons.auto_awesome,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
+                    Icon(Icons.auto_awesome, color: Colors.white, size: 20),
+                    SizedBox(width: 8),
+                    Text(
                       'DevAI Chat',
                       style: TextStyle(
                         color: Colors.white,
@@ -696,22 +234,8 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
                         fontSize: 16,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: _model != null ? Colors.greenAccent : Colors.orangeAccent,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: (_model != null ? Colors.greenAccent : Colors.orangeAccent).withValues(alpha: 0.8),
-                            blurRadius: 6,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                    ),
+                    SizedBox(width: 8),
+                    _StatusDot(),
                   ],
                 ),
               ),
@@ -725,13 +249,12 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
                 controller: _scrollController,
                 padding: const EdgeInsets.all(16),
                 itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
-                  return _buildMessageBubble(message);
-                },
+                itemBuilder: (context, index) =>
+                    _buildMessageBubble(_messages[index]),
               ),
             ),
             if (_isTyping) _buildTypingIndicator(),
+            if (_suggestions.isNotEmpty && !_isTyping) _buildSuggestions(),
             _buildMessageInput(),
           ],
         ),
@@ -739,93 +262,19 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
     );
   }
 
-  void _showInfoDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.info_outline, color: AppTheme.primaryBlue),
-            SizedBox(width: 8),
-            Text('Gemini AI Nasıl Aktifleştirilir?'),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                '1. Google AI Studio\'ya gidin:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 4),
-              const Text('https://makersuite.google.com/app/apikey'),
-              const SizedBox(height: 16),
-              const Text(
-                '2. "Create API Key" butonuna tıklayın',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                '3. API key\'i kopyalayın',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                '4. .env dosyasını açın:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.all(8),
-                color: Colors.grey[200],
-                child: const Text(
-                  'GEMINI_API_KEY=buraya_yapıştırın',
-                  style: TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                '5. Uygulamayı yeniden başlatın',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green[50],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.green),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.check_circle, color: Colors.green),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Gemini API tamamen ÜCRETSIZ!',
-                        style: TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Tamam'),
-          ),
-        ],
+  Widget _buildSuggestions() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: _suggestions
+            .map((question) => _SuggestionChip(
+                  label: question,
+                  onTap: () => _sendMessage(preset: question),
+                ))
+            .toList(),
       ),
     );
   }
@@ -839,19 +288,7 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!message.isUser) ...[
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppTheme.primaryBlue, AppTheme.accentTeal],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.smart_toy, color: Colors.white, size: 18),
-            ),
+            const _AssistantAvatar(),
             const SizedBox(width: 8),
           ],
           Flexible(
@@ -866,9 +303,7 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: message.isUser
-                        ? AppTheme.primaryBlue
-                        : Colors.white,
+                    color: message.isUser ? AppTheme.primaryBlue : Colors.white,
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(16),
                       topRight: const Radius.circular(16),
@@ -925,19 +360,7 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppTheme.primaryBlue, AppTheme.accentTeal],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.smart_toy, color: Colors.white, size: 18),
-          ),
+          const _AssistantAvatar(),
           const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -952,13 +375,13 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
                 ),
               ],
             ),
-            child: Row(
+            child: const Row(
               children: [
-                _buildTypingDot(0),
-                const SizedBox(width: 4),
-                _buildTypingDot(1),
-                const SizedBox(width: 4),
-                _buildTypingDot(2),
+                _TypingDot(0),
+                SizedBox(width: 4),
+                _TypingDot(1),
+                SizedBox(width: 4),
+                _TypingDot(2),
               ],
             ),
           ),
@@ -967,77 +390,7 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
     );
   }
 
-  Widget _buildTypingDot(int index) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 600),
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: (value * 3 - index).clamp(0.0, 1.0),
-          child: Container(
-            width: 8,
-            height: 8,
-            decoration: const BoxDecoration(
-              color: AppTheme.primaryBlue,
-              shape: BoxShape.circle,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildMessageInput() {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final user = authProvider.currentUser;
-
-    if (user == null) {
-      // Misafir modu: hesabı olmayan kullanıcılar için günlük 3 soru hakkı.
-      // (Eskiden burada input tamamen gizleniyordu, misafirler hiç soru
-      // soramıyordu - bu artık düzeltildi.)
-      return FutureBuilder<int>(
-        future: _getGuestQuestionCountToday(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return _buildNormalMessageInput();
-          }
-
-          final guestCount = snapshot.data ?? 0;
-          final remaining = _visitorDailyLimit - guestCount;
-
-          if (remaining <= 0) {
-            return _buildGuestLimitReachedButton();
-          }
-          return _buildNormalMessageInput(guestRemaining: remaining);
-        },
-      );
-    }
-
-    // Pro kullanıcılar için direkt mesaj girişi göster
-    if (user.isPro) {
-      return _buildNormalMessageInput();
-    }
-
-    // Ücretsiz kullanıcılar için limit kontrolü yap
-    return FutureBuilder<bool>(
-      future: _checkDailyLimit(user.uid),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildNormalMessageInput(); // Loading sırasında normal input göster
-        }
-
-        final canAsk = snapshot.data ?? true;
-
-        if (canAsk) {
-          return _buildNormalMessageInput();
-        } else {
-          return _buildProUpgradeButton();
-        }
-      },
-    );
-  }
-
-  Widget _buildNormalMessageInput({int? guestRemaining}) {
     final loc = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1052,192 +405,51 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
         ],
       ),
       child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+        child: Row(
           children: [
-            if (guestRemaining != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  'Misafir modu: bugün $guestRemaining soru hakkınız kaldı',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w600),
-                ),
-              ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: loc.writeYourMessage,
-                      hintStyle: TextStyle(color: Colors.grey[400]),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: const BorderSide(color: AppTheme.primaryBlue),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                    ),
-                    maxLines: null,
-                    textInputAction: TextInputAction.send,
-                    onSubmitted: (_) => _sendMessage(),
+            Expanded(
+              child: TextField(
+                controller: _messageController,
+                decoration: InputDecoration(
+                  hintText: loc.writeYourMessage,
+                  hintStyle: TextStyle(color: Colors.grey[400]),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: const BorderSide(color: AppTheme.primaryBlue),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
                   ),
                 ),
-                const SizedBox(width: 8),
-                Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppTheme.primaryBlue, AppTheme.accentTeal],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white),
-                    onPressed: _sendMessage,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGuestLimitReachedButton() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.amber[50],
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.info_outline, color: Colors.amber[900], size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Misafir olarak günlük $_visitorDailyLimit soru hakkınızı kullandınız',
-                    style: TextStyle(
-                      color: Colors.amber[900],
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                  );
-                },
-                icon: const Icon(Icons.person_add, color: Colors.white),
-                label: const Text(
-                  'Hesap Oluştur - Devam Et',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                maxLines: null,
+                textInputAction: TextInputAction.send,
+                onSubmitted: (_) => _sendMessage(),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProUpgradeButton() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.amber[50],
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.info_outline, color: Colors.amber[900], size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Günlük soru limitiniz doldu',
-                    style: TextStyle(
-                      color: Colors.amber[900],
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+            const SizedBox(width: 8),
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppTheme.primaryBlue, AppTheme.accentTeal],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _navigateToProPurchase,
-                icon: Icon(Icons.workspace_premium, color: Colors.white),
-                label: const Text(
-                  'Pro Üyelik Al - Sınırsız Soru',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber[700],
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.send, color: Colors.white),
+                onPressed: () => _sendMessage(),
               ),
             ),
           ],
@@ -1262,6 +474,120 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
   }
 }
 
+/// Baslikta asistanin hazir oldugunu gosteren nokta.
+///
+/// Cevaplar cihazda uretildigi icin asistan her zaman hazir; eskiden burada
+/// API anahtarinin gecerli olup olmadigina gore renk degisiyordu.
+/// Oneri butonu.
+///
+/// ActionChip yerine elle yazildi: Material 3 ChipTheme'i uygulamanin acik
+/// temasinda zemini beyaza cekiyor ve beyaz etiketle birlesince yazi
+/// okunamiyordu. Burada zemin ve yazi rengi dogrudan kontrol ediliyor.
+class _SuggestionChip extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _SuggestionChip({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.18),
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.45)),
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusDot extends StatelessWidget {
+  const _StatusDot();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 6,
+      height: 6,
+      decoration: BoxDecoration(
+        color: Colors.greenAccent,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.greenAccent.withValues(alpha: 0.8),
+            blurRadius: 6,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AssistantAvatar extends StatelessWidget {
+  const _AssistantAvatar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppTheme.primaryBlue, AppTheme.accentTeal],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        shape: BoxShape.circle,
+      ),
+      child: const Icon(Icons.smart_toy, color: Colors.white, size: 18),
+    );
+  }
+}
+
+class _TypingDot extends StatelessWidget {
+  final int index;
+
+  const _TypingDot(this.index);
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 600),
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: (value * 3 - index).clamp(0.0, 1.0),
+          child: Container(
+            width: 8,
+            height: 8,
+            decoration: const BoxDecoration(
+              color: AppTheme.primaryBlue,
+              shape: BoxShape.circle,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class ChatMessage {
   final String text;
   final bool isUser;
@@ -1273,4 +599,3 @@ class ChatMessage {
     required this.timestamp,
   });
 }
-

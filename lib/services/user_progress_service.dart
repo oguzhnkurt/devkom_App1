@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_progress_model.dart';
+import 'ads_service.dart';
 
 /// Kullanıcı İlerleme Servisi
 /// XP, Seviye, Streak ve Günlük Hedefler yönetimi
@@ -109,6 +110,16 @@ class UserProgressService extends ChangeNotifier {
         level: newLevel,
       );
 
+      // Gunluk kirilim — Pro ilerleme raporundaki haftalik grafik buradan
+      // besleniyor. user_progress yalnizca toplami tuttugu icin gecmise
+      // donuk grafik cizmenin baska yolu yok.
+      await _logDailyActivity(
+        xp: xp,
+        lessons: source == 'lesson' ? 1 : 0,
+        quizzes: source == 'quiz' ? 1 : 0,
+        videos: source == 'video' ? 1 : 0,
+      );
+
       // Seviye atladıysa rozet kontrolü yap
       if (newLevel > oldLevel) {
         await _checkMilestoneBadges(userId, newTotalXP);
@@ -117,6 +128,26 @@ class UserProgressService extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Error adding XP: $e');
+    }
+  }
+
+  /// Gunluk aktivite kaydi. Hata durumunda sessizce gecer: bu kayit
+  /// rapor icin, ilerlemenin kendisi icin degil.
+  Future<void> _logDailyActivity({
+    int xp = 0,
+    int lessons = 0,
+    int quizzes = 0,
+    int videos = 0,
+  }) async {
+    try {
+      await _supabase.rpc('log_daily_activity', params: {
+        'p_xp': xp,
+        'p_lessons': lessons,
+        'p_quizzes': quizzes,
+        'p_videos': videos,
+      });
+    } catch (e) {
+      debugPrint('Gunluk aktivite kaydedilemedi: $e');
     }
   }
 
@@ -203,6 +234,11 @@ class UserProgressService extends ChangeNotifier {
         await _awardBadge(userId, 'first_step');
       }
 
+      // Reklam BURADA gösterilmiyor; yalnızca işaretleniyor. Kutlama
+      // ekranının üstüne binmesin diye kullanıcı dersten çıkarken
+      // AdNavigatorObserver gösteriyor.
+      AdsService.instance.markDue();
+
       notifyListeners();
     } catch (e) {
       debugPrint('Error on lesson completed: $e');
@@ -237,6 +273,8 @@ class UserProgressService extends ChangeNotifier {
         await _awardBadge(userId, 'gamer');
       }
 
+      AdsService.instance.markDue();
+
       notifyListeners();
     } catch (e) {
       debugPrint('Error on game played: $e');
@@ -253,15 +291,19 @@ class UserProgressService extends ChangeNotifier {
 
       // Günlük hedef güncelle
       final newCount = (_currentProgress?.dailyQuizzesCompleted ?? 0) + 1;
+      // Gunluk sayac her gun sifirlanir; toplam sayac gorevler icin birikir.
+      final newTotal = (_currentProgress?.totalQuizzesCompleted ?? 0) + 1;
 
       await _supabase.from(_progressTable).update({
         'daily_quizzes_completed': newCount,
+        'total_quizzes_completed': newTotal,
         'last_active_date': DateTime.now().toIso8601String(),
         'updated_at': DateTime.now().toIso8601String(),
       }).eq('user_id', userId);
 
       _currentProgress = _currentProgress?.copyWith(
         dailyQuizzesCompleted: newCount,
+        totalQuizzesCompleted: newTotal,
         lastActiveDate: DateTime.now(),
       );
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Modern, professional Material 3 theme for Devkom App
 /// Corporate blue, white, and gray color scheme
@@ -19,6 +18,80 @@ class AppTheme {
   static const Color successGreen = Color(0xFF66BB6A); // Success states
   static const Color warningOrange = Color(0xFFFF9800); // Warnings
   static const Color errorRed = Color(0xFFEF5350); // Errors
+
+
+  /// Uygulamanin tek yazi ailesi. Fontlar `assets/fonts/` altinda paketli.
+  ///
+  /// ONCEDEN: tum stiller `google_fonts` uzerinden geliyordu ve bu paket
+  /// dosyalari CALISMA ANINDA internetten cekiyor. Ilk acilista (ya da
+  /// internet yokken) indirme bitene kadar Flutter varsayilan Roboto'ya
+  /// dusuyordu: basliklar ince, yuvarlak hatlar duz, "kalin olmasi gereken
+  /// yerler kalin degil" goruntusu tam olarak buydu. Artik dort agirlik
+  /// (400/600/700/800) uygulamayla birlikte geliyor, ilk kareden itibaren
+  /// dogru font ciziliyor.
+  static const String fontFamily = 'Nunito';
+
+  static TextStyle _f({
+    required double fontSize,
+    required FontWeight fontWeight,
+    Color? color,
+    double? letterSpacing,
+    double? height,
+  }) {
+    return TextStyle(
+      fontFamily: fontFamily,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      letterSpacing: letterSpacing,
+      height: height,
+    );
+  }
+
+  /// Sayilar icin: XP, skor, seri, seviye, fiyat.
+  ///
+  /// `tabularFigures` olmadan animasyonlu sayaclarda rakam genislikleri
+  /// degistigi icin metin titriyor. Sayilarda agirlik 800, harflerde degil —
+  /// Duolingo/Mimo tipi "kalin rakam, sakin metin" kontrasti buradan geliyor.
+  static TextStyle number({
+    required double fontSize,
+    FontWeight fontWeight = FontWeight.w800,
+    Color? color,
+    double letterSpacing = -0.5,
+  }) {
+    return TextStyle(
+      fontFamily: fontFamily,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      letterSpacing: letterSpacing,
+      height: 1.1,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+  }
+
+  /// Turkce metinlerde `ğ ş ç` alt uzantilari ile `İ` noktasi 1.2 satir
+  /// yuksekliginde carpisiyor; taban satir yuksekligi bu yuzden Ingilizce
+  /// olceklerden bir tik yuksek.
+  static TextTheme _baseTextTheme() {
+    return TextTheme(
+      displayLarge: _f(fontSize: 40, fontWeight: FontWeight.w800, color: darkGray, letterSpacing: -0.5, height: 1.10),
+      displayMedium: _f(fontSize: 32, fontWeight: FontWeight.w800, color: darkGray, letterSpacing: -0.25, height: 1.15),
+      displaySmall: _f(fontSize: 28, fontWeight: FontWeight.w800, color: darkGray, letterSpacing: -0.25, height: 1.18),
+      headlineLarge: _f(fontSize: 28, fontWeight: FontWeight.w700, color: darkGray, letterSpacing: -0.25, height: 1.20),
+      headlineMedium: _f(fontSize: 24, fontWeight: FontWeight.w700, color: darkGray, height: 1.25),
+      headlineSmall: _f(fontSize: 21, fontWeight: FontWeight.w700, color: darkGray, height: 1.28),
+      titleLarge: _f(fontSize: 20, fontWeight: FontWeight.w700, color: darkGray, height: 1.30),
+      titleMedium: _f(fontSize: 17, fontWeight: FontWeight.w600, color: darkGray, letterSpacing: 0.1, height: 1.35),
+      titleSmall: _f(fontSize: 15, fontWeight: FontWeight.w600, color: darkGray, letterSpacing: 0.1, height: 1.35),
+      bodyLarge: _f(fontSize: 16, fontWeight: FontWeight.w400, color: darkGray, letterSpacing: 0.15, height: 1.50),
+      bodyMedium: _f(fontSize: 14, fontWeight: FontWeight.w400, color: darkGray, letterSpacing: 0.15, height: 1.45),
+      bodySmall: _f(fontSize: 12.5, fontWeight: FontWeight.w400, color: mediumGray, letterSpacing: 0.2, height: 1.45),
+      labelLarge: _f(fontSize: 15, fontWeight: FontWeight.w700, color: darkGray, letterSpacing: 0.5, height: 1.20),
+      labelMedium: _f(fontSize: 13, fontWeight: FontWeight.w600, color: darkGray, letterSpacing: 0.4, height: 1.30),
+      labelSmall: _f(fontSize: 11, fontWeight: FontWeight.w500, color: mediumGray, letterSpacing: 0.4, height: 1.40),
+    );
+  }
 
   // Light theme
   static ThemeData lightTheme() {
@@ -59,102 +132,7 @@ class AppTheme {
       ),
 
       // Text theme with Nunito font (SF Pro Rounded alternative)
-      textTheme: GoogleFonts.nunitoTextTheme().copyWith(
-        // Display styles - for large, prominent text
-        displayLarge: GoogleFonts.nunito(
-          fontSize: 57,
-          fontWeight: FontWeight.w700,
-          color: darkGray,
-          letterSpacing: -0.25,
-        ),
-        displayMedium: GoogleFonts.nunito(
-          fontSize: 45,
-          fontWeight: FontWeight.w700,
-          color: darkGray,
-        ),
-        displaySmall: GoogleFonts.nunito(
-          fontSize: 36,
-          fontWeight: FontWeight.w600,
-          color: darkGray,
-        ),
-
-        // Headline styles - for section headers
-        headlineLarge: GoogleFonts.nunito(
-          fontSize: 32,
-          fontWeight: FontWeight.w600,
-          color: darkGray,
-        ),
-        headlineMedium: GoogleFonts.nunito(
-          fontSize: 28,
-          fontWeight: FontWeight.w600,
-          color: darkGray,
-        ),
-        headlineSmall: GoogleFonts.nunito(
-          fontSize: 24,
-          fontWeight: FontWeight.w600,
-          color: darkGray,
-        ),
-
-        // Title styles - for card titles and smaller headers
-        titleLarge: GoogleFonts.nunito(
-          fontSize: 22,
-          fontWeight: FontWeight.w600,
-          color: darkGray,
-          letterSpacing: 0,
-        ),
-        titleMedium: GoogleFonts.nunito(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: darkGray,
-          letterSpacing: 0.15,
-        ),
-        titleSmall: GoogleFonts.nunito(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: darkGray,
-          letterSpacing: 0.1,
-        ),
-
-        // Body styles - for main content
-        bodyLarge: GoogleFonts.nunito(
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          color: darkGray,
-          letterSpacing: 0.5,
-        ),
-        bodyMedium: GoogleFonts.nunito(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          color: darkGray,
-          letterSpacing: 0.25,
-        ),
-        bodySmall: GoogleFonts.nunito(
-          fontSize: 12,
-          fontWeight: FontWeight.w400,
-          color: mediumGray,
-          letterSpacing: 0.4,
-        ),
-
-        // Label styles - for buttons and labels
-        labelLarge: GoogleFonts.nunito(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: darkGray,
-          letterSpacing: 0.1,
-        ),
-        labelMedium: GoogleFonts.nunito(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: darkGray,
-          letterSpacing: 0.5,
-        ),
-        labelSmall: GoogleFonts.nunito(
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          color: mediumGray,
-          letterSpacing: 0.5,
-        ),
-      ),
+      textTheme: _baseTextTheme(),
 
       // Scaffold background
       scaffoldBackgroundColor: lightGray,
@@ -167,11 +145,13 @@ class AppTheme {
         centerTitle: true,
         scrolledUnderElevation: 4,
         shadowColor: Colors.black.withValues(alpha: 0.2),
-        titleTextStyle: GoogleFonts.nunito(
+        // 1.2 harf araligi Turkce basliklarda kelimeleri dagitiyordu; ayrica
+        // baslik agirligi govde metninden net ayrilsin diye 800'e cikti.
+        titleTextStyle: _f(
           fontSize: 20,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w800,
           color: white,
-          letterSpacing: 1.2,
+          letterSpacing: 0,
         ),
         iconTheme: const IconThemeData(
           color: white,
@@ -201,10 +181,10 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.nunito(
+          textStyle: _f(
             fontSize: 16,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.3,
           ),
         ),
       ),
@@ -218,10 +198,10 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.nunito(
+          textStyle: _f(
             fontSize: 16,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.3,
           ),
         ),
       ),
@@ -235,10 +215,10 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.nunito(
+          textStyle: _f(
             fontSize: 16,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.3,
           ),
         ),
       ),
@@ -251,10 +231,10 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          textStyle: GoogleFonts.nunito(
+          textStyle: _f(
             fontSize: 14,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.3,
           ),
         ),
       ),
@@ -288,27 +268,29 @@ class AppTheme {
         ),
 
         // Label and hint styles
-        labelStyle: GoogleFonts.nunito(
+        labelStyle: _f(
           fontSize: 14,
           color: mediumGray,
           fontWeight: FontWeight.w500,
         ),
-        floatingLabelStyle: GoogleFonts.nunito(
+        floatingLabelStyle: _f(
           fontSize: 14,
           color: primaryBlue,
           fontWeight: FontWeight.w600,
         ),
-        hintStyle: GoogleFonts.nunito(
+        hintStyle: _f(
           fontSize: 14,
           color: mediumGray.withValues(alpha: 0.6),
           fontWeight: FontWeight.w400,
         ),
-        helperStyle: GoogleFonts.nunito(
+        helperStyle: _f(
           fontSize: 12,
+          fontWeight: FontWeight.w400,
           color: mediumGray,
         ),
-        errorStyle: GoogleFonts.nunito(
+        errorStyle: _f(
           fontSize: 12,
+          fontWeight: FontWeight.w500,
           color: errorRed,
         ),
       ),
@@ -327,7 +309,7 @@ class AppTheme {
         indicatorColor: primaryBlue.withValues(alpha: 0.15),
         elevation: 3,
         labelTextStyle: WidgetStateProperty.all(
-          GoogleFonts.nunito(
+          _f(
             fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
@@ -341,11 +323,11 @@ class AppTheme {
         unselectedItemColor: mediumGray,
         elevation: 8,
         type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: GoogleFonts.nunito(
+        selectedLabelStyle: _f(
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
-        unselectedLabelStyle: GoogleFonts.nunito(
+        unselectedLabelStyle: _f(
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -370,12 +352,12 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        titleTextStyle: GoogleFonts.nunito(
+        titleTextStyle: _f(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: darkGray,
         ),
-        contentTextStyle: GoogleFonts.nunito(
+        contentTextStyle: _f(
           fontSize: 14,
           fontWeight: FontWeight.w400,
           color: darkGray,
@@ -385,7 +367,7 @@ class AppTheme {
       // SnackBar theme
       snackBarTheme: SnackBarThemeData(
         backgroundColor: darkGray,
-        contentTextStyle: GoogleFonts.nunito(
+        contentTextStyle: _f(
           fontSize: 14,
           color: white,
           fontWeight: FontWeight.w500,
@@ -404,7 +386,7 @@ class AppTheme {
         selectedColor: primaryBlue.withValues(alpha: 0.15),
         secondarySelectedColor: accentTeal.withValues(alpha: 0.15),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        labelStyle: GoogleFonts.nunito(
+        labelStyle: _f(
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: darkGray,
@@ -472,12 +454,12 @@ class AppTheme {
         selectedTileColor: primaryBlue.withValues(alpha: 0.1),
         iconColor: mediumGray,
         textColor: darkGray,
-        titleTextStyle: GoogleFonts.nunito(
+        titleTextStyle: _f(
           fontSize: 16,
           fontWeight: FontWeight.w500,
           color: darkGray,
         ),
-        subtitleTextStyle: GoogleFonts.nunito(
+        subtitleTextStyle: _f(
           fontSize: 14,
           fontWeight: FontWeight.w400,
           color: mediumGray,
@@ -492,11 +474,11 @@ class AppTheme {
         labelColor: primaryBlue,
         unselectedLabelColor: mediumGray,
         indicatorColor: primaryBlue,
-        labelStyle: GoogleFonts.nunito(
+        labelStyle: _f(
           fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
-        unselectedLabelStyle: GoogleFonts.nunito(
+        unselectedLabelStyle: _f(
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
@@ -530,7 +512,10 @@ class AppTheme {
         onError: white,
       ),
 
-      textTheme: GoogleFonts.nunitoTextTheme(ThemeData.dark().textTheme),
+      textTheme: _baseTextTheme().apply(
+        bodyColor: Colors.white,
+        displayColor: Colors.white,
+      ),
       scaffoldBackgroundColor: const Color(0xFF121212),
     );
   }

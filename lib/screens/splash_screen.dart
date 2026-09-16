@@ -74,12 +74,10 @@ class _SplashScreenState extends State<SplashScreen>
                       children: [
                         // Logo with glow effect
                         Container(
-                          width: 280,
-                          height: 280,
-                          padding: const EdgeInsets.all(30),
+                          width: 190,
+                          height: 190,
                           decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(40),
+                            borderRadius: BorderRadius.circular(44),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.cyan.withValues(alpha: 0.3),
@@ -95,12 +93,27 @@ class _SplashScreenState extends State<SplashScreen>
                               ),
                             ],
                           ),
-                          child: Image.asset(
-                            'assets/images/logo.png',
-                            fit: BoxFit.contain,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(44),
+                            child: Image.asset(
+                              'assets/images/app_icon.png',
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 50),
+                        const SizedBox(height: 28),
+
+                        // Uygulama adi
+                        const Text(
+                          'DevEducation',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 22),
 
                         // App tagline with tech style
                         Container(
@@ -132,7 +145,7 @@ class _SplashScreenState extends State<SplashScreen>
                               ),
                               const SizedBox(width: 12),
                               Text(
-                                'Yazılım ve Robotik Eğitim',
+                                'Yazılım ve Robotik Öğren',
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge

@@ -1,0 +1,560 @@
+@Tags(['shots'])
+library;
+
+// App Store ekran görüntülerini üretir — TEST DEĞİL, ARAÇ.
+//
+// NEDEN TESTİN İÇİNDE
+// -------------------
+// Ekranları gerçek Flutter motoruyla çizmenin en ucuz yolu bu: cihaz,
+// emülatör ya da Supabase bağlantısı gerekmiyor. Widget'ları elle
+// kurup çizdiğimiz için ekran görüntüleri her zaman GERÇEK arayüzü
+// gösteriyor, elde çizilmiş bir taklidi değil.
+//
+// Normal `flutter test` koşusunda ÇALIŞMAZ (bkz. dart_test.yaml,
+// 'shots' etiketi hariç tutuluyor). Elle çalıştırmak için:
+//
+//     flutter test --run-skipped --tags shots test/appstore_shots_test.dart
+//
+// Çıktı: outputs/appstore/ekranlar/*.png     (İngilizce)
+//         outputs/appstore/ekranlar_de/*.png  (Almanca)
+//         outputs/appstore/ekranlar_es/*.png  (İspanyolca)
+//         outputs/appstore/ekranlar_tr/*.png  (Türkçe)
+//
+// Türkçe mağaza slaytlarında İNGİLİZCE ekran görüntüleri kullanılıyordu
+// — Türk bir veli slaytta "when green flag clicked" görüyordu. Araç
+// artık her iki dili de üretiyor.
+import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:devkom_app/providers/auth_provider.dart';
+import 'package:devkom_app/providers/settings_provider.dart';
+import 'package:devkom_app/courses/screens/course_catalog_screen.dart';
+import 'package:devkom_app/screens/games/matching_game_screen.dart';
+import 'package:devkom_app/models/store_item_model.dart';
+import 'package:devkom_app/courses/data/courses_data.dart';
+import 'package:devkom_app/courses/data/mblock_palette.dart';
+import 'package:devkom_app/courses/data/lessons_data.dart';
+import 'package:devkom_app/courses/data/quizzes_data.dart';
+import 'package:devkom_app/courses/screens/quiz_screen.dart';
+import 'package:devkom_app/courses/data/scratch_lessons_data.dart';
+import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
+import 'package:devkom_app/courses/screens/widgets/step_widgets.dart';
+import 'package:devkom_app/widgets/character_stage.dart';
+import 'package:devkom_app/widgets/first_task.dart';
+import 'package:devkom_app/utils/lang.dart';
+import 'package:devkom_app/screens/auth/modern_splash_screen.dart';
+import 'package:devkom_app/screens/games/word_match_game_screen.dart';
+import 'package:devkom_app/screens/unified_home_screen.dart';
+import 'package:devkom_app/screens/games/chess_game_screen.dart';
+import 'package:devkom_app/models/chess_game_model.dart';
+import 'package:devkom_app/screens/quiz/quiz_intro_screen.dart';
+import 'package:devkom_app/widgets/mascot.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:devkom_app/core/service_locator.dart';
+import 'package:devkom_app/services/auth_service_supabase.dart';
+
+String _outDirFor(String lang) =>
+    lang == 'en' ? 'outputs/appstore/ekranlar' : 'outputs/appstore/ekranlar_$lang';
+final _key = GlobalKey();
+
+/// Magaza slaytindaki karakter: uygulamanin ACILIS karakteri.
+/// Cocuk uygulamayi ilk actiginda gordugu karakter bu olmali.
+final MascotSpec _slideMascot = specOf(Mascot.defaultSpecies);
+
+/// Telefon ölçüsü: 430x932 mantıksal piksel, 3x yoğunluk => 1290x2796.
+///
+/// Apple yeni gönderimlerde 6.9 inç boyutunu istiyor; eski 1170x2532
+/// (6.5 inç) artık tek başına yetmiyor.
+Future<void> _shoot(
+  WidgetTester tester,
+  String name,
+  Widget child, {
+  String lang = 'en',
+  Duration settle = const Duration(milliseconds: 400),
+  // Gercek bir ekrani (kendi Scaffold'u ve baslik cubugu olan) oldugu
+  // gibi cekmek icin. Parcali widget'lar icin false: onlari kendi
+  // Scaffold'umuza yerlestiriyoruz.
+  bool fullScreen = false,
+  // Cekmeden once ekranda bir sey yapmak icin (bir sikki secmek,
+  // ipucunu acmak gibi). Magaza slayti BOS bir ekrani degil,
+  // cocugun icinde oldugu ani gostermeli.
+  Future<void> Function(WidgetTester)? act,
+}) async {
+  SharedPreferences.setMockInitialValues({'language_code': lang});
+  final settings = SettingsProvider();
+  await settings.setLocale(Locale(lang));
+
+  tester.view.physicalSize = const Size(430 * 3, 932 * 3);
+  tester.view.devicePixelRatio = 3;
+  addTearDown(tester.view.reset);
+
+  await tester.pumpWidget(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<SettingsProvider>.value(value: settings),
+        // Bazi oyun ekranlari oynama suresi kapisi icin AuthProvider
+        // ariyor; olmayinca kirmizi hata ekrani ciziliyor.
+        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        // Bazi ekranlar dili SettingsProvider'dan degil
+        // `Localizations.localeOf(context)`ten okuyor (QuizIntroScreen
+        // gibi). Locale verilmezse o ekranlar dort koşuda da
+        // Ingilizce cikiyordu.
+        locale: Locale(lang),
+        supportedLocales: const [Locale('tr'), Locale('en'), Locale('de'), Locale('es')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        theme: ThemeData(
+          useMaterial3: true,
+          fontFamily: 'Nunito',
+          fontFamilyFallback: const ['EmojiFallback'],
+          scaffoldBackgroundColor: const Color(0xFFF5F7FA),
+        ),
+        home: RepaintBoundary(
+          key: _key,
+          child: fullScreen
+              ? child
+              : Scaffold(
+                  backgroundColor: const Color(0xFFF5F7FA),
+                  body: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+                      child: child,
+                    ),
+                  ),
+                ),
+        ),
+      ),
+    ),
+  );
+  await tester.pump(settle);
+
+  // Image.asset test motorunda kendiliginden COZULMUYOR: acilis
+  // ekranindaki uygulama simgesi bir kosuda robot, digerinde bos mor
+  // kare cikiyordu. runAsync icinde onbellege alip bir kare daha
+  // pompalamak gerekiyor.
+  await tester.runAsync(() async {
+    await precacheImage(
+        const AssetImage('assets/images/app_icon.png'), _key.currentContext!);
+    // Satranc tahtasinin zemini paket icinden gelen bir PNG. Onbellege
+    // alinmazsa taslar ciziliyor ama KARELER bos kaliyor — tahtasiz bir
+    // satranc ekrani cikiyordu.
+    for (final ad in ['brown', 'dark_brown', 'green', 'orange']) {
+      await precacheImage(
+        AssetImage('images/${ad}_board.png', package: 'flutter_chess_board'),
+        _key.currentContext!,
+      );
+    }
+  });
+  await tester.pump(const Duration(milliseconds: 120));
+
+  if (act != null) {
+    await act(tester);
+    await tester.pump(const Duration(milliseconds: 400));
+  }
+
+  await tester.runAsync(() async {
+    final boundary =
+        _key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+    final image = await boundary.toImage(pixelRatio: 3);
+    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+    final dir = _outDirFor(lang);
+    Directory(dir).createSync(recursive: true);
+    File('$dir/$name.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+  });
+
+  // Agaci sokup zamanlayicilarin dolmasini bekliyoruz. Ana sayfa
+  // anonim oturum acmayi deniyor; erisilemez Supabase adresi yuzunden
+  // basarisiz oluyor ve yeniden deneme zamanlayicisi asili kaliyor,
+  // test "Pending timers" ile patliyordu.
+  await tester.pumpWidget(const SizedBox.shrink());
+  await tester.pump(const Duration(seconds: 8));
+}
+
+/// Gerçek yazı tipini yükler.
+///
+/// Yüklenmezse `flutter test` her harfi SİYAH KUTU olarak çiziyor
+/// (glyph'siz varsayılan font). Ekran görüntüsü aracı için bu ölümcül:
+/// mağazaya yüklenecek görselde yazı yerine kutular olur.
+Future<void> _loadFonts() async {
+  final loader = FontLoader('Nunito');
+  for (final w in ['400', '600', '700', '800']) {
+    final file = File('assets/fonts/Nunito-$w.ttf');
+    loader.addFont(
+        Future.value(file.readAsBytesSync().buffer.asByteData()));
+  }
+  await loader.load();
+
+  // Emoji: Nunito'da emoji glifi yok. Gerçek cihazda iOS kendi emoji
+  // fontuna düşüyor, ama test motorunda böyle bir yedek yok ve her
+  // emoji BOŞ KARE çıkıyor. Mağaza görselinde tofu kabul edilemez.
+  for (final path in [
+    '/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf',
+    '/System/Library/Fonts/Apple Color Emoji.ttc',
+  ]) {
+    final f = File(path);
+    if (!f.existsSync()) continue;
+    final emoji = FontLoader('EmojiFallback')
+      ..addFont(Future.value(f.readAsBytesSync().buffer.asByteData()));
+    await emoji.load();
+    break;
+  }
+
+  // Material simgeleri: test motoru bunları kendiliğinden yüklemiyor,
+  // her simge yerine boş kare çiziliyor (ekran görüntüsünde el işareti
+  // yeşil bir kutu olarak çıkmıştı). Font Flutter SDK'sının içinde.
+  final root = Platform.environment['FLUTTER_ROOT'] ??
+      (File(Platform.resolvedExecutable).parent.parent.parent.path);
+  final icons =
+      File('$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf');
+  if (icons.existsSync()) {
+    final l = FontLoader('MaterialIcons')
+      ..addFont(Future.value(icons.readAsBytesSync().buffer.asByteData()));
+    await l.load();
+  }
+}
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(_loadFonts);
+  // Ana sayfa `Supabase.instance`'i cagiriyor ve baslatilmamis
+  // ornekte assert atiyor (kirmizi hata ekrani cikiyordu). Testte
+  // gercek bir sunucuya baglanmiyoruz: erisilemez bir adresle
+  // baslatmak assert'i gecmeye yetiyor, ekran bos veriyle ciziliyor —
+  // magaza slayti icin istedigimiz de bu.
+  setUpAll(() async {
+    // Supabase acilirken SharedPreferences'i okuyor; sahte degerler
+    // once verilmezse eklenti kanali yok diye patliyor.
+    SharedPreferences.setMockInitialValues({});
+    await Supabase.initialize(
+        url: 'http://127.0.0.1:1', anonKey: 'test', debug: false);
+    // Bazi ekranlar (Satranc) servisleri GetIt'ten aliyor; kayitli
+    // degilse initState'te StateError atip ekran hic cizilmiyor.
+    if (!getIt.isRegistered<AuthServiceSupabase>()) {
+      await setupServiceLocator();
+    }
+  });
+
+  final scratch = CoursesData.byId('scratch')!;
+
+  for (final lang in ['en', 'tr', 'de', 'es']) {
+    // Dort dilin dordu de uretiliyor. Onceden burada `lang == 'en'`
+    // ikilisi vardi: Almanca ve Ispanyolca slaytlarda maskotun repligi
+    // TURKCE cikiyordu — Alman App Store'una Turkce yazili bir slayt
+    // gitmesi demekti.
+
+  testWidgets('01 ilk gorev ($lang)', (tester) async {
+    await _shoot(
+      tester,
+      '01_first_task',
+      // Ust hizali: ortalarsak slaytta ustte ve altta esit bosluk
+      // kaliyor ve gorsel kucuk gorunuyor.
+      Align(
+        alignment: Alignment.topCenter,
+        child: FirstTask(lang: lang, onSolved: (_) {}),
+      ),
+      lang: lang,
+    );
+  });
+
+  testWidgets('02 ders adimi ($lang)', (tester) async {
+    // Gercek bir Scratch dersinin gercek bir aciklama adimi.
+    final step = ScratchLessonsData.module1
+        .expand((l) => l.steps)
+        .whereType<ExplanationStep>()
+        .firstWhere((s) => s.visuals.isNotEmpty);
+
+    await _shoot(
+      tester,
+      '02_lesson',
+      SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            MascotSays(
+              mood: MascotMood.curious,
+              size: 64,
+              color: Color(0xFFFF8C1A),
+              text: AppLang.pick(lang,
+                  tr: 'Her proje bir blokla başlar. Sana göstereyim.',
+                  en: 'Every project starts with a block. Let me show you.',
+                  de: 'Jedes Projekt beginnt mit einem Block. '
+                      'Ich zeig es dir.',
+                  es: 'Cada proyecto empieza con un bloque. Te lo enseño.'),
+            ),
+            const SizedBox(height: 24),
+            ExplanationStepWidget(
+              step: step,
+              course: scratch,
+              isDark: false,
+              onComplete: () {},
+            ),
+          ],
+        ),
+      ),
+      lang: lang,
+    );
+  });
+
+  testWidgets('03 karakter ($lang)', (tester) async {
+    await _shoot(
+      tester,
+      '03_character',
+      Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const SizedBox(height: 12),
+          // Ad ve alt yazi MascotSpec'ten geliyor, elle yazilmiyor.
+          // Slaytta uzun sure 'Devi' yaziyordu; uygulama coktan bes
+          // karaktere (Puf/Mia/Bit/Kasif/Bug) gecmis ve acilis karakteri
+          // Puf olmustu. Magazadaki slaytta olmayan bir karakter
+          // gostermek indiren cocuga verilmis yanlis bir soz.
+          Text(_slideMascot.name,
+              style: const TextStyle(
+                  fontSize: 30, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 8),
+          Text(_slideMascot.taglineFor(lang),
+              style: const TextStyle(fontSize: 17, color: Colors.black54)),
+          const SizedBox(height: 28),
+          CharacterStage(
+            size: 220,
+            interactive: false,
+            mood: MascotMood.happy,
+            species: _slideMascot.species,
+            accentColor: _slideMascot.defaultColor,
+            hat: StoreItem(
+              id: 'hat_party',
+              itemKey: 'hat_party',
+              category: StoreItemCategory.hat,
+              name: AppLang.pick(lang,
+                  tr: 'Parti şapkası',
+                  en: 'Party hat',
+                  de: 'Partyhut',
+                  es: 'Gorro de fiesta'),
+              priceJeton: 0,
+              iconEmoji: '🎩',
+              colorHex: '#7C4DFF',
+            ),
+            glasses: StoreItem(
+              id: 'glasses_cool',
+              itemKey: 'glasses_cool',
+              category: StoreItemCategory.glasses,
+              name: AppLang.pick(lang,
+                  tr: 'Havalı gözlük',
+                  en: 'Cool glasses',
+                  de: 'Coole Brille',
+                  es: 'Gafas chulas'),
+              priceJeton: 0,
+              iconEmoji: '🕶️',
+              colorHex: '#7C4DFF',
+            ),
+          ),
+        ],
+      ),
+      lang: lang,
+    );
+  });
+
+  // Quiz ekrani GERCEK ekran: kendi baslik cubugu, ilerleme cizgisi ve
+  // butonlariyla oldugu gibi cekiliyor. Secilen soru bilerek kod
+  // ciktisi sorusu — magazada "cocuk ne YAPIYOR" sorusunun cevabi
+  // guzel bir arayuz degil, kodun ne yazacagini tahmin etmesi.
+  testWidgets('05 kod tahmini ($lang)', (tester) async {
+    final lesson = LessonsData.getLessonsForCourse('python')
+        .firstWhere((l) => l.id == 'python_02');
+    await _shoot(
+      tester,
+      '05_predict_code',
+      QuizScreen(
+        course: CoursesData.byId('python')!,
+        lesson: lesson,
+        quiz: QuizzesData.all['python_02']!,
+      ),
+      lang: lang,
+      fullScreen: true,
+      settle: const Duration(milliseconds: 600),
+    );
+  });
+
+  // Ayni quiz ekrani, ama cocuk bir sik secmis ve ipucunu acmis
+  // halde. Magazada gosterilmeye deger olan bos soru degil, sorunun
+  // ardindan gelen ACIKLAMA: bu uygulamanin verdigi soz o.
+  testWidgets('06 ipucu ($lang)', (tester) async {
+    final lesson = LessonsData.getLessonsForCourse('python')
+        .firstWhere((l) => l.id == 'python_02');
+    await _shoot(
+      tester,
+      '06_hint',
+      QuizScreen(
+        course: CoursesData.byId('python')!,
+        lesson: lesson,
+        quiz: QuizzesData.all['python_02']!,
+      ),
+      lang: lang,
+      fullScreen: true,
+      settle: const Duration(milliseconds: 600),
+      act: (t) async {
+        // Dogru sikki sec (indeks 0), sonra ampule bas.
+        await t.tap(find.text('8'));
+        await t.pump(const Duration(milliseconds: 200));
+        await t.tap(find.byIcon(Icons.lightbulb));
+        await t.pump(const Duration(milliseconds: 300));
+      },
+    );
+  });
+
+  // Esleştirme oyunu: uygulamanin EN RENKLI ekrani. Magaza slaytinda
+  // acik gri ve yarisi bos bir ekran hicbir sey soylemiyordu; burada
+  // renkli etiketler ve dolu bir liste var.
+  testWidgets('07 esleştirme oyunu ($lang)', (tester) async {
+    await _shoot(
+      tester,
+      '07_matching',
+      const MatchingGameScreen(),
+      lang: lang,
+      fullScreen: true,
+      settle: const Duration(milliseconds: 700),
+    );
+  });
+
+  // Kurs katalogu: "Ogrenme Yolu". Uygulamanin en cok sey anlatan
+  // ekrani — dokuz kurs numaralanmis bir yol halinde, her birinde
+  // ders sayisi ve sure. Magaza slaytinda "9 kurs" iddiasinin
+  // karsiligi bu ekran.
+  testWidgets('08 kurs yolu ($lang)', (tester) async {
+    await _shoot(
+      tester,
+      '08_path',
+      const CourseCatalogScreen(),
+      lang: lang,
+      fullScreen: true,
+      settle: const Duration(milliseconds: 700),
+    );
+  });
+
+  // Ana sayfa: cocugun uygulamayi actiginda gordugu ekran.
+  testWidgets('09 ana sayfa ($lang)', (tester) async {
+    await _shoot(
+      tester,
+      '09_home',
+      const UnifiedHomeScreen(),
+      lang: lang,
+      fullScreen: true,
+      settle: const Duration(milliseconds: 900),
+    );
+  });
+
+  // Acilis ekrani: uygulamanin adini ve ne oldugunu tek karede
+  // soyleyen tek ekran.
+  testWidgets('10 acilis ($lang)', (tester) async {
+    await _shoot(
+      tester,
+      '10_splash',
+      const ModernSplashScreen(),
+      lang: lang,
+      fullScreen: true,
+      settle: const Duration(milliseconds: 900),
+    );
+  });
+
+  // Kelime eslestirme: terimlerin Ingilizce-Turkce karsiligi.
+  testWidgets('11 kelime eslestirme ($lang)', (tester) async {
+    await _shoot(
+      tester,
+      '11_word_match',
+      const WordMatchGameScreen(gameData: {}),
+      lang: lang,
+      fullScreen: true,
+      settle: const Duration(milliseconds: 700),
+    );
+  });
+
+  // Satranc: oyun gorunumu. `initialDifficulty` verilince ekran
+  // dogrudan tahtayi kuruyor.
+  testWidgets('12 satranc ($lang)', (tester) async {
+    await _shoot(
+      tester,
+      '12_chess',
+      const ChessGameScreen(initialDifficulty: ChessDifficulty.beginner),
+      lang: lang,
+      fullScreen: true,
+      settle: const Duration(milliseconds: 900),
+      // Ekran once tahta temasi soruyor; "Baslat"a basmadan tahta
+      // kurulmuyor.
+      act: (tester) async {
+        await tester.pump(const Duration(milliseconds: 300));
+        final basla = find.widgetWithText(
+          ElevatedButton,
+          AppLang.pick(lang,
+              tr: 'Başlat', en: 'Start', de: 'Starten', es: 'Empezar'),
+        );
+        if (basla.evaluate().isNotEmpty) {
+          await tester.tap(basla.first);
+          // Yesil "Oyun basladi!" seridi slaytin altini kapatiyordu;
+          // 2 saniyelik omru bitene kadar pompaliyoruz.
+          for (var i = 0; i < 14; i++) {
+            await tester.pump(const Duration(milliseconds: 400));
+          }
+        }
+      },
+    );
+  });
+
+  // Quiz girisi: "Basla" tusu yerine kaydirmali tus olan ekran.
+  testWidgets('13 kaydirarak basla ($lang)', (tester) async {
+    await _shoot(
+      tester,
+      '13_slide_to_start',
+      const QuizIntroScreen(),
+      lang: lang,
+      fullScreen: true,
+      settle: const Duration(milliseconds: 500),
+    );
+  });
+
+  testWidgets('04 mblock bloklari ($lang)', (tester) async {
+    final step = BlockBuilderStep(
+      id: 'shot',
+      instruction: '9 numaralı pindeki LED\'i yanıp söndür',
+      instructionEn: 'Blink the LED on pin 9',
+      availableBlocks: [
+        MBlockBlocks.boardLaunch(),
+        MBlockBlocks.forever(),
+        MBlockBlocks.digitalWrite('9', 'yüksek'),
+        MBlockBlocks.wait('1'),
+        MBlockBlocks.digitalWrite('9', 'düşük'),
+      ],
+      goal: 'LED saniyede bir yanıp sönüyor',
+      goalEn: 'The LED blinks once a second',
+      correctSequence: const [],
+    );
+
+    await _shoot(
+      tester,
+      '04_blocks',
+      SingleChildScrollView(
+        child: BlockBuilderStepWidget(
+          step: step,
+          course: scratch,
+          isDark: false,
+          onComplete: (_) {},
+        ),
+      ),
+      lang: lang,
+    );
+  });
+  }
+}

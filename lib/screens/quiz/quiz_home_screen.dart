@@ -6,6 +6,7 @@ import '../../courses/data/courses_data.dart';
 import '../../courses/data/lessons_data.dart';
 import '../../courses/data/quizzes_data.dart';
 import '../../courses/screens/quiz_screen.dart';
+import '../../utils/lang.dart';
 
 /// Quiz Merkezi — Quizo tasarımından ilham alan ama devkom'un mor kimliğini
 /// kullanan bağımsız quiz bölümü. Tek ekran: konu seçimi.
@@ -26,7 +27,7 @@ class QuizHomeScreen extends StatefulWidget {
 class _QuizHomeScreenState extends State<QuizHomeScreen> {
   @override
   Widget build(BuildContext context) {
-    // Quiz Merkezi tek ekran: sadece konu secimi. "Siralama" (skor tabelasi)
+    // Quiz Merkezi tek ekran: sadece konu secimi. "Sıralama" (skor tabelasi)
     // ve "Profilim" sekmeleri kaldirildi - skor tabelasina zaten Oyunlar
     // tarafindan erisiliyor, burada gereksiz karmasiklik yaratiyordu.
     return const Scaffold(
@@ -68,7 +69,10 @@ class _QuizCategoriesTabState extends State<_QuizCategoriesTab> {
   @override
   Widget build(BuildContext context) {
     final jetonBalance = context.watch<AuthProvider>().userProgress?.jetonBalance ?? 0;
-    final userName = context.watch<AuthProvider>().currentUser?.displayName ?? 'Kaşif';
+    final lang = Localizations.localeOf(context).languageCode;
+    final userName = context.watch<AuthProvider>().currentUser?.displayName ??
+        AppLang.pick(lang,
+            tr: 'Kaşif', en: 'Explorer', de: 'Entdecker', es: 'Explorador');
     final categories = QuizCategoriesData.all
         .where((c) => c.title.toLowerCase().contains(_search.toLowerCase()))
         .toList();
@@ -83,7 +87,7 @@ class _QuizCategoriesTabState extends State<_QuizCategoriesTab> {
             children: [
               Row(
                 children: [
-                  // Quiz Merkezi'nden ana uygulamaya donus. Bu ekran drawer'dan
+                  // Quiz Merkezi'nden ana uygulamaya dönüş. Bu ekran drawer'dan
                   // push ile aciliyor ve kendi AppBar'i yok; geri butonu
                   // olmadan kullanici burada kapana kisiliyordu.
                   if (Navigator.canPop(context))
@@ -144,18 +148,34 @@ class _QuizCategoriesTabState extends State<_QuizCategoriesTab> {
             ),
           ),
           const SizedBox(height: 28),
-          const Text(
-            'Konunu Seç',
+          Text(
+            AppLang.pick(lang,
+                tr: 'Konunu Seç',
+                en: 'Pick your topic',
+                de: 'Wähle dein Thema',
+                es: 'Elige tu tema'),
             style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, height: 1.1),
           ),
           const SizedBox(height: 6),
-          Text('Binlerce soru, sınırsız kazanım!', style: TextStyle(color: Colors.grey.shade600)),
+          Text(
+              AppLang.pick(lang,
+                  tr: 'Binlerce soru, sınırsız kazanım!',
+                  en: 'Thousands of questions, endless rewards!',
+                  de: 'Tausende Fragen, endlose Belohnungen!',
+                  es: '¡Miles de preguntas, recompensas sin fin!'),
+              style: TextStyle(color: Colors.grey.shade600)),
           const SizedBox(height: 20),
           if (categories.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 40),
               child: Center(
-                child: Text('Bu aramaya uygun konu bulunamadı.', style: TextStyle(color: Colors.grey.shade500)),
+                child: Text(
+                    AppLang.pick(lang,
+                        tr: 'Bu aramaya uygun konu bulunamadı.',
+                        en: 'No topic matches this search.',
+                        de: 'Kein Thema passt zu dieser Suche.',
+                        es: 'Ningún tema coincide con esta búsqueda.'),
+                    style: TextStyle(color: Colors.grey.shade500)),
               ),
             )
           else
@@ -166,6 +186,7 @@ class _QuizCategoriesTabState extends State<_QuizCategoriesTab> {
   }
 
   Widget _buildCategoryCard(QuizCategory category) {
+    final lang = Localizations.localeOf(context).languageCode;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
@@ -197,12 +218,20 @@ class _QuizCategoriesTabState extends State<_QuizCategoriesTab> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  category.title,
+                  category.titleFor(lang),
                   style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${category.quizKeys.length} quiz seti • ${category.questionCount} soru',
+                  AppLang.pick(lang,
+                      tr: '${category.quizKeys.length} quiz seti • '
+                          '${category.questionCount} soru',
+                      en: '${category.quizKeys.length} quiz sets • '
+                          '${category.questionCount} questions',
+                      de: '${category.quizKeys.length} Quiz-Sets • '
+                          '${category.questionCount} Fragen',
+                      es: '${category.quizKeys.length} sets • '
+                          '${category.questionCount} preguntas'),
                   style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 12),
                 ),
               ],

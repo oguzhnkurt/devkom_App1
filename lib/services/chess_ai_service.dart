@@ -21,7 +21,18 @@ class ChessAIService {
   StreamSubscription? _stockfishSubscription;
   Completer<String?>? _moveCompleter;
   bool _isInitialized = false;
+
+  /// Stockfish GERCEKTEN ayaga kalkti mi.
+  ///
+  /// [_isInitialized] "hazirlanma denemesi bitti" demek; bu ise "guclu
+  /// motor var" demek. Ikisini ayirmak gerekiyordu cunku motor
+  /// kalkmadiginda oyun yine de oynanabilir: basit yapay zeka hazir
+  /// bekliyor.
+  bool _stockfishReady = false;
   final _random = Random();
+
+  /// Oyun su an basit yapay zekayla mi oynaniyor.
+  bool get usingSimpleAI => kIsWeb || !_stockfishReady;
 
   /// Check if Stockfish is available on this platform
   bool get isStockfishAvailable => !kIsWeb;
@@ -32,6 +43,7 @@ class ChessAIService {
     if (kIsWeb) {
       debugPrint('ℹ️ Running on web - using simple AI instead of Stockfish');
       _isInitialized = true;
+      _stockfishReady = false;
       return;
     }
 
@@ -47,6 +59,7 @@ class ChessAIService {
       _stockfish?.dispose();
       _stockfish = null;
       _isInitialized = false;
+      _stockfishReady = false;
       await Future.delayed(const Duration(milliseconds: 100));
     }
 
@@ -104,11 +117,22 @@ class ChessAIService {
       );
 
       _isInitialized = true;
+      _stockfishReady = true;
       debugPrint('✅ Stockfish engine initialized');
     } catch (e) {
-      debugPrint('❌ Failed to initialize Stockfish: $e');
-      _isInitialized = false;
-      rethrow;
+      // BILEREK RETHROW YOK.
+      //
+      // Eskiden burasi hatayi yukari atiyordu; ekran da onu yakalayip
+      // cocugu zorluk secim ekranina geri gonderiyordu. Yani motor
+      // kalkmadiginda satranc HIC oynanamiyordu — oysa web icin yazilmis
+      // basit yapay zeka her platformda calisiyor ve [getBestMove] zaten
+      // ona dusuyor. Motor yoksa oyun basit rakiple devam etsin.
+      debugPrint('⚠️ Stockfish baslamadi, basit yapay zekaya dusuluyor: $e');
+      _stockfishSubscription?.cancel();
+      _stockfishSubscription = null;
+      _stockfish = null;
+      _stockfishReady = false;
+      _isInitialized = true;
     }
   }
 
@@ -117,13 +141,13 @@ class ChessAIService {
     required chess_lib.Chess game,
     required ChessDifficulty difficulty,
   }) async {
-    // Use simple AI on web
-    if (kIsWeb) {
-      return _getSimpleAIMove(game, difficulty);
+    if (!_isInitialized) {
+      await initialize();
     }
 
-    if (_stockfish == null) {
-      await initialize();
+    // Web'de ve motorun kalkmadigi cihazlarda basit yapay zeka.
+    if (usingSimpleAI || _stockfish == null) {
+      return _getSimpleAIMove(game, difficulty);
     }
 
     try {
@@ -161,16 +185,24 @@ class ChessAIService {
         },
       );
 
+      // MOTOR SESSIZ KALIRSA BASIT RAKIBE DUS.
+      //
+      // Zaman asimi, '(none)' ya da cevrilemeyen bir hamle null
+      // donuyordu; ekran da null gelince HICBIR SEY yapmiyordu. Sonuc:
+      // sira siyahta kaliyor, tahta kilitleniyor ve cocuk bilgisayarin
+      // taslarini oynatmaya basliyordu. Artik motor bir sey uretmezse
+      // basit yapay zeka hamleyi yapiyor; oyun duruyormus gibi
+      // gorunmuyor.
       if (uciMove == null || uciMove == '(none)') {
-        debugPrint('❌ No valid move from Stockfish');
-        return null;
+        debugPrint('⚠️ Stockfish hamle vermedi, basit yapay zekaya dusuluyor');
+        return _getSimpleAIMove(game, difficulty);
       }
 
       // Convert UCI format (e2e4) to SAN format (e4)
       final sanMove = _convertUciToSan(game, uciMove);
       debugPrint('✅ Stockfish move: $uciMove → $sanMove');
 
-      return sanMove;
+      return sanMove ?? _getSimpleAIMove(game, difficulty);
     } catch (e) {
       debugPrint('❌ Error getting move from Stockfish: $e');
       // Fallback to simple AI if Stockfish fails
@@ -327,6 +359,7 @@ class ChessAIService {
     _stockfish?.dispose();
     _stockfish = null;
     _isInitialized = false;
+    _stockfishReady = false;
     debugPrint('🗑️ Stockfish engine disposed');
   }
 }

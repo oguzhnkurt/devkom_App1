@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../utils/lang.dart';
+import '../../providers/settings_provider.dart';
 import '../../models/leaderboard_model.dart';
 import '../../models/game_model.dart';
+import '../../services/embedded_games_service.dart';
 import '../../services/leaderboard_service.dart';
 import '../../theme.dart';
 
@@ -49,7 +53,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Skor Tabelası'),
+        title: Text(_t4(context, 'Skor Tabelası', 'Leaderboard', 'Bestenliste',
+            'Clasificación')),
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: AppTheme.white,
       ),
@@ -104,45 +109,22 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     );
   }
 
+  /// Oyun adi KATALOGDAN okunuyor.
+  ///
+  /// Burada 17 oyun adi elle yazilmisti ve hepsi turkceydi: almanca
+  /// secen cocuk tablonun sekmelerinde "Sagim-Solum" goruyordu. Ayrica
+  /// katalogda bir oyunun adi degisince burasi eskiyordu. Tek kaynak
+  /// EmbeddedGamesService.
   String _getGameTypeLabel(GameType type) {
-    switch (type) {
-      case GameType.quiz:
-        return 'Quiz';
-      case GameType.chess:
-        return 'Satranç';
-      case GameType.blockCoding:
-        return 'Kodlama';
-      case GameType.wordMatch:
-        return 'Kelime';
-      case GameType.sequencing:
-        return 'Sıralama';
-      case GameType.coordinates:
-        return 'Koordinat';
-      case GameType.puzzle:
-        return 'Bulmaca';
-      case GameType.simulation:
-        return 'Simülasyon';
-      case GameType.mazeExplorer:
-        return 'Labirent';
-      case GameType.colorCoding:
-        return 'Renk Kodu';
-      case GameType.robotSimulator:
-        return 'Robot Sim';
-      case GameType.leftRightCoding:
-        return 'Sağım-Solum';
-      case GameType.arduinoSimulator:
-        return 'Arduino Sim';
-      case GameType.pipesPuzzle:
-        return 'Boru Bulmacası';
-      case GameType.patternDetective:
-        return 'Kod Dedektifi';
-      case GameType.variableMaster:
-        return 'Değişken Ustası';
-      case GameType.bugHunter:
-        return 'Bug Hunter';
-      case GameType.matchingGame:
-        return 'Eşleştirme';
+    final lang = Provider.of<SettingsProvider>(context, listen: false)
+        .locale
+        .languageCode;
+    for (final g in EmbeddedGamesService.getAllEmbeddedGames()) {
+      if (g.type == type) return g.titleFor(lang);
     }
+    // Katalogda karsiligi olmayan bir tur: adini oldugu gibi goster,
+    // bos sekme cizmektense.
+    return type.name;
   }
 
   Widget _buildEmptyState() {
@@ -153,7 +135,10 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           Icon(Icons.emoji_events_outlined, size: 80, color: AppTheme.mediumGray),
           const SizedBox(height: 16),
           Text(
-            'Henüz kimse bu oyunu oynamamış!',
+            _t4(context, 'Henüz kimse bu oyunu oynamamış!',
+                'No one has played this game yet!',
+                'Dieses Spiel hat noch niemand gespielt!',
+                '¡Nadie ha jugado todavía a este juego!'),
             style: TextStyle(
               fontSize: 18,
               color: AppTheme.darkGray,
@@ -162,7 +147,10 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'İlk sıralamaya giren sen ol!',
+            _t4(context, 'İlk sıralamaya giren sen ol!',
+                'Be the first on the board!',
+                'Sei die Erste auf der Liste!',
+                '¡Sé el primero en la clasificación!'),
             style: TextStyle(
               fontSize: 14,
               color: AppTheme.mediumGray,
@@ -443,3 +431,15 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     }
   }
 }
+
+/// Bu ekrandaki kısa arayüz yazıları için dört dilli yardımcı.
+String _t4(BuildContext context, String tr, String en, String de, String es) =>
+    AppLang.pick(
+      Provider.of<SettingsProvider>(context, listen: false)
+          .locale
+          .languageCode,
+      tr: tr,
+      en: en,
+      de: de,
+      es: es,
+    );

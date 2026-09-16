@@ -64,46 +64,6 @@ class ChessGameModel {
   // // REMOVED: Firebase-specific method
   // // factory ChessGameModel.fromFirestore(DocumentSnapshot doc) { ... }
 
-  /// Parse duration from dynamic value
-  static int _parseDuration(dynamic duration) {
-    if (duration == null) return 0;
-    if (duration is int) return duration;
-    if (duration is String) {
-      return int.tryParse(duration) ?? 0;
-    }
-    return 0;
-  }
-
-  /// Parse difficulty from string
-  static ChessDifficulty _parseDifficulty(String? difficulty) {
-    switch (difficulty?.toLowerCase()) {
-      case 'beginner':
-        return ChessDifficulty.beginner;
-      case 'intermediate':
-        return ChessDifficulty.intermediate;
-      case 'advanced':
-        return ChessDifficulty.advanced;
-      default:
-        return ChessDifficulty.beginner;
-    }
-  }
-
-  /// Parse result from string
-  static GameResult _parseResult(String? result) {
-    switch (result?.toLowerCase()) {
-      case 'win':
-        return GameResult.win;
-      case 'loss':
-        return GameResult.loss;
-      case 'draw':
-        return GameResult.draw;
-      case 'ongoing':
-        return GameResult.ongoing;
-      default:
-        return GameResult.ongoing;
-    }
-  }
-
   /// Copy with method
   ChessGameModel copyWith({
     String? gameId,

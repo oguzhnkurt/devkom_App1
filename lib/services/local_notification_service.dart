@@ -110,7 +110,7 @@ class LocalNotificationService {
       const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
         'agenda_reminders',
         'Ajanda Hatirlaticilari',
-        channelDescription: 'Ajanda etkinlikleri icin hatirlaticilar',
+        channelDescription: 'Ajanda etkinlikleri için hatirlaticilar',
         importance: Importance.high,
         priority: Priority.high,
         showWhen: true,
@@ -132,7 +132,7 @@ class LocalNotificationService {
       // Schedule the notification
       await _flutterLocalNotificationsPlugin.zonedSchedule(
         id,
-        'Yarin: $title',
+        'Yarın: $title',
         description.isEmpty ? 'Ajanda etkinliginiz yaklasiyor' : description,
         scheduledDate,
         notificationDetails,
@@ -203,8 +203,8 @@ class LocalNotificationService {
         id: _morningReminderId,
         hour: 8,
         minute: 0,
-        title: 'Gunaydin!',
-        body: 'Bugunku 3 hedefin hazir. Hadi baslayalim!',
+        title: 'Günaydın!',
+        body: 'Bugünkü 3 hedefin hazir. Hadi baslayalim!',
         payload: 'daily_goals_morning',
       );
 
@@ -213,8 +213,8 @@ class LocalNotificationService {
         id: _eveningReminderId,
         hour: 18,
         minute: 0,
-        title: 'Aksam Hatirlatmasi',
-        body: 'Gunluk hedeflerini tamamladin mi?',
+        title: 'Akşam Hatırlatması',
+        body: 'Günlük hedeflerini tamamladın mi?',
         payload: 'daily_goals_evening',
       );
 
@@ -223,7 +223,7 @@ class LocalNotificationService {
         id: _lastChanceReminderId,
         hour: 21,
         minute: 0,
-        title: 'Son Sans!',
+        title: 'Son Şans!',
         body: 'Streakini kaybetme! Hedeflerin bekliyor.',
         payload: 'daily_goals_last_chance',
       );
@@ -255,8 +255,8 @@ class LocalNotificationService {
 
       const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
         'daily_goals_channel',
-        'Gunluk Hedefler',
-        channelDescription: 'Gunluk hedef hatirlatmalari',
+        'Günlük Hedefler',
+        channelDescription: 'Günlük hedef hatirlatmalari',
         importance: Importance.high,
         priority: Priority.high,
         showWhen: true,
@@ -317,8 +317,8 @@ class LocalNotificationService {
       );
       await _flutterLocalNotificationsPlugin.show(
         _streakRiskId,
-        '$currentStreak gunluk serini kaybetme!',
-        'Bugun en az 1 ders tamamla!',
+        '$currentStreak günlük serini kaybetme!',
+        'Bugün en az 1 ders tamamla!',
         notificationDetails,
         payload: 'streak_risk',
       );
@@ -337,8 +337,8 @@ class LocalNotificationService {
     if (!_initialized) await initialize();
     try {
       const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-        'achievements_channel', 'Basarilar',
-        channelDescription: 'Basari bildirimleri',
+        'achievements_channel', 'Başarılar',
+        channelDescription: 'Başarı bildirimleri',
         importance: Importance.high, priority: Priority.high,
       );
       const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
@@ -366,8 +366,8 @@ class LocalNotificationService {
     if (!_initialized) await initialize();
     try {
       const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-        'daily_goals_channel', 'Gunluk Hedefler',
-        channelDescription: 'Gunluk hedef bildirimleri',
+        'daily_goals_channel', 'Günlük Hedefler',
+        channelDescription: 'Günlük hedef bildirimleri',
         importance: Importance.high, priority: Priority.high,
       );
       const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
@@ -379,7 +379,7 @@ class LocalNotificationService {
       await _flutterLocalNotificationsPlugin.show(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
         'Tebrikler!',
-        'Bugunku tum hedeflerini tamamladin!',
+        'Bugünkü tüm hedeflerini tamamladın!',
         notificationDetails,
         payload: 'daily_goals_completed',
       );

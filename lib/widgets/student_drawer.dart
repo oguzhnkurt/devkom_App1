@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../screens/student/achievement_analysis_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/roboakademi/roboakademi_parent_screen.dart';
 import '../screens/roboakademi/roboakademi_curriculum_screen.dart';
 import '../screens/roboakademi/roboakademi_agenda_screen.dart';
-import '../screens/market_screen.dart';
-import '../screens/quiz/quiz_intro_screen.dart';
+import '../screens/settings/settings_screen.dart';
+import '../screens/videos/video_series_screen.dart';
 import '../utils/app_localizations.dart';
 
 class StudentDrawer extends StatelessWidget {
@@ -73,8 +72,13 @@ class StudentDrawer extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        // NOT: Burada daha once e-posta adresi gosteriliyordu.
+                        // Uygulama tek kullanicili ve cocuklara yonelik oldugu
+                        // icin kisisel veriyi ekranda tutmuyoruz; yerine
+                        // seviye bilgisi var. Takma ad profilden degistirilebilir.
                         Text(
-                          user?.email ?? '',
+                          '${loc.level} '
+                          '${authProvider.userProgress?.level ?? 1}',
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Colors.white70,
@@ -109,32 +113,39 @@ class StudentDrawer extends StatelessWidget {
               ),
             ),
 
-            // Quiz Merkezi — herkese açık, ders bazlı quizleri konu konu oynatır
+            // Video Dersler — konu konu izlenen seriler. Icerik Supabase'den
+            // (video_series / video_episodes) geldigi icin yeni seri eklemek
+            // uygulama guncellemesi gerektirmiyor.
+            //
+            // Not: Quiz ve Market bu menuden kaldirildi; ikisi de ana ekrandaki
+            // hizli erisim kartlarindan zaten ulasilabiliyor, menuyu tekrar
+            // ediyorlardi.
             _buildDrawerItem(
               context,
-              icon: Icons.quiz_rounded,
-              title: 'Quiz',
+              icon: Icons.play_circle_fill_rounded,
+              title: loc.videoLessons,
               iconColor: const Color(0xFF6C3CE0),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const QuizIntroScreen()),
+                  MaterialPageRoute(builder: (context) => const VideoSeriesScreen()),
                 );
               },
             ),
-
-            // Market — herkese açık, jeton harcayarak robot kılıfı/çerçeve/karakter alınır
+            // Ayarlar — dil secimi, bildirimler, tanitimi tekrar gosterme.
+            // Ekran uzun suredir vardi ama uygulamada hicbir yerden
+            // acilamiyordu; menude olmadigi icin olu ekran gibi duruyordu.
             _buildDrawerItem(
               context,
-              icon: Icons.storefront_rounded,
-              title: 'Market',
-              iconColor: const Color(0xFF6C3CE0),
+              icon: Icons.settings_rounded,
+              title: loc.settings,
+              iconColor: const Color(0xFF546E7A),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const MarketScreen()),
+                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
                 );
               },
             ),
@@ -225,21 +236,6 @@ class StudentDrawer extends StatelessWidget {
                 },
               ),
             ],
-
-            _buildDrawerItem(
-              context,
-              icon: Icons.analytics,
-              title: loc.achievementAnalysis,
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AchievementAnalysisScreen(),
-                  ),
-                );
-              },
-            ),
 
             const Divider(height: 32),
 

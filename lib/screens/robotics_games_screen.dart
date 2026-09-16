@@ -1,13 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:math' as math;
+
 import '../models/game_model.dart';
 import '../providers/settings_provider.dart';
+import '../services/embedded_games_service.dart';
 import '../services/games_service.dart';
-import '../widgets/category_selector.dart';
+import '../theme.dart';
+import '../ui/appear_in.dart';
+import '../ui/motion.dart';
+import '../utils/lang.dart';
+import '../utils/pro_gate.dart';
+import '../widgets/playful_background.dart';
 import 'game_play_screen.dart';
-import 'leaderboard_screen.dart';
 
+/// Oyunlar ekranı.
+///
+/// Önceki hâlinde üstte dört sekmelik bir kategori şeridi vardı ve kartlar
+/// pastel zeminler, parlama efektleri, yıldız sıraları, kupa simgeleri ve
+/// kategori etiketleriyle doluydu — bir kartta beş ayrı rozet birden
+/// duruyordu ve göz nereye bakacağını bilmiyordu. Şimdi tek bir düzenli
+/// ızgara var: her kart bir görsel, bir başlık ve iki bilgi (süre, zorluk).
+/// Kilitli oyunlarda görselin köşesinde tek bir Pro rozeti çıkıyor.
 class RoboticsGamesScreen extends StatefulWidget {
   const RoboticsGamesScreen({super.key});
 
@@ -15,312 +28,100 @@ class RoboticsGamesScreen extends StatefulWidget {
   State<RoboticsGamesScreen> createState() => _RoboticsGamesScreenState();
 }
 
-class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
-    with SingleTickerProviderStateMixin {
+class _RoboticsGamesScreenState extends State<RoboticsGamesScreen> {
   final GamesService _gamesService = GamesService();
-  GameCategory? _selectedCategory;
-  String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
-
-  late AnimationController _starsController;
-
-  @override
-  void initState() {
-    super.initState();
-    // Sadece tek bir hafif animasyon
-    _starsController = AnimationController(
-      duration: const Duration(seconds: 60),
-      vsync: this,
-    )..repeat();
-  }
+  String _searchQuery = '';
 
   @override
   void dispose() {
     _searchController.dispose();
-    _starsController.dispose();
     super.dispose();
   }
 
+  String get _lang =>
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+
   @override
   Widget build(BuildContext context) {
+    // Zemin artik duz gri degil: konuyla ilgili semboller (kod blogu, disli,
+    // yon oku, devre dugumu, kod parantezi) cok soluk ve cok yavas suzuluyor.
+    // Kartlarin okunurlugu bozulmuyor ama sayfa "liste" degil "oyun alani"
+    // gibi duruyor.
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: false,
       appBar: _buildAppBar(),
-      body: Stack(
-        children: [
-          _buildLightSpaceBackground(),
-          Column(
-            children: [
-              const SizedBox(height: 100),
-              _buildCategorySelector(),
-              Expanded(child: _buildGamesGrid()),
-            ],
-          ),
-        ],
+      body: PlayfulBackground(
+        baseColor: AppTheme.lightGray,
+        tint: const Color(0xFF7E57C2),
+        child: SafeArea(top: false, child: _buildGamesGrid()),
       ),
     );
   }
 
   PreferredSizeWidget _buildAppBar() {
+    // GERI TUSU HAKKINDA: burada bir sure `Navigator.of(context).canPop()`
+    // ile elle bir `leading` kuruyorduk. Bu bir gerilemeydi — ekran alt
+    // sekmenin govdesi olarak da cizilebildigi icin o kontrol yanlis yerde
+    // false donuyor ve geri tusu HIC gorunmuyordu. Flutter'in kendi kontrolu
+    // (`automaticallyImplyLeading`) rotayi soruyor, navigator'i degil:
+    // itilmis bir rotada tusu koyuyor, sekme govdesinde koymuyor. Dogru
+    // davranis zaten buydu; elle yazilan surumu kaldirdik.
     return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: () => Navigator.of(context).pop(),
-      ),
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              colors: [Color(0xFF00F5FF), Color(0xFF7B2FFF), Color(0xFFFF006B)],
-            ).createShader(bounds),
-            child: const Text(
-              'DevX',
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 28,
-                color: Colors.white,
-                letterSpacing: 2,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Color(0xFF00F5FF), Color(0xFF7B2FFF)]),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Text(
-              'Interactive',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-      centerTitle: true,
-      backgroundColor: Colors.transparent,
+      title: const Text('Oyunlar'),
+      centerTitle: false,
+      backgroundColor: AppTheme.lightGray,
+      foregroundColor: AppTheme.darkGray,
+      surfaceTintColor: Colors.transparent,
       elevation: 0,
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0A0E27).withValues(alpha: 0.95), Color(0xFF1A1D3F).withValues(alpha: 0.95)],
-          ),
-        ),
+      scrolledUnderElevation: 1,
+      titleTextStyle: const TextStyle(
+        fontFamily: AppTheme.fontFamily,
+        fontSize: 22,
+        fontWeight: FontWeight.w800,
+        color: AppTheme.darkGray,
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.search, color: Color(0xFF00F5FF)),
-          onPressed: _showSearchDialog,
+          tooltip: 'Oyun ara',
+          icon: Icon(_searchQuery.isEmpty
+              ? Icons.search_rounded
+              : Icons.search_off_rounded),
+          onPressed: _searchQuery.isEmpty
+              ? _showSearchDialog
+              : () => setState(() {
+                    _searchQuery = '';
+                    _searchController.clear();
+                  }),
         ),
       ],
     );
   }
 
-  Widget _buildLightSpaceBackground() {
-    // Hafif ve optimize edilmiş arka plan - sadece 30 yıldız
-    return AnimatedBuilder(
-      animation: _starsController,
-      builder: (context, child) {
-        return Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF0A0E27), Color(0xFF1A1D3F), Color(0xFF2D1B69)],
-            ),
-          ),
-          child: Stack(
-            children: [
-              // Azaltılmış yıldız sayısı (100 -> 30)
-              ...List.generate(30, (index) {
-                final random = math.Random(index);
-                final size = random.nextDouble() * 2 + 1;
-                final x = random.nextDouble();
-                final y = random.nextDouble();
-
-                return Positioned(
-                  left: MediaQuery.of(context).size.width * x,
-                  top: (MediaQuery.of(context).size.height * y + _starsController.value * 100) %
-                       MediaQuery.of(context).size.height,
-                  child: Container(
-                    width: size,
-                    height: size,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.6),
-                    ),
-                  ),
-                );
-              }),
-              // Statik nebula (animasyonsuz, performans için)
-              Positioned(
-                right: -100,
-                top: 100,
-                child: Container(
-                  width: 300,
-                  height: 300,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        Color(0xFF7B2FFF).withValues(alpha: 0.3),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: -100,
-                bottom: 150,
-                child: Container(
-                  width: 300,
-                  height: 300,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        Color(0xFF00F5FF).withValues(alpha: 0.3),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildCategorySelector() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withValues(alpha: 0.1),
-            Colors.white.withValues(alpha: 0.05),
-          ],
-        ),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.15),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: CategorySelector(
-        selectedCategory: _selectedCategory,
-        onCategorySelected: (category) => setState(() => _selectedCategory = category),
-      ),
-    );
-  }
-
   Widget _buildGamesGrid() {
-    // TODO: Migrate to Supabase - Using FutureBuilder instead of StreamBuilder
     return FutureBuilder<List<dynamic>>(
-      future: _selectedCategory == null
-          ? _gamesService.getAllGames()
-          : _gamesService.getGamesByCategory(_selectedCategory!.name),
+      future: _gamesService.getAllGames(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(
-            child: CircularProgressIndicator(color: Color(0xFF00F5FF)),
+            child: CircularProgressIndicator(color: AppTheme.primaryBlue),
           );
         }
 
-        var games = snapshot.data!;
+        var games = List<GameModel>.from(snapshot.data!.cast<GameModel>());
 
-        // SADECE embedded_chess satranç oyununu göster, diğer satranç oyunlarını filtrele
-        games = games.where((game) {
-          if (game.type == GameType.chess) {
-            return game.id == 'embedded_chess';
-          }
-          return true;
-        }).toList();
+        // Satrançtan yalnızca gömülü sürüm gösteriliyor; eski kayıtlar
+        // katalogda mükerrer satranç oluşturuyordu.
+        games = games
+            .where((g) => g.type != GameType.chess || g.id == 'embedded_chess')
+            .toList();
 
-        // Quiz type oyunları Quiz kategorisine taşı ve güzel bir default resim ekle
-        // Color Coding oyununu aktif et
-        games = games.map((game) {
-          if (game.type == GameType.quiz) {
-            // Quiz için kreativ ve çekici bir görsel
-            const quizThumbnail = 'https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=400';
-
-            return GameModel(
-              id: game.id,
-              title: game.title,
-              description: game.description,
-              titleEn: game.titleEn,
-              descriptionEn: game.descriptionEn,
-              category: GameCategory.quiz,
-              type: game.type,
-              thumbnailUrl: quizThumbnail, // Tüm quizlere aynı güzel görseli ver
-              difficulty: game.difficulty,
-              estimatedMinutes: game.estimatedMinutes,
-              tags: game.tags,
-              isActive: game.isActive,
-              createdAt: game.createdAt,
-              updatedAt: game.updatedAt,
-              gameData: game.gameData,
-            );
-          }
-
-          // Color Coding oyununu aktif et
-          if (game.type == GameType.colorCoding) {
-            return GameModel(
-              id: game.id,
-              title: game.title,
-              description: game.description,
-              titleEn: game.titleEn,
-              descriptionEn: game.descriptionEn,
-              category: game.category,
-              type: game.type,
-              thumbnailUrl: game.thumbnailUrl,
-              difficulty: game.difficulty,
-              estimatedMinutes: game.estimatedMinutes,
-              tags: game.tags,
-              isActive: true, // Color Coding oyununu aktif et
-              createdAt: game.createdAt,
-              updatedAt: game.updatedAt,
-              gameData: game.gameData,
-            );
-          }
-
-          return game;
-        }).toList();
-
-        if (_selectedCategory != null) {
-          games = games.where((game) => game.category == _selectedCategory).toList();
-        }
-
-        final availableGameTypes = [
-          GameType.chess,
-          GameType.quiz,
-          GameType.coordinates,
-          GameType.blockCoding,
-          GameType.wordMatch,
-          GameType.sequencing,
-          GameType.leftRightCoding,
-          GameType.pipesPuzzle,
-          GameType.arduinoSimulator,
-          GameType.robotSimulator,
-          GameType.mazeExplorer,
-          GameType.colorCoding,
-        ];
-
-        games = games.where((game) => availableGameTypes.contains(game.type)).toList();
+        // NOT: Burada eskiden elle yazılmış bir `availableGameTypes` beyaz
+        // listesi vardı ve listeye eklenen yeni oyunlar (Kod Dedektifi,
+        // Değişken Ustası, Hata Avcısı) o listede olmadıkları için ekranda
+        // hiç görünmüyordu. Beyaz liste kaldırıldı: hangi oyunun oynanabilir
+        // olduğunu test/games_catalog_test.dart doğruluyor.
 
         if (_searchQuery.isNotEmpty) {
           final q = _searchQuery.toLowerCase();
@@ -332,72 +133,48 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
           }).toList();
         }
 
-        // Akıllı sıralama - Satranç, Bilgi Yarışması ve Robot Simülatörü
-        // (en gelişmiş/görsel oyunlar) her zaman en başta gösterilir.
+        // Sıralama: önce ücretsiz oyunlar (çocuk kilide çarpmadan oynasın),
+        // sonra kolaydan zora, en sonda alfabetik — liste her açılışta aynı
+        // sırada çıksın diye.
         games.sort((a, b) {
-          const featuredOrder = {
-            GameType.chess: 0,
-            GameType.quiz: 1,
-            GameType.robotSimulator: 2,
-          };
-          final aFeatured = featuredOrder[a.type];
-          final bFeatured = featuredOrder[b.type];
-          if (aFeatured != null || bFeatured != null) {
-            if (aFeatured != null && bFeatured != null) {
-              return aFeatured.compareTo(bFeatured);
-            }
-            return aFeatured != null ? -1 : 1;
+          final aPro = ProGames.isProGame(a.type) ? 1 : 0;
+          final bPro = ProGames.isProGame(b.type) ? 1 : 0;
+          if (aPro != bPro) return aPro.compareTo(bPro);
+          if (a.difficulty != b.difficulty) {
+            return a.difficulty.compareTo(b.difficulty);
           }
-
-          const categoryPriority = {
-            GameCategory.age4to6: 1,
-            GameCategory.age7to9: 2,
-            GameCategory.quiz: 3,
-            GameCategory.arduino: 4,
-            GameCategory.python: 5,
-          };
-          final aPriority = categoryPriority[a.category] ?? 99;
-          final bPriority = categoryPriority[b.category] ?? 99;
-          if (aPriority != bPriority) return aPriority.compareTo(bPriority);
-          return a.difficulty.compareTo(b.difficulty);
+          return a.title.compareTo(b.title);
         });
 
-        if (games.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.videogame_asset_off, size: 64, color: Colors.white.withValues(alpha: 0.3)),
-                const SizedBox(height: 16),
-                Text(
-                  _searchQuery.isEmpty ? 'Henüz oyun eklenmemiş' : 'Arama sonucu bulunamadı',
-                  style: const TextStyle(fontSize: 18, color: Colors.white70),
-                ),
-              ],
-            ),
-          );
-        }
+        if (games.isEmpty) return _buildEmptyState();
 
         return GridView.builder(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            childAspectRatio: 0.75,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
+            childAspectRatio: 0.72,
+            crossAxisSpacing: 14,
+            mainAxisSpacing: 14,
           ),
           itemCount: games.length,
           itemBuilder: (context, index) {
             final game = games[index];
-            return _OptimizedGameCard(
-              game: game,
-              index: index,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => GamePlayScreen(game: game)),
-                );
-              },
+            // Rozet yalnızca kilit gerçekten geçerliyse: Pro üyeye her kartta
+            // asma kilit göstermek satın aldığı şeyi kilitli hissettiriyor.
+            final needsPro = ProGames.isProGame(game.type);
+            final locked = needsPro && !ProGate.watchIsPro(context);
+
+            // Kartlar hep birlikte "zipliyordu"; simdi soldan saga, yukaridan
+            // asagi 45 ms arayla giriyorlar. Gecikme 360 ms'de tavan yapiyor
+            // ki listenin sonundaki kart bekletilmesin.
+            return AppearIn(
+              delay: AppearIn.stagger(index),
+              child: _GameCard(
+                game: game,
+                lang: _lang,
+                isProLocked: locked,
+                onTap: () => _openGame(game, needsPro),
+              ),
             );
           },
         );
@@ -405,36 +182,110 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
     );
   }
 
+  Future<void> _openGame(GameModel game, bool needsPro) async {
+    if (needsPro) {
+      // Kilitli oyunda iki yol var: Pro almak ya da bir reklam izleyip
+      // TEK TUR oynamak. Tek tur bilerek: cocuk oyunu gercekten gorsun
+      // diye, ama oyun reklamla sinirsiz acilmasin diye.
+      final sonuc = await ProGate.ensureOrAd(
+        context,
+        featureName: game.title,
+        explanation: 'Bu oyun Pro üyelikte. Blok kodlama, sıralama, sağ-sol, '
+            'koordinat, renk kodlama ve kelime eşleştirme oyunları herkese '
+            'açık kalıyor.',
+        reklamEtiketi: (lang) => AppLang.pick(
+          lang,
+          tr: 'Reklam izle, bir tur oyna',
+          en: 'Watch an ad, play one round',
+          de: 'Werbung ansehen, eine Runde spielen',
+          es: 'Ver un anuncio y jugar una ronda',
+        ),
+      );
+      if (sonuc == ProUnlock.kapali || !mounted) return;
+    }
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => GamePlayScreen(game: game)),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.videogame_asset_off_rounded,
+                size: 56, color: AppTheme.mediumGray),
+            const SizedBox(height: 14),
+            Text(
+              _searchQuery.isEmpty
+                  ? 'Henüz oyun eklenmemiş'
+                  : '"$_searchQuery" için sonuç yok',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.darkGray,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (_searchQuery.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: () => setState(() {
+                  _searchQuery = '';
+                  _searchController.clear();
+                }),
+                child: const Text('Tüm oyunları göster'),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showSearchDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1D3F),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: Color(0xFF00F5FF).withValues(alpha: 0.5), width: 2),
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: const Text(
+          'Oyun ara',
+          style:
+              TextStyle(color: AppTheme.darkGray, fontWeight: FontWeight.bold),
         ),
-        title: const Text('Oyun Ara', style: TextStyle(color: Colors.white)),
         content: TextField(
           controller: _searchController,
           autofocus: true,
-          style: const TextStyle(color: Colors.white),
+          // Metin rengi bilerek koyu: bu alan eskiden beyazdı (koyu tema
+          // artığı) ve beyaz zeminde yazılan hiçbir şey görünmüyordu.
+          style: const TextStyle(color: AppTheme.darkGray),
           decoration: InputDecoration(
-            hintText: 'Oyun adı...',
-            hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
-            prefixIcon: const Icon(Icons.search, color: Color(0xFF00F5FF)),
+            hintText: 'Oyun adı',
+            filled: true,
+            fillColor: AppTheme.lightGray,
+            prefixIcon: const Icon(Icons.search, color: AppTheme.mediumGray),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Color(0xFF00F5FF).withValues(alpha: 0.3)),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(color: Color(0xFF00F5FF), width: 2),
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  const BorderSide(color: AppTheme.primaryBlue, width: 1.6),
             ),
           ),
           onSubmitted: (value) {
-            setState(() => _searchQuery = value);
-            Navigator.pop(context);
+            setState(() => _searchQuery = value.trim());
+            Navigator.pop(dialogContext);
           },
         ),
         actions: [
@@ -442,18 +293,22 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
             onPressed: () {
               _searchController.clear();
               setState(() => _searchQuery = '');
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
             },
-            child: const Text('Temizle', style: TextStyle(color: Color(0xFFFF006B))),
+            child: const Text('Temizle',
+                style: TextStyle(color: AppTheme.mediumGray)),
           ),
           ElevatedButton(
             onPressed: () {
-              setState(() => _searchQuery = _searchController.text);
-              Navigator.pop(context);
+              setState(() => _searchQuery = _searchController.text.trim());
+              Navigator.pop(dialogContext);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00F5FF),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              backgroundColor: AppTheme.primaryBlue,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text('Ara'),
           ),
@@ -463,273 +318,276 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen>
   }
 }
 
-/// Optimize edilmiş oyun kartı - daha hafif animasyonlar
-class _OptimizedGameCard extends StatefulWidget {
-  final GameModel game;
-  final int index;
-  final VoidCallback onTap;
+/// Hangi oyunlar Pro üyelik ister.
+class ProGames {
+  ProGames._();
 
-  const _OptimizedGameCard({
+  static const Set<GameType> free = {
+    GameType.quiz,
+    GameType.blockCoding,
+    GameType.sequencing,
+    GameType.leftRightCoding,
+    GameType.coordinates,
+    GameType.colorCoding,
+    GameType.wordMatch,
+  };
+
+  static bool isProGame(GameType type) => !free.contains(type);
+
+  /// Pro'nun açtığı oyun sayısı — paywall'da yazan rakam buradan geliyor.
+  ///
+  /// Elle yazılmış bir sayı zamanla yalan oluyor: oyun eklenip
+  /// çıkarıldıkça kimse paywall'ı güncellemiyor. Paywall "13 ek oyun"
+  /// derken gerçek sayı 9'du.
+  static int get lockedGameCount => EmbeddedGamesService.getAllEmbeddedGames()
+      .where((g) => isProGame(g.type))
+      .length;
+}
+
+/// Izgaradaki tek oyun kartı.
+///
+/// Bilerek fotoğraf kullanmıyoruz. Kartlarda daha önce stok fotoğraflar
+/// vardı — matematik defterine tutulmuş bir kalem, sahnede duran biri,
+/// teleskoplu bir adam — ve hiçbiri oyunla ilgili değildi; ekran gazete
+/// küpürü gibi duruyordu. Her oyunun kendi simgesi ve rengi olunca hem
+/// tutarlı bir görsel dil çıkıyor hem de okuma yazması zayıf bir çocuk
+/// oyunu simgesinden tanıyabiliyor.
+class _GameCard extends StatelessWidget {
+  const _GameCard({
     required this.game,
-    required this.index,
+    required this.lang,
+    required this.isProLocked,
     required this.onTap,
   });
 
-  @override
-  State<_OptimizedGameCard> createState() => _OptimizedGameCardState();
-}
+  final GameModel game;
+  final String lang;
+  final bool isProLocked;
+  final VoidCallback onTap;
 
-class _OptimizedGameCardState extends State<_OptimizedGameCard> {
-  bool _isPressed = false;
+  static const _difficultyLabels = ['', 'Kolay', 'Kolay', 'Orta', 'Zor', 'Zor'];
 
-  String get _lang => Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
+  /// Oyun türüne göre simge. Çocuk kartı okumadan da ne olduğunu anlasın.
+  static IconData _iconFor(GameType type) => switch (type) {
+        GameType.chess => Icons.castle_rounded,
+        GameType.quiz => Icons.emoji_events_rounded,
+        GameType.blockCoding => Icons.widgets_rounded,
+        GameType.wordMatch => Icons.abc_rounded,
+        GameType.sequencing => Icons.reorder_rounded,
+        GameType.coordinates => Icons.grid_4x4_rounded,
+        GameType.mazeExplorer => Icons.route_rounded,
+        GameType.colorCoding => Icons.palette_rounded,
+        GameType.robotSimulator => Icons.smart_toy_rounded,
+        GameType.leftRightCoding => Icons.turn_right_rounded,
+        GameType.arduinoSimulator => Icons.memory_rounded,
+        GameType.pipesPuzzle => Icons.water_drop_rounded,
+        GameType.patternDetective => Icons.pattern_rounded,
+        GameType.variableMaster => Icons.inventory_2_rounded,
+        GameType.bugHunter => Icons.pest_control_rounded,
+        GameType.matchingGame => Icons.join_inner_rounded,
+        GameType.puzzle => Icons.extension_rounded,
+        GameType.simulation => Icons.science_rounded,
+      };
 
-  Color _getGameColor() {
-    switch (widget.game.category) {
-      case GameCategory.age4to6: return const Color(0xFF00F5FF);
-      case GameCategory.age7to9: return const Color(0xFF7B2FFF);
-      case GameCategory.quiz: return const Color(0xFFFF006B);
-      case GameCategory.arduino: return const Color(0xFF00FF88);
-      case GameCategory.python: return const Color(0xFFFFD700);
-      case GameCategory.robotics: return const Color(0xFFFF6B35);
-      case GameCategory.software: return const Color(0xFF4ECDC4);
-    }
-  }
+  /// Oyunun gerçek oynanış görüntüsü. Dosya yoksa renkli simgeye düşüyoruz,
+  /// böylece görüntüsü henüz alınmamış bir oyun kartı boş kalmıyor.
+  static String _shotFor(GameType type) =>
+      'assets/images/games/${type.name}.png';
 
-  IconData _getGameIcon() {
-    switch (widget.game.type) {
-      case GameType.chess: return Icons.casino;
-      case GameType.quiz: return Icons.quiz;
-      case GameType.leftRightCoding: return Icons.directions;
-      case GameType.coordinates: return Icons.grid_on;
-      case GameType.blockCoding: return Icons.code;
-      case GameType.wordMatch: return Icons.language;
-      case GameType.sequencing: return Icons.sort;
-      case GameType.arduinoSimulator: return Icons.memory;
-      case GameType.pipesPuzzle: return Icons.plumbing;
-      case GameType.robotSimulator: return Icons.precision_manufacturing;
-      case GameType.mazeExplorer: return Icons.explore;
-      case GameType.colorCoding: return Icons.palette;
-      case GameType.matchingGame: return Icons.join_inner;
-      default: return Icons.videogame_asset;
-    }
-  }
+  /// Oyun türüne göre renk. Aynı aileden oyunlar aynı rengi paylaşıyor:
+  /// mavi = mantık/algoritma, mor = bloklar, turuncu = quiz, yeşil = robotik.
+  static Color _colorFor(GameType type) => switch (type) {
+        GameType.chess => const Color(0xFF3F51B5),
+        GameType.quiz => const Color(0xFFF57C00),
+        GameType.blockCoding => const Color(0xFF7E57C2),
+        GameType.sequencing => const Color(0xFF7E57C2),
+        GameType.wordMatch => const Color(0xFF00897B),
+        GameType.matchingGame => const Color(0xFF00897B),
+        GameType.coordinates => const Color(0xFF1E88E5),
+        GameType.mazeExplorer => const Color(0xFF1E88E5),
+        GameType.leftRightCoding => const Color(0xFF1E88E5),
+        GameType.patternDetective => const Color(0xFF5E35B1),
+        GameType.variableMaster => const Color(0xFF5E35B1),
+        GameType.bugHunter => const Color(0xFFD81B60),
+        GameType.colorCoding => const Color(0xFFEC407A),
+        GameType.robotSimulator => const Color(0xFF2E7D32),
+        GameType.arduinoSimulator => const Color(0xFF00796B),
+        GameType.pipesPuzzle => const Color(0xFF0097A7),
+        GameType.puzzle => AppTheme.mediumGray,
+        GameType.simulation => AppTheme.mediumGray,
+      };
 
   @override
   Widget build(BuildContext context) {
-    final color = _getGameColor();
+    final color = _colorFor(game.type);
+    final difficulty = _difficultyLabels[game.difficulty.clamp(1, 5)];
 
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        transform: Matrix4.identity()
-          ..scaleByDouble(
-            _isPressed ? 0.95 : 1.0,
-            _isPressed ? 0.95 : 1.0,
-            _isPressed ? 0.95 : 1.0,
-            1.0,
-          ),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [color.withValues(alpha: 0.3), color.withValues(alpha: 0.1)],
+    return _PressScale(
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFFE8E8E8)),
             ),
-            border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: color.withValues(alpha: 0.4),
-                blurRadius: 20,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Zorluk, Süre ve Sıralama
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Stack(
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: color.withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: color),
-                          ),
-                          child: Row(
-                            children: List.generate(
-                              widget.game.difficulty,
-                              (i) => Icon(Icons.star, size: 12, color: color),
-                            ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(13),
+                      child: AspectRatio(
+                        aspectRatio: 16 / 10,
+                        child: Image.asset(
+                          _shotFor(game.type),
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: color.withValues(alpha: 0.12),
+                            alignment: Alignment.center,
+                            child: Icon(_iconFor(game.type),
+                                color: color, size: 34),
                           ),
                         ),
-                        const SizedBox(width: 6),
-                        // Trophy Button - Leaderboard'a götür
-                        GestureDetector(
-                          onTap: () {
-                            // Leaderboard ekranına git
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LeaderboardScreen(
-                                  gameId: widget.game.id,
-                                  gameName: widget.game.titleFor(_lang),
-                                  gameType: widget.game.type,
+                      ),
+                    ),
+                    if (isProLocked)
+                      Positioned(
+                        top: 6,
+                        right: 6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color:
+                                const Color(0xFF1B1B1B).withValues(alpha: 0.72),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.lock_rounded,
+                                  size: 10, color: AppTheme.accentYellow),
+                              SizedBox(width: 3),
+                              Text(
+                                'PRO',
+                                style: TextStyle(
+                                  color: AppTheme.accentYellow,
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.4,
                                 ),
                               ),
-                            );
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFD700).withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: const Color(0xFFFFD700), width: 1.5),
-                            ),
-                            child: const Icon(
-                              Icons.emoji_events,
-                              size: 14,
-                              color: Color(0xFFFFD700),
-                            ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.access_time, size: 12, color: Colors.white.withValues(alpha: 0.8)),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${widget.game.estimatedMinutes}dk',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  game.titleFor(lang),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.darkGray,
+                    height: 1.25,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Expanded(
+                  child: Text(
+                    game.descriptionFor(lang),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.mediumGray,
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.schedule_rounded,
+                        size: 13, color: AppTheme.mediumGray),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${game.estimatedMinutes} dk',
+                      style: const TextStyle(
+                          fontSize: 11.5, color: AppTheme.mediumGray),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      width: 3,
+                      height: 3,
+                      decoration: const BoxDecoration(
+                        color: AppTheme.mediumGray,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        difficulty,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontSize: 11.5, color: AppTheme.mediumGray),
                       ),
                     ),
                   ],
-                ),
-                const Spacer(),
-                // Oyun Görseli
-                Center(
-                  child: Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      boxShadow: [
-                        BoxShadow(
-                          color: color.withValues(alpha: 0.6),
-                          blurRadius: 20,
-                          spreadRadius: 3,
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: widget.game.thumbnailUrl.isNotEmpty
-                          ? Image.network(
-                              widget.game.thumbnailUrl,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    gradient: RadialGradient(
-                                      colors: [color, color.withValues(alpha: 0.5)],
-                                    ),
-                                  ),
-                                  child: Icon(_getGameIcon(), color: Colors.white, size: 35),
-                                );
-                              },
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    gradient: RadialGradient(
-                                      colors: [color, color.withValues(alpha: 0.5)],
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      value: loadingProgress.expectedTotalBytes != null
-                                          ? loadingProgress.cumulativeBytesLoaded /
-                                              loadingProgress.expectedTotalBytes!
-                                          : null,
-                                    ),
-                                  ),
-                                );
-                              },
-                            )
-                          : Container(
-                              decoration: BoxDecoration(
-                                gradient: RadialGradient(
-                                  colors: [color, color.withValues(alpha: 0.5)],
-                                ),
-                              ),
-                              child: Icon(_getGameIcon(), color: Colors.white, size: 35),
-                            ),
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                // Başlık
-                Text(
-                  widget.game.titleFor(_lang),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    height: 1.2,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 6),
-                // Kategori
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: color.withValues(alpha: 0.5)),
-                  ),
-                  child: Text(
-                    widget.game.getCategoryDisplayNameFor(_lang),
-                    style: TextStyle(
-                      color: color,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Basildiginda hafifce kuculen sarmalayici.
+///
+/// Cocuklarda dokunmanin "islendigini" gosteren en hizli geri bildirim bu;
+/// InkWell'in dalgasi acik zeminde neredeyse gorunmuyor. `Listener`
+/// kullaniyoruz cunku bir `GestureDetector` icerideki InkWell'in dokunusunu
+/// yutabilirdi.
+class _PressScale extends StatefulWidget {
+  const _PressScale({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_PressScale> createState() => _PressScaleState();
+}
+
+class _PressScaleState extends State<_PressScale> {
+  bool _down = false;
+
+  void _set(bool v) {
+    if (_down != v && mounted) setState(() => _down = v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (Motion.reduced(context)) return widget.child;
+    return Listener(
+      onPointerDown: (_) => _set(true),
+      onPointerUp: (_) => _set(false),
+      onPointerCancel: (_) => _set(false),
+      child: AnimatedScale(
+        scale: _down ? 0.96 : 1,
+        duration: _down ? Motion.short4 : Motion.medium2,
+        curve: Motion.emphasized,
+        child: widget.child,
       ),
     );
   }

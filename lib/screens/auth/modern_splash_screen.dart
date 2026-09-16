@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../utils/lang.dart';
 import 'auth_wrapper.dart';
-import 'premium_onboarding_screen.dart';
+import 'onboarding_flow_screen.dart';
 
 /// Modern Splash Screen with gradient background and animations
-/// Displays for 2-3 seconds before navigating to AuthWrapper or PremiumOnboardingScreen
+/// Displays for 2-3 seconds before navigating to AuthWrapper or OnboardingFlowScreen
 class ModernSplashScreen extends StatefulWidget {
   const ModernSplashScreen({super.key});
 
@@ -58,15 +59,15 @@ class _ModernSplashScreenState extends State<ModernSplashScreen>
   }
 
   void _navigateToNextScreen() {
-    final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
-    
+    final settingsProvider =
+        Provider.of<SettingsProvider>(context, listen: false);
+
     // Check if onboarding has been seen
     final hasSeenOnboarding = settingsProvider.hasSeenOnboarding;
-    
+
     // Navigate to appropriate screen
-    final targetScreen = hasSeenOnboarding 
-        ? const AuthWrapper() 
-        : const PremiumOnboardingScreen();
+    final targetScreen =
+        hasSeenOnboarding ? const AuthWrapper() : const OnboardingFlowScreen();
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
@@ -130,20 +131,20 @@ class _ModernSplashScreenState extends State<ModernSplashScreen>
                             ),
                           ],
                         ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.rocket_launch,
-                            size: 60,
-                            color: Colors.white,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(30),
+                          child: Image.asset(
+                            'assets/images/app_icon.png',
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
                       const SizedBox(height: 30),
                       // App Name
                       const Text(
-                        'DevKom',
+                        'DevEducation',
                         style: TextStyle(
-                          fontSize: 48,
+                          fontSize: 40,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           letterSpacing: 2,
@@ -159,7 +160,17 @@ class _ModernSplashScreenState extends State<ModernSplashScreen>
                       const SizedBox(height: 10),
                       // Tagline
                       Text(
-                        'AI • Robotik • Kodlama',
+                        // Uygulamanin ILK ekrani. Sabit Turkce kaldigi
+                        // surece Ingilizce/Almanca/Ispanyolca kullanici
+                        // daha ilk saniyede yanlis dilde bir uygulama
+                        // aciyor gibi hissediyordu.
+                        AppLang.pick(
+                          Localizations.localeOf(context).languageCode,
+                          tr: 'Yazılım • Robotik • Yapay Zekâ',
+                          en: 'Coding • Robotics • AI',
+                          de: 'Programmieren • Robotik • KI',
+                          es: 'Programación • Robótica • IA',
+                        ),
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.white.withValues(alpha: 0.9),

@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../utils/lang.dart';
+import '../providers/settings_provider.dart';
 import '../models/store_item_model.dart';
 import '../providers/auth_provider.dart';
+import '../config/ad_config.dart';
+import '../services/ads_service.dart';
 import '../services/store_service.dart';
 import '../widgets/character_stage.dart';
 import 'subscription_screen.dart';
@@ -33,6 +37,11 @@ class _MarketScreenState extends State<MarketScreen> {
   StoreItem? _previewItem;
   Timer? _previewTimer;
 
+  /// Ödüllü video düğmesi gösterilsin mi? Pro üyede, kimlik
+  /// tanımlanmamışsa ve günlük hak dolduğunda gizleniyor.
+  bool _canWatchAd = false;
+  bool _watchingAd = false;
+
   static const _stageCategories = [
     StoreItemCategory.character,
     StoreItemCategory.hat,
@@ -45,6 +54,115 @@ class _MarketScreenState extends State<MarketScreen> {
   void initState() {
     super.initState();
     _load();
+    _refreshAdAvailability();
+  }
+
+  Future<void> _refreshAdAvailability() async {
+    final can = await AdsService.instance.canWatchRewarded();
+    if (!mounted) return;
+    setState(() => _canWatchAd = can);
+  }
+
+  /// "Reklam izle, jeton kazan".
+  ///
+  /// Ödül yalnızca kullanıcı videoyu sonuna kadar izlediğinde veriliyor;
+  /// kararı [AdsService] veriyor, jetonu bu ekran ekliyor. Yarıda
+  /// kapatıldığında hiçbir şey verilmiyor ama kullanıcı suçlanmıyor —
+  /// nötr bir mesaj gösteriliyor.
+  Future<void> _watchAdForJeton() async {
+    if (_watchingAd) return;
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    if (auth.currentUser == null) return;
+
+    setState(() => _watchingAd = true);
+    final result = await AdsService.instance.showRewarded();
+    if (!mounted) return;
+
+    if (result.earned) {
+      await auth.addJeton(AdConfig.rewardedJeton, source: 'rewarded_ad');
+      if (!mounted) return;
+      _showSnack(_t(
+        context,
+        '+${AdConfig.rewardedJeton} jeton kazandın!',
+        'You earned ${AdConfig.rewardedJeton} coins!',
+        '+${AdConfig.rewardedJeton} Münzen verdient!',
+        '¡Ganaste ${AdConfig.rewardedJeton} monedas!',
+      ));
+    } else {
+      switch (result.reason) {
+        case RewardedAdFailure.dailyCapReached:
+          _showSnack(_t(context, 'Bugünlük bu kadar. Yarın yeniden dene.',
+              "That's it for today. Try again tomorrow.",
+              'Für heute reicht es. Versuch es morgen wieder.',
+              'Por hoy es suficiente. Inténtalo mañana.'));
+          break;
+        case RewardedAdFailure.dismissedEarly:
+          _showSnack(_t(context, 'Video tamamlanmadı, jeton verilmedi.',
+              'The video was not finished, so no coins this time.',
+              'Das Video wurde nicht zu Ende geschaut, keine Münzen.',
+              'El vídeo no terminó, esta vez no hay monedas.'));
+          break;
+        default:
+          _showSnack(_t(context, 'Şu an gösterilecek video yok.',
+              'No video available right now.',
+              'Gerade ist kein Video verfügbar.',
+              'Ahora mismo no hay ningún vídeo.'));
+      }
+    }
+
+    if (!mounted) return;
+    setState(() => _watchingAd = false);
+    await _refreshAdAvailability();
+  }
+
+  /// Jeton kazanma şeridi. Pro üyeye hiç gösterilmiyor — paywall'da
+  /// "Reklamsız kullanım" yazıyor.
+  Widget _buildRewardedStrip() {
+    if (!_canWatchAd) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+      child: Material(
+        color: const Color(0xFFFFF3DA),
+        borderRadius: BorderRadius.circular(18),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: _watchingAd ? null : _watchAdForJeton,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                const Text('🎬', style: TextStyle(fontSize: 22)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    _t(
+                      context,
+                      'Kısa bir video izle, ${AdConfig.rewardedJeton} jeton kazan',
+                      'Watch a short video, earn ${AdConfig.rewardedJeton} coins',
+                      'Kurzes Video ansehen, ${AdConfig.rewardedJeton} Münzen verdienen',
+                      'Mira un vídeo corto y gana ${AdConfig.rewardedJeton} monedas',
+                    ),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF6B4A00),
+                    ),
+                  ),
+                ),
+                if (_watchingAd)
+                  const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else
+                  const Icon(Icons.play_circle_fill_rounded,
+                      color: Color(0xFFE8A317)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -147,16 +265,16 @@ class _MarketScreenState extends State<MarketScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Pro Üyelik Gerekli'),
+        title: Text(_t(context, 'Pro Üyelik Gerekli', 'Pro membership needed', 'Pro-Mitgliedschaft nötig', 'Necesitas Pro')),
         content: Text('${item.name} sadece Pro üyelere özel. Pro\'ya geçerek bu ürünü ve daha fazlasını açabilirsin!'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Vazgeç')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(_t(context, 'Vazgeç', 'Cancel', 'Abbrechen', 'Cancelar'))),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.push(context, MaterialPageRoute(builder: (context) => const SubscriptionScreen()));
             },
-            child: const Text('Pro\'ya Geç'),
+            child: Text(_t(context, 'Pro\'ya Geç', 'Get Pro', 'Pro holen', 'Consigue Pro')),
           ),
         ],
       ),
@@ -206,6 +324,7 @@ class _MarketScreenState extends State<MarketScreen> {
           : Column(
               children: [
                 _buildStagePreview(),
+                _buildRewardedStrip(),
                 _buildCategoryTabs(),
                 Expanded(child: _buildGrid()),
               ],
@@ -301,7 +420,7 @@ class _MarketScreenState extends State<MarketScreen> {
   Widget _buildGrid() {
     final items = _catalog.where((i) => i.category == _selectedCategory).toList();
     if (items.isEmpty) {
-      return const Center(child: Text('Bu kategoride henüz ürün yok.'));
+      return Center(child: Text(_t(context, 'Bu kategoride henüz ürün yok.', 'Nothing in this category yet.', 'In dieser Kategorie gibt es noch nichts.', 'Todavía no hay nada en esta categoría.')));
     }
     return GridView.builder(
       padding: const EdgeInsets.all(16),
@@ -423,3 +542,17 @@ class _MarketScreenState extends State<MarketScreen> {
     );
   }
 }
+
+/// Ekrandaki kısa arayüz yazıları için dört dilli yardımcı.
+///
+/// Bu ekran tamamen Türkçe sabit yazılarla yazılmıştı; İngilizce,
+/// Almanca ya da İspanyolca seçen çocuk uygulamanın geri kalanı
+/// çevrilmişken burada Türkçe görüyordu.
+String _t(BuildContext context, String tr, String en, String de, String es) =>
+    AppLang.pick(
+      Provider.of<SettingsProvider>(context).locale.languageCode,
+      tr: tr,
+      en: en,
+      de: de,
+      es: es,
+    );

@@ -1,24 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config/supabase_config.dart';
 import 'core/service_locator.dart';
 import 'providers/auth_provider.dart';
 import 'providers/settings_provider.dart';
-import 'screens/auth/auth_wrapper.dart';
 import 'screens/auth/modern_splash_screen.dart';
 import 'services/local_notification_service.dart';
 import 'services/connectivity_service.dart';
 import 'services/score_cache_service.dart';
+import 'services/ad_navigator_observer.dart';
+import 'services/ads_service.dart';
 import 'services/subscription_service.dart';
-import 'services/analytics_service.dart';
 import 'theme.dart';
 import 'utils/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Tarih adlarini (ay/gun) tum desteklenen dillerde yukle. Bu yapilmazsa
+  // DateFormat yalnizca en_US biliyor ve 'tr'/'de'/'es' istegi hata atiyor.
+  await initializeDateFormatting();
+
+  // Uygulama yalnizca dikey calisir. Cocuklara yonelik ekranlarin tamami
+  // dikey tasarlandi; yatay modda kartlar ve karakter sahnesi bozuluyordu.
+  // Video oynaticinin tam ekran butonu da cihazi yatira birakip geri
+  // dondurmedigi icin uygulama yan kaliyordu - bkz. YouTubePlayerWidget.
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   // Load environment variables
   try {
@@ -81,13 +96,25 @@ void main() async {
     await subscriptionService.initialize();
     debugPrint('✅ Subscription service initialized');
 
-    // Initialize analytics service
-    final analyticsService = AnalyticsService();
-    await analyticsService.initialize();
-    debugPrint('✅ Analytics service initialized');
   } catch (e) {
     debugPrint('⚠️ Some services failed to initialize: $e');
     debugPrint('App will continue with limited functionality');
+  }
+
+  // REKLAM SERVISI KENDI TRY'INDA.
+  //
+  // Eskiden yukaridaki blogun EN SONUNDAYDI: ondan once calisan
+  // bildirim, baglanti, skor onbellegi ya da abonelik servislerinden
+  // biri hata firlatirsa reklam servisi HIC baslatilmiyordu. Yani
+  // yayinda reklamlarin gelmemesi, reklamla ilgisi olmayan bir hataya
+  // bagli olabiliyordu — ustelik gunlukte yalnizca "Some services
+  // failed" yaziyordu.
+  //
+  // Kimlikler .env'de yoksa servis zaten sessizce kapali kaliyor.
+  try {
+    await AdsService.instance.initialize();
+  } catch (e) {
+    debugPrint('⚠️ Reklam servisi baslatilamadi: $e');
   }
 
   runApp(const DevkomApp());
@@ -145,13 +172,19 @@ class DevkomApp extends StatelessWidget {
       child: Consumer<SettingsProvider>(
         builder: (context, settingsProvider, _) {
           return MaterialApp(
-            title: 'DevKom',
+            title: 'DevEducation',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme(),
             locale: settingsProvider.locale,
             supportedLocales: const [
               Locale('tr', 'TR'),
               Locale('en', 'US'),
+              // Almanca ve Ispanyolca. Bolge kodu VERILMIYOR: 'de_DE'
+              // yazsaydik Avusturya ya da Isvicre'deki bir cihaz
+              // eslesemez ve Ingilizce'ye duserdi. Ayni sekilde 'es',
+              // Ispanya ile Latin Amerika'nin tamamini kapsiyor.
+              Locale('de'),
+              Locale('es'),
             ],
             localizationsDelegates: const [
               AppLocalizations.delegate,
@@ -159,6 +192,9 @@ class DevkomApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
+            // Gecis reklami ekran degisiminde gosteriliyor; nedeni
+            // AdNavigatorObserver aciklamasinda.
+            navigatorObservers: [AdNavigatorObserver()],
             home: const ModernSplashScreen(),
           );
         },

@@ -21,7 +21,7 @@ enum GameType {
   colorCoding,   // Renkli Kodlar
   robotSimulator,// Robot Simülatörü
   leftRightCoding, // Sağım-Solum Kodlama (Flame 2D oyunu)
-  arduinoSimulator, // Arduino Devre Simülatörü
+  arduinoSimulator, // Arduino Atölyesi (eski ad: Devre Simülatörü)
   pipesPuzzle, // Boru Bulmacası (Pipes Puzzle)
   patternDetective, // Kod Dedektifi (Pattern Matching)
   variableMaster, // Değişken Ustası (Variable concepts)
@@ -58,7 +58,9 @@ extension GameTypeExtension on GameType {
       case GameType.leftRightCoding:
         return 'Sağım-Solum';
       case GameType.arduinoSimulator:
-        return 'Arduino Simülatörü';
+        // Enum adi eski kaldi (veritabaninda ve skor kayitlarinda
+        // kullaniliyor); GORUNEN ad degisti.
+        return 'Arduino Atölyesi';
       case GameType.pipesPuzzle:
         return 'Boru Bulmacası';
       case GameType.patternDetective:
@@ -78,9 +80,13 @@ class GameModel {
   final String id;
   final String title;
   final String description;
-  // İngilizce çeviri (varsa) - uygulama dili İngilizce'yken kullanılır.
+  // Cevirilier (varsa) - uygulama o dildeyken kullanilir.
   final String? titleEn;
   final String? descriptionEn;
+  final String? titleDe;
+  final String? descriptionDe;
+  final String? titleEs;
+  final String? descriptionEs;
   final GameCategory category;
   final GameType type;
   final String thumbnailUrl;
@@ -100,6 +106,10 @@ class GameModel {
     required this.description,
     this.titleEn,
     this.descriptionEn,
+    this.titleDe,
+    this.descriptionDe,
+    this.titleEs,
+    this.descriptionEs,
     required this.category,
     required this.type,
     required this.thumbnailUrl,
@@ -112,16 +122,33 @@ class GameModel {
     required this.gameData,
   });
 
-  /// Dile göre başlık döndürür (İngilizce çeviri yoksa Türkçe'ye düşer).
-  String titleFor(String languageCode) {
-    if (languageCode == 'en' && titleEn != null && titleEn!.isNotEmpty) return titleEn!;
-    return title;
+  static String? _pickTranslation(
+      String languageCode, String? en, String? de, String? es) {
+    switch (languageCode) {
+      case 'en':
+        return en;
+      case 'de':
+        // Almanca/ispanyolca ceviri yoksa turkce yerine ingilizceye dus:
+        // Alman bir cocuk icin ingilizce, turkceden cok daha okunabilir.
+        return de ?? en;
+      case 'es':
+        return es ?? en;
+      default:
+        return null;
+    }
   }
 
-  /// Dile göre açıklama döndürür (İngilizce çeviri yoksa Türkçe'ye düşer).
+  /// Dile gore baslik. Ceviri yoksa ingilizceye, o da yoksa turkceye duser.
+  String titleFor(String languageCode) {
+    final t = _pickTranslation(languageCode, titleEn, titleDe, titleEs);
+    return (t != null && t.isNotEmpty) ? t : title;
+  }
+
+  /// Dile gore aciklama. Ceviri yoksa ingilizceye, o da yoksa turkceye duser.
   String descriptionFor(String languageCode) {
-    if (languageCode == 'en' && descriptionEn != null && descriptionEn!.isNotEmpty) return descriptionEn!;
-    return description;
+    final d = _pickTranslation(
+        languageCode, descriptionEn, descriptionDe, descriptionEs);
+    return (d != null && d.isNotEmpty) ? d : description;
   }
 
   // // REMOVED: Firebase-specific method
@@ -255,7 +282,9 @@ class GameModel {
       case GameType.leftRightCoding:
         return 'Sağım-Solum';
       case GameType.arduinoSimulator:
-        return 'Arduino Simülatörü';
+        // Enum adi eski kaldi (veritabaninda ve skor kayitlarinda
+        // kullaniliyor); GORUNEN ad degisti.
+        return 'Arduino Atölyesi';
       case GameType.pipesPuzzle:
         return 'Boru Bulmacası';
       case GameType.patternDetective:
