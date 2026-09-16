@@ -209,6 +209,7 @@ class _KodTezgahiState extends State<KodTezgahi> {
           ),
         ),
         const SizedBox(height: 10),
+        // ikinci satir: sifirla
         // Sabit 44 piksel yukseklik dugmenin yazisini ALTTAN KESIYORDU;
         // ekranda "Calistir" yarim gorunuyordu. Yuksekligi dugmenin
         // kendisi belirlesin, taban olarak 48 verelim (kucuk cocuk icin
@@ -223,7 +224,30 @@ class _KodTezgahiState extends State<KodTezgahi> {
             padding: const EdgeInsets.symmetric(vertical: 12),
           ),
         ),
-        const SizedBox(height: 16),
+
+        // SIFIRLA.
+        //
+        // Kendi kodunu silip kaybolan bir cocugun geri donus yolu
+        // olmaliydi; yoktu. Kayitli kod baslangic kodunun her zaman
+        // onune gectigi icin, iskelet sonradan duzeltilse bile eski
+        // kullanici onu hic gormuyordu — bu dugme o kapiyi da aciyor.
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: () {
+              _kod.text = widget.baslangicKodu;
+              _calistir();
+            },
+            icon: const Icon(Icons.restart_alt_rounded, size: 18),
+            label: Text(lessonText(
+                lang, 'Baştan başla', 'Start over', 'Neu anfangen',
+                'Empezar de nuevo')),
+            style: TextButton.styleFrom(
+              foregroundColor: AppTheme.mediumGray,
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
         _baslik(
             lessonText(lang, 'Sonuç', 'Result', 'Ergebnis', 'Resultado'),
             Icons.visibility_rounded),

@@ -101,6 +101,39 @@ void main() {
     expect(eksikler, isEmpty, reason: eksikler.join('\n'));
   });
 
+  testWidgets('bastan basla dugmesi iskelete donduruyor', (tester) async {
+    // Kendi kodunu silip kaybolan cocugun geri donus yolu olmaliydi.
+    // Ayrica kayitli kod baslangic kodunun her zaman onune gectigi
+    // icin, iskelet sonradan duzeltilse bile eski kullanici onu hic
+    // gormuyordu.
+    SharedPreferences.setMockInitialValues({
+      KodTezgahi.anahtar('x2'): '<p>karisik</p>',
+    });
+    await tester.pumpWidget(
+      ChangeNotifierProvider<SettingsProvider>.value(
+        value: SettingsProvider(),
+        child: const MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: KodTezgahi(
+                adimId: 'x2',
+                baslangicKodu: '<h1>iskelet</h1>',
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('<p>karisik</p>'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.restart_alt_rounded));
+    await tester.pump();
+    expect(find.text('<h1>iskelet</h1>'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('kod kaydediliyor ve geri yukleniyor', (tester) async {
     SharedPreferences.setMockInitialValues({
       KodTezgahi.anahtar('x1'): '<p>eski kod</p>',
