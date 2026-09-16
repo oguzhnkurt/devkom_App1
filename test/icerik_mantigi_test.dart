@@ -118,8 +118,16 @@ void main() {
               // cozume esit olmamasini garanti ediyor. Yirmi adimin
               // yirmisinde palet cozumun ta kendisiydi; duzeltme
               // veride degil widget'ta.
-              if (celdiriciYok && !paletCozumSirasinda) {
-                // sessiz: bilgi amacli, kural degil
+              // CELDIRICI BLOK.
+              //
+              // Palet karistiriliyor ama celdirici yoksa gorev hala
+              // "hepsini bir sekilde diz"e dusuyor: yanlis blok SECMEK
+              // diye bir sey yok, yalnizca sira var. Scratch kursunda
+              // ogretilen sey tam olarak dogru blogu secmek oldugu icin
+              // orada celdirici zorunlu.
+              if (celdiriciYok && kurs.id == 'scratch') {
+                ekle('BB Scratch adiminda celdirici blok yok',
+                    '$yer (${blokIds.length} blok)');
               }
             }
 
