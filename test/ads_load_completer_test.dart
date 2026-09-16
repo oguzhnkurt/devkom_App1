@@ -54,6 +54,29 @@ void main() {
     expect(g.contains('.timeout('), isTrue);
   });
 
+  test('showRewarded reklamin KAPANMASINI bekliyor', () {
+    // show()'un Future'ı da reklam kapanınca değil, gösterme çağrısı
+    // iletilince tamamlanıyor. İlk düzeltmeden sonra reklam GELDİ ama
+    // ödül verilmedi: show'un hemen ardından `earned` hâlâ false'tu,
+    // "Video tamamlanmadı" deyip ders açılmıyordu.
+    final g = govde('Future<bool?> showRewarded(String unitId)');
+    expect(g.contains('Completer<bool>'), isTrue,
+        reason: 'kapanış beklenmiyor');
+    expect(g.contains('onAdDismissedFullScreenContent'), isTrue);
+    expect(
+      RegExp(r'onAdDismissedFullScreenContent:\s*\(a\)\s*=>\s*a\.dispose\(\)')
+          .hasMatch(g),
+      isFalse,
+      reason: 'kapanışta yalnızca dispose ediliyor, sonuç bildirilmiyor',
+    );
+  });
+
+  test('showInterstitial kapanisi bekliyor', () {
+    final g = govde('Future<bool> showInterstitial(InterstitialAd ad)');
+    expect(g.contains('Completer<bool>'), isTrue);
+    expect(g.contains('.timeout('), isTrue);
+  });
+
   test('dart:async import edilmis', () {
     expect(kaynak.contains("import 'dart:async';"), isTrue);
   });

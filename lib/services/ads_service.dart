@@ -495,12 +495,39 @@ class _RealAdsPlatform extends AdsPlatform {
     if (loaded == null) return null;
 
     var earned = false;
+    // `show()`'un dondurdugu Future de reklam KAPANINCA degil gosterme
+    // cagrisi iletilince tamamlaniyor -- `load()` ile ayni tuzak. Onceki
+    // surum show'un hemen ardindan `earned`e bakiyordu ve o an her zaman
+    // false'ti: reklam sonuna kadar izlense bile odul verilmiyordu,
+    // "Video tamamlanmadi" deyip ders acilmiyordu.
+    //
+    // `onUserEarnedReward` kapanmadan ONCE tetikleniyor; bu yuzden
+    // kapanisi bekleyip o andaki degeri donduruyoruz.
+    // Ad DIKKAT: yukaridaki yukleme adiminda zaten bir `bitir` ve bir
+    // `sonuc` var. Ayni kapsamda ikinci kez tanimlamak derlemeyi
+    // kiriyordu; bu ikisinin adi bilerek farkli.
+    final kapandi = Completer<bool>();
+    void kapat(bool odulAldi) {
+      if (!kapandi.isCompleted) kapandi.complete(odulAldi);
+    }
+
     loaded.fullScreenContentCallback = FullScreenContentCallback(
-      onAdDismissedFullScreenContent: (a) => a.dispose(),
-      onAdFailedToShowFullScreenContent: (a, e) => a.dispose(),
+      onAdDismissedFullScreenContent: (a) {
+        a.dispose();
+        kapat(earned);
+      },
+      onAdFailedToShowFullScreenContent: (a, e) {
+        debugPrint('⚠️ Rewarded show failed: $e');
+        a.dispose();
+        kapat(false);
+      },
     );
     await loaded.show(onUserEarnedReward: (_, __) => earned = true);
-    return earned;
+
+    // Ust sinir: bir geri cagirma hic gelmezse ekran sonsuza kadar
+    // beklemesin. Odullu video birkac dakikayi gecmez.
+    return kapandi.future
+        .timeout(const Duration(minutes: 5), onTimeout: () => earned);
   }
 
   /// Ayni Completer gerekcesi gecis reklami icin de gecerli; bkz.
@@ -534,13 +561,30 @@ class _RealAdsPlatform extends AdsPlatform {
         .timeout(const Duration(seconds: 12), onTimeout: () => null);
   }
 
+  /// Ayni "show() kapanisi beklemez" tuzagi; bkz. [showRewarded].
+  /// Burada odul yok ama cagiran taraf reklamin GERCEKTEN gosterildigini
+  /// bilmeli: sayac ve iki reklam arasi en az sure buna bagli.
   @override
   Future<bool> showInterstitial(InterstitialAd ad) async {
+    final kapandi = Completer<bool>();
+    void bitir(bool sonuc) {
+      if (!kapandi.isCompleted) kapandi.complete(sonuc);
+    }
+
     ad.fullScreenContentCallback = FullScreenContentCallback(
-      onAdDismissedFullScreenContent: (a) => a.dispose(),
-      onAdFailedToShowFullScreenContent: (a, e) => a.dispose(),
+      onAdDismissedFullScreenContent: (a) {
+        a.dispose();
+        bitir(true);
+      },
+      onAdFailedToShowFullScreenContent: (a, e) {
+        debugPrint('⚠️ Interstitial show failed: $e');
+        a.dispose();
+        bitir(false);
+      },
     );
     await ad.show();
-    return true;
+
+    return kapandi.future
+        .timeout(const Duration(minutes: 5), onTimeout: () => true);
   }
 }
