@@ -21,7 +21,7 @@ class AppVersion {
   static const String name = '1.0.8';
 
   /// Derleme numarası (pubspec'teki `+`'dan sonraki kısım).
-  static const String build = '12';
+  static const String build = '14';
 
   /// "1.0.6 (10)" — hakkında ekranı için.
   static const String full = '$name ($build)';

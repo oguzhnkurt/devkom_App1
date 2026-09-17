@@ -50,10 +50,20 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<!-- iPad anahtari KALDIRILDI. TARGETED_DEVICE_FAMILY artik "1"
-	     (yalnizca iPhone); uygulama iPad'e kurulmuyor, dolayisiyla
-	     iPad'e ozel yonelim listesinin bir anlami kalmadi. Gerekce
-	     icin bkz. claude/ipad-destegi-kaldirildi.md -->
+	<!-- iPad YONELIMLERI GERI GELDI.
+	     16 Eylul'de iPad destegi kapatilmisti; Apple 1.0.8'i
+	     reddetti (hata 90101): "This bundle does not support one or
+	     more of the devices supported by the previous app version."
+	     Bir guncellemede cihaz destegi DARALTILAMIYOR. Canli 1.0.7
+	     iPad'i destekledigi icin destek geri acildi.
+	     Bkz. claude/ipad-destegi-kaldirildi.md -->
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

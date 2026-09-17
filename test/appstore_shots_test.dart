@@ -59,8 +59,37 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:devkom_app/core/service_locator.dart';
 import 'package:devkom_app/services/auth_service_supabase.dart';
 
-String _outDirFor(String lang) =>
-    lang == 'en' ? 'outputs/appstore/ekranlar' : 'outputs/appstore/ekranlar_$lang';
+/// Uretilecek cihaz olculeri.
+///
+/// iPad GERI GELDI: 1.0.8 iPhone-only yuklenmek istendi ve Apple
+/// reddetti (hata 90101) — bir guncelleme onceki surumun destekledigi
+/// cihazlari desteklemeyi surdurmek zorunda. iPad destegi acik oldugu
+/// surece magaza iPad gorseli de istiyor.
+class _Cihaz {
+  const _Cihaz(this.ad, this.genislik, this.yukseklik, this.oran, this.klasor,
+      this.diller);
+
+  final String ad;
+  final double genislik;
+  final double yukseklik;
+  final double oran;
+  final String klasor;
+
+  /// Hangi diller uretilecek. Telefon dort dil (slaytlar dort dilde
+  /// hazir); iPad yalnizca magaza sayfasi acik olan iki dil.
+  final List<String> diller;
+
+  String dizin(String lang) =>
+      lang == 'en' ? 'outputs/appstore/$klasor' : 'outputs/appstore/${klasor}_$lang';
+}
+
+const _telefon = _Cihaz('telefon', 430, 932, 3, 'ekranlar',
+    ['en', 'tr', 'de', 'es']);
+
+/// 13 inc iPad: 1032x1376 mantiksal, 2x => 2064x2752.
+const _ipad = _Cihaz('ipad', 1032, 1376, 2, 'ipad', ['en', 'tr']);
+
+const _cihazlar = [_telefon, _ipad];
 final _key = GlobalKey();
 
 /// Magaza slaytindaki karakter: uygulamanin TEK karakteri.
@@ -77,6 +106,7 @@ Future<void> _shoot(
   String name,
   Widget child, {
   String lang = 'en',
+  _Cihaz cihaz = _telefon,
   Duration settle = const Duration(milliseconds: 400),
   // Gercek bir ekrani (kendi Scaffold'u ve baslik cubugu olan) oldugu
   // gibi cekmek icin. Parcali widget'lar icin false: onlari kendi
@@ -91,8 +121,9 @@ Future<void> _shoot(
   final settings = SettingsProvider();
   await settings.setLocale(Locale(lang));
 
-  tester.view.physicalSize = const Size(430 * 3, 932 * 3);
-  tester.view.devicePixelRatio = 3;
+  tester.view.physicalSize =
+      Size(cihaz.genislik * cihaz.oran, cihaz.yukseklik * cihaz.oran);
+  tester.view.devicePixelRatio = cihaz.oran;
   addTearDown(tester.view.reset);
 
   await tester.pumpWidget(
@@ -157,6 +188,19 @@ Future<void> _shoot(
         _key.currentContext!,
       );
     }
+    // MASKOT.
+    //
+    // iPad kosusunda Devi'nin yerinde `Icons.smart_toy_rounded`
+    // cikiyordu — yani `Image.asset`'in errorBuilder'i. Onbellege
+    // alinmadan cizilen kare, gorsel daha cozulmeden yaziliyor.
+    // Magaza gorselinde maskotun yerinde bir yedek simge olamaz.
+    for (final yol in [Mascot.durgunGorsel, Mascot.kutlamaGorseli]) {
+      try {
+        await precacheImage(AssetImage(yol), _key.currentContext!);
+      } catch (_) {
+        // Gorsel yoksa arac durmasin; eksikligi ciktida zaten gorunur.
+      }
+    }
   });
   await tester.pump(const Duration(milliseconds: 120));
 
@@ -168,9 +212,9 @@ Future<void> _shoot(
   await tester.runAsync(() async {
     final boundary =
         _key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-    final image = await boundary.toImage(pixelRatio: 3);
+    final image = await boundary.toImage(pixelRatio: cihaz.oran);
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-    final dir = _outDirFor(lang);
+    final dir = cihaz.dizin(lang);
     Directory(dir).createSync(recursive: true);
     File('$dir/$name.png').writeAsBytesSync(bytes!.buffer.asUint8List());
   });
@@ -268,13 +312,14 @@ void main() {
 
   final scratch = CoursesData.byId('scratch')!;
 
-  for (final lang in ['en', 'tr', 'de', 'es']) {
+  for (final cihaz in _cihazlar) {
+  for (final lang in cihaz.diller) {
     // Dort dilin dordu de uretiliyor. Onceden burada `lang == 'en'`
     // ikilisi vardi: Almanca ve Ispanyolca slaytlarda maskotun repligi
     // TURKCE cikiyordu — Alman App Store'una Turkce yazili bir slayt
     // gitmesi demekti.
 
-  testWidgets('01 ilk gorev ($lang)', (tester) async {
+  testWidgets('01 ilk gorev ($lang, ${cihaz.ad})', (tester) async {
     await _shoot(
       tester,
       '01_first_task',
@@ -285,10 +330,11 @@ void main() {
         child: FirstTask(lang: lang, onSolved: (_) {}),
       ),
       lang: lang,
+      cihaz: cihaz,
     );
   });
 
-  testWidgets('02 ders adimi ($lang)', (tester) async {
+  testWidgets('02 ders adimi ($lang, ${cihaz.ad})', (tester) async {
     // Gercek bir Scratch dersinin gercek bir aciklama adimi.
     final step = ScratchLessonsData.module1
         .expand((l) => l.steps)
@@ -325,10 +371,11 @@ void main() {
         ),
       ),
       lang: lang,
+      cihaz: cihaz,
     );
   });
 
-  testWidgets('03 karakter ($lang)', (tester) async {
+  testWidgets('03 karakter ($lang, ${cihaz.ad})', (tester) async {
     await _shoot(
       tester,
       '03_character',
@@ -355,6 +402,7 @@ void main() {
         ],
       ),
       lang: lang,
+      cihaz: cihaz,
     );
   });
 
@@ -362,7 +410,7 @@ void main() {
   // butonlariyla oldugu gibi cekiliyor. Secilen soru bilerek kod
   // ciktisi sorusu — magazada "cocuk ne YAPIYOR" sorusunun cevabi
   // guzel bir arayuz degil, kodun ne yazacagini tahmin etmesi.
-  testWidgets('05 kod tahmini ($lang)', (tester) async {
+  testWidgets('05 kod tahmini ($lang, ${cihaz.ad})', (tester) async {
     final lesson = LessonsData.getLessonsForCourse('python')
         .firstWhere((l) => l.id == 'python_02');
     await _shoot(
@@ -374,6 +422,7 @@ void main() {
         quiz: QuizzesData.all['python_02']!,
       ),
       lang: lang,
+      cihaz: cihaz,
       fullScreen: true,
       settle: const Duration(milliseconds: 600),
     );
@@ -382,7 +431,7 @@ void main() {
   // Ayni quiz ekrani, ama cocuk bir sik secmis ve ipucunu acmis
   // halde. Magazada gosterilmeye deger olan bos soru degil, sorunun
   // ardindan gelen ACIKLAMA: bu uygulamanin verdigi soz o.
-  testWidgets('06 ipucu ($lang)', (tester) async {
+  testWidgets('06 ipucu ($lang, ${cihaz.ad})', (tester) async {
     final lesson = LessonsData.getLessonsForCourse('python')
         .firstWhere((l) => l.id == 'python_02');
     await _shoot(
@@ -394,6 +443,7 @@ void main() {
         quiz: QuizzesData.all['python_02']!,
       ),
       lang: lang,
+      cihaz: cihaz,
       fullScreen: true,
       settle: const Duration(milliseconds: 600),
       act: (t) async {
@@ -409,12 +459,13 @@ void main() {
   // Esleştirme oyunu: uygulamanin EN RENKLI ekrani. Magaza slaytinda
   // acik gri ve yarisi bos bir ekran hicbir sey soylemiyordu; burada
   // renkli etiketler ve dolu bir liste var.
-  testWidgets('07 esleştirme oyunu ($lang)', (tester) async {
+  testWidgets('07 esleştirme oyunu ($lang, ${cihaz.ad})', (tester) async {
     await _shoot(
       tester,
       '07_matching',
       const MatchingGameScreen(),
       lang: lang,
+      cihaz: cihaz,
       fullScreen: true,
       settle: const Duration(milliseconds: 700),
     );
@@ -424,24 +475,26 @@ void main() {
   // ekrani — dokuz kurs numaralanmis bir yol halinde, her birinde
   // ders sayisi ve sure. Magaza slaytinda "9 kurs" iddiasinin
   // karsiligi bu ekran.
-  testWidgets('08 kurs yolu ($lang)', (tester) async {
+  testWidgets('08 kurs yolu ($lang, ${cihaz.ad})', (tester) async {
     await _shoot(
       tester,
       '08_path',
       const CourseCatalogScreen(),
       lang: lang,
+      cihaz: cihaz,
       fullScreen: true,
       settle: const Duration(milliseconds: 700),
     );
   });
 
   // Ana sayfa: cocugun uygulamayi actiginda gordugu ekran.
-  testWidgets('09 ana sayfa ($lang)', (tester) async {
+  testWidgets('09 ana sayfa ($lang, ${cihaz.ad})', (tester) async {
     await _shoot(
       tester,
       '09_home',
       const UnifiedHomeScreen(),
       lang: lang,
+      cihaz: cihaz,
       fullScreen: true,
       settle: const Duration(milliseconds: 900),
     );
@@ -449,24 +502,26 @@ void main() {
 
   // Acilis ekrani: uygulamanin adini ve ne oldugunu tek karede
   // soyleyen tek ekran.
-  testWidgets('10 acilis ($lang)', (tester) async {
+  testWidgets('10 acilis ($lang, ${cihaz.ad})', (tester) async {
     await _shoot(
       tester,
       '10_splash',
       const ModernSplashScreen(),
       lang: lang,
+      cihaz: cihaz,
       fullScreen: true,
       settle: const Duration(milliseconds: 900),
     );
   });
 
   // Kelime eslestirme: terimlerin Ingilizce-Turkce karsiligi.
-  testWidgets('11 kelime eslestirme ($lang)', (tester) async {
+  testWidgets('11 kelime eslestirme ($lang, ${cihaz.ad})', (tester) async {
     await _shoot(
       tester,
       '11_word_match',
       const WordMatchGameScreen(gameData: {}),
       lang: lang,
+      cihaz: cihaz,
       fullScreen: true,
       settle: const Duration(milliseconds: 700),
     );
@@ -474,12 +529,13 @@ void main() {
 
   // Satranc: oyun gorunumu. `initialDifficulty` verilince ekran
   // dogrudan tahtayi kuruyor.
-  testWidgets('12 satranc ($lang)', (tester) async {
+  testWidgets('12 satranc ($lang, ${cihaz.ad})', (tester) async {
     await _shoot(
       tester,
       '12_chess',
       const ChessGameScreen(initialDifficulty: ChessDifficulty.beginner),
       lang: lang,
+      cihaz: cihaz,
       fullScreen: true,
       settle: const Duration(milliseconds: 900),
       // Ekran once tahta temasi soruyor; "Baslat"a basmadan tahta
@@ -504,12 +560,13 @@ void main() {
   });
 
   // Quiz girisi: "Basla" tusu yerine kaydirmali tus olan ekran.
-  testWidgets('13 kaydirarak basla ($lang)', (tester) async {
+  testWidgets('13 kaydirarak basla ($lang, ${cihaz.ad})', (tester) async {
     await _shoot(
       tester,
       '13_slide_to_start',
       const QuizIntroScreen(),
       lang: lang,
+      cihaz: cihaz,
       fullScreen: true,
       settle: const Duration(milliseconds: 500),
     );
@@ -522,7 +579,7 @@ void main() {
   // ekran degildi. Artik ders verisinden geliyor (s1_2_build2) ve
   // slaytta cocugun tam ortasinda oldugu an goruluyor: iki blok
   // yerlestirilmis, ucuncusu hala palette.
-  testWidgets('04 scratch bloklari ($lang)', (tester) async {
+  testWidgets('04 scratch bloklari ($lang, ${cihaz.ad})', (tester) async {
     final step = ScratchLessonsData.module1
         .expand((l) => l.steps)
         .whereType<BlockBuilderStep>()
@@ -540,6 +597,7 @@ void main() {
         ),
       ),
       lang: lang,
+      cihaz: cihaz,
       // Iki blogu yerine koyuyoruz. UCUNCUSUNU KOYMUYORUZ: dizi
       // tamamlanirsa kutlama animasyonu basliyor ve testte asili
       // zamanlayici birakiyor; ustelik slaytta gosterilmesi gereken
@@ -572,7 +630,7 @@ void main() {
   //
   // Magazada blok surukleyen ekranlarin yaninda bu duruyor: uygulama
   // bloklarda kalmiyor, gercek kodu da yazdiriyor.
-  testWidgets('14 html kod ($lang)', (tester) async {
+  testWidgets('14 html kod ($lang, ${cihaz.ad})', (tester) async {
     final step = HtmlLessonsData.module1
         .expand((l) => l.steps)
         .whereType<TypeCodeStep>()
@@ -590,6 +648,7 @@ void main() {
         ),
       ),
       lang: lang,
+      cihaz: cihaz,
       // Bos bir kod kutusu hicbir sey anlatmiyor. Cocugun yazdigi
       // kodu editore koyuyoruz — hedef kodun kendisi, uydurma degil.
       act: (t) async {
@@ -602,5 +661,6 @@ void main() {
     );
   });
 
+  }
   }
 }

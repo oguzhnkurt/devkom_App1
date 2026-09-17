@@ -58,7 +58,13 @@ void main() {
       final settings = SettingsProvider();
       await settings.setLocale(Locale(lang));
 
-      tester.view.physicalSize = const Size(390 * 3, 844 * 3);
+      // APPLE'IN 6.9 INC OLCUSU: 430x932 mantiksal, 3x => 1290x2796.
+      //
+      // Onceden 390x844@3 ciziliyor ve 2x pixelRatio ile yaziliyordu:
+      // dosya 780x1688 cikiyordu. App Store Connect abonelik inceleme
+      // ekran goruntusunu bu olcude kabul etmiyor ("The dimensions of
+      // one or more screenshots are wrong").
+      tester.view.physicalSize = const Size(430 * 3, 932 * 3);
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
 
@@ -89,7 +95,7 @@ void main() {
       await tester.runAsync(() async {
         final boundary =
             _key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-        final image = await boundary.toImage(pixelRatio: 2);
+        final image = await boundary.toImage(pixelRatio: 3);
         final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
         Directory(_outDir).createSync(recursive: true);
         File('$_outDir/paywall_$lang.png')

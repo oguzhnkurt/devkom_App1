@@ -2,7 +2,7 @@ name: devkom_app
 description: "A new Flutter project."
 publish_to: 'none'
 
-version: 1.0.8+12
+version: 1.0.8+14
 
 environment:
   sdk: ^3.6.0
@@ -117,6 +117,11 @@ flutter:
     - assets/videos/
     - assets/sounds/
     - assets/html/
+    # MASKOT — buradan silinmesin.
+    # 1.0.8 (build 13) bu satir olmadan derlendi ve YUKLENDI: Devi'nin
+    # gorselleri pakete girmedi, uygulamada maskotun yerinde
+    # `Icons.smart_toy_rounded` yedek simgesi cikiyordu. Kilit:
+    # test/asset_bildirimi_test.dart
     - assets/maskot/
 
   # Yazi tipi uygulamayla birlikte geliyor. Daha once `google_fonts` paketi

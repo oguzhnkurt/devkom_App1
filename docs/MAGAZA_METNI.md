@@ -244,21 +244,40 @@ içindir.
 sürüm notunda ve açıklamada söylememek App Store 2.3.1'e giriyor; ayrıca
 kullanıcı sürprizle karşılaşınca puanı düşürüyor.
 
+**Maskot değişikliği de söyleniyor.** Beş karakter tek maskota indi ve
+giyilebilir ürünler katalogdan kalktı. Kullanıcının satın aldığı bir şeyi
+sessizce geri almak güven kaybettirir; jetonlar iade edildi ve sürüm
+notunda bu yazıyor.
+
 ### tr
 
-• Ücretsiz sürümde reklam gösterilmeye başlandı. Reklamlar
-kişiselleştirilmiyor: hedefleme yapılmıyor, reklam kimliği
-kullanılmıyor. DevEducation Pro reklamları tamamen kaldırıyor.
-
-• Market'te yeni bir seçenek: kısa bir video izleyip jeton
-kazanabilirsin. İstemezsen hiçbir şey değişmiyor.
+• Ücretsiz sürümde reklam gösteriliyor. Reklamlar kişiselleştirilmiyor:
+hedefleme yapılmıyor, reklam kimliği kullanılmıyor. DevEducation Pro
+reklamları tamamen kaldırıyor.
 
 • Ders ve oyun aralarında ara sıra tam ekran reklam çıkıyor. İlk
 derslerinde hiç çıkmıyor, arka arkaya gelmiyor ve günlük bir sınırı var.
+Market'te istersen kısa bir video izleyip jeton kazanabilirsin.
+
+• Ana sayfa yenilendi: günün görevi, ilerlemen ve sıradaki ders artık tek
+ekranda.
+
+• Maskot tek: Devi. Giyilebilir ürünler kaldırıldı, onlara harcanan
+jetonlar hesabına iade edildi. Market'te yerlerine avatar çerçeveleri,
+profil afişleri, isim rozetleri ve seri kalkanı var.
+
+• Ders anlatımları paragraf paragraf açılıyor. Blok kurma adımında sıra
+yanlışsa nereye bakacağın söyleniyor ve kodu çalıştırıp adım adım
+izleyebiliyorsun.
+
+• DevAI daha çok soruya cevap veriyor: dört dilde selamlaşma, temel
+matematik, "bilgisayar nedir", "blok kodlama ne işe yarar" gibi.
+
+• Adın, veli paylaşım kodun ve hesap işlemlerin tek bir "Hesap"
+bölümünde toplandı.
 
 • Uygulamanın desteklediği diller App Store sayfasında artık doğru
-görünüyor: Türkçe, İngilizce, Almanca ve İspanyolca. Önceden sayfa
-uygulamayı yalnızca Türkçe gibi gösteriyordu.
+görünüyor: Türkçe, İngilizce, Almanca ve İspanyolca.
 
 • Performans iyileştirmeleri ve hata düzeltmeleri.
 
@@ -268,16 +287,30 @@ uygulamayı yalnızca Türkçe gibi gösteriyordu.
 targeting and no advertising identifier is used. DevEducation Pro
 removes them completely.
 
-• A new option in the shop: watch a short video and earn coins. Nothing
-changes if you would rather not.
-
 • A full-screen ad appears occasionally between lessons and games. It
-never appears during your first lessons, never twice in a row, and has
-a daily limit.
+never appears during your first lessons, never twice in a row, and has a
+daily limit. In the shop you can watch a short video for coins if you
+want to.
+
+• The home screen is new: today's mission, your progress and the next
+lesson are now on one screen.
+
+• One mascot from now on: Devi. Wearable items are gone and the coins
+spent on them have been returned to your account. The shop now has
+avatar frames, profile banners, name badges and a streak shield instead.
+
+• Lesson texts appear paragraph by paragraph. In block-building steps the
+app tells you where the order goes wrong, and you can run your code and
+follow it step by step.
+
+• DevAI answers many more questions: greetings in four languages, basic
+maths, "what is a computer", "what is block coding good for".
+
+• Your name, the parent sharing code and account actions are now in a
+single "Account" section.
 
 • The languages the app supports now show correctly on its App Store
-page: Turkish, English, German and Spanish. Before this the page made
-the app look Turkish-only.
+page: Turkish, English, German and Spanish.
 
 • Performance improvements and bug fixes.
 
