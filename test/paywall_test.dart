@@ -148,4 +148,28 @@ void main() {
     final leaks = await _renderAndScan(tester, 'tr');
     expect(leaks, isNotEmpty, reason: 'Turkce ekran Turkce olmali');
   });
+
+  test('cikis teklifi ayni fiyati ikinci kez gostermiyor', () {
+    // Sikayet: "yillik 34,99 ama geri basinca son firsat diye yine
+    // 34,99 diyor". Indirimli bir urun tanimli degilken, yillik plana
+    // bakan birine cikista ayni plani ayni fiyatla gostermek hicbir sey
+    // sunmamak demek — ve App Store'un karanlik desen tanimina yaklasiyor.
+    final src =
+        File('lib/screens/subscription_screen.dart').readAsStringSync();
+    final bas = src.indexOf('Future<void> _showExitOffer()');
+    expect(bas, greaterThan(0));
+    final govde = src.substring(bas, src.indexOf('\n  /// Pro jetonu', bas));
+
+    expect(govde.contains('soyleyecekSeyVar'), isTrue,
+        reason: 'Teklif, soyleyecek yeni bir seyi olmadan da aciliyor.');
+    expect(govde.contains('discounted != null ||'), isTrue);
+
+    // Capa, kullanicinin BAKTIGI plan olmali; her zaman haftalik degil.
+    expect(govde.contains('final secili = _selected;'), isTrue);
+
+    // Ve hicbir yerde elle yazilmis bir indirim fiyati olmamali:
+    // fiyat her zaman StoreKit'ten geliyor.
+    expect(RegExp(r"'\s*[0-9]+[.,][0-9]{2}\s*'").hasMatch(govde), isFalse,
+        reason: 'Cikis teklifinde elle yazilmis bir fiyat var.');
+  });
 }

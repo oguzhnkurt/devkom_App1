@@ -466,11 +466,34 @@ class _IntroOrbit extends StatelessWidget {
 // EXPLANATION STEP WIDGET
 // ==========================================
 
-class ExplanationStepWidget extends StatelessWidget {
+/// Anlatim adimi: metin PARAGRAF PARAGRAF aciliyor.
+///
+/// NEDEN
+///
+/// Anlatim ekrani bir duvar metniydi: butun paragraflar bir anda
+/// ekranda duruyordu ve altta DEVAM tusu hazir bekliyordu. Cocuk
+/// tek dokunusla geciyor, okumuyordu — ders anlatimi ekranda var ama
+/// kimsenin gozunden gecmiyordu.
+///
+/// Simdi ekrana her dokunusta bir paragraf daha aciliyor ve DEVAM tusu
+/// ancak metnin sonuna gelindiginde etkinlesiyor. Bu bir tuzak degil:
+/// hicbir sey gizlenmiyor, yalnizca sirayla veriliyor ve tek dokunus
+/// bir sonrakini getiriyor. "Devam etmek icin dokun" ipucu her zaman
+/// ekranda.
+///
+/// ERISILEBILIRLIK: ekran okuyucu acikken (accessibleNavigation)
+/// metnin tamami bir anda gosteriliyor — ekran okuyucu kullanan
+/// birine "dokun ve biraz daha oku" demek, metni parcalayip
+/// gezinmeyi zorlastirmak demek.
+class ExplanationStepWidget extends StatefulWidget {
   final ExplanationStep step;
   final Course course;
   final bool isDark;
   final VoidCallback onComplete;
+
+  /// Araclar (magaza ekran goruntuleri, tasma olcumu) metnin tamamini
+  /// gormek zorunda: orada dokunacak kimse yok.
+  final bool tumunuGoster;
 
   const ExplanationStepWidget({
     super.key,
@@ -478,48 +501,157 @@ class ExplanationStepWidget extends StatelessWidget {
     required this.course,
     required this.isDark,
     required this.onComplete,
+    this.tumunuGoster = false,
   });
+
+  @override
+  State<ExplanationStepWidget> createState() => _ExplanationStepWidgetState();
+}
+
+class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
+  /// Kac paragraf acildi.
+  int _gorunen = 1;
+
+  /// Bitti bilgisi bir kez gonderiliyor.
+  bool _bildirildi = false;
+
+  /// Bir sonraki paragrafi getiren sayac.
+  ///
+  /// Paragraflar KENDILIGINDEN aciliyor: cocugun ekrana dokunmasi
+  /// gerekmiyor, yalnizca DEVAM tusu metnin sonuna gelene kadar
+  /// kapali kaliyor. "Devam etmek icin dokun" ipucu kaldirildi —
+  /// okumasi gereken cocuktan ayrica bir is istemek, okumanin
+  /// onune bir engel koymak demekti.
+  Timer? _sayac;
+
+  /// Paragraf araligi. Bir paragrafi gozle taramak icin yeterli,
+  /// bekleme hissi verecek kadar uzun degil.
+  static const Duration _aralik = Duration(milliseconds: 1500);
+
+  /// Metni paragraflara ayirir. Bos satirla ayrilmis bloklar bir
+  /// paragraf; tek satirlik metinlerde liste tek elemanli olur.
+  List<String> _paragraflar(String metin) => metin
+      .split(RegExp(r'\n\s*\n'))
+      .map((p) => p.trim())
+      .where((p) => p.isNotEmpty)
+      .toList();
+
+  @override
+  void dispose() {
+    _sayac?.cancel();
+    super.dispose();
+  }
+
+  void _bildir() {
+    if (_bildirildi) return;
+    _bildirildi = true;
+    // Cizim sirasinda setState cagirmamak icin bir kare sonra.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.onComplete();
+    });
+  }
+
+  /// Sayaci kurar: her araligda bir paragraf daha.
+  void _sayaciKur(int toplam) {
+    if (_sayac != null || _gorunen >= toplam) return;
+    _sayac = Timer.periodic(_aralik, (t) {
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
+      setState(() => _gorunen++);
+      if (_gorunen >= toplam) t.cancel();
+    });
+  }
+
+  /// Hizli okuyan cocuk beklemesin: ekrana dokunmak kalan paragraflari
+  /// hemen getiriyor. Zorunlu degil — sayac zaten getirecek.
+  void _hepsiniAc(int toplam) {
+    if (_gorunen >= toplam) return;
+    _sayac?.cancel();
+    _sayac = null;
+    setState(() => _gorunen = toplam);
+    HapticFeedback.selectionClick();
+  }
 
   @override
   Widget build(BuildContext context) {
     final lang = lessonLang(context);
-    final tipText = step.tipFor(lang);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Title
-        Text(
-          step.titleFor(lang),
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+    final tipText = widget.step.tipFor(lang);
+    final paragraflar = _paragraflar(widget.step.contentFor(lang));
+
+    // Ekran okuyucu acikken ya da arac modunda hepsi birden.
+    final hepsi = widget.tumunuGoster ||
+        MediaQuery.accessibleNavigationOf(context) ||
+        paragraflar.length <= 1;
+
+    final gorunen =
+        hepsi ? paragraflar.length : _gorunen.clamp(1, paragraflar.length);
+    final bitti = gorunen >= paragraflar.length;
+    if (bitti) {
+      _bildir();
+    } else {
+      _sayaciKur(paragraflar.length);
+    }
+
+    return GestureDetector(
+      // Dokunmak ZORUNLU DEGIL: sayac zaten getiriyor. Dokunus yalnizca
+      // hizli okuyan cocuk beklemesin diye kalanini hemen aciyor.
+      onTap: bitti ? null : () => _hepsiniAc(paragraflar.length),
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.step.titleFor(lang),
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-        // Content
-        Text(
-          step.contentFor(lang),
-          style: TextStyle(
-            fontSize: 16,
-            height: 1.7,
-            color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
-          ),
-        ),
-        const SizedBox(height: 24),
+          for (var i = 0; i < gorunen; i++)
+            AppearIn(
+              // Yeni gelen paragraf asagidan suzulerek giriyor: goz
+              // degisikligi fark etsin, metin aniden zipllamasin.
+              key: ValueKey('p$i-${paragraflar[i].hashCode}'),
+              offset: 14,
+              child: Padding(
+                padding: EdgeInsets.only(bottom: i == gorunen - 1 ? 0 : 14),
+                child: Text(
+                  paragraflar[i],
+                  style: TextStyle(
+                    fontSize: 16,
+                    height: 1.7,
+                    color: widget.isDark
+                        ? Colors.grey.shade300
+                        : Colors.grey.shade700,
+                  ),
+                ),
+              ),
+            ),
 
-        // Visual elements
-        if (step.visuals.isNotEmpty) ...[
-          ...step.visuals.map((visual) => _buildVisual(visual, lang)),
+          if (!bitti) ...[
+            const SizedBox(height: 16),
+            // Devaminin GELDIGINI soyleyen sade bir isaret: uc nokta
+            // sirayla yaniyor. Yazi yok — cocuktan bir sey istemiyoruz,
+            // yalnizca metnin bitmedigini soyluyoruz.
+            _DevamiGeliyor(renk: widget.course.primaryColor),
+          ],
+
+          if (bitti) ...[
+            const SizedBox(height: 24),
+            if (widget.step.visuals.isNotEmpty)
+              ...widget.step.visuals.map((visual) => _buildVisual(visual, lang)),
+            if (tipText != null) ...[
+              const SizedBox(height: 24),
+              _buildTipBox(tipText),
+            ],
+          ],
         ],
-
-        // Tip box
-        if (tipText != null) ...[
-          const SizedBox(height: 24),
-          _buildTipBox(tipText),
-        ],
-      ],
+      ),
     );
   }
 
@@ -580,11 +712,11 @@ class ExplanationStepWidget extends StatelessWidget {
             child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: visual.color ?? course.primaryColor,
+              color: visual.color ?? widget.course.primaryColor,
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: (visual.color ?? course.primaryColor).withValues(alpha: 0.3),
+                  color: (visual.color ?? widget.course.primaryColor).withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -632,7 +764,7 @@ class ExplanationStepWidget extends StatelessWidget {
               child: Text(
                 label,
                 style: TextStyle(
-                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                  color: widget.isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                   fontSize: 13,
                 ),
               ),
@@ -666,14 +798,14 @@ class ExplanationStepWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2D2A1A) : const Color(0xFFFFF8E1),
+        color: widget.isDark ? const Color(0xFF2D2A1A) : const Color(0xFFFFF8E1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(step.tipEmoji ?? '💡', style: const TextStyle(fontSize: 24)),
+          Text(widget.step.tipEmoji ?? '💡', style: const TextStyle(fontSize: 24)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -681,11 +813,79 @@ class ExplanationStepWidget extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: isDark ? Colors.amber.shade200 : Colors.amber.shade900,
+                color: widget.isDark ? Colors.amber.shade200 : Colors.amber.shade900,
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// "Devamı geliyor" işareti: sırayla yanan üç nokta.
+///
+/// Burada önce "Devam etmek için ekrana dokun" yazan bir ipucu vardı.
+/// Okuması gereken çocuktan ayrıca bir iş istemek, okumanın önüne bir
+/// engel koymak demekti — paragraflar artık kendiliğinden geliyor ve bu
+/// işaret yalnızca metnin BİTMEDİĞİNİ söylüyor.
+///
+/// Hareket azaltma ayarında noktalar sabit duruyor: işaret kalıyor,
+/// hareket gidiyor.
+class _DevamiGeliyor extends StatefulWidget {
+  const _DevamiGeliyor({required this.renk});
+
+  final Color renk;
+
+  @override
+  State<_DevamiGeliyor> createState() => _DevamiGeliyorState();
+}
+
+class _DevamiGeliyorState extends State<_DevamiGeliyor>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1200),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (Motion.reduced(context)) {
+      _c.stop();
+    } else if (!_c.isAnimating) {
+      _c.repeat();
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (context, _) => Row(
+        children: List.generate(3, (i) {
+          // Her nokta kendi sirasinda parliyor.
+          final faz = (_c.value * 3 - i).clamp(0.0, 1.0);
+          final parlak = (1 - (faz - 0.5).abs() * 2).clamp(0.0, 1.0);
+          return Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: Container(
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: widget.renk
+                    .withValues(alpha: 0.25 + 0.55 * (Motion.reduced(context) ? 0.4 : parlak)),
+              ),
+            ),
+          );
+        }),
       ),
     );
   }

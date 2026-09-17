@@ -64,6 +64,9 @@ Widget? _adimWidget(LessonStep step, Course course) {
           onComplete: () {});
     case StepType.explanation:
       return ExplanationStepWidget(
+          // Olcum araci metnin TAMAMINI gormeli: burada dokunacak
+          // kimse yok (bkz. ExplanationStepWidget.tumunuGoster).
+          tumunuGoster: true,
           step: step as ExplanationStep, course: course, isDark: false,
           onComplete: () {});
     case StepType.multipleChoice:

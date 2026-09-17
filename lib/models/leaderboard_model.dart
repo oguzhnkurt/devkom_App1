@@ -37,6 +37,17 @@ class LeaderboardEntry {
     this.metadata,
   });
 
+  /// Siralamada adin yanindaki kucuk rozet (marketten alinan isim rozeti).
+  ///
+  /// Ayri bir sutun ACILMADI: `metadata` zaten jsonb ve herkes tarafindan
+  /// okunabiliyor. Rozet kaydin ICINDE durdugu icin baska bir cocugun
+  /// envanterini okumaya gerek kalmiyor — o veriye erisim zaten kapali
+  /// ve acilmasi dogru olmazdi.
+  String? get nameBadge {
+    final v = metadata?['name_badge'];
+    return (v is String && v.trim().isNotEmpty) ? v : null;
+  }
+
   /// Convert to map
   Map<String, dynamic> toMap() {
     return {

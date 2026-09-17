@@ -6,6 +6,12 @@ import 'course_detail_screen.dart';
 import '../data/course_modules.dart';
 import 'interactive_course_screen.dart';
 import '../../utils/pro_gate.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/auth_provider.dart';
+import '../../ui/appear_in.dart';
+import '../../ui/motion.dart';
+import '../../widgets/mascot.dart';
 import 'widgets/step_widgets.dart'
     show lessonLang, lessonText;
 
@@ -108,10 +114,10 @@ class _CourseCatalogScreenState extends State<CourseCatalogScreen> {
                 ),
               ),
             ),
-            // Stars
-            CustomPaint(
-              painter: _StarsPainter(isDark: isDark),
-            ),
+            // Yildizlar yavasca suzuluyor ve sonup yaniyor: baslik
+            // bandi "resim" degil "gokyuzu" gibi duruyor. Hareket
+            // azaltma ayarinda duruyor (bkz. _CanliYildizlar).
+            _CanliYildizlar(isDark: isDark),
           ],
         ),
       ),
@@ -206,54 +212,107 @@ class _CourseCatalogScreenState extends State<CourseCatalogScreen> {
   }
 
   Widget _buildPathIntro(bool isDark) {
+    final lang = lessonLang(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            lessonText(lessonLang(context), 'Öğrenme Yolu', 'Learning path'),
+            lessonText(lang, 'Öğrenme Yolu', 'Learning path', 'Lernpfad',
+                'Ruta de aprendizaje'),
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w800,
               color: isDark ? Colors.white : const Color(0xFF1F1D36),
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            lessonText(
-                lessonLang(context),
+          const SizedBox(height: 10),
+          // MASKOT BURADA, CUNKU BURADA SOYLEYECEK BIR SEYI VAR.
+          //
+          // Devi'yi sayfanin basina sus olarak koymak, ekrana bakan
+          // cocuga bir sey anlatmiyordu. Yolu ANLATAN cumleyi ona
+          // soyletince maskot bir karakter oluyor: kurslar listesi bir
+          // katalog degil, birinin gosterdigi bir yol gibi duruyor.
+          MascotSays(
+            size: 58,
+            mood: MascotMood.curious,
+            text: lessonText(
+                lang,
                 'Bloklardan gerçek koda, adım adım. Her kurs bir öncekinin '
                     'üstüne biner.',
-                'From blocks to real code, step by step. Each course builds on '
-                    'the one before it.'),
-            style: TextStyle(
-              fontSize: 13,
-              height: 1.35,
-              color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-            ),
+                'From blocks to real code, step by step. Each course builds '
+                    'on the one before it.',
+                'Von Blöcken zu echtem Code, Schritt für Schritt. Jeder Kurs '
+                    'baut auf dem vorherigen auf.',
+                'De los bloques al código real, paso a paso. Cada curso se '
+                    'apoya en el anterior.'),
           ),
         ],
       ),
     );
   }
 
+  /// Cocugun tamamladigi ders kimlikleri.
+  ///
+  /// Saglayici olmayan bir agacta (ekran goruntusu araclari, bazi
+  /// testler) ekran cokmemeli: bos kume donuyor, yol ilerlemesiz
+  /// ciziliyor.
+  Set<String> get _bitmisDersler {
+    try {
+      return context
+              .watch<AuthProvider>()
+              .userProgress
+              ?.completedLessonIds
+              .toSet() ??
+          <String>{};
+    } on ProviderNotFoundException {
+      return <String>{};
+    }
+  }
+
   /// Kurslari zorluk seviyesine gore gruplayip adim numaralariyla listeler.
   Widget _buildLearningPath(bool isDark) {
     final path = CoursesData.learningPath;
+    final bitmis = _bitmisDersler;
+
+    // ILERLEME GERCEK VERIDEN GELIYOR.
+    //
+    // Liste eskiden yalnizca "12 ders / 4 saat" diyordu: cocugun nerede
+    // oldugunu ekranda hicbir sey soylemiyordu, dolayisiyla kurslar
+    // birbirinin ayni duruyordu. Artik her kursun kac dersinin bittigi
+    // ve hangisinin SIRADAKI kurs oldugu goruluyor.
+    String? siradaki;
+    final Map<String, (int, int)> ilerleme = {};
+    for (final course in path) {
+      final dersler = CourseModules.allLessons(course.id);
+      final yapilan = dersler.where((l) => bitmis.contains(l.id)).length;
+      ilerleme[course.id] = (yapilan, dersler.length);
+      if (siradaki == null && (dersler.isEmpty || yapilan < dersler.length)) {
+        siradaki = course.id;
+      }
+    }
 
     // Seviye basliklari, ilk kez o seviyeye gecildiginde araya giriyor.
     final items = <Widget>[];
     DifficultyLevel? lastLevel;
+    var sira = 0;
     for (final course in path) {
       if (course.difficulty != lastLevel) {
         items.add(_buildLevelHeader(course.difficulty, isDark));
         lastLevel = course.difficulty;
       }
-      items.add(_PathCourseTile(
-        course: course,
-        isDark: isDark,
-        isLast: course == path.last,
+      final (yapilan, toplam) = ilerleme[course.id] ?? (0, 0);
+      items.add(AppearIn(
+        delay: Duration(milliseconds: 40 * (sira++).clamp(0, 8)),
+        child: _PathCourseTile(
+          course: course,
+          isDark: isDark,
+          isLast: course == path.last,
+          bitenDers: yapilan,
+          toplamDers: toplam,
+          simdiBurada: course.id == siradaki,
+        ),
       ));
     }
 
@@ -272,20 +331,25 @@ class _CourseCatalogScreenState extends State<CourseCatalogScreen> {
     final lang = lessonLang(context);
     final (label, subtitle, color) = switch (level) {
       DifficultyLevel.beginner => (
-          lessonText(lang, 'Kolay', 'Easy'),
-          lessonText(lang, 'Yazı yazmadan başla', 'Start without typing'),
+          lessonText(lang, 'Kolay', 'Easy', 'Leicht', 'Fácil'),
+          lessonText(lang, 'Yazı yazmadan başla', 'Start without typing',
+              'Ohne Tippen anfangen', 'Empieza sin teclado'),
           const Color(0xFF2E7D32),
         ),
       DifficultyLevel.intermediate => (
-          lessonText(lang, 'Orta', 'Medium'),
+          lessonText(lang, 'Orta', 'Medium', 'Mittel', 'Medio'),
           lessonText(lang, 'Artık gerçek kod yazıyorsun',
-              'Now you are writing real code'),
+              'Now you are writing real code',
+              'Jetzt schreibst du echten Code',
+              'Ahora escribes código de verdad'),
           const Color(0xFFEF6C00),
         ),
       DifficultyLevel.advanced => (
-          lessonText(lang, 'Zor', 'Hard'),
+          lessonText(lang, 'Zor', 'Hard', 'Schwer', 'Difícil'),
           lessonText(lang, 'Büyük projelerin dilleri',
-              'The languages of big projects'),
+              'The languages of big projects',
+              'Die Sprachen großer Projekte',
+              'Los lenguajes de los grandes proyectos'),
           const Color(0xFFC62828),
         ),
     };
@@ -303,7 +367,13 @@ class _CourseCatalogScreenState extends State<CourseCatalogScreen> {
             ),
           ),
           const SizedBox(width: 10),
-          Column(
+          // SEVIYE ALT YAZISI TASIYORDU.
+          //
+          // Sutun sinirsiz genislikteydi: "Artik gercek kod yaziyorsun"
+          // dar ekranda satira sigmayip saga tasiyordu (RenderFlex
+          // overflow). Expanded, yaziyi kendi alanina hapsediyor.
+          Expanded(
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -316,12 +386,15 @@ class _CourseCatalogScreenState extends State<CourseCatalogScreen> {
               ),
               Text(
                 subtitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 11.5,
                   color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
                 ),
               ),
             ],
+          ),
           ),
         ],
       ),
@@ -359,11 +432,24 @@ class _PathCourseTile extends StatelessWidget {
   final bool isDark;
   final bool isLast;
 
+  /// Bu kursta bitirilen ders sayisi ve toplam ders sayisi.
+  final int bitenDers;
+  final int toplamDers;
+
+  /// Yoldaki ilk bitmemis kurs: cocugun su an durdugu yer.
+  final bool simdiBurada;
+
   const _PathCourseTile({
     required this.course,
     required this.isDark,
     required this.isLast,
+    this.bitenDers = 0,
+    this.toplamDers = 0,
+    this.simdiBurada = false,
   });
+
+  bool get _tamamlandi => toplamDers > 0 && bitenDers >= toplamDers;
+  double get _oran => toplamDers == 0 ? 0 : bitenDers / toplamDers;
 
   Future<void> _open(BuildContext context) async {
     // KURS KAPISI ARTIK KILITLI DEGIL.
@@ -404,28 +490,42 @@ class _PathCourseTile extends StatelessWidget {
             child: Column(
               children: [
                 Container(
-                  width: 30,
-                  height: 30,
+                  width: simdiBurada ? 34 : 30,
+                  height: simdiBurada ? 34 : 30,
                   decoration: BoxDecoration(
-                    color: course.primaryColor,
+                    color: _tamamlandi
+                        ? const Color(0xFF3BA55C)
+                        : course.primaryColor,
                     shape: BoxShape.circle,
+                    // SIRADAKI KURS BUYUK VE HALKALI: goz once oraya
+                    // gitsin. Once butun adimlar ayni boyuttaydi ve
+                    // "nereden devam ediyorum" sorusunun cevabi yoktu.
+                    border: simdiBurada
+                        ? Border.all(color: Colors.white, width: 3)
+                        : null,
                     boxShadow: [
                       BoxShadow(
-                        color: course.primaryColor.withValues(alpha: 0.35),
-                        blurRadius: 8,
+                        color: (_tamamlandi
+                                ? const Color(0xFF3BA55C)
+                                : course.primaryColor)
+                            .withValues(alpha: simdiBurada ? 0.55 : 0.35),
+                        blurRadius: simdiBurada ? 14 : 8,
                         offset: const Offset(0, 3),
                       ),
                     ],
                   ),
                   child: Center(
-                    child: Text(
-                      '${course.pathStep}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 13,
-                      ),
-                    ),
+                    child: _tamamlandi
+                        ? const Icon(Icons.check_rounded,
+                            color: Colors.white, size: 18)
+                        : Text(
+                            '${course.pathStep}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13,
+                            ),
+                          ),
                   ),
                 ),
                 if (!isLast)
@@ -433,7 +533,12 @@ class _PathCourseTile extends StatelessWidget {
                     child: Container(
                       width: 2,
                       margin: const EdgeInsets.symmetric(vertical: 4),
-                      color: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                      // Bitmis kursun cizgisi YESIL: yol doluyor.
+                      color: _tamamlandi
+                          ? const Color(0xFF3BA55C).withValues(alpha: 0.55)
+                          : (isDark
+                              ? Colors.grey.shade800
+                              : Colors.grey.shade300),
                     ),
                   ),
               ],
@@ -451,13 +556,18 @@ class _PathCourseTile extends StatelessWidget {
                     color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: course.primaryColor.withValues(alpha: 0.25),
+                      color: course.primaryColor
+                          .withValues(alpha: simdiBurada ? 0.75 : 0.25),
+                      width: simdiBurada ? 2 : 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
+                        color: simdiBurada
+                            ? course.primaryColor.withValues(alpha: 0.22)
+                            : Colors.black
+                                .withValues(alpha: isDark ? 0.25 : 0.05),
+                        blurRadius: simdiBurada ? 18 : 8,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
@@ -510,14 +620,20 @@ class _PathCourseTile extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            Row(
+                            // CIPLER TASIYORDU. Row sabit genislikte iki
+                            // cip tutuyordu; "2 saat 40 dk" gibi uzun bir
+                            // sure dar ekranda saga tasiyor ve sari-siyah
+                            // seritler cikiyordu (RenderFlex overflow).
+                            // Wrap, sigmayani alt satira aliyor.
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
                               children: [
                                 _chip(
                                     course.lessonCountTextFor(
                                         lessonLang(context)),
                                     course.primaryColor,
                                     isDark),
-                                const SizedBox(width: 6),
                                 _chip(
                                     course.estimatedTimeTextFor(
                                         lessonLang(context)),
@@ -525,6 +641,95 @@ class _PathCourseTile extends StatelessWidget {
                                     isDark),
                               ],
                             ),
+                            // ILERLEME: SAYI DEGIL, DOLAN BIR CIZGI.
+                            //
+                            // Bir cocuk "3/12" ifadesini okumadan once
+                            // dolan cizgiyi goruyor. Yuzde YAZMIYORUZ —
+                            // bitirilen ders sayisi gercek veri, uydurma
+                            // bir "ustalik yuzdesi" degil.
+                            if (toplamDers > 0 && bitenDers > 0) ...[
+                              const SizedBox(height: 9),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(4),
+                                      child: TweenAnimationBuilder<double>(
+                                        tween: Tween(begin: 0, end: _oran),
+                                        duration: const Duration(
+                                            milliseconds: 650),
+                                        curve: Curves.easeOutCubic,
+                                        builder: (context, v, _) =>
+                                            LinearProgressIndicator(
+                                          value: v,
+                                          minHeight: 6,
+                                          backgroundColor: isDark
+                                              ? Colors.grey.shade800
+                                              : Colors.grey.shade200,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                            _tamamlandi
+                                                ? const Color(0xFF3BA55C)
+                                                : course.primaryColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '$bitenDers/$toplamDers',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: _tamamlandi
+                                          ? const Color(0xFF3BA55C)
+                                          : course.primaryColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            if (simdiBurada) ...[
+                              const SizedBox(height: 9),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: course.primaryColor
+                                      .withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.play_arrow_rounded,
+                                        size: 14, color: course.primaryColor),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      bitenDers > 0
+                                          ? lessonText(
+                                              lessonLang(context),
+                                              'Kaldığın yer',
+                                              'Where you left off',
+                                              'Wo du aufgehört hast',
+                                              'Donde lo dejaste')
+                                          : lessonText(
+                                              lessonLang(context),
+                                              'Buradan başla',
+                                              'Start here',
+                                              'Hier starten',
+                                              'Empieza aquí'),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w800,
+                                        color: course.primaryColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                             if (prerequisite != null) ...[
                               const SizedBox(height: 7),
                               Text(
@@ -733,28 +938,95 @@ class _CourseCard extends StatelessWidget {
 }
 
 /// Stars painter for app bar background
+/// Baslik bandindaki yildizlar.
+///
+/// Once tamamen durgundu ve bant bir ekran goruntusu gibi duruyordu.
+/// Simdi her yildiz kendi hizinda cok yavas yukari suzuluyor ve kendi
+/// ritminde sonup yaniyor — 90 saniyelik tam tur, yani goz onu takip
+/// etmiyor, yalnizca ekranin "canli" oldugunu hissediyor.
+class _CanliYildizlar extends StatefulWidget {
+  const _CanliYildizlar({required this.isDark});
+
+  final bool isDark;
+
+  @override
+  State<_CanliYildizlar> createState() => _CanliYildizlarState();
+}
+
+class _CanliYildizlarState extends State<_CanliYildizlar>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 90),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (Motion.reduced(context)) {
+      _c.stop();
+    } else if (!_c.isAnimating) {
+      _c.repeat();
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _c,
+        builder: (context, _) => CustomPaint(
+          painter: _StarsPainter(isDark: widget.isDark, t: _c.value),
+          child: const SizedBox.expand(),
+        ),
+      ),
+    );
+  }
+}
+
 class _StarsPainter extends CustomPainter {
   final bool isDark;
-  _StarsPainter({required this.isDark});
+
+  /// 0..1 arasi tur konumu.
+  final double t;
+
+  _StarsPainter({required this.isDark, this.t = 0});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
+    // Sabit tohum: yildizlar her acilista ayni yerde baslasin.
     final random = Random(42);
 
     for (int i = 0; i < 50; i++) {
       final x = random.nextDouble() * size.width;
-      final y = random.nextDouble() * size.height;
+      final y0 = random.nextDouble();
       final starSize = random.nextDouble() * 2 + 0.5;
-      final opacity = random.nextDouble() * 0.5 + 0.2;
+      final taban = random.nextDouble() * 0.5 + 0.2;
+      final hiz = 0.4 + random.nextDouble() * 0.8;
+      final faz = random.nextDouble();
 
-      paint.color = (isDark ? Colors.white : const Color(0xFF667eea)).withValues(alpha: opacity);
+      // Yukari suzulme: alt kenardan cikan yildiz ustten giriyor.
+      final y = ((y0 - t * hiz) % 1.0) * size.height;
+      // Sonup yanma: her yildiz kendi fazinda.
+      final parlaklik =
+          (taban * (0.55 + 0.45 * sin((t * 4 + faz) * 2 * pi))).clamp(0.05, 1.0);
+
+      paint.color = (isDark ? Colors.white : const Color(0xFF667eea))
+          .withValues(alpha: parlaklik);
       canvas.drawCircle(Offset(x, y), starSize, paint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _StarsPainter old) =>
+      old.t != t || old.isDark != isDark;
 }
 
 /// Mini stars for course cards

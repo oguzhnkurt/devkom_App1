@@ -511,11 +511,15 @@ default:
   }
 
   bool _canProceed() {
-    // Intro and explanation steps auto-complete
-    if (_currentStep.type == StepType.intro ||
-        _currentStep.type == StepType.explanation) {
-      return true;
-    }
+    // ANLATIM ADIMI ARTIK KENDILIGINDEN GECMIYOR.
+    //
+    // Metnin tamami bir anda ekranda duruyor ve DEVAM tusu hazir
+    // bekliyordu; cocuk tek dokunusla geciyordu. Anlatim artik paragraf
+    // paragraf aciliyor (bkz. ExplanationStepWidget) ve son paragraf
+    // gorununce adim tamamlanmis sayiliyor. Tek paragrafli metinlerde
+    // ve ekran okuyucu acikken bu ilk karede oluyor, yani kimse
+    // beklemiyor.
+    if (_currentStep.type == StepType.intro) return true;
     return _currentStepCompleted;
   }
 

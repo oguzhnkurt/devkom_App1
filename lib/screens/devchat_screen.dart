@@ -9,6 +9,11 @@ import '../services/dev_assistant_service.dart';
 import '../services/input_validator.dart';
 import '../services/logger_service.dart';
 import '../utils/app_localizations.dart';
+import '../ui/appear_in.dart';
+import '../ui/kod_akintisi.dart';
+import '../ui/motion.dart';
+import '../utils/lang.dart';
+import '../widgets/mascot.dart';
 
 /// Devkom yardim asistani.
 ///
@@ -191,7 +196,14 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
           end: Alignment.bottomCenter,
         ),
       ),
-      child: Scaffold(
+      // Zemin duz bir mor gecisti. Arkada cok soluk kod simgeleri
+      // suzuluyor: sohbet bir "kutu" degil, uygulamanin icinde bir yer
+      // gibi duruyor (ayni desen ana sayfadaki kartlarda da var).
+      child: KodAkintisi(
+        kose: 0,
+        opaklik: 0.07,
+        yogunluk: 14,
+        child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -221,13 +233,16 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
                     width: 1,
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.auto_awesome, color: Colors.white, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      'DevAI Chat',
+                    // Asistanin yuzu uygulamanin maskotu: cocuk burada
+                    // yabanci bir robot ikonuyla degil, tanidigi
+                    // arkadasiyla konusuyor.
+                    const Mascot(size: 26, showShadow: false),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'DevAI',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
@@ -258,6 +273,7 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
             _buildMessageInput(),
           ],
         ),
+        ),
       ),
     );
   }
@@ -266,15 +282,46 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: _suggestions
-            .map((question) => _SuggestionChip(
-                  label: question,
-                  onTap: () => _sendMessage(preset: question),
-                ))
-            .toList(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ONERILERIN NE OLDUGU YAZMIYORDU.
+          //
+          // Dort gri kutucuk alt alta duruyordu; cocuk bunlarin
+          // dokunulabilir SORULAR oldugunu anlamak zorunda kaliyordu.
+          // Tek satirlik baslik bunu soyluyor.
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8, left: 2),
+            child: Text(
+              AppLang.pick(_lang,
+                  tr: 'Şunu sorabilirsin',
+                  en: 'You could ask',
+                  de: 'Du könntest fragen',
+                  es: 'Puedes preguntar'),
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.85),
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (var i = 0; i < _suggestions.length; i++)
+                AppearIn(
+                  delay: Duration(milliseconds: 60 * i),
+                  offset: 10,
+                  child: _SuggestionChip(
+                    label: _suggestions[i],
+                    onTap: () => _sendMessage(preset: _suggestions[i]),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -438,19 +485,43 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppTheme.primaryBlue, AppTheme.accentTeal],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.send, color: Colors.white),
-                onPressed: () => _sendMessage(),
-              ),
+            // BOS MESAJDA TUS PASIF.
+            //
+            // Once her zaman renkliydi ve bos kutuyla basildiginda
+            // dogrulama hatasi olarak kirmizi bir serit cikiyordu —
+            // cocuga hata gostermek yerine tusu kapatmak dogru olan.
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _messageController,
+              builder: (context, value, _) {
+                final dolu = value.text.trim().isNotEmpty;
+                return AnimatedContainer(
+                  duration: Motion.short4,
+                  decoration: BoxDecoration(
+                    gradient: dolu
+                        ? const LinearGradient(
+                            colors: [
+                              AppTheme.primaryBlue,
+                              AppTheme.accentTeal
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
+                    color: dolu ? null : Colors.grey.shade300,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    tooltip: AppLang.pick(_lang,
+                        tr: 'Gönder',
+                        en: 'Send',
+                        de: 'Senden',
+                        es: 'Enviar'),
+                    icon: Icon(Icons.send,
+                        color: dolu ? Colors.white : Colors.grey.shade500),
+                    onPressed: dolu ? () => _sendMessage() : null,
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -458,16 +529,29 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
     );
   }
 
+  /// Mesaj saati. ONCE TAMAMEN TURKCEYDI: Almanca secen bir cocuk
+  /// balonun altinda "5 dk önce" goruyordu.
   String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
     if (difference.inMinutes < 1) {
-      return 'Şimdi';
+      return AppLang.pick(_lang,
+          tr: 'Şimdi', en: 'Just now', de: 'Gerade eben', es: 'Ahora mismo');
     } else if (difference.inHours < 1) {
-      return '${difference.inMinutes} dk önce';
+      final d = difference.inMinutes;
+      return AppLang.pick(_lang,
+          tr: '$d dk önce',
+          en: '$d min ago',
+          de: 'vor $d Min.',
+          es: 'hace $d min');
     } else if (difference.inDays < 1) {
-      return '${difference.inHours} saat önce';
+      final h = difference.inHours;
+      return AppLang.pick(_lang,
+          tr: '$h saat önce',
+          en: '$h h ago',
+          de: 'vor $h Std.',
+          es: 'hace $h h');
     } else {
       return '${dateTime.day}/${dateTime.month} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
     }
@@ -546,17 +630,15 @@ class _AssistantAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 32,
-      height: 32,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppTheme.primaryBlue, AppTheme.accentTeal],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+      width: 34,
+      height: 34,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.22),
         shape: BoxShape.circle,
       ),
-      child: const Icon(Icons.smart_toy, color: Colors.white, size: 18),
+      // Balonun yanindaki yuz de Devi: sohbetin kiminle oldugu her
+      // satirda belli.
+      child: const Center(child: Mascot(size: 30, showShadow: false)),
     );
   }
 }

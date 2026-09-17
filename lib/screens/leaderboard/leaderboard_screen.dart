@@ -254,8 +254,12 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         // Name
         SizedBox(
           width: 100,
+          // Rozet adin ONUNDE: marketten alinan tek sey baskalarinin da
+          // gordugu bu isaret.
           child: Text(
-            entry.userName,
+            entry.nameBadge == null
+                ? entry.userName
+                : '${entry.nameBadge} ${entry.userName}',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -365,7 +369,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  entry.userName,
+                  entry.nameBadge == null
+                      ? entry.userName
+                      : '${entry.nameBadge} ${entry.userName}',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

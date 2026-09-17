@@ -12,7 +12,21 @@
 /// `kaldirilanKategoriler` yalnizca ESKI kayitlari okuyabilmek icin
 /// duruyor: bir kullanicinin envanterinde eski bir satir kalirsa
 /// uygulama cokmemeli.
-enum StoreItemCategory { robotSkin, avatarFrame, character, necklace, hat, glasses, shoes }
+enum StoreItemCategory {
+  robotSkin,
+  avatarFrame,
+  character,
+  necklace,
+  hat,
+  glasses,
+  shoes,
+
+  /// Profil başlığındaki renkli alan. Çocuk her profil açtığında görüyor.
+  profileBanner,
+
+  /// Sıralamada adının yanında görünen küçük rozet.
+  nameBadge,
+}
 
 /// Artik satilmayan, giyilemeyen kategoriler.
 const Set<StoreItemCategory> kaldirilanKategoriler = {
@@ -33,6 +47,10 @@ StoreItemCategory _parseCategory(String value) {
   switch (value) {
     case 'avatar_frame':
       return StoreItemCategory.avatarFrame;
+    case 'profile_banner':
+      return StoreItemCategory.profileBanner;
+    case 'name_badge':
+      return StoreItemCategory.nameBadge;
     case 'character':
       return StoreItemCategory.character;
     case 'necklace':
@@ -50,6 +68,10 @@ StoreItemCategory _parseCategory(String value) {
 
 String storeCategoryDisplayName(StoreItemCategory category) {
   switch (category) {
+    case StoreItemCategory.profileBanner:
+      return 'Profil Afişleri';
+    case StoreItemCategory.nameBadge:
+      return 'İsim Rozetleri';
     case StoreItemCategory.robotSkin:
       return 'Robot Kılıfları';
     case StoreItemCategory.avatarFrame:
@@ -70,6 +92,10 @@ String storeCategoryDisplayName(StoreItemCategory category) {
 /// Supabase'deki store_items.category TEXT sütun değeri.
 String storeCategoryKey(StoreItemCategory category) {
   switch (category) {
+    case StoreItemCategory.profileBanner:
+      return 'profile_banner';
+    case StoreItemCategory.nameBadge:
+      return 'name_badge';
     case StoreItemCategory.robotSkin:
       return 'robot_skin';
     case StoreItemCategory.avatarFrame:

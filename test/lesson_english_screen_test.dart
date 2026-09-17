@@ -36,7 +36,11 @@ Widget? _widgetFor(LessonStep step, Course course) {
     IntroStep s =>
       IntroStepWidget(step: s, course: course, onComplete: () {}),
     ExplanationStep s => ExplanationStepWidget(
-        step: s, course: course, isDark: false, onComplete: () {}),
+        step: s,
+        course: course,
+        isDark: false,
+        tumunuGoster: true,
+        onComplete: () {}),
     MultipleChoiceStep s => MultipleChoiceStepWidget(
         step: s, course: course, isDark: false, onComplete: (_) {}),
     DragDropStep s => DragDropStepWidget(

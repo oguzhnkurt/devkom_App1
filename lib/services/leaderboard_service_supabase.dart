@@ -11,10 +11,53 @@ class LeaderboardServiceSupabase {
   /// Table name
   static const String _leaderboardsTable = 'leaderboards';
 
+  /// Kusanilmis isim rozeti. Bir oturumda bir kez okunuyor.
+  String? _rozet;
+  bool _rozetOkundu = false;
+
+  /// Kusanilan isim rozetinin emojisi (yoksa null).
+  ///
+  /// Skor kaydedilirken KAYDIN ICINE yaziliyor; boylece siralamayi okuyan
+  /// herkes rozeti goruyor ve kimsenin envanterini okumaya gerek kalmiyor.
+  Future<String?> _isimRozeti() async {
+    if (_rozetOkundu) return _rozet;
+    _rozetOkundu = true;
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return null;
+      final data = await _supabase
+          .from('user_inventory')
+          .select('store_items!inner(icon_emoji, category)')
+          .eq('user_id', userId)
+          .eq('equipped', true)
+          .eq('store_items.category', 'name_badge')
+          .maybeSingle();
+      _rozet = data?['store_items']?['icon_emoji'] as String?;
+    } catch (e) {
+      debugPrint('Isim rozeti okunamadi: $e');
+      _rozet = null;
+    }
+    return _rozet;
+  }
+
+  /// Rozet degisince bir sonraki skorda yenisi yazilsin.
+  void rozetiUnut() {
+    _rozet = null;
+    _rozetOkundu = false;
+  }
+
   /// Add a new leaderboard entry
   Future<void> addEntry(LeaderboardEntry entry) async {
     try {
-      await _supabase.from(_leaderboardsTable).insert(entry.toSupabaseMap());
+      final rozet = await _isimRozeti();
+      final map = entry.toSupabaseMap();
+      if (rozet != null) {
+        final meta = Map<String, dynamic>.from(
+            (map['metadata'] as Map?)?.cast<String, dynamic>() ?? {});
+        meta['name_badge'] = rozet;
+        map['metadata'] = meta;
+      }
+      await _supabase.from(_leaderboardsTable).insert(map);
       debugPrint('✅ Leaderboard entry added for ${entry.gameType.name}');
     } catch (e) {
       debugPrint('❌ Error adding leaderboard entry: $e');

@@ -109,6 +109,14 @@ const List<String> kSuggestedQuestionsTr = [
   'Quizler nasıl çalışır?',
   'Arduino Atölyesi nasıl kullanılır?',
   'Hata yapmaktan korkuyorum',
+  'Bu uygulama nedir?',
+  'Bu uygulamayı kim yaptı?',
+  'Blok kodlama ne işe yarar?',
+  'Yazılım nedir?',
+  'Robot nedir?',
+  '12 + 7 kaç eder?',
+  'Videolar nereden geliyor?',
+  'Bilgilerim güvende mi?',
 ];
 
 const List<String> kSuggestedQuestionsEn = [
@@ -144,6 +152,14 @@ const List<String> kSuggestedQuestionsEn = [
   'How do the quizzes work?',
   'How does the Arduino Workshop work?',
   'I am afraid of making mistakes',
+  'What is this app?',
+  'Who made this app?',
+  'What is block coding for?',
+  'What is software?',
+  'What is a robot?',
+  'How much is 12 + 7?',
+  'Where do the videos come from?',
+  'Is my data safe?',
 ];
 
 const List<String> kSuggestedQuestionsDe = [
@@ -179,6 +195,14 @@ const List<String> kSuggestedQuestionsDe = [
   'Wie funktionieren die Quiz?',
   'Wie funktioniert die Arduino-Werkstatt?',
   'Ich habe Angst vor Fehlern',
+  'Was ist diese App?',
+  'Wer hat diese App gemacht?',
+  'Wozu Blockprogrammierung?',
+  'Was ist Software?',
+  'Was ist ein Roboter?',
+  'Wie viel ist 12 + 7?',
+  'Woher kommen die Videos?',
+  'Sind meine Daten sicher?',
 ];
 
 const List<String> kSuggestedQuestionsEs = [
@@ -214,6 +238,14 @@ const List<String> kSuggestedQuestionsEs = [
   '¿Cómo funcionan los cuestionarios?',
   '¿Cómo funciona el Taller de Arduino?',
   'Me da miedo equivocarme',
+  '¿Qué es esta aplicación?',
+  '¿Quién hizo esta app?',
+  '¿Para qué sirve programar por bloques?',
+  '¿Qué es el software?',
+  '¿Qué es un robot?',
+  '¿Cuánto es 12 + 7?',
+  '¿De dónde vienen los vídeos?',
+  '¿Están seguros mis datos?',
 ];
 
 /// Hiçbir kayıt eşleşmediğinde verilen cevap.
@@ -350,6 +382,15 @@ const List<KnowledgeEntry> kKnowledgeBase = [
       'bana nasil yardim edebilirsin',
       'how can you help me',
       'como puedes ayudarme',
+      'ne ogretirsin',
+      'bana ne ogreteceksin',
+      'ne ogrenecegim',
+      'what will you teach me',
+      'what can you teach me',
+      'was bringst du mir bei',
+      'was kannst du mir beibringen',
+      'que me vas a ensenar',
+      'que puedes ensenarme',
     ],
     answerTr:
         'Sana şu konularda yardım edebilirim:\n\n'
@@ -624,7 +665,9 @@ const List<KnowledgeEntry> kKnowledgeBase = [
         '1. Sensörler: çevreyi algılar (mesafe, ışık, ses)\n'
         '2. Beyin: karar verir (Arduino gibi bir kart)\n'
         '3. Motorlar: hareketi yapar\n\n'
-        'Sen beynin ne düşüneceğini kodla yazarsın.',
+        'Sen beynin ne düşüneceğini kodla yazarsın: sensörden oku, karar '
+        'ver, motoru çalıştır. Robot süpürgeden otonom arabaya kadar hepsi '
+        'aynı üç adım.',
     answerEn:
         'Robotics is building machines that move using code. A robot has three '
         'parts:\n\n'
@@ -1019,22 +1062,22 @@ const List<KnowledgeEntry> kKnowledgeBase = [
     answerTr:
         'Jetonlar, uygulama içi para birimidir. Dersleri ve görevleri tamamlayarak '
         'kazanırsın.\n\n'
-        'Market bölümünden jetonlarınla robot kılıfları, çerçeveler ve karakterler '
-        'alabilirsin. Gerçek para gerekmez.',
+        'Market bölümünden jetonlarınla profil çerçevesi alabilirsin; '
+        'çerçeven profilinde görünür. Gerçek para gerekmez.',
     answerEn:
         'Coins are the in-app currency. You earn them by finishing lessons and '
         'quests.\n\n'
-        'In the Market you can spend coins on robot skins, frames and characters. '
-        'No real money needed.',
+        'In the Market you can spend coins on profile frames; your frame '
+        'shows on your profile. No real money needed.',
     answerDe:
         'Münzen sind die Währung in der App. Du verdienst sie, indem du '
         'Lektionen und Tagesaufgaben abschließt.\n\nIm Markt gibst du Münzen '
-        'für Roboter-Skins, Rahmen und Figuren aus. Echtes Geld brauchst du '
-        'dafür nicht.',
+        'für Profilrahmen aus; dein Rahmen erscheint in deinem Profil. '
+        'Echtes Geld brauchst du dafür nicht.',
     answerEs:
         'Las monedas son la moneda dentro de la app. Las ganas terminando '
-        'lecciones y misiones.\n\nEn la Tienda puedes gastarlas en aspectos '
-        'de robot, marcos y personajes. No hace falta dinero real.',
+        'lecciones y misiones.\n\nEn la Tienda puedes gastarlas en marcos de '
+        'perfil; tu marco aparece en tu perfil. No hace falta dinero real.',
     relatedIds: ['xp', 'quest'],
   ),
   KnowledgeEntry(
@@ -4821,5 +4864,693 @@ const List<KnowledgeEntry> kKnowledgeBase = [
         'ejecutar, save: guardar\n\nY poco más. Con 20 o 30 palabras ya '
         'puedes leer casi cualquier código.',
     relatedIds: ['math_needed', 'print_input', 'condition'],
+  ),
+  // ------------------------------------------------------- uygulamanin kendisi
+  //
+  // Bu bolumdeki kayitlar cocugun "bu nedir, kim yapti, nereden geliyor"
+  // sorularina cevap veriyor. Hicbiri tahmin degil: sirket bilgisi
+  // yayincinin kendi bilgisi, videolarin kaynagi ise katalogdaki gercek
+  // durum (YouTube serileri, kanal adi ve orijinal baglantiyla).
+  KnowledgeEntry(
+    id: 'app_what',
+    keywords: [
+      'bu uygulama nedir',
+      'uygulama nedir',
+      'deveducation nedir',
+      'devkom nedir',
+      'ne ise yarar bu',
+      'burasi nedir',
+      'what is this app',
+      'what is deveducation',
+      'what does this app do',
+      'was ist diese app',
+      'was macht diese app',
+      'que es esta aplicacion',
+      'que es esta app',
+      'para que sirve esta aplicacion',
+    ],
+    answerTr:
+        'Burası DevEducation: kodlamayı ve robotiği sıfırdan öğreten bir '
+        'uygulama.\n\n'
+        'İçinde dört şey var:\n'
+        '- Dersler: Scratch ile bloklardan başlayıp Python, HTML, CSS ve '
+        'Arduino gibi gerçek kod yazmaya kadar gidiyor.\n'
+        '- Oyunlar: labirent, hata avı, satranç gibi düşünme oyunları.\n'
+        '- Videolar: her konu için sıraya dizilmiş ders serileri.\n'
+        '- Ben: takıldığın yerde soru sorabileceğin yardımcı.\n\n'
+        'Ders bitirdikçe XP ve jeton kazanıyorsun.',
+    answerEn:
+        'This is DevEducation: an app that teaches coding and robotics from '
+        'zero.\n\n'
+        'It has four parts:\n'
+        '- Lessons: start with Scratch blocks and go all the way to real code '
+        'in Python, HTML, CSS and Arduino.\n'
+        '- Games: mazes, bug hunts, chess and other thinking games.\n'
+        '- Videos: lesson series put in order for each topic.\n'
+        '- Me: someone to ask when you get stuck.\n\n'
+        'You earn XP and coins as you finish lessons.',
+    answerDe:
+        'Das hier ist DevEducation: eine App, die Programmieren und Robotik '
+        'von Null an beibringt.\n\n'
+        'Es gibt vier Teile:\n'
+        '- Lektionen: von Scratch-Blöcken bis zu echtem Code in Python, HTML, '
+        'CSS und Arduino.\n'
+        '- Spiele: Labyrinthe, Fehlersuche, Schach und andere Denkspiele.\n'
+        '- Videos: geordnete Lernreihen zu jedem Thema.\n'
+        '- Ich: jemand, den du fragen kannst, wenn du nicht weiterkommst.\n\n'
+        'Für fertige Lektionen bekommst du XP und Münzen.',
+    answerEs:
+        'Esto es DevEducation: una app que enseña programación y robótica '
+        'desde cero.\n\n'
+        'Tiene cuatro partes:\n'
+        '- Lecciones: empiezas con bloques de Scratch y llegas a escribir '
+        'código real en Python, HTML, CSS y Arduino.\n'
+        '- Juegos: laberintos, caza de errores, ajedrez y otros juegos de '
+        'pensar.\n'
+        '- Vídeos: series de clases ordenadas para cada tema.\n'
+        '- Yo: alguien a quien preguntar cuando te atascas.\n\n'
+        'Ganas XP y monedas cuando terminas lecciones.',
+    relatedIds: ['maker', 'where_start', 'videos'],
+  ),
+  KnowledgeEntry(
+    id: 'maker',
+    keywords: [
+      'kim yapti',
+      'kim gelistirdi',
+      'yapimcisi kim',
+      'gelistirici kim',
+      'sahibi kim',
+      'hangi sirket',
+      'nerede yapildi',
+      'devkom yazilim',
+      'who made this',
+      'who made this app',
+      'who created this app',
+      'who developed this app',
+      'which company',
+      'wer hat diese app gemacht',
+      'wer hat das entwickelt',
+      'welche firma',
+      'quien hizo esta aplicacion',
+      'quien hizo esta app',
+      'quien creo esta app',
+      'quien la hizo',
+      'que empresa',
+    ],
+    answerTr:
+        'DevEducation, Türkiye\'nin Konya şehrindeki Devkom Yazılım tarafından '
+        'geliştiriliyor ve yayınlanıyor.\n\n'
+        'Derslerin içeriğini, oyunları ve benim cevaplarımı da aynı ekip '
+        'yazıyor — bu yüzden cevaplarım her zaman elle yazılmış ve gözden '
+        'geçirilmiş oluyor.',
+    answerEn:
+        'DevEducation is developed and published by Devkom Yazılım, a company '
+        'based in Konya, Türkiye.\n\n'
+        'The same team writes the lessons, the games and my answers — that is '
+        'why everything I say was written and checked by a person.',
+    answerDe:
+        'DevEducation wird von Devkom Yazılım entwickelt und veröffentlicht, '
+        'einer Firma aus Konya in der Türkei.\n\n'
+        'Dasselbe Team schreibt die Lektionen, die Spiele und meine '
+        'Antworten — deshalb ist alles, was ich sage, von Menschen '
+        'geschrieben und geprüft.',
+    answerEs:
+        'DevEducation está desarrollada y publicada por Devkom Yazılım, una '
+        'empresa de Konya, Turquía.\n\n'
+        'El mismo equipo escribe las lecciones, los juegos y mis respuestas: '
+        'por eso todo lo que digo lo ha escrito y revisado una persona.',
+    relatedIds: ['app_what', 'who_are_you', 'contact_support'],
+  ),
+  KnowledgeEntry(
+    id: 'contact_support',
+    keywords: [
+      'hata bildir',
+      'hata nasil bildiririm',
+      'nasil bildiririm',
+      'bildirmek istiyorum',
+      'sorun bildir',
+      'iletisim',
+      'nasil ulasirim',
+      'destek',
+      'sikayet',
+      'oneri gonder',
+      'report a bug',
+      'report a problem',
+      'contact you',
+      'support',
+      'fehler melden',
+      'wie melde ich einen fehler',
+      'problem melden',
+      'kontakt',
+      'reportar un error',
+      'como informo de un error',
+      'informar de un error',
+      'contacto',
+      'soporte',
+    ],
+    answerTr:
+        'Bir hata bulduysan ya da bir şey önereceksen velinden yardım iste: '
+        'App Store\'daki uygulama sayfasında geliştiriciye yazma bağlantısı '
+        'var.\n\n'
+        'Yazarken üç şey çok işe yarıyor: hangi ekrandaydın, ne yaptın, ne '
+        'oldu. Bu üç cümle bir hatayı bulmayı çok kolaylaştırıyor — gerçek '
+        'yazılımcılar da hata raporlarını böyle yazar.',
+    answerEn:
+        'If you found a bug or have an idea, ask a grown-up for help: the '
+        'app\'s App Store page has a link for writing to the developer.\n\n'
+        'Three things help a lot: which screen you were on, what you did, and '
+        'what happened. Those three sentences make a bug much easier to find '
+        '— real developers write bug reports the same way.',
+    answerDe:
+        'Wenn du einen Fehler gefunden hast oder eine Idee hast, frag eine '
+        'erwachsene Person: Auf der App-Store-Seite der App gibt es einen '
+        'Link, um den Entwicklern zu schreiben.\n\n'
+        'Drei Dinge helfen sehr: auf welchem Bildschirm du warst, was du '
+        'gemacht hast und was passiert ist. Genau so schreiben auch echte '
+        'Entwicklerinnen Fehlerberichte.',
+    answerEs:
+        'Si has encontrado un error o tienes una idea, pide ayuda a una '
+        'persona adulta: la página de la app en la App Store tiene un enlace '
+        'para escribir a quienes la desarrollan.\n\n'
+        'Tres cosas ayudan mucho: en qué pantalla estabas, qué hiciste y qué '
+        'pasó. Así escriben los informes de errores los programadores de '
+        'verdad.',
+    relatedIds: ['maker', 'debug', 'error'],
+  ),
+  KnowledgeEntry(
+    id: 'video_source',
+    keywords: [
+      'videolar nereden',
+      'videolar nereden geliyor',
+      'video nereden',
+      'videoyu kim cekiyor',
+      'videolari kim yapiyor',
+      'where do the videos come from',
+      'who makes the videos',
+      'woher kommen die videos',
+      'wer macht die videos',
+      'de donde vienen los videos',
+      'quien hace los videos',
+    ],
+    answerTr:
+        'Videolar YouTube\'da yayınlanan ders serileri. Ekip her seriyi tek '
+        'tek izleyip sıraya diziyor; uygulama da onları burada oynatıyor.\n\n'
+        'Her bölümün altında videoyu çeken kanalın adı ve orijinal bağlantısı '
+        'yazıyor — emeği kimin olduğu her zaman görünür. Seriler ücretsiz, '
+        'Pro gerekmiyor.',
+    answerEn:
+        'The videos are lesson series published on YouTube. The team watches '
+        'each series and puts the episodes in order; the app plays them '
+        'here.\n\n'
+        'Under every episode you see the name of the channel that made it and '
+        'a link to the original — whose work it is always stays visible. The '
+        'series are free, no Pro needed.',
+    answerDe:
+        'Die Videos sind Lernreihen, die auf YouTube veröffentlicht sind. Das '
+        'Team schaut jede Reihe an und bringt die Folgen in eine Reihenfolge; '
+        'die App spielt sie hier ab.\n\n'
+        'Unter jeder Folge stehen der Name des Kanals und der Link zum '
+        'Original — man sieht immer, von wem die Arbeit ist. Die Reihen sind '
+        'kostenlos, du brauchst kein Pro.',
+    answerEs:
+        'Los vídeos son series de clases publicadas en YouTube. El equipo ve '
+        'cada serie y ordena los episodios; la app los reproduce aquí.\n\n'
+        'Debajo de cada episodio aparece el nombre del canal que lo hizo y el '
+        'enlace al original: siempre se ve de quién es el trabajo. Las series '
+        'son gratis, no hace falta Pro.',
+    relatedIds: ['videos', 'app_what'],
+  ),
+  KnowledgeEntry(
+    id: 'software_what',
+    keywords: [
+      'yazilim nedir',
+      'program nedir',
+      'uygulama nasil yapilir',
+      'kod nedir',
+      'what is software',
+      'what is a program',
+      'what is code',
+      'was ist software',
+      'was ist ein programm',
+      'que es el software',
+      'que es un programa',
+      'que es el codigo',
+    ],
+    answerTr:
+        'Yazılım, bilgisayara ne yapacağını söyleyen yazılı talimatların '
+        'tamamı. Telefonundaki her uygulama bir yazılım — bu uygulama da.\n\n'
+        'Talimatları yazmaya kod yazmak diyoruz. Bilgisayar kendi başına '
+        'hiçbir şey bilmez: "şu resmi göster", "bu sayıyı topla", "düğmeye '
+        'basılınca şunu yap" diye tek tek söylemek gerekir.\n\n'
+        'Donanım ise elle tutabildiğin kısım: ekran, işlemci, kablo. Yazılım '
+        'olmadan donanım kıpırdamaz; donanım olmadan yazılımın çalışacağı bir '
+        'yer olmaz.',
+    answerEn:
+        'Software is all the written instructions that tell a computer what '
+        'to do. Every app on your phone is software — including this one.\n\n'
+        'Writing those instructions is called coding. A computer knows '
+        'nothing by itself: you have to say "show this picture", "add these '
+        'numbers", "when the button is pressed, do this".\n\n'
+        'Hardware is the part you can touch: screen, processor, cables. '
+        'Without software the hardware does nothing; without hardware the '
+        'software has nowhere to run.',
+    answerDe:
+        'Software sind alle geschriebenen Anweisungen, die dem Computer '
+        'sagen, was er tun soll. Jede App auf deinem Handy ist Software — '
+        'auch diese hier.\n\n'
+        'Diese Anweisungen zu schreiben nennt man Programmieren. Ein Computer '
+        'weiß von allein gar nichts: Man muss ihm sagen "zeig dieses Bild", '
+        '"addiere diese Zahlen", "wenn der Knopf gedrückt wird, mach das".\n\n'
+        'Hardware ist der Teil, den du anfassen kannst: Bildschirm, '
+        'Prozessor, Kabel. Ohne Software tut die Hardware nichts; ohne '
+        'Hardware hat die Software keinen Ort zum Laufen.',
+    answerEs:
+        'El software son todas las instrucciones escritas que le dicen al '
+        'ordenador qué hacer. Cada app de tu teléfono es software, también '
+        'esta.\n\n'
+        'Escribir esas instrucciones se llama programar. Un ordenador no sabe '
+        'nada por sí solo: hay que decirle "muestra esta imagen", "suma estos '
+        'números", "cuando se pulse el botón, haz esto".\n\n'
+        'El hardware es la parte que puedes tocar: pantalla, procesador, '
+        'cables. Sin software el hardware no hace nada; sin hardware el '
+        'software no tiene dónde funcionar.',
+    relatedIds: ['computer_basics', 'block_coding', 'which_program'],
+  ),
+  KnowledgeEntry(
+    id: 'block_coding',
+    keywords: [
+      'blok kodlama',
+      'blok kodlama nedir',
+      'blok kodlama ne ise yarar',
+      'bloklu kodlama',
+      'neden blok',
+      'block coding',
+      'block based coding',
+      'what is block coding',
+      'blockbasiertes programmieren',
+      'blockprogrammierung',
+      'wozu blockprogrammierung',
+      'was bringt blockprogrammierung',
+      'programacion con bloques',
+      'programacion por bloques',
+      'para que sirve la programacion por bloques',
+      'para que sirve programar por bloques',
+      'programar por bloques',
+      'bloques',
+    ],
+    answerTr:
+        'Blok kodlama, kod satırlarını yazmak yerine yapboz parçası gibi '
+        'blokları birleştirmek demek. Scratch ve mBlock böyle çalışıyor.\n\n'
+        'Ne işe yarıyor: kodlamanın zor kısmı yazım değil, DÜŞÜNME kısmı — '
+        'hangi adım önce gelir, ne zaman tekrar eder, hangi durumda ne olur. '
+        'Bloklar yazım hatasını ortadan kaldırıyor (noktalı virgül unutmak '
+        'yok) ve sen sadece sırayı düşünüyorsun.\n\n'
+        'Aynı fikirler yazılı kodda birebir var: "10 defa tekrarla" bloğu '
+        'Python\'da `for i in range(10):` oluyor. Yani blokla öğrendiğin şey '
+        'boşa gitmiyor, sadece görünüşü değişiyor.',
+    answerEn:
+        'Block coding means snapping blocks together like puzzle pieces '
+        'instead of typing lines of code. Scratch and mBlock work this way.\n\n'
+        'Why it helps: the hard part of coding is not the typing, it is the '
+        'THINKING — which step comes first, what repeats, what happens in '
+        'each case. Blocks remove typing mistakes (no forgotten semicolons) '
+        'so you only think about the order.\n\n'
+        'The same ideas exist in written code: the "repeat 10 times" block is '
+        '`for i in range(10):` in Python. What you learn with blocks is not '
+        'wasted, it just looks different later.',
+    answerDe:
+        'Blockprogrammierung heißt, Blöcke wie Puzzleteile zusammenzustecken, '
+        'statt Codezeilen zu tippen. Scratch und mBlock funktionieren so.\n\n'
+        'Warum das hilft: Das Schwere am Programmieren ist nicht das Tippen, '
+        'sondern das DENKEN — welcher Schritt kommt zuerst, was wiederholt '
+        'sich, was passiert in welchem Fall. Blöcke nehmen die Tippfehler weg '
+        '(kein vergessenes Semikolon), du denkst nur über die Reihenfolge '
+        'nach.\n\n'
+        'Dieselben Ideen gibt es im geschriebenen Code: Der Block '
+        '"wiederhole 10 mal" ist in Python `for i in range(10):`. Was du mit '
+        'Blöcken lernst, ist also nicht verloren, es sieht später nur anders '
+        'aus.',
+    answerEs:
+        'La programación por bloques consiste en encajar bloques como piezas '
+        'de puzle en vez de escribir líneas de código. Scratch y mBlock '
+        'funcionan así.\n\n'
+        'Para qué sirve: lo difícil de programar no es escribir, es PENSAR: '
+        'qué paso va primero, qué se repite, qué pasa en cada caso. Los '
+        'bloques quitan los errores de escritura (no hay puntos y comas '
+        'olvidados) y solo piensas en el orden.\n\n'
+        'Las mismas ideas están en el código escrito: el bloque "repetir 10 '
+        'veces" es `for i in range(10):` en Python. Lo que aprendes con '
+        'bloques no se pierde, solo cambia de aspecto.',
+    relatedIds: ['scratch', 'mblock', 'loop'],
+  ),
+  KnowledgeEntry(
+    id: 'why_coding',
+    keywords: [
+      'neden kodlama',
+      'neden kod ogrenmeliyim',
+      'kodlama ne ise yarar',
+      'ne ise yarayacak',
+      'why learn coding',
+      'why should i code',
+      'why should i learn to code',
+      'why learn to code',
+      'warum soll ich programmieren lernen',
+      'por que deberia aprender a programar',
+      'what is coding good for',
+      'warum programmieren lernen',
+      'wozu programmieren',
+      'por que aprender a programar',
+      'para que sirve programar',
+    ],
+    answerTr:
+        'İki sebep var ve ikisi de gerçek.\n\n'
+        'Birincisi: kod yazmak, bir işi bilgisayarın anlayacağı kadar küçük '
+        'adımlara bölmeyi öğretiyor. Bu beceri ödevde de, oyun kurarken de, '
+        'bir şeyi tamir ederken de işe yarıyor.\n\n'
+        'İkincisi: kendi şeylerini yapabiliyorsun. Oyun, site, çizim yapan '
+        'bir program, ışığı yanıp sönen bir robot. Kullanan değil YAPAN taraf '
+        'olmak, bilgisayarla kurduğun ilişkiyi değiştiriyor.\n\n'
+        'Ve iyi haber: kimse ilk denemede doğru yazmıyor. Yazılımcıların '
+        'işinin büyük kısmı hata bulup düzeltmek.',
+    answerEn:
+        'Two reasons, and both are real.\n\n'
+        'First: writing code teaches you to break a job into steps small '
+        'enough for a computer to understand. That skill helps with homework, '
+        'with building a game, with fixing things.\n\n'
+        'Second: you can make your own things. A game, a website, a program '
+        'that draws, a robot that blinks. Being the one who MAKES instead of '
+        'only using changes how you see computers.\n\n'
+        'And good news: nobody gets it right the first time. Most of a '
+        'developer\'s job is finding and fixing mistakes.',
+    answerDe:
+        'Zwei Gründe, und beide sind echt.\n\n'
+        'Erstens: Programmieren bringt dir bei, eine Aufgabe in Schritte zu '
+        'zerlegen, die klein genug für einen Computer sind. Das hilft bei '
+        'Hausaufgaben, beim Bauen eines Spiels und beim Reparieren von '
+        'Sachen.\n\n'
+        'Zweitens: Du kannst eigene Dinge bauen. Ein Spiel, eine Website, ein '
+        'Programm, das zeichnet, einen Roboter, der blinkt. Selbst zu MACHEN '
+        'statt nur zu benutzen verändert dein Verhältnis zum Computer.\n\n'
+        'Und die gute Nachricht: Niemand schafft es beim ersten Versuch. Der '
+        'größte Teil der Arbeit von Entwicklerinnen ist Fehler finden und '
+        'beheben.',
+    answerEs:
+        'Dos razones, y las dos son de verdad.\n\n'
+        'Primera: programar te enseña a dividir una tarea en pasos lo '
+        'bastante pequeños para que un ordenador los entienda. Eso sirve para '
+        'los deberes, para montar un juego y para arreglar cosas.\n\n'
+        'Segunda: puedes crear cosas tuyas. Un juego, una web, un programa '
+        'que dibuja, un robot que parpadea. Ser quien CREA y no solo quien usa '
+        'cambia tu relación con el ordenador.\n\n'
+        'Y una buena noticia: nadie lo hace bien a la primera. La mayor parte '
+        'del trabajo de programar es encontrar y corregir errores.',
+    relatedIds: ['career', 'where_start', 'fear_mistakes'],
+  ),
+  KnowledgeEntry(
+    id: 'binary_what',
+    keywords: [
+      'ikili sayi',
+      'ikilik sistem',
+      '0 ve 1',
+      'sifir ve bir',
+      'bilgisayar nasil sayar',
+      'binary',
+      'zeros and ones',
+      'why does a computer use 0 and 1',
+      '0 and 1',
+      'warum 0 und 1',
+      'por que 0 y 1',
+      'por que un ordenador usa 0 y 1',
+      'binaer',
+      'nullen und einsen',
+      'binario',
+      'ceros y unos',
+    ],
+    answerTr:
+        'Bilgisayarın içinde milyonlarca minik anahtar var ve her biri ya '
+        'AÇIK ya KAPALI. Açık = 1, kapalı = 0. Başka bir şey yok.\n\n'
+        'Sayıları böyle yazıyor: 1, 10, 11, 100 — yani 1, 2, 3, 4. Harfleri '
+        'de sayıya çeviriyor (A = 65), resmi de: her piksel için üç sayı, '
+        'kırmızı-yeşil-mavi.\n\n'
+        'Yani ekranındaki her şey, sonunda 0 ve 1 dizisi. Kod yazmak, o '
+        'dizileri elle yazmak zorunda kalmamak için var.',
+    answerEn:
+        'Inside a computer there are millions of tiny switches, and each one '
+        'is either ON or OFF. On = 1, off = 0. Nothing else.\n\n'
+        'It writes numbers that way: 1, 10, 11, 100 means 1, 2, 3, 4. Letters '
+        'become numbers too (A = 65), and so do pictures: three numbers per '
+        'pixel, red-green-blue.\n\n'
+        'So everything on your screen is a row of 0s and 1s in the end. Code '
+        'exists so you never have to write those rows by hand.',
+    answerDe:
+        'In einem Computer stecken Millionen winziger Schalter, und jeder ist '
+        'entweder AN oder AUS. An = 1, aus = 0. Mehr gibt es nicht.\n\n'
+        'So schreibt er Zahlen: 1, 10, 11, 100 bedeutet 1, 2, 3, 4. Auch '
+        'Buchstaben werden zu Zahlen (A = 65) und Bilder ebenso: drei Zahlen '
+        'pro Pixel, Rot-Grün-Blau.\n\n'
+        'Alles auf deinem Bildschirm ist am Ende eine Reihe aus 0 und 1. Code '
+        'gibt es, damit du diese Reihen nie von Hand schreiben musst.',
+    answerEs:
+        'Dentro de un ordenador hay millones de interruptores diminutos, y '
+        'cada uno está ENCENDIDO o APAGADO. Encendido = 1, apagado = 0. Nada '
+        'más.\n\n'
+        'Así escribe los números: 1, 10, 11, 100 significa 1, 2, 3, 4. Las '
+        'letras también se convierten en números (A = 65), y las imágenes '
+        'igual: tres números por píxel, rojo-verde-azul.\n\n'
+        'Todo lo que ves en la pantalla acaba siendo una fila de ceros y '
+        'unos. El código existe para que nunca tengas que escribir esas filas '
+        'a mano.',
+    relatedIds: ['computer_basics', 'data_types'],
+  ),
+  KnowledgeEntry(
+    id: 'math_examples',
+    keywords: [
+      'matematik sorusu',
+      'bana bir islem sor',
+      'islem sor',
+      'bir islem sor',
+      'give me a sum',
+      'gib mir eine rechnung',
+      'ponme una operacion',
+      'una operacion',
+      'toplama',
+      'cikarma',
+      'carpma',
+      'bolme',
+      'islem yapar misin',
+      'hesapla',
+      'kac eder',
+      'math question',
+      'can you do math',
+      'calculate',
+      'addition',
+      'multiplication',
+      'rechnen',
+      'kannst du rechnen',
+      'matheaufgabe',
+      'puedes calcular',
+      'suma',
+      'multiplicacion',
+      'cuanto es',
+    ],
+    answerTr:
+        'Basit işlemleri hesaplayabiliyorum. Şöyle yaz: "12 + 7", "9 x 8", '
+        '"100 - 37", "144 / 12".\n\n'
+        'Aynı işlemi Python\'da da yaptırabilirsin:\n'
+        'print(12 + 7)\n\n'
+        'Bilgisayarların ilk işi zaten hesap yapmaktı; "computer" kelimesi '
+        '"hesaplayan" demek.',
+    answerEn:
+        'I can work out simple sums. Write them like this: "12 + 7", "9 x 8", '
+        '"100 - 37", "144 / 12".\n\n'
+        'You can make Python do the same thing:\n'
+        'print(12 + 7)\n\n'
+        'Calculating was the very first job computers had — the word '
+        '"computer" means "the one who computes".',
+    answerDe:
+        'Einfache Rechnungen kann ich ausrechnen. Schreib sie so: "12 + 7", '
+        '"9 x 8", "100 - 37", "144 / 12".\n\n'
+        'Dasselbe kann auch Python für dich machen:\n'
+        'print(12 + 7)\n\n'
+        'Rechnen war die allererste Aufgabe von Computern — das Wort '
+        '"computer" heißt "der Rechnende".',
+    answerEs:
+        'Puedo resolver operaciones sencillas. Escríbelas así: "12 + 7", '
+        '"9 x 8", "100 - 37", "144 / 12".\n\n'
+        'Python puede hacer lo mismo:\n'
+        'print(12 + 7)\n\n'
+        'Calcular fue el primer trabajo de los ordenadores: la palabra '
+        '"computer" significa "el que calcula".',
+    relatedIds: ['math_needed', 'python', 'operators'],
+  ),
+  KnowledgeEntry(
+    id: 'times_table',
+    keywords: [
+      'carpim tablosu',
+      'carpim tablosunu',
+      'times table',
+      'multiplication table',
+      'einmaleins',
+      'tabla de multiplicar',
+      'tablas de multiplicar',
+      'carpim tablosu ogret',
+    ],
+    answerTr:
+        'Çarpım tablosunu ezberlemenin en kolay yolu onu bir DÖNGÜ olarak '
+        'görmek. 7\'nin tablosu şu:\n\n'
+        '7, 14, 21, 28, 35, 42, 49, 56, 63, 70\n\n'
+        'Her adımda 7 ekliyorsun — yani aslında bir tekrar bloğu. Python\'da '
+        'tam olarak böyle yazılır:\n\n'
+        'for i in range(1, 11):\n'
+        '    print(7 * i)\n\n'
+        'Sen de "9 x 8" gibi bir işlem yazarsan cevabını hesaplarım.',
+    answerEn:
+        'The easiest way to learn a times table is to see it as a LOOP. The '
+        '7 table is:\n\n'
+        '7, 14, 21, 28, 35, 42, 49, 56, 63, 70\n\n'
+        'Each step adds 7 — that is a repeat block. In Python it is written '
+        'exactly like that:\n\n'
+        'for i in range(1, 11):\n'
+        '    print(7 * i)\n\n'
+        'And if you type something like "9 x 8" I will work it out for you.',
+    answerDe:
+        'Am leichtesten lernst du das Einmaleins, wenn du es als SCHLEIFE '
+        'siehst. Die 7er-Reihe:\n\n'
+        '7, 14, 21, 28, 35, 42, 49, 56, 63, 70\n\n'
+        'Jeder Schritt addiert 7 — das ist ein Wiederholungsblock. In Python '
+        'schreibt man genau das:\n\n'
+        'for i in range(1, 11):\n'
+        '    print(7 * i)\n\n'
+        'Und wenn du "9 x 8" schreibst, rechne ich es dir aus.',
+    answerEs:
+        'La forma más fácil de aprender una tabla es verla como un BUCLE. La '
+        'tabla del 7 es:\n\n'
+        '7, 14, 21, 28, 35, 42, 49, 56, 63, 70\n\n'
+        'Cada paso suma 7: eso es un bloque de repetición. En Python se '
+        'escribe justo así:\n\n'
+        'for i in range(1, 11):\n'
+        '    print(7 * i)\n\n'
+        'Y si escribes algo como "9 x 8", te lo calculo.',
+    relatedIds: ['math_examples', 'loop', 'python'],
+  ),
+  KnowledgeEntry(
+    id: 'data_privacy',
+    keywords: [
+      'bilgilerim nerede',
+      'verilerim',
+      'gizlilik',
+      'bilgilerim guvende mi',
+      'kim goruyor',
+      'my data',
+      'privacy',
+      'is my data safe',
+      'meine daten',
+      'datenschutz',
+      'mis datos',
+      'privacidad',
+      'estan seguros mis datos',
+    ],
+    answerTr:
+        'Uygulama senden ad, adres, telefon ya da doğum tarihi istemiyor. '
+        'Takma adını sen seçiyorsun ve gerçek adın olmaması daha iyi.\n\n'
+        'Saklanan şeyler: hangi dersleri bitirdiğin, XP\'n, jetonun ve '
+        'rozetlerin. Bunlar ilerlemeni kaybetmemen için var.\n\n'
+        'Sohbetimiz cihazında kalıyor: sorularını hiçbir yere göndermiyorum, '
+        'cevaplarım zaten uygulamanın içinde yazılı duruyor.\n\n'
+        'Merak eden bir velin varsa gizlilik politikasını App Store '
+        'sayfasından okuyabilir.',
+    answerEn:
+        'The app does not ask for your name, address, phone number or date of '
+        'birth. You pick a nickname yourself, and it is better if it is not '
+        'your real name.\n\n'
+        'What is saved: which lessons you finished, your XP, your coins and '
+        'your badges. That exists so you do not lose your progress.\n\n'
+        'Our chat stays on your device: I do not send your questions '
+        'anywhere, and my answers are already written inside the app.\n\n'
+        'If a grown-up is curious, they can read the privacy policy from the '
+        'App Store page.',
+    answerDe:
+        'Die App fragt nicht nach Namen, Adresse, Telefonnummer oder '
+        'Geburtsdatum. Deinen Spitznamen suchst du selbst aus, und es ist '
+        'besser, wenn es nicht dein echter Name ist.\n\n'
+        'Gespeichert wird: welche Lektionen du fertig hast, deine XP, deine '
+        'Münzen und deine Abzeichen. Das gibt es, damit dein Fortschritt '
+        'nicht verloren geht.\n\n'
+        'Unser Chat bleibt auf deinem Gerät: Ich schicke deine Fragen '
+        'nirgendwohin, meine Antworten stehen schon in der App.\n\n'
+        'Wenn eine erwachsene Person es genau wissen will, kann sie die '
+        'Datenschutzerklärung auf der App-Store-Seite lesen.',
+    answerEs:
+        'La app no te pide el nombre, la dirección, el teléfono ni la fecha '
+        'de nacimiento. El apodo lo eliges tú, y es mejor que no sea tu '
+        'nombre real.\n\n'
+        'Lo que se guarda: qué lecciones has terminado, tus XP, tus monedas y '
+        'tus insignias. Eso está para que no pierdas tu progreso.\n\n'
+        'Nuestro chat se queda en tu dispositivo: no envío tus preguntas a '
+        'ningún sitio y mis respuestas ya están escritas dentro de la app.\n\n'
+        'Si una persona adulta quiere saber más, puede leer la política de '
+        'privacidad desde la página de la App Store.',
+    relatedIds: ['parents', 'save_progress', 'security'],
+  ),
+  KnowledgeEntry(
+    id: 'how_use_app',
+    keywords: [
+      'nasil kullanilir',
+      'bu uygulamayi nasil kullanirim',
+      'ne yapmaliyim burada',
+      'nasil ilerliyorum',
+      'how do i use this app',
+      'how does this app work',
+      'wie benutze ich diese app',
+      'wie funktioniert diese app',
+      'como se usa esta aplicacion',
+      'como se usa esta app',
+      'como funciona esta app',
+      'como uso esta app',
+    ],
+    answerTr:
+        'Sıra şöyle işliyor:\n\n'
+        '1. Ana sayfada "Kaldığın yer" kartı var — orada tek bir ders '
+        'gösteriliyor, hangisini yapacağını düşünmene gerek yok.\n'
+        '2. Derse gir, adımları sırayla bitir. Her adım küçük: bir anlatım, '
+        'bir soru, bir sürükle-bırak.\n'
+        '3. Ders bitince XP ve jeton kazanırsın, yol şeridinde bir adım '
+        'ilerlersin.\n'
+        '4. Yorulduysan Oyunlar bölümüne geç — onlar da aynı düşünme '
+        'becerisini çalıştırıyor.\n\n'
+        'Takıldığın her yerde bana sorabilirsin.',
+    answerEn:
+        'Here is how it goes:\n\n'
+        '1. The home screen has a "where you left off" card — it shows one '
+        'lesson, so you do not have to decide what to do.\n'
+        '2. Open it and finish the steps in order. Each step is small: a '
+        'short explanation, a question, a drag-and-drop.\n'
+        '3. When the lesson ends you earn XP and coins and move one step '
+        'along the path.\n'
+        '4. If you get tired, go to Games — they train the same thinking.\n\n'
+        'Whenever you get stuck, ask me.',
+    answerDe:
+        'So läuft es ab:\n\n'
+        '1. Auf der Startseite gibt es die Karte "Wo du aufgehört hast" — sie '
+        'zeigt genau eine Lektion, du musst dich nicht entscheiden.\n'
+        '2. Öffne sie und mach die Schritte der Reihe nach. Jeder Schritt ist '
+        'klein: eine kurze Erklärung, eine Frage, ein Ziehen-und-Ablegen.\n'
+        '3. Am Ende der Lektion bekommst du XP und Münzen und rückst auf dem '
+        'Lernpfad einen Schritt vor.\n'
+        '4. Wenn du müde bist, geh zu den Spielen — sie trainieren dasselbe '
+        'Denken.\n\n'
+        'Wenn du irgendwo stecken bleibst, frag mich.',
+    answerEs:
+        'Funciona así:\n\n'
+        '1. En la pantalla de inicio está la tarjeta "Donde lo dejaste": '
+        'muestra una sola lección, así no tienes que decidir.\n'
+        '2. Ábrela y termina los pasos en orden. Cada paso es pequeño: una '
+        'explicación corta, una pregunta, un arrastrar y soltar.\n'
+        '3. Al acabar la lección ganas XP y monedas y avanzas un paso en la '
+        'ruta.\n'
+        '4. Si te cansas, ve a Juegos: entrenan el mismo tipo de '
+        'pensamiento.\n\n'
+        'Cuando te atasques, pregúntame.',
+    relatedIds: ['where_start', 'xp', 'games'],
   ),
 ];

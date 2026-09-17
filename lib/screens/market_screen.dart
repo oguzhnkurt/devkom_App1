@@ -7,12 +7,29 @@ import '../models/store_item_model.dart';
 import '../providers/auth_provider.dart';
 import '../config/ad_config.dart';
 import '../services/ads_service.dart';
+import '../services/user_progress_service.dart';
+import '../core/service_locator.dart';
 import '../services/store_service.dart';
 import 'subscription_screen.dart';
+import '../widgets/avatar_cercevesi.dart';
 import '../widgets/mascot.dart';
 
-/// Market ekranı: dersler ve oyunlarla kazanılan jetonlarla robot kılıfı,
-/// avatar çerçevesi ve karakter satın alıp kuşanma (equip) ekranı.
+/// Market ekranı: derslerde ve oyunlarda kazanılan jetonların harcandığı yer.
+///
+/// NE SATILDIĞI DEĞİŞTİ
+///
+/// Burada eskiden şapka, gözlük, kolye, ayakkabı, robot kılıfı ve
+/// "karakterler" vardı; hepsi maskotun üstüne giydiriliyordu. Maskot tek
+/// bir 3B render olunca giydirme imkânsız hâle geldi ve o ürünler
+/// katalogdan kalktı (satın alanlara jetonları iade edildi —
+/// bkz. supabase/migrations/32_tek_maskot_ve_jeton_iadesi.sql).
+///
+/// Geriye avatar çerçeveleri kaldı ve çerçeve artık GERÇEKTEN görünüyor:
+/// profil avatarının etrafında, buradaki önizlemenin birebir aynısı
+/// (bkz. widgets/avatar_cercevesi.dart). Karşılığı olmayan bir vaat
+/// mağazanın kendisini anlamsız kılar — çocuk jetonunu verip hiçbir şeyin
+/// değişmediğini bir kez görürse bir daha jeton biriktirmez.
+///
 /// Bkz. supabase/migrations/23_store_and_jeton_economy.sql
 class MarketScreen extends StatefulWidget {
   const MarketScreen({super.key});
@@ -32,23 +49,27 @@ class _MarketScreenState extends State<MarketScreen> {
   Map<StoreItemCategory, StoreItem> _equipped = {};
   StoreItemCategory _selectedCategory = satilanKategoriler.first;
 
-  // Karakter üzerinde "deneme" önizlemesi (satın almadan/kuşanmadan önce
-  // nasıl görüneceğini gösterir, birkaç saniye sonra otomatik kapanır).
+  /// Dokunulan (henüz alınmamış) çerçeve: önizlemede onu gösteriyoruz.
+  /// Birkaç saniye sonra kuşanılmış olana geri dönüyor.
   StoreItem? _previewItem;
   Timer? _previewTimer;
+
+  /// Önizlemede gösterilecek çerçeve: dokunulan, yoksa kuşanılan.
+  StoreItem? get _onizlenen =>
+      _previewItem ?? _equipped[StoreItemCategory.avatarFrame];
+
+  void _onizle(StoreItem item) {
+    _previewTimer?.cancel();
+    setState(() => _previewItem = item);
+    _previewTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted) setState(() => _previewItem = null);
+    });
+  }
 
   /// Ödüllü video düğmesi gösterilsin mi? Pro üyede, kimlik
   /// tanımlanmamışsa ve günlük hak dolduğunda gizleniyor.
   bool _canWatchAd = false;
   bool _watchingAd = false;
-
-  static const _stageCategories = [
-    StoreItemCategory.character,
-    StoreItemCategory.hat,
-    StoreItemCategory.glasses,
-    StoreItemCategory.necklace,
-    StoreItemCategory.shoes,
-  ];
 
   @override
   void initState() {
@@ -117,6 +138,129 @@ class _MarketScreenState extends State<MarketScreen> {
 
   /// Jeton kazanma şeridi. Pro üyeye hiç gösterilmiyor — paywall'da
   /// "Reklamsız kullanım" yazıyor.
+  /// SERI KALKANI — tuketilebilir, markette kendi seridinde.
+  ///
+  /// Neden kartlarin arasinda degil: cerceve ya da afis bir kez alinip
+  /// kusaniliyor, kalkan ise HARCANIYOR. Ikisini ayni izgarada gostermek
+  /// "aldim, takayim" beklentisi yaratirdi.
+  Widget _buildKalkanSeridi() {
+    final progress =
+        Provider.of<AuthProvider>(context, listen: true).userProgress;
+    final kalkan = progress?.streakShields ?? 0;
+    final seri = progress?.streakDays ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      child: Material(
+        color: const Color(0xFFE8F1FF),
+        borderRadius: BorderRadius.circular(18),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: _isProcessing ? null : _kalkanAl,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                const Text('🛡️', style: TextStyle(fontSize: 22)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _t(context, 'Seri kalkanı', 'Streak shield',
+                            'Serien-Schild', 'Escudo de racha'),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF143C6B)),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        // VAAT TAM OLARAK OLANI SOYLUYOR: bir gunluk
+                        // aksamayi affediyor, seriyi satin almiyor.
+                        _t(
+                          context,
+                          'Bir gün ara verirsen $seri günlük serin kırılmaz. '
+                              'Elinde: $kalkan',
+                          'If you miss one day, your $seri-day streak '
+                              'survives. You have: $kalkan',
+                          'Wenn du einen Tag aussetzt, bleibt deine '
+                              '$seri-Tage-Serie. Du hast: $kalkan',
+                          'Si te saltas un día, tu racha de $seri días se '
+                              'mantiene. Tienes: $kalkan',
+                        ),
+                        style: const TextStyle(
+                            fontSize: 12, color: Color(0xFF3A5A80)),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1565C0),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text('60 🪙',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 12.5)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _kalkanAl() async {
+    setState(() => _isProcessing = true);
+    final sonuc = await UserProgressService().seriKalkaniAl(1);
+    if (!mounted) return;
+    setState(() => _isProcessing = false);
+
+    if (sonuc['success'] == true) {
+      await Provider.of<AuthProvider>(context, listen: false).refreshProgress();
+      if (!mounted) return;
+      _showSnack(_t(context, 'Seri kalkanı senin oldu! 🛡️',
+          'The streak shield is yours! 🛡️', 'Das Serien-Schild gehört dir! 🛡️',
+          '¡El escudo de racha es tuyo! 🛡️'));
+      return;
+    }
+
+    switch (sonuc['error']) {
+      case 'insufficient_balance':
+        _showSnack(
+            _t(context, '60 🪙 gerekiyor. Biraz daha ders bitir!',
+                'You need 60 🪙. Finish a few more lessons!',
+                'Du brauchst 60 🪙. Mach noch ein paar Lektionen!',
+                'Necesitas 60 🪙. ¡Termina algunas lecciones más!'),
+            isError: true);
+        break;
+      case 'shield_limit':
+        // Sinirsiz biriktirme seriyi "her gun biraz calismak" olmaktan
+        // cikarirdi; sinir 3.
+        _showSnack(
+            _t(context, 'En fazla 3 kalkan taşıyabilirsin.',
+                'You can carry at most 3 shields.',
+                'Du kannst höchstens 3 Schilde tragen.',
+                'Puedes llevar como máximo 3 escudos.'),
+            isError: true);
+        break;
+      default:
+        _showSnack(
+            _t(context, 'Alınamadı, tekrar dene.',
+                'Could not buy it. Try again.',
+                'Kauf fehlgeschlagen. Versuch es erneut.',
+                'No se pudo comprar. Inténtalo de nuevo.'),
+            isError: true);
+    }
+  }
+
   Widget _buildRewardedStrip() {
     if (!_canWatchAd) return const SizedBox.shrink();
     return Padding(
@@ -191,17 +335,6 @@ class _MarketScreenState extends State<MarketScreen> {
     }
   }
 
-  /// Bir ürünü satın almadan/kuşanmadan önce karakter üzerinde gösterir
-  /// ("yakın çekim" deneme) - 3 saniye sonra gerçek kuşanılan hale döner.
-  void _previewOnStage(StoreItem item) {
-    if (!_stageCategories.contains(item.category)) return;
-    _previewTimer?.cancel();
-    setState(() => _previewItem = item);
-    _previewTimer = Timer(const Duration(seconds: 3), () {
-      if (mounted) setState(() => _previewItem = null);
-    });
-  }
-
   int get _jetonBalance =>
       Provider.of<AuthProvider>(context, listen: false).userProgress?.jetonBalance ?? 0;
 
@@ -214,28 +347,42 @@ class _MarketScreenState extends State<MarketScreen> {
 
     if (owned) {
       final ok = await _storeService.equipItem(item.id);
-      if (ok && mounted) {
+      if (!mounted) return;
+      if (ok) {
         setState(() {
           _equippedItemIds
             ..removeWhere((id) => _catalog.firstWhere((i) => i.id == id).category == item.category)
             ..add(item.id);
           _equipped[item.category] = item;
+          // Isim rozeti degistiyse siralamaya YENISI yazilsin: servis
+          // rozeti bir kez okuyup akilda tutuyor.
+          if (item.category == StoreItemCategory.nameBadge) {
+            leaderboardService.rozetiUnut();
+          }
           _previewTimer?.cancel();
           _previewItem = null;
         });
-        _showSnack('${item.name} kuşanıldı! ${item.iconEmoji}');
+        _showSnack(_t(context, '${item.name} takıldı!', '${item.name} is on!',
+            '${item.name} ist an!', '¡${item.name} puesto!'));
       } else {
-        _showSnack('Kuşanma başarısız oldu.', isError: true);
+        _showSnack(
+            _t(context, 'Takılamadı, tekrar dene.', 'Could not apply it. Try again.',
+                'Konnte nicht angelegt werden. Versuch es erneut.',
+                'No se pudo poner. Inténtalo de nuevo.'),
+            isError: true);
       }
     } else {
       final result = await _storeService.purchaseItem(item.id);
       if (!mounted) return;
       if (result['success'] == true) {
-        await Provider.of<AuthProvider>(context, listen: false).refreshProgress();
-        if (mounted) {
-          setState(() => _ownedItemIds.add(item.id));
-        }
-        _showSnack('${item.name} satın alındı! ${item.iconEmoji}');
+        await Provider.of<AuthProvider>(context, listen: false)
+            .refreshProgress();
+        if (!mounted) return;
+        setState(() => _ownedItemIds.add(item.id));
+        _showSnack(_t(context, '${item.name} senin oldu! ${item.iconEmoji}',
+            '${item.name} is yours! ${item.iconEmoji}',
+            '${item.name} gehört dir! ${item.iconEmoji}',
+            '¡${item.name} es tuyo! ${item.iconEmoji}'));
       } else {
         _handlePurchaseError(result['error'], item);
       }
@@ -250,13 +397,27 @@ class _MarketScreenState extends State<MarketScreen> {
         _showProRequiredDialog(item);
         break;
       case 'insufficient_balance':
-        _showSnack('Yetersiz jeton! ${item.priceJeton} 🪙 gerekiyor.', isError: true);
+        _showSnack(
+            _t(context,
+                '${item.priceJeton} 🪙 gerekiyor. Biraz daha ders bitir!',
+                'You need ${item.priceJeton} 🪙. Finish a few more lessons!',
+                'Du brauchst ${item.priceJeton} 🪙. Mach noch ein paar Lektionen!',
+                'Necesitas ${item.priceJeton} 🪙. ¡Termina algunas lecciones más!'),
+            isError: true);
         break;
       case 'already_owned':
-        _showSnack('Bu ürüne zaten sahipsin.', isError: true);
+        _showSnack(
+            _t(context, 'Bu zaten sende var.', 'You already have this.',
+                'Das hast du schon.', 'Ya lo tienes.'),
+            isError: true);
         break;
       default:
-        _showSnack('Satın alma başarısız oldu.', isError: true);
+        _showSnack(
+            _t(context, 'Satın alınamadı, tekrar dene.',
+                'Purchase failed. Try again.',
+                'Kauf fehlgeschlagen. Versuch es erneut.',
+                'No se pudo comprar. Inténtalo de nuevo.'),
+            isError: true);
     }
   }
 
@@ -266,7 +427,12 @@ class _MarketScreenState extends State<MarketScreen> {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(_t(context, 'Pro Üyelik Gerekli', 'Pro membership needed', 'Pro-Mitgliedschaft nötig', 'Necesitas Pro')),
-        content: Text('${item.name} sadece Pro üyelere özel. Pro\'ya geçerek bu ürünü ve daha fazlasını açabilirsin!'),
+        content: Text(_t(
+            context,
+            '${item.name} yalnızca Pro üyelerde.',
+            '${item.name} is only for Pro members.',
+            '${item.name} gibt es nur für Pro-Mitglieder.',
+            '${item.name} es solo para miembros Pro.')),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text(_t(context, 'Vazgeç', 'Cancel', 'Abbrechen', 'Cancelar'))),
           ElevatedButton(
@@ -297,7 +463,8 @@ class _MarketScreenState extends State<MarketScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF6C3CE0),
         foregroundColor: Colors.white,
-        title: const Text('🛍️ Market'),
+        title: Text(_t(context, '🛍️ Market', '🛍️ Store', '🛍️ Laden',
+            '🛍️ Tienda')),
         actions: [
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
@@ -325,6 +492,7 @@ class _MarketScreenState extends State<MarketScreen> {
               children: [
                 _buildStagePreview(),
                 _buildRewardedStrip(),
+                _buildKalkanSeridi(),
                 _buildCategoryTabs(),
                 Expanded(child: _buildGrid()),
               ],
@@ -332,19 +500,19 @@ class _MarketScreenState extends State<MarketScreen> {
     );
   }
 
-  /// Marketin ustundeki maskot onizlemesi.
+  /// Marketin üstündeki önizleme: çerçeve, profilde görüneceği gibi.
   ///
-  /// Burada once giydirme sahnesi vardi: secilen urunu karakterin
-  /// uzerinde "deneyebiliyordun". Giyilebilir urunler katalogdan
-  /// kalkti (tek maskot artik 3B render, sapka giydirilemiyor), o
-  /// yuzden sahne de kalkti — Devi duruyor, altinda ne aldigini
-  /// soyleyen bir satir var.
+  /// Burada önce giydirme sahnesi vardı ("bir ürüne dokun, karakterinde
+  /// dene"). Giydirme kalktı. Onun yerine artık satılan ŞEYİ gösteriyor:
+  /// Devi'nin etrafındaki çerçeve, profil ekranındakinin birebir aynısı.
   Widget _buildStagePreview() {
-    const accent = Mascot.tone;
+    final c = _onizlenen;
+    final accent =
+        c == null ? Mascot.tone : AvatarCercevesi.renk(c.colorHex);
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -354,16 +522,29 @@ class _MarketScreenState extends State<MarketScreen> {
       ),
       child: Column(
         children: [
-          const Mascot(size: 108, mood: MascotMood.happy),
-          const SizedBox(height: 4),
+          AvatarCercevesi(
+            boyut: 104,
+            cerceve: c,
+            child: const Mascot(size: 74, showShadow: false),
+          ),
+          const SizedBox(height: 8),
           Text(
-            _previewItem != null
-                ? _previewItem!.name
-                : 'Jetonlarınla ne alacaksın?',
+            // VAAT TAM OLARAK OLANI SOYLUYOR: cerceve profilde gorunur.
+            // Once "bir urune dokun, karakterinde dene!" yaziyordu ve
+            // denenecek bir sey yoktu.
+            c == null
+                ? _t(
+                    context,
+                    'Çerçeven profilinde görünür.',
+                    'Your frame shows on your profile.',
+                    'Dein Rahmen erscheint in deinem Profil.',
+                    'Tu marco aparece en tu perfil.')
+                : c.name,
+            textAlign: TextAlign.center,
             style: TextStyle(
-                fontSize: 11,
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w500),
+                fontSize: 12,
+                color: Colors.grey.shade700,
+                fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -372,6 +553,9 @@ class _MarketScreenState extends State<MarketScreen> {
 
   Widget _buildCategoryTabs() {
     final categories = satilanKategoriler;
+    // TEK KATEGORI VARKEN SEKME CUBUGU YOK: secilecek bir sey yokken
+    // sekme gostermek, olmayan bir bolumu varmis gibi gosteriyor.
+    if (categories.length < 2) return const SizedBox.shrink();
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
@@ -443,7 +627,9 @@ class _MarketScreenState extends State<MarketScreen> {
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: _stageCategories.contains(item.category) ? () => _previewOnStage(item) : null,
+              onTap: item.category == StoreItemCategory.avatarFrame
+                  ? () => _onizle(item)
+                  : null,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -465,21 +651,26 @@ class _MarketScreenState extends State<MarketScreen> {
                       right: 0,
                       child: Text('👑', style: TextStyle(fontSize: 18)),
                     ),
-                  if (_stageCategories.contains(item.category))
+                  if (item.category == StoreItemCategory.avatarFrame)
                     Positioned(
                       bottom: -2,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.55),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.visibility, color: Colors.white, size: 10),
-                            SizedBox(width: 3),
-                            Text('Dene', style: TextStyle(color: Colors.white, fontSize: 9)),
+                            const Icon(Icons.visibility,
+                                color: Colors.white, size: 10),
+                            const SizedBox(width: 3),
+                            Text(
+                                _t(context, 'Gör', 'View', 'Ansehen', 'Ver'),
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 9)),
                           ],
                         ),
                       ),
@@ -517,10 +708,13 @@ class _MarketScreenState extends State<MarketScreen> {
                 ),
                 child: Text(
                   equipped
-                      ? '✓ Kuşanıldı'
+                      ? _t(context, '✓ Takılı', '✓ On', '✓ An', '✓ Puesto')
                       : owned
-                          ? 'Kuşan'
-                          : (item.isFree ? 'Ücretsiz' : '${item.priceJeton} 🪙'),
+                          ? _t(context, 'Tak', 'Use it', 'Anlegen', 'Ponerlo')
+                          : (item.isFree
+                              ? _t(context, 'Ücretsiz', 'Free', 'Gratis',
+                                  'Gratis')
+                              : '${item.priceJeton} 🪙'),
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
               ),

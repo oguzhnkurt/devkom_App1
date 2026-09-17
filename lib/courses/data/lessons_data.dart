@@ -49,7 +49,7 @@ class LessonsData {
           LessonContent(
             id: 'py01_5',
             type: ContentType.text,
-            content: '• Ogrenmesi kolay\n• Güçlü kutuphaneler\n• Yapay zeka ve veri biliminde lider\n• Web, oyun, otomasyon her yerde',
+            content: '• Öğrenmesi kolay\n• Güçlü kütüphaneler\n• Yapay zeka ve veri biliminde lider\n• Web, oyun, otomasyon her yerde',
           ),
         ],
       ),
@@ -941,7 +941,7 @@ func main() {
           LessonContent(
             id: 'csharp01_4',
             type: ContentType.note,
-            content: 'Dunyadaki oyunlarin çoğu Unity + C# ile yapiliyor!',
+            content: 'Dünyadaki oyunların çoğu Unity + C# ile yapılıyor!',
           ),
         ],
       ),

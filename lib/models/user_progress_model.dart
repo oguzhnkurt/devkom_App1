@@ -20,6 +20,15 @@ class UserProgress {
   /// belirler ve asla azalmaz, jeton ise Market'te harcanabilir.
   /// Bkz. supabase/migrations/23_store_and_jeton_economy.sql
   final int jetonBalance;
+
+  /// Elde kalan seri kalkanı sayısı.
+  ///
+  /// Bir gün ara verildiğinde seri sıfırlanmak yerine bir kalkan yanıyor
+  /// (bkz. UserProgressService._checkAndUpdateStreak). Market'ten jetonla
+  /// alınıyor ve TEK KULLANIMLIK — "seriyi satın almak" değil, bir günlük
+  /// aksamayı affetmek için.
+  final int streakShields;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -37,6 +46,7 @@ class UserProgress {
     this.completedLessonIds = const [],
     this.earnedBadgeIds = const [],
     this.jetonBalance = 0,
+    this.streakShields = 0,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -163,6 +173,9 @@ class UserProgress {
           ? List<String>.from(data['earned_badge_ids'])
           : [],
       jetonBalance: data['jeton_balance'] ?? 0,
+      // Sutun eski veritabaninda yoksa 0: uygulama yine calisiyor,
+      // yalnizca kalkan yok.
+      streakShields: data['streak_shields'] ?? 0,
       createdAt: data['created_at'] != null
           ? DateTime.parse(data['created_at'])
           : DateTime.now(),
@@ -219,6 +232,7 @@ class UserProgress {
     List<String>? completedLessonIds,
     List<String>? earnedBadgeIds,
     int? jetonBalance,
+    int? streakShields,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -236,6 +250,7 @@ class UserProgress {
       completedLessonIds: completedLessonIds ?? this.completedLessonIds,
       earnedBadgeIds: earnedBadgeIds ?? this.earnedBadgeIds,
       jetonBalance: jetonBalance ?? this.jetonBalance,
+      streakShields: streakShields ?? this.streakShields,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

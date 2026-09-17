@@ -296,6 +296,7 @@ void main() {
             ),
             const SizedBox(height: 24),
             ExplanationStepWidget(
+              tumunuGoster: true,
               step: step,
               course: scratch,
               isDark: false,

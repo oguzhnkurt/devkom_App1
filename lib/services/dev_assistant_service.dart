@@ -88,6 +88,18 @@ class DevAssistantService {
   /// [lang] degeri 'tr', 'en', 'de' ya da 'es' olabilir; taninmayan bir deger
   /// Turkce kabul edilir.
   AssistantReply reply(String message, {required String lang}) {
+    // ONCE HESAP: "12 + 7" gibi bir islem yazildiysa cevabi bilgi
+    // tabaninda aramanin anlami yok, hesaplamak gerekiyor.
+    final hesap = hesapla(message, lang);
+    if (hesap != null) {
+      return AssistantReply(
+        text: hesap,
+        suggestions: _relatedSuggestionsById(
+            const ['math_examples', 'times_table', 'python'], lang),
+        matched: true,
+      );
+    }
+
     final best = bestMatch(message);
 
     if (best == null) {
@@ -103,6 +115,135 @@ class DevAssistantService {
       suggestions: _relatedSuggestions(best, lang),
       matched: true,
     );
+  }
+
+  /// Basit dort islem. Eslesme yoksa null.
+  ///
+  /// NEDEN ELLE BIR HESAPLAYICI
+  ///
+  /// Asistanin cevaplari elle yazilmis metinler; "12 + 7" gibi bir soruya
+  /// onceden yazilmis bir cevap olamaz. Cocuklar da bunu ilk denedikleri
+  /// seylerden biri olarak soruyor. Bu yuzden yalnizca DORT ISLEM icin,
+  /// tek adimlik bir hesap yapiliyor.
+  ///
+  /// Bilerek DAR tutuldu: parantez, us alma, degisken yok. Genel bir ifade
+  /// yorumlayicisi, cocugun yazdigi her seyi calistiran bir kapi demekti;
+  /// burada yalnizca "sayi islec sayi" bicimi taniniyor.
+  ///
+  /// Sifira bolme hata degil, ogretilecek bir sey: bilgisayarlar da bu
+  /// noktada durur.
+  @visibleForTesting
+  String? hesapla(String mesaj, String lang) {
+    // Metindeki islemi ara: 12+7, 12 + 7, 9 x 8, 100 - 37, 144 / 12
+    final m = RegExp(r'(-?\d+(?:[.,]\d+)?)\s*([+\-xX*×/÷:])\s*(-?\d+(?:[.,]\d+)?)')
+        .firstMatch(mesaj);
+    if (m == null) return null;
+
+    final a = double.tryParse(m.group(1)!.replaceAll(',', '.'));
+    final b = double.tryParse(m.group(3)!.replaceAll(',', '.'));
+    if (a == null || b == null) return null;
+    final islec = m.group(2)!;
+
+    double? sonuc;
+    String isaret;
+    switch (islec) {
+      case '+':
+        sonuc = a + b;
+        isaret = '+';
+        break;
+      case '-':
+        sonuc = a - b;
+        isaret = '-';
+        break;
+      case 'x':
+      case 'X':
+      case '*':
+      case '×':
+        sonuc = a * b;
+        isaret = '×';
+        break;
+      default:
+        isaret = '÷';
+        if (b == 0) {
+          return _sifiraBolme(lang);
+        }
+        sonuc = a / b;
+    }
+
+    return _hesapCevabi(_sayi(a), isaret, _sayi(b), _sayi(sonuc), lang);
+  }
+
+  /// Gereksiz ondaliklari atar: 19.0 -> "19", 4.5 -> "4.5".
+  static String _sayi(double d) {
+    if (d == d.roundToDouble() && d.abs() < 1e15) {
+      return d.toInt().toString();
+    }
+    // Uc basamak yeter; 1/3 gibi sonuclarda ekrani doldurmasin.
+    return d
+        .toStringAsFixed(3)
+        .replaceAll(RegExp(r'0+\$'), '')
+        .replaceAll(RegExp(r'\.\$'), '');
+  }
+
+  String _hesapCevabi(
+      String a, String isaret, String b, String sonuc, String lang) {
+    // Python'da carpma * ve bolme / ile yaziliyor; ekranda ise cocugun
+    // defterinde gordugu × ve ÷ isaretleri duruyor.
+    final py = isaret == '×' ? '*' : (isaret == '÷' ? '/' : isaret);
+    final satir = '$a $isaret $b = $sonuc';
+    final kod = 'print($a $py $b)';
+
+    // Cevabin yaninda Python karsiligi da var: hesap makinesi olmak degil,
+    // "bunu koda nasil yazarim" fikrini vermek istiyoruz.
+    switch (lang) {
+      case 'en':
+        return '$satir\n\nIn Python you would write it like this:\n$kod';
+      case 'de':
+        return '$satir\n\nIn Python schreibst du das so:\n$kod';
+      case 'es':
+        return '$satir\n\nEn Python se escribe así:\n$kod';
+      default:
+        return '$satir\n\nPython\'da bunu şöyle yazardın:\n$kod';
+    }
+  }
+
+  String _sifiraBolme(String lang) {
+    switch (lang) {
+      case 'en':
+        return 'You cannot divide by zero — and that is not a rule someone '
+            'invented, it simply has no answer. "How many times does 0 fit '
+            'into 10?" has no end.\n\nComputers stop here too: Python says '
+            'ZeroDivisionError. Seeing that error means your program tried to '
+            'divide by zero.';
+      case 'de':
+        return 'Durch null kann man nicht teilen — das hat sich niemand '
+            'ausgedacht, es gibt einfach keine Antwort. "Wie oft passt 0 in '
+            '10?" hört nie auf.\n\nComputer halten hier auch an: Python sagt '
+            'ZeroDivisionError. Wenn du diesen Fehler siehst, hat dein '
+            'Programm durch null geteilt.';
+      case 'es':
+        return 'No se puede dividir entre cero, y no es una regla que alguien '
+            'inventó: simplemente no tiene respuesta. "¿Cuántas veces cabe el '
+            '0 en el 10?" no termina nunca.\n\nLos ordenadores también se '
+            'paran aquí: Python dice ZeroDivisionError. Si ves ese error, tu '
+            'programa ha dividido entre cero.';
+      default:
+        return 'Sıfıra bölme yapılamaz — bu birinin koyduğu bir kural değil, '
+            'cevabı olmadığı için. "10\'un içinde kaç tane 0 var?" sorusunun '
+            'sonu gelmez.\n\nBilgisayarlar da burada duruyor: Python '
+            'ZeroDivisionError diyor. O hatayı gördüysen programın sıfıra '
+            'bölmüş demektir.';
+    }
+  }
+
+  /// Verilen kayit kimliklerinden oneri etiketleri uretir.
+  List<String> _relatedSuggestionsById(List<String> ids, String lang) {
+    final labels = <String>[];
+    for (final id in ids) {
+      final label = _labelFor(id, lang);
+      if (label != null) labels.add(label);
+    }
+    return labels.isEmpty ? _defaultSuggestions(lang) : labels;
   }
 
   /// Mesajin dustugu kaydi dondurur; eslesme yoksa null.
@@ -346,6 +487,18 @@ class DevAssistantService {
     'game_coordinate': 'Koordinat oyununda ipucu',
     'fear_mistakes': 'Hata yapmaktan korkuyorum',
     'english_terms': 'Koddaki İngilizce kelimeler ne demek?',
+    'app_what': 'Bu uygulama nedir?',
+    'maker': 'Bu uygulamayı kim yaptı?',
+    'contact_support': 'Hata nasıl bildiririm?',
+    'video_source': 'Videolar nereden geliyor?',
+    'software_what': 'Yazılım nedir?',
+    'block_coding': 'Blok kodlama ne işe yarar?',
+    'why_coding': 'Neden kodlama öğrenmeliyim?',
+    'binary_what': 'Bilgisayar neden 0 ve 1 kullanır?',
+    'math_examples': 'Bana bir işlem sor',
+    'times_table': 'Çarpım tablosu',
+    'data_privacy': 'Bilgilerim güvende mi?',
+    'how_use_app': 'Bu uygulamayı nasıl kullanırım?',
     'motivation': 'Zorlanıyorum, ne yapmalıyım?',
   };
 
@@ -445,6 +598,18 @@ class DevAssistantService {
     'game_coordinate': 'A hint for the coordinate game',
     'fear_mistakes': 'I am afraid of making mistakes',
     'english_terms': 'What do the English coding words mean?',
+    'app_what': 'What is this app?',
+    'maker': 'Who made this app?',
+    'contact_support': 'How do I report a bug?',
+    'video_source': 'Where do the videos come from?',
+    'software_what': 'What is software?',
+    'block_coding': 'What is block coding for?',
+    'why_coding': 'Why should I learn to code?',
+    'binary_what': 'Why does a computer use 0 and 1?',
+    'math_examples': 'Give me a sum',
+    'times_table': 'Times tables',
+    'data_privacy': 'Is my data safe?',
+    'how_use_app': 'How do I use this app?',
     'motivation': 'I am finding it hard',
   };
 
@@ -544,6 +709,18 @@ class DevAssistantService {
     'game_coordinate': 'Ein Tipp für das Koordinatenspiel',
     'fear_mistakes': 'Ich habe Angst vor Fehlern',
     'english_terms': 'Was heißen die englischen Begriffe?',
+    'app_what': 'Was ist diese App?',
+    'maker': 'Wer hat diese App gemacht?',
+    'contact_support': 'Wie melde ich einen Fehler?',
+    'video_source': 'Woher kommen die Videos?',
+    'software_what': 'Was ist Software?',
+    'block_coding': 'Wozu Blockprogrammierung?',
+    'why_coding': 'Warum programmieren lernen?',
+    'binary_what': 'Warum 0 und 1?',
+    'math_examples': 'Gib mir eine Rechnung',
+    'times_table': 'Einmaleins',
+    'data_privacy': 'Sind meine Daten sicher?',
+    'how_use_app': 'Wie benutze ich diese App?',
     'motivation': 'Es fällt mir schwer',
   };
 
@@ -643,6 +820,18 @@ class DevAssistantService {
     'game_coordinate': 'Una pista para el juego de coordenadas',
     'fear_mistakes': 'Me da miedo equivocarme',
     'english_terms': '¿Qué significan las palabras en inglés?',
+    'app_what': '¿Qué es esta aplicación?',
+    'maker': '¿Quién hizo esta app?',
+    'contact_support': '¿Cómo informo de un error?',
+    'video_source': '¿De dónde vienen los vídeos?',
+    'software_what': '¿Qué es el software?',
+    'block_coding': '¿Para qué sirve programar por bloques?',
+    'why_coding': '¿Por qué aprender a programar?',
+    'binary_what': '¿Por qué 0 y 1?',
+    'math_examples': 'Ponme una operación',
+    'times_table': 'Tablas de multiplicar',
+    'data_privacy': '¿Están seguros mis datos?',
+    'how_use_app': '¿Cómo se usa esta app?',
     'motivation': 'Me está costando',
   };
 }

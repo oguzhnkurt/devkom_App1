@@ -7,11 +7,14 @@ import '../../models/learner_profile.dart';
 import '../../models/user_model.dart';
 import '../../models/user_progress_model.dart';
 import '../../theme.dart';
+import '../../models/store_item_model.dart';
+import '../../services/store_service.dart';
+import '../../widgets/avatar_cercevesi.dart';
+import 'ad_duzenleyici.dart';
+import 'hesap_ekrani.dart';
 import 'login_screen.dart';
 import '../settings/settings_screen.dart';
 import '../../utils/app_localizations.dart';
-import 'package:intl/intl.dart';
-import '../../utils/nickname_generator.dart';
 import '../../utils/pro_gate.dart';
 import '../report/progress_report_screen.dart';
 import '../../widgets/mascot.dart';
@@ -24,14 +27,9 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  /// Arayuz dili. Takma ad uretimi ve dogrulama mesajlari buna bagli.
-  String get _lang => Localizations.localeOf(context).languageCode;
-
   bool _isLoggingOut = false;
-  bool _isDeletingAccount = false;
 
   // Profilin en ustunde kullanicinin kusandigi karakter gorunuyor.
-  bool _isSavingName = false;
 
   /// Takma ad alani. NOT: Bu controller bilerek State'e bagli.
   /// Daha once modal icinde olusturulup showModalBottomSheet doner donmez
@@ -47,9 +45,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _linkEmailController = TextEditingController();
   final TextEditingController _linkPasswordController = TextEditingController();
 
+  /// Kusanilmis avatar cercevesi. Market bunu satiyor; profil avatari
+  /// onu GOSTERIYOR. Once gostermiyordu: cocuk jetonunu veriyor,
+  /// ekranda hicbir sey degismiyordu.
+  StoreItem? _cerceve;
+
   @override
   void initState() {
     super.initState();
+    _cerceveyiYukle();
+  }
+
+  /// Kusanilmis profil afisi: baslik alaninin rengi.
+  StoreItem? _afis;
+
+  Future<void> _cerceveyiYukle() async {
+    try {
+      final servis = StoreService();
+      final c = await servis.getEquippedItem(StoreItemCategory.avatarFrame);
+      final a = await servis.getEquippedItem(StoreItemCategory.profileBanner);
+      if (!mounted) return;
+      setState(() {
+        _cerceve = c;
+        _afis = a;
+      });
+    } catch (_) {
+      // Okunamazsa varsayilan gorunum: sade halka, kurumsal mavi baslik.
+    }
   }
 
   @override
@@ -164,8 +186,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                   child: Column(
                     children: [
-                      _buildInfoGroup(context, user, loc),
-                      const SizedBox(height: 20),
                       if (authProvider.isAnonymous) ...[
                         _buildSaveProgressCard(context),
                         const SizedBox(height: 20),
@@ -173,8 +193,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _buildReportCard(context),
                       const SizedBox(height: 20),
                       _buildActionsGroup(context, loc),
-                      const SizedBox(height: 20),
-                      _buildDangerZone(context, authProvider, progress),
                     ],
                   ),
                 ),
@@ -194,10 +212,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       width: double.infinity,
       padding: const EdgeInsets.only(bottom: 56),
       decoration: BoxDecoration(
+        // AFIS: marketten alinan profil afisi basligin rengini
+        // degistiriyor. Alinmadiysa kurumsal mavi duruyor — "eksik" bir
+        // gorunum degil, varsayilan gorunum.
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppTheme.darkBlue, AppTheme.primaryBlue],
+          colors: _afis == null
+              ? [AppTheme.darkBlue, AppTheme.primaryBlue]
+              : [
+                  Color.lerp(AvatarCercevesi.renk(_afis!.colorHex),
+                      Colors.black, 0.35)!,
+                  AvatarCercevesi.renk(_afis!.colorHex),
+                ],
         ),
       ),
       child: Stack(
@@ -222,6 +249,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Opacity(
                   opacity: 0.25,
                   child: Text('✨', style: TextStyle(fontSize: 10)))),
+          if (_afis != null)
+            Positioned(
+              top: 14,
+              left: 18,
+              child: Opacity(
+                opacity: 0.55,
+                child: Text(_afis!.iconEmoji,
+                    style: const TextStyle(fontSize: 22)),
+              ),
+            ),
           Column(
             children: [
               const SizedBox(height: 28),
@@ -286,157 +323,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// burada da Devi duruyor. Cocuk hicbir sey kusanmamissa eskiden
   /// bas harfleri goruyordu; simdi herkes ayni arkadasi goruyor.
   Widget _buildCharacterAvatar(ThemeData theme, UserModel user) {
-    return Container(
-      width: 150,
-      height: 150,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withValues(alpha: 0.12),
-        border:
-            Border.all(color: Colors.white.withValues(alpha: 0.85), width: 3),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 16,
-              offset: const Offset(0, 6)),
-        ],
-      ),
-      child: const Center(child: Mascot(size: 118, showShadow: false)),
+    return AvatarCercevesi(
+      boyut: 150,
+      cerceve: _cerceve,
+      child: const Mascot(size: 112, showShadow: false),
     );
   }
 
   /// Takma ad duzenleme sayfasi. Rastgele yeni ad uretme secenegi de var.
-  Future<void> _showNameEditor(BuildContext context, String currentName) async {
-    _nameController.text = currentName;
-    String? errorText;
-
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-      ),
-      builder: (sheetContext) {
-        return StatefulBuilder(
-          builder: (sheetContext, setSheetState) {
-            Future<void> save() async {
-              final error =
-                  NicknameGenerator.validate(_nameController.text, _lang);
-              if (error != null) {
-                setSheetState(() => errorText = error);
-                return;
-              }
-              setSheetState(() => _isSavingName = true);
-              final ok = await context
-                  .read<AuthProvider>()
-                  .updateDisplayName(_nameController.text);
-              if (!sheetContext.mounted) return;
-              setSheetState(() => _isSavingName = false);
-              if (ok) {
-                Navigator.pop(sheetContext);
-              } else {
-                setSheetState(() => errorText = _t4(
-                    context,
-                    'Kaydedilemedi, tekrar dene.',
-                    'Could not save. Please try again.',
-                    'Konnte nicht gespeichert werden. Bitte versuch es erneut.',
-                    'No se pudo guardar. Inténtalo de nuevo.'));
-              }
-            }
-
-            return Padding(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                20,
-                20,
-                MediaQuery.of(sheetContext).viewInsets.bottom + 24,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _t4(context, 'Takma adın', 'Your nickname',
-                        'Dein Spitzname', 'Tu apodo'),
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    _t4(
-                        context,
-                        'Sıralamada ve profilinde bu ad görünüyor. Gerçek '
-                            'adını ya da e-postanı yazma.',
-                        'This name shows on the leaderboard and your profile. '
-                            'Do not use your real name or your email.',
-                        'Dieser Name steht in der Bestenliste und in deinem '
-                            'Profil. Nutze weder deinen echten Namen noch '
-                            'deine E-Mail.',
-                        'Este nombre aparece en la clasificación y en tu '
-                            'perfil. No uses tu nombre real ni tu correo.'),
-                    style: TextStyle(
-                        fontSize: 12.5, color: Colors.grey[600], height: 1.4),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _nameController,
-                    autofocus: true,
-                    maxLength: 20,
-                    textInputAction: TextInputAction.done,
-                    onSubmitted: (_) => save(),
-                    decoration: InputDecoration(
-                      hintText: _t4(context, 'Örn. MeraklıPiksel317',
-                          'e.g. CuriousPixel317', 'z. B. NeugierigPixel317',
-                          'p. ej. PixelCurioso317'),
-                      errorText: errorText,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: TextButton.icon(
-                      onPressed: () {
-                        _nameController.text =
-                            NicknameGenerator.generate(_lang);
-                        setSheetState(() => errorText = null);
-                      },
-                      icon: const Icon(Icons.casino_rounded, size: 18),
-                      label: Text(_t4(context, 'Bana bir ad öner', 'Suggest a name for me',
-                          'Schlag mir einen Namen vor',
-                          'Sugiéreme un nombre')),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: _isSavingName ? null : save,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: _isSavingName
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white),
-                            )
-                          : Text(_t4(context, 'Kaydet', 'Save', 'Speichern',
-                            'Guardar')),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+  /// Takma ad duzenleyici ortak dosyaya tasindi: ayni duzenleyici
+  /// Hesap ekranindan da aciliyor (bkz. ad_duzenleyici.dart).
+  Future<void> _showNameEditor(BuildContext context, String currentName) =>
+      adDuzenleyiciyiAc(context, currentName);
 
   Widget _buildProBadge() {
     return Container(
@@ -534,91 +432,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // ==========================================
   // BILGI GRUBU - tek kart icinde bolunmus satirlar (kurumsal liste hissi)
   // ==========================================
-  Widget _buildInfoGroup(
-      BuildContext context, UserModel user, AppLocalizations loc) {
-    final rows = <_InfoRowData>[
-      // "Rol: Ogrenci" satiri kaldirildi - tek kullanici tipinde bilgi
-      // tasimiyordu. Yerine onboarding cevaplari gosteriliyor.
-      // DEĞERLER DE ÇEVRİLİYOR, yalnızca başlıklar değil.
-      //
-      // Burada `labelTr` okunuyordu: Almanca seçen bir veli profilde
-      // "Hedefim / Oyun yapmak" satırını olduğu gibi Türkçe görüyordu.
-      if (user.learningGoal != null)
-        _InfoRowData(
-            Icons.flag_outlined,
-            _t4(context, 'Hedefim', 'My goal', 'Mein Ziel', 'Mi objetivo'),
-            user.learningGoal!.labelFor(_lang),
-            AppTheme.primaryBlue),
-      if (user.skillLevel != null)
-        _InfoRowData(
-            Icons.trending_up_rounded,
-            _t4(context, 'Seviyem', 'My level', 'Mein Level', 'Mi nivel'),
-            user.skillLevel!.labelFor(_lang),
-            AppTheme.accentTeal),
-      if (user.ageBand != null)
-        _InfoRowData(
-            Icons.cake_outlined,
-            _t4(context, 'Yaş aralığı', 'Age range', 'Altersgruppe',
-                'Rango de edad'),
-            user.ageBand!.labelFor(_lang),
-            AppTheme.mediumGray),
-      _InfoRowData(Icons.calendar_today_outlined, loc.memberSince,
-          _formatDate(user.createdAt), AppTheme.mediumGray),
-      if (user.lastLoginAt != null)
-        _InfoRowData(Icons.access_time_outlined, loc.lastLogin,
-            _formatDate(user.lastLoginAt!), AppTheme.mediumGray),
-    ];
-
-    return _buildGroupCard(
-      title: 'Hesap Bilgileri',
-      children: List.generate(rows.length, (i) {
-        final row = rows[i];
-        return Column(
-          children: [
-            _buildInfoRow(row.icon, row.title, row.value, row.color),
-            if (i != rows.length - 1)
-              Divider(height: 1, color: Colors.grey.shade100, indent: 56),
-          ],
-        );
-      }),
-    );
-  }
-
-  Widget _buildInfoRow(
-      IconData icon, String title, String value, Color iconColor) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10)),
-            child: Icon(icon, color: iconColor, size: 18),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Text(title,
-                style: TextStyle(fontSize: 13.5, color: Colors.grey.shade700)),
-          ),
-          Text(value,
-              style:
-                  const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
-  }
-
-  // ==========================================
-  // EYLEMLER GRUBU - Ayarlar + Cikis (notr, kurumsal)
-  // ==========================================
-  /// Anonim kullaniciya "ilerlemeni kaydet" onerisi.
-  ///
-  /// Zorlamiyoruz: uygulama zaten calisiyor ve ilerleme cihazdaki anonim
-  /// hesaba kaydediliyor. Buradaki amac riski anlatmak — telefon degisir
-  /// ya da uygulama silinirse ilerleme kaybolur.
   Widget _buildSaveProgressCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(18),
@@ -774,7 +587,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             if (ok) {
               Navigator.pop(sheetContext);
-              if (context.mounted) {
+              // BILDIRIM SAYFANIN KENDI DURUMUNA BAGLI.
+              //
+              // Once yalnizca `context.mounted` bakiliyordu; sayfa
+              // bu sirada agactan kalkmis olabiliyor ve
+              // `ScaffoldMessenger.of(context)` "No ScaffoldMessenger
+              // widget found" hatasiyla kirmizi ekran veriyordu.
+              if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(_t4(
@@ -987,6 +806,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return _buildGroupCard(
       title: _t4(context, 'Hesap İşlemleri', 'Account', 'Konto', 'Cuenta'),
       children: [
+        // HESAP: takma ad, kurulum cevaplari, veli paylasim kodu ve
+        // hesabi silme artik tek bir ekranda. Eskiden hepsi profilin
+        // icine dagilmisti ve "Tehlikeli Bolge" kutusu her ziyarette
+        // gorunuyordu.
+        _buildActionRow(
+          icon: Icons.manage_accounts_outlined,
+          label: _t4(context, 'Hesap', 'Account', 'Konto', 'Cuenta'),
+          color: AppTheme.accentTeal,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const HesapEkrani()),
+          ),
+        ),
+        Divider(height: 1, color: Colors.grey.shade100, indent: 56),
         _buildActionRow(
           icon: Icons.settings_outlined,
           label: loc.settings,
@@ -1053,82 +886,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // ==========================================
   // TEHLIKELI BOLGE - Hesap silme, acikca ayristirilmis
   // ==========================================
-  Widget _buildDangerZone(
-      BuildContext context, AuthProvider authProvider, UserProgress? progress) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.red.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.red.withValues(alpha: 0.18)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.warning_amber_rounded,
-                  color: Colors.red.shade400, size: 18),
-              const SizedBox(width: 8),
-              Text(
-                _t4(context, 'Tehlikeli Bölge', 'Danger Zone',
-                    'Gefahrenzone', 'Zona de riesgo'),
-                style: TextStyle(
-                    color: Colors.red.shade700,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _t4(
-                context,
-                'Hesabını silmek kalıcıdır. İlerlemen, jetonların ve rozetlerin geri getirilemez şekilde silinir.',
-                'Deleting your account is permanent. Your progress, coins and badges are erased for good.',
-                'Das Löschen deines Kontos ist endgültig. Fortschritt, Münzen und Abzeichen werden unwiderruflich gelöscht.',
-                'Eliminar tu cuenta es permanente. Tu progreso, monedas e insignias se borran para siempre.'),
-            style: TextStyle(
-                fontSize: 12, color: Colors.grey.shade600, height: 1.4),
-          ),
-          const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: _isDeletingAccount
-                  ? null
-                  : () =>
-                      _confirmDeleteAccount(context, authProvider, progress),
-              icon: _isDeletingAccount
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.red))
-                  : const Icon(Icons.delete_forever,
-                      color: Colors.red, size: 18),
-              label: Text(
-                _isDeletingAccount
-                    ? _t4(context, 'Siliniyor...', 'Deleting...',
-                        'Wird gelöscht...', 'Eliminando...')
-                    : _t4(context, 'Hesabımı Sil', 'Delete My Account',
-                        'Konto löschen', 'Eliminar mi cuenta'),
-                style: const TextStyle(
-                    color: Colors.red, fontWeight: FontWeight.w600),
-              ),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.red),
-                padding: const EdgeInsets.symmetric(vertical: 13),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildGroupCard(
       {required String title, required List<Widget> children}) {
     return Container(
@@ -1191,24 +948,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
 
-  String _formatDate(DateTime date) {
-    final loc = AppLocalizations.of(context);
-    final locale = loc.locale.languageCode;
-
-    // Her dilin kendi tarih duzeni: ingilizcede ay once ("November 19,
-    // 2025"), turkce/almanca/ispanyolcada gun once ("19 Kasım 2025",
-    // "19. November 2025", "19 de noviembre de 2025").
-    switch (locale) {
-      case 'en':
-        return DateFormat('MMMM d, y', 'en').format(date);
-      case 'de':
-        return DateFormat('d. MMMM y', 'de').format(date);
-      case 'es':
-        return DateFormat("d 'de' MMMM 'de' y", 'es').format(date);
-      default:
-        return DateFormat('d MMMM y', 'tr').format(date);
-    }
-  }
 
   // ==========================================
   // SLIDE-UP ONAY PANELLERI (showModalBottomSheet)
@@ -1237,69 +976,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         },
       ),
     );
-  }
-
-  void _confirmDeleteAccount(
-      BuildContext context, AuthProvider authProvider, UserProgress? progress) {
-    final xp = progress?.totalXP ?? 0;
-    final jeton = progress?.jetonBalance ?? 0;
-    final badges = progress?.earnedBadgeIds.length ?? 0;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) => _ConfirmSheet(
-        dragHandleColor: Colors.grey.shade300,
-        iconBackgroundColor: Colors.red.withValues(alpha: 0.1),
-        icon: Icons.warning_amber_rounded,
-        iconColor: Colors.red,
-        title: _t4(context, 'Hesabını silmek üzeresin',
-            'You are about to delete your account',
-            'Du bist dabei, dein Konto zu löschen',
-            'Estás a punto de eliminar tu cuenta'),
-        message: _t4(
-            context,
-            '$xp XP, $jeton jeton ve $badges rozet dahil tüm ilerlemen kalıcı olarak silinecek. Bu işlem geri alınamaz.',
-            'All your progress, including $xp XP, $jeton coins and $badges badges, will be permanently deleted. This cannot be undone.',
-            'Dein gesamter Fortschritt, einschließlich $xp XP, $jeton Münzen und $badges Abzeichen, wird endgültig gelöscht. Das lässt sich nicht rückgängig machen.',
-            'Todo tu progreso, incluidos $xp XP, $jeton monedas y $badges insignias, se eliminará de forma permanente. Esto no se puede deshacer.'),
-        cancelLabel:
-            _t4(context, 'Vazgeç', 'Cancel', 'Abbrechen', 'Cancelar'),
-        confirmLabel: _t4(context, 'Evet, Hesabımı Sil',
-            'Yes, delete my account', 'Ja, Konto löschen',
-            'Sí, eliminar mi cuenta'),
-        confirmColor: Colors.red,
-        onConfirm: () {
-          Navigator.pop(sheetContext);
-          _handleDeleteAccount(context, authProvider);
-        },
-      ),
-    );
-  }
-
-  Future<void> _handleDeleteAccount(
-      BuildContext context, AuthProvider authProvider) async {
-    setState(() => _isDeletingAccount = true);
-    try {
-      await authProvider.deleteAccount();
-      if (mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-          (route) => false,
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isDeletingAccount = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Hesap silinemedi: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
   }
 
   Future<void> _handleLogout(
@@ -1337,13 +1013,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-class _InfoRowData {
-  final IconData icon;
-  final String title;
-  final String value;
-  final Color color;
-  const _InfoRowData(this.icon, this.title, this.value, this.color);
-}
 
 /// Ortak "slide up" onay paneli - Quizo tasarımındaki yuvarlatılmış üst
 /// köşeli, tutamaçlı (drag handle) alt sayfa hissini örnek alır; kurumsal

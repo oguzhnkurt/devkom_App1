@@ -44,6 +44,7 @@ Widget? _adimWidget(LessonStep step, Course course) {
           onComplete: () {});
     case StepType.explanation:
       return ExplanationStepWidget(
+          tumunuGoster: true,
           step: step as ExplanationStep,
           course: course,
           isDark: false,

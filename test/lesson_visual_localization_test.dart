@@ -77,6 +77,7 @@ Future<void> _pump(WidgetTester tester, String lang) async {
         home: Scaffold(
           body: SingleChildScrollView(
             child: ExplanationStepWidget(
+              tumunuGoster: true,
               step: _step,
               course: _course,
               isDark: false,

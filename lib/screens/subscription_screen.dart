@@ -379,10 +379,34 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       return;
     }
 
+    // Capa: cocugun/velinin O AN baktigi plan. Once her zaman haftalik
+    // plana gore karsilastiriliyordu; yillik plani secmis birine
+    // "yillik daha ucuz" demek bir sey soylemiyordu.
+    final secili = _selected;
     final anchorProduct = discounted != null
         ? yearly
-        : (_products.where(_isWeekly).firstOrNull ?? _monthlyProduct);
+        : ((secili != null && !_isYearly(secili))
+            ? secili
+            : (_products.where(_isWeekly).firstOrNull ?? _monthlyProduct));
     final saving = _savingAgainst(offer, anchorProduct);
+
+    // AYNI FIYATI IKINCI KEZ GOSTERMIYORUZ.
+    //
+    // Indirimli bir urun tanimli degilken, yillik plana bakan birine
+    // cikista yine yillik plani ayni fiyatla gostermek "son firsat"
+    // kilifinda hicbir sey sunmamak demekti — kullanici ayni 34,99'u
+    // iki kez goruyordu. Boyle bir ekran guven kaybettiriyor ve
+    // App Store'un karanlik desen tanimina yaklasiyor.
+    //
+    // Teklif yalnizca SOYLEYECEK YENI BIR SEYI varsa aciliyor:
+    // ya gercek bir indirimli urun var, ya da bakilan plana gore
+    // yilligin gercek bir tasarrufu var.
+    final soyleyecekSeyVar = discounted != null ||
+        (anchorProduct != null && saving != null && saving > 0);
+    if (!soyleyecekSeyVar) {
+      if (mounted) Navigator.pop(context);
+      return;
+    }
 
     final take = await showModalBottomSheet<bool>(
       context: context,

@@ -365,12 +365,71 @@ class UserProgressService extends ChangeNotifier {
         // Streak rozetleri kontrolü
         if (newStreak >= 3) await _awardBadge(userId, 'streak_3');
         if (newStreak >= 7) await _awardBadge(userId, 'streak_7');
+      } else if (daysDifference == 2 && _currentProgress!.streakShields > 0) {
+        // SERI KALKANI.
+        //
+        // Bir gun ara verildiyse ve elinde kalkan varsa seri kirilmiyor:
+        // bir kalkan yaniyor ve seri OLDUGU YERDE kaliyor (artmiyor —
+        // calisilmayan gun sayilmaz, yalnizca affediliyor).
+        //
+        // Yalnizca TEK gunluk bos icin: iki gun ve fazlasi affedilseydi
+        // seri "her gun biraz calismak" anlamini kaybederdi.
+        await _kalkanKullan(userId);
       } else {
         // Ara verildi - streak sıfırla
         await _updateStreak(userId, 1);
       }
     } catch (e) {
       debugPrint('Error checking streak: $e');
+    }
+  }
+
+  /// Bir kalkan harcayip seriyi korur.
+  Future<void> _kalkanKullan(String userId) async {
+    final kalan = (_currentProgress!.streakShields) - 1;
+    try {
+      await _supabase.from(_progressTable).update({
+        'streak_shields': kalan,
+        'last_active_date': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('user_id', userId);
+
+      _currentProgress = _currentProgress?.copyWith(
+        streakShields: kalan,
+        lastActiveDate: DateTime.now(),
+      );
+      notifyListeners();
+      debugPrint('🛡️ Seri kalkani kullanildi, kalan: $kalan');
+    } catch (e) {
+      // Kalkan yazilamadiysa seriyi SIFIRLAMIYORUZ: cocugun elindeki
+      // hakki bir ag hatasi yuzunden kaybetmesi kabul edilemez. Bir
+      // sonraki aciliste tekrar denenecek.
+      debugPrint('Seri kalkani kaydedilemedi: $e');
+    }
+  }
+
+  /// Seri kalkani satin alir. Basarili olursa yeni bakiye doner.
+  ///
+  /// Islem sunucuda tek parca calisiyor (RPC): jeton dusme ve kalkan
+  /// ekleme ayni islemde, yoksa iki cagri arasinda kopan bir baglanti
+  /// jetonu alip kalkani vermeyebilirdi.
+  /// Bkz. supabase/migrations/33_jeton_harcama_yenilikleri.sql
+  Future<Map<String, dynamic>> seriKalkaniAl(int adet) async {
+    try {
+      final sonuc = await _supabase
+          .rpc('purchase_streak_shield', params: {'p_count': adet});
+      final map = Map<String, dynamic>.from(sonuc as Map);
+      if (map['success'] == true) {
+        _currentProgress = _currentProgress?.copyWith(
+          jetonBalance: map['new_balance'] ?? _currentProgress?.jetonBalance,
+          streakShields: map['shields'] ?? _currentProgress?.streakShields,
+        );
+        notifyListeners();
+      }
+      return map;
+    } catch (e) {
+      debugPrint('Seri kalkani alinamadi: $e');
+      return {'success': false, 'error': 'unknown'};
     }
   }
 

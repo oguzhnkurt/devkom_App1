@@ -410,10 +410,15 @@ void main() {
       });
     });
 
-    test('ornek sorularin hepsi bir kayda dusuyor', () {
+    test('ornek sorularin hepsi bir cevaba dusuyor', () {
+      // "12 + 7 kac eder?" gibi ornekler bilgi tabaninda DEGIL, dort islem
+      // hesaplayicisinda cevaplaniyor (bkz. DevAssistantService.hesapla).
+      // Olcut bu yuzden "bir kayda dusuyor mu" degil, "cevap uretiliyor mu".
       for (final lang in diller) {
         for (final soru in kSuggestedQuestionsFor(lang)) {
-          expect(matchedId(soru), isNotNull, reason: '$lang -> "$soru"');
+          final cevap = DevAssistantService.instance.reply(soru, lang: lang);
+          expect(cevap.matched, isTrue, reason: '$lang -> "$soru"');
+          expect(cevap.text.trim(), isNotEmpty, reason: '$lang -> "$soru"');
         }
       }
     });
@@ -425,6 +430,85 @@ void main() {
           expect(ids.contains(id), isTrue, reason: '$lang -> $id');
         }
       });
+    });
+  });
+
+  // ------------------------------------------------------------ dort islem
+  group('DevAI hesap yapabiliyor', () {
+    final servis = DevAssistantService.instance;
+
+    test('toplama, cikarma, carpma, bolme', () {
+      expect(servis.hesapla('12 + 7', 'tr'), contains('12 + 7 = 19'));
+      expect(servis.hesapla('100 - 37 kac eder', 'tr'), contains('= 63'));
+      expect(servis.hesapla('9 x 8', 'tr'), contains('= 72'));
+      expect(servis.hesapla('144 / 12', 'tr'), contains('= 12'));
+      // Yildiz ve nokta isaretleri de kabul.
+      expect(servis.hesapla('6*7', 'tr'), contains('= 42'));
+      expect(servis.hesapla('7 ÷ 2', 'tr'), contains('= 3.5'));
+    });
+
+    test('cevabin yaninda Python karsiligi var', () {
+      // Amac hesap makinesi olmak degil, "bunu koda nasil yazarim"
+      // fikrini vermek.
+      expect(servis.hesapla('9 x 8', 'tr'), contains('print(9 * 8)'));
+      expect(servis.hesapla('9 x 8', 'en'), contains('print(9 * 8)'));
+      expect(servis.hesapla('144 / 12', 'de'), contains('print(144 / 12)'));
+    });
+
+    test('sifira bolme ogretiyor, hata vermiyor', () {
+      final tr = servis.hesapla('5 / 0', 'tr')!;
+      expect(tr, contains('ZeroDivisionError'));
+      expect(tr.contains('= '), isFalse, reason: 'Olmayan bir sonuc yazilmis');
+      expect(servis.hesapla('5 / 0', 'es'), contains('ZeroDivisionError'));
+    });
+
+    test('islem olmayan metinde hesap calismiyor', () {
+      // "Python 3 nedir" gibi bir cumlede sayi var ama islem yok.
+      expect(servis.hesapla('python nedir', 'tr'), isNull);
+      expect(servis.hesapla('scratch 3 nedir', 'tr'), isNull);
+    });
+
+    test('hesap cevabi sohbette de donuyor', () {
+      final cevap = servis.reply('12 + 7 kac eder?', lang: 'tr');
+      expect(cevap.matched, isTrue);
+      expect(cevap.text, contains('19'));
+      expect(cevap.suggestions, isNotEmpty);
+    });
+  });
+
+  // ------------------------------------------------- uygulama hakkinda sorular
+  group('DevAI uygulamayi anlatiyor', () {
+    final servis = DevAssistantService.instance;
+
+    test('yapimci bilgisi dogru ve dort dilde', () {
+      for (final dil in ['tr', 'en', 'de', 'es']) {
+        final cevap = servis.reply('Bu uygulamayı kim yaptı?', lang: dil);
+        expect(cevap.matched, isTrue);
+        expect(cevap.text, contains('Devkom'));
+        expect(cevap.text, contains('Konya'));
+      }
+    });
+
+    test('Ispanyolca sorular kendi kayitlarina dusuyor', () {
+      expect(servis.bestMatch('hola')?.id, 'greeting');
+      expect(servis.bestMatch('¿cómo estás?')?.id, 'how_are_you');
+      expect(servis.bestMatch('¿qué es esta aplicación?')?.id, 'app_what');
+      expect(servis.bestMatch('¿quién hizo esta app?')?.id, 'maker');
+      expect(servis.bestMatch('¿qué me vas a enseñar?')?.id, isNotNull);
+    });
+
+    test('videolarin kaynagi hakkinda uydurma yok', () {
+      final cevap = servis.reply('Videolar nereden geliyor?', lang: 'tr');
+      expect(cevap.text, contains('YouTube'));
+      // Kanal adi ve baglantinin gorundugu soyleniyor; "biz cektik" gibi
+      // bir iddia YOK.
+      expect(cevap.text.contains('biz çekiyoruz'), isFalse);
+    });
+
+    test('gizlilik cevabi toplanmayan veriyi sayiyor', () {
+      final cevap = servis.reply('Bilgilerim güvende mi?', lang: 'tr');
+      expect(cevap.matched, isTrue);
+      expect(cevap.text, contains('doğum tarihi'));
     });
   });
 }
