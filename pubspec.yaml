@@ -117,6 +117,7 @@ flutter:
     - assets/videos/
     - assets/sounds/
     - assets/html/
+    - assets/maskot/
 
   # Yazi tipi uygulamayla birlikte geliyor. Daha once `google_fonts` paketi
   # dosyalari calisma aninda internetten cekiyordu; indirme bitene kadar

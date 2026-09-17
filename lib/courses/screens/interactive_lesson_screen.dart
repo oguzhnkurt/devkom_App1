@@ -13,6 +13,8 @@ import '../../theme.dart';
 import '../../ui/count_up.dart';
 import '../../ui/motion.dart';
 import '../../ui/press_button.dart';
+import '../../widgets/cikis_penceresi.dart';
+import '../../services/sound_service.dart';
 
 /// Modern, Interactive Lesson Screen
 /// FreeCodeCamp-inspired step-by-step learning experience
@@ -517,37 +519,15 @@ default:
     return _currentStepCompleted;
   }
 
-  void _showExitConfirmation() {
-    // Dil build dışında okunuyor: `lessonLang` (context.watch) burada
-    // provider assertion atar ve diyalog SESSİZCE açılmaz.
-    // Bkz. nickname_button_test.dart — aynı hata "Başka bir tane öner"
-    // düğmesini çalışmaz hâle getirmişti.
+  void _showExitConfirmation() async {
+    // Dil build disinda okunuyor: `lessonLang` (context.watch) burada
+    // provider assertion atar ve diyalog SESSIZCE acilmaz.
+    // Bkz. nickname_button_test.dart — ayni hata "Baska bir tane oner"
+    // dugmesini calismaz hale getirmisti.
     final lang = lessonLangRead(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(lessonText(lang, 'Dersten çıkılıyor', 'Leaving the lesson')),
-        content: Text(lessonText(lang, 'İlerlemen kaybedilecek. Emin misin?',
-            'You will lose your progress. Are you sure?')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(lessonText(lang, 'Devam Et', 'Keep going')),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade400,
-            ),
-            child: Text(lessonText(lang, 'Çık', 'Leave')),
-          ),
-        ],
-      ),
-    );
+    final cik = await CikisPenceresi.dersten(context, lang,
+        renk: widget.course.primaryColor);
+    if (cik && mounted) Navigator.pop(context);
   }
 }
 
@@ -590,7 +570,9 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
   void initState() {
     super.initState();
     _controller.forward();
-    HapticFeedback.heavyImpact();
+    // Ders bitti: soru sesinin buyugu. Tek tek dogrularin ustune
+    // binmesin diye yalnizca bu anda caliyor.
+    SoundService.playOdul();
     // MediaQuery'yi initState icinde okumak dogru degil (inherited widget
     // henuz baglanmamis olabiliyor); ilk kareden sonra bakiyoruz.
     WidgetsBinding.instance.addPostFrameCallback((_) {

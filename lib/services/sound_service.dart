@@ -131,6 +131,42 @@ class SoundService {
     ]);
   }
 
+  /// DERS SORUSUNU DOGRU BILDIGINDE.
+  ///
+  /// Oyunlardaki `playCorrect` sentezlenmis sinus ailesini calıyor ve her
+  /// oyunun kendi ton rengi var. Ders sorulari icin ise gercek kayit
+  /// kullaniliyor (uygulama icin satin alindi): kisa, parlak bir
+  /// "toplama" sesi. Cok soru pes pese cevaplandigi icin kasitli olarak
+  /// yarim saniyenin altinda — uzun bir jingle ucuncu soruda yoruyor.
+  static Future<void> playSoruDogru() async {
+    await Future.wait([
+      _play('dogru_cevap'),
+      _haptic(HapticFeedback.lightImpact),
+    ]);
+  }
+
+  /// Bir bolumun tamami dogru bitince (ders sonu, quiz sonu).
+  ///
+  /// Soru sesinin buyugu: tek tek dogrularin ustune binmesin diye
+  /// yalnizca BITIS anlarinda caliyor.
+  static Future<void> playOdul() async {
+    await Future.wait([
+      _play('odul'),
+      _haptic(HapticFeedback.mediumImpact),
+    ]);
+  }
+
+  /// Uygulamadaki ILK basari: acilistaki ilk surukle-birak gorevi.
+  ///
+  /// Bir kere duyuluyor ve o yuzden digerlerinden farkli: cocugun
+  /// uygulamada yaptigi ilk is bu, ve "oldu" demenin en dogrudan yolu.
+  static Future<void> playIlkBasari() async {
+    await Future.wait([
+      _play('ilk_basari'),
+      _haptic(HapticFeedback.mediumImpact),
+    ]);
+  }
+
   /// Bir parca yerine oturdugunda (surukle-birak).
   static Future<void> playDrop() async {
     await Future.wait([

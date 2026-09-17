@@ -42,10 +42,9 @@ void main() {
             'uygulamayı yeni kuran çocuk onu göremez');
   });
 
-  test('etkinlik alani dort kapiyi da aciyor', () {
+  test('etkinlik alani kapilari aciyor', () {
     final src = _read(hub);
     for (final screen in [
-      'CharacterScreen', // karakter + maskot seçici
       'MarketScreen', // jeton harcama
       'LeaderboardScreen', // arkadaşlarınla yarış
       'QuizIntroScreen',

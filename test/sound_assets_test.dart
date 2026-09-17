@@ -55,6 +55,67 @@ void main() {
     }
   });
 
+  group('gercek kayitlar', () {
+    // Sentezlenmis sinus ailesinin yanina ucu de satin alinmis gercek
+    // kayit geldi: ders sorusu dogru cevabi, bolum odulu ve acilistaki
+    // ilk gorevin sesi.
+    const yeniler = {
+      'dogru_cevap': 1.0, // her soruda caliyor: kisa olmali
+      'odul': 2.0,
+      'ilk_basari': 3.0, // bir kere duyuluyor, biraz uzun olabilir
+    };
+
+    test('dosyalar var, mono 44.1 kHz ve sinirdan kisa', () {
+      for (final giris in yeniler.entries) {
+        final f = File('assets/sounds/${giris.key}.wav');
+        expect(f.existsSync(), isTrue, reason: '${giris.key}.wav eksik');
+        final bytes = f.readAsBytesSync();
+        final v = bytes.buffer.asByteData();
+        expect(String.fromCharCodes(bytes.sublist(0, 4)), 'RIFF');
+        final kanal = v.getUint16(22, Endian.little);
+        final rate = v.getUint32(24, Endian.little);
+        expect(kanal, 1, reason: '${giris.key} tek kanal degil');
+        expect(rate, 44100);
+        // ffmpeg'in LIST etiketi temizlendi: veri parcasi 36. bayttan
+        // basliyor. Temizlenmezse bu satir kirilir — ve dosya da
+        // gereksiz yere buyuk olur.
+        expect(String.fromCharCodes(bytes.sublist(36, 40)), 'data');
+        final saniye = v.getUint32(40, Endian.little) / (rate * 2);
+        expect(saniye, lessThan(giris.value),
+            reason: '${giris.key} cok uzun: $saniye sn');
+        expect(saniye, greaterThan(0.1));
+      }
+    });
+
+    test('ders sorulari oyunlarin sesini degil bu sesi caliyor', () {
+      final adim = File('lib/courses/screens/widgets/step_widgets.dart')
+          .readAsStringSync();
+      expect(adim.contains('SoundService.playCorrect()'), isFalse,
+          reason: 'Ders adimi yine oyun sesi ailesini caliyor.');
+      expect(adim.contains('SoundService.playSoruDogru()'), isTrue);
+
+      final servis =
+          File('lib/services/sound_service.dart').readAsStringSync();
+      expect(servis.contains("_play('dogru_cevap')"), isTrue);
+      expect(servis.contains("_play('odul')"), isTrue);
+      expect(servis.contains("_play('ilk_basari')"), isTrue);
+    });
+
+    test('ilk gorev ve ders sonu sesleri bagli', () {
+      expect(
+          File('lib/widgets/first_task.dart')
+              .readAsStringSync()
+              .contains('SoundService.playIlkBasari()'),
+          isTrue,
+          reason: 'Acilistaki ilk surukle-birak hala sessiz.');
+      expect(
+          File('lib/courses/screens/interactive_lesson_screen.dart')
+              .readAsStringSync()
+              .contains('SoundService.playOdul()'),
+          isTrue);
+    });
+  });
+
   test('pubspec ses klasorunu paketliyor', () {
     final pubspec = File('pubspec.yaml').readAsStringSync();
     expect(pubspec.contains('assets/sounds/'), isTrue);

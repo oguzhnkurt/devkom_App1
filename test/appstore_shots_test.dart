@@ -38,7 +38,6 @@ import 'package:devkom_app/providers/auth_provider.dart';
 import 'package:devkom_app/providers/settings_provider.dart';
 import 'package:devkom_app/courses/screens/course_catalog_screen.dart';
 import 'package:devkom_app/screens/games/matching_game_screen.dart';
-import 'package:devkom_app/models/store_item_model.dart';
 import 'package:devkom_app/courses/data/courses_data.dart';
 import 'package:devkom_app/courses/data/mblock_palette.dart';
 import 'package:devkom_app/courses/data/lessons_data.dart';
@@ -47,7 +46,6 @@ import 'package:devkom_app/courses/screens/quiz_screen.dart';
 import 'package:devkom_app/courses/data/scratch_lessons_data.dart';
 import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
 import 'package:devkom_app/courses/screens/widgets/step_widgets.dart';
-import 'package:devkom_app/widgets/character_stage.dart';
 import 'package:devkom_app/widgets/first_task.dart';
 import 'package:devkom_app/utils/lang.dart';
 import 'package:devkom_app/screens/auth/modern_splash_screen.dart';
@@ -65,9 +63,10 @@ String _outDirFor(String lang) =>
     lang == 'en' ? 'outputs/appstore/ekranlar' : 'outputs/appstore/ekranlar_$lang';
 final _key = GlobalKey();
 
-/// Magaza slaytindaki karakter: uygulamanin ACILIS karakteri.
-/// Cocuk uygulamayi ilk actiginda gordugu karakter bu olmali.
-final MascotSpec _slideMascot = specOf(Mascot.defaultSpecies);
+/// Magaza slaytindaki karakter: uygulamanin TEK karakteri.
+///
+/// Once bes karakter vardi ve burasi acilis karakterini seciyordu.
+/// Artik secilecek bir sey yok: Devi.
 
 /// Telefon ölçüsü: 430x932 mantıksal piksel, 3x yoğunluk => 1290x2796.
 ///
@@ -317,51 +316,22 @@ void main() {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           const SizedBox(height: 12),
-          // Ad ve alt yazi MascotSpec'ten geliyor, elle yazilmiyor.
-          // Slaytta uzun sure 'Devi' yaziyordu; uygulama coktan bes
-          // karaktere (Puf/Mia/Bit/Kasif/Bug) gecmis ve acilis karakteri
-          // Puf olmustu. Magazadaki slaytta olmayan bir karakter
-          // gostermek indiren cocuga verilmis yanlis bir soz.
-          Text(_slideMascot.name,
+          Text(Mascot.ad,
               style: const TextStyle(
                   fontSize: 30, fontWeight: FontWeight.w900)),
           const SizedBox(height: 8),
-          Text(_slideMascot.taglineFor(lang),
+          Text(
+              AppLang.pick(lang,
+                  tr: 'Kod arkadaşın',
+                  en: 'Your coding buddy',
+                  de: 'Dein Code-Kumpel',
+                  es: 'Tu amigo del código'),
               style: const TextStyle(fontSize: 17, color: Colors.black54)),
           const SizedBox(height: 28),
-          CharacterStage(
-            size: 220,
-            interactive: false,
-            mood: MascotMood.happy,
-            species: _slideMascot.species,
-            accentColor: _slideMascot.defaultColor,
-            hat: StoreItem(
-              id: 'hat_party',
-              itemKey: 'hat_party',
-              category: StoreItemCategory.hat,
-              name: AppLang.pick(lang,
-                  tr: 'Parti şapkası',
-                  en: 'Party hat',
-                  de: 'Partyhut',
-                  es: 'Gorro de fiesta'),
-              priceJeton: 0,
-              iconEmoji: '🎩',
-              colorHex: '#7C4DFF',
-            ),
-            glasses: StoreItem(
-              id: 'glasses_cool',
-              itemKey: 'glasses_cool',
-              category: StoreItemCategory.glasses,
-              name: AppLang.pick(lang,
-                  tr: 'Havalı gözlük',
-                  en: 'Cool glasses',
-                  de: 'Coole Brille',
-                  es: 'Gafas chulas'),
-              priceJeton: 0,
-              iconEmoji: '🕶️',
-              colorHex: '#7C4DFF',
-            ),
-          ),
+          // Giydirme kalkti: slaytta da Devi oldugu gibi duruyor.
+          // Olmayan bir ozelligi (sapka, gozluk) magazada gostermek
+          // indiren cocuga verilmis yanlis bir soz olurdu.
+          const Mascot(size: 220, mood: MascotMood.happy),
         ],
       ),
       lang: lang,

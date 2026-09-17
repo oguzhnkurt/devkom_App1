@@ -11,12 +11,10 @@ import 'login_screen.dart';
 import '../settings/settings_screen.dart';
 import '../../utils/app_localizations.dart';
 import 'package:intl/intl.dart';
-import '../../models/store_item_model.dart';
-import '../../services/store_service.dart';
 import '../../utils/nickname_generator.dart';
 import '../../utils/pro_gate.dart';
 import '../report/progress_report_screen.dart';
-import '../../widgets/character_stage.dart';
+import '../../widgets/mascot.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -33,8 +31,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isDeletingAccount = false;
 
   // Profilin en ustunde kullanicinin kusandigi karakter gorunuyor.
-  final StoreService _storeService = StoreService();
-  Map<StoreItemCategory, StoreItem> _equipped = {};
   bool _isSavingName = false;
 
   /// Takma ad alani. NOT: Bu controller bilerek State'e bagli.
@@ -54,7 +50,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _loadEquipped();
   }
 
   @override
@@ -65,15 +60,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _loadEquipped() async {
-    try {
-      final equipped = await _storeService.getAllEquipped();
-      if (!mounted) return;
-      setState(() => _equipped = equipped);
-    } catch (_) {
-      // Karakter yuklenemezse basliktaki avatar bas harfe duser.
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -293,10 +279,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  /// Kusanilan karakter, basligin en ustunde. Karakter yoksa bas harf rozeti.
+  /// Profil basligindaki avatar: MASKOT.
+  ///
+  /// Once burada kusanilmis karakter + sapka/gozluk/kolye/ayakkabi
+  /// ciziliyordu. Giydirme kalkti (tek maskot, 3B render), o yuzden
+  /// burada da Devi duruyor. Cocuk hicbir sey kusanmamissa eskiden
+  /// bas harfleri goruyordu; simdi herkes ayni arkadasi goruyor.
   Widget _buildCharacterAvatar(ThemeData theme, UserModel user) {
-    final character = _equipped[StoreItemCategory.character];
-
     return Container(
       width: 150,
       height: 150,
@@ -312,32 +301,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               offset: const Offset(0, 6)),
         ],
       ),
-      child: character == null
-          ? Center(
-              child: Text(
-                _getInitials(user.displayName),
-                style: theme.textTheme.headlineLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            )
-          : ClipOval(
-              child: OverflowBox(
-                maxWidth: 190,
-                maxHeight: 190,
-                child: CharacterStage(
-                  character: character,
-                  hat: _equipped[StoreItemCategory.hat],
-                  necklace: _equipped[StoreItemCategory.necklace],
-                  glasses: _equipped[StoreItemCategory.glasses],
-                  shoes: _equipped[StoreItemCategory.shoes],
-                  size: 150,
-                  interactive: false,
-                  accentColor: AppTheme.accentTeal,
-                ),
-              ),
-            ),
+      child: const Center(child: Mascot(size: 118, showShadow: false)),
     );
   }
 
@@ -1226,16 +1190,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  String _getInitials(String name) {
-    List<String> nameParts = name.trim().split(' ');
-    if (nameParts.isEmpty) return '?';
-
-    if (nameParts.length == 1) {
-      return nameParts[0][0].toUpperCase();
-    }
-
-    return (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
-  }
 
   String _formatDate(DateTime date) {
     final loc = AppLocalizations.of(context);

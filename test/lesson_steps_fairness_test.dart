@@ -94,7 +94,10 @@ void main() {
     }
     expect(src.contains('SoundService.playWrong'), isTrue,
         reason: 'Yanlis cevapta ses yok.');
-    expect(src.contains('SoundService.playCorrect'), isTrue,
+    // Ders sorularinin dogru sesi oyunlarinkinden AYRI: oyunlar
+    // sentezlenmis ton ailesini calarken sorular gercek kayiti caliyor
+    // (bkz. SoundService.playSoruDogru).
+    expect(src.contains('SoundService.playSoruDogru'), isTrue,
         reason: 'Dogru cevapta ses yok.');
   });
 

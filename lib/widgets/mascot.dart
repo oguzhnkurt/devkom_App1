@@ -2,15 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'package:provider/provider.dart';
-
-import '../providers/settings_provider.dart';
 import '../ui/motion.dart';
 import 'mascot_mood.dart';
-import 'mascot_species.dart';
 
 export 'mascot_mood.dart';
-export 'mascot_species.dart' show MascotSpecies, MascotAnchors, MascotSpec, mascotSpecs, specOf;
 
 /// Uygulamanın maskotu: **Devi**.
 ///
@@ -21,86 +16,47 @@ export 'mascot_species.dart' show MascotSpecies, MascotAnchors, MascotSpec, masc
 /// bu, uygulamanın bir "kimse"si olmaması demek. Devi, uygulamanın her
 /// yerinde aynı: karşılamada, derste, sonuç ekranında, mağazada.
 ///
-/// Adı "dev" kelimesinden geliyor — hem "developer" hem Türkçede "dev"
-/// (kocaman). Ufak tefek, dost canlısı bir dev.
+/// ÇİZİM DEĞİL, RENDER
+/// --------------------
+/// Devi önceden Dart'ta `CustomPainter` ile çiziliyordu ve beş ayrı tür
+/// (Puf, Mia, Bit, Kâşif, Bug) vardı; çocuk açılışta birini seçiyordu.
+/// O sistem kaldırıldı: artık tek bir karakter var ve o da satın alınmış
+/// bir 3B render (ticari lisanslı).
 ///
-/// TASARIM KURALLARI (araştırmaya dayalı, keyfi değil)
-/// ---------------------------------------------------
-/// * **Neşe ağızda, endişe kaşlarda.** Karikatür yüzlerde duygu tanıma
-///   çalışması (Tsinghua, Frontiers in Psychology 2021): mutluluk yalnızca
-///   ağızdan %96 doğrulukla tanınıyor (tam yüzde %97), ağız gizlenince
-///   %28'e düşüyor. Üzüntüyü ise kaşlar taşıyor. Bu yüzden küçük boyutta
-///   ilk feda edilecek şey gözler değil, detaylar; ağız eğrisi ve kaş
-///   açısı her boyutta okunur kalıyor.
-/// * **Silüet önce.** Duolingo'nun Duo'yu yeniden tasarlarken yazdığı
-///   şey: genel şekil çalışmıyorsa içindeki detaylar onu kurtaramaz.
-///   Devi'nin silüeti tek bir yuvarlak kafa + iki anten; 28 punto ile
-///   200 punto arasında aynı okunuyor.
-/// * **Sessiz varsayılan.** Sürekli oynayan bir maskot içerikle dikkat
-///   için yarışıyor (Frontiers 2025, n=112: sadece ajan koymak bilgi
-///   aktarımını DÜŞÜRÜYOR, geri bildirimi inceleme süresini 443 sn'den
-///   ~170 sn'ye indiriyor). Devi bu yüzden fon süsü değil: çocuk bir şey
-///   YAPTIĞINDA tepki veriyor.
-/// * **Suçluluk yok.** [MascotMood]'da üzgün ya da küsmüş bir hâl
-///   bilerek YOK. Duolingo'nun kendi A/B testi, koçun "gelişim
-///   zihniyeti" diliyle konuşmasının standart övgüye göre D14 tutmayı
-///   %7,2 artırdığını gösteriyor; suçluluk temelli maskot davranışının
-///   öğrenmeye yaradığına dair yayımlanmış bir kanıt ise yok. Ayrıca ICO
-///   Çocuklara Uygun Tasarım Kuralları'nın 5. maddesi (çocuğun iyilik
-///   hâline zarar veren veri kullanımı) ve 13. maddesi (dürtme
-///   teknikleri) bu tarafa bakıyor.
+/// Bunun bedeli dürüstçe şu: **render poz veremez.** Çizili karakterin
+/// altı ruh hâli yüzünden okunuyordu; render'ın tek bir pozu var. Bu
+/// yüzden ruh hâli artık YÜZDE değil HAREKETTE: sevinç daha yüksek bir
+/// zıplama, düşünme daha yavaş bir nefes. [MascotMood.cheering] anında
+/// —ders bitti, rozet geldi— altı saniyelik gerçek animasyon dönüyor.
+///
+/// SESSİZ VARSAYILAN
+/// ------------------
+/// Sürekli oynayan bir maskot içerikle dikkat için yarışıyor (Frontiers
+/// 2025, n=112: sadece ajan koymak bilgi aktarımını DÜŞÜRÜYOR). Bu
+/// yüzden normal hâlde tek kare PNG duruyor; animasyon yalnızca kutlama
+/// anında açılıyor. Batarya ve dikkat, ikisi de aynı kararla korunuyor.
+///
+/// SUÇLULUK YOK
+/// -------------
+/// [MascotMood]'da üzgün ya da küsmüş bir hâl bilerek YOK ve render de
+/// hep aynı neşeli ifadede. Duolingo'nun kendi A/B testi, koçun "gelişim
+/// zihniyeti" diliyle konuşmasının standart övgüye göre D14 tutmayı
+/// %7,2 artırdığını gösteriyor; suçluluk temelli maskot davranışının
+/// öğrenmeye yaradığına dair yayımlanmış bir kanıt ise yok.
 class Mascot extends StatefulWidget {
   const Mascot({
     super.key,
-    this.species,
     this.mood = MascotMood.idle,
     this.size = 96,
     this.color,
     this.onTap,
     this.showShadow = true,
-    this.hat,
-    this.glasses,
-    this.necklace,
-    this.shoes,
-    this.chestEmoji,
   });
-
-  /// Hangi karakter.
-  ///
-  /// VERİLMEZSE çocuğun seçtiği karakter kullanılıyor. Uygulamada
-  /// maskot düzinelerce yerde çiziliyor; tür her çağrıya elle
-  /// yazılsaydı biri unutulur ve çocuk bir ekranda Mia'yı, diğerinde
-  /// Puf'u görürdü. Tek yerden okumak bunu imkânsız kılıyor.
-  ///
-  /// Yalnızca SEÇİCİ gibi belirli bir karakteri göstermesi gereken
-  /// yerlerde elle veriliyor.
-  final MascotSpecies? species;
 
   final MascotMood mood;
   final double size;
 
-  /// Mağazadan alınan ekipmanlar. Emoji olarak veriliyor ve Devi'nin
-  /// gerçek geometrisine (bkz. [MascotAnchors]) göre yerleşiyor.
-  ///
-  /// Bunlar Devi'nin ÜSTÜNE giyiliyor — ayrı bir figüre değil. Mağaza
-  /// planı maskot üzerinden yürüdüğü için ikisinin tek bir karakter
-  /// olması şart: eskiden maskot ve giydirilen figür iki ayrı çizimdi,
-  /// yani çocuğun aldığı şapka maskotun kafasına hiç oturmuyordu.
-  final String? hat;
-  final String? glasses;
-  final String? necklace;
-  final String? shoes;
-
-  /// Göğüsteki küçük ekranda görünen simge.
-  ///
-  /// Mağazadaki "karakter" ürünleri (muz, robot, kedi...) artık Devi'nin
-  /// YERİNE geçmiyor — Devi'nin rengini değiştiriyor ve simgeleri onun
-  /// göğüs ekranında görünüyor. Böylece hem ürünler kimliğini koruyor
-  /// hem de uygulamanın tek bir maskotu oluyor.
-  final String? chestEmoji;
-
-  /// Gövde rengi. Ekranın vurgu rengini verirseniz maskot o sayfaya
-  /// ait gibi durur; vermezseniz karakterin kendi rengi kullanılıyor.
+  /// Gölgenin ve parıltının rengi. Verilmezse Devi'nin kendi turuncusu.
   final Color? color;
 
   /// Dokununca. Verilirse Devi dokunmaya küçük bir zıplamayla cevap
@@ -110,10 +66,18 @@ class Mascot extends StatefulWidget {
   final bool showShadow;
 
   /// Karakterin adı. Metinlerde geçtiği için tek yerden okunuyor.
-  static String nameOf(MascotSpecies s) => specOf(s).name;
+  static const String ad = 'Devi';
 
-  /// Açılıştaki karakter.
-  static const MascotSpecies defaultSpecies = MascotSpecies.puf;
+  /// Render'daki gövde turuncusu. Balon kenarlığı, gölge ve parıltı
+  /// bunu kullanıyor ki maskot içinde durduğu kutuya ait gibi olsun.
+  static const Color tone = Color(0xFFF2A33C);
+
+  /// Duran hâl. Her ekranda bu görünüyor.
+  static const String durgunGorsel = 'assets/maskot/devi.png';
+
+  /// Kutlama animasyonu (saydam, döngülü WebP). Yalnızca
+  /// [MascotMood.cheering] anında.
+  static const String kutlamaGorseli = 'assets/maskot/devi_kutlama.webp';
 
   @override
   State<Mascot> createState() => _MascotState();
@@ -126,15 +90,6 @@ class _MascotState extends State<Mascot> with TickerProviderStateMixin {
   /// Dokunma tepkisi.
   late final AnimationController _poke;
 
-  /// Göz kırpma.
-  ///
-  /// NOT: burada zamanlayıcı YOK. Önceki sürüm `Future.delayed` ile kendini
-  /// tekrar çağırıyordu; bu zincir hiç bitmediği için Devi'yi içeren her
-  /// widget testi `pumpAndSettle`da ya da teardown'da takılıyordu. Kırpma
-  /// artık nefes denetleyicisinin fazından türetiliyor — ek bir zamanlayıcı
-  /// da, bitmeyen bir gelecek de yok.
-  late final AnimationController _blink;
-
   @override
   void initState() {
     super.initState();
@@ -143,40 +98,12 @@ class _MascotState extends State<Mascot> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 420),
     );
-    _blink = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 150),
-    );
-    _idle.addListener(_maybeBlink);
-  }
-
-  /// Nefesin bir turu tamamlanınca göz kırp.
-  ///
-  /// Her turda değil: `_blinkEvery` turda bir. Sabit ritim mekanik
-  /// duruyor, bu yüzden sayaç tek sayılarda da kırpıyor.
-  static const int _blinkEvery = 2;
-  int _breathCycles = 0;
-  bool _wasHigh = false;
-
-  void _maybeBlink() {
-    final high = _idle.value > 0.92;
-    if (high && !_wasHigh) {
-      _breathCycles++;
-      if (_breathCycles % _blinkEvery == 0 &&
-          widget.mood != MascotMood.happy &&
-          widget.mood != MascotMood.cheering &&
-          !_blink.isAnimating) {
-        _blink.forward(from: 0).then((_) {
-          if (mounted) _blink.reverse();
-        });
-      }
-    }
-    _wasHigh = high;
   }
 
   Duration get _idleDuration => switch (widget.mood) {
         MascotMood.cheering => const Duration(milliseconds: 520),
         MascotMood.happy => const Duration(milliseconds: 900),
+        MascotMood.thinking => const Duration(milliseconds: 3200),
         _ => const Duration(milliseconds: 2400),
       };
 
@@ -195,6 +122,9 @@ class _MascotState extends State<Mascot> with TickerProviderStateMixin {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _applyMotion();
+    // Kutlama görseli büyük; ders biterken ilk kez yüklenmesin diye
+    // önceden hazırlanıyor.
+    precacheImage(const AssetImage(Mascot.kutlamaGorseli), context);
   }
 
   void _applyMotion() {
@@ -202,15 +132,10 @@ class _MascotState extends State<Mascot> with TickerProviderStateMixin {
     //
     // Kullanıcı yazarken her tuşta metin alanı yeniden çiziliyor;
     // arkada saniyede 60 kez dönen bir animasyon varken bu, yazmanın
-    // takılması olarak hissediliyor. Takma ad düzenleme alt sayfası
-    // tam olarak böyle bir yer: sayfa altta kalıyor, Devi nefes almaya
-    // devam ediyor, çocuk adını düzenlemeye çalışıyor.
-    //
-    // Nefes almanın durduğu fark edilmiyor; takılma ediliyor.
+    // takılması olarak hissediliyor.
     final typing = MediaQuery.viewInsetsOf(context).bottom > 0;
     if (Motion.reduced(context) || typing) {
       _idle.stop();
-      _blink.stop();
       return;
     }
     if (!_idle.isAnimating) _idle.repeat(reverse: true);
@@ -218,10 +143,8 @@ class _MascotState extends State<Mascot> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _idle.removeListener(_maybeBlink);
     _idle.dispose();
     _poke.dispose();
-    _blink.dispose();
     super.dispose();
   }
 
@@ -231,178 +154,101 @@ class _MascotState extends State<Mascot> with TickerProviderStateMixin {
     widget.onTap!();
   }
 
-  /// Çizilecek tür: elle verildiyse o, verilmediyse çocuğun seçimi.
-  ///
-  /// SettingsProvider bulunmayan bir ağaçta (bazı widget testleri)
-  /// çağrılabildiği için erişim korumalı: sağlayıcı yoksa açılıştaki
-  /// karaktere düşüyoruz, ekran boş kalmıyor.
-  MascotSpecies get _species {
-    if (widget.species != null) return widget.species!;
-    try {
-      return context.watch<SettingsProvider>().mascot;
-    } on ProviderNotFoundException {
-      return Mascot.defaultSpecies;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final reduced = Motion.reduced(context);
+    final tone = widget.color ?? Mascot.tone;
 
     return Semantics(
-      label: '${Mascot.nameOf(_species)} — ${_moodLabel(widget.mood)}',
+      label: '${Mascot.ad} — ${_moodLabel(widget.mood)}',
       button: widget.onTap != null,
+      image: true,
       child: GestureDetector(
         onTap: widget.onTap == null ? null : _handleTap,
         behavior: HitTestBehavior.opaque,
         // KENDİ KATMANINDA ÇİZİLİYOR.
         //
-        // Devi hiç durmadan nefes alıyor. Sınır konmadığında bu, her
-        // karede Devi'nin BULUNDUĞU KATMANIN TAMAMININ yeniden
-        // çizilmesi demek — profil ekranında arkadaki kartlar, karşılama
-        // ekranında başlık ve bloklar dahil. Alt sayfa (takma ad
-        // düzenleme) açıkken sayfa altta kalıp animasyon devam ettiği
-        // için yazarken takılma olarak hissediliyordu.
+        // Devi hiç durmadan nefes alıyor. Sınır konmadığında bu, Devi'nin
+        // BULUNDUĞU KATMANIN TAMAMININ her karede yeniden çizilmesi
+        // demek — arkadaki kartlar, başlıklar, bloklar dahil.
         child: RepaintBoundary(
           child: AnimatedBuilder(
-          animation: Listenable.merge([_idle, _poke, _blink]),
-          builder: (context, _) {
-            // Zıplama: neşeli hâllerde yukarı, diğerlerinde nefes alma.
-            final breath = reduced ? 0.0 : Curves.easeInOut.transform(_idle.value);
-            final poke = reduced ? 0.0 : Curves.easeOut.transform(_poke.value);
-            final pokeBump = math.sin(poke * math.pi);
+            animation: Listenable.merge([_idle, _poke]),
+            builder: (context, child) {
+              final breath =
+                  reduced ? 0.0 : Curves.easeInOut.transform(_idle.value);
+              final poke = reduced ? 0.0 : Curves.easeOut.transform(_poke.value);
+              final pokeBump = math.sin(poke * math.pi);
 
-            final lift = switch (widget.mood) {
-              MascotMood.cheering => -breath * widget.size * 0.10,
-              MascotMood.happy => -breath * widget.size * 0.04,
-              _ => -breath * widget.size * 0.018,
-            };
-            final squash = switch (widget.mood) {
-              MascotMood.cheering => 1 + breath * 0.05,
-              _ => 1 + breath * 0.015,
-            };
+              final lift = switch (widget.mood) {
+                MascotMood.cheering => -breath * widget.size * 0.10,
+                MascotMood.happy => -breath * widget.size * 0.04,
+                _ => -breath * widget.size * 0.018,
+              };
+              final squash = switch (widget.mood) {
+                MascotMood.cheering => 1 + breath * 0.05,
+                _ => 1 + breath * 0.015,
+              };
 
-            return Transform.translate(
-              offset: Offset(0, lift - pokeBump * widget.size * 0.08),
-              child: Transform.scale(
-                scaleX: 1 / squash,
-                scaleY: squash * (1 + pokeBump * 0.06),
-                child: _dressed(reduced, breath),
-              ),
-            );
+              return Transform.translate(
+                offset: Offset(0, lift - pokeBump * widget.size * 0.08),
+                child: Transform.scale(
+                  scaleX: 1 / squash,
+                  scaleY: squash * (1 + pokeBump * 0.06),
+                  child: child,
+                ),
+              );
             },
+            child: _figur(tone),
           ),
         ),
       ),
     );
   }
 
-  /// Devi + üstündeki ekipmanlar.
-  ///
-  /// Ekipmanlar figürün İÇİNDE, aynı dönüşümün altında duruyor: Devi
-  /// nefes alırken ya da zıplarken şapkası da onunla hareket ediyor.
-  /// Dışarıda dursalardı kafa zıplayıp şapka yerinde kalırdı.
-  Widget _dressed(bool reduced, double breath) {
-    final w = widget.size;
-    final spec = specOf(_species);
-    final a = spec.anchors;
-    final h = w * a.stageHeight;
-
-    final figure = CustomPaint(
-      size: Size(w, h),
-      painter: mascotPainter(
-        species: _species,
-        mood: widget.mood,
-        color: widget.color ?? spec.defaultColor,
-        blink: reduced ? 0 : _blink.value,
-        breath: breath,
-        shadow: widget.showShadow,
+  /// Gövde: kutlamada animasyon, diğer hâllerde tek kare.
+  Widget _figur(Color tone) {
+    final kutlama =
+        widget.mood == MascotMood.cheering && !Motion.reduced(context);
+    final gorsel = Image.asset(
+      kutlama ? Mascot.kutlamaGorseli : Mascot.durgunGorsel,
+      width: widget.size,
+      height: widget.size,
+      fit: BoxFit.contain,
+      // Filtre kalitesi: maskot 40 px'e kadar küçülüyor ve varsayılan
+      // düşük kaliteli ölçekleme metal kenarlarda testere dişi yapıyor.
+      filterQuality: FilterQuality.medium,
+      gaplessPlayback: true,
+      excludeFromSemantics: true,
+      errorBuilder: (context, _, __) => Icon(
+        Icons.smart_toy_rounded,
+        size: widget.size * 0.7,
+        color: tone,
       ),
     );
 
-    final hasGear = widget.hat != null ||
-        widget.glasses != null ||
-        widget.necklace != null ||
-        widget.shoes != null ||
-        (widget.chestEmoji?.isNotEmpty ?? false);
-    if (!hasGear) return figure;
-
-    /// Bir emojiyi MERKEZİ verilen çıpaya gelecek şekilde koyar.
-    ///
-    /// Emojinin ÜST kenarını hizalamak işe yaramıyor: emoji glifinin
-    /// satır kutusu yazı tipine göre değişiyor, yani aynı `top` değeri
-    /// bir cihazda gözün üstüne, başka bir cihazda alnın ortasına
-    /// düşüyor. Sabit yükseklikte bir kutunun içine ortalayınca konum
-    /// yazı tipinden bağımsız oluyor.
-    Widget at(double centerY, String emoji, double scale) {
-      final box = w * scale * 1.4;
-      return Positioned(
-        top: w * centerY - box / 2,
-        left: 0,
-        right: 0,
-        height: box,
-        child: Center(
-          child: Text(
-            emoji,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: w * scale, height: 1.0),
-          ),
-        ),
-      );
-    }
+    if (!widget.showShadow) return gorsel;
 
     return SizedBox(
-      width: w,
-      height: h,
+      width: widget.size,
+      height: widget.size,
       child: Stack(
-        clipBehavior: Clip.none,
+        alignment: Alignment.center,
         children: [
-          Positioned.fill(child: figure),
-
-          // Göğüs ekranındaki simge.
-          //
-          // Painter'ın içinde TextPainter ile çizilmiyor — TextPainter
-          // temanın yazı tipini ve platformun emoji yedeğini ALMIYOR,
-          // yani emoji bazı cihazlarda boş kare çıkıyordu. Widget olarak
-          // çizilince normal metin yolundan geçiyor.
-          if (widget.chestEmoji?.isNotEmpty ?? false)
-            at(a.chestY, widget.chestEmoji!, 0.105),
-
-          // Kolye — göğsün üst kısmı, boynun hemen altı.
-          if (widget.necklace != null)
-            at(a.necklaceY, widget.necklace!, 0.13),
-
-          // Ayakkabılar — iki ayak ayrı ayrı.
-          if (widget.shoes != null)
-            Positioned(
-              top: w * a.feetY - w * 0.08,
-              left: 0,
-              right: 0,
-              height: w * 0.16,
-              child: Center(
-                child: SizedBox(
-                  width: w * 0.34,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(widget.shoes!,
-                          style: TextStyle(fontSize: w * 0.115)),
-                      Text(widget.shoes!,
-                          style: TextStyle(fontSize: w * 0.115)),
-                    ],
-                  ),
-                ),
+          // Zemin gölgesi: figür havada duruyor, gölge onu bir yere
+          // oturtuyor. Render'ın kendi gölgesi yok (saydam arka plan).
+          Positioned(
+            bottom: widget.size * 0.06,
+            child: Container(
+              width: widget.size * 0.42,
+              height: widget.size * 0.07,
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.13),
+                borderRadius: BorderRadius.circular(widget.size),
               ),
             ),
-
-          // Gözlük — tam göz hizası.
-          if (widget.glasses != null)
-            at(a.eyeLineY, widget.glasses!, 0.175),
-
-          // Şapka — kafanın tepesine oturuyor ama antenlerin ucunu
-          // KAPATMIYOR: antenler Devi'nin silüetinin imzası, şapka onları
-          // yutarsa karakter tanınmaz oluyor.
-          if (widget.hat != null) at(a.hatY, widget.hat!, 0.21),
+          ),
+          gorsel,
         ],
       ),
     );
@@ -445,15 +291,7 @@ class MascotSays extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Balonun kenarlığı ve gölgesi maskotun rengiyle uyumlu. Renk
-    // verilmediyse çocuğun seçtiği karakterin kendi rengi kullanılıyor.
-    MascotSpecies species;
-    try {
-      species = context.watch<SettingsProvider>().mascot;
-    } on ProviderNotFoundException {
-      species = Mascot.defaultSpecies;
-    }
-    final tone = color ?? specOf(species).defaultColor;
+    final tone = color ?? Mascot.tone;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

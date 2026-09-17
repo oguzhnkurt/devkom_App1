@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../theme.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
@@ -33,6 +34,7 @@ import '../widgets/code_hero_background.dart';
 import '../utils/lang.dart';
 import '../utils/pro_gate.dart';
 import 'subscription_screen.dart';
+import '../ui/kod_akintisi.dart';
 
 /// Unified Home Screen - Minimal, modern dashboard for all ages
 class UnifiedHomeScreen extends StatefulWidget {
@@ -529,7 +531,6 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
   Widget _buildFirstRun(NextStep next, bool isDark) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
@@ -545,7 +546,14 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
           ),
         ],
       ),
-      child: Column(
+      // Duz turuncu bir dikdortgen ucuz duruyordu: gozun tutunacagi
+      // hicbir sey yok. Arkada cok soluk kod simgeleri suzuluyor —
+      // kart artik bir YUZEY, boyali bir kutu degil.
+      child: KodAkintisi(
+        kose: 24,
+        child: Padding(
+        padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(next.course.icon, style: const TextStyle(fontSize: 40)),
@@ -582,6 +590,8 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
             onPressed: () => _openLesson(next),
           ),
         ],
+        ),
+        ),
       ),
     );
   }
@@ -591,7 +601,6 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
     final color = next.course.primaryColor;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
         borderRadius: BorderRadius.circular(22),
@@ -604,7 +613,16 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
           ),
         ],
       ),
-      child: Column(
+      // Beyaz kartta simgeler dersin kendi renginde ve daha da soluk:
+      // beyaz uzerine beyaz gorunmez, ve acik zeminde ayni opaklik
+      // koyu zemindekinden daha baskin durur.
+      child: KodAkintisi(
+        kose: 22,
+        renk: color,
+        opaklik: 0.055,
+        child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -664,6 +682,8 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
             onPressed: () => _openLesson(next),
           ),
         ],
+        ),
+        ),
       ),
     );
   }
@@ -787,9 +807,32 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
           size: 17);
     }
 
+    // NOKTALAR ARTIK TIKLANABILIR.
+    //
+    // Serit bir OYNAT isareti tasiyordu ama hicbir seye goturmuyordu:
+    // cocuk basiyor, hicbir sey olmuyordu. Ekranda oynat ucgeni gorup
+    // dokunan cocuk icin bu bir kusur — isaret bir soz veriyor.
+    // Ileri dersler de aciliyor; serit KILIT degil, onizleme.
     return Tooltip(
       message: node.lesson.titleFor(_lang),
-      child: AnimatedContainer(
+      child: Semantics(
+        button: true,
+        label: node.lesson.titleFor(_lang),
+        child: InkWell(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => InteractiveLessonScreen(
+                  course: node.course,
+                  lesson: node.lesson,
+                ),
+              ),
+            );
+          },
+          customBorder: const CircleBorder(),
+          child: AnimatedContainer(
         duration: Motion.medium2,
         curve: Motion.emphasized,
         width: size,
@@ -808,7 +851,9 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                 ]
               : null,
         ),
-        child: child,
+            child: child,
+          ),
+        ),
       ),
     );
   }

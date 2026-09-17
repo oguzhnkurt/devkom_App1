@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/lang.dart';
 
 import '../services/sound_service.dart';
-import '../widgets/mascot_species.dart';
+import '../widgets/mascot.dart';
 
 class SettingsProvider extends ChangeNotifier {
   // Language/Locale
@@ -30,12 +30,9 @@ class SettingsProvider extends ChangeNotifier {
   // Onboarding
   bool _hasSeenOnboarding = false;
 
-  /// Seçili maskot. Açılışta Puf; çocuk mağazadan değiştirebiliyor.
-  MascotSpecies _mascot = MascotSpecies.puf;
-
   /// Çocuğun maskota verdiği ad.
   ///
-  /// Boşsa karakterin kendi adı (Puf, Mia, ...) kullanılıyor. Kurulumda
+  /// Boşsa karakterin kendi adı (Devi) kullanılıyor. Kurulumda
   /// çocuğa "ona ne ad koyalım?" diye soruluyor: adını kendi koyduğu bir
   /// karakter, kendisine verilen bir karakterden başka bir şey.
   String _mascotName = '';
@@ -50,11 +47,9 @@ class SettingsProvider extends ChangeNotifier {
   bool get highContrastMode => _highContrastMode;
   bool get shareDataForImprovement => _shareDataForImprovement;
   bool get hasSeenOnboarding => _hasSeenOnboarding;
-  MascotSpecies get mascot => _mascot;
-
   /// Maskotun adı; çocuk ad vermediyse karakterin kendi adı.
   String get mascotName =>
-      _mascotName.trim().isEmpty ? specOf(_mascot).name : _mascotName.trim();
+      _mascotName.trim().isEmpty ? Mascot.ad : _mascotName.trim();
 
   /// Çocuk maskota kendi bir ad verdi mi?
   bool get hasCustomMascotName => _mascotName.trim().isNotEmpty;
@@ -125,13 +120,9 @@ class SettingsProvider extends ChangeNotifier {
     // Load onboarding
     _hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
 
-    // Seçili maskot. Kayıtlı ad tanınmazsa (eski sürümden kalmış ya da
-    // elle bozulmuş) sessizce açılıştaki karaktere düşüyoruz.
-    final savedMascot = prefs.getString('mascot_species');
-    _mascot = MascotSpecies.values.firstWhere(
-      (m) => m.name == savedMascot,
-      orElse: () => MascotSpecies.puf,
-    );
+    // KARAKTER SECIMI KALKTI: tek maskot var (Devi). Eski kurulumlarda
+    // kalan `mascot_species` anahtari artik okunmuyor; cocugun maskota
+    // verdigi AD ise duruyor, cunku onu kendisi koydu.
     _mascotName = prefs.getString('mascot_name') ?? '';
 
     notifyListeners();
@@ -150,14 +141,6 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Maskotu değiştir.
-  Future<void> setMascot(MascotSpecies species) async {
-    if (_mascot == species) return;
-    _mascot = species;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('mascot_species', species.name);
-    notifyListeners();
-  }
 
   /// Maskota ad ver. Boş verilirse karakterin kendi adına dönülüyor.
   Future<void> setMascotName(String name) async {

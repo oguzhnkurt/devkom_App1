@@ -20,6 +20,7 @@ import '../../../ui/answer_feedback.dart';
 import '../../../ui/motion.dart';
 import '../../../ui/appear_in.dart';
 import '../../../ui/press_button.dart';
+import 'calisma_izi.dart';
 
 /// Current app language code ('tr' | 'en') for lesson content.
 /// Listens so that switching the language rebuilds lesson content in place.
@@ -772,7 +773,16 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
       _answered = true;
     });
 
-    HapticFeedback.mediumImpact();
+    // DOGRU CEVAPTA SES YOKTU.
+    //
+    // Coktan secmeli adim yalnizca titresim veriyordu; dogru ve yanlis
+    // cevap ayni his. Ders sorularinin sesi oyunlarinkinden ayri
+    // (bkz. SoundService.playSoruDogru).
+    if (_isCorrect) {
+      SoundService.playSoruDogru();
+    } else {
+      HapticFeedback.mediumImpact();
+    }
 
     Future.delayed(const Duration(milliseconds: 500), () {
       widget.onComplete(_isCorrect);
@@ -1051,7 +1061,7 @@ class _DragDropStepWidgetState extends State<DragDropStepWidget> {
 
     if (allCorrect) {
       HapticFeedback.heavyImpact();
-      SoundService.playCorrect();
+      SoundService.playSoruDogru();
       Future.delayed(const Duration(milliseconds: 500), () {
         widget.onComplete(true);
       });
@@ -1346,11 +1356,28 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
   /// Dizi TAMAM ama sirasi yanlis. Yalnizca bu durumda uyari gosteriliyor;
   /// yarim dizide cocugu erken uyarmanin anlami yok.
   bool _yanlisDizi = false;
+
+  /// Bastan kacinci bloga kadar dogru dizilmis.
+  ///
+  /// Tek bir "sira yanlis" cumlesi cocuga NEREYE bakacagini soylemiyordu;
+  /// dort blokluk bir dizide bu, blok yerlerini rastgele degistirmekten
+  /// farksiz. Bu sayi ise cevabi ELE VERMIYOR — yalnizca "ilk iki blok
+  /// yerinde, ucuncuye bir daha bak" demeyi mumkun kiliyor.
+  int _dogruOnEk = 0;
   bool _showAnimation = false;
+
+  /// Calisma izi ekranda mi.
+  ///
+  /// Kodu calistirmak ODUL DEGIL OGRENME ARACIDIR: yanlis kod da calisir
+  /// ve yanlis sonuc verir; ogretici olan da budur. Bu yuzden iz, dogru
+  /// cevap beklemeden her an acilabiliyor.
+  bool _izGoster = false;
 
   void _addBlock(ScratchBlock block) {
     setState(() {
       _placedBlocks.add(block.id);
+      _izGoster = false;
+      _showAnimation = false;
     });
     HapticFeedback.lightImpact();
     _checkAnswer();
@@ -1361,6 +1388,8 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
       _placedBlocks.removeAt(index);
       _completed = false;
       _yanlisDizi = false;
+      _izGoster = false;
+      _showAnimation = false;
     });
   }
 
@@ -1373,13 +1402,12 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
       return;
     }
 
-    bool correct = true;
-    for (int i = 0; i < _placedBlocks.length; i++) {
-      if (_placedBlocks[i] != widget.step.correctSequence[i]) {
-        correct = false;
-        break;
-      }
+    var onEk = 0;
+    while (onEk < _placedBlocks.length &&
+        _placedBlocks[onEk] == widget.step.correctSequence[onEk]) {
+      onEk++;
     }
+    final correct = onEk == _placedBlocks.length;
 
     // TAM AMA YANLIS DIZIDE ARTIK GERI BILDIRIM VAR.
     //
@@ -1389,17 +1417,23 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
     // hicbir sey ogretmiyor.
     setState(() {
       _yanlisDizi = !correct;
+      _dogruOnEk = onEk;
       if (correct) {
         _completed = true;
         HapticFeedback.heavyImpact();
       }
     });
     if (correct) {
-      SoundService.playCorrect();
+      SoundService.playSoruDogru();
     } else {
       SoundService.playWrong();
     }
   }
+
+  /// Kod alanindaki kimlikleri bloklarin kendisine cevirir.
+  List<ScratchBlock> _kodBloklari() => _placedBlocks
+      .map((id) => widget.step.availableBlocks.firstWhere((b) => b.id == id))
+      .toList();
 
   @override
   Widget build(BuildContext context) {
@@ -1511,12 +1545,20 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    lessonText(
-                        lang,
-                        'Blok sayisi dogru ama sira yanlis. Sirayi bir daha dusun.',
-                        'The right number of blocks, but the order is wrong. Think about the order again.',
-                        'Die Anzahl der Blöcke stimmt, aber die Reihenfolge nicht. Denk noch mal darüber nach.',
-                        'El número de bloques es correcto, pero el orden no. Piensa otra vez en el orden.'),
+                    // NEREYE bakacagini soyluyor, CEVABI soylemiyor.
+                    _dogruOnEk == 0
+                        ? lessonText(
+                            lang,
+                            'Daha ilk bloktan sıra bozuluyor. En baştan bir daha düşün.',
+                            'The order goes wrong at the very first block. Think again from the start.',
+                            'Schon der erste Block steht falsch. Denk noch mal von vorne.',
+                            'El orden falla desde el primer bloque. Piénsalo otra vez desde el principio.')
+                        : lessonText(
+                            lang,
+                            'İlk $_dogruOnEk blok yerinde. ${_dogruOnEk + 1}. bloğa bir daha bak.',
+                            'The first $_dogruOnEk blocks are in place. Look at block ${_dogruOnEk + 1} again.',
+                            'Die ersten $_dogruOnEk Blöcke sitzen richtig. Schau dir Block ${_dogruOnEk + 1} noch einmal an.',
+                            'Los primeros $_dogruOnEk bloques están bien. Mira otra vez el bloque ${_dogruOnEk + 1}.'),
                     style: const TextStyle(
                       color: Colors.orange,
                       fontWeight: FontWeight.w600,
@@ -1526,6 +1568,40 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
               ],
             ),
           ),
+        ],
+
+        // CALISTIRMA TUSU ARTIK HER ZAMAN BURADA.
+        //
+        // Eskiden bu tus `if (_completed)` blogunun icindeydi: cocuk
+        // ancak DOGRU cevabi bulduktan sonra kodunu calistirabiliyordu.
+        // Yani kendi yanlis kodunun ne yaptigini hicbir zaman goremiyor,
+        // sadece dogru sirayi arayip buluyordu. Simdi tek blok koysa
+        // bile calistirip sonucu gorebiliyor.
+        if (_placedBlocks.isNotEmpty) ...[
+          SizedBox(height: ara),
+          ElevatedButton.icon(
+            onPressed: () {
+              setState(() {
+                _izGoster = true;
+                _showAnimation = _completed;
+              });
+            },
+            icon: const Icon(Icons.play_arrow),
+            label: Text(lessonText(lang, 'KODU ÇALIŞTIR', 'RUN THE CODE',
+                'CODE AUSFÜHREN', 'EJECUTAR EL CÓDIGO')),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              minimumSize: const Size.fromHeight(48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          if (_izGoster) ...[
+            const SizedBox(height: 12),
+            CalismaIzi(bloklar: _kodBloklari(), lang: lang),
+          ],
         ],
 
         // Success indicator
@@ -1573,48 +1649,22 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
               ),
             ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              if (!_showAnimation)
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _showAnimation = true;
-                      });
-                    },
-                    icon: const Icon(Icons.play_arrow),
-                    label: Text(lessonText(lang, 'KODU ÇALIŞTIR', 'RUN THE CODE', 'CODE AUSFÜHREN', 'EJECUTAR EL CÓDIGO')),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                ),
-              if (_showAnimation) const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => widget.onComplete(true),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: widget.course.primaryColor,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    lessonText(lang, 'DEVAM', 'CONTINUE', 'WEITER', 'CONTINUAR'),
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
+          // Calistirma tusu yukari tasindi; burada yalnizca DEVAM kaldi.
+          ElevatedButton(
+            onPressed: () => widget.onComplete(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: widget.course.primaryColor,
+              foregroundColor: Colors.white,
+              minimumSize: const Size.fromHeight(48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-            ],
+            ),
+            child: Text(
+              lessonText(lang, 'DEVAM', 'CONTINUE', 'WEITER', 'CONTINUAR'),
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
 
@@ -1837,6 +1887,11 @@ class _OrderingStepWidgetState extends State<OrderingStepWidget> {
       if (!ok) _wrongTick++;
     });
     AnswerFeedbackBar.haptic(_result!);
+    if (ok) {
+      SoundService.playSoruDogru();
+    } else {
+      SoundService.playWrong();
+    }
   }
 
   void _retry() {
@@ -2133,7 +2188,7 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
     if (allCorrect) {
       setState(() => _completed = true);
       HapticFeedback.heavyImpact();
-      SoundService.playCorrect();
+      SoundService.playSoruDogru();
       Future.delayed(const Duration(milliseconds: 500), () {
         widget.onComplete(true);
       });
@@ -3887,7 +3942,11 @@ class _CodeCompleteStepWidgetState extends State<CodeCompleteStepWidget> {
             onPressed: _allFilled
                 ? () {
                     setState(() => _answered = true);
-                    HapticFeedback.mediumImpact();
+                    if (_allRight) {
+                      SoundService.playSoruDogru();
+                    } else {
+                      SoundService.playWrong();
+                    }
                   }
                 : null,
           )
@@ -3962,7 +4021,11 @@ class _TypeCodeStepWidgetState extends State<TypeCodeStepWidget> {
       _answered = true;
       _correct = ok;
     });
-    HapticFeedback.mediumImpact();
+    if (ok) {
+      SoundService.playSoruDogru();
+    } else {
+      SoundService.playWrong();
+    }
   }
 
   @override
@@ -4171,7 +4234,13 @@ class _SpotErrorStepWidgetState extends State<SpotErrorStepWidget> {
                 onTap: _answered
                     ? null
                     : () {
-                        HapticFeedback.mediumImpact();
+                        // Hatali satiri bulmak da bir soru: dogru satira
+                        // dokunmak ayni sesi veriyor.
+                        if (lineNo == widget.step.errorLine) {
+                          SoundService.playSoruDogru();
+                        } else {
+                          SoundService.playWrong();
+                        }
                         setState(() => _picked = lineNo);
                       },
                 behavior: HitTestBehavior.opaque,

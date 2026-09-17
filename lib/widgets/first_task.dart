@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../utils/lang.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-
-import '../providers/settings_provider.dart';
 
 import '../courses/models/interactive_lesson_model.dart';
 import '../ui/motion.dart';
 import 'mascot.dart';
 import 'scratch_block_widget.dart';
+import '../services/sound_service.dart';
 
 /// Karşılamanın ilk ekranındaki GERÇEK görev.
 ///
@@ -126,7 +124,11 @@ class _FirstTaskState extends State<FirstTask>
       _hovering = false;
       _tries++;
     });
-    HapticFeedback.mediumImpact();
+    // UYGULAMADAKI ILK BASARI.
+    //
+    // Buraya kadar hicbir ses yoktu: cocuk ilk isini bitiriyor ve
+    // ekrandan tek duydugu sey titresimdi. Bu ses bir kere duyuluyor.
+    SoundService.playIlkBasari();
     if (!Motion.reduced(context)) _celebrate.forward(from: 0);
     // Kutlamanın görülmesi için kısa bir bekleme; hemen sayfa
     // değiştirmek çocuğun başardığını görmesine izin vermiyor.
@@ -145,15 +147,8 @@ class _FirstTaskState extends State<FirstTask>
 
   @override
   Widget build(BuildContext context) {
-    // Sağlayıcı olmayan bir ağaçta da çizilebilmeli (ekran görüntüsü
-    // aracı böyle çağırıyor); yoksa açılıştaki karakterin adı.
-    MascotSpecies species;
-    try {
-      species = context.watch<SettingsProvider>().mascot;
-    } on ProviderNotFoundException {
-      species = Mascot.defaultSpecies;
-    }
-    final mascotName = Mascot.nameOf(species);
+    // Tek maskot: karakter secimi kalkti, ad da sabit.
+    const mascotName = Mascot.ad;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 // Devi (maskot) ve yerleştirme kuralları.
 //
 // Buradaki testlerin çoğu "çizim doğru mu" değil, "çocuğa ne
@@ -11,11 +13,9 @@ import 'package:devkom_app/models/learner_profile.dart';
 import 'package:devkom_app/services/placement_service.dart';
 import 'package:devkom_app/widgets/mascot.dart';
 import 'package:devkom_app/widgets/first_task.dart';
-import 'package:devkom_app/widgets/character_stage.dart';
-import 'package:devkom_app/models/store_item_model.dart';
 
 void main() {
-  _characterUnityTests();
+  _tekMaskotTestleri();
   group('Devi', () {
     test('üzgün ya da kızgın bir hâli yok', () {
       // Suçluluk temelli maskot davranışının öğrenmeye yaradığına dair
@@ -200,143 +200,51 @@ void main() {
 /// maskotun kafasına oturmuyordu çünkü giydirilen "kişi" başkasıydı.
 /// Kıyafet planı maskot üzerinden yürüdüğü için bu, planın temelindeki
 /// çatlaktı.
-void _characterUnityTests() {
-  StoreItem item(String key, String emoji, String hex, StoreItemCategory c) =>
-      StoreItem(
-        id: key,
-        itemKey: key,
-        name: key,
-        iconEmoji: emoji,
-        colorHex: hex,
-        category: c,
-        priceJeton: 0,
-      );
-
-  testWidgets('mağaza sahnesi Devi çiziyor, ayrı bir figür değil',
-      (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: CharacterStage(size: 160, interactive: false),
-        ),
-      ),
-    ));
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(find.byType(Mascot), findsOneWidget,
-        reason: 'CharacterStage kendi figürünü çizmemeli, Devi\'yi '
-            'kullanmalı — yoksa iki ayrı karakter olur');
+/// TEK MASKOT.
+///
+/// Burada once "karakter birligi" testleri vardi: magaza sahnesinin
+/// ayri bir figur cizmedigini ve bes karakterin HEPSINDE sapka/gozluk
+/// cipalarinin dogru yerde oldugunu koruyorlardi. Karakter secimi ve
+/// giydirme kaldirildi (tek maskot artik 3B render), o yuzden korunacak
+/// sey de degisti: uygulamada tek bir maskot oldugu ve o maskotun
+/// gorselinin gercekten pakette bulundugu.
+void _tekMaskotTestleri() {
+  test('tek karakter var ve adi sabit', () {
+    expect(Mascot.ad, isNotEmpty);
+    // Tur secimi geri gelmis olmamali.
+    final kaynak =
+        File('lib/widgets/mascot.dart').readAsStringSync();
+    expect(kaynak.contains('MascotSpecies'), isFalse,
+        reason: 'Karakter turu geri gelmis.');
+    expect(kaynak.contains('specOf('), isFalse);
   });
 
-  // Ekipman cipalari BES KARAKTERIN HEPSINDE dogru olmali. Karakter
-  // secilebilir hale gelince bu testin tek bir figure bakmasi yetmez:
-  // magazadan alinan sapka Mia'da kafaya, Bug'da kabuga oturuyorsa
-  // cocuk parasini verdigi seyi yanlis yerde goruyor.
-  for (final species in MascotSpecies.values) {
-    final spec = specOf(species);
-    testWidgets('${spec.name}: ekipmanlar çıpalara oturuyor', (tester) async {
-      const size = 200.0;
+  test('maskot gorselleri pakette', () {
+    for (final yol in [Mascot.durgunGorsel, Mascot.kutlamaGorseli]) {
+      final f = File(yol);
+      expect(f.existsSync(), isTrue, reason: '$yol yok');
+      expect(f.lengthSync(), greaterThan(2000), reason: '$yol bos');
+    }
+    final pubspec = File('pubspec.yaml').readAsStringSync();
+    expect(pubspec.contains('assets/maskot/'), isTrue,
+        reason: 'Maskot klasoru pubspec ile paketlenmiyor — uygulamada '
+            'gorsel bulunamaz ve maskot yerine yedek ikon cikar.');
+  });
+
+  testWidgets('kutlama aninda animasyon, diger hallerde tek kare',
+      (tester) async {
+    for (final giris in {
+      MascotMood.idle: Mascot.durgunGorsel,
+      MascotMood.happy: Mascot.durgunGorsel,
+      MascotMood.cheering: Mascot.kutlamaGorseli,
+    }.entries) {
       await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: CharacterStage(
-              species: species,
-              size: size,
-              interactive: false,
-              hat: item('h', 'H', '#333', StoreItemCategory.hat),
-              glasses: item('g', 'G', '#333', StoreItemCategory.glasses),
-              necklace: item('n', 'N', '#333', StoreItemCategory.necklace),
-              shoes: item('s', 'S', '#333', StoreItemCategory.shoes),
-            ),
-          ),
-        ),
+        home: Scaffold(body: Center(child: Mascot(mood: giris.key))),
       ));
-      await tester.pump(const Duration(milliseconds: 300));
-
-      final stage = tester.getRect(find.byType(Mascot));
-      final a = spec.anchors;
-
-      /// Bir ekipmanın merkezinin, figürün üstünden kaç `size` birim
-      /// aşağıda olduğunu verir.
-      double centerYOf(String label) {
-        final r = tester.getRect(find.text(label).first);
-        return (r.center.dy - stage.top) / size;
-      }
-
-      expect(centerYOf('H'), closeTo(a.hatY, 0.02));
-      expect(centerYOf('G'), closeTo(a.eyeLineY, 0.02));
-      expect(centerYOf('N'), closeTo(a.necklaceY, 0.02));
-      expect(find.text('S'), findsNWidgets(2));
-      expect(centerYOf('S'), closeTo(a.feetY, 0.03));
-
-      // Sira dogru: sapka < gozluk < kolye < ayakkabi.
-      expect(centerYOf('H'), lessThan(centerYOf('G')));
-      expect(centerYOf('G'), lessThan(centerYOf('N')));
-      expect(centerYOf('N'), lessThan(centerYOf('S')));
-    });
-  }
-
-  testWidgets('karakter ürünü Devi\'nin yerine geçmiyor, rengini veriyor',
-      (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: CharacterStage(
-            size: 160,
-            interactive: false,
-            character:
-                item('devkom_x', '🍌', '#2E9E5B', StoreItemCategory.character),
-          ),
-        ),
-      ),
-    ));
-    await tester.pump(const Duration(milliseconds: 300));
-
-    // Hala tek bir Devi var.
-    expect(find.byType(Mascot), findsOneWidget);
-    final mascot = tester.widget<Mascot>(find.byType(Mascot));
-    // Urunun rengi Devi'nin govde rengi olmus.
-    expect(mascot.color, const Color(0xFF2E9E5B));
-    // Urunun simgesi gogus ekraninda.
-    expect(mascot.chestEmoji, '🍌');
-  });
-
-  test('çıpalar figürün içinde kalıyor', () {
-    // Cipalar her turun boyacisindaki geometriden turetildi; boyaci
-    // degisirse bu test ayrismayi yakalar.
-    for (final species in MascotSpecies.values) {
-      final spec = specOf(species);
-      final a = spec.anchors;
-      final why = spec.name;
-
-      expect(a.headTopY, greaterThanOrEqualTo(a.topY), reason: why);
-      expect(a.hatY, greaterThan(a.topY - 0.10),
-          reason: '$why: şapka silüetin tepesinden çok yukarıda');
-      expect(a.eyeLineY, greaterThan(a.headTopY), reason: why);
-      expect(a.eyeLineY, lessThan(a.bodyTopY), reason: why);
-      expect(a.necklaceY, greaterThan(a.bodyTopY), reason: why);
-      expect(a.chestY, greaterThan(a.necklaceY), reason: why);
-      expect(a.feetY, greaterThan(a.chestY), reason: why);
-      expect(a.feetY, lessThanOrEqualTo(a.stageHeight), reason: why);
+      await tester.pump(const Duration(milliseconds: 100));
+      final img = tester.widget<Image>(find.byType(Image).first);
+      expect((img.image as AssetImage).assetName, giris.value,
+          reason: '${giris.key} icin yanlis gorsel');
     }
-  });
-
-  test('her karakterin adı ve tanıtımı dört dilde var', () {
-    for (final species in MascotSpecies.values) {
-      final spec = specOf(species);
-      expect(spec.name.trim(), isNotEmpty);
-      for (final lang in ['tr', 'en', 'de', 'es']) {
-        expect(spec.taglineFor(lang).trim(), isNotEmpty,
-            reason: '${spec.name}: $lang tanıtımı boş');
-      }
-      // Almanca/ispanyolca tanitim turkcenin kopyasi olmamali.
-      for (final lang in ['de', 'es']) {
-        expect(RegExp(r'[ğĞıİşŞ]').hasMatch(spec.taglineFor(lang)), isFalse,
-            reason: '${spec.name}: $lang tanıtımı türkçe kalmış');
-      }
-    }
-  });
-
-  test('açılıştaki karakter Puf', () {
-    expect(Mascot.defaultSpecies, MascotSpecies.puf);
   });
 }

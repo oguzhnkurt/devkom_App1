@@ -12,6 +12,7 @@ import '../../core/service_locator.dart';
 import 'widgets/step_widgets.dart' show lessonLang;
 import '../../ui/press_button.dart';
 import '../../utils/lang.dart';
+import '../../services/sound_service.dart';
 
 /// Modul Quizi - gercek kullanicilarin gordugu InteractiveLesson/System B
 /// akisinda, bir modulun derslerinin icine gomulu MultipleChoiceStep
@@ -475,7 +476,10 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
       _isSubmitting = false;
     });
 
+    // Quiz bitti: odul sesi. Gecemeyen cocuk da bir ses duyuyor ama
+    // kutlama degil — ceza sesi de degil (bkz. playWrong).
     if (_score >= passingScore) {
+      SoundService.playOdul();
       _confettiController.play();
     }
   }

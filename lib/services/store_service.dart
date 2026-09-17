@@ -19,7 +19,13 @@ class StoreService {
         .eq('is_active', true)
         .order('category')
         .order('sort_order');
-    return (data as List).map((m) => StoreItem.fromMap(m)).toList();
+    // Giyilebilir urunler katalogdan cikti (tek maskot, render). Sunucu
+    // tarafinda da pasiflestirildi ama istemci eski bir veritabanina
+    // baglanirsa yine gostermesin.
+    return (data as List)
+        .map((m) => StoreItem.fromMap(m))
+        .where((i) => !kaldirilanKategoriler.contains(i.category))
+        .toList();
   }
 
   /// Kullanıcının sahip olduğu ürünleri (StoreItem ile birleşik) getirir.

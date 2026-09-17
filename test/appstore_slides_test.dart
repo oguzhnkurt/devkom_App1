@@ -47,9 +47,9 @@ void main() {
   test('karakter slayti elle yazilmis ad kullanmiyor', () {
     expect(arac.contains("Text('Devi'"), isFalse,
         reason: 'Slaytta eski maskot adi elle yazilmis.');
-    expect(arac.contains('_slideMascot.name'), isTrue,
-        reason: 'Slayttaki ad MascotSpec\'ten okunmali ki karakter '
-            'degisince slayt kendiliginden duzelsin.');
+    expect(arac.contains('Mascot.ad'), isTrue,
+        reason: 'Slayttaki ad tek yerden (Mascot.ad) okunmali ki '
+            'karakter degisince slayt kendiliginden duzelsin.');
   });
 
   test('yedi slayt, dogru sirada', () {
@@ -215,12 +215,15 @@ void main() {
     }
   });
 
-  test('slayttaki karakter uygulamanin acilis karakteri', () {
-    // Aractaki `_slideMascot` bu degerden turuyor; burada sadece
-    // acilis karakterinin hala tanimli oldugunu dogruluyoruz.
-    expect(Mascot.defaultSpecies, isNotNull);
-    expect(arac.contains('specOf(Mascot.defaultSpecies)'), isTrue,
-        reason: 'Slayt, acilis karakterini gostermeli — cocugun '
-            'uygulamayi ilk actiginda gordugu karakter o.');
+  test('slayttaki karakter uygulamadaki tek karakter', () {
+    // Uygulama bes karakterden TEK maskota dondu (Devi, 3B render).
+    // Magazada olmayan bir karakter ya da olmayan bir ozellik
+    // (sapka, gozluk) gostermek indiren cocuga verilmis yanlis bir soz.
+    expect(arac.contains('Mascot.ad'), isTrue,
+        reason: 'Slayt maskotun adini tek yerden okumali.');
+    expect(arac.contains('CharacterStage('), isFalse,
+        reason: 'Slayt hala giydirme sahnesini ciziyor.');
+    expect(arac.contains('StoreItemCategory.hat'), isFalse,
+        reason: 'Slaytta artik var olmayan sapka urunu gosteriliyor.');
   });
 }

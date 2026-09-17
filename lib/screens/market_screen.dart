@@ -8,8 +8,8 @@ import '../providers/auth_provider.dart';
 import '../config/ad_config.dart';
 import '../services/ads_service.dart';
 import '../services/store_service.dart';
-import '../widgets/character_stage.dart';
 import 'subscription_screen.dart';
+import '../widgets/mascot.dart';
 
 /// Market ekranı: dersler ve oyunlarla kazanılan jetonlarla robot kılıfı,
 /// avatar çerçevesi ve karakter satın alıp kuşanma (equip) ekranı.
@@ -30,7 +30,7 @@ class _MarketScreenState extends State<MarketScreen> {
   Set<String> _ownedItemIds = {};
   Set<String> _equippedItemIds = {};
   Map<StoreItemCategory, StoreItem> _equipped = {};
-  StoreItemCategory _selectedCategory = StoreItemCategory.robotSkin;
+  StoreItemCategory _selectedCategory = satilanKategoriler.first;
 
   // Karakter üzerinde "deneme" önizlemesi (satın almadan/kuşanmadan önce
   // nasıl görüneceğini gösterir, birkaç saniye sonra otomatik kapanır).
@@ -332,20 +332,15 @@ class _MarketScreenState extends State<MarketScreen> {
     );
   }
 
-  /// Marketi gezerken karakterin canlı onizlemesi - kuşandığın ürünleri
-  /// üstünde görürsün; bir ürüne dokununca (satın almadan/kuşanmadan
-  /// önce) o ürünü geçici olarak karakterin üzerinde "deneyebilirsin".
+  /// Marketin ustundeki maskot onizlemesi.
+  ///
+  /// Burada once giydirme sahnesi vardi: secilen urunu karakterin
+  /// uzerinde "deneyebiliyordun". Giyilebilir urunler katalogdan
+  /// kalkti (tek maskot artik 3B render, sapka giydirilemiyor), o
+  /// yuzden sahne de kalkti — Devi duruyor, altinda ne aldigini
+  /// soyleyen bir satir var.
   Widget _buildStagePreview() {
-    final character = _previewItem?.category == StoreItemCategory.character
-        ? _previewItem
-        : _equipped[StoreItemCategory.character];
-    final hat = _previewItem?.category == StoreItemCategory.hat ? _previewItem : _equipped[StoreItemCategory.hat];
-    final necklace =
-        _previewItem?.category == StoreItemCategory.necklace ? _previewItem : _equipped[StoreItemCategory.necklace];
-    final glasses =
-        _previewItem?.category == StoreItemCategory.glasses ? _previewItem : _equipped[StoreItemCategory.glasses];
-    final shoes = _previewItem?.category == StoreItemCategory.shoes ? _previewItem : _equipped[StoreItemCategory.shoes];
-    final accent = character != null ? CharacterStage.parseColorHex(character.colorHex) : const Color(0xFF6C3CE0);
+    const accent = Mascot.tone;
 
     return Container(
       width: double.infinity,
@@ -359,22 +354,16 @@ class _MarketScreenState extends State<MarketScreen> {
       ),
       child: Column(
         children: [
-          CharacterStage(
-            character: character,
-            hat: hat,
-            necklace: necklace,
-            glasses: glasses,
-            shoes: shoes,
-            size: 108,
-            accentColor: accent,
-            previewMode: _previewItem != null,
-          ),
+          const Mascot(size: 108, mood: MascotMood.happy),
           const SizedBox(height: 4),
           Text(
             _previewItem != null
-                ? '${_previewItem!.name} üzerinde nasıl duruyor?'
-                : 'Bir ürüne dokun, karakterinde dene!',
-            style: TextStyle(fontSize: 11, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+                ? _previewItem!.name
+                : 'Jetonlarınla ne alacaksın?',
+            style: TextStyle(
+                fontSize: 11,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -382,7 +371,7 @@ class _MarketScreenState extends State<MarketScreen> {
   }
 
   Widget _buildCategoryTabs() {
-    final categories = StoreItemCategory.values;
+    final categories = satilanKategoriler;
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),

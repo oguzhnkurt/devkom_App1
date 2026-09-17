@@ -54,13 +54,30 @@ void main() {
     expect(govde.contains('Este bucle está vacío'), isTrue);
   });
 
-  test('yanlis sira cevabi ele vermiyor', () {
-    // Uyari yalnizca "sira yanlis" diyor; dogru sirayi yazmiyor.
-    expect(govde.contains('correctSequence[i]'), isTrue);
-    final i = govde.indexOf('Blok sayisi dogru ama sira yanlis');
+  test('yanlis sira NEREYE bakilacagini soyluyor', () {
+    // Tek bir "sira yanlis" cumlesi cocuga nereye bakacagini
+    // soylemiyordu; dort blokluk bir dizide bu rastgele yer
+    // degistirmekten farksizdi.
+    expect(govde.contains('int _dogruOnEk = 0;'), isTrue);
+    expect(govde.contains('Blok sayisi dogru ama sira yanlis'), isFalse,
+        reason: 'Yine tek tip genel cumle donmus.');
+    for (final yazi in const [
+      'İlk \$_dogruOnEk blok yerinde',
+      'The first \$_dogruOnEk blocks are in place',
+      'Die ersten \$_dogruOnEk Blöcke sitzen richtig',
+      'Los primeros \$_dogruOnEk bloques están bien',
+    ]) {
+      expect(govde.contains(yazi), isTrue, reason: 'eksik: \$yazi');
+    }
+  });
+
+  test('yanlis sira uyarisi cevabi ele vermiyor', () {
+    // Uyari yalnizca "kacinci bloga bak" diyor; dogru sirayi yazmiyor.
+    final i = govde.indexOf('_dogruOnEk == 0');
     expect(i, greaterThan(0));
-    final blok = govde.substring(i, i + 400);
-    expect(blok.contains('correctSequence'), isFalse);
+    final blok = govde.substring(i, i + 1400);
+    expect(blok.contains('correctSequence'), isFalse,
+        reason: 'Uyari metni dogrudan cozumden okuyor — cevap ele veriliyor.');
   });
 
   test('bloklar birbirine degiyor', () {

@@ -10,6 +10,8 @@ import '../../models/game_model.dart';
 import '../../core/service_locator.dart';
 import 'widgets/step_widgets.dart' show lessonLangRead;
 import '../../utils/lang.dart';
+import '../../widgets/cikis_penceresi.dart';
+import '../../services/sound_service.dart';
 
 /// Quiz Screen - Interactive quiz experience
 class QuizScreen extends StatefulWidget {
@@ -689,7 +691,10 @@ class _QuizScreenState extends State<QuizScreen> {
       _isSubmitting = false;
     });
 
+    // Quiz bitti: odul sesi. Gecemeyen cocuk da bir ses duyuyor ama
+    // kutlama degil — ceza sesi de degil (bkz. playWrong).
     if (_score >= widget.quiz.passingScore) {
+      SoundService.playOdul();
       _confettiController.play();
     }
   }
@@ -1014,43 +1019,8 @@ class _QuizScreenState extends State<QuizScreen> {
     );
   }
 
-  void _showExitDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(AppLang.pick(_lang,
-            tr: 'Quizden çık',
-            en: 'Leave the quiz',
-            de: 'Quiz verlassen',
-            es: 'Salir del cuestionario')),
-        content: Text(AppLang.pick(_lang,
-            tr: 'İlerlemen kaydedilmeyecek. Çıkmak istediğine emin misin?',
-            en: "Your progress won't be saved. Are you sure you want to quit?",
-            de: 'Dein Fortschritt wird nicht gespeichert. Wirklich beenden?',
-            es: 'Tu progreso no se guardará. ¿Seguro que quieres salir?')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(AppLang.pick(_lang,
-                tr: 'İptal',
-                en: 'Cancel',
-                de: 'Abbrechen',
-                es: 'Cancelar')),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Exit quiz
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            child: Text(AppLang.pick(_lang,
-                tr: 'Çık', en: 'Quit', de: 'Beenden', es: 'Salir')),
-          ),
-        ],
-      ),
-    );
+  void _showExitDialog() async {
+    final cik = await CikisPenceresi.quizden(context, _lang);
+    if (cik && mounted) Navigator.pop(context);
   }
 }

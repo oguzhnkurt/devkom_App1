@@ -16,9 +16,6 @@ import '../../utils/lang.dart';
 import '../../services/placement_service.dart';
 import '../../widgets/first_task.dart';
 import '../../widgets/mascot.dart';
-import '../../widgets/mascot_mood.dart';
-import '../../widgets/mascot_species.dart';
-import '../character_screen.dart' show MascotPicker;
 
 /// Uygulamanın ilk açılışındaki kurulum akışı.
 ///
@@ -142,7 +139,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
   String get _mascotName {
     final yazilan = _mascotNameController.text.trim();
     if (yazilan.isNotEmpty) return yazilan;
-    return specOf(context.read<SettingsProvider>().mascot).name;
+    return Mascot.ad;
   }
 
   final GlobalKey<IntroCarouselState> _carouselKey =
@@ -254,7 +251,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
   /// yaradigini soylemek.
   Widget _hazirlamaEkrani() {
     final ad = _nameController.text.trim();
-    final renk = specOf(context.watch<SettingsProvider>().mascot).defaultColor;
+    final renk = Mascot.tone;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -331,32 +328,13 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
     const indigo = Color(0xFF3949AB);
 
     return [
-      // 0 — TANISMA. Once kim oldugunu secsin.
+      // KARAKTER SECIMI KALDIRILDI.
       //
-      // Akis eskiden dogrudan bir gorevle basliyordu. Karakter secimi
-      // one alindi cunku sonraki her ekranda o karakter konusuyor:
-      // once kiminle yola cikacagini secmeden, konusan bir maskot
-      // "uygulamanin maskotu" olarak kaliyor, "senin arkadasin"
-      // olmuyor. Bes karakter zaten var; kurulumda secilmemesi icin
-      // bir sebep yoktu.
-      IntroSlide(
-        eyebrow: _t('TANIŞALIM', 'SAY HELLO', 'HALLO SAGEN', 'DI HOLA'),
-        title: _t('Sana kim\neşlik etsin?', 'Who should\ncome along?',
-            'Wer soll dich\nbegleiten?', '¿Quién te\nacompaña?'),
-        subtitle: _t(
-          'Sonradan da değiştirebilirsin.',
-          'You can change this later.',
-          'Du kannst das später ändern.',
-          'Puedes cambiarlo más tarde.',
-        ),
-        accent: green,
-        art: _mascotArt(MascotMood.happy),
-        body: const Padding(
-          padding: EdgeInsets.only(top: 4),
-          child: MascotPicker(),
-        ),
-      ),
-
+      // Akis once "sana kim eslik etsin?" diye soruyor ve bes cizili
+      // karakteri gosteriyordu. Artik tek bir maskot var (Devi, 3B
+      // render) — secilecek bir sey yok, o yuzden soru da yok. Cocugun
+      // ona AD vermesi duruyor: adini kendi koydugu bir karakter,
+      // kendisine verilen bir karakterden baska bir sey.
       // 1 — Maskota ad ver.
       //
       // Adini kendi koydugu bir karakter, kendisine verilen bir
@@ -593,7 +571,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
   /// kullaniyor; ikisi ayni olsaydi maskota yazilan ad cocugun adini
   /// eziyordu.
   Widget _mascotNamePageBody() {
-    final tur = context.watch<SettingsProvider>().mascot;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -612,7 +590,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
           decoration: InputDecoration(
             // Ipucu olarak karakterin kendi adi duruyor: cocuk hicbir sey
             // yazmazsa da gecerli bir ad var, bos kalan bir alan yok.
-            hintText: specOf(tur).name,
+            hintText: Mascot.ad,
             counterText: '',
             filled: true,
             fillColor: const Color(0xFFF4F6F9),

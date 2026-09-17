@@ -89,9 +89,16 @@ class NextLessonService {
     int size = 5,
   }) {
     final path = LearningPathService.buildPath(profile);
+    // Dersin HANGI KURSA ait oldugu da tasiniyor: serit artik
+    // tiklanabilir ve dokunuldugunda dersi acmak icin kursu bilmek
+    // gerekiyor. Once yalnizca dersler toplaniyordu ve bu yuzden
+    // seritteki noktalar hicbir seye goturemiyordu.
     final lessons = <InteractiveLesson>[];
+    final kurslar = <Course>[];
     for (final course in path) {
-      lessons.addAll(CourseModules.allLessons(course.id));
+      final dersler = CourseModules.allLessons(course.id);
+      lessons.addAll(dersler);
+      kurslar.addAll(List<Course>.filled(dersler.length, course));
       if (lessons.length > 60) break; // Seridi hesaplamak icin bu fazlasiyla yeter.
     }
     if (lessons.isEmpty) return const [];
@@ -113,6 +120,7 @@ class NextLessonService {
     return [
       for (var i = start; i < end; i++)
         PathNode(
+          course: kurslar[i],
           lesson: lessons[i],
           done: completedLessonIds.contains(lessons[i].id),
           current: i == currentIndex,
@@ -124,10 +132,14 @@ class NextLessonService {
 /// Yol seridindeki tek nokta.
 class PathNode {
   const PathNode({
+    required this.course,
     required this.lesson,
     required this.done,
     required this.current,
   });
+
+  /// Dersin kursu. Serit noktasina dokununca ders bununla aciliyor.
+  final Course course;
 
   final InteractiveLesson lesson;
   final bool done;

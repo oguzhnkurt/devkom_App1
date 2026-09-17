@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/game_model.dart';
@@ -68,23 +69,34 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen> {
     // (`automaticallyImplyLeading`) rotayi soruyor, navigator'i degil:
     // itilmis bir rotada tusu koyuyor, sekme govdesinde koymuyor. Dogru
     // davranis zaten buydu; elle yazilan surumu kaldirdik.
+    // GERI TUSU GORUNMUYORDU. Baslik cubugu sayfanin zemin rengiyle
+    // (lightGray) AYNI renkteydi; koyu gri ok acik gri zeminin uzerinde
+    // yuzuyor, bir "dugme" gibi durmuyordu. Simdi cubuk sayfanin mor
+    // vurgusunu tasiyor ve ok beyaz.
+    const mor = Color(0xFF7E57C2);
     return AppBar(
-      title: const Text('Oyunlar'),
+      title: Text(AppLang.pick(_lang,
+          tr: 'Oyunlar', en: 'Games', de: 'Spiele', es: 'Juegos')),
       centerTitle: false,
-      backgroundColor: AppTheme.lightGray,
-      foregroundColor: AppTheme.darkGray,
+      backgroundColor: mor,
+      foregroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      scrolledUnderElevation: 1,
+      scrolledUnderElevation: 0,
+      systemOverlayStyle: SystemUiOverlayStyle.light,
       titleTextStyle: const TextStyle(
         fontFamily: AppTheme.fontFamily,
         fontSize: 22,
         fontWeight: FontWeight.w800,
-        color: AppTheme.darkGray,
+        color: Colors.white,
       ),
       actions: [
         IconButton(
-          tooltip: 'Oyun ara',
+          tooltip: AppLang.pick(_lang,
+              tr: 'Oyun ara',
+              en: 'Search games',
+              de: 'Spiele suchen',
+              es: 'Buscar juegos'),
           icon: Icon(_searchQuery.isEmpty
               ? Icons.search_rounded
               : Icons.search_off_rounded),

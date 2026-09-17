@@ -6,10 +6,10 @@ import '../providers/settings_provider.dart';
 import '../utils/lang.dart';
 import '../widgets/brand_mark.dart';
 import '../widgets/mascot.dart';
-import 'character_screen.dart';
 import 'leaderboard/leaderboard_screen.dart';
 import 'market_screen.dart';
 import 'quiz/quiz_intro_screen.dart';
+import '../ui/kod_akintisi.dart';
 
 /// Etkinlik alanı — dersin dışındaki her şeyin tek kapısı.
 ///
@@ -35,7 +35,6 @@ class ActivityHubScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
     final lang = settings.locale.languageCode;
-    final spec = specOf(settings.mascot);
     // Jeton bakiyesi: AuthProvider olmayan bir agacta (ekran goruntusu
     // araclari, bazi widget testleri) ekran cokmemeli — bakiye 0
     // gosterilir, kapilar yine acilir.
@@ -62,21 +61,8 @@ class ActivityHubScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(18, 4, 18, 28),
         children: [
-          _MascotHeader(spec: spec, jeton: jeton, lang: lang),
+          _MascotHeader(jeton: jeton, lang: lang),
           const SizedBox(height: 22),
-          _Tile(
-            emoji: '🎨',
-            color: const Color(0xFFEC407A),
-            title: t('Arkadaşını seç ve giydir', 'Pick and dress your buddy',
-                'Kumpel wählen und anziehen', 'Elige y viste a tu amigo'),
-            subtitle: t(
-                'Beş karakter, şapkalar, gözlükler',
-                'Five characters, hats and glasses',
-                'Fünf Figuren, Hüte und Brillen',
-                'Cinco personajes, gorros y gafas'),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const CharacterScreen())),
-          ),
           _Tile(
             emoji: '🛍️',
             color: const Color(0xFFF57C00),
@@ -122,27 +108,30 @@ class ActivityHubScreen extends StatelessWidget {
 
 /// Üstteki tanıtım: çocuğun seçtiği karakter, adı ve jeton bakiyesi.
 class _MascotHeader extends StatelessWidget {
-  const _MascotHeader(
-      {required this.spec, required this.jeton, required this.lang});
+  const _MascotHeader({required this.jeton, required this.lang});
 
-  final MascotSpec spec;
   final int jeton;
   final String lang;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            spec.defaultColor,
-            Color.lerp(spec.defaultColor, Colors.black, 0.35)!,
+            Mascot.tone,
+            Color.lerp(Mascot.tone, Colors.black, 0.35)!,
           ],
         ),
         borderRadius: BorderRadius.circular(22),
       ),
-      child: Row(
+      // Arkada cok soluk kod simgeleri suzuluyor: duz bir renk gecisi
+      // yerine derinligi olan bir yuzey.
+      child: KodAkintisi(
+        kose: 22,
+        child: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+        child: Row(
         children: [
           Mascot(size: 84, mood: MascotMood.happy, showShadow: false),
           const SizedBox(width: 14),
@@ -152,14 +141,20 @@ class _MascotHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  spec.name,
+                  Mascot.ad,
                   style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.w900),
                 ),
                 Text(
-                  spec.taglineFor(lang),
+                  // Karakterin tek cumlelik tanimi. Once her turun
+                  // kendi cumlesi vardi; tek maskotta tek cumle.
+                  AppLang.pick(lang,
+                      tr: 'Kod arkadaşın',
+                      en: 'Your coding buddy',
+                      de: 'Dein Code-Kumpel',
+                      es: 'Tu amigo del código'),
                   style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.85),
                       fontSize: 12.5),
@@ -184,6 +179,8 @@ class _MascotHeader extends StatelessWidget {
             ),
           ),
         ],
+        ),
+        ),
       ),
     );
   }

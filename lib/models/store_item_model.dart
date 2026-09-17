@@ -1,7 +1,33 @@
 /// Market (Store) modelleri.
 /// Bkz. supabase/migrations/23_store_and_jeton_economy.sql
-
+///
+/// GIYILEBILIR KATEGORILER KALDIRILDI
+/// -----------------------------------
+/// Maskot artik Dart'ta cizilmiyor, satin alinmis bir 3B render. Render'a
+/// sapka giydirilemez: capalar (eski MascotAnchors) cizimin geometrisine
+/// bagliydi. Bu yuzden sapka/gozluk/kolye/ayakkabi, robot kilifi ve
+/// karakter urunleri katalogdan kalkti ve satin alanlara jetonlari
+/// iade edildi — bkz. supabase/migrations/32_tek_maskot_ve_jeton_iadesi.sql
+///
+/// `kaldirilanKategoriler` yalnizca ESKI kayitlari okuyabilmek icin
+/// duruyor: bir kullanicinin envanterinde eski bir satir kalirsa
+/// uygulama cokmemeli.
 enum StoreItemCategory { robotSkin, avatarFrame, character, necklace, hat, glasses, shoes }
+
+/// Artik satilmayan, giyilemeyen kategoriler.
+const Set<StoreItemCategory> kaldirilanKategoriler = {
+  StoreItemCategory.robotSkin,
+  StoreItemCategory.character,
+  StoreItemCategory.necklace,
+  StoreItemCategory.hat,
+  StoreItemCategory.glasses,
+  StoreItemCategory.shoes,
+};
+
+/// Markette gorunen kategoriler.
+List<StoreItemCategory> get satilanKategoriler => StoreItemCategory.values
+    .where((c) => !kaldirilanKategoriler.contains(c))
+    .toList();
 
 StoreItemCategory _parseCategory(String value) {
   switch (value) {
