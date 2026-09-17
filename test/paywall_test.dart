@@ -172,4 +172,27 @@ void main() {
     expect(RegExp(r"'\s*[0-9]+[.,][0-9]{2}\s*'").hasMatch(govde), isFalse,
         reason: 'Cikis teklifinde elle yazilmis bir fiyat var.');
   });
+
+  test('indirim iddiasi fiyata bakiyor', () {
+    // Gercek olay: standart yillik plan Turkiye'de ₺799,99'da kalmisti;
+    // Apple'in 29,99 $ icin hesapladigi TL karsiligi ise ₺1.499,99 idi.
+    // O fiyat tablosuyla "sana ozel bir fiyatimiz var" penceresi DAHA
+    // PAHALI bir urunu indirim diye sunardi. Karar artik urun kimligine
+    // degil FIYATA bakiyor; bu koruma silinirse iddia yine uydurma
+    // olabilir.
+    final src =
+        File('lib/screens/subscription_screen.dart').readAsStringSync();
+    expect(src.contains('AdaptyPaywallProduct? _ucuzsaTeklif('), isTrue,
+        reason: 'Fiyat karsilastirmasi kaldirilmis.');
+    expect(src.contains('_ucuzsaTeklif(_products.where(_isDiscountOffer)'),
+        isTrue,
+        reason: 'Indirimli urun fiyat kontrolunden gecmeden kullaniliyor.');
+
+    final bas = src.indexOf('AdaptyPaywallProduct? _ucuzsaTeklif(');
+    final govde = src.substring(bas, src.indexOf('\n  }', bas));
+    expect(govde.contains('currencyCode != '), isTrue,
+        reason: 'Iki farkli para birimi karsilastirilirsa sayi anlamsiz.');
+    expect(govde.contains('price.amount < '), isTrue,
+        reason: 'Teklifin daha ucuz oldugu dogrulanmiyor.');
+  });
 }

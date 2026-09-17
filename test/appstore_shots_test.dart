@@ -39,7 +39,7 @@ import 'package:devkom_app/providers/settings_provider.dart';
 import 'package:devkom_app/courses/screens/course_catalog_screen.dart';
 import 'package:devkom_app/screens/games/matching_game_screen.dart';
 import 'package:devkom_app/courses/data/courses_data.dart';
-import 'package:devkom_app/courses/data/mblock_palette.dart';
+import 'package:devkom_app/courses/data/html_lessons_data.dart';
 import 'package:devkom_app/courses/data/lessons_data.dart';
 import 'package:devkom_app/courses/data/quizzes_data.dart';
 import 'package:devkom_app/courses/screens/quiz_screen.dart';
@@ -210,6 +210,25 @@ Future<void> _loadFonts() async {
       ..addFont(Future.value(f.readAsBytesSync().buffer.asByteData()));
     await emoji.load();
     break;
+  }
+
+  // KOD KUTULARININ YAZI TIPI.
+  //
+  // Uygulamada 33 yerde `fontFamily: 'monospace'` geciyor. Bu paketlenmis
+  // bir yazi tipi degil: gercek cihazda iOS kendi monospace'ine (Menlo)
+  // dusuyor. Test motorunda boyle bir yedek YOK — HTML kod ekraninin
+  // ekran goruntusunde kodun her harfi BOS KUTU cikiyordu. Magazaya
+  // "cocuk gercek kod yaziyor" diye kutulardan olusan bir gorsel
+  // koyamayiz.
+  //
+  // Sistem yazi tipine guvenmiyoruz: ekran goruntusu her makinede ayni
+  // cikmali. Yazi tipi repoda (tool/fonts/), yalnizca bu arac okuyor —
+  // uygulamaya paketlenmiyor.
+  final monoFile = File('tool/fonts/DejaVuSansMono.ttf');
+  if (monoFile.existsSync()) {
+    final mono = FontLoader('monospace')
+      ..addFont(Future.value(monoFile.readAsBytesSync().buffer.asByteData()));
+    await mono.load();
   }
 
   // Material simgeleri: test motoru bunları kendiliğinden yüklemiyor,
@@ -496,22 +515,18 @@ void main() {
     );
   });
 
-  testWidgets('04 mblock bloklari ($lang)', (tester) async {
-    final step = BlockBuilderStep(
-      id: 'shot',
-      instruction: '9 numaralı pindeki LED\'i yanıp söndür',
-      instructionEn: 'Blink the LED on pin 9',
-      availableBlocks: [
-        MBlockBlocks.boardLaunch(),
-        MBlockBlocks.forever(),
-        MBlockBlocks.digitalWrite('9', 'yüksek'),
-        MBlockBlocks.wait('1'),
-        MBlockBlocks.digitalWrite('9', 'düşük'),
-      ],
-      goal: 'LED saniyede bir yanıp sönüyor',
-      goalEn: 'The LED blinks once a second',
-      correctSequence: const [],
-    );
+  // Scratch dersinin GERCEK surukle-birak adimi.
+  //
+  // Onceden burada elle kurulmus bir mBlock/Arduino adimi vardi:
+  // magazada gosterdigimiz ekran, cocugun Scratch dersinde gordugu
+  // ekran degildi. Artik ders verisinden geliyor (s1_2_build2) ve
+  // slaytta cocugun tam ortasinda oldugu an goruluyor: iki blok
+  // yerlestirilmis, ucuncusu hala palette.
+  testWidgets('04 scratch bloklari ($lang)', (tester) async {
+    final step = ScratchLessonsData.module1
+        .expand((l) => l.steps)
+        .whereType<BlockBuilderStep>()
+        .firstWhere((s) => s.id == 's1_2_build2');
 
     await _shoot(
       tester,
@@ -525,7 +540,67 @@ void main() {
         ),
       ),
       lang: lang,
+      // Iki blogu yerine koyuyoruz. UCUNCUSUNU KOYMUYORUZ: dizi
+      // tamamlanirsa kutlama animasyonu basliyor ve testte asili
+      // zamanlayici birakiyor; ustelik slaytta gosterilmesi gereken
+      // "cocuk cozuyor" ani, "cozdu" ani degil.
+      act: (t) async {
+        for (final etiket in [
+          AppLang.pick(lang,
+              tr: 'tıklandığında',
+              en: 'when green flag clicked',
+              de: 'Wenn die grüne Flagge angeklickt',
+              es: 'al hacer clic en la bandera verde'),
+          AppLang.pick(lang,
+              tr: '10 adım git',
+              en: 'move 10 steps',
+              de: 'gehe 10 Schritte',
+              es: 'muévete 10 pasos'),
+        ]) {
+          final blok = find.text(etiket);
+          if (blok.evaluate().isEmpty) continue;
+          await t.ensureVisible(blok.last);
+          await t.pump(const Duration(milliseconds: 120));
+          await t.tap(blok.last, warnIfMissed: false);
+          await t.pump(const Duration(milliseconds: 250));
+        }
+      },
     );
   });
+
+  // HTML kod ekrani: cocugun kendi elleriyle kod YAZDIGI ekran.
+  //
+  // Magazada blok surukleyen ekranlarin yaninda bu duruyor: uygulama
+  // bloklarda kalmiyor, gercek kodu da yazdiriyor.
+  testWidgets('14 html kod ($lang)', (tester) async {
+    final step = HtmlLessonsData.module1
+        .expand((l) => l.steps)
+        .whereType<TypeCodeStep>()
+        .firstWhere((s) => s.id == 'h1_2_type1');
+
+    await _shoot(
+      tester,
+      '14_html_code',
+      SingleChildScrollView(
+        child: TypeCodeStepWidget(
+          step: step,
+          course: CoursesData.byId('html')!,
+          isDark: false,
+          onComplete: (_) {},
+        ),
+      ),
+      lang: lang,
+      // Bos bir kod kutusu hicbir sey anlatmiyor. Cocugun yazdigi
+      // kodu editore koyuyoruz — hedef kodun kendisi, uydurma degil.
+      act: (t) async {
+        final alan = find.byType(TextField);
+        if (alan.evaluate().isEmpty) return;
+        await t.ensureVisible(alan.first);
+        await t.enterText(alan.first, step.targetCode);
+        await t.pump(const Duration(milliseconds: 250));
+      },
+    );
+  });
+
   }
 }

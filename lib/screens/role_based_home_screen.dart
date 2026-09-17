@@ -22,8 +22,23 @@ class RoleBasedHomeScreen extends StatelessWidget {
       builder: (context, authProvider, _) {
         final user = authProvider.currentUser;
 
-        // Loading state
-        if (authProvider.isLoading || user == null) {
+        // YUKLENIYOR DURUMU YALNIZCA KULLANICI YOKKEN.
+        //
+        // BU BIR KIRMIZI EKRAN SEBEBIYDI. Burasi eskiden
+        // `authProvider.isLoading` olduğunda da tam ekran bir halka
+        // gösteriyordu. `isLoading`, hesap bağlama gibi ARKA PLANDAKİ
+        // işlerde de true oluyor; o an bütün ev ekranı (sekmeler,
+        // profil, açık alt sayfalar) ağaçtan kalkıyordu.
+        //
+        // Sonuç: çocuk "İlerlemeni kaydet → hesap oluştur" diyip
+        // kaydete bastığında profil yok oluyor, bağlama bitince
+        // ölü bir context'e dokunulup "Looking up a deactivated
+        // widget's ancestor is unsafe" hatası alınıyor ve uygulama
+        // ana sayfaya düşüyordu.
+        //
+        // İlk açılışta kullanıcı zaten null olduğu için halka yine
+        // görünüyor; sonraki her yükleme sessizce arkada oluyor.
+        if (user == null) {
           return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(),

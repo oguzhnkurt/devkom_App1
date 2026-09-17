@@ -4263,6 +4263,15 @@ class _TypeCodeStepWidgetState extends State<TypeCodeStepWidget> {
             autocorrect: false,
             enableSuggestions: false,
             keyboardType: TextInputType.multiline,
+            // KONTROL ET TUSU YAZI YAZILINCA ACILIYOR.
+            //
+            // Tusun `onPressed`'i `_controller.text` bos mu diye
+            // bakiyor, ama bu yalnizca build sirasinda olculuyordu ve
+            // denetleyicinin degismesi tek basina yeniden cizim
+            // baslatmiyor. Sonuc: cocuk kodu yaziyor, tus GRI kaliyor
+            // ve adimi hic tamamlayamiyordu (klavye acilirken olan
+            // yeniden cizim metin daha bosken gerceklesiyor).
+            onChanged: (_) => setState(() {}),
             style: const TextStyle(
               fontFamily: 'monospace',
               fontSize: 14,

@@ -555,6 +555,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (sheetContext) => StatefulBuilder(
         builder: (sheetContext, setSheetState) {
           Future<void> submit() async {
+            // METINLER VE MESSENGER ONCEDEN ALINIYOR.
+            //
+            // Islem bitene kadar sayfa agactan kalkmis olabiliyor;
+            // sonradan `context` uzerinden ceviri ya da ScaffoldMessenger
+            // aramak "deactivated widget's ancestor" hatasi veriyordu.
+            final messenger = ScaffoldMessenger.maybeOf(context);
+            final basarili = _t4(
+                context,
+                'Hesabın oluşturuldu, ilerlemen kayıtlı.',
+                'Your account is ready and your progress is saved.',
+                'Dein Konto ist fertig, dein Fortschritt ist gespeichert.',
+                'Tu cuenta está lista y tu progreso está guardado.');
+            final genelHata = _t4(context, 'Kaydedilemedi, tekrar dene.',
+                'Could not save, please try again.',
+                'Speichern fehlgeschlagen, versuch es erneut.',
+                'No se pudo guardar, inténtalo de nuevo.');
+
             final mail = emailController.text.trim();
             final pass = passwordController.text;
 
@@ -587,32 +604,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             if (ok) {
               Navigator.pop(sheetContext);
-              // BILDIRIM SAYFANIN KENDI DURUMUNA BAGLI.
-              //
-              // Once yalnizca `context.mounted` bakiliyordu; sayfa
-              // bu sirada agactan kalkmis olabiliyor ve
-              // `ScaffoldMessenger.of(context)` "No ScaffoldMessenger
-              // widget found" hatasiyla kirmizi ekran veriyordu.
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(_t4(
-                        context,
-                        'Hesabın oluşturuldu, ilerlemen kayıtlı.',
-                        'Your account is ready and your progress is saved.',
-                        'Dein Konto ist fertig, dein Fortschritt ist gespeichert.',
-                        'Tu cuenta está lista y tu progreso está guardado.')),
-                  ),
-                );
-              }
+              // Onceden alinan messenger: sayfa gitmis olsa bile
+              // uygulama cokmuyor, yalnizca bildirim gorunmuyor.
+              messenger?.showSnackBar(SnackBar(content: Text(basarili)));
             } else {
               setSheetState(() {
                 busy = false;
-                error = auth.errorMessage ??
-                    _t4(context, 'Kaydedilemedi, tekrar dene.',
-                        'Could not save, please try again.',
-                        'Speichern fehlgeschlagen, versuch es erneut.',
-                        'No se pudo guardar, inténtalo de nuevo.');
+                error = auth.errorMessage ?? genelHata;
               });
             }
           }

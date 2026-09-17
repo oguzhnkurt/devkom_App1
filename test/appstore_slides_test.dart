@@ -52,10 +52,11 @@ void main() {
             'karakter degisince slayt kendiliginden duzelsin.');
   });
 
-  test('yedi slayt, dogru sirada', () {
+  test('sekiz slayt, dogru sirada', () {
     // Slaytlar tek bir cumlenin adimlari: ne ogretiyoruz -> hangi
-    // sirayla -> oyunla pekistirir -> bir dersin ici -> gercek Arduino
-    // -> satrancla dusunur -> ogrendigini sinar. Sira degisirse cumle
+    // sirayla -> oyunla pekistirir -> bir dersin ici -> bloklari
+    // surukler -> gercek kodu yazar -> satrancla dusunur ->
+    // ogrendigini sinar. Sira degisirse cumle
     // bozulur.
     //
     // ILK UCU EN ONEMLISI: magaza aramasinda yalnizca onlar gorunuyor,
@@ -72,6 +73,7 @@ void main() {
       "('07_matching'",
       "('02_lesson'",
       "('04_blocks'",
+      "('14_html_code'",
       "('12_chess'",
       "('13_slide_to_start'",
     ];
@@ -119,6 +121,7 @@ void main() {
       '07_matching',
       '02_lesson',
       '04_blocks',
+      '14_html_code',
     ]) {
       final tema = kurgu.substring(
           kurgu.indexOf('THEME = {'), kurgu.indexOf('# TELEFONUN DISINA'));
@@ -200,18 +203,23 @@ void main() {
             'ceviri sessizce tasarsa slayt bozuluyor.');
   });
 
-  test('her slaytin iki dilde de basligi var', () {
-    // Simdilik yalnizca tr ve en yayinlaniyor: Turkiye'ye Turkce,
-    // disariya Ingilizce. Almanca ve Ispanyolca metinler
-    // docs/MAGAZA_METNI.md icinde duruyor, o ulkeler acildiginda
-    // SLIDES'a geri eklenir.
-    for (final dil in ['tr', 'en']) {
+  test('her slaytin dort dilde de basligi var', () {
+    // Beklenen sayi SLIDES listesinden SAYILIYOR, elle yazilmiyor.
+    // Onceden burada "7" yaziyordu; sekizinci slayt eklenince test
+    // eksik bir seyi degil, yalnizca kendi eski sayisini bildirdi.
+    // Onemli olan sayi degil, HER slaytin HER dilde basligi olmasi:
+    // eksik dil, o ulkenin magazasina baska dilde baslik gitmesi
+    // demek.
+    final slaytSayisi = RegExp(r"\(\s*'\d\d_").allMatches(slaytMetni).length;
+    expect(slaytSayisi, greaterThan(4),
+        reason: 'SLIDES listesi okunamadi; slayt girdisi bulunamiyor.');
+
+    for (final dil in ['tr', 'en', 'de', 'es']) {
       final anahtar = "'" + dil + "': (";
-      final adet = dil.isEmpty ? 0 : slaytMetni.split(anahtar).length - 1;
-      expect(adet, 7,
-          reason: '$dil icin 7 slayt basligi bekleniyordu, $adet bulundu. '
-              'Eksik dil, o ulkenin magazasina baska dilde baslik '
-              'gitmesi demek.');
+      final adet = slaytMetni.split(anahtar).length - 1;
+      expect(adet, slaytSayisi,
+          reason: '$dil icin $slaytSayisi slayt basligi bekleniyordu, '
+              '$adet bulundu.');
     }
   });
 

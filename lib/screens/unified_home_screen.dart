@@ -190,7 +190,6 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
 
     final userProgress =
         authProvider.userProgress ?? _progressService.getVisitorProgress();
-    final streakDays = userProgress.streakDays;
     final completedIds = userProgress.completedLessonIds.toSet();
 
     final profile = user?.learnerProfile ?? const LearnerProfile();
@@ -205,16 +204,25 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
       backgroundColor:
           isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA),
       drawer: const StudentDrawer(),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(user, isDark, streakDays, isNewUser),
-                const SizedBox(height: 18),
+      // SAFEAREA UST KENARDA YOK: hero bandi durum cubugunun altina
+      // kadar uzaniyor. Selamlama satiri kendi ust boslugunu aliyor.
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHero(user, userProgress, isDark, isNewUser),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                if (!isNewUser) ...[
+                  _buildGenelBakis(userProgress, isDark),
+                  const SizedBox(height: 18),
+                  _buildGununGorevi(userProgress, isDark),
+                  const SizedBox(height: 18),
+                ],
                 if (next == null)
                   _buildPathFinished(isDark)
                 else if (isNewUser)
@@ -268,9 +276,10 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                   const SizedBox(height: 26),
                   _FadeInUp(delay: 80, child: _buildProCard(isDark)),
                 ],
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -432,93 +441,389 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
 
   // ------------------------------------------------------------------ baslik
 
-  Widget _buildHeader(
-      UserModel? user, bool isDark, int streakDays, bool isNewUser) {
-    // Eskiden "Hos geldin, KasifKaptan139" tek satira sigmiyor ve ekranin ilk
-    // satiri "KasifKaptan1..." diye kirpilmis gorunuyordu. Selamlama kisaldi,
-    // ad tek basina daha genis bir alana yayiliyor.
-    final name = (user?.displayName ?? '').trim();
-    final ink = isDark ? Colors.white : const Color(0xFF14161A);
+  // ------------------------------------------------------------------ hero
 
-    return Row(
-      children: [
-        Builder(
-          builder: (context) => IconButton(
-            icon: Icon(Icons.menu_rounded, color: ink),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            tooltip: _t('Menü', 'Menu', 'Menü', 'Menú'),
-          ),
+  /// Ana sayfanin ust bandi: selamlama + DEV bir sayi + Devi.
+  ///
+  /// NEDEN BOYLE
+  ///
+  /// Ekranin ilk ekrani bir satir selamlama ve hemen altinda bir kartti;
+  /// uygulamayi acan cocuk "buranin bir yuzu" oldugunu hissetmiyordu.
+  /// Simdi ust band tek bir seyi soyluyor: KACINCI GUNUNDESIN. Arkadaki
+  /// buyuk yazi, onunde duran maskot ve altindaki ozet, ekranin geri
+  /// kalanini bir panoya cevirmeden bir kimlik veriyor.
+  ///
+  /// SAYI UYDURULMUYOR: seri varsa gun sayisi, yoksa seviye yaziyor.
+  /// Hicbiri yoksa (ilk acilis) bant yalnizca selamliyor — sifirlarla
+  /// dolu bir pano yeni cocugun moralini bozuyor.
+  Widget _buildHero(
+      UserModel? user, UserProgress progress, bool isDark, bool isNewUser) {
+    final ad = (user?.displayName ?? '').trim();
+    final seri = progress.streakDays;
+
+    final (String buyukYazi, String altYazi) = switch (0) {
+      _ when seri > 0 => (
+          _isEn ? 'Day $seri' : '$seri. Gün',
+          _t('Üst üste çalışıyorsun', 'You are on a roll',
+              'Du bist im Lauf', 'Llevas una racha'),
         ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _t('Merhaba', 'Hi', 'Hallo', 'Hola'),
-                style: TextStyle(
-                  fontFamily: AppTheme.fontFamily,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-                ),
-              ),
-              Text(
-                name.isEmpty ? _t('Kaşif', 'Explorer', 'Entdecker', 'Explorador') : name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontFamily: AppTheme.fontFamily,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: ink,
-                ),
-              ),
-            ],
-          ),
+      _ when !isNewUser => (
+          _t('Seviye ${progress.level}', 'Level ${progress.level}',
+              'Level ${progress.level}', 'Nivel ${progress.level}'),
+          _t('Bugün bir ders daha?', 'One more lesson today?',
+              'Heute noch eine Lektion?', '¿Una lección más hoy?'),
         ),
-        // Seri rozeti yalnizca gercek bir seri varsa. "0 gun" yazan bir alev
-        // motive etmiyor, eksigi hatirlatiyor.
-        if (!isNewUser && streakDays > 0) ...[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppTheme.warningOrange.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+      _ => (
+          _t('Hoş geldin', 'Welcome', 'Willkommen', 'Bienvenido'),
+          _t('Hadi ilk dersini yapalım', "Let's do your first lesson",
+              'Machen wir deine erste Lektion', 'Vamos con tu primera lección'),
+        ),
+    };
+
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF6D5AE8), Color(0xFF4FC3F7)],
+        ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(34)),
+      ),
+      child: KodAkintisi(
+        kose: 34,
+        opaklik: 0.09,
+        yogunluk: 10,
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 4, 16, 18),
+            child: Column(
               children: [
-                const Text('🔥', style: TextStyle(fontSize: 14)),
-                const SizedBox(width: 5),
+                // Selamlama satiri: menu, ad, profil.
+                Row(
+                  children: [
+                    Builder(
+                      builder: (context) => IconButton(
+                        icon: const Icon(Icons.menu_rounded,
+                            color: Colors.white),
+                        onPressed: () => Scaffold.of(context).openDrawer(),
+                        tooltip: _t('Menü', 'Menu', 'Menü', 'Menú'),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        ad.isEmpty
+                            ? _t('Merhaba!', 'Hi there!', 'Hallo!', '¡Hola!')
+                            : _t('Merhaba, $ad', 'Hi, $ad', 'Hallo, $ad',
+                                'Hola, $ad'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: AppTheme.fontFamily,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    // Seri rozeti yalnizca gercek bir seri varsa: "0 gün"
+                    // yazan bir alev motive etmiyor, eksigi hatirlatiyor.
+                    if (seri > 0)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.22),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text('🔥', style: TextStyle(fontSize: 13)),
+                            const SizedBox(width: 4),
+                            Text(
+                              _isEn ? '$seri d' : '$seri gün',
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12.5),
+                            ),
+                          ],
+                        ),
+                      ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const ProfileScreen()),
+                      ),
+                      child: Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.22),
+                        ),
+                        child: const Icon(Icons.person_rounded,
+                            color: Colors.white, size: 21),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                // BUYUK YAZI + MASKOT: yazi arkada, Devi onunde.
+                SizedBox(
+                  height: 186,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Positioned(
+                        top: 4,
+                        child: FittedBox(
+                          child: Text(
+                            buyukYazi,
+                            style: TextStyle(
+                              fontFamily: AppTheme.fontFamily,
+                              fontSize: 64,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -1,
+                              // Yari saydam: maskotu ezmeden arkada durur.
+                              color: Colors.white.withValues(alpha: 0.42),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const Positioned(
+                        bottom: 0,
+                        child: Mascot(
+                          size: 150,
+                          mood: MascotMood.happy,
+                          showShadow: false,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 Text(
-                  _isEn ? '$streakDays d' : '$streakDays gün',
-                  style: AppTheme.number(
-                      fontSize: 13, color: AppTheme.warningOrange),
+                  altYazi,
+                  style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withValues(alpha: 0.92),
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 8),
-        ],
-        GestureDetector(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ProfileScreen()),
-          ),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [AppTheme.primaryBlue, Color(0xFF6D5AE8)],
-              ),
-            ),
-            child:
-                const Icon(Icons.person_rounded, color: Colors.white, size: 22),
+        ),
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------ genel bakis
+
+  /// Dort kutuluk ozet: XP, jeton, seri, bitirilen ders.
+  ///
+  /// Hepsi GERCEK sayi. Yeni cocuga hic cizilmiyor (bkz. build): sifirlarla
+  /// dolu bir tablo, yapilacak isin degil eksigin listesi gibi duruyor.
+  Widget _buildGenelBakis(UserProgress p, bool isDark) {
+    final kutular = <(String, String, String, Color)>[
+      (
+        '⚡',
+        _t('XP', 'XP', 'XP', 'XP'),
+        '${p.totalXP}',
+        const Color(0xFF6D5AE8),
+      ),
+      (
+        '🪙',
+        _t('Jeton', 'Coins', 'Münzen', 'Monedas'),
+        '${p.jetonBalance}',
+        const Color(0xFFF2A33C),
+      ),
+      (
+        '🔥',
+        _t('Seri', 'Streak', 'Serie', 'Racha'),
+        _isEn ? '${p.streakDays} d' : '${p.streakDays} gün',
+        const Color(0xFFEF5350),
+      ),
+      (
+        '📘',
+        _t('Ders', 'Lessons', 'Lektionen', 'Lecciones'),
+        '${p.completedLessonIds.length}',
+        const Color(0xFF3BA55C),
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _t('Genel bakış', 'Overview', 'Überblick', 'Resumen'),
+          style: TextStyle(
+            fontFamily: AppTheme.fontFamily,
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: isDark ? Colors.white : const Color(0xFF14161A),
           ),
         ),
+        const SizedBox(height: 10),
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 2.4,
+          children: [
+            for (final k in kutular)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      k.$2,
+                      style: TextStyle(
+                        fontFamily: AppTheme.fontFamily,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? Colors.grey.shade400
+                            : Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Text(k.$1, style: const TextStyle(fontSize: 15)),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              k.$3,
+                              style: AppTheme.number(
+                                  fontSize: 19, color: k.$4),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ],
+    );
+  }
+
+  // ------------------------------------------------------------ gunun gorevi
+
+  /// "Bugün bir ders bitir" — gunluk sayactan okunuyor.
+  ///
+  /// Hedef BIR ders: ulasilabilir olsun diye. Uygulamanin asil olcusu
+  /// haftalik hedef (bkz. WeeklyGoalService); bu kart gunu baslatmak
+  /// icin kucuk bir davet, ceza degil — bitmediyse kirmizi bir sey yok.
+  Widget _buildGununGorevi(UserProgress p, bool isDark) {
+    const hedef = 1;
+    final yapilan = p.dailyLessonsCompleted.clamp(0, hedef);
+    final bitti = yapilan >= hedef;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _t('Günün görevi', 'Daily mission', 'Tagesaufgabe',
+                      'Misión del día'),
+                  style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? Colors.white : const Color(0xFF14161A),
+                  ),
+                ),
+              ),
+              Text(bitti ? '✅' : '🔥', style: const TextStyle(fontSize: 22)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            bitti
+                ? _t('Bugünkü dersini bitirdin. İstersen devam et!',
+                    'You finished today\'s lesson. Keep going if you like!',
+                    'Du hast deine Lektion für heute geschafft. Mach ruhig weiter!',
+                    '¡Has terminado la lección de hoy! Sigue si quieres.')
+                : _t('Bugün bir ders bitir', 'Finish one lesson today',
+                    'Beende heute eine Lektion', 'Termina una lección hoy'),
+            style: TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              fontSize: 13,
+              height: 1.35,
+              color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: yapilan / hedef),
+              duration: const Duration(milliseconds: 700),
+              curve: Curves.easeOutCubic,
+              builder: (context, v, _) => LinearProgressIndicator(
+                value: v,
+                minHeight: 8,
+                backgroundColor:
+                    isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    bitti ? const Color(0xFF3BA55C) : AppTheme.warningOrange),
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '$yapilan / $hedef',
+            style: AppTheme.number(
+                fontSize: 12,
+                color: bitti
+                    ? const Color(0xFF3BA55C)
+                    : AppTheme.warningOrange),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1564,8 +1869,17 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    _t('Karakterini giydir, jeton harca, yarış',
-                        'Dress your buddy, spend coins, compete', 'Kleide deinen Buddy ein, gib Münzen aus, tritt an', 'Viste a tu personaje, gasta monedas, compite'),
+                    // GIYDIRME SOZU KALDIRILDI.
+                    //
+                    // Tek maskota gecince giyilebilir urunler silindi ve
+                    // jetonlar iade edildi; markette artik cerceve, afis,
+                    // isim rozeti ve seri kalkani var. Ana sayfanin bu
+                    // satiri hala "karakterini giydir" diyordu: tutulmayacak
+                    // bir soz.
+                    _t('Çerçeveni seç, jeton harca, yarış',
+                        'Pick a frame, spend coins, compete',
+                        'Wähl einen Rahmen, gib Münzen aus, tritt an',
+                        'Elige un marco, gasta monedas, compite'),
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.88),
                       fontSize: 12.5,

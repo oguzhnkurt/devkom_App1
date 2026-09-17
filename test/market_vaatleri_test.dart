@@ -13,6 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   final market = File('lib/screens/market_screen.dart').readAsStringSync();
   final profil = File('lib/screens/auth/profile_screen.dart').readAsStringSync();
+  final anaSayfa =
+      File('lib/screens/unified_home_screen.dart').readAsStringSync();
 
   String kodu(String s) => s
       .split('\n')
@@ -28,6 +30,22 @@ void main() {
       'CharacterStage',
     ]) {
       expect(k.contains(vaat), isFalse, reason: 'market hala "$vaat" diyor');
+    }
+  });
+
+  test('ana sayfa da giydirme vaat etmiyor', () {
+    // Market temizlendi ama ana sayfadaki Etkinlikler karti hala
+    // "Karakterini giydir, jeton harca, yarış" diyordu. Vaat nerede
+    // yaziyorsa orada yanlis; tek bir ekrani temizlemek yetmiyor.
+    final k = kodu(anaSayfa);
+    for (final vaat in [
+      'Karakterini giydir',
+      'Dress your buddy',
+      'Kleide deinen Buddy',
+      'Viste a tu personaje',
+    ]) {
+      expect(k.contains(vaat), isFalse,
+          reason: 'ana sayfa hala "$vaat" diyor');
     }
   });
 

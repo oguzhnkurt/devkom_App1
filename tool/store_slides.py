@@ -78,6 +78,9 @@ THEME = {
     # ona uyuyor.
     '12_chess': ((248, 241, 231), (228, 203, 171), (140, 90, 48)),
     '13_slide_to_start': ((246, 243, 255), (214, 199, 255), (108, 60, 224)),
+    # HTML kod ekrani: editorun kendi koyu zeminine yakin bir sicaklik.
+    '14_html_code': ((255, 240, 234), (255, 206, 186), (196, 68, 30)),
+    '01_first_task': ((255, 247, 234), (255, 220, 178), (214, 122, 20)),
 }
 
 # TELEFONUN DISINA TASAN BUYUTULMUS KART YOK.
@@ -104,6 +107,8 @@ CROP_ASPECT = {
     # altinda kocaman bos bir alan kaliyordu.
     '12_chess': 1.16,
     '13_slide_to_start': 1.78,
+    '14_html_code': 1.45,
+    '01_first_task': 1.5,
 }
 
 # Baslik: [koseli parantez] = renkli kutu icinde beyaz yazi,
@@ -165,15 +170,28 @@ SLIDES = [
         'es': ('Aprende Scratch\n*paso a paso*',
                'Qué es un bloque y para qué sirve — en pasos cortos'),
     }),
+    # Ekran artik Scratch dersinin kendi blok adimi (s1_2_build2).
+    # Onceki metin Arduino'dan soz ediyordu; gorselle ortusmuyordu.
     ('04_blocks', 0.015, 'alt', False, {
-        'tr': ('Gerçek *Arduino*’yu\nprogramlar',
-               'mBlock blokları — uydurma değil, gerçek bloklar'),
-        'en': ('Programs a real\n*Arduino*',
-               'mBlock blocks — the real ones, not look-alikes'),
-        'de': ('Programmiert einen\nechten *Arduino*',
-               'mBlock-Blöcke — echte, keine Nachbauten'),
-        'es': ('Programa un *Arduino*\nde verdad',
-               'Bloques de mBlock — los de verdad, no imitaciones'),
+        'tr': ('Blokları *sürükleyip*\nkodu kurar',
+               'Gerçek Scratch blokları — sıra yanlışsa nereye bakacağını söyler'),
+        'en': ('*Drags* blocks\ninto working code',
+               'Real Scratch blocks — if the order is off, it says where to look'),
+        'de': ('*Zieht* Blöcke zu\nfertigem Code',
+               'Echte Scratch-Blöcke — bei falscher Reihenfolge zeigt es wohin'),
+        'es': ('*Arrastra* bloques\ny arma el código',
+               'Bloques reales de Scratch — si el orden falla, te dice dónde mirar'),
+    }),
+    # Bloklarin yaninda gercek kod: uygulama blokta kalmiyor.
+    ('14_html_code', 0.0, 'alt', False, {
+        'tr': ('Sonra *gerçek kodu*\nkendi yazar',
+               'HTML, CSS, Python, C# — harf harf, ipuçlarıyla'),
+        'en': ('Then writes the\n*real code*',
+               'HTML, CSS, Python, C# — line by line, with hints'),
+        'de': ('Dann schreibt es\n*echten Code*',
+               'HTML, CSS, Python, C# — Zeile für Zeile, mit Tipps'),
+        'es': ('Después escribe\n*código real*',
+               'HTML, CSS, Python, C# — línea a línea, con pistas'),
     }),
     # Satranc: kodlama disindaki tek "dusunme" oyunu. Uc zorluk
     # seviyesi gercek (Baslangic / Orta / Ileri); ELO sayisi slayta

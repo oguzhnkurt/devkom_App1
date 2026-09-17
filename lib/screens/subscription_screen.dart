@@ -368,7 +368,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         .where(_isYearly)
         .where((p) => !_isDiscountOffer(p))
         .firstOrNull;
-    final discounted = _products.where(_isDiscountOffer).firstOrNull;
+    // Indirimli urun yalnizca GERCEKTEN daha ucuzsa teklif sayiliyor
+    // (bkz. _ucuzsaTeklif).
+    final discounted =
+        _ucuzsaTeklif(_products.where(_isDiscountOffer).firstOrNull, yearly);
     final offer = discounted ?? yearly;
 
     setState(() => _exitOfferShown = true);
@@ -585,6 +588,26 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       p.vendorProductId.contains('weekly');
   bool _isDiscountOffer(AdaptyPaywallProduct p) =>
       p.vendorProductId == SubscriptionService.yearlyDiscountProductId;
+
+  /// Indirimli urun o ulkede GERCEKTEN daha ucuz mu.
+  ///
+  /// App Store fiyatlari ulke ulke ayri duruyor ve zamanla birbirinden
+  /// kopuyor: standart yillik plan Turkiye'de ₺799,99'da kalmisken,
+  /// Apple'in 29,99 $ icin hesapladigi karsilik ₺1.499,99 idi. Boyle bir
+  /// ulkede cikista "sana ozel bir fiyatimiz var" demek, DAHA PAHALI bir
+  /// urunu indirim diye sunmak olurdu.
+  ///
+  /// Bu yuzden karar fiyatin kendisine birakiliyor: ayni para biriminde
+  /// standart yillik fiyatin altinda degilse teklif yok sayiliyor ve
+  /// ekran indirim iddia etmiyor. Boylece 175 ulkenin fiyat tablosu ne
+  /// olursa olsun ekran yanlis bir sey soyleyemiyor.
+  AdaptyPaywallProduct? _ucuzsaTeklif(
+      AdaptyPaywallProduct? teklif, AdaptyPaywallProduct? yillik) {
+    if (teklif == null) return null;
+    if (yillik == null) return teklif;
+    if (teklif.price.currencyCode != yillik.price.currencyCode) return null;
+    return teklif.price.amount < yillik.price.amount ? teklif : null;
+  }
 
   /// Planlarin gosterim sirasi: haftalik -> aylik -> yillik.
   /// Kisa taahhutten uzuna dogru; en degerli plan en altta ve secili.
