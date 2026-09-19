@@ -1,0 +1,453 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  @font-face { font-family:'Nunito'; src:url('fonts/Nunito-400.ttf'); font-weight:400 }
+  @font-face { font-family:'Nunito'; src:url('fonts/Nunito-700.ttf'); font-weight:700 }
+  @font-face { font-family:'Nunito'; src:url('fonts/Nunito-800.ttf'); font-weight:800 }
+  html,body { margin:0; padding:0; overflow:hidden; background:#05060f }
+  #stage { position:relative; overflow:hidden; }
+  #bg { position:absolute; inset:0;
+        background:
+          radial-gradient(120% 70% at 50% 8%,  #241a5e 0%, #0e1030 42%, #05060f 78%),
+          radial-gradient(60% 40% at 78% 82%, rgba(90,52,232,.38) 0%, rgba(90,52,232,0) 70%),
+          radial-gradient(50% 35% at 18% 70%, rgba(30,120,220,.28) 0%, rgba(30,120,220,0) 72%);
+  }
+  #grain { position:absolute; inset:0; opacity:.05; mix-blend-mode:overlay; }
+  canvas#gl { position:absolute; inset:0; width:100%; height:100%; }
+  #ui { position:absolute; inset:0; }
+  .line { position:absolute; left:0; right:0; text-align:center;
+          font-family:'Nunito',sans-serif; color:#fff; }
+  .title { font-weight:800; letter-spacing:-.02em; line-height:1.08;
+           text-shadow:0 6px 40px rgba(0,0,0,.45) }
+  .sub   { font-weight:400; color:#b9c0e8; line-height:1.35 }
+  .hl    { color:#a48bff }
+  #brand { position:absolute; left:0; right:0; display:flex; align-items:center;
+           justify-content:center; gap:22px; font-family:'Nunito',sans-serif; }
+  #brand img { border-radius:22%; display:block }
+  #brand .nm { color:#fff; font-weight:800; letter-spacing:-.02em }
+  #brand .st { color:#b9c0e8; font-weight:600 }
+  #intro { font-family:'Nunito',sans-serif; font-weight:800; color:#fff;
+           letter-spacing:-.02em; line-height:1.12; padding:0 8%;
+           text-shadow:0 8px 50px rgba(0,0,0,.5) }
+  #caret { color:#a48bff; font-weight:400 }
+  /* Oyun bolumu: telefon maketi YOK. Ekranin tamami gorunuyor —
+     yuksekligi doldurup en-boy orani korunuyor, kose yuvarlaniyor. */
+  #games { position:absolute; inset:0; display:flex; align-items:flex-end;
+           justify-content:center; padding-bottom:3%; opacity:0;
+           pointer-events:none }
+  /* Baslik yazisina yer kalsin diye %74: ekranin TAMAMI goruluyor,
+     yalnizca biraz kucuk. */
+  #games img { position:absolute; bottom:3%; height:74%; width:auto; border-radius:30px;
+               box-shadow:0 40px 110px rgba(0,0,0,.65),
+                          0 0 0 1px rgba(255,255,255,.06);
+               opacity:0; will-change:transform,opacity }
+</style></head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <canvas id="gl"></canvas>
+  <div id="ui">
+    <div class="line title" id="t1"></div>
+    <div class="line sub"   id="t2"></div>
+    <div id="brand"><img id="bicon" src="app_icon.png"><div><div class="nm" id="bnm"></div><div class="st" id="bst"></div></div></div>
+    <div class="line" id="intro"><span id="introtx"></span><span id="caret">&#9612;</span></div>
+    <div id="games"></div>
+  </div>
+</div>
+
+<script type="importmap">
+{"imports":{"three":"./lib/three/build/three.module.js","three/addons/":"./lib/three/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader }      from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const q    = new URLSearchParams(location.search);
+const LANG = q.get('lang') || 'tr';
+const FMT  = q.get('fmt')  || '916';
+const W = 1080, H = (FMT === '11') ? 1080 : 1920;
+
+const stage = document.getElementById('stage');
+stage.style.width = W + 'px'; stage.style.height = H + 'px';
+
+// ---------------------------------------------------------------- metin
+const COPY = {
+  tr: [
+    ['[Kodlama] ve<br>robotik öğren', 'Sıfırdan başla · 9 kurs'],
+    ['Scratch’i <b>adım adım</b><br>öğrenir', 'Blok nedir, ne işe yarar — kısa adımlarla'],
+    ['Blokları <b>sürükleyip</b><br>kodu kurar', 'Gerçek Scratch blokları'],
+    ['Sonra <b>gerçek kodu</b><br>kendi yazar', 'HTML, CSS, Python, C# — harf harf'],
+    ['[Oyunla] pekiştirir', '16 mini oyun · eşleştir, sırala, labirenti geç'],
+    ['[Bloklardan]<br>gerçek koda', '9 kurs, adım adım'],
+  ],
+  en: [
+    ['Learn [coding]<br>and robotics', 'Start from zero · 9 courses'],
+    ['Learns Scratch<br><b>step by step</b>', 'What a block is and what it does'],
+    ['<b>Drags</b> blocks<br>into working code', 'Real Scratch blocks'],
+    ['Then writes the<br><b>real code</b>', 'HTML, CSS, Python, C# — line by line'],
+    ['Practises by [playing]', '16 mini games · match, order, get through the maze'],
+    ['From [blocks]<br>to real code', '9 courses, step by step'],
+  ],
+};
+const BRAND = { tr: ['DevEducation', 'App Store’da'], en: ['DevEducation', 'On the App Store'] };
+// Acilis: satir klavyeden yaziliyormus gibi harf harf beliriyor.
+const INTRO_TX = { tr: 'Bloklardan gerçek koda.', en: 'From blocks to real code.' };
+const SHOTS = (q.get('calib') ? ['calib','calib','calib','calib','calib'] : q.get('dbg') ? ['dbg','dbg','dbg','dbg','dbg'] : ['09_home', '02_lesson', '04_blocks', '14_html_code', '08_path']);
+
+// Kurgu: telefon maketiyle anlatilan ekranlar + ARADA cercevesiz bir
+// oyun bolumu. Oyun ekranlari maketin icine girmiyor; tam tasarim
+// gorunsun diye ekranin tamami kadraja yerlesiyor.
+const PHONE_DUR = 3.2, GAMES_DUR = 4.8, SPIN = 0.7, INTRO = 2.8;
+const GAMES = ['g1_chess', 'g2_millionaire', 'g3_word_match', 'g4_matching'];
+
+const TL = [
+  { k: 'p', s: 0 }, { k: 'p', s: 1 }, { k: 'p', s: 2 }, { k: 'p', s: 3 },
+  { k: 'g' },
+  { k: 'p', s: 4, brand: true },
+];
+const STARTS = [];
+let _acc = INTRO;
+for (const x of TL) { STARTS.push(_acc); _acc += (x.k === 'g' ? GAMES_DUR : PHONE_DUR); }
+const DURATION = _acc;                                  // ~23.6 s
+
+function fmtText(s) {
+  return s.replace(/\[(.+?)\]/gs, '<span class="hl">$1</span>')
+          .replace(/<b>(.+?)<\/b>/gs, '<span class="hl">$1</span>');
+}
+
+// ------------------------------------------------------------- three.js
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), alpha: true, antialias: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H, false);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(28, W / H, 0.1, 100);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const key = new THREE.DirectionalLight(0xffffff, 2.4); key.position.set(3, 5, 6);   scene.add(key);
+const rim = new THREE.DirectionalLight(0x8a6bff, 3.0); rim.position.set(-5, 2, -4);  scene.add(rim);
+const fil = new THREE.DirectionalLight(0x4fa8ff, 1.2); fil.position.set(-3, -3, 4);  scene.add(fil);
+scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+
+const phone = new THREE.Group();
+scene.add(phone);
+
+let screenMat = null, screenMesh = null;
+const gameEls = [];
+const textures = {};
+
+// Ekran goruntusune yapay bir durum cubugu bandi ekler.
+//
+// NEDEN: ekran goruntuleri widget testinden geliyor, guvenli alan
+// (safe area) bosluklari yok — icerik y=0'dan basliyor. 3B modelin
+// Dynamic Island'i ise ekranin ust %5'ini ortuyordu ve yazilarin
+// uzerine biniyordu. Goruntuyu ustten paylayip asagi kaydiriyoruz;
+// bant, goruntunun kendi ust satirinin rengiyle doluyor, yani
+// uygulamanin arka planinin devami gibi duruyor.
+const IMG_W = 1290, IMG_H = 2796;
+const TOP_PAD = 160;                        // piksel, ~%5.7
+
+function padded(img, apAspect) {
+  const h = IMG_H + TOP_PAD;
+  const w = Math.round(h * apAspect);       // acikligin oraniyla birebir
+  const side = Math.round((w - IMG_W) / 2);
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  const cx = cv.getContext('2d');
+  cx.imageSmoothingEnabled = true;
+  // ust bant: ilk satir
+  cx.drawImage(img, 0, 0, IMG_W, 1, side, 0, IMG_W, TOP_PAD);
+  // yan bantlar: ilk/son sutun
+  if (side > 0) {
+    cx.drawImage(img, 0, 0, 1, IMG_H, 0, TOP_PAD, side, IMG_H);
+    cx.drawImage(img, IMG_W - 1, 0, 1, IMG_H, side + IMG_W, TOP_PAD, side, IMG_H);
+    cx.drawImage(img, 0, 0, 1, 1, 0, 0, side, TOP_PAD);
+    cx.drawImage(img, IMG_W - 1, 0, 1, 1, side + IMG_W, 0, side, TOP_PAD);
+  }
+  cx.drawImage(img, side, TOP_PAD);
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+}
+
+function loadImg(src) {
+  return new Promise((res) => {
+    const im = new Image();
+    im.onload = () => res(im);
+    im.onerror = () => res(null);     // dosya yoksa o oyun atlaniyor
+    im.src = src;
+  });
+}
+
+async function boot() {
+  const rawImgs = {};
+  for (const s of SHOTS) rawImgs[s] = await loadImg(`shots/${LANG}/${s}.png`);
+
+  const gltf = await new Promise((res, rej) =>
+    new GLTFLoader().load('./models/pro1.glb', res, undefined, rej));
+  const model = gltf.scene;
+
+  // ekrani bul
+  model.traverse((o) => {
+    if (o.isMesh) {
+      const m = Array.isArray(o.material) ? o.material[0] : o.material;
+      if (m && m.name === 'Screen_BG') { screenMesh = o; o.renderOrder = 2; }
+    }
+  });
+
+  // modeli ortala ve normalize et
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const ctr  = box.getCenter(new THREE.Vector3());
+  model.position.sub(ctr);
+  const target = 3.2;                       // dunya biriminde telefon yuksekligi
+  model.scale.setScalar(target / size.y);
+  phone.add(model);
+
+  // ---- ekran dokusu -------------------------------------------------
+  // Modelin ekran UV'si bir atlasin ICINDE ve 90 derece donuk:
+  //   u 0.1849..0.5240  -> ekranin ALT..UST kenari
+  //   v 0.4389..0.6013  -> ekranin SAG..SOL kenari
+  // (probe3.html ile olculdu.) Dahasi, Screen_BG mesh'i cercevenin
+  // ALTINA kadar uzaniyor; goruntuyu mesh'in tamamina serersek kenarlar
+  // cercevenin altinda kaliyor ve ekran "tasmis" gorunuyor. Gorunur
+  // acikligi kalibre dokusuyla olctuk: her kenardan ~0.096 dunya birimi
+  // cerceve ortuyor (calib.png ile dogrulanir).
+  const U0 = 0.1849, U1 = 0.5240, V0 = 0.4389, V1 = 0.6013;
+  const dU = U1 - U0, dV = V1 - V0;
+  const MESH_W = 1.9238, MESH_H = 4.0158, BEZEL = 0.096;
+
+  const bv = BEZEL / MESH_W, bu = BEZEL / MESH_H;
+  const u0 = U0 + bu * dU, u1 = U1 - bu * dU;
+  const v0 = V0 + bv * dV, v1 = V1 - bv * dV;
+  const du = u1 - u0, dv = v1 - v0;
+
+  // Goruntu, acikligin oraniyla birebir paylandi -> kirpma yok.
+  const apAspect = (MESH_W * (1 - 2 * bv)) / (MESH_H * (1 - 2 * bu));
+  for (const s2 of SHOTS) textures[s2] = padded(rawImgs[s2], apAspect);
+
+  // s (yatay) = (v1 - v) / dv        : goruntunun solu, dunyanin solu
+  // t (dikey) = (u1 - u) / du        : goruntunun ustu, telefonun ustu
+  const a = -1 / du, b = u1 / du;
+  const c = -1 / dv, d = v1 / dv;
+
+  for (const s2 of SHOTS) {
+    const t = textures[s2];
+    t.flipY = false;
+    t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+    t.matrixAutoUpdate = false;
+    t.matrix.set(0, c, d,
+                 a, 0, b,
+                 0, 0, 1);
+    t.needsUpdate = true;
+  }
+
+  // ---- ekran malzemesi ----------------------------------------------
+  // PBR + ACES tone mapping ekrani soluklastiriyordu: uygulamanin
+  // renkleri cansiz cikiyordu. Ekran kendi isigini veren bir yuzey,
+  // sahne isigina hic bagli degil -> duz malzeme, tone mapping kapali.
+  // Boylece piksel degerleri ekran goruntusundekiyle birebir ayni.
+  screenMat = new THREE.MeshBasicMaterial({
+    map: textures[SHOTS[0]],
+    toneMapped: false,
+  });
+  screenMesh.material = screenMat;
+
+  // Ince bir parlama: cam hissi. Ekranin 1 mm onunde, toplamali karisim.
+  const gloss = document.createElement('canvas');
+  gloss.width = 64; gloss.height = 256;
+  const gx = gloss.getContext('2d');
+  const gg = gx.createLinearGradient(0, 0, 64, 256);
+  gg.addColorStop(0.00, 'rgba(255,255,255,0.55)');
+  gg.addColorStop(0.28, 'rgba(255,255,255,0.10)');
+  gg.addColorStop(0.52, 'rgba(255,255,255,0.00)');
+  gg.addColorStop(0.80, 'rgba(255,255,255,0.06)');
+  gg.addColorStop(1.00, 'rgba(255,255,255,0.22)');
+  gx.fillStyle = gg; gx.fillRect(0, 0, 64, 256);
+  const glossTex = new THREE.CanvasTexture(gloss);
+  glossTex.colorSpace = THREE.SRGBColorSpace;
+  const glossMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(MESH_W * (1 - 2 * bv), MESH_H * (1 - 2 * bu)),
+    new THREE.MeshBasicMaterial({ map: glossTex, transparent: true,
+                                  opacity: 0.16, blending: THREE.AdditiveBlending,
+                                  depthWrite: false, toneMapped: false }));
+  glossMesh.position.set(0, (2.0093 - 2.0065) / 2, 0.1262);
+  glossMesh.renderOrder = 3;
+  screenMesh.parent.add(glossMesh);
+
+  // ---- oyun bolumu: cercevesiz, tam tasarim ------------------------
+  for (const g of GAMES) {
+    const im = await loadImg(`games/${LANG}/${g}.png`).catch(() => null);
+    if (!im) continue;
+    im.dataset.game = g;
+    document.getElementById('games').appendChild(im);
+    gameEls.push(im);
+  }
+
+  window.__ready = true;
+}
+
+// ------------------------------------------------------------ animasyon
+const ease     = (x) => x < .5 ? 4*x*x*x : 1 - Math.pow(-2*x+2, 3)/2;
+const easeOut  = (x) => 1 - Math.pow(1 - x, 3);
+const clamp01  = (x) => Math.max(0, Math.min(1, x));
+
+function sceneAt(t) {
+  if (t < INTRO) return { intro: true, i: 0, local: t };
+  let i = 0;
+  for (let k = 0; k < TL.length; k++) if (t >= STARTS[k]) i = k;
+  return { intro: false, i, local: t - STARTS[i],
+           len: TL[i].k === 'g' ? GAMES_DUR : PHONE_DUR };
+}
+
+function setTexture(shotIdx) {
+  if (!screenMat || shotIdx == null) return;
+  const t = textures[SHOTS[shotIdx]];
+  if (screenMat.map !== t) { screenMat.map = t; screenMat.needsUpdate = true; }
+}
+
+const LAYOUT = FMT === '11'
+  ? { titleTop: 0.045, subTop: 0.175, size: 62, subSize: 26, brandTop: 0.885, phoneY: -0.17, phoneScale: 0.72, icon: 62, nm: 29, st: 19, introTop: 0.40, introSize: 72 }
+  : { titleTop: 0.055, subTop: 0.182, size: 88, subSize: 32, brandTop: 0.895, phoneY: -0.13, phoneScale: 0.70, icon: 90, nm: 37, st: 24, introTop: 0.40, introSize: 96 };
+
+const el = { t1: document.getElementById('t1'), t2: document.getElementById('t2'),
+             intro: document.getElementById('intro'), introtx: document.getElementById('introtx'),
+             caret: document.getElementById('caret'),
+             gl: document.getElementById('gl'), games: document.getElementById('games'),
+             brand: document.getElementById('brand'), bnm: document.getElementById('bnm'),
+             bst: document.getElementById('bst'), bicon: document.getElementById('bicon') };
+
+el.t1.style.fontSize = LAYOUT.size + 'px';
+el.t2.style.fontSize = LAYOUT.subSize + 'px';
+el.bicon.width = el.bicon.height = LAYOUT.icon;
+el.bnm.style.fontSize = LAYOUT.nm + 'px';
+el.bst.style.fontSize = LAYOUT.st + 'px';
+el.intro.style.fontSize = LAYOUT.introSize + 'px';
+el.intro.style.top = (LAYOUT.introTop * H) + 'px';
+el.bnm.textContent = BRAND[LANG][0];
+el.bst.textContent = BRAND[LANG][1];
+
+function renderFrame(t) {
+  const sc = sceneAt(t);
+  const { i, local } = sc;
+  const cur = sc.intro ? null : TL[i];
+  const len = sc.len || PHONE_DUR;
+
+  // ---------------------------------------------------------- acilis
+  if (sc.intro) {
+    const full = INTRO_TX[LANG];
+    const typed = clamp01((t - 0.25) / 1.45);
+    const n = Math.round(typed * full.length);
+    el.introtx.textContent = full.slice(0, n);
+    const blink = (t * 2) % 1 < 0.55;
+    el.caret.style.opacity = (n < full.length || blink) ? 1 : 0;
+
+    const out = 1 - clamp01((t - (INTRO - 0.95)) / 0.5);
+    el.intro.style.opacity = out;
+    el.intro.style.transform = `translateY(${(1 - out) * -22}px)`;
+    el.t1.style.opacity = el.t2.style.opacity = 0;
+    el.brand.style.opacity = 0;
+  } else {
+    el.intro.style.opacity = 0;
+  }
+
+  // ------------------------------------------------------ oyun bolumu
+  // Telefon maketi sahneden cekiliyor, ekranlar cercevesiz geliyor.
+  const isGames = cur && cur.k === 'g';
+  const gFade = 0.45;
+  let gA = 0;
+  if (isGames) gA = Math.min(clamp01(local / gFade),
+                             1 - clamp01((local - (len - gFade)) / gFade));
+  el.games.style.opacity = gA;
+  el.gl.style.opacity = 1 - gA;
+
+  if (isGames && gameEls.length) {
+    // Oyunlar birbirine GECIYOR: biri sonerken digeri aciliyor.
+    // Once fade-out fade-in'den once bitiyordu ve arada bos kare
+    // kaliyordu.
+    const step = len / gameEls.length, XF = 0.35;
+    gameEls.forEach((im, k) => {
+      const d = local - k * step;
+      const a = Math.min(clamp01(d / XF), 1 - clamp01((d - step) / XF));
+      im.style.opacity = Math.max(0, a);
+      const slide = (1 - clamp01(d / 0.5)) * 8;
+      const zoom  = 1.0 + 0.04 * clamp01(d / step);
+      im.style.transform = `translateX(${slide}%) scale(${zoom})`;
+    });
+  } else {
+    gameEls.forEach((im) => { im.style.opacity = 0; });
+  }
+
+  // --------------------------------------------------------- telefon
+  const ts = t - INTRO;
+  phone.visible = ts > -0.55 && gA < 0.98;
+
+  // Kacinci telefon sahnesindeyiz? Tam tur sayisi buna gore ilerliyor.
+  let pIdx = 0;
+  if (!sc.intro) for (let k = 0; k < i; k++) if (TL[k].k === 'p') pIdx++;
+
+  let spinTurns;
+  if (ts < 1.0) spinTurns = -0.5 + 0.5 * easeOut(clamp01((ts + 0.55) / 1.55));
+  else if (cur && cur.k === 'p' && local < SPIN && pIdx > 0)
+    spinTurns = (pIdx - 1) + ease(local / SPIN);
+  else spinTurns = pIdx;
+  const yaw = spinTurns * Math.PI * 2 + Math.sin(t * 0.55) * 0.10;
+
+  phone.rotation.set(Math.sin(t * 0.42) * 0.055, yaw, Math.sin(t * 0.33) * 0.03);
+
+  const arrive = clamp01((ts + 0.55) / 1.15);
+  camera.position.set(0, 0, 9.4 - 1.3 * easeOut(arrive));
+  camera.lookAt(0, 0, 0);
+  phone.position.set(0, LAYOUT.phoneY + Math.sin(t * 0.7) * 0.05, 0);
+  phone.scale.setScalar(LAYOUT.phoneScale * (0.80 + 0.20 * easeOut(arrive))
+                        * (1 - 0.12 * gA));
+
+  // Ekran dokusu: tam turun ortasinda, arka yuz kameraya bakarken.
+  if (cur && cur.k === 'p') {
+    const flipDone = (pIdx === 0) || (local >= SPIN * 0.5);
+    const prevShot = (() => {
+      for (let k = i - 1; k >= 0; k--) if (TL[k].k === 'p') return TL[k].s;
+      return cur.s;
+    })();
+    setTexture(flipDone ? cur.s : prevShot);
+  }
+
+  // ----------------------------------------------------------- metin
+  if (!sc.intro) {
+    const c = COPY[LANG][i];
+    el.t1.innerHTML = fmtText(c[0]);
+    el.t2.innerHTML = c[1];
+    el.t1.style.top = (LAYOUT.titleTop * H) + 'px';
+    el.t2.style.top = (LAYOUT.subTop  * H) + 'px';
+
+    const gecikme = (i === 0 || isGames) ? 0.15 : SPIN * 0.45;
+    const inA  = clamp01((local - gecikme) / 0.55);
+    const outA = 1 - clamp01((local - (len - 0.45)) / 0.45);
+    const a    = Math.min(easeOut(inA), outA);
+    const dy   = (1 - easeOut(inA)) * 26;
+
+    el.t1.style.opacity = a;
+    el.t2.style.opacity = a * 0.92;
+    el.t1.style.transform = el.t2.style.transform = `translateY(${dy}px)`;
+
+    const ba = (cur && cur.brand) ? easeOut(clamp01((local - 1.1) / 0.7)) : 0;
+    el.brand.style.opacity = ba;
+    el.brand.style.top = (LAYOUT.brandTop * H) + 'px';
+    el.brand.style.transform = `translateY(${(1 - ba) * 18}px)`;
+  }
+
+  renderer.render(scene, camera);
+}
+
+window.__renderFrame = renderFrame;
+window.__meta = { W, H, DURATION, FPS: 30 };
+boot().catch((e) => { window.__error = String(e); });
+</script>
+</body></html>
