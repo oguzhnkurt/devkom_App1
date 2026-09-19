@@ -90,7 +90,20 @@ const COPY = {
     ['From [blocks]<br>to real code', '9 courses, step by step'],
   ],
 };
-const BRAND = { tr: ['DevEducation', 'App Store’da'], en: ['DevEducation', 'On the App Store'] };
+// Kapanistaki magaza satiri. Google Play listesi YAYINA GIRMEDEN
+// 'both' yapilmamali: yayindaki bir reklamda olmayan bir magazayi
+// soylemek yanlis beyan olur. Yayina girdigi gun tek kelime degisiyor.
+const STORES = 'both';          // 'apple' | 'both'
+const BRAND = {
+  apple: {
+    tr: ['DevEducation', 'App Store’da'],
+    en: ['DevEducation', 'On the App Store'],
+  },
+  both: {
+    tr: ['DevEducation', 'App Store ve Google Play’de'],
+    en: ['DevEducation', 'Available on the App Store and Google Play'],
+  },
+}[STORES];
 // Acilis: satir klavyeden yaziliyormus gibi harf harf beliriyor.
 const INTRO_TX = { tr: 'Bloklardan gerçek koda.', en: 'From blocks to real code.' };
 const SHOTS = (q.get('calib') ? ['calib','calib','calib','calib','calib'] : q.get('dbg') ? ['dbg','dbg','dbg','dbg','dbg'] : ['09_home', '02_lesson', '04_blocks', '14_html_code', '08_path']);

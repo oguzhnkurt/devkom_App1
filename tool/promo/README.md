@@ -106,7 +106,28 @@ edilir**, çünkü iOS durum çubuğu üstte duruyor ve çerçevesiz gösterimde
 telefondan kaydedilmiş gibi görünüyor. Yoksa widget testinin çıktısına
 düşüyor; o da yoksa kart atlanıyor ve uyarı basılıyor.
 
-### 4. Bağımlılıklar
+İngilizce tarafta **bilgi yarışmasının İngilizce ekran görüntüsü
+henüz yok** (o ekran `appstore_shots_test.dart`'a eklendi ama test
+çalıştırılmadı), o yüzden EN videosunda üç kart dönüyor: satranç,
+kelime eşleştirme, eşleştirme. TR'de dört kart var. Kart sayısı
+otomatik: yüklenemeyen görsel atlanıyor, çapraz geçiş kalanlara
+bölünüyor.
+
+### 4. Kapanıştaki mağaza satırı
+
+`render.html` başında:
+
+    const STORES = 'both';   // 'apple' | 'both'
+
+`'both'` → *App Store ve Google Play'de* / *Available on the App Store
+and Google Play*. `'apple'` → *App Store'da* / *On the App Store*.
+
+**Google Play listesi yayına girmeden `'both'` kullanılmamalı.**
+Yayındaki bir reklamda olmayan bir mağazayı söylemek yanlış beyan olur.
+19 Eylül 2026 itibarıyla `play.google.com/store/apps/details?id=com.devkom.app`
+404 dönüyordu.
+
+### 5. Bağımlılıklar
 
     cd tool/promo && npm i playwright three
     npx playwright install chromium     # kendi Chromium'u yoksa
