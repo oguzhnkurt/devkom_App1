@@ -245,7 +245,7 @@ class AuthServiceSupabase {
 
       final idToken = credential.identityToken;
       if (idToken == null) {
-        throw Exception('Apple kimlik dogrulamasi eksik dondu.');
+        throw Exception('Apple kimlik doğrulaması eksik döndü.');
       }
 
       await _supabase.auth.signInWithIdToken(
@@ -255,7 +255,7 @@ class AuthServiceSupabase {
       );
 
       final user = _supabase.auth.currentUser;
-      if (user == null) throw Exception('Apple girisi tamamlanamadi.');
+      if (user == null) throw Exception('Apple girişi tamamlanamadı.');
 
       // 2) Ilerlemeyi tasi. Ayni kullaniciya baglandiysa sunucu zaten
       //    "same_user" deyip hicbir sey yapmiyor.
@@ -406,10 +406,10 @@ class AuthServiceSupabase {
   }) async {
     final current = _supabase.auth.currentUser;
     if (current == null) {
-      throw Exception('Once uygulamayi acmalisin.');
+      throw Exception('Önce uygulamayı açmalısın.');
     }
     if (current.isAnonymous != true) {
-      throw Exception('Bu hesap zaten bir e-postaya bagli.');
+      throw Exception('Bu hesap zaten bir e-postaya bağlı.');
     }
 
     try {

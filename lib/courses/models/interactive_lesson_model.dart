@@ -362,7 +362,7 @@ class DragDropStep extends LessonStep {
     required this.items,
     required this.dropZones,
     required this.correctMapping,
-    this.successMessage = 'Harika! Doğru eslestirdin!',
+    this.successMessage = 'Harika! Doğru eşleştirdin!',
     this.instructionEn,
     this.instructionDe,
     this.instructionEs,

@@ -1327,7 +1327,7 @@ class _DragDropStepWidgetState extends State<DragDropStepWidget> {
                   child: Text(
                     lessonText(
                         lang,
-                        'Hepsi yerlesti ama bir yeri yanlis. Bir daha bak.',
+                        'Hepsi yerleşti ama bir yeri yanlış. Bir daha bak.',
                         'Everything is placed, but one is in the wrong spot. Take another look.',
                         'Alles liegt, aber eins ist am falschen Platz. Schau noch mal.',
                         'Están todos colocados, pero uno está en el sitio equivocado. Míralo otra vez.'),

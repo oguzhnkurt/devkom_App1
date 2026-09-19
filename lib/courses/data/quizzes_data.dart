@@ -199,7 +199,7 @@ class QuizzesData {
           type: QuestionType.multipleChoice,
           options: ['#', '//', '/*', '--'],
           correctAnswer: 0,
-          explanation: 'Python\'da tek satirlik yorumlar # karakteri ile başlar.',
+          explanation: 'Python\'da tek satırlık yorumlar # karakteri ile başlar.',
         ),
       ],
       passingScore: 70,
@@ -241,7 +241,7 @@ class QuizzesData {
           question: 'Python\'da string veri tipi hangi karakterlerle tanilanir?',
           type: QuestionType.multipleChoice,
           options: [
-            'Tirnak isaretleri (" veya \')',
+            'Tirnak işaretleri (" veya \')',
             'Koseli parantez []',
             'Parantez ()',
             'Suslu parantez {}',
@@ -751,7 +751,7 @@ class QuizzesData {
           question: 'Rust\'in en önemli özelliği nedir?',
           type: QuestionType.multipleChoice,
           options: [
-            'Bellek guvenligi (Memory Safety)',
+            'Bellek güvenliği (Memory Safety)',
             'Hızlı web geliştirme',
             'Kolay öğrenme',
             'Dinamik tipleme',

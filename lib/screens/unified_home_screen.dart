@@ -1417,7 +1417,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                       'print("Merhaba DevEducation")',
                       'for i in range(4): robot.ileri()',
                       'if mesafe < 10: dur()',
-                      'led.yak()  # ilk robotun hazir',
+                      'led.yak()  # ilk robotun hazır',
                     ],
               textStyle: const TextStyle(
                 color: Color(0xFF7CE7B0),
@@ -2029,7 +2029,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
             ),
             child: Center(
               child: Text(
-                'Ilk rozetine çok yakinsin! Bir ders tamamla 🎯',
+                'İlk rozetine çok yakınsın! Bir ders tamamla 🎯',
                 style: TextStyle(
                   fontSize: 14,
                   color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,

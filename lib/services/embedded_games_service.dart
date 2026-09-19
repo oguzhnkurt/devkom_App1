@@ -475,7 +475,7 @@ class EmbeddedGamesService {
       GameModel(
         id: 'embedded_variable_master',
         title: 'Değişken Ustası',
-        description: 'Kutulara değer koy, değiştir, takas et. Değişken kavramını oynayarak ogren.',
+        description: 'Kutulara değer koy, değiştir, takas et. Değişken kavramını oynayarak öğren.',
         titleEn: 'Variable Master',
         descriptionEn: 'Put values in boxes, change them, swap them. Learn variables by playing.',
         titleDe: 'Variablen-Meister',
@@ -497,7 +497,7 @@ class EmbeddedGamesService {
       GameModel(
         id: 'embedded_bug_hunter',
         title: 'Hata Avcısı',
-        description: 'Çalışmayan kodu incele, bozuk satırı bul. Gerçek programcılık burada basliyor.',
+        description: 'Çalışmayan kodu incele, bozuk satırı bul. Gerçek programcılık burada başlıyor.',
         titleEn: 'Bug Hunter',
         descriptionEn: 'Inspect broken code and find the faulty line. This is where real programming starts.',
         titleDe: 'Fehlerjäger',

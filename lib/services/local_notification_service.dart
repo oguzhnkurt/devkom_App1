@@ -133,7 +133,7 @@ class LocalNotificationService {
       await _flutterLocalNotificationsPlugin.zonedSchedule(
         id,
         'Yarın: $title',
-        description.isEmpty ? 'Ajanda etkinliginiz yaklasiyor' : description,
+        description.isEmpty ? 'Ajanda etkinliğiniz yaklaşıyor' : description,
         scheduledDate,
         notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -204,7 +204,7 @@ class LocalNotificationService {
         hour: 8,
         minute: 0,
         title: 'Günaydın!',
-        body: 'Bugünkü 3 hedefin hazir. Hadi baslayalim!',
+        body: 'Bugünkü 3 hedefin hazır. Hadi başlayalım!',
         payload: 'daily_goals_morning',
       );
 
@@ -256,7 +256,7 @@ class LocalNotificationService {
       const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
         'daily_goals_channel',
         'Günlük Hedefler',
-        channelDescription: 'Günlük hedef hatirlatmalari',
+        channelDescription: 'Günlük hedef hatırlatmaları',
         importance: Importance.high,
         priority: Priority.high,
         showWhen: true,

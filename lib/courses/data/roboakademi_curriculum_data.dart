@@ -389,7 +389,7 @@ class RoboAkademiCurriculumData {
         weekNumber: 7,
         theme: 'Grup Projesi: Akıllı Park Sensörü / Gece Lambası',
         activities: [
-          'Grup halinde proje seçimi: ultrasonik sensörlü \'akıllı park sensörü\' ya da LDR\'li \'gece lambası\'',
+          'Grup hâlinde proje seçimi: ultrasonik sensörlü \'akıllı park sensörü\' ya da LDR\'li \'gece lambası\'',
           'Tinkercad\'de projenin devre tasarımının tamamlanması',
           'mBlock ile projenin kodlanması ve test edilmesi',
           'Scratch\'te projeyi tanıtan kısa bir sunum animasyonu hazırlama',
@@ -548,7 +548,7 @@ class RoboAkademiCurriculumData {
         weekNumber: 7,
         theme: 'Grup Projesi: Engel Algılayan Sistem / Akıllı Ev Modülü',
         activities: [
-          'Grup halinde proje seçimi: ultrasonik sensörlü \'engel algılayan sistem\' ya da LDR+servo\'lu \'akıllı ev modülü\' (ör. otomatik perde/kapı)',
+          'Grup hâlinde proje seçimi: ultrasonik sensörlü \'engel algılayan sistem\' ya da LDR+servo\'lu \'akıllı ev modülü\' (ör. otomatik perde/kapı)',
           'Devrenin Tinkercad\'de tasarlanıp Arduino IDE\'de kodlanması',
           'Projenin kod dokümantasyonunun tamamlanması',
           'Satranç: öğrenilen taktiklerin uygulandığı mini maçlar',

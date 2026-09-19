@@ -421,7 +421,7 @@ class CourseModules {
           ),
           CourseModule(
             title: 'Sensorler & Final Proje',
-            description: 'Park sensoru ve cam sileceği',
+            description: 'Park sensörü ve cam sileceği',
             emoji: '📏',
             lessons: ArduinoLessonsData.module5,
           ),

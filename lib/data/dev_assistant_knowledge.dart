@@ -85,7 +85,7 @@ const List<String> kSuggestedQuestionsTr = [
   'Kodum çalışmıyor, ne yapmalıyım?',
   'Nereden başlamalıyım?',
   'Nasıl oyun yaparım?',
-  'Yapay zeka nedir?',
+  'Yapay zekâ nedir?',
   'Döngü nedir?',
   'Değişken nedir?',
   'mBlock nedir?',
@@ -1907,7 +1907,7 @@ const List<KnowledgeEntry> kKnowledgeBase = [
         'Yorum satırı, bilgisayarın çalıştırmadığı ama insanların okuduğu nottur. '
         'Kodun ne yaptığını hatırlamak için yazılır.\n\n'
         'Python\'da # ile başlar:\n'
-        '# Bu satir calismaz\n'
+        '# Bu satır çalışmaz\n'
         'print("Merhaba")\n\n'
         'İyi bir alışkanlık: karışık bir bölümün üstüne bir cümlelik açıklama yaz.',
     answerEn:
@@ -2045,10 +2045,10 @@ const List<KnowledgeEntry> kKnowledgeBase = [
       'que es la inteligencia artificial',
     ],
     answerTr:
-        'Yapay zeka, bilgisayarın örneklerden öğrenip tahmin yapmasıdır. Kediyi '
+        'Yapay zekâ, bilgisayarın örneklerden öğrenip tahmin yapmasıdır. Kediyi '
         'tanıması için binlerce kedi fotoğrafı gösterirsin, o da ortak özellikleri '
         'çıkarır.\n\n'
-        'Sihirli değil: arkasında matematik ve çok fazla veri var. Yapay zeka '
+        'Sihirli değil: arkasında matematik ve çok fazla veri var. Yapay zekâ '
         'öğrenmek istiyorsan önce Python ve matematik iyi bir temel.',
     answerEn:
         'Artificial intelligence is a computer learning from examples and making '
@@ -2511,7 +2511,7 @@ const List<KnowledgeEntry> kKnowledgeBase = [
         'Yazılımcı olmak için üniversite şart değil ama matematik ve İngilizce çok '
         'işine yarar. Önemli olan proje yapmak.\n\n'
         'Yol: Scratch ile mantığı öğren, Python ile gerçek kod yaz, sonra ilgini çeken '
-        'alanı seç - oyun, web, mobil, yapay zeka ya da robotik. Yaptığın her projeyi '
+        'alanı seç - oyun, web, mobil, yapay zekâ ya da robotik. Yaptığın her projeyi '
         'sakla, zamanla portfolyon olur.',
     answerEn:
         'You do not strictly need a university degree to become a developer, but maths '
@@ -3101,7 +3101,7 @@ const List<KnowledgeEntry> kKnowledgeBase = [
         'kullanırsın, sözlükte anlamlı bir kelime.\n\n'
         'oyuncu = {"ad": "Ada", "puan": 120, "seviye": 3}\n'
         'print(oyuncu["puan"])  # 120\n'
-        'oyuncu["puan"] = 150   # degeri degistirir\n\n'
+        'oyuncu["puan"] = 150   # değeri değiştirir\n\n'
         'Oyun kaydı, kullanıcı bilgisi gibi şeyleri tutmak için ideal.',
     answerEn:
         'A dictionary gives every value a name (a key). In a list you use an index '

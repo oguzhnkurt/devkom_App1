@@ -500,7 +500,7 @@ class SettingsScreen extends StatelessWidget {
                     title: loc.about,
                     children: [
                       _buildAboutTile(context),
-                      // Yalnizca hata ayiklama derlemesinde gorunur.
+                      // Yalnızca hata ayıklama derlemesinde görünür.
                       // Yayin derlemesinde `kDebugMode` false oldugu icin
                       // bu satir hic olusmuyor.
                       if (kDebugMode) _buildAdTestTile(context),
@@ -690,7 +690,7 @@ class SettingsScreen extends StatelessWidget {
       leading: _chip(Icons.ads_click_rounded, Colors.teal),
       title: const Text('Reklam testi (debug)',
           style: TextStyle(inherit: true)),
-      subtitle: const Text('Yalnizca hata ayiklama derlemesinde gorunur',
+      subtitle: const Text('Yalnızca hata ayıklama derlemesinde görünür',
           style: TextStyle(inherit: true)),
       trailing: const Icon(Icons.chevron_right_rounded),
       onTap: () => Navigator.push(

@@ -49,7 +49,7 @@ class LessonsData {
           LessonContent(
             id: 'py01_5',
             type: ContentType.text,
-            content: '• Öğrenmesi kolay\n• Güçlü kütüphaneler\n• Yapay zeka ve veri biliminde lider\n• Web, oyun, otomasyon her yerde',
+            content: '• Öğrenmesi kolay\n• Güçlü kütüphaneler\n• Yapay zekâ ve veri biliminde lider\n• Web, oyun, otomasyon her yerde',
           ),
         ],
       ),
@@ -349,7 +349,7 @@ print(a ** b)  # Us alma: 1000''',
           LessonContent(
             id: 'js01_2',
             type: ContentType.text,
-            content: 'JavaScript, web sayfalarını canlandiran programlama dilidir. Butonlara tıklandığında, formlara yazıldığında JavaScript çalışır.',
+            content: 'JavaScript, web sayfalarını canlandıran programlama dilidir. Butonlara tıklandığında, formlara yazıldığında JavaScript çalışır.',
           ),
         ],
       ),
@@ -431,7 +431,7 @@ console.log(PI);''',
             id: 'dart02_1',
             type: ContentType.code,
             content: '''void main() {
-  print('Merhaba Dunya!');
+  print('Merhaba Dünya!');
 
   String isim = 'DevEducation';
   int yas = 1;
@@ -471,7 +471,7 @@ console.log(PI);''',
           LessonContent(
             id: 'ard01_2',
             type: ContentType.text,
-            content: 'Arduino, elektronik projeleri programlamanizi sağlayan açık kaynaklı bir platformdur. LED yakma, motor kontrolü, sensör okuma gibi işler yapabilirsiniz.',
+            content: 'Arduino, elektronik projeleri programlamanızı sağlayan açık kaynaklı bir platformdur. LED yakma, motor kontrolü, sensör okuma gibi işler yapabilirsiniz.',
           ),
         ],
       ),
@@ -709,7 +709,7 @@ SELECT * FROM ogrenciler WHERE yas > 18;''',
             content: '''#include <stdio.h>
 
 int main() {
-    printf("Merhaba Dunya!\\n");
+    printf("Merhaba Dünya!\\n");
     return 0;
 }''',
             language: 'c',
@@ -766,7 +766,7 @@ int main() {
 import "fmt"
 
 func main() {
-    fmt.Println("Merhaba Dunya!")
+    fmt.Println("Merhaba Dünya!")
 }''',
             language: 'go',
             isInteractive: true,
@@ -823,7 +823,7 @@ func main() {
             id: 'rust02_1',
             type: ContentType.code,
             content: '''fn main() {
-    println!("Merhaba Dunya!");
+    println!("Merhaba Dünya!");
 
     let isim = "DevEducation";
     let yas: i32 = 1;
@@ -894,7 +894,7 @@ func main() {
             type: ContentType.code,
             content: '''public class Merhaba {
     public static void main(String[] args) {
-        System.out.println("Merhaba Dunya!");
+        System.out.println("Merhaba Dünya!");
 
         String isim = "DevEducation";
         int yas = 1;
@@ -967,7 +967,7 @@ func main() {
 
 class Merhaba {
     static void Main() {
-        Console.WriteLine("Merhaba Dunya!");
+        Console.WriteLine("Merhaba Dünya!");
 
         string isim = "DevEducation";
         int yas = 1;
