@@ -52,6 +52,18 @@ import 'package:devkom_app/screens/auth/modern_splash_screen.dart';
 import 'package:devkom_app/screens/games/word_match_game_screen.dart';
 import 'package:devkom_app/screens/unified_home_screen.dart';
 import 'package:devkom_app/screens/games/chess_game_screen.dart';
+import 'package:devkom_app/screens/games/arduino_blocks_game_screen.dart';
+import 'package:devkom_app/screens/games/block_coding_game_screen.dart';
+import 'package:devkom_app/screens/games/bug_hunter_game_screen.dart';
+import 'package:devkom_app/screens/games/color_coding_screen.dart';
+import 'package:devkom_app/screens/games/coordinates_game_screen.dart';
+import 'package:devkom_app/screens/games/left_right_coding_game_screen.dart';
+import 'package:devkom_app/screens/games/millionaire_game_screen.dart';
+import 'package:devkom_app/screens/games/pattern_detective_game_screen.dart';
+import 'package:devkom_app/screens/games/pipes_game_screen.dart';
+import 'package:devkom_app/screens/games/robot_simulator_game_screen.dart';
+import 'package:devkom_app/screens/games/sequencing_game_screen.dart';
+import 'package:devkom_app/screens/games/variable_master_game_screen.dart';
 import 'package:devkom_app/models/chess_game_model.dart';
 import 'package:devkom_app/screens/quiz/quiz_intro_screen.dart';
 import 'package:devkom_app/widgets/mascot.dart';
@@ -178,7 +190,8 @@ Future<void> _shoot(
   // pompalamak gerekiyor.
   await tester.runAsync(() async {
     await precacheImage(
-        const AssetImage('assets/images/app_icon.png'), _key.currentContext!);
+            const AssetImage('assets/images/app_icon.png'), _key.currentContext!)
+        .timeout(const Duration(seconds: 20), onTimeout: () {});
     // Satranc tahtasinin zemini paket icinden gelen bir PNG. Onbellege
     // alinmazsa taslar ciziliyor ama KARELER bos kaliyor — tahtasiz bir
     // satranc ekrani cikiyordu.
@@ -186,19 +199,30 @@ Future<void> _shoot(
       await precacheImage(
         AssetImage('images/${ad}_board.png', package: 'flutter_chess_board'),
         _key.currentContext!,
-      );
+      ).timeout(const Duration(seconds: 20), onTimeout: () {});
     }
-    // MASKOT.
+    // MASKOT — YALNIZCA DURAGAN GORSEL.
     //
     // iPad kosusunda Devi'nin yerinde `Icons.smart_toy_rounded`
     // cikiyordu — yani `Image.asset`'in errorBuilder'i. Onbellege
     // alinmadan cizilen kare, gorsel daha cozulmeden yaziliyor.
     // Magaza gorselinde maskotun yerinde bir yedek simge olamaz.
-    for (final yol in [Mascot.durgunGorsel, Mascot.kutlamaGorseli]) {
+    //
+    // `Mascot.kutlamaGorseli` BILEREK DISARIDA: 90 kareli hareketli
+    // bir WebP. Sahte zamanli test motoru hareketli gorselin
+    // karelerini cozmuyor; `precacheImage` ya hic donmuyor (test 10
+    // dakika sonra zaman asimina ugruyor) ya da sonraki `pump`
+    // `MultiFrameImageStreamCompleter._handleAppFrame` icindeki
+    // `_nextFrame != null` savini dusuruyor. Magaza gorsellerinde
+    // kutlama animasyonu zaten gorunmuyor; duragan Devi yetiyor.
+    for (final yol in [Mascot.durgunGorsel]) {
       try {
-        await precacheImage(AssetImage(yol), _key.currentContext!);
+        await precacheImage(AssetImage(yol), _key.currentContext!)
+            .timeout(const Duration(seconds: 20));
       } catch (_) {
-        // Gorsel yoksa arac durmasin; eksikligi ciktida zaten gorunur.
+        // Gorsel yoksa ya da cozulemiyorsa arac durmasin; eksikligi
+        // ciktida zaten gorunur. Zaman asimi kasitli: tek bir gorsel
+        // butun kosuyu rehin alamasin.
       }
     }
   });
@@ -660,6 +684,151 @@ void main() {
       },
     );
   });
+
+
+  // ---- OYUN EKRANLARI ------------------------------------------------
+  //
+  // Tanitim videosunda "16 mini oyun" vaadini gosterecek kareler. Bu
+  // ekranlar yalnizca TELEFON boyutunda cekiliyor: videoda kullanilacak,
+  // iPad magaza slaytlarinda degil.
+  //
+  // Bir oyun ekrani widget testinde acilmazsa (Flame, zamanlayici,
+  // zorluk secme penceresi) yalnizca O test dusuyor, digerleri yazmaya
+  // devam ediyor. Duseni buradan cikarin.
+  if (cihaz.ad == 'telefon') {
+    testWidgets('15 hata avcisi ($lang, ${cihaz.ad})', (tester) async {
+      await _shoot(
+        tester,
+        '15_bug_hunter',
+        const BugHunterGameScreen(),
+        lang: lang,
+        cihaz: cihaz,
+        fullScreen: true,
+        settle: const Duration(milliseconds: 900),
+      );
+    });
+    testWidgets('16 komut sirala ($lang, ${cihaz.ad})', (tester) async {
+      await _shoot(
+        tester,
+        '16_sequencing',
+        const SequencingGameScreen(gameData: {}),
+        lang: lang,
+        cihaz: cihaz,
+        fullScreen: true,
+        settle: const Duration(milliseconds: 900),
+      );
+    });
+    testWidgets('17 oruntu dedektifi ($lang, ${cihaz.ad})', (tester) async {
+      await _shoot(
+        tester,
+        '17_pattern',
+        const PatternDetectiveGameScreen(),
+        lang: lang,
+        cihaz: cihaz,
+        fullScreen: true,
+        settle: const Duration(milliseconds: 900),
+      );
+    });
+    testWidgets('18 degisken ustasi ($lang, ${cihaz.ad})', (tester) async {
+      await _shoot(
+        tester,
+        '18_variable',
+        const VariableMasterGameScreen(),
+        lang: lang,
+        cihaz: cihaz,
+        fullScreen: true,
+        settle: const Duration(milliseconds: 900),
+      );
+    });
+    testWidgets('19 renk kodlama ($lang, ${cihaz.ad})', (tester) async {
+      await _shoot(
+        tester,
+        '19_color_coding',
+        const ColorCodingScreen(),
+        lang: lang,
+        cihaz: cihaz,
+        fullScreen: true,
+        settle: const Duration(milliseconds: 900),
+      );
+    });
+    testWidgets('20 koordinatlar ($lang, ${cihaz.ad})', (tester) async {
+      await _shoot(
+        tester,
+        '20_coordinates',
+        const CoordinatesGameScreen(),
+        lang: lang,
+        cihaz: cihaz,
+        fullScreen: true,
+        settle: const Duration(milliseconds: 900),
+      );
+    });
+    testWidgets('21 kim milyoner ($lang, ${cihaz.ad})', (tester) async {
+      await _shoot(
+        tester,
+        '21_millionaire',
+        const MillionaireGameScreen(),
+        lang: lang,
+        cihaz: cihaz,
+        fullScreen: true,
+        settle: const Duration(milliseconds: 900),
+      );
+    });
+    testWidgets('22 borular ($lang, ${cihaz.ad})', (tester) async {
+      await _shoot(
+        tester,
+        '22_pipes',
+        const PipesGameScreen(),
+        lang: lang,
+        cihaz: cihaz,
+        fullScreen: true,
+        settle: const Duration(milliseconds: 900),
+      );
+    });
+    testWidgets('23 sagim solum ($lang, ${cihaz.ad})', (tester) async {
+      await _shoot(
+        tester,
+        '23_left_right',
+        const LeftRightCodingGameScreen(),
+        lang: lang,
+        cihaz: cihaz,
+        fullScreen: true,
+        settle: const Duration(milliseconds: 900),
+      );
+    });
+    testWidgets('24 robot simulatoru ($lang, ${cihaz.ad})', (tester) async {
+      await _shoot(
+        tester,
+        '24_robot',
+        const RobotSimulatorGameScreen(),
+        lang: lang,
+        cihaz: cihaz,
+        fullScreen: true,
+        settle: const Duration(milliseconds: 900),
+      );
+    });
+    testWidgets('25 arduino bloklari ($lang, ${cihaz.ad})', (tester) async {
+      await _shoot(
+        tester,
+        '25_arduino_blocks',
+        const ArduinoBlocksGameScreen(),
+        lang: lang,
+        cihaz: cihaz,
+        fullScreen: true,
+        settle: const Duration(milliseconds: 900),
+      );
+    });
+    testWidgets('26 blok kodlama ($lang, ${cihaz.ad})', (tester) async {
+      await _shoot(
+        tester,
+        '26_block_coding',
+        const BlockCodingGameScreen(),
+        lang: lang,
+        cihaz: cihaz,
+        fullScreen: true,
+        settle: const Duration(milliseconds: 900),
+      );
+    });
+  }
 
   }
   }

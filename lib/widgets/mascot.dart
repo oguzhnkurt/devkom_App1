@@ -122,8 +122,37 @@ class _MascotState extends State<Mascot> with TickerProviderStateMixin {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _applyMotion();
-    // Kutlama görseli büyük; ders biterken ilk kez yüklenmesin diye
-    // önceden hazırlanıyor.
+    _kutlamayiHazirla();
+  }
+
+  /// Uygulama açılışında bir kez hazırlanan kutlama görseli.
+  static bool _kutlamaHazirlandi = false;
+
+  /// Kutlama görseli büyük (1,4 MB) ve **hareketli** bir WebP —
+  /// 90 kare. Ders biterken ilk kez yüklenmesin diye önceden ön
+  /// belleğe alınıyor, ama iki koşulla:
+  ///
+  /// **Bir kez.** `didChangeDependencies` her bağımlılık değişiminde
+  /// çalışıyor — klavye açılınca, yön dönünce, tema değişince. Her
+  /// seferinde yeniden ön belleğe almak boşuna iş.
+  ///
+  /// **Testte hiç.** Widget testlerinin sahte zamanlı (fake-async)
+  /// motoru hareketli bir görselin karelerini çözmüyor.
+  /// `precacheImage` ya hiç dönmüyor — test 10 dakika sonra zaman
+  /// aşımına uğruyor — ya da bir sonraki `pump`,
+  /// `MultiFrameImageStreamCompleter._handleAppFrame` içindeki
+  /// `_nextFrame != null` savını düşürüyor. Mağaza görsellerini üreten
+  /// araç (`test/appstore_shots_test.dart`) tam bu yüzden maskotlu ilk
+  /// ekranında donuyor, ardından gelen testler de "Reentrant call to
+  /// runAsync()" ile düşüyordu.
+  ///
+  /// `TestWidgetsFlutterBinding` bir [WidgetsFlutterBinding] DEĞİL;
+  /// ayrım buradan yapılıyor, `dart:io` gerekmiyor (web derlemesi de
+  /// bozulmuyor).
+  void _kutlamayiHazirla() {
+    if (_kutlamaHazirlandi) return;
+    if (WidgetsBinding.instance is! WidgetsFlutterBinding) return;
+    _kutlamaHazirlandi = true;
     precacheImage(const AssetImage(Mascot.kutlamaGorseli), context);
   }
 

@@ -1,7 +1,7 @@
 # Tanıtım videosu üreticisi
 
 Dört MP4 üretir — Türkçe ve İngilizce × 9:16 (1080×1920) ve 1:1 (1080×1080),
-her biri **23,6 saniye / 30 fps**, sesli. Instagram Reels, TikTok ve kare
+her biri **26,8 saniye / 30 fps**, sesli. Instagram Reels, TikTok ve kare
 reklam yerleşimleri için.
 
     tool/promo/run.sh
@@ -26,13 +26,14 @@ siliniyor, kapanışta geri geliyor.
 | 6,0–9,2 | Scratch dersi | telefon | |
 | 9,2–12,4 | blok kurma | telefon | |
 | 12,4–15,6 | HTML kodu | telefon | |
-| 15,6–20,4 | 4 oyun ekranı | **çerçevesiz** | telefon çekiliyor, ekranlar tam tasarım çapraz geçiyor |
-| 20,4–23,6 | öğrenme yolu | telefon | telefon geri geliyor, sonda logo |
+| 15,6–23,6 | **8 oyun ekranı** | **çerçevesiz** | telefon çekiliyor, ekranlar tam tasarım çapraz geçiyor — kart başına 1 sn |
+| 23,6–26,8 | öğrenme yolu | telefon | telefon geri geliyor, sonda logo |
 
 Telefon her geçişte tam tur dönüyor; ekran dokusu turun ortasında, arka
-yüz kameraya bakarken değişiyor. Oyun bölümündeki dört kart 0,35 sn'lik
-çapraz geçişle birbirine karışıyor — geçiş penceresi kart süresinden
-kısa olduğu için aralarda **boş kare kalmıyor** (ilk sürümde kalıyordu).
+yüz kameraya bakarken değişiyor. Oyun bölümündeki sekiz kart çapraz
+geçişle birbirine karışıyor — geçiş penceresi kart süresinin **%30'unu
+geçmiyor** (`XF = min(0.26, step * 0.3)`), böylece aralarda **boş kare
+kalmıyor** (ilk sürümde kalıyordu) ve ghost'lanma da uzamıyor.
 
 Zamanlamalar `render.html` başındaki `PHONE_DUR`, `GAMES_DUR`, `INTRO`,
 `SPIN` sabitlerinde. `sfx.py` aynı sayıları tekrar tanımlıyor — **birini
@@ -49,7 +50,8 @@ yazılmaz.
 `sfx.py` sesi numpy ile üretiyor: yazının her harfinde klavye tıkı,
 telefon gelirken ve her turda whoosh, oyun bölümüne geçişte bir whoosh
 ve her oyun kartında blip, logoda çınlama, altta çok kısık bir bas
-dokusu.
+dokusu. **`GAME_COUNT` kart sayısıyla aynı olmalı**, yoksa blipler
+kartlarla tutmaz.
 
 Şablonun `Read Me!.txt` dosyasındaki AudioJungle parçası (`abstract
 glitch tech`) **ayrı lisanslı**; eğitim videosundan sökülüp
@@ -71,7 +73,7 @@ After Effects yok. Sahne tarayıcıda kuruluyor:
    `ffmpeg` ile H.264 + AAC MP4'e çevirir.
 
 GPU yoksa WebGL yazılımla (SwiftShader) koşar: kare başına ~0,5 sn, dört
-video toplam ~25 dakika. GPU'lu bir makinede dakikalar sürer.
+video toplam ~40 dakika. GPU'lu bir makinede dakikalar sürer.
 
 ## Hazırlık
 
@@ -97,37 +99,27 @@ Videoyu çekmeden önce görüntüleri yenileyin.
 ### 3. Oyun ekranları
 
 `run.sh` içindeki `oyun` çağrıları hangi görselin hangi karta gittiğini
-söylüyor (`g1_chess` ← `12_chess.png` gibi). Her kart için önce
+söylüyor (`g1_chess` ← `12_chess.png` gibi). Sekiz kart:
+
+    g1_chess       g2_millionaire  g3_word_match  g4_matching
+    g5_bug_hunter  g6_coordinates  g7_robot       g8_arduino
+
+Hepsi widget testinin çıktısından geliyor ve **dile göre ayrışıyor**
+(`ekranlar_tr/` ile `ekranlar/`). Bir tur bu atlandı: İngilizce videoya
+Türkçe cihaz kayıtları konmuştu, videoda "Satranç Oyunu", "Bilgi
+Yarışması", "Soru 1" yazıyordu.
+
+Bir kart için
 
     outputs/promo/oyun/{tr,en}/g1_chess.png
 
-varsa o kullanılıyor — **cihazdan alınmış gerçek ekran görüntüsü tercih
-edilir**, çünkü iOS durum çubuğu üstte duruyor ve çerçevesiz gösterimde
-telefondan kaydedilmiş gibi görünüyor. Yoksa widget testinin çıktısına
-düşüyor; o da yoksa kart atlanıyor ve uyarı basılıyor.
+varsa o kullanılıyor. Bu kapı cihazdan alınmış gerçek ekran kayıtları
+için; ama **ya hepsine koyun ya hiçbirine**: cihaz kaydında iOS durum
+çubuğu var, widget çıktısında yok, karışınca kartlar farklı yerden
+gelmiş gibi duruyor. Görsel hiç yoksa kart atlanıyor, uyarı basılıyor
+ve çapraz geçiş kalan kartlara bölünüyor.
 
-İngilizce tarafta **bilgi yarışmasının İngilizce ekran görüntüsü
-henüz yok** (o ekran `appstore_shots_test.dart`'a eklendi ama test
-çalıştırılmadı), o yüzden EN videosunda üç kart dönüyor: satranç,
-kelime eşleştirme, eşleştirme. TR'de dört kart var. Kart sayısı
-otomatik: yüklenemeyen görsel atlanıyor, çapraz geçiş kalanlara
-bölünüyor.
-
-### 4. Kapanıştaki mağaza satırı
-
-`render.html` başında:
-
-    const STORES = 'both';   // 'apple' | 'both'
-
-`'both'` → *App Store ve Google Play'de* / *Available on the App Store
-and Google Play*. `'apple'` → *App Store'da* / *On the App Store*.
-
-**Google Play listesi yayına girmeden `'both'` kullanılmamalı.**
-Yayındaki bir reklamda olmayan bir mağazayı söylemek yanlış beyan olur.
-19 Eylül 2026 itibarıyla `play.google.com/store/apps/details?id=com.devkom.app`
-404 dönüyordu.
-
-### 5. Bağımlılıklar
+### 4. Bağımlılıklar
 
     cd tool/promo && npm i playwright three
     npx playwright install chromium     # kendi Chromium'u yoksa

@@ -53,6 +53,10 @@ oyun g1_chess       12_chess
 oyun g2_millionaire 21_millionaire
 oyun g3_word_match  11_word_match
 oyun g4_matching    07_matching
+oyun g5_bug_hunter  15_bug_hunter
+oyun g6_coordinates 20_coordinates
+oyun g7_robot       24_robot
+oyun g8_arduino     25_arduino_blocks
 
 NODE_MODULES="$(cd "$ROOT/tool/promo" && npm root)"
 cp -r "$NODE_MODULES/three" "$STAGE/lib/three"

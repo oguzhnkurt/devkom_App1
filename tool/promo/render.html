@@ -111,8 +111,11 @@ const SHOTS = (q.get('calib') ? ['calib','calib','calib','calib','calib'] : q.ge
 // Kurgu: telefon maketiyle anlatilan ekranlar + ARADA cercevesiz bir
 // oyun bolumu. Oyun ekranlari maketin icine girmiyor; tam tasarim
 // gorunsun diye ekranin tamami kadraja yerlesiyor.
-const PHONE_DUR = 3.2, GAMES_DUR = 4.8, SPIN = 0.7, INTRO = 2.8;
-const GAMES = ['g1_chess', 'g2_millionaire', 'g3_word_match', 'g4_matching'];
+const PHONE_DUR = 3.2, GAMES_DUR = 8.0, SPIN = 0.7, INTRO = 2.8;
+// Sekiz oyun karti. Hepsi widget testinin ciktisindan (run.sh
+// esliyor) — dile gore ayrisiyor, tek tip gorunum.
+const GAMES = ['g1_chess', 'g2_millionaire', 'g3_word_match', 'g4_matching',
+               'g5_bug_hunter', 'g6_coordinates', 'g7_robot', 'g8_arduino'];
 
 const TL = [
   { k: 'p', s: 0 }, { k: 'p', s: 1 }, { k: 'p', s: 2 }, { k: 'p', s: 3 },
@@ -385,7 +388,7 @@ function renderFrame(t) {
     // Oyunlar birbirine GECIYOR: biri sonerken digeri aciliyor.
     // Once fade-out fade-in'den once bitiyordu ve arada bos kare
     // kaliyordu.
-    const step = len / gameEls.length, XF = 0.35;
+    const step = len / gameEls.length, XF = Math.min(0.26, step * 0.3);
     gameEls.forEach((im, k) => {
       const d = local - k * step;
       const a = Math.min(clamp01(d / XF), 1 - clamp01((d - step) / XF));

@@ -19,12 +19,12 @@ from scipy.signal import butter, sosfilt
 
 SR = 48000
 # Zamanlar render.html ile AYNI olmali.
-INTRO, DUR, GAMES_DUR, END_DUR = 2.8, 3.2, 4.8, 3.2
-GAME_COUNT = 4                       # oyun bolumunde kac ekran donuyor
+INTRO, DUR, GAMES_DUR, END_DUR = 2.8, 3.2, 8.0, 3.2
+GAME_COUNT = 8                       # oyun bolumunde kac ekran donuyor
 CUTS = [INTRO + i * DUR for i in range(4)]   # telefonun geldigi/dondugu anlar
 GAMES_AT = INTRO + 4 * DUR                   # oyun bolumu baslangici
 END_AT = GAMES_AT + GAMES_DUR                # telefon geri geliyor
-DURATION = END_AT + END_DUR                  # 23.6 s
+DURATION = END_AT + END_DUR                  # 26.8 s
 TYPE_START, TYPE_LEN = 0.25, 1.45
 
 TEXT = {'tr': 'Bloklardan gerçek koda.', 'en': 'From blocks to real code.'}
