@@ -1,0 +1,275 @@
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: Nunito; src: url('fonts/Nunito-400.ttf'); font-weight: 400 }
+  @font-face { font-family: Nunito; src: url('fonts/Nunito-600.ttf'); font-weight: 600 }
+  @font-face { font-family: Nunito; src: url('fonts/Nunito-700.ttf'); font-weight: 700 }
+  @font-face { font-family: Nunito; src: url('fonts/Nunito-800.ttf'); font-weight: 800 }
+  * { margin:0; padding:0; box-sizing:border-box }
+  html,body { background:#04060e; overflow:hidden }
+  #stage { position:relative; overflow:hidden; background:#04060e;
+           font-family:Nunito, sans-serif; -webkit-font-smoothing:antialiased }
+
+  /* Sablonun imzasi: altta ortada derin mavi bir isik, ustte neredeyse
+     siyah. Tek bir radial-gradient yetmiyor; ikincisi rengi yukari
+     tasiyor, ucuncusu kenarlari karartiyor (vinyet). */
+  #glow, #glow2, #vig { position:absolute; inset:0; pointer-events:none }
+  #glow  { background:radial-gradient(120% 78% at 50% 108%,
+             #2f5fd0 0%, #1b3a93 26%, #0b1a49 48%, rgba(4,6,14,0) 72%) }
+  #glow2 { background:radial-gradient(60% 46% at 50% 96%,
+             #4f7ef0 0%, rgba(30,60,150,.45) 38%, rgba(4,6,14,0) 70%);
+           mix-blend-mode:screen }
+  #vig   { background:radial-gradient(130% 100% at 50% 50%,
+             rgba(0,0,0,0) 42%, rgba(0,0,0,.55) 100%) }
+
+  .layer { position:absolute; inset:0; pointer-events:none }
+
+  /* --- giris / kapanis --- */
+  #brand { position:absolute; left:0; right:0; text-align:center; opacity:0 }
+  #brand img { border-radius:23%; display:block; margin:0 auto;
+               box-shadow:0 26px 70px rgba(10,30,90,.65) }
+  #brand .nm { color:#fff; font-weight:800; letter-spacing:-.025em; margin-top:.42em }
+  #brand .st { color:#93a9dd; font-weight:600; margin-top:.35em }
+
+  /* --- sahne metni --- */
+  #copy { position:absolute; opacity:0 }
+  #copy .t { color:#fff; font-weight:800; letter-spacing:-.03em; line-height:1.08 }
+  #copy .t em { font-style:normal; color:#7fa6ff }
+  #copy .s { color:#8fa4d6; font-weight:600; margin-top:.75em; line-height:1.4 }
+
+  /* --- telefon --- */
+  #phone { position:absolute; opacity:0; will-change:transform,opacity }
+  #phone img { display:block; width:100%; height:100%; object-fit:contain;
+               filter:drop-shadow(0 50px 90px rgba(0,0,0,.6)) }
+
+  /* --- oyun seridi --- */
+  /* Serit MUTLAKA max-content olmali: mutlak konumlu bir flex kutusu
+     yoksa kapsayiciya sigmaya calisir ve telefonlari ezer. Ilk
+     denemede seritte 8 yerine 12 ince telefon gorunuyordu. */
+  #strip { position:absolute; opacity:0; display:flex; align-items:center;
+           flex-wrap:nowrap; width:max-content; gap:var(--gap);
+           will-change:transform }
+  #strip img { display:block; flex:0 0 auto; height:var(--gh); width:auto;
+               filter:drop-shadow(0 34px 60px rgba(0,0,0,.55)) }
+</style>
+
+<div id="stage">
+  <div id="glow"></div><div id="glow2"></div><div id="vig"></div>
+  <div class="layer"><div id="phone"><img id="pimg"></div></div>
+  <div class="layer"><div id="strip"></div></div>
+  <div class="layer"><div id="copy"><div class="t" id="ct"></div><div class="s" id="cs"></div></div></div>
+  <div class="layer"><div id="brand">
+    <img id="bicon" src="app_icon.png">
+    <div class="nm" id="bnm"></div><div class="st" id="bst"></div>
+  </div></div>
+</div>
+
+<script>
+const P = new URLSearchParams(location.search);
+const LANG = P.get('lang') === 'en' ? 'en' : 'tr';
+const FMT  = P.get('fmt')  === '916' ? '916' : '169';
+const W = FMT === '916' ? 1080 : 1920;
+const H = FMT === '916' ? 1920 : 1080;
+
+// ---------------------------------------------------------------- metin
+// Mağaza slaytlarıyla (tool/store_slides.py) AYNI ifadeler. Yeni vaat
+// uydurulmuyor — App Store Kural 2.3.1.
+const COPY = {
+  tr: {
+    tag: 'Bloklardan gerçek koda',
+    scenes: [
+      ['<em>Kodlama</em> ve robotik öğren', 'Sıfırdan başla · 9 kurs'],
+      ['Scratch’i <em>adım adım</em> öğrenir', 'Blok nedir, ne işe yarar — kısa adımlarla'],
+      ['Blokları <em>sürükleyip</em> kodu kurar', 'Gerçek Scratch blokları'],
+      ['Sonra <em>gerçek kodu</em> kendi yazar', 'HTML, CSS, Python, C# — harf harf'],
+    ],
+    games: ['<em>Oyunla</em> pekiştirir', '16 mini oyun · eşleştir, sırala, labirenti geç'],
+    brand: ['DevEducation', 'App Store ve Google Play’de'],
+  },
+  en: {
+    tag: 'From blocks to real code',
+    scenes: [
+      ['Learn <em>coding</em> and robotics', 'Start from zero · 9 courses'],
+      ['Learns Scratch <em>step by step</em>', 'What a block is and what it does'],
+      ['<em>Drags</em> blocks into working code', 'Real Scratch blocks'],
+      ['Then writes <em>real code</em>', 'HTML, CSS, Python, C# — line by line'],
+    ],
+    games: ['<em>Practises</em> by playing', '16 mini games · match, order, get through the maze'],
+    brand: ['DevEducation', 'Available on the App Store and Google Play'],
+  },
+}[LANG];
+
+// Kapanistaki magaza satiri icin anahtar: Play listesi yayina
+// girmeden 'both' kullanilmamali (bkz. tool/promo/README.md).
+// Burada metin zaten COPY.brand icinde; 'apple' istenirse orasi
+// degistirilir.
+
+// ------------------------------------------------------------- zamanlama
+const INTRO = 3.0, SCENE = 3.4, GAMES = 5.4, OUTRO = 3.4;
+const SHOTS = ['s1_home', 's2_lesson', 's3_blocks', 's4_html'];
+// Sahne sirasi: giris, dort telefon, oyun seridi, kapanis.
+const TL = [{k:'i'}, {k:'p',i:0}, {k:'p',i:1}, {k:'p',i:2}, {k:'p',i:3},
+            {k:'g'}, {k:'o'}];
+const LEN = {i:INTRO, p:SCENE, g:GAMES, o:OUTRO};
+const STARTS = []; let _a = 0;
+for (const x of TL) { STARTS.push(_a); _a += LEN[x.k]; }
+const DURATION = _a, FPS = 30;
+
+const GAMES_LIST = ['g1_chess','g2_millionaire','g3_word_match','g4_matching',
+                    'g5_bug_hunter','g6_coordinates','g7_robot','g8_arduino'];
+
+// --------------------------------------------------------------- yerlesim
+// 16:9'da telefon bir yanda, metin diger yanda; 9:16'da metin ustte,
+// telefon altta. Sayilar stage yuzdesi.
+const L = FMT === '916' ? {
+  icon: 150, nm: 62, st: 27, brandTop: 0.38,
+  title: 70, sub: 28, copyTop: 0.10, copyLeft: 0.08, copyW: 0.84, copyAlign: 'center',
+  phoneH: 0.60, phoneTop: 0.58, phoneLeft: 0.5, gh: 640, gap: 46,
+} : {
+  icon: 168, nm: 76, st: 31, brandTop: 0.30,
+  title: 76, sub: 30, copyTop: 0.30, copyLeft: 0.09, copyW: 0.40, copyAlign: 'left',
+  phoneH: 0.90, phoneTop: 0.50, phoneLeft: 0.71, gh: 700, gap: 56,
+};
+
+const el = {};
+for (const id of ['stage','phone','pimg','strip','copy','ct','cs',
+                  'brand','bicon','bnm','bst'])
+  el[id] = document.getElementById(id);
+
+el.stage.style.width = W + 'px';
+el.stage.style.height = H + 'px';
+el.bicon.style.width = el.bicon.style.height = L.icon + 'px';
+el.bnm.style.fontSize = L.nm + 'px';
+el.bst.style.fontSize = L.st + 'px';
+el.ct.style.fontSize = L.title + 'px';
+el.cs.style.fontSize = L.sub + 'px';
+el.copy.style.left = (L.copyLeft * W) + 'px';
+el.copy.style.width = (L.copyW * W) + 'px';
+el.copy.style.textAlign = L.copyAlign;
+el.brand.style.top = (L.brandTop * H) + 'px';
+el.strip.style.setProperty('--gh', L.gh + 'px');
+el.strip.style.setProperty('--gap', L.gap + 'px');
+
+const clamp01 = x => Math.max(0, Math.min(1, x));
+const easeOut = x => 1 - Math.pow(1 - clamp01(x), 3);
+const easeInOut = x => (x = clamp01(x)) < .5 ? 4*x*x*x : 1 - Math.pow(-2*x+2, 3)/2;
+
+function loadImg(src) {
+  return new Promise((res, rej) => {
+    const im = new Image();
+    im.onload = () => res(im); im.onerror = () => rej(new Error(src));
+    im.src = src;
+  });
+}
+
+let stripW = 0;
+
+async function boot() {
+  await document.fonts.ready;
+  const need = [...SHOTS, ...GAMES_LIST].map(n => `phones/${LANG}/${n}.png`);
+  await Promise.all(need.map(loadImg));
+  await loadImg('app_icon.png');
+
+  for (const g of GAMES_LIST) {
+    const im = document.createElement('img');
+    im.src = `phones/${LANG}/${g}.png`;
+    el.strip.appendChild(im);
+  }
+  // Serit genisligi: kaydirma mesafesi bundan hesaplaniyor.
+  stripW = el.strip.scrollWidth;
+
+  window.__meta = { W, H, DURATION, FPS };
+  window.__ready = true;
+  renderFrame(0);
+}
+
+function sahne(t) {
+  let i = 0;
+  while (i + 1 < TL.length && t >= STARTS[i + 1]) i++;
+  return { x: TL[i], local: t - STARTS[i], len: LEN[TL[i].k], idx: i };
+}
+
+function renderFrame(t) {
+  const { x, local, len } = sahne(t);
+
+  // Arka plandaki isik yavasca nefes aliyor.
+  const b = 0.88 + 0.12 * Math.sin(t * 0.55);
+  document.getElementById('glow2').style.opacity = b;
+
+  // --------------------------------------------------- giris / kapanis
+  const marka = x.k === 'i' || x.k === 'o';
+  if (marka) {
+    const a = Math.min(easeOut(local / 0.85),
+                       1 - easeOut((local - (len - 0.5)) / 0.5));
+    el.brand.style.opacity = Math.max(0, a);
+    el.brand.style.transform = `translateY(${(1 - easeOut(local / 1.1)) * 26}px)`;
+    el.bnm.textContent = COPY.brand[0];
+    el.bst.textContent = x.k === 'i' ? COPY.tag : COPY.brand[1];
+    el.bicon.style.transform = `scale(${0.88 + 0.12 * easeOut(local / 1.2)})`;
+  } else {
+    el.brand.style.opacity = 0;
+  }
+
+  // ------------------------------------------------------------ telefon
+  if (x.k === 'p') {
+    const [ttl, sub] = COPY.scenes[x.i];
+    el.ct.innerHTML = ttl; el.cs.innerHTML = sub;
+
+    const inA = easeOut(local / 0.7);
+    const outA = 1 - easeOut((local - (len - 0.45)) / 0.45);
+    const a = Math.max(0, Math.min(inA, outA));
+
+    el.copy.style.opacity = a;
+    el.copy.style.top = (L.copyTop * H) + 'px';
+    el.copy.style.transform = `translateY(${(1 - inA) * 30}px)`;
+
+    const img = `phones/${LANG}/${SHOTS[x.i]}.png`;
+    if (el.pimg.getAttribute('src') !== img) el.pimg.src = img;
+
+    // Telefon ice suzuluyor ve sahne boyunca cok hafif yukseliyor —
+    // sablondaki "yavas yukselen" his.
+    const ih = L.phoneH * H;
+    el.phone.style.height = ih + 'px';
+    el.phone.style.width = (ih * 1.4) + 'px';
+    el.phone.style.left = (L.phoneLeft * W) + 'px';
+    el.phone.style.top = (L.phoneTop * H) + 'px';
+    const kay = (1 - inA) * (FMT === '916' ? 8 : 12);
+    const yuk = -easeInOut(local / len) * 2.2;
+    el.phone.style.transform =
+      `translate(-50%,-50%) translate(${kay}%, ${yuk}%) scale(${1 + 0.035 * easeInOut(local / len)})`;
+    el.phone.style.opacity = a;
+  } else {
+    el.phone.style.opacity = 0;
+  }
+
+  // -------------------------------------------------------- oyun seridi
+  if (x.k === 'g') {
+    const [ttl, sub] = COPY.games;
+    el.ct.innerHTML = ttl; el.cs.innerHTML = sub;
+    const inA = easeOut(local / 0.6);
+    const outA = 1 - easeOut((local - (len - 0.45)) / 0.45);
+    const a = Math.max(0, Math.min(inA, outA));
+    el.copy.style.opacity = a;
+    el.copy.style.top = ((FMT === '916' ? 0.10 : 0.12) * H) + 'px';
+    el.copy.style.transform = `translateY(${(1 - inA) * 24}px)`;
+
+    el.strip.style.opacity = a;
+    el.strip.style.top = ((FMT === '916' ? 0.58 : 0.57) * H) + 'px';
+    // Serit sagdan sola kayiyor: basta ilk telefon iceride, sonda
+    // sonuncusu gorunur olsun diye mesafe tam olarak hesaplaniyor.
+    const yol = Math.max(0, stripW - W * 0.86);
+    const dx = W * 0.07 - easeInOut(local / len) * yol;
+    el.strip.style.left = '0px';
+    el.strip.style.transform = `translate(${dx}px, -50%)`;
+  } else {
+    el.strip.style.opacity = 0;
+  }
+
+  // Sahne metni YALNIZCA telefon ve oyun sahnelerinde duruyor.
+  // Ilk surumde kapanista onceki sahnenin basligi ekranda kaliyordu:
+  // kosul `marka` oldugunda hic calismiyordu.
+  if (x.k !== 'p' && x.k !== 'g') el.copy.style.opacity = 0;
+}
+
+window.__renderFrame = renderFrame;
+boot().catch(e => { window.__error = String(e && e.message || e); });
+</script>
