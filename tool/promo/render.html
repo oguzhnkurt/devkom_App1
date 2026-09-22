@@ -30,6 +30,63 @@
               box-shadow:0 26px 70px rgba(10,30,90,.65) }
   #hero .nm { color:#fff; font-weight:800; letter-spacing:-.025em; margin-top:.40em }
   #hero .st { color:#93a9dd; font-weight:600; margin-top:.34em }
+  /* ---------------------------------------------------- KAPANIS ---
+     Videonun son ekrani: gokkusagi + kod. Oteki sahnelerden ayri bir
+     katman; acilisin sade marka blogunu kullanmiyor. */
+  #finale { position:absolute; inset:0; opacity:0; overflow:hidden;
+            background:#05060f; font-family:'Nunito',sans-serif }
+  /* Donen konik gokkusagi; cok bulanik oldugu icin renk olarak
+     hissediliyor, sekil olarak degil. */
+  #fbow { position:absolute; left:50%; top:50%; width:190%; height:190%;
+          border-radius:50%; will-change:transform;
+          background:conic-gradient(from 0deg,
+            #ff2d55, #ff8a00, #ffd600, #00e07a, #00c2ff,
+            #4f46e5, #b829ff, #ff2d8d, #ff2d55);
+          filter:blur(78px); opacity:.92 }
+  /* Kenar vinyeti: gokkusagi bir HALKA gibi dursun, tuvali
+     bastan basa kaplayan pastel bir bulut gibi degil. */
+  #fvig { position:absolute; inset:0;
+          background:radial-gradient(118% 118% at 50% 50%,
+            rgba(0,0,0,0) 26%, rgba(0,0,0,.30) 62%, rgba(0,0,0,.72) 100%) }
+  /* Ortayi karartan katman: gokkusagi kenarlarda kalsin, yazi okunsun. */
+  /* Gokkusagi kenarlarda kalsin, ortada yazi okunsun. Ilk denemede
+     ad, arkasindaki ayni tondaki renge karisiyordu. */
+  #fdim { position:absolute; inset:0;
+          background:radial-gradient(64% 52% at 50% 48%,
+            rgba(5,6,15,.95) 0%, rgba(5,6,15,.90) 34%,
+            rgba(5,6,15,.55) 62%, rgba(5,6,15,0) 100%) }
+  /* Marka blogunun tam arkasinda ayrica yumusak, koyu bir tabla. */
+  #fplate { position:absolute; left:50%; top:50%; border-radius:50%;
+            transform:translate(-50%,-50%); filter:blur(60px);
+            background:radial-gradient(closest-side,
+              rgba(4,5,12,.96), rgba(4,5,12,.72) 58%, rgba(4,5,12,0) 100%) }
+  /* Kod yagmuru: sabit sutunlar, her kare yalnizca y degisiyor. */
+  #frain { position:absolute; inset:0; overflow:hidden; opacity:.9 }
+  #frain span { position:absolute; font-family:ui-monospace,Menlo,Consolas,monospace;
+                white-space:pre; will-change:transform }
+  /* Suruklenen kod kartlari. Metinler GERCEK kod satiri — Scratch blok
+     adi UYDURULMUYOR (resmi dil dosyalari disinda blok adi yazilmaz). */
+  #fcards { position:absolute; inset:0; overflow:hidden }
+  #fcards div { position:absolute; padding:.42em .8em; border-radius:14px;
+                font-family:ui-monospace,Menlo,Consolas,monospace;
+                font-weight:600; color:#fff; white-space:pre;
+                box-shadow:0 14px 34px rgba(0,0,0,.42);
+                will-change:transform,opacity }
+  #fcore { position:absolute; left:0; right:0; text-align:center }
+  #fhalo { position:absolute; left:50%; top:50%; border-radius:50%;
+           transform:translate(-50%,-50%); filter:blur(34px); opacity:.85;
+           background:conic-gradient(from 0deg,
+             #ff4d4d, #ffe14d, #4ade80, #22d3ee, #a855f7, #ff4d8d, #ff4d4d) }
+  #ficon { position:relative; border-radius:23%; display:block; margin:0 auto;
+           box-shadow:0 24px 60px rgba(0,0,0,.55) }
+  #fnm { font-weight:800; letter-spacing:-.03em; margin-top:.36em;
+         background:linear-gradient(90deg,
+           #ff6b6b, #ffd93d, #6bff95, #4dd8ff, #b48bff, #ff6bd6, #ff6b6b);
+         background-size:260% 100%;
+         -webkit-background-clip:text; background-clip:text;
+         -webkit-text-fill-color:transparent; color:transparent }
+  #fst { color:#fff; font-weight:700; margin-top:.5em;
+         text-shadow:0 3px 18px rgba(0,0,0,.75) }
   #grain { position:absolute; inset:0; opacity:.05; mix-blend-mode:overlay; }
   canvas#gl { position:absolute; inset:0; width:100%; height:100%; }
   #ui { position:absolute; inset:0; }
@@ -39,7 +96,9 @@
            text-shadow:0 6px 40px rgba(0,0,0,.45) }
   .sub   { font-weight:400; color:#b9c0e8; line-height:1.35 }
   .hl    { color:#a48bff }
-  #brand { position:absolute; left:0; right:0; display:flex; align-items:center;
+  /* Eski kucuk marka satiri: acilis (#hero) ve kapanis (#finale)
+     kendi bloklarini cizdigi icin artik kullanilmiyor. */
+  #brand { display:none; position:absolute; left:0; right:0; align-items:center;
            justify-content:center; gap:22px; font-family:'Nunito',sans-serif; }
   #brand img { border-radius:22%; display:block }
   #brand .nm { color:#fff; font-weight:800; letter-spacing:-.02em }
@@ -74,6 +133,19 @@
     <div id="appvig"></div>
     <div id="hero"><img id="hicon" src="app_icon.png">
       <div class="nm" id="hnm"></div><div class="st" id="hst"></div></div>
+    <div id="finale">
+      <div id="fbow"></div>
+      <div id="fvig"></div>
+      <div id="fdim"></div>
+      <div id="frain"></div>
+      <div id="fcards"></div>
+      <div id="fcore">
+        <div id="fplate"></div>
+        <div id="fhalo"></div>
+        <img id="ficon" src="app_icon.png">
+        <div id="fnm"></div><div id="fst"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -136,7 +208,7 @@ const SHOTS = (q.get('calib') ? ['calib','calib','calib','calib','calib'] : q.ge
 // Acilis ve kapanis artik "App Promo" sablonundaki gibi: ortada
 // simge + ad, altinda tek satir. Eski daktilo acilisi ve sondaki
 // "ogrenme yolu" telefon sahnesi kaldirildi.
-const PHONE_DUR = 3.2, GAMES_DUR = 8.0, SPIN = 0.7, INTRO = 3.0, OUTRO = 3.4;
+const PHONE_DUR = 3.2, GAMES_DUR = 8.0, SPIN = 0.7, INTRO = 3.0, OUTRO = 4.0;
 // Sekiz oyun karti. Hepsi widget testinin ciktisindan (run.sh
 // esliyor) — dile gore ayrisiyor, tek tip gorunum.
 const GAMES = ['g1_chess', 'g2_millionaire', 'g3_word_match', 'g4_matching',
@@ -151,7 +223,7 @@ const SURE = (k) => k === 'g' ? GAMES_DUR : k === 'o' ? OUTRO : PHONE_DUR;
 const STARTS = [];
 let _acc = INTRO;
 for (const x of TL) { STARTS.push(_acc); _acc += SURE(x.k); }
-const DURATION = _acc;                                  // 27.2 s
+const DURATION = _acc;                                  // 27.8 s
 
 function fmtText(s) {
   return s.replace(/\[(.+?)\]/gs, '<span class="hl">$1</span>')
@@ -333,7 +405,80 @@ async function boot() {
     gameEls.push(im);
   }
 
+  kapanisiKur();
   window.__ready = true;
+}
+
+// --------------------------------------------------- kapanis ekrani kurulum
+// Her kare yalnizca konum/opaklik degisiyor; ogeler bir kez uretiliyor.
+// Rastgelelik SABIT bir uretecten geliyor — ayni kare her zaman ayni.
+const FIN = { rain: [], cards: [] };
+
+function rastgele(seed) {           // kucuk, deterministik LCG
+  let x = seed >>> 0;
+  return () => (x = (x * 1664525 + 1013904223) >>> 0) / 4294967296;
+}
+
+// Gercek kod satirlari. Scratch/mBlock blok adi YAZILMIYOR: onlar
+// yalnizca resmi dil dosyalarindan gelir (bkz. tool/bloklar/).
+const KOD = [
+  'print("Merhaba")', 'int x = 10;', 'for i in range(10):',
+  '<html>', 'body { color: red }', 'if (total > 25) {',
+  'digitalWrite(13, HIGH);', 'let toplam = x + y;', '</div>',
+  'def main():', 'console.log(sonuc)', 'while (i < n) {',
+];
+const KART_RENK = ['#f2622c', '#3a7ff5', '#8b46d9', '#12a06a',
+                   '#d9345f', '#0e7fa8', '#b8791c'];
+
+function kapanisiKur() {
+  const rf = document.getElementById('frain');
+  const rnd = rastgele(20260922);
+  const sutun = Math.max(10, Math.round(W / 92));
+  for (let i = 0; i < sutun; i++) {
+    const sp = document.createElement('span');
+    const n = 5 + Math.floor(rnd() * 5);
+    let tx = '';
+    for (let k = 0; k < n; k++) tx += KOD[Math.floor(rnd() * KOD.length)] + '\n';
+    sp.textContent = tx;
+    sp.style.left = ((i + 0.5) / sutun * 100) + '%';
+    sp.style.fontSize = (W * (0.011 + rnd() * 0.006)).toFixed(1) + 'px';
+    sp.style.color = ['#6bff95', '#4dd8ff', '#ffd93d', '#ff9ad2'][i % 4];
+    sp.style.opacity = (0.30 + rnd() * 0.32).toFixed(2);
+    FIN.rain.push({ el: sp, hiz: 0.10 + rnd() * 0.16, faz: rnd() });
+    rf.appendChild(sp);
+  }
+
+  const cf = document.getElementById('fcards');
+  for (let i = 0; i < 7; i++) {
+    const d = document.createElement('div');
+    d.textContent = KOD[(i * 5 + 1) % KOD.length];
+    d.style.background = KART_RENK[i % KART_RENK.length];
+    d.style.fontSize = (W * 0.019).toFixed(1) + 'px';
+    // Sol ve sag kenarlara dagiliyor; orta bos kaliyor ki marka okunsun.
+    const sol = i % 2 === 0;
+    d.style.left = (sol ? 3 + rnd() * 14 : 66 + rnd() * 16) + '%';
+    FIN.cards.push({ el: d, faz: rnd(), hiz: 0.16 + rnd() * 0.12,
+                     egim: (rnd() - 0.5) * 9 });
+    cf.appendChild(d);
+  }
+
+  const L2 = FMT === '11'
+    ? { icon: 178, nm: 76, st: 30, halo: 320, top: 0.30 }
+    : { icon: 208, nm: 92, st: 34, halo: 380, top: 0.33 };
+  const fi = document.getElementById('ficon');
+  fi.width = fi.height = L2.icon;
+  document.getElementById('fnm').style.fontSize = L2.nm + 'px';
+  document.getElementById('fst').style.fontSize = L2.st + 'px';
+  const halo = document.getElementById('fhalo');
+  halo.style.width = halo.style.height = L2.halo + 'px';
+  halo.style.top = (L2.icon / 2) + 'px';
+  const plate = document.getElementById('fplate');
+  plate.style.width = (W * 1.02) + 'px';
+  plate.style.height = (L2.icon * 3.6) + 'px';
+  plate.style.top = (L2.icon * 1.15) + 'px';
+  document.getElementById('fcore').style.top = (L2.top * H) + 'px';
+  document.getElementById('fnm').textContent = BRAND[LANG][0];
+  document.getElementById('fst').textContent = BRAND[LANG][1];
 }
 
 // ------------------------------------------------------------ animasyon
@@ -368,7 +513,11 @@ const el = { t1: document.getElementById('t1'), t2: document.getElementById('t2'
              bst: document.getElementById('bst'), bicon: document.getElementById('bicon'),
              appbg: document.getElementById('appbg'), appvig: document.getElementById('appvig'),
              hero: document.getElementById('hero'), hicon: document.getElementById('hicon'),
-             hnm: document.getElementById('hnm'), hst: document.getElementById('hst') };
+             hnm: document.getElementById('hnm'), hst: document.getElementById('hst'),
+             fin: document.getElementById('finale'), fbow: document.getElementById('fbow'),
+             fcore: document.getElementById('fcore'), fhalo: document.getElementById('fhalo'),
+             ficon: document.getElementById('ficon'), fnm: document.getElementById('fnm'),
+             fst: document.getElementById('fst') };
 
 el.t1.style.fontSize = LAYOUT.size + 'px';
 el.t2.style.fontSize = LAYOUT.subSize + 'px';
@@ -385,6 +534,51 @@ el.hst.style.fontSize = LAYOUT.heroSt + 'px';
 el.hero.style.top = (LAYOUT.heroTop * H) + 'px';
 el.hnm.textContent = BRAND[LANG][0];
 
+// --------------------------------------------------- kapanis ekrani cizim
+function kapanisCiz(acik, local, t) {
+  if (!acik) { el.fin.style.opacity = 0; return; }
+  const a = easeOut(clamp01(local / 0.45));
+  el.fin.style.opacity = a;
+
+  // Gokkusagi yavasca donuyor; hafifce de nefes aliyor.
+  el.fbow.style.transform =
+    `translate(-50%,-50%) rotate(${local * 22}deg) scale(${1 + 0.05 * Math.sin(local * 1.4)})`;
+
+  // Kod yagmuru: her sutun kendi hizinda, dongusel.
+  for (const r of FIN.rain) {
+    const y = ((local * r.hiz + r.faz) % 1) * (H + 700) - 350;
+    r.el.style.transform = `translateY(${y.toFixed(1)}px)`;
+  }
+
+  // Kod kartlari: asagidan yukari suzuluyor, ucta soluyor.
+  for (const c of FIN.cards) {
+    const d = (local * c.hiz + c.faz) % 1;
+    const y = (1 - d) * H * 1.08 - H * 0.04;
+    const op = Math.min(clamp01(d / 0.14), 1 - clamp01((d - 0.72) / 0.28));
+    c.el.style.transform = `translateY(${y.toFixed(1)}px) rotate(${c.egim}deg)`;
+    c.el.style.opacity = (op * 0.92).toFixed(3);
+  }
+
+  // Halka simgenin arkasinda ters yonde donuyor.
+  el.fhalo.style.transform =
+    `translate(-50%,-50%) rotate(${-local * 40}deg) scale(${0.86 + 0.14 * easeOut(clamp01(local / 1.1))})`;
+  el.fhalo.style.opacity = (0.85 * easeOut(clamp01((local - 0.15) / 0.8))).toFixed(3);
+
+  const ik = easeOut(clamp01((local - 0.25) / 0.8));
+  el.ficon.style.transform = `scale(${0.7 + 0.3 * ik})`;
+  el.ficon.style.opacity = ik.toFixed(3);
+
+  // Ad: gokkusagi degradesi yazinin uzerinde SAGA kayiyor.
+  const na = easeOut(clamp01((local - 0.55) / 0.7));
+  el.fnm.style.opacity = na.toFixed(3);
+  el.fnm.style.transform = `translateY(${(1 - na) * 16}px)`;
+  el.fnm.style.backgroundPosition = `${(-local * 55).toFixed(1)}% 50%`;
+
+  const sa = easeOut(clamp01((local - 0.95) / 0.7));
+  el.fst.style.opacity = sa.toFixed(3);
+  el.fst.style.transform = `translateY(${(1 - sa) * 14}px)`;
+}
+
 function renderFrame(t) {
   const sc = sceneAt(t);
   const { i, local } = sc;
@@ -397,39 +591,46 @@ function renderFrame(t) {
   const isOutro = !!(cur && cur.k === 'o');
   el.intro.style.opacity = 0;          // eski daktilo satiri kullanilmiyor
 
-  if (sc.intro || isOutro) {
-    const hl = sc.intro ? INTRO : OUTRO;
-    const hlocal = sc.intro ? t : local;
-    // Acilista sonda soner, kapanista sonuna kadar durur.
-    const cikis = sc.intro ? 1 - easeOut(clamp01((hlocal - (hl - 0.55)) / 0.5)) : 1;
-    const a = Math.min(easeOut(clamp01(hlocal / 0.85)), cikis);
+  // --------------------------------------------------------- acilis
+  // Sade marka blogu, "App Promo" diliyle: lacivert zemin, ortada
+  // simge + ad + slogan.
+  if (sc.intro) {
+    const cikis = 1 - easeOut(clamp01((t - (INTRO - 0.55)) / 0.5));
+    const a = Math.min(easeOut(clamp01(t / 0.85)), cikis);
     el.hero.style.opacity = a;
-    el.hero.style.transform = `translateY(${(1 - easeOut(clamp01(hlocal / 1.1))) * 26}px)`;
-    el.hicon.style.transform = `scale(${0.88 + 0.12 * easeOut(clamp01(hlocal / 1.2))})`;
-    el.hst.textContent = sc.intro ? INTRO_TX[LANG] : BRAND[LANG][1];
+    el.hero.style.transform = `translateY(${(1 - easeOut(clamp01(t / 1.1))) * 26}px)`;
+    el.hicon.style.transform = `scale(${0.88 + 0.12 * easeOut(clamp01(t / 1.2))})`;
+    el.hst.textContent = INTRO_TX[LANG];
     el.t1.style.opacity = el.t2.style.opacity = 0;
     el.brand.style.opacity = 0;
   } else {
     el.hero.style.opacity = 0;
   }
 
-  // Arka plan gecisi: acilis ve kapanista "App Promo" zemini, arada
-  // telefon sahnelerinin mor zemini.
   let ab = 0;
   if (sc.intro) ab = 1 - easeOut(clamp01((t - (INTRO - 0.7)) / 0.7));
-  else if (isOutro) ab = easeOut(clamp01(local / 0.7));
   el.appbg.style.opacity = ab;
   el.appvig.style.opacity = ab;
+
+  // -------------------------------------------------------- kapanis
+  // Gokkusagi + kod ekrani. Oyun seridinin son karti (Arduino
+  // Atolyesi) BITER BITMEZ buraya geciliyor — arada telefon maketinin
+  // geri gelmesi istenmiyordu.
+  kapanisCiz(isOutro, isOutro ? local : 0, t);
 
   // ------------------------------------------------------ oyun bolumu
   // Telefon maketi sahneden cekiliyor, ekranlar cercevesiz geliyor.
   const isGames = cur && cur.k === 'g';
   const gFade = 0.45;
+  // Serit YALNIZCA acilirken soluyor. Sonda sonmuyor: son kart
+  // (Arduino Atolyesi) kapanis ekraniyla capraz gecisle degisiyor.
+  // Eskiden serit sonda soluyordu ve arada telefon maketi bir an geri
+  // geliyordu — istenmeyen kisim buydu.
   let gA = 0;
-  if (isGames) gA = Math.min(clamp01(local / gFade),
-                             1 - clamp01((local - (len - gFade)) / gFade));
+  if (isGames) gA = clamp01(local / gFade);
+  else if (isOutro) gA = 1 - easeOut(clamp01(local / 0.5));
   el.games.style.opacity = gA;
-  el.gl.style.opacity = 1 - gA;
+  el.gl.style.opacity = (isGames || isOutro) ? 0 : 1;
 
   if (isGames && gameEls.length) {
     // Oyunlar birbirine GECIYOR: biri sonerken digeri aciliyor.
@@ -443,6 +644,11 @@ function renderFrame(t) {
       const slide = (1 - clamp01(d / 0.5)) * 8;
       const zoom  = 1.0 + 0.04 * clamp01(d / step);
       im.style.transform = `translateX(${slide}%) scale(${zoom})`;
+    });
+  } else if (isOutro) {
+    // Son kart yerinde duruyor; sonen sey seridin kendisi.
+    gameEls.forEach((im, k) => {
+      im.style.opacity = (k === gameEls.length - 1) ? 1 : 0;
     });
   } else {
     gameEls.forEach((im) => { im.style.opacity = 0; });

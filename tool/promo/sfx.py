@@ -21,12 +21,12 @@ from scipy.signal import butter, sosfilt
 
 SR = 48000
 # Zamanlar render.html ile AYNI olmali.
-INTRO, DUR, GAMES_DUR, END_DUR = 3.0, 3.2, 8.0, 3.4
+INTRO, DUR, GAMES_DUR, END_DUR = 3.0, 3.2, 8.0, 4.0
 GAME_COUNT = 8                       # oyun bolumunde kac ekran donuyor
 CUTS = [INTRO + i * DUR for i in range(4)]   # telefonun geldigi/dondugu anlar
 GAMES_AT = INTRO + 4 * DUR                   # oyun bolumu baslangici
 END_AT = GAMES_AT + GAMES_DUR                # telefon geri geliyor
-DURATION = END_AT + END_DUR                  # 27.2 s
+DURATION = END_AT + END_DUR                  # 27.8 s
 TYPE_START, TYPE_LEN = 0.25, 1.45
 
 TEXT = {'tr': 'Bloklardan gerçek koda.', 'en': 'From blocks to real code.'}
@@ -142,9 +142,12 @@ def build(lang):
     for k in range(GAME_COUNT):
         add(out, GAMES_AT + k * (GAMES_DUR / GAME_COUNT), blip(rng), 0.20)
 
-    # kapanis + logo
-    add(out, END_AT - 0.25, whoosh(rng, 0.6, 0.8), 0.22)
-    add(out, END_AT + 1.05, chime(), 0.26)
+    # kapanis: gokkusagi ekrani aciliyor, ad yerine oturuyor
+    add(out, END_AT - 0.30, whoosh(rng, 0.8, 1.15), 0.26)
+    add(out, END_AT + 0.75, chime(), 0.30)
+    # ad belirdikten sonra ince bir parilti
+    for k, off in enumerate((1.45, 1.62, 1.82)):
+        add(out, END_AT + off, blip(rng), 0.10 - k * 0.02)
 
     d = drone()
     out[:len(d)] += d * 0.035

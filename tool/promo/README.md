@@ -1,7 +1,7 @@
 # Tanıtım videosu üreticisi
 
 Dört MP4 üretir — Türkçe ve İngilizce × 9:16 (1080×1920) ve 1:1 (1080×1080),
-her biri **27,2 saniye / 30 fps**, sesli. Instagram Reels, TikTok ve kare
+her biri **27,8 saniye / 30 fps**, sesli. Instagram Reels, TikTok ve kare
 reklam yerleşimleri için.
 
     tool/promo/run.sh
@@ -27,13 +27,26 @@ siliniyor, kapanışta geri geliyor.
 | 9,4–12,6 | blok kurma | telefon | |
 | 12,6–15,8 | HTML kodu | telefon | |
 | 15,8–23,8 | **8 oyun ekranı** | **çerçevesiz** | telefon çekiliyor, ekranlar tam tasarım çapraz geçiyor — kart başına 1 sn |
-| 23,8–27,2 | — | — | **kapanış**: koyu lacivert zemin, simge + mağaza satırı |
+| 23,8–27,8 | — | — | **kapanış**: gökkuşağı + kod ekranı |
 
-Açılış ve kapanış `tool/promo2/` ile **aynı dili konuşuyor**: siyaha
-yakın lacivert, alttan mavi ışık, ortada marka bloğu. Böylece iki
-üreticinin çıktıları yan yana konulduğunda aynı aileden görünüyor.
-Aradaki telefon sahneleri kendi mor zeminini koruyor; geçiş 0,7 sn'lik
-bir çapraz geçiş (`#appbg` opaklığı).
+**Açılış** `tool/promo2/` ile aynı dili konuşuyor: siyaha yakın
+lacivert, alttan mavi ışık, ortada simge + ad + slogan. Aradaki telefon
+sahneleri kendi mor zeminini koruyor; geçiş 0,7 sn'lik bir çapraz geçiş
+(`#appbg` opaklığı).
+
+**Kapanış ayrı bir ekran** (`#finale`): dönen konik gökkuşağı, kod
+yağmuru, aşağıdan yukarı süzülen renkli kod kartları, ortada gökkuşağı
+degradeli **DevEducation** ve mağaza satırı. Oyun şeridinin son kartı
+(Arduino Atölyesi) **biter bitmez** buraya geçiliyor; şerit sonda
+sönmüyor, kapanışa çapraz geçiyor — eskiden arada telefon maketi bir an
+geri geliyordu ve bu istenmiyordu.
+
+Kapanıştaki kod kartlarında **Scratch blok adı yazılmıyor**: onlar
+yalnızca resmî dil dosyalarından gelir (`tool/bloklar/`). Kartlar gerçek
+kod satırları (`int x = 10;`, `digitalWrite(13, HIGH);`).
+
+Kapanışın her şeyi `t`'nin saf fonksiyonu — rastgelelik sabit tohumlu
+bir üreteçten (`rastgele()`), böylece aynı kare her koşuda aynı çıkıyor.
 
 Eski daktilo açılışı ve sondaki "öğrenme yolu" telefon sahnesi
 kaldırıldı.
@@ -59,7 +72,8 @@ yazılmaz.
 `sfx.py` sesi numpy ile üretiyor: açılışta yükselen yumuşak bir doku,
 telefon gelirken ve her turda whoosh, oyun bölümüne geçişte bir whoosh
 ve her oyun kartında blip, kapanışta çınlama, altta çok kısık bir bas
-dokusu. **Klavye tıkı yok** — açılışta artık yazı yazılmıyor. **`GAME_COUNT` kart sayısıyla aynı olmalı**, yoksa blipler
+dokusu. **Klavye tıkı yok** — açılışta artık yazı yazılmıyor. Kapanışta
+çınlamanın ardından üç ince parıltı, ad yerine otururken. **`GAME_COUNT` kart sayısıyla aynı olmalı**, yoksa blipler
 kartlarla tutmaz.
 
 Şablonun `Read Me!.txt` dosyasındaki AudioJungle parçası (`abstract
