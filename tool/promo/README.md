@@ -1,7 +1,7 @@
 # Tanıtım videosu üreticisi
 
 Dört MP4 üretir — Türkçe ve İngilizce × 9:16 (1080×1920) ve 1:1 (1080×1080),
-her biri **26,8 saniye / 30 fps**, sesli. Instagram Reels, TikTok ve kare
+her biri **27,2 saniye / 30 fps**, sesli. Instagram Reels, TikTok ve kare
 reklam yerleşimleri için.
 
     tool/promo/run.sh
@@ -21,13 +21,22 @@ siliniyor, kapanışta geri geliyor.
 
 | sn | ekran | çerçeve | ne oluyor |
 |---|---|---|---|
-| 0–2,8 | — | — | başlık klavyeden yazılıyormuş gibi harf harf beliriyor |
-| 2,8–6,0 | ana sayfa | telefon | telefon dönerek geliyor |
-| 6,0–9,2 | Scratch dersi | telefon | |
-| 9,2–12,4 | blok kurma | telefon | |
-| 12,4–15,6 | HTML kodu | telefon | |
-| 15,6–23,6 | **8 oyun ekranı** | **çerçevesiz** | telefon çekiliyor, ekranlar tam tasarım çapraz geçiyor — kart başına 1 sn |
-| 23,6–26,8 | öğrenme yolu | telefon | telefon geri geliyor, sonda logo |
+| 0–3,0 | — | — | **açılış**: koyu lacivert zemin, ortada simge + DevEducation + slogan |
+| 3,0–6,2 | ana sayfa | telefon | mor zemine geçiliyor, telefon dönerek geliyor |
+| 6,2–9,4 | Scratch dersi | telefon | |
+| 9,4–12,6 | blok kurma | telefon | |
+| 12,6–15,8 | HTML kodu | telefon | |
+| 15,8–23,8 | **8 oyun ekranı** | **çerçevesiz** | telefon çekiliyor, ekranlar tam tasarım çapraz geçiyor — kart başına 1 sn |
+| 23,8–27,2 | — | — | **kapanış**: koyu lacivert zemin, simge + mağaza satırı |
+
+Açılış ve kapanış `tool/promo2/` ile **aynı dili konuşuyor**: siyaha
+yakın lacivert, alttan mavi ışık, ortada marka bloğu. Böylece iki
+üreticinin çıktıları yan yana konulduğunda aynı aileden görünüyor.
+Aradaki telefon sahneleri kendi mor zeminini koruyor; geçiş 0,7 sn'lik
+bir çapraz geçiş (`#appbg` opaklığı).
+
+Eski daktilo açılışı ve sondaki "öğrenme yolu" telefon sahnesi
+kaldırıldı.
 
 Telefon her geçişte tam tur dönüyor; ekran dokusu turun ortasında, arka
 yüz kameraya bakarken değişiyor. Oyun bölümündeki sekiz kart çapraz
@@ -47,10 +56,10 @@ yazılmaz.
 
 ## Ses — sıfırdan sentez, telifsiz
 
-`sfx.py` sesi numpy ile üretiyor: yazının her harfinde klavye tıkı,
+`sfx.py` sesi numpy ile üretiyor: açılışta yükselen yumuşak bir doku,
 telefon gelirken ve her turda whoosh, oyun bölümüne geçişte bir whoosh
-ve her oyun kartında blip, logoda çınlama, altta çok kısık bir bas
-dokusu. **`GAME_COUNT` kart sayısıyla aynı olmalı**, yoksa blipler
+ve her oyun kartında blip, kapanışta çınlama, altta çok kısık bir bas
+dokusu. **Klavye tıkı yok** — açılışta artık yazı yazılmıyor. **`GAME_COUNT` kart sayısıyla aynı olmalı**, yoksa blipler
 kartlarla tutmaz.
 
 Şablonun `Read Me!.txt` dosyasındaki AudioJungle parçası (`abstract

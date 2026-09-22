@@ -5,7 +5,9 @@ Lisansi olmayan bir parcayi videoya gommek telif ihlali olurdu. Buradaki
 her ses numpy ile uretiliyor; telif sorunu yok.
 
 Ne var:
-  * acilistaki yazinin her harfinde bir klavye tiki
+  * acilista yukselen yumusak bir doku (bloom) — daktilo sesi ARTIK YOK,
+    cunku acilis da kapanis da "App Promo" sablonundaki sakin marka
+    blogu oldu
   * her ekran gecisinde bir "whoosh"
   * oyun duvarinda seyrek blipler
   * logo belirirken yumusak bir cinlama
@@ -19,12 +21,12 @@ from scipy.signal import butter, sosfilt
 
 SR = 48000
 # Zamanlar render.html ile AYNI olmali.
-INTRO, DUR, GAMES_DUR, END_DUR = 2.8, 3.2, 8.0, 3.2
+INTRO, DUR, GAMES_DUR, END_DUR = 3.0, 3.2, 8.0, 3.4
 GAME_COUNT = 8                       # oyun bolumunde kac ekran donuyor
 CUTS = [INTRO + i * DUR for i in range(4)]   # telefonun geldigi/dondugu anlar
 GAMES_AT = INTRO + 4 * DUR                   # oyun bolumu baslangici
 END_AT = GAMES_AT + GAMES_DUR                # telefon geri geliyor
-DURATION = END_AT + END_DUR                  # 26.8 s
+DURATION = END_AT + END_DUR                  # 27.2 s
 TYPE_START, TYPE_LEN = 0.25, 1.45
 
 TEXT = {'tr': 'Bloklardan gerçek koda.', 'en': 'From blocks to real code.'}
@@ -74,6 +76,17 @@ def whoosh(rng, dur=0.55, bright=1.0):
     return mix * env
 
 
+def bloom(rng, dur=1.8):
+    """Acilistaki yukselen doku — simge ve ad yerine otururken.
+    Eski daktilo tiklarinin yerini aldi."""
+    n = int(dur * SR)
+    t = np.linspace(0, 1, n)
+    noise = bandpass(rng.standard_normal(n), 300, 2600)
+    env = t ** 2 * np.exp(-((t - 0.75) ** 2) / 0.10)
+    tone = np.sin(2 * np.pi * 196.0 * np.arange(n) / SR) * 0.35
+    return (noise * 0.8 + tone) * env
+
+
 def chime():
     """Logo cinlamasi: iki notali, yumusak."""
     n = int(1.6 * SR)
@@ -116,13 +129,8 @@ def build(lang):
     out = buf()
     text = TEXT[lang]
 
-    # yazim tiklari — harf sayisi dile gore degisiyor
-    letters = len(text)
-    for k in range(1, letters + 1):
-        if text[k - 1] == ' ':
-            continue
-        at = TYPE_START + TYPE_LEN * (k - 0.5) / letters
-        add(out, at, click(rng), 0.30)
+    # acilis: marka blogu yerine otururken yukselen doku
+    add(out, 0.15, bloom(rng), 0.30)
 
     # ilk ekranin gelisi ve her ekran gecisi
     for i, at in enumerate(CUTS):

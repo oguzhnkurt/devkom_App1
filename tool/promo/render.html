@@ -12,6 +12,24 @@
           radial-gradient(60% 40% at 78% 82%, rgba(90,52,232,.38) 0%, rgba(90,52,232,0) 70%),
           radial-gradient(50% 35% at 18% 70%, rgba(30,120,220,.28) 0%, rgba(30,120,220,0) 72%);
   }
+  /* Acilis ve kapanis "App Promo" sablonunun dili: siyaha yakin
+     lacivert, ALTTAN gelen mavi isik. Aradaki telefon sahnelerinde
+     opaklik 0'a iniyor, ortadaki mor sahne geri geliyor. */
+  #appbg { position:absolute; inset:0; opacity:0;
+           background:
+             radial-gradient(120% 78% at 50% 108%,
+               #2f5fd0 0%, #1b3a93 26%, #0b1a49 48%, #04060e 72%),
+             linear-gradient(#04060e, #04060e); }
+  #appvig { position:absolute; inset:0; opacity:0;
+            background:radial-gradient(130% 100% at 50% 50%,
+              rgba(0,0,0,0) 42%, rgba(0,0,0,.55) 100%); }
+  /* Ortalanmis marka blogu: simge, ad, altinda tek satir. */
+  #hero { position:absolute; left:0; right:0; text-align:center; opacity:0;
+          font-family:'Nunito',sans-serif }
+  #hero img { border-radius:23%; display:block; margin:0 auto;
+              box-shadow:0 26px 70px rgba(10,30,90,.65) }
+  #hero .nm { color:#fff; font-weight:800; letter-spacing:-.025em; margin-top:.40em }
+  #hero .st { color:#93a9dd; font-weight:600; margin-top:.34em }
   #grain { position:absolute; inset:0; opacity:.05; mix-blend-mode:overlay; }
   canvas#gl { position:absolute; inset:0; width:100%; height:100%; }
   #ui { position:absolute; inset:0; }
@@ -45,6 +63,7 @@
 <body>
 <div id="stage">
   <div id="bg"></div>
+  <div id="appbg"></div>
   <canvas id="gl"></canvas>
   <div id="ui">
     <div class="line title" id="t1"></div>
@@ -52,6 +71,9 @@
     <div id="brand"><img id="bicon" src="app_icon.png"><div><div class="nm" id="bnm"></div><div class="st" id="bst"></div></div></div>
     <div class="line" id="intro"><span id="introtx"></span><span id="caret">&#9612;</span></div>
     <div id="games"></div>
+    <div id="appvig"></div>
+    <div id="hero"><img id="hicon" src="app_icon.png">
+      <div class="nm" id="hnm"></div><div class="st" id="hst"></div></div>
   </div>
 </div>
 
@@ -111,7 +133,10 @@ const SHOTS = (q.get('calib') ? ['calib','calib','calib','calib','calib'] : q.ge
 // Kurgu: telefon maketiyle anlatilan ekranlar + ARADA cercevesiz bir
 // oyun bolumu. Oyun ekranlari maketin icine girmiyor; tam tasarim
 // gorunsun diye ekranin tamami kadraja yerlesiyor.
-const PHONE_DUR = 3.2, GAMES_DUR = 8.0, SPIN = 0.7, INTRO = 2.8;
+// Acilis ve kapanis artik "App Promo" sablonundaki gibi: ortada
+// simge + ad, altinda tek satir. Eski daktilo acilisi ve sondaki
+// "ogrenme yolu" telefon sahnesi kaldirildi.
+const PHONE_DUR = 3.2, GAMES_DUR = 8.0, SPIN = 0.7, INTRO = 3.0, OUTRO = 3.4;
 // Sekiz oyun karti. Hepsi widget testinin ciktisindan (run.sh
 // esliyor) — dile gore ayrisiyor, tek tip gorunum.
 const GAMES = ['g1_chess', 'g2_millionaire', 'g3_word_match', 'g4_matching',
@@ -120,12 +145,13 @@ const GAMES = ['g1_chess', 'g2_millionaire', 'g3_word_match', 'g4_matching',
 const TL = [
   { k: 'p', s: 0 }, { k: 'p', s: 1 }, { k: 'p', s: 2 }, { k: 'p', s: 3 },
   { k: 'g' },
-  { k: 'p', s: 4, brand: true },
+  { k: 'o' },
 ];
+const SURE = (k) => k === 'g' ? GAMES_DUR : k === 'o' ? OUTRO : PHONE_DUR;
 const STARTS = [];
 let _acc = INTRO;
-for (const x of TL) { STARTS.push(_acc); _acc += (x.k === 'g' ? GAMES_DUR : PHONE_DUR); }
-const DURATION = _acc;                                  // ~23.6 s
+for (const x of TL) { STARTS.push(_acc); _acc += SURE(x.k); }
+const DURATION = _acc;                                  // 27.2 s
 
 function fmtText(s) {
   return s.replace(/\[(.+?)\]/gs, '<span class="hl">$1</span>')
@@ -319,8 +345,7 @@ function sceneAt(t) {
   if (t < INTRO) return { intro: true, i: 0, local: t };
   let i = 0;
   for (let k = 0; k < TL.length; k++) if (t >= STARTS[k]) i = k;
-  return { intro: false, i, local: t - STARTS[i],
-           len: TL[i].k === 'g' ? GAMES_DUR : PHONE_DUR };
+  return { intro: false, i, local: t - STARTS[i], len: SURE(TL[i].k) };
 }
 
 function setTexture(shotIdx) {
@@ -330,15 +355,20 @@ function setTexture(shotIdx) {
 }
 
 const LAYOUT = FMT === '11'
-  ? { titleTop: 0.045, subTop: 0.175, size: 62, subSize: 26, brandTop: 0.885, phoneY: -0.17, phoneScale: 0.72, icon: 62, nm: 29, st: 19, introTop: 0.40, introSize: 72 }
-  : { titleTop: 0.055, subTop: 0.182, size: 88, subSize: 32, brandTop: 0.895, phoneY: -0.13, phoneScale: 0.70, icon: 90, nm: 37, st: 24, introTop: 0.40, introSize: 96 };
+  ? { titleTop: 0.045, subTop: 0.175, size: 62, subSize: 26, brandTop: 0.885, phoneY: -0.17, phoneScale: 0.72, icon: 62, nm: 29, st: 19, introTop: 0.40, introSize: 72,
+      heroTop: 0.33, heroIcon: 150, heroNm: 62, heroSt: 27 }
+  : { titleTop: 0.055, subTop: 0.182, size: 88, subSize: 32, brandTop: 0.895, phoneY: -0.13, phoneScale: 0.70, icon: 90, nm: 37, st: 24, introTop: 0.40, introSize: 96,
+      heroTop: 0.36, heroIcon: 170, heroNm: 72, heroSt: 30 };
 
 const el = { t1: document.getElementById('t1'), t2: document.getElementById('t2'),
              intro: document.getElementById('intro'), introtx: document.getElementById('introtx'),
              caret: document.getElementById('caret'),
              gl: document.getElementById('gl'), games: document.getElementById('games'),
              brand: document.getElementById('brand'), bnm: document.getElementById('bnm'),
-             bst: document.getElementById('bst'), bicon: document.getElementById('bicon') };
+             bst: document.getElementById('bst'), bicon: document.getElementById('bicon'),
+             appbg: document.getElementById('appbg'), appvig: document.getElementById('appvig'),
+             hero: document.getElementById('hero'), hicon: document.getElementById('hicon'),
+             hnm: document.getElementById('hnm'), hst: document.getElementById('hst') };
 
 el.t1.style.fontSize = LAYOUT.size + 'px';
 el.t2.style.fontSize = LAYOUT.subSize + 'px';
@@ -349,6 +379,11 @@ el.intro.style.fontSize = LAYOUT.introSize + 'px';
 el.intro.style.top = (LAYOUT.introTop * H) + 'px';
 el.bnm.textContent = BRAND[LANG][0];
 el.bst.textContent = BRAND[LANG][1];
+el.hicon.width = el.hicon.height = LAYOUT.heroIcon;
+el.hnm.style.fontSize = LAYOUT.heroNm + 'px';
+el.hst.style.fontSize = LAYOUT.heroSt + 'px';
+el.hero.style.top = (LAYOUT.heroTop * H) + 'px';
+el.hnm.textContent = BRAND[LANG][0];
 
 function renderFrame(t) {
   const sc = sceneAt(t);
@@ -356,23 +391,35 @@ function renderFrame(t) {
   const cur = sc.intro ? null : TL[i];
   const len = sc.len || PHONE_DUR;
 
-  // ---------------------------------------------------------- acilis
-  if (sc.intro) {
-    const full = INTRO_TX[LANG];
-    const typed = clamp01((t - 0.25) / 1.45);
-    const n = Math.round(typed * full.length);
-    el.introtx.textContent = full.slice(0, n);
-    const blink = (t * 2) % 1 < 0.55;
-    el.caret.style.opacity = (n < full.length || blink) ? 1 : 0;
+  // ------------------------------------------------- acilis / kapanis
+  // Ikisi de ayni blok: ortada simge + ad, altinda tek satir.
+  // Acilista slogan, kapanista magaza satiri.
+  const isOutro = !!(cur && cur.k === 'o');
+  el.intro.style.opacity = 0;          // eski daktilo satiri kullanilmiyor
 
-    const out = 1 - clamp01((t - (INTRO - 0.95)) / 0.5);
-    el.intro.style.opacity = out;
-    el.intro.style.transform = `translateY(${(1 - out) * -22}px)`;
+  if (sc.intro || isOutro) {
+    const hl = sc.intro ? INTRO : OUTRO;
+    const hlocal = sc.intro ? t : local;
+    // Acilista sonda soner, kapanista sonuna kadar durur.
+    const cikis = sc.intro ? 1 - easeOut(clamp01((hlocal - (hl - 0.55)) / 0.5)) : 1;
+    const a = Math.min(easeOut(clamp01(hlocal / 0.85)), cikis);
+    el.hero.style.opacity = a;
+    el.hero.style.transform = `translateY(${(1 - easeOut(clamp01(hlocal / 1.1))) * 26}px)`;
+    el.hicon.style.transform = `scale(${0.88 + 0.12 * easeOut(clamp01(hlocal / 1.2))})`;
+    el.hst.textContent = sc.intro ? INTRO_TX[LANG] : BRAND[LANG][1];
     el.t1.style.opacity = el.t2.style.opacity = 0;
     el.brand.style.opacity = 0;
   } else {
-    el.intro.style.opacity = 0;
+    el.hero.style.opacity = 0;
   }
+
+  // Arka plan gecisi: acilis ve kapanista "App Promo" zemini, arada
+  // telefon sahnelerinin mor zemini.
+  let ab = 0;
+  if (sc.intro) ab = 1 - easeOut(clamp01((t - (INTRO - 0.7)) / 0.7));
+  else if (isOutro) ab = easeOut(clamp01(local / 0.7));
+  el.appbg.style.opacity = ab;
+  el.appvig.style.opacity = ab;
 
   // ------------------------------------------------------ oyun bolumu
   // Telefon maketi sahneden cekiliyor, ekranlar cercevesiz geliyor.
@@ -403,7 +450,7 @@ function renderFrame(t) {
 
   // --------------------------------------------------------- telefon
   const ts = t - INTRO;
-  phone.visible = ts > -0.55 && gA < 0.98;
+  phone.visible = ts > -0.55 && gA < 0.98 && !isOutro;
 
   // Kacinci telefon sahnesindeyiz? Tam tur sayisi buna gore ilerliyor.
   let pIdx = 0;
@@ -424,6 +471,7 @@ function renderFrame(t) {
   phone.position.set(0, LAYOUT.phoneY + Math.sin(t * 0.7) * 0.05, 0);
   phone.scale.setScalar(LAYOUT.phoneScale * (0.80 + 0.20 * easeOut(arrive))
                         * (1 - 0.12 * gA));
+  if (isOutro) el.gl.style.opacity = 1 - easeOut(clamp01(local / 0.45));
 
   // Ekran dokusu: tam turun ortasinda, arka yuz kameraya bakarken.
   if (cur && cur.k === 'p') {
@@ -436,7 +484,7 @@ function renderFrame(t) {
   }
 
   // ----------------------------------------------------------- metin
-  if (!sc.intro) {
+  if (!sc.intro && !isOutro) {
     const c = COPY[LANG][i];
     el.t1.innerHTML = fmtText(c[0]);
     el.t2.innerHTML = c[1];
@@ -453,10 +501,9 @@ function renderFrame(t) {
     el.t2.style.opacity = a * 0.92;
     el.t1.style.transform = el.t2.style.transform = `translateY(${dy}px)`;
 
-    const ba = (cur && cur.brand) ? easeOut(clamp01((local - 1.1) / 0.7)) : 0;
-    el.brand.style.opacity = ba;
-    el.brand.style.top = (LAYOUT.brandTop * H) + 'px';
-    el.brand.style.transform = `translateY(${(1 - ba) * 18}px)`;
+    el.brand.style.opacity = 0;   // marka satiri artik kapanis blogunda
+  } else if (isOutro) {
+    el.t1.style.opacity = el.t2.style.opacity = 0;
   }
 
   renderer.render(scene, camera);
