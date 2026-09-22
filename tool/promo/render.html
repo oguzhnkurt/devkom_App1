@@ -114,7 +114,9 @@
            pointer-events:none }
   /* Baslik yazisina yer kalsin diye %74: ekranin TAMAMI goruluyor,
      yalnizca biraz kucuk. */
-  #games img { position:absolute; bottom:3%; height:74%; width:auto; border-radius:30px;
+  /* %68: baslik ASAGI alindi (Reels ust katmani), kart da kuculdu ki
+     alt baslik kartin altinda kalmasin. */
+  #games img { position:absolute; bottom:4%; height:68%; width:auto; border-radius:30px;
                box-shadow:0 40px 110px rgba(0,0,0,.65),
                           0 0 0 1px rgba(255,255,255,.06);
                opacity:0; will-change:transform,opacity }
@@ -122,15 +124,17 @@
 <body>
 <div id="stage">
   <div id="bg"></div>
-  <div id="appbg"></div>
   <canvas id="gl"></canvas>
+  <!-- Acilisin duz lacivert zemini TUVALIN USTUNDE duruyor; soldukce
+       arkasindaki hareketli 3B sahne aciliyor. -->
+  <div id="appbg"></div>
+  <div id="appvig"></div>
   <div id="ui">
     <div class="line title" id="t1"></div>
     <div class="line sub"   id="t2"></div>
     <div id="brand"><img id="bicon" src="app_icon.png"><div><div class="nm" id="bnm"></div><div class="st" id="bst"></div></div></div>
     <div class="line" id="intro"><span id="introtx"></span><span id="caret">&#9612;</span></div>
     <div id="games"></div>
-    <div id="appvig"></div>
     <div id="hero"><img id="hicon" src="app_icon.png">
       <div class="nm" id="hnm"></div><div class="st" id="hst"></div></div>
     <div id="finale">
@@ -166,21 +170,25 @@ const stage = document.getElementById('stage');
 stage.style.width = W + 'px'; stage.style.height = H + 'px';
 
 // ---------------------------------------------------------------- metin
+// Basliklar EMIR KIPINDE: reklamda dogrudan hitap daha guclu.
+// Vaatler magaza slaytlarindakiyle ayni (tool/store_slides.py) —
+// yalnizca kip degisti, yeni bir sey soylenmiyor. App Store Kural
+// 2.3.1: uydurma sayi, oran ya da odul yok.
 const COPY = {
   tr: [
     ['[Kodlama] ve<br>robotik öğren', 'Sıfırdan başla · 9 kurs'],
-    ['Scratch’i <b>adım adım</b><br>öğrenir', 'Blok nedir, ne işe yarar — kısa adımlarla'],
-    ['Blokları <b>sürükleyip</b><br>kodu kurar', 'Gerçek Scratch blokları'],
-    ['Sonra <b>gerçek kodu</b><br>kendi yazar', 'HTML, CSS, Python, C# — harf harf'],
-    ['[Oyunla] pekiştirir', '16 mini oyun · eşleştir, sırala, labirenti geç'],
+    ['Scratch’i <b>adım adım</b><br>öğren', 'Blok nedir, ne işe yarar — kısa adımlarla'],
+    ['Blokları <b>sürükleyip</b><br>kodlamayı oluştur', 'Gerçek Scratch blokları'],
+    ['<b>Gerçek kodu</b><br>kendin yaz!', 'HTML, CSS, Python, C# — harf harf'],
+    ['[Oyunla] pekiştir', '16 mini oyun · eşleştir, sırala, labirenti geç'],
     ['[Bloklardan]<br>gerçek koda', '9 kurs, adım adım'],
   ],
   en: [
     ['Learn [coding]<br>and robotics', 'Start from zero · 9 courses'],
-    ['Learns Scratch<br><b>step by step</b>', 'What a block is and what it does'],
-    ['<b>Drags</b> blocks<br>into working code', 'Real Scratch blocks'],
-    ['Then writes the<br><b>real code</b>', 'HTML, CSS, Python, C# — line by line'],
-    ['Practises by [playing]', '16 mini games · match, order, get through the maze'],
+    ['Learn Scratch<br><b>step by step</b>', 'What a block is and what it does'],
+    ['<b>Drag</b> blocks and<br>build your code', 'Real Scratch blocks'],
+    ['Write <b>real code</b><br>yourself!', 'HTML, CSS, Python, C# — line by line'],
+    ['[Practise] by playing', '16 mini games · match, order, get through the maze'],
     ['From [blocks]<br>to real code', '9 courses, step by step'],
   ],
 };
@@ -211,7 +219,10 @@ const SHOTS = (q.get('calib') ? ['calib','calib','calib','calib','calib'] : q.ge
 const PHONE_DUR = 3.2, GAMES_DUR = 8.0, SPIN = 0.7, INTRO = 3.0, OUTRO = 4.0;
 // Sekiz oyun karti. Hepsi widget testinin ciktisindan (run.sh
 // esliyor) — dile gore ayrisiyor, tek tip gorunum.
-const GAMES = ['g1_chess', 'g2_millionaire', 'g3_word_match', 'g4_matching',
+// Satranc ekrani cikarildi: uygulamada beyaz ve tahtanin altinda genis
+// bos bir alan var; karanlik videoda cercevesiz gosterilince bembeyaz
+// bir levha gibi duruyordu. Yerine Kod Dedektifi (renkli sayi kartlari).
+const GAMES = ['g1_pattern', 'g2_millionaire', 'g3_word_match', 'g4_matching',
                'g5_bug_hunter', 'g6_coordinates', 'g7_robot', 'g8_arduino'];
 
 const TL = [
@@ -248,6 +259,95 @@ const key = new THREE.DirectionalLight(0xffffff, 2.4); key.position.set(3, 5, 6)
 const rim = new THREE.DirectionalLight(0x8a6bff, 3.0); rim.position.set(-5, 2, -4);  scene.add(rim);
 const fil = new THREE.DirectionalLight(0x4fa8ff, 1.2); fil.position.set(-3, -3, 4);  scene.add(fil);
 scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+
+// ------------------------------------------------- hareketli 3B arka plan
+// "Sade duru kalmis" geri bildirimi: dumduz bir degrade yerine derinligi
+// olan, yavas hareket eden bir sahne. Kurumsal kalsin diye: az sayida
+// gecirgen geometri, dusuk doygunluk, hepsi telefonun ARKASINDA ve
+// bulanik degil ama kucuk — konu telefon, arka plan konu olmuyor.
+const arka = new THREE.Group();
+scene.add(arka);
+// Arka plana kendi isigi: sahne isiklari telefona ayarli.
+const arkaIsik1 = new THREE.PointLight(0x7c6bff, 42, 60); arkaIsik1.position.set(-7, 5, -10);
+const arkaIsik2 = new THREE.PointLight(0x2fa8ff, 34, 60); arkaIsik2.position.set(8, -4, -14);
+scene.add(arkaIsik1, arkaIsik2);
+// Sis: uzaktakiler zemine karisiyor, katman hissi veriyor.
+scene.fog = new THREE.Fog(0x0b0d26, 24, 54);
+
+const ARKA_RENK = [0x6d5cf5, 0x4fa8ff, 0x22d3ee, 0x8b5cf6, 0x3b82f6];
+
+function arkaPlaniKur() {
+  // Tekrarlanabilir rastgelelik: ayni kare her kosuda ayni.
+  let sd = 987654321;
+  const r = () => (sd = (sd * 1664525 + 1013904223) >>> 0) / 4294967296;
+
+  // RoundedBoxGeometry cekirdek three'de yok; varsa kullan, yoksa kutu.
+  const kutu = (typeof THREE.RoundedBoxGeometry === 'function')
+    ? new THREE.RoundedBoxGeometry(1, 1, 1, 2, 0.16)
+    : new THREE.BoxGeometry(1, 1, 1);
+  const halka = new THREE.TorusGeometry(0.62, 0.1, 10, 36);
+  const sekiz = new THREE.OctahedronGeometry(0.72, 0);
+
+  for (let i = 0; i < 46; i++) {
+    const g = [kutu, halka, sekiz][i % 3];
+    // Kendi isigini de veriyorlar (emissive): sahne isiklari telefona
+    // ayarli oldugu icin duz standart malzeme koyu siluet cikiyordu.
+    const renk = ARKA_RENK[i % ARKA_RENK.length];
+    const m = new THREE.MeshStandardMaterial({
+      color: renk, emissive: renk, emissiveIntensity: 0.42,
+      roughness: 0.42, metalness: 0.18,
+      transparent: true, opacity: 0.42 + r() * 0.30,
+    });
+    const o = new THREE.Mesh(g, m);
+    // Kamera z=8 civarinda; nesneler -4 ile -26 arasinda, yani hep arkada.
+    const z = -4 - r() * 22;
+    const yayil = 4.5 + (-z) * 0.42;      // uzaktakiler daha genis yayiliyor
+    o.position.set((r() - 0.5) * 2 * yayil, (r() - 0.5) * 2 * yayil * 0.85, z);
+    // Telefonun tam arkasindaki dar koridoru bosalt: siluet karismasin.
+    if (Math.abs(o.position.x) < 1.9 && z > -12) o.position.x += (o.position.x < 0 ? -2.4 : 2.4);
+    const b = 0.26 + r() * 0.52;
+    o.scale.setScalar(b);
+    o.userData = {
+      hiz: 0.05 + r() * 0.13,            // dikey suzulme
+      dn: [(r() - 0.5) * 0.26, (r() - 0.5) * 0.3, (r() - 0.5) * 0.2],
+      faz: r() * Math.PI * 2,
+      y0: o.position.y, yayil,
+    };
+    arka.add(o);
+  }
+
+  // Cok sonuk bir nokta bulutu: bosluk tamamen bos durmasin.
+  const n = 260, poz = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    poz[i*3]   = (r() - 0.5) * 46;
+    poz[i*3+1] = (r() - 0.5) * 38;
+    poz[i*3+2] = -6 - r() * 30;
+  }
+  const pg = new THREE.BufferGeometry();
+  pg.setAttribute('position', new THREE.BufferAttribute(poz, 3));
+  const toz = new THREE.Points(pg, new THREE.PointsMaterial({
+    color: 0x9fb4ff, size: 0.075, transparent: true, opacity: 0.5,
+    sizeAttenuation: true, depthWrite: false,
+  }));
+  toz.name = 'toz';
+  arka.add(toz);
+}
+
+function arkaPlaniCiz(t) {
+  for (const o of arka.children) {
+    const u = o.userData;
+    if (!u || !u.hiz) { o.rotation.y = t * 0.012; continue; }
+    o.rotation.x = u.faz + t * u.dn[0];
+    o.rotation.y = u.faz + t * u.dn[1];
+    o.rotation.z = u.faz + t * u.dn[2];
+    // Yukari suzuluyor, tepeye varinca alttan geri giriyor.
+    const alan = u.yayil * 1.7;
+    o.position.y = ((u.y0 + t * u.hiz + alan / 2) % alan) - alan / 2;
+  }
+  // Butun katman cok yavas saga kayiyor — parallaks hissi.
+  arka.position.x = Math.sin(t * 0.11) * 0.55;
+  arka.rotation.z = Math.sin(t * 0.07) * 0.02;
+}
 
 const phone = new THREE.Group();
 scene.add(phone);
@@ -405,6 +505,7 @@ async function boot() {
     gameEls.push(im);
   }
 
+  arkaPlaniKur();
   kapanisiKur();
   window.__ready = true;
 }
@@ -499,11 +600,14 @@ function setTexture(shotIdx) {
   if (screenMat.map !== t) { screenMat.map = t; screenMat.needsUpdate = true; }
 }
 
+// 9:16 Instagram Reels icin: baslik cok yukarida kaliyordu, uygulamanin
+// ust katmani (profil / "Reels" basligi) ilk %10'u ortuyor. Yazilar
+// asagi alindi, telefon da ayni oranda asagi kaydi.
 const LAYOUT = FMT === '11'
-  ? { titleTop: 0.045, subTop: 0.175, size: 62, subSize: 26, brandTop: 0.885, phoneY: -0.17, phoneScale: 0.72, icon: 62, nm: 29, st: 19, introTop: 0.40, introSize: 72,
-      heroTop: 0.33, heroIcon: 150, heroNm: 62, heroSt: 27 }
-  : { titleTop: 0.055, subTop: 0.182, size: 88, subSize: 32, brandTop: 0.895, phoneY: -0.13, phoneScale: 0.70, icon: 90, nm: 37, st: 24, introTop: 0.40, introSize: 96,
-      heroTop: 0.36, heroIcon: 170, heroNm: 72, heroSt: 30 };
+  ? { titleTop: 0.075, subTop: 0.205, size: 62, subSize: 26, brandTop: 0.885, phoneY: -0.24, phoneScale: 0.70, icon: 62, nm: 29, st: 19, introTop: 0.40, introSize: 72,
+      heroTop: 0.33, heroIcon: 150, heroNm: 62, heroSt: 27, gameTop: 0.06 }
+  : { titleTop: 0.120, subTop: 0.248, size: 88, subSize: 32, brandTop: 0.895, phoneY: -0.34, phoneScale: 0.67, icon: 90, nm: 37, st: 24, introTop: 0.40, introSize: 96,
+      heroTop: 0.36, heroIcon: 170, heroNm: 72, heroSt: 30, gameTop: 0.055 };
 
 const el = { t1: document.getElementById('t1'), t2: document.getElementById('t2'),
              intro: document.getElementById('intro'), introtx: document.getElementById('introtx'),
@@ -630,7 +734,9 @@ function renderFrame(t) {
   if (isGames) gA = clamp01(local / gFade);
   else if (isOutro) gA = 1 - easeOut(clamp01(local / 0.5));
   el.games.style.opacity = gA;
-  el.gl.style.opacity = (isGames || isOutro) ? 0 : 1;
+  // Tuval HEP acik: oyun bolumunde de hareketli 3B arka plan gorunuyor,
+  // yalnizca telefon maketi gizleniyor (phone.visible).
+  el.gl.style.opacity = 1;
 
   if (isGames && gameEls.length) {
     // Oyunlar birbirine GECIYOR: biri sonerken digeri aciliyor.
@@ -677,7 +783,7 @@ function renderFrame(t) {
   phone.position.set(0, LAYOUT.phoneY + Math.sin(t * 0.7) * 0.05, 0);
   phone.scale.setScalar(LAYOUT.phoneScale * (0.80 + 0.20 * easeOut(arrive))
                         * (1 - 0.12 * gA));
-  if (isOutro) el.gl.style.opacity = 1 - easeOut(clamp01(local / 0.45));
+
 
   // Ekran dokusu: tam turun ortasinda, arka yuz kameraya bakarken.
   if (cur && cur.k === 'p') {
@@ -712,6 +818,7 @@ function renderFrame(t) {
     el.t1.style.opacity = el.t2.style.opacity = 0;
   }
 
+  arkaPlaniCiz(t);
   renderer.render(scene, camera);
 }
 

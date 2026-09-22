@@ -5,9 +5,9 @@ Lisansi olmayan bir parcayi videoya gommek telif ihlali olurdu. Buradaki
 her ses numpy ile uretiliyor; telif sorunu yok.
 
 Ne var:
-  * acilista yukselen yumusak bir doku (bloom) — daktilo sesi ARTIK YOK,
-    cunku acilis da kapanis da "App Promo" sablonundaki sakin marka
-    blogu oldu
+  * acilista yukari cikan dort zil vurusu ve altinda isinan bir akor.
+    Daktilo sesi de, ondan sonra denenen gurultulu "bloom" da yok:
+    ikincisi "ruzgar sesi gibi, itici" bulundu.
   * her ekran gecisinde bir "whoosh"
   * oyun duvarinda seyrek blipler
   * logo belirirken yumusak bir cinlama
@@ -76,15 +76,51 @@ def whoosh(rng, dur=0.55, bright=1.0):
     return mix * env
 
 
-def bloom(rng, dur=1.8):
-    """Acilistaki yukselen doku — simge ve ad yerine otururken.
-    Eski daktilo tiklarinin yerini aldi."""
+def zil(f, dur=2.2, parlaklik=1.0):
+    """Tek bir zil/marimba vurusu: temel + birkac ustton, hizli sonen."""
     n = int(dur * SR)
-    t = np.linspace(0, 1, n)
-    noise = bandpass(rng.standard_normal(n), 300, 2600)
-    env = t ** 2 * np.exp(-((t - 0.75) ** 2) / 0.10)
-    tone = np.sin(2 * np.pi * 196.0 * np.arange(n) / SR) * 0.35
-    return (noise * 0.8 + tone) * env
+    t = np.arange(n) / SR
+    out = np.zeros(n)
+    for k, (carp, g, sonum) in enumerate(((1.0, 1.00, 2.2),
+                                          (2.0, 0.34, 3.4),
+                                          (3.0, 0.16, 4.6),
+                                          (4.16, 0.09, 6.0))):
+        out += np.sin(2 * np.pi * f * carp * t) * np.exp(-t * sonum) * g * (parlaklik ** k)
+    # Vurusun ilk anina cok kisa bir tahta tini
+    vur = int(0.012 * SR)
+    out[:vur] *= np.linspace(0.2, 1.0, vur)
+    return out
+
+
+def giris(rng, dur=2.4):
+    """ACILIS SESI — gurultu YOK.
+
+    Ilk surumde acilista suzulmus gurultuden bir "bloom" vardi;
+    kullanici "ruzgar sesi gibi, itici" dedi. Yerine tonal bir sey:
+    yukari dogru dort zil vurusu (Do-Mi-Sol-Do) ve altinda isinan
+    yumusak bir akor. Ic acici ve marka blogunun oturusuyla ayni anda
+    bitiyor.
+    """
+    n = int(dur * SR)
+    t = np.arange(n) / SR
+    out = np.zeros(n)
+
+    # Yukari cikan dort zil
+    for k, (f, at) in enumerate(((523.25, 0.10), (659.25, 0.24),
+                                 (783.99, 0.38), (1046.50, 0.54))):
+        z = zil(f, dur - at, 0.92)
+        i = int(at * SR)
+        m = min(len(z), n - i)
+        out[i:i + m] += z[:m] * (0.85 - 0.12 * k)
+
+    # Altta isinan akor: Do2 + Sol2 + Do3
+    akor = np.zeros(n)
+    for f, g in ((65.41, 1.0), (98.00, 0.55), (130.81, 0.38), (196.0, 0.16)):
+        akor += np.sin(2 * np.pi * f * t + np.sin(2 * np.pi * 0.3 * t) * 0.3) * g
+    zarf = np.clip(t / 1.1, 0, 1) * np.clip((dur - t) / 0.9, 0, 1)
+    out += lowpass(akor * zarf, 420) * 0.30
+
+    return out
 
 
 def chime():
@@ -129,28 +165,30 @@ def build(lang):
     out = buf()
     text = TEXT[lang]
 
-    # acilis: marka blogu yerine otururken yukselen doku
-    add(out, 0.15, bloom(rng), 0.30)
+    # acilis: yukari cikan zil dizisi + isinan akor (gurultu yok)
+    add(out, 0.20, giris(rng), 0.17)
 
     # ilk ekranin gelisi ve her ekran gecisi
+    # Sahne gecisleri: daha KOYU ve daha kisik. Parlak, genis bantli
+    # bir whoosh kulakta "ruzgar" olarak kaliyor.
     for i, at in enumerate(CUTS):
-        add(out, at - 0.25, whoosh(rng, 0.70 if i == 0 else 0.5, 0.9 + 0.1 * i),
-            0.30 if i == 0 else 0.22)
+        add(out, at - 0.25, whoosh(rng, 0.62 if i == 0 else 0.46, 0.55 + 0.06 * i),
+            0.22 if i == 0 else 0.16)
 
     # oyun bolumu: telefon cekilirken bir gecis, her oyun degisiminde blip
-    add(out, GAMES_AT - 0.30, whoosh(rng, 0.75, 1.1), 0.26)
+    add(out, GAMES_AT - 0.30, whoosh(rng, 0.68, 0.8), 0.20)
     for k in range(GAME_COUNT):
         add(out, GAMES_AT + k * (GAMES_DUR / GAME_COUNT), blip(rng), 0.20)
 
     # kapanis: gokkusagi ekrani aciliyor, ad yerine oturuyor
-    add(out, END_AT - 0.30, whoosh(rng, 0.8, 1.15), 0.26)
+    add(out, END_AT - 0.30, whoosh(rng, 0.7, 0.85), 0.21)
     add(out, END_AT + 0.75, chime(), 0.30)
     # ad belirdikten sonra ince bir parilti
     for k, off in enumerate((1.45, 1.62, 1.82)):
         add(out, END_AT + off, blip(rng), 0.10 - k * 0.02)
 
     d = drone()
-    out[:len(d)] += d * 0.035
+    out[:len(d)] += d * 0.055
 
     out = out[:int(DURATION * SR)]
     peak = np.max(np.abs(out))

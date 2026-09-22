@@ -51,6 +51,28 @@ bir üreteçten (`rastgele()`), böylece aynı kare her koşuda aynı çıkıyor
 Eski daktilo açılışı ve sondaki "öğrenme yolu" telefon sahnesi
 kaldırıldı.
 
+### Hareketli 3B arka plan
+
+"Sade duru kalmış" geri bildirimi üzerine düz degradenin önüne derinliği
+olan bir sahne kondu: telefonun **arkasında** yavaşça yukarı süzülen 46
+geometrik parça (kutu, halka, sekizyüzlü) marka mavisi/morunda, ince bir
+toz bulutu ve sis. Parçalar kendi ışığını da veriyor (`emissive`) —
+sahne ışıkları telefona ayarlı olduğu için düz standart malzeme koyu
+siluet çıkıyordu; arka plana ayrıca iki nokta ışığı var.
+
+Kurumsal kalsın diye az doygun ve küçük tutuldu, telefonun tam
+arkasındaki dar koridor boşaltıldı (siluet karışmasın). Oyun bölümünde
+de görünüyor: tuval artık hiç kapanmıyor, yalnızca `phone.visible`
+kapanıyor.
+
+### Instagram Reels yerleşimi
+
+9:16'da başlık %5,5'ten **%12'ye**, alt başlık %18'den **%25'e** indi:
+Instagram'ın üst katmanı (profil / "Reels" başlığı) ilk %10'u örtüyor ve
+yazılar altında kalıyordu. Telefon da aşağı kaydı (`phoneY`) ve biraz
+küçüldü; oyun kartı %74'ten %68'e indi ki alt başlık kartın altında
+kalmasın.
+
 Telefon her geçişte tam tur dönüyor; ekran dokusu turun ortasında, arka
 yüz kameraya bakarken değişiyor. Oyun bölümündeki sekiz kart çapraz
 geçişle birbirine karışıyor — geçiş penceresi kart süresinin **%30'unu
@@ -69,11 +91,18 @@ yazılmaz.
 
 ## Ses — sıfırdan sentez, telifsiz
 
-`sfx.py` sesi numpy ile üretiyor: açılışta yükselen yumuşak bir doku,
-telefon gelirken ve her turda whoosh, oyun bölümüne geçişte bir whoosh
-ve her oyun kartında blip, kapanışta çınlama, altta çok kısık bir bas
-dokusu. **Klavye tıkı yok** — açılışta artık yazı yazılmıyor. Kapanışta
-çınlamanın ardından üç ince parıltı, ad yerine otururken. **`GAME_COUNT` kart sayısıyla aynı olmalı**, yoksa blipler
+`sfx.py` sesi numpy ile üretiyor: açılışta yukarı çıkan dört zil vuruşu
+(Do–Mi–Sol–Do) ve altında ısınan yumuşak bir akor, telefon gelirken ve
+her turda whoosh, oyun bölümüne geçişte bir whoosh ve her oyun kartında
+blip, kapanışta çınlama ve ardından üç ince parıltı, altta çok kısık bir
+bas dokusu.
+
+**Açılışta gürültü YOK.** Önce daktilo tıkları vardı, sonra süzülmüş
+gürültüden bir "bloom" denendi; ikincisi *"rüzgâr sesi gibi, itici"*
+bulundu. Şimdiki açılış tamamen tonal. Sahne geçişlerindeki whoosh'lar
+da koyulaştırılıp kısıldı, onlar da rüzgâra çalıyordu.
+
+Bölümler arası denge ölçülerek eşitlendi: her bölüm −15…−18 dB RMS. **`GAME_COUNT` kart sayısıyla aynı olmalı**, yoksa blipler
 kartlarla tutmaz.
 
 Şablonun `Read Me!.txt` dosyasındaki AudioJungle parçası (`abstract
@@ -124,8 +153,14 @@ Videoyu çekmeden önce görüntüleri yenileyin.
 `run.sh` içindeki `oyun` çağrıları hangi görselin hangi karta gittiğini
 söylüyor (`g1_chess` ← `12_chess.png` gibi). Sekiz kart:
 
-    g1_chess       g2_millionaire  g3_word_match  g4_matching
+    g1_pattern     g2_millionaire  g3_word_match  g4_matching
     g5_bug_hunter  g6_coordinates  g7_robot       g8_arduino
+
+Satranç ekranı **bilerek yok**: uygulamada beyaz ve tahtanın altında
+geniş bir boş alan var; karanlık videoda çerçevesiz gösterilince
+bembeyaz bir levha gibi duruyordu. Yerine Kod Dedektifi (`17_pattern`,
+renkli sayı kartları). Satranç geri isteniyorsa önce ekran görüntüsü
+oyun ortasından, daha dolu bir kadrajla alınmalı.
 
 Hepsi widget testinin çıktısından geliyor ve **dile göre ayrışıyor**
 (`ekranlar_tr/` ile `ekranlar/`). Bir tur bu atlandı: İngilizce videoya
