@@ -44,10 +44,12 @@ enum RewardedAdFailure {
 ///    yazıyor; bu bir vaat, bir tercih değil. [setProMember] ile
 ///    beslenen bayrak her giriş noktasında ilk kontrol.
 /// 2. **Kişiselleştirme kapalı.** Kitlede çocuk var. AdMob'a
-///    `tagForChildDirectedTreatment` ve `tagForUnderAgeOfConsent`
-///    işaretleniyor, içerik derecesi G'ye sabitleniyor ve istek
-///    `nonPersonalizedAds: true` gidiyor. Böylece ATT izin ekranına da
-///    gerek kalmıyor, App Store 1.3 ve COPPA/GDPR-K tarafı temiz.
+///    `tagForChildDirectedTreatment` işaretleniyor, içerik derecesi
+///    G'ye sabitleniyor ve istek `nonPersonalizedAds: true` gidiyor.
+///    Böylece ATT izin ekranına da gerek kalmıyor, App Store 1.3 ve
+///    COPPA/GDPR-K tarafı temiz. (İkinci etiket
+///    `tagForUnderAgeOfConsent` bilerek verilmiyor; gerekçe
+///    [_RealAdsPlatform.applyChildSafeConfiguration] başında.)
 /// 3. **Sıklık sınırı.** Çocuk her ders sonunda reklam görürse
 ///    uygulama öğretici olmaktan çıkıyor. Geçiş reklamı için hem iki
 ///    reklam arası en az süre hem günlük tavan hem de yeni kullanıcı
@@ -432,16 +434,30 @@ class _RealAdsPlatform extends AdsPlatform {
 
   /// Çocuk kitlesi için zorunlu ayarlar.
   ///
-  /// `tagForChildDirectedTreatment` + `tagForUnderAgeOfConsent` birlikte
-  /// verildiğinde AdMob davranışsal hedefleme yapmıyor ve reklam
-  /// kimliğini kullanmıyor; bu yüzden ATT izin ekranı gerekmiyor.
+  /// `tagForChildDirectedTreatment: yes` tek başına yeterli: AdMob
+  /// davranışsal hedefleme yapmıyor ve reklam kimliğini (IDFA / AAID)
+  /// kullanmıyor. Bu yüzden iOS'ta ATT izin ekranı gerekmiyor, Play'in
+  /// karma kitle kuralındaki "çocuktan ya da yaşı bilinmeyen
+  /// kullanıcıdan AAID gönderilmesin" şartı da kendiliğinden
+  /// karşılanıyor — etiket HERKES için açık.
+  ///
+  /// `tagForUnderAgeOfConsent` BİLEREK VERİLMİYOR. Google'ın kendi
+  /// dokümanı ikisinin birlikte `yes` olmamasını söylüyor:
+  ///
+  /// > The tags to enable the Child-directed setting and
+  /// > `setTagForUnderAgeOfConsent` should not both simultaneously be
+  /// > set to `true`. If they are, the child-directed setting takes
+  /// > precedence.
+  ///
+  /// Yani ikinci etiket davranışı değiştirmiyordu, yalnızca reklam
+  /// doluluğunu gereksiz kısıtlıyordu.
+  ///
   /// `maxAdContentRating: G` de yetişkin içerikli reklamları eliyor.
   @override
   Future<void> applyChildSafeConfiguration() async {
     await MobileAds.instance.updateRequestConfiguration(
       RequestConfiguration(
         tagForChildDirectedTreatment: TagForChildDirectedTreatment.yes,
-        tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.yes,
         maxAdContentRating: MaxAdContentRating.g,
         testDeviceIds: AdConfig.testDeviceIds,
       ),

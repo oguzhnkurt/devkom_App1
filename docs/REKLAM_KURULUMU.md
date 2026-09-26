@@ -21,7 +21,7 @@ kalıyor. Aşağıdaki adımlar tamamlanınca reklamlar açılıyor.
   bu bir vaat. Üç giriş noktası da önce Pro bayrağına bakıyor,
   `test/ads_service_test.dart` bunu kilitliyor.
 - **Kişiselleştirme kapalı.** `tagForChildDirectedTreatment` +
-  `tagForUnderAgeOfConsent` + `maxAdContentRating: G` ve her istekte
+  `maxAdContentRating: G` ve her istekte
   `nonPersonalizedAds: true`. Reklam kimliği kullanılmadığı için **ATT
   izin ekranı gerekmiyor** ve App Privacy'de "takip" beyan edilmiyor.
 - **Ödül dersten az.** Bir ders 8 jeton, reklam 5. Reklam izlemek ders

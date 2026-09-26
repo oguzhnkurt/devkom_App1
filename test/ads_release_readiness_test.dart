@@ -109,7 +109,11 @@ void main() {
   test('cocuk guvenli yapilandirma zorunlu alanlari iceriyor', () {
     final s = File('lib/services/ads_service.dart').readAsStringSync();
     expect(s.contains('TagForChildDirectedTreatment.yes'), isTrue);
-    expect(s.contains('TagForUnderAgeOfConsent.yes'), isTrue);
+    // Google: child-directed ile under-age-of-consent BIRLIKTE
+    // verilmemeli, verilirse child-directed zaten oncelikli.
+    expect(s.contains('tagForUnderAgeOfConsent:'), isFalse,
+        reason: 'tagForUnderAgeOfConsent geri gelmis; '
+            'tagForChildDirectedTreatment tek basina yeterli.');
     expect(s.contains('MaxAdContentRating.g'), isTrue);
     expect(s.contains('AdRequest(nonPersonalizedAds: true)'), isTrue);
   });

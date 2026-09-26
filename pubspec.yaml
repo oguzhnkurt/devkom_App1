@@ -63,7 +63,6 @@ dependencies:
   table_calendar: ^3.1.2
   flutter_local_notifications: ^18.0.1
   timezone: ^0.9.4
-  flutter_sound: ^9.2.13
   audioplayers: ^5.2.1
   sign_in_with_apple: ^6.1.2
   # Apple ile giriste nonce'un SHA-256 ozetini almak icin.

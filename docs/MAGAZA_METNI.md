@@ -132,8 +132,8 @@ reklamı). Bu üç şeyi mağaza metninde değiştiriyor:
    "Reklamsız kullanım" yazıyordu ama uygulamada reklam yoktu; söz
    boştaydı. Şimdi karşılığı var.
 
-Reklamlar `tagForChildDirectedTreatment` + `tagForUnderAgeOfConsent` ve
-`maxAdContentRating: G` ile kişiselleştirmesiz gidiyor. Bu yüzden App
+Reklamlar `tagForChildDirectedTreatment` ve `maxAdContentRating: G`
+ile kişiselleştirmesiz gidiyor. Bu yüzden App
 Privacy'de "takip" (tracking) beyan **edilmiyor** ve `Info.plist`'e ATT
 izin metni (`NSUserTrackingUsageDescription`) bilerek eklenmedi —
 kullanılmayan bir izni istemek tek başına ret sebebi olabiliyor.
