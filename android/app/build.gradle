@@ -11,6 +11,22 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+// --------------------------------------------------------- AdMob kimligi
+// AdMob'un ANDROID uygulama kimligi. iOS'unkiyle AYNI DEGIL: AdMob'da her
+// platform ayri bir "uygulama" ve her birinin kendi ~kimligi var.
+//
+// Deger key.properties'ten geliyor (o dosya .gitignore'da), manifeste
+// ${admobAppId} yer tutucusuyla giriyor. Boylece gercek kimlik depoya
+// yazilmiyor ve yanlislikla test kimligiyle yayina cikilamiyor.
+//
+//   android/key.properties:
+//     admobAppId=ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY
+def ADMOB_TEST_APP_ID = "ca-app-pub-3940256099942544~3347511713"
+def admobAppId = keystoreProperties['admobAppId']?.trim()
+if (!admobAppId) {
+    admobAppId = ADMOB_TEST_APP_ID
+}
+
 android {
     namespace = "com.devkom.app"
     compileSdk = flutter.compileSdkVersion
@@ -32,6 +48,11 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // DIKKAT: `=` DEGIL `+=`. Flutter Gradle eklentisi ayni haritaya
+        // `applicationName` koyuyor ve manifest ${applicationName}
+        // kullaniyor; harita ezilirse uygulama acilmaz.
+        manifestPlaceholders += [admobAppId: admobAppId]
     }
 
     signingConfigs {
@@ -51,6 +72,27 @@ android {
             // Falls back to debug signing only if key.properties is missing,
             // so local builds without the keystore don't break.
             signingConfig = keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+}
+
+// Yayin derlemesi TEST kimligiyle cikamaz.
+//
+// Sessiz basarisizligi gurultulu hataya cevirir: test kimligiyle
+// yayinlanan bir uygulama hic reklam getirmez ve AdMob politikasina
+// aykiridir, ama derleme sorunsuz tamamlanir — yani fark edilmesi
+// aylar alabilir. Burada durduruluyor.
+tasks.configureEach { task ->
+    if (task.name ==~ /(assemble|bundle)Release/) {
+        task.doFirst {
+            if (admobAppId == ADMOB_TEST_APP_ID) {
+                throw new GradleException(
+                    "AdMob Android uygulama kimligi yok: android/key.properties " +
+                    "icine `admobAppId=ca-app-pub-...~...` satirini ekleyin. " +
+                    "Kimlik AdMob panelinde Uygulamalar > (Android uygulamasi) > " +
+                    "Uygulama ayarlari altinda. Test kimligiyle yayina cikilamaz."
+                )
+            }
         }
     }
 }

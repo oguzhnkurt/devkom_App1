@@ -26,12 +26,18 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!-- AdMob uygulama kimligi. Bu deger Google'in RESMI TEST
-             kimligidir; yayindan once AdMob panelindeki gercek kimlikle
-             degistirilmeli. Reklam birimi kimlikleri .env icinde. -->
+        <!-- AdMob uygulama kimligi.
+             DEPOYA YAZILMIYOR: deger android/key.properties icindeki
+             `admobAppId` satirindan geliyor (o dosya .gitignore'da) ve
+             build.gradle tarafindan buraya yerlestiriliyor.
+             key.properties'te yoksa Google'in TEST kimligi kullaniliyor;
+             yayin derlemesi (assembleRelease/bundleRelease) o durumda
+             BILEREK hata veriyor. Boylece test kimligi yayina sizamaz.
+             Reklam BIRIMI kimlikleri ayri: .env icinde
+             ADMOB_ANDROID_REWARDED / ADMOB_ANDROID_INTERSTITIAL. -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="${admobAppId}"/>
 
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

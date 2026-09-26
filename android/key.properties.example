@@ -1,0 +1,17 @@
+# android/key.properties ORNEGI — gercek dosya .gitignore'da.
+# Bunu `key.properties` adiyla kopyalayip degerleri doldurun.
+
+# --- Yayin imzalama (Play Store icin zorunlu) ---
+storePassword=
+keyPassword=
+keyAlias=
+storeFile=
+
+# --- AdMob ANDROID uygulama kimligi ---
+# iOS'unkiyle AYNI DEGIL. AdMob panelinde her platform ayri bir
+# "uygulama" ve her birinin kendi ~kimligi var:
+#   AdMob > Uygulamalar > (Android uygulamasi) > Uygulama ayarlari
+#
+# Bu satir bos birakilirsa Google'in TEST kimligi kullanilir ve
+# `flutter build appbundle` / `apk --release` BILEREK hata verir.
+admobAppId=

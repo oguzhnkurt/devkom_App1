@@ -45,6 +45,67 @@ void main() {
             'reklami cikar.');
   });
 
+  test('Android manifestinde AdMob kimligi GOMULU DEGIL', () {
+    // Manifeste dogrudan yazilan kimlik iki sekilde patliyor: Google'in
+    // test kimligi yayina sizabiliyor (hic gelir gelmez, politika
+    // ihlali) ya da gercek kimlik depoya girip herkese aciliyor.
+    // Dogru yer key.properties (.gitignore'da) -> manifest yer tutucusu.
+    final man =
+        File('android/app/src/main/AndroidManifest.xml').readAsStringSync();
+    final i = man.indexOf('com.google.android.gms.ads.APPLICATION_ID');
+    expect(i, greaterThan(0),
+        reason: 'AdMob uygulama kimligi meta-data satiri yok; '
+            'SDK acilista cokuyor.');
+    final govde = man.substring(i, i + 200);
+    expect(govde.contains(r'${admobAppId}'), isTrue,
+        reason: 'Kimlik yer tutucudan gelmeli.');
+    expect(govde.contains('ca-app-pub-'), isFalse,
+        reason: 'Manifeste kimlik GOMULMUS. key.properties kullanin.');
+  });
+
+  test('Android yayin derlemesi test kimligiyle cikamaz', () {
+    // Bu olmazsa hata sessiz: test kimligiyle derlenen bir surum
+    // sorunsuz build olur, magazaya cikar ve hic reklam getirmez.
+    final g = File('android/app/build.gradle').readAsStringSync();
+    expect(g.contains("keystoreProperties['admobAppId']"), isTrue,
+        reason: 'Kimlik key.properties disinda bir yerden okunuyor.');
+    expect(g.contains('manifestPlaceholders += '), isTrue,
+        reason: 'Yer tutucu haritasi `=` ile EZILMEMELI: Flutter ayni '
+            'haritaya applicationName koyuyor.');
+    expect(g.contains('GradleException'), isTrue,
+        reason: 'Yayin derlemesinde test kimligi kontrolu yok.');
+    final i = g.indexOf('(assemble|bundle)Release');
+    expect(i, greaterThan(0),
+        reason: 'Kontrol yalnizca yayin gorevlerine baglanmali; '
+            'yoksa hata ayiklama derlemeleri de kirilir.');
+  });
+
+  test('Android reklam birimleri .env icinden okunuyor', () {
+    // iOS dalinin aynisi: test kimlikleri YALNIZCA !kReleaseMode'da.
+    final cfg = File('lib/config/ad_config.dart').readAsStringSync();
+    for (final alan in ['rewardedUnitId', 'interstitialUnitId']) {
+      final i = cfg.indexOf('String? get $alan');
+      final govde = cfg.substring(i, i + 400);
+      final release = govde.indexOf('if (!kReleaseMode)');
+      final env = govde.indexOf("_env('ADMOB_ANDROID_");
+      expect(env, greaterThan(0),
+          reason: '$alan Android dalinda .env okumuyor.');
+      expect(release, lessThan(env),
+          reason: '$alan icinde release dali test kimliginden SONRA '
+              'gelmeli; yoksa yayinda test reklami cikar.');
+    }
+  });
+
+  test('key.properties ornegi Android kimligini anlatiyor', () {
+    // Yeni bir makinede kurulum yapan kisi neyi doldurmasi gerektigini
+    // dosyanin kendisinden gormeli.
+    final f = File('android/key.properties.example');
+    expect(f.existsSync(), isTrue);
+    final s = f.readAsStringSync();
+    expect(s.contains('admobAppId'), isTrue);
+    expect(s.contains('storeFile'), isTrue);
+  });
+
   test('cocuk guvenli yapilandirma zorunlu alanlari iceriyor', () {
     final s = File('lib/services/ads_service.dart').readAsStringSync();
     expect(s.contains('TagForChildDirectedTreatment.yes'), isTrue);
