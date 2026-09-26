@@ -1,0 +1,978 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  @font-face { font-family:'Nunito'; src:url('fonts/Nunito-400.ttf'); font-weight:400 }
+  @font-face { font-family:'Nunito'; src:url('fonts/Nunito-700.ttf'); font-weight:700 }
+  @font-face { font-family:'Nunito'; src:url('fonts/Nunito-800.ttf'); font-weight:800 }
+  html,body { margin:0; padding:0; overflow:hidden; background:#05060f }
+  #stage { position:relative; overflow:hidden; }
+  #bg { position:absolute; inset:0;
+        background:
+          radial-gradient(120% 70% at 50% 8%,  #241a5e 0%, #0e1030 42%, #05060f 78%),
+          radial-gradient(60% 40% at 78% 82%, rgba(90,52,232,.38) 0%, rgba(90,52,232,0) 70%),
+          radial-gradient(50% 35% at 18% 70%, rgba(30,120,220,.28) 0%, rgba(30,120,220,0) 72%);
+  }
+  /* Acilis ve kapanis "App Promo" sablonunun dili: siyaha yakin
+     lacivert, ALTTAN gelen mavi isik. Aradaki telefon sahnelerinde
+     opaklik 0'a iniyor, ortadaki mor sahne geri geliyor. */
+  #appbg { position:absolute; inset:0; opacity:0;
+           background:
+             radial-gradient(120% 78% at 50% 108%,
+               #2f5fd0 0%, #1b3a93 26%, #0b1a49 48%, #04060e 72%),
+             linear-gradient(#04060e, #04060e); }
+  #appvig { position:absolute; inset:0; opacity:0;
+            background:radial-gradient(130% 100% at 50% 50%,
+              rgba(0,0,0,0) 42%, rgba(0,0,0,.55) 100%); }
+  /* Ortalanmis marka blogu: simge, ad, altinda tek satir. */
+  #hero { position:absolute; left:0; right:0; text-align:center; opacity:0;
+          font-family:'Nunito',sans-serif }
+  #hero img { border-radius:23%; display:block; margin:0 auto;
+              box-shadow:0 26px 70px rgba(10,30,90,.65) }
+  #hero .nm { color:#fff; font-weight:800; letter-spacing:-.025em; margin-top:.40em }
+  #hero .st { color:#93a9dd; font-weight:600; margin-top:.34em }
+  /* ------------------------------------------------ ACILIS: BLOK ---
+     Videonun kancasi. Reels'te ilk saniye her sey: logo degil, urunun
+     VAADI gorunuyor — uc blok yerine oturuyor ve kod satirlarina
+     donusuyor. Bloklarin UZERINDE YAZI YOK: Scratch blok adlari
+     uydurulamaz (yalnizca resmi dil dosyalarindan gelir), o yuzden
+     bloklar sekil ve renk olarak duruyor. */
+  #kanca { position:absolute; inset:0; opacity:0 }
+  #kancaKutu { position:absolute; left:50%; top:46%;
+               transform:translate(-50%,-50%); will-change:transform }
+  .blok { position:relative; margin:0 auto; will-change:transform,opacity }
+  .blok svg { display:block; filter:drop-shadow(0 16px 34px rgba(0,0,0,.45)) }
+  /* Kod satiri blogun TAM yerinde beliriyor — donusum hissi buradan. */
+  .kod { position:absolute; left:0; right:0; text-align:left;
+         font-family:ui-monospace,Menlo,Consolas,monospace; font-weight:600;
+         white-space:pre; opacity:0; will-change:transform,opacity }
+  /* Kodun arkasinda beliren koyu editor zemini. */
+  #editor { position:absolute; left:50%; top:46%; border-radius:22px;
+            transform:translate(-50%,-50%); opacity:0;
+            background:linear-gradient(#11142c, #0a0c1e);
+            box-shadow:0 30px 80px rgba(0,0,0,.6),
+                       inset 0 0 0 1px rgba(255,255,255,.07) }
+  #editorNok { position:absolute; left:22px; top:18px; display:flex; gap:9px }
+  #editorNok i { width:11px; height:11px; border-radius:50%; display:block }
+
+  /* ---------------------------------------------------- KAPANIS ---
+     Videonun son ekrani: gokkusagi + kod. Oteki sahnelerden ayri bir
+     katman; acilisin sade marka blogunu kullanmiyor. */
+  #finale { position:absolute; inset:0; opacity:0; overflow:hidden;
+            background:#05060f; font-family:'Nunito',sans-serif }
+  /* Donen konik gokkusagi; cok bulanik oldugu icin renk olarak
+     hissediliyor, sekil olarak degil. */
+  #fbow { position:absolute; left:50%; top:50%; width:190%; height:190%;
+          border-radius:50%; will-change:transform;
+          background:conic-gradient(from 0deg,
+            #ff2d55, #ff8a00, #ffd600, #00e07a, #00c2ff,
+            #4f46e5, #b829ff, #ff2d8d, #ff2d55);
+          filter:blur(78px); opacity:.92 }
+  /* Kenar vinyeti: gokkusagi bir HALKA gibi dursun, tuvali
+     bastan basa kaplayan pastel bir bulut gibi degil. */
+  #fvig { position:absolute; inset:0;
+          background:radial-gradient(118% 118% at 50% 50%,
+            rgba(0,0,0,0) 26%, rgba(0,0,0,.30) 62%, rgba(0,0,0,.72) 100%) }
+  /* Ortayi karartan katman: gokkusagi kenarlarda kalsin, yazi okunsun. */
+  /* Gokkusagi kenarlarda kalsin, ortada yazi okunsun. Ilk denemede
+     ad, arkasindaki ayni tondaki renge karisiyordu. */
+  #fdim { position:absolute; inset:0;
+          background:radial-gradient(64% 52% at 50% 48%,
+            rgba(5,6,15,.95) 0%, rgba(5,6,15,.90) 34%,
+            rgba(5,6,15,.55) 62%, rgba(5,6,15,0) 100%) }
+  /* Marka blogunun tam arkasinda ayrica yumusak, koyu bir tabla. */
+  #fplate { position:absolute; left:50%; top:50%; border-radius:50%;
+            transform:translate(-50%,-50%); filter:blur(60px);
+            background:radial-gradient(closest-side,
+              rgba(4,5,12,.96), rgba(4,5,12,.72) 58%, rgba(4,5,12,0) 100%) }
+  /* Kod yagmuru: sabit sutunlar, her kare yalnizca y degisiyor. */
+  #frain { position:absolute; inset:0; overflow:hidden; opacity:.9 }
+  #frain span { position:absolute; font-family:ui-monospace,Menlo,Consolas,monospace;
+                white-space:pre; will-change:transform }
+  /* Suruklenen kod kartlari. Metinler GERCEK kod satiri — Scratch blok
+     adi UYDURULMUYOR (resmi dil dosyalari disinda blok adi yazilmaz). */
+  #fcards { position:absolute; inset:0; overflow:hidden }
+  #fcards div { position:absolute; padding:.42em .8em; border-radius:14px;
+                font-family:ui-monospace,Menlo,Consolas,monospace;
+                font-weight:600; color:#fff; white-space:pre;
+                box-shadow:0 14px 34px rgba(0,0,0,.42);
+                will-change:transform,opacity }
+  #fcore { position:absolute; left:0; right:0; text-align:center }
+  #fhalo { position:absolute; left:50%; top:50%; border-radius:50%;
+           transform:translate(-50%,-50%); filter:blur(34px); opacity:.85;
+           background:conic-gradient(from 0deg,
+             #ff4d4d, #ffe14d, #4ade80, #22d3ee, #a855f7, #ff4d8d, #ff4d4d) }
+  #ficon { position:relative; border-radius:23%; display:block; margin:0 auto;
+           box-shadow:0 24px 60px rgba(0,0,0,.55) }
+  #fnm { font-weight:800; letter-spacing:-.03em; margin-top:.36em;
+         background:linear-gradient(90deg,
+           #ff6b6b, #ffd93d, #6bff95, #4dd8ff, #b48bff, #ff6bd6, #ff6b6b);
+         background-size:260% 100%;
+         -webkit-background-clip:text; background-clip:text;
+         -webkit-text-fill-color:transparent; color:transparent }
+  #fst { color:#fff; font-weight:700; margin-top:.5em;
+         text-shadow:0 3px 18px rgba(0,0,0,.75) }
+  #grain { position:absolute; inset:0; opacity:.05; mix-blend-mode:overlay; }
+  canvas#gl { position:absolute; inset:0; width:100%; height:100%; }
+  #ui { position:absolute; inset:0; }
+  .line { position:absolute; left:0; right:0; text-align:center;
+          font-family:'Nunito',sans-serif; color:#fff; }
+  .title { font-weight:800; letter-spacing:-.02em; line-height:1.08;
+           text-shadow:0 6px 40px rgba(0,0,0,.45) }
+  .sub   { font-weight:400; color:#b9c0e8; line-height:1.35 }
+  .hl    { color:#a48bff }
+  /* Eski kucuk marka satiri: acilis (#hero) ve kapanis (#finale)
+     kendi bloklarini cizdigi icin artik kullanilmiyor. */
+  #brand { display:none; position:absolute; left:0; right:0; align-items:center;
+           justify-content:center; gap:22px; font-family:'Nunito',sans-serif; }
+  #brand img { border-radius:22%; display:block }
+  #brand .nm { color:#fff; font-weight:800; letter-spacing:-.02em }
+  #brand .st { color:#b9c0e8; font-weight:600 }
+  #intro { font-family:'Nunito',sans-serif; font-weight:800; color:#fff;
+           letter-spacing:-.02em; line-height:1.12; padding:0 8%;
+           text-shadow:0 8px 50px rgba(0,0,0,.5) }
+  #caret { color:#a48bff; font-weight:400 }
+  /* Oyun bolumu: telefon maketi YOK. Ekranin tamami gorunuyor —
+     yuksekligi doldurup en-boy orani korunuyor, kose yuvarlaniyor. */
+  #games { position:absolute; inset:0; display:flex; align-items:flex-end;
+           justify-content:center; padding-bottom:3%; opacity:0;
+           pointer-events:none }
+  /* Baslik yazisina yer kalsin diye %74: ekranin TAMAMI goruluyor,
+     yalnizca biraz kucuk. */
+  /* %68: baslik ASAGI alindi (Reels ust katmani), kart da kuculdu ki
+     alt baslik kartin altinda kalmasin. */
+  #games img { position:absolute; bottom:4%; height:68%; width:auto; border-radius:30px;
+               box-shadow:0 40px 110px rgba(0,0,0,.65),
+                          0 0 0 1px rgba(255,255,255,.06);
+               opacity:0; will-change:transform,opacity }
+</style></head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <canvas id="gl"></canvas>
+  <!-- Acilisin duz lacivert zemini TUVALIN USTUNDE duruyor; soldukce
+       arkasindaki hareketli 3B sahne aciliyor. -->
+  <div id="appbg"></div>
+  <div id="appvig"></div>
+  <div id="ui">
+    <div class="line title" id="t1"></div>
+    <div class="line sub"   id="t2"></div>
+    <div id="brand"><img id="bicon" src="app_icon.png"><div><div class="nm" id="bnm"></div><div class="st" id="bst"></div></div></div>
+    <div class="line" id="intro"><span id="introtx"></span><span id="caret">&#9612;</span></div>
+    <div id="games"></div>
+    <div id="kanca">
+      <div id="editor"><div id="editorNok"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div></div>
+      <div id="kancaKutu"></div>
+    </div>
+    <div id="hero"><img id="hicon" src="app_icon.png">
+      <div class="nm" id="hnm"></div><div class="st" id="hst"></div></div>
+    <div id="finale">
+      <div id="fbow"></div>
+      <div id="fvig"></div>
+      <div id="fdim"></div>
+      <div id="frain"></div>
+      <div id="fcards"></div>
+      <div id="fcore">
+        <div id="fplate"></div>
+        <div id="fhalo"></div>
+        <img id="ficon" src="app_icon.png">
+        <div id="fnm"></div><div id="fst"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{"imports":{"three":"./lib/three/build/three.module.js","three/addons/":"./lib/three/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader }      from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const q    = new URLSearchParams(location.search);
+const LANG = q.get('lang') || 'tr';
+const FMT  = q.get('fmt')  || '916';
+const W = 1080, H = (FMT === '11') ? 1080 : 1920;
+
+const stage = document.getElementById('stage');
+stage.style.width = W + 'px'; stage.style.height = H + 'px';
+
+// ---------------------------------------------------------------- metin
+// Basliklar EMIR KIPINDE: reklamda dogrudan hitap daha guclu.
+// Vaatler magaza slaytlarindakiyle ayni (tool/store_slides.py) —
+// yalnizca kip degisti, yeni bir sey soylenmiyor. App Store Kural
+// 2.3.1: uydurma sayi, oran ya da odul yok.
+const COPY = {
+  tr: [
+    ['[Bloklardan]', ''],
+    ['gerçek <b>koda.</b>', ''],
+    ['<b>Gerçek kodu</b><br>kendin yaz', 'HTML, CSS, Python, C# — harf harf'],
+    ['Scratch’i <b>adım adım</b><br>öğren', 'Blok nedir, ne işe yarar'],
+    ['Blokları <b>sürükleyip</b><br>kodlamayı oluştur', 'Gerçek Scratch blokları'],
+    ['[Oyunla] pekiştir', '16 mini oyun · eşleştir, sırala, labirenti geç'],
+    ['', ''],
+  ],
+  en: [
+    ['From [blocks]', ''],
+    ['to real <b>code.</b>', ''],
+    ['Write <b>real code</b><br>yourself', 'HTML, CSS, Python, C# — line by line'],
+    ['Learn Scratch<br><b>step by step</b>', 'What a block is and what it does'],
+    ['<b>Drag</b> blocks and<br>build your code', 'Real Scratch blocks'],
+    ['[Practise] by playing', '16 mini games · match, order, get through the maze'],
+    ['', ''],
+  ],
+};
+// Kapanistaki magaza satiri. Google Play listesi YAYINA GIRMEDEN
+// 'both' yapilmamali: yayindaki bir reklamda olmayan bir magazayi
+// soylemek yanlis beyan olur. Yayina girdigi gun tek kelime degisiyor.
+const STORES = 'both';          // 'apple' | 'both'
+const BRAND = {
+  apple: {
+    tr: ['DevEducation', 'App Store’da'],
+    en: ['DevEducation', 'On the App Store'],
+  },
+  both: {
+    tr: ['DevEducation', 'App Store ve Google Play’de'],
+    en: ['DevEducation', 'Available on the App Store and Google Play'],
+  },
+}[STORES];
+// Acilis: satir klavyeden yaziliyormus gibi harf harf beliriyor.
+const INTRO_TX = { tr: 'Bloklardan gerçek koda.', en: 'From blocks to real code.' };
+const SHOTS = (q.get('calib') ? ['calib','calib','calib','calib','calib'] : q.get('dbg') ? ['dbg','dbg','dbg','dbg','dbg'] : ['09_home', '02_lesson', '04_blocks', '14_html_code', '08_path']);
+
+// Kurgu: telefon maketiyle anlatilan ekranlar + ARADA cercevesiz bir
+// oyun bolumu. Oyun ekranlari maketin icine girmiyor; tam tasarim
+// gorunsun diye ekranin tamami kadraja yerlesiyor.
+// Acilis ve kapanis artik "App Promo" sablonundaki gibi: ortada
+// simge + ad, altinda tek satir. Eski daktilo acilisi ve sondaki
+// "ogrenme yolu" telefon sahnesi kaldirildi.
+// KURGU — Reels once.
+//
+// Neden logo ile baslamiyor: Reels'te ilk saniye her sey; insanlar
+// logoyu gorunce kaydiriyor. Kanca urunun VAADI: uc blok yerine
+// oturuyor ve gercek kod satirlarina donusuyor. Marka sonda, odulun
+// oldugu yerde.
+const BLOK_DUR = 2.4, MORPH_DUR = 2.2, PHONE_DUR = 3.0,
+      GAMES_DUR = 6.0, OUTRO = 4.0, SPIN = 0.7, INTRO = 0;
+const GAMES = ['g1_pattern', 'g2_millionaire', 'g3_word_match', 'g4_matching',
+               'g5_bug_hunter', 'g6_coordinates', 'g7_robot', 'g8_arduino'];
+
+// Bloklarin donustugu kod: uygulamadaki HTML dersinin kendi satirlari.
+// Uydurma yok; hemen ardindan gelen telefon ekraninda ayni ders var.
+const KANCA_KOD = ['<html>', '  <h1>Merhaba</h1>', '</html>'];
+const KANCA_KOD_EN = ['<html>', '  <h1>Hello</h1>', '</html>'];
+const BLOK_RENK = ['#f2622c', '#3a7ff5', '#8b46d9'];
+
+const TL = [
+  { k: 'b' },                 // bloklar yerine oturuyor
+  { k: 'm' },                 // bloklar koda donusuyor
+  { k: 'p', s: 3 },           // 14_html_code
+  { k: 'p', s: 1 },           // 02_lesson
+  { k: 'p', s: 2 },           // 04_blocks
+  { k: 'g' },
+  { k: 'o' },
+];
+const SURE = (k) => ({ b: BLOK_DUR, m: MORPH_DUR, g: GAMES_DUR, o: OUTRO }[k] || PHONE_DUR);
+const STARTS = [];
+let _acc = 0;
+for (const x of TL) { STARTS.push(_acc); _acc += SURE(x.k); }
+const DURATION = _acc;                                  // 23.6 s
+
+function fmtText(s) {
+  return s.replace(/\[(.+?)\]/gs, '<span class="hl">$1</span>')
+          .replace(/<b>(.+?)<\/b>/gs, '<span class="hl">$1</span>');
+}
+
+// ------------------------------------------------------------- three.js
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), alpha: true, antialias: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H, false);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(28, W / H, 0.1, 100);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const key = new THREE.DirectionalLight(0xffffff, 2.4); key.position.set(3, 5, 6);   scene.add(key);
+const rim = new THREE.DirectionalLight(0x8a6bff, 3.0); rim.position.set(-5, 2, -4);  scene.add(rim);
+const fil = new THREE.DirectionalLight(0x4fa8ff, 1.2); fil.position.set(-3, -3, 4);  scene.add(fil);
+scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+
+// ------------------------------------------------- hareketli 3B arka plan
+// "Sade duru kalmis" geri bildirimi: dumduz bir degrade yerine derinligi
+// olan, yavas hareket eden bir sahne. Kurumsal kalsin diye: az sayida
+// gecirgen geometri, dusuk doygunluk, hepsi telefonun ARKASINDA ve
+// bulanik degil ama kucuk — konu telefon, arka plan konu olmuyor.
+const arka = new THREE.Group();
+scene.add(arka);
+// Arka plana kendi isigi: sahne isiklari telefona ayarli.
+const arkaIsik1 = new THREE.PointLight(0x7c6bff, 42, 60); arkaIsik1.position.set(-7, 5, -10);
+const arkaIsik2 = new THREE.PointLight(0x2fa8ff, 34, 60); arkaIsik2.position.set(8, -4, -14);
+scene.add(arkaIsik1, arkaIsik2);
+// Sis: uzaktakiler zemine karisiyor, katman hissi veriyor.
+scene.fog = new THREE.Fog(0x0b0d26, 24, 54);
+
+const ARKA_RENK = [0x6d5cf5, 0x4fa8ff, 0x22d3ee, 0x8b5cf6, 0x3b82f6];
+
+function arkaPlaniKur() {
+  // Tekrarlanabilir rastgelelik: ayni kare her kosuda ayni.
+  let sd = 987654321;
+  const r = () => (sd = (sd * 1664525 + 1013904223) >>> 0) / 4294967296;
+
+  // RoundedBoxGeometry cekirdek three'de yok; varsa kullan, yoksa kutu.
+  const kutu = (typeof THREE.RoundedBoxGeometry === 'function')
+    ? new THREE.RoundedBoxGeometry(1, 1, 1, 2, 0.16)
+    : new THREE.BoxGeometry(1, 1, 1);
+  const halka = new THREE.TorusGeometry(0.62, 0.1, 10, 36);
+  const sekiz = new THREE.OctahedronGeometry(0.72, 0);
+
+  for (let i = 0; i < 46; i++) {
+    const g = [kutu, halka, sekiz][i % 3];
+    // Kendi isigini de veriyorlar (emissive): sahne isiklari telefona
+    // ayarli oldugu icin duz standart malzeme koyu siluet cikiyordu.
+    const renk = ARKA_RENK[i % ARKA_RENK.length];
+    const m = new THREE.MeshStandardMaterial({
+      color: renk, emissive: renk, emissiveIntensity: 0.42,
+      roughness: 0.42, metalness: 0.18,
+      transparent: true, opacity: 0.42 + r() * 0.30,
+    });
+    const o = new THREE.Mesh(g, m);
+    // Kamera z=8 civarinda; nesneler -4 ile -26 arasinda, yani hep arkada.
+    const z = -4 - r() * 22;
+    const yayil = 4.5 + (-z) * 0.42;      // uzaktakiler daha genis yayiliyor
+    o.position.set((r() - 0.5) * 2 * yayil, (r() - 0.5) * 2 * yayil * 0.85, z);
+    // Telefonun tam arkasindaki dar koridoru bosalt: siluet karismasin.
+    if (Math.abs(o.position.x) < 1.9 && z > -12) o.position.x += (o.position.x < 0 ? -2.4 : 2.4);
+    const b = 0.26 + r() * 0.52;
+    o.scale.setScalar(b);
+    o.userData = {
+      hiz: 0.05 + r() * 0.13,            // dikey suzulme
+      dn: [(r() - 0.5) * 0.26, (r() - 0.5) * 0.3, (r() - 0.5) * 0.2],
+      faz: r() * Math.PI * 2,
+      y0: o.position.y, yayil,
+    };
+    arka.add(o);
+  }
+
+  // Cok sonuk bir nokta bulutu: bosluk tamamen bos durmasin.
+  const n = 260, poz = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    poz[i*3]   = (r() - 0.5) * 46;
+    poz[i*3+1] = (r() - 0.5) * 38;
+    poz[i*3+2] = -6 - r() * 30;
+  }
+  const pg = new THREE.BufferGeometry();
+  pg.setAttribute('position', new THREE.BufferAttribute(poz, 3));
+  const toz = new THREE.Points(pg, new THREE.PointsMaterial({
+    color: 0x9fb4ff, size: 0.075, transparent: true, opacity: 0.5,
+    sizeAttenuation: true, depthWrite: false,
+  }));
+  toz.name = 'toz';
+  arka.add(toz);
+}
+
+function arkaPlaniCiz(t) {
+  for (const o of arka.children) {
+    const u = o.userData;
+    if (!u || !u.hiz) { o.rotation.y = t * 0.012; continue; }
+    o.rotation.x = u.faz + t * u.dn[0];
+    o.rotation.y = u.faz + t * u.dn[1];
+    o.rotation.z = u.faz + t * u.dn[2];
+    // Yukari suzuluyor, tepeye varinca alttan geri giriyor.
+    const alan = u.yayil * 1.7;
+    o.position.y = ((u.y0 + t * u.hiz + alan / 2) % alan) - alan / 2;
+  }
+  // Butun katman cok yavas saga kayiyor — parallaks hissi.
+  arka.position.x = Math.sin(t * 0.11) * 0.55;
+  arka.rotation.z = Math.sin(t * 0.07) * 0.02;
+}
+
+const phone = new THREE.Group();
+scene.add(phone);
+
+let screenMat = null, screenMesh = null;
+const gameEls = [];
+const textures = {};
+
+// Ekran goruntusune yapay bir durum cubugu bandi ekler.
+//
+// NEDEN: ekran goruntuleri widget testinden geliyor, guvenli alan
+// (safe area) bosluklari yok — icerik y=0'dan basliyor. 3B modelin
+// Dynamic Island'i ise ekranin ust %5'ini ortuyordu ve yazilarin
+// uzerine biniyordu. Goruntuyu ustten paylayip asagi kaydiriyoruz;
+// bant, goruntunun kendi ust satirinin rengiyle doluyor, yani
+// uygulamanin arka planinin devami gibi duruyor.
+const IMG_W = 1290, IMG_H = 2796;
+const TOP_PAD = 160;                        // piksel, ~%5.7
+
+function padded(img, apAspect) {
+  const h = IMG_H + TOP_PAD;
+  const w = Math.round(h * apAspect);       // acikligin oraniyla birebir
+  const side = Math.round((w - IMG_W) / 2);
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  const cx = cv.getContext('2d');
+  cx.imageSmoothingEnabled = true;
+  // ust bant: ilk satir
+  cx.drawImage(img, 0, 0, IMG_W, 1, side, 0, IMG_W, TOP_PAD);
+  // yan bantlar: ilk/son sutun
+  if (side > 0) {
+    cx.drawImage(img, 0, 0, 1, IMG_H, 0, TOP_PAD, side, IMG_H);
+    cx.drawImage(img, IMG_W - 1, 0, 1, IMG_H, side + IMG_W, TOP_PAD, side, IMG_H);
+    cx.drawImage(img, 0, 0, 1, 1, 0, 0, side, TOP_PAD);
+    cx.drawImage(img, IMG_W - 1, 0, 1, 1, side + IMG_W, 0, side, TOP_PAD);
+  }
+  cx.drawImage(img, side, TOP_PAD);
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+}
+
+function loadImg(src) {
+  return new Promise((res) => {
+    const im = new Image();
+    im.onload = () => res(im);
+    im.onerror = () => res(null);     // dosya yoksa o oyun atlaniyor
+    im.src = src;
+  });
+}
+
+async function boot() {
+  const rawImgs = {};
+  for (const s of SHOTS) rawImgs[s] = await loadImg(`shots/${LANG}/${s}.png`);
+
+  const gltf = await new Promise((res, rej) =>
+    new GLTFLoader().load('./models/pro1.glb', res, undefined, rej));
+  const model = gltf.scene;
+
+  // ekrani bul
+  model.traverse((o) => {
+    if (o.isMesh) {
+      const m = Array.isArray(o.material) ? o.material[0] : o.material;
+      if (m && m.name === 'Screen_BG') { screenMesh = o; o.renderOrder = 2; }
+    }
+  });
+
+  // modeli ortala ve normalize et
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const ctr  = box.getCenter(new THREE.Vector3());
+  model.position.sub(ctr);
+  const target = 3.2;                       // dunya biriminde telefon yuksekligi
+  model.scale.setScalar(target / size.y);
+  phone.add(model);
+
+  // ---- ekran dokusu -------------------------------------------------
+  // Modelin ekran UV'si bir atlasin ICINDE ve 90 derece donuk:
+  //   u 0.1849..0.5240  -> ekranin ALT..UST kenari
+  //   v 0.4389..0.6013  -> ekranin SAG..SOL kenari
+  // (probe3.html ile olculdu.) Dahasi, Screen_BG mesh'i cercevenin
+  // ALTINA kadar uzaniyor; goruntuyu mesh'in tamamina serersek kenarlar
+  // cercevenin altinda kaliyor ve ekran "tasmis" gorunuyor. Gorunur
+  // acikligi kalibre dokusuyla olctuk: her kenardan ~0.096 dunya birimi
+  // cerceve ortuyor (calib.png ile dogrulanir).
+  const U0 = 0.1849, U1 = 0.5240, V0 = 0.4389, V1 = 0.6013;
+  const dU = U1 - U0, dV = V1 - V0;
+  const MESH_W = 1.9238, MESH_H = 4.0158, BEZEL = 0.096;
+
+  const bv = BEZEL / MESH_W, bu = BEZEL / MESH_H;
+  const u0 = U0 + bu * dU, u1 = U1 - bu * dU;
+  const v0 = V0 + bv * dV, v1 = V1 - bv * dV;
+  const du = u1 - u0, dv = v1 - v0;
+
+  // Goruntu, acikligin oraniyla birebir paylandi -> kirpma yok.
+  const apAspect = (MESH_W * (1 - 2 * bv)) / (MESH_H * (1 - 2 * bu));
+  for (const s2 of SHOTS) textures[s2] = padded(rawImgs[s2], apAspect);
+
+  // s (yatay) = (v1 - v) / dv        : goruntunun solu, dunyanin solu
+  // t (dikey) = (u1 - u) / du        : goruntunun ustu, telefonun ustu
+  const a = -1 / du, b = u1 / du;
+  const c = -1 / dv, d = v1 / dv;
+
+  for (const s2 of SHOTS) {
+    const t = textures[s2];
+    t.flipY = false;
+    t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+    t.matrixAutoUpdate = false;
+    t.matrix.set(0, c, d,
+                 a, 0, b,
+                 0, 0, 1);
+    t.needsUpdate = true;
+  }
+
+  // ---- ekran malzemesi ----------------------------------------------
+  // PBR + ACES tone mapping ekrani soluklastiriyordu: uygulamanin
+  // renkleri cansiz cikiyordu. Ekran kendi isigini veren bir yuzey,
+  // sahne isigina hic bagli degil -> duz malzeme, tone mapping kapali.
+  // Boylece piksel degerleri ekran goruntusundekiyle birebir ayni.
+  screenMat = new THREE.MeshBasicMaterial({
+    map: textures[SHOTS[0]],
+    toneMapped: false,
+  });
+  screenMesh.material = screenMat;
+
+  // Ince bir parlama: cam hissi. Ekranin 1 mm onunde, toplamali karisim.
+  const gloss = document.createElement('canvas');
+  gloss.width = 64; gloss.height = 256;
+  const gx = gloss.getContext('2d');
+  const gg = gx.createLinearGradient(0, 0, 64, 256);
+  gg.addColorStop(0.00, 'rgba(255,255,255,0.55)');
+  gg.addColorStop(0.28, 'rgba(255,255,255,0.10)');
+  gg.addColorStop(0.52, 'rgba(255,255,255,0.00)');
+  gg.addColorStop(0.80, 'rgba(255,255,255,0.06)');
+  gg.addColorStop(1.00, 'rgba(255,255,255,0.22)');
+  gx.fillStyle = gg; gx.fillRect(0, 0, 64, 256);
+  const glossTex = new THREE.CanvasTexture(gloss);
+  glossTex.colorSpace = THREE.SRGBColorSpace;
+  const glossMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(MESH_W * (1 - 2 * bv), MESH_H * (1 - 2 * bu)),
+    new THREE.MeshBasicMaterial({ map: glossTex, transparent: true,
+                                  opacity: 0.16, blending: THREE.AdditiveBlending,
+                                  depthWrite: false, toneMapped: false }));
+  glossMesh.position.set(0, (2.0093 - 2.0065) / 2, 0.1262);
+  glossMesh.renderOrder = 3;
+  screenMesh.parent.add(glossMesh);
+
+  // ---- oyun bolumu: cercevesiz, tam tasarim ------------------------
+  for (const g of GAMES) {
+    const im = await loadImg(`games/${LANG}/${g}.png`).catch(() => null);
+    if (!im) continue;
+    im.dataset.game = g;
+    document.getElementById('games').appendChild(im);
+    gameEls.push(im);
+  }
+
+  arkaPlaniKur();
+  kancayiKur();
+  kapanisiKur();
+  window.__ready = true;
+}
+
+// --------------------------------------------------- kapanis ekrani kurulum
+// Her kare yalnizca konum/opaklik degisiyor; ogeler bir kez uretiliyor.
+// Rastgelelik SABIT bir uretecten geliyor — ayni kare her zaman ayni.
+const FIN = { rain: [], cards: [] };
+
+function rastgele(seed) {           // kucuk, deterministik LCG
+  let x = seed >>> 0;
+  return () => (x = (x * 1664525 + 1013904223) >>> 0) / 4294967296;
+}
+
+// Gercek kod satirlari. Scratch/mBlock blok adi YAZILMIYOR: onlar
+// yalnizca resmi dil dosyalarindan gelir (bkz. tool/bloklar/).
+const KOD = [
+  'print("Merhaba")', 'int x = 10;', 'for i in range(10):',
+  '<html>', 'body { color: red }', 'if (total > 25) {',
+  'digitalWrite(13, HIGH);', 'let toplam = x + y;', '</div>',
+  'def main():', 'console.log(sonuc)', 'while (i < n) {',
+];
+const KART_RENK = ['#f2622c', '#3a7ff5', '#8b46d9', '#12a06a',
+                   '#d9345f', '#0e7fa8', '#b8791c'];
+
+function kapanisiKur() {
+  const rf = document.getElementById('frain');
+  const rnd = rastgele(20260922);
+  const sutun = Math.max(10, Math.round(W / 92));
+  for (let i = 0; i < sutun; i++) {
+    const sp = document.createElement('span');
+    const n = 5 + Math.floor(rnd() * 5);
+    let tx = '';
+    for (let k = 0; k < n; k++) tx += KOD[Math.floor(rnd() * KOD.length)] + '\n';
+    sp.textContent = tx;
+    sp.style.left = ((i + 0.5) / sutun * 100) + '%';
+    sp.style.fontSize = (W * (0.011 + rnd() * 0.006)).toFixed(1) + 'px';
+    sp.style.color = ['#6bff95', '#4dd8ff', '#ffd93d', '#ff9ad2'][i % 4];
+    sp.style.opacity = (0.30 + rnd() * 0.32).toFixed(2);
+    FIN.rain.push({ el: sp, hiz: 0.10 + rnd() * 0.16, faz: rnd() });
+    rf.appendChild(sp);
+  }
+
+  const cf = document.getElementById('fcards');
+  for (let i = 0; i < 7; i++) {
+    const d = document.createElement('div');
+    d.textContent = KOD[(i * 5 + 1) % KOD.length];
+    d.style.background = KART_RENK[i % KART_RENK.length];
+    d.style.fontSize = (W * 0.019).toFixed(1) + 'px';
+    // Sol ve sag kenarlara dagiliyor; orta bos kaliyor ki marka okunsun.
+    const sol = i % 2 === 0;
+    d.style.left = (sol ? 3 + rnd() * 14 : 66 + rnd() * 16) + '%';
+    FIN.cards.push({ el: d, faz: rnd(), hiz: 0.16 + rnd() * 0.12,
+                     egim: (rnd() - 0.5) * 9 });
+    cf.appendChild(d);
+  }
+
+  const L2 = FMT === '11'
+    ? { icon: 178, nm: 76, st: 30, halo: 320, top: 0.30 }
+    : { icon: 208, nm: 92, st: 34, halo: 380, top: 0.33 };
+  const fi = document.getElementById('ficon');
+  fi.width = fi.height = L2.icon;
+  document.getElementById('fnm').style.fontSize = L2.nm + 'px';
+  document.getElementById('fst').style.fontSize = L2.st + 'px';
+  const halo = document.getElementById('fhalo');
+  halo.style.width = halo.style.height = L2.halo + 'px';
+  halo.style.top = (L2.icon / 2) + 'px';
+  const plate = document.getElementById('fplate');
+  plate.style.width = (W * 1.02) + 'px';
+  plate.style.height = (L2.icon * 3.6) + 'px';
+  plate.style.top = (L2.icon * 1.15) + 'px';
+  document.getElementById('fcore').style.top = (L2.top * H) + 'px';
+  document.getElementById('fnm').textContent = BRAND[LANG][0];
+  document.getElementById('fst').textContent = BRAND[LANG][1];
+}
+
+// ------------------------------------------------------------ animasyon
+const ease     = (x) => x < .5 ? 4*x*x*x : 1 - Math.pow(-2*x+2, 3)/2;
+const easeOut  = (x) => 1 - Math.pow(1 - x, 3);
+const clamp01  = (x) => Math.max(0, Math.min(1, x));
+
+function sceneAt(t) {
+  let i = 0;
+  for (let k = 0; k < TL.length; k++) if (t >= STARTS[k]) i = k;
+  return { intro: false, i, local: t - STARTS[i], len: SURE(TL[i].k) };
+}
+
+function setTexture(shotIdx) {
+  if (!screenMat || shotIdx == null) return;
+  const t = textures[SHOTS[shotIdx]];
+  if (screenMat.map !== t) { screenMat.map = t; screenMat.needsUpdate = true; }
+}
+
+// 9:16 Instagram Reels icin: baslik cok yukarida kaliyordu, uygulamanin
+// ust katmani (profil / "Reels" basligi) ilk %10'u ortuyor. Yazilar
+// asagi alindi, telefon da ayni oranda asagi kaydi.
+const LAYOUT = FMT === '11'
+  ? { titleTop: 0.075, subTop: 0.205, size: 62, subSize: 26, brandTop: 0.885, phoneY: -0.24, phoneScale: 0.70, icon: 62, nm: 29, st: 19, introTop: 0.40, introSize: 72,
+      heroTop: 0.33, heroIcon: 150, heroNm: 62, heroSt: 27, gameTop: 0.06,
+      kancaTop: 0.14, kancaSize: 84 }
+  : { titleTop: 0.120, subTop: 0.248, size: 88, subSize: 32, brandTop: 0.895, phoneY: -0.34, phoneScale: 0.67, icon: 90, nm: 37, st: 24, introTop: 0.40, introSize: 96,
+      heroTop: 0.36, heroIcon: 170, heroNm: 72, heroSt: 30, gameTop: 0.055,
+      kancaTop: 0.18, kancaSize: 116 };
+
+const el = { t1: document.getElementById('t1'), t2: document.getElementById('t2'),
+             intro: document.getElementById('intro'), introtx: document.getElementById('introtx'),
+             caret: document.getElementById('caret'),
+             gl: document.getElementById('gl'), games: document.getElementById('games'),
+             brand: document.getElementById('brand'), bnm: document.getElementById('bnm'),
+             bst: document.getElementById('bst'), bicon: document.getElementById('bicon'),
+             appbg: document.getElementById('appbg'), appvig: document.getElementById('appvig'),
+             hero: document.getElementById('hero'), hicon: document.getElementById('hicon'),
+             hnm: document.getElementById('hnm'), hst: document.getElementById('hst'),
+             fin: document.getElementById('finale'), fbow: document.getElementById('fbow'),
+             fcore: document.getElementById('fcore'), fhalo: document.getElementById('fhalo'),
+             ficon: document.getElementById('ficon'), fnm: document.getElementById('fnm'),
+             fst: document.getElementById('fst') };
+
+el.t1.style.fontSize = LAYOUT.size + 'px';
+el.t2.style.fontSize = LAYOUT.subSize + 'px';
+el.bicon.width = el.bicon.height = LAYOUT.icon;
+el.bnm.style.fontSize = LAYOUT.nm + 'px';
+el.bst.style.fontSize = LAYOUT.st + 'px';
+el.intro.style.fontSize = LAYOUT.introSize + 'px';
+el.intro.style.top = (LAYOUT.introTop * H) + 'px';
+el.bnm.textContent = BRAND[LANG][0];
+el.bst.textContent = BRAND[LANG][1];
+el.hicon.width = el.hicon.height = LAYOUT.heroIcon;
+el.hnm.style.fontSize = LAYOUT.heroNm + 'px';
+el.hst.style.fontSize = LAYOUT.heroSt + 'px';
+el.hero.style.top = (LAYOUT.heroTop * H) + 'px';
+el.hnm.textContent = BRAND[LANG][0];
+
+// ------------------------------------------------------- ACILIS: BLOK
+// Uc blok yerine oturuyor, sonra tam durduklari yerde kod satirlarina
+// donusuyorlar. Blok SVG'si Scratch'in taniyip sevildigi silueti
+// kullaniyor (ustte tirnak, altta centik) ama UZERINDE YAZI YOK:
+// blok adlari uydurulamaz.
+const KANCA = { bloklar: [], kodlar: [], en: 0, bh: 0, bos: 0 };
+
+function blokSvg(en, boy, renk) {
+  const r = 16, t = 19, tw = 34, tx = 46;   // tirnak yaricap/derinlik/genislik/yer
+  const d = [
+    `M ${r} 0`,
+    `H ${tx}`, `c 0 ${t} ${tw} ${t} ${tw} 0`,   // ust tirnak
+    `H ${en - r}`, `a ${r} ${r} 0 0 1 ${r} ${r}`,
+    `V ${boy - r}`, `a ${r} ${r} 0 0 1 ${-r} ${r}`,
+    `H ${tx + tw}`, `c 0 ${t} ${-tw} ${t} ${-tw} 0`,  // alt centik
+    `H ${r}`, `a ${r} ${r} 0 0 1 ${-r} ${-r}`,
+    `V ${r}`, `a ${r} ${r} 0 0 1 ${r} ${-r}`, 'Z',
+  ].join(' ');
+  return `<svg width="${en}" height="${boy + t}" viewBox="0 0 ${en} ${boy + t}">
+    <path d="${d}" fill="${renk}"/>
+    <rect x="${tx + tw + 26}" y="${boy * 0.32}" rx="${boy * 0.18}"
+          width="${en * 0.26}" height="${boy * 0.36}" fill="#fff" opacity=".24"/>
+    <rect x="${tx + tw + 26 + en * 0.32}" y="${boy * 0.32}" rx="${boy * 0.18}"
+          width="${en * 0.16}" height="${boy * 0.36}" fill="#fff" opacity=".16"/>
+  </svg>`;
+}
+
+function kancayiKur() {
+  const kutu = document.getElementById('kancaKutu');
+  const en = Math.round(W * (FMT === '11' ? 0.62 : 0.70));
+  const bh = Math.round(en * 0.19);
+  const bos = Math.round(bh * 0.04);
+  KANCA.en = en; KANCA.bh = bh; KANCA.bos = bos;
+  kutu.style.width = en + 'px';
+
+  const kod = (LANG === 'en') ? KANCA_KOD_EN : KANCA_KOD;
+  for (let i = 0; i < 3; i++) {
+    const b = document.createElement('div');
+    b.className = 'blok';
+    b.style.width = en + 'px';
+    b.style.height = (bh + bos) + 'px';
+    b.innerHTML = blokSvg(en - i * Math.round(en * 0.06), bh, BLOK_RENK[i]);
+    kutu.appendChild(b);
+    KANCA.bloklar.push(b);
+
+    const k = document.createElement('div');
+    k.className = 'kod';
+    k.textContent = kod[i];
+    k.style.color = BLOK_RENK[i];
+    k.style.fontSize = Math.round(bh * 0.52) + 'px';
+    k.style.top = (i * (bh + bos) + bh * 0.22) + 'px';
+    k.style.paddingLeft = Math.round(en * 0.08) + 'px';
+    kutu.appendChild(k);
+    KANCA.kodlar.push(k);
+  }
+
+  const ed = document.getElementById('editor');
+  ed.style.width = (en * 1.16) + 'px';
+  ed.style.height = (3 * (bh + bos) + bh * 1.1) + 'px';
+}
+
+function kancaCiz(sahne, local, t) {
+  const el2 = document.getElementById('kanca');
+  if (sahne !== 'b' && sahne !== 'm') { el2.style.opacity = 0; return; }
+  el2.style.opacity = 1;
+  const { bh, bos, en } = KANCA;
+  const ed = document.getElementById('editor');
+  const kutu = document.getElementById('kancaKutu');
+
+  // Bloklar sirayla, ustten asagi, hafif bir "otur" hareketiyle geliyor.
+  const bloklar = KANCA.bloklar, kodlar = KANCA.kodlar;
+  const m = (sahne === 'm') ? clamp01(local / (MORPH_DUR * 0.62)) : 0;
+
+  for (let i = 0; i < 3; i++) {
+    const gir = (sahne === 'b')
+      ? easeOut(clamp01((local - (0.12 + i * 0.40)) / 0.42)) : 1;
+    // Otururken son anda kucuk bir zipla: "snap" hissi.
+    const snap = (sahne === 'b')
+      ? 1 + 0.11 * Math.sin(Math.PI * clamp01((local - (0.12 + i * 0.40)) / 0.42)) : 1;
+    // Donusum: blok yatayda yassilasip kayboluyor.
+    const mi = clamp01((m - i * 0.13) / 0.55);
+    bloklar[i].style.opacity = (gir * (1 - mi)).toFixed(3);
+    bloklar[i].style.transform =
+      `translateX(${(1 - gir) * (i % 2 ? 26 : -26)}px) ` +
+      `translateY(${(1 - gir) * -34}px) ` +
+      `scale(${snap * (1 - 0.06 * mi)}, ${snap * (1 - 0.55 * mi)})`;
+
+    // Kod satiri blogun TAM yerinde, harf harf aciliyor.
+    const ka = clamp01((m - 0.16 - i * 0.13) / 0.5);
+    kodlar[i].style.opacity = ka.toFixed(3);
+    const tam = kodlar[i].textContent;
+    kodlar[i].style.transform = `translateY(${(1 - ka) * 8}px)`;
+  }
+
+  // Editor zemini kodla birlikte beliriyor.
+  const ea = (sahne === 'm') ? easeOut(clamp01((local - 0.35) / 0.6)) : 0;
+  ed.style.opacity = (ea * 0.96).toFixed(3);
+  ed.style.transform = `translate(-50%,-50%) scale(${0.94 + 0.06 * ea})`;
+
+  // Sonda butun blok kutusu kuculup telefonun yerine dogru gidiyor:
+  // kod telefonun ekranina "giriyormus" gibi.
+  const cik = (sahne === 'm') ? easeOut(clamp01((local - (MORPH_DUR - 0.55)) / 0.55)) : 0;
+  const k = 1 - 0.62 * cik;
+  kutu.style.transform =
+    `translate(-50%,-50%) translateY(${cik * H * 0.06}px) scale(${k})`;
+  ed.style.transform =
+    `translate(-50%,-50%) translateY(${cik * H * 0.06}px) scale(${(0.94 + 0.06 * ea) * k})`;
+  el2.style.opacity = (1 - cik * 0.9).toFixed(3);
+}
+
+// --------------------------------------------------- kapanis ekrani cizim
+function kapanisCiz(acik, local, t) {
+  if (!acik) { el.fin.style.opacity = 0; return; }
+  const a = easeOut(clamp01(local / 0.45));
+  el.fin.style.opacity = a;
+
+  // Gokkusagi yavasca donuyor; hafifce de nefes aliyor.
+  el.fbow.style.transform =
+    `translate(-50%,-50%) rotate(${local * 22}deg) scale(${1 + 0.05 * Math.sin(local * 1.4)})`;
+
+  // Kod yagmuru: her sutun kendi hizinda, dongusel.
+  for (const r of FIN.rain) {
+    const y = ((local * r.hiz + r.faz) % 1) * (H + 700) - 350;
+    r.el.style.transform = `translateY(${y.toFixed(1)}px)`;
+  }
+
+  // Kod kartlari: asagidan yukari suzuluyor, ucta soluyor.
+  for (const c of FIN.cards) {
+    const d = (local * c.hiz + c.faz) % 1;
+    const y = (1 - d) * H * 1.08 - H * 0.04;
+    const op = Math.min(clamp01(d / 0.14), 1 - clamp01((d - 0.72) / 0.28));
+    c.el.style.transform = `translateY(${y.toFixed(1)}px) rotate(${c.egim}deg)`;
+    c.el.style.opacity = (op * 0.92).toFixed(3);
+  }
+
+  // Halka simgenin arkasinda ters yonde donuyor.
+  el.fhalo.style.transform =
+    `translate(-50%,-50%) rotate(${-local * 40}deg) scale(${0.86 + 0.14 * easeOut(clamp01(local / 1.1))})`;
+  el.fhalo.style.opacity = (0.85 * easeOut(clamp01((local - 0.15) / 0.8))).toFixed(3);
+
+  const ik = easeOut(clamp01((local - 0.25) / 0.8));
+  el.ficon.style.transform = `scale(${0.7 + 0.3 * ik})`;
+  el.ficon.style.opacity = ik.toFixed(3);
+
+  // Ad: gokkusagi degradesi yazinin uzerinde SAGA kayiyor.
+  const na = easeOut(clamp01((local - 0.55) / 0.7));
+  el.fnm.style.opacity = na.toFixed(3);
+  el.fnm.style.transform = `translateY(${(1 - na) * 16}px)`;
+  el.fnm.style.backgroundPosition = `${(-local * 55).toFixed(1)}% 50%`;
+
+  const sa = easeOut(clamp01((local - 0.95) / 0.7));
+  el.fst.style.opacity = sa.toFixed(3);
+  el.fst.style.transform = `translateY(${(1 - sa) * 14}px)`;
+}
+
+function renderFrame(t) {
+  const sc = sceneAt(t);
+  const { i, local } = sc;
+  const cur = sc.intro ? null : TL[i];
+  const len = sc.len || PHONE_DUR;
+
+  // ------------------------------------------------- acilis / kapanis
+  // Ikisi de ayni blok: ortada simge + ad, altinda tek satir.
+  // Acilista slogan, kapanista magaza satiri.
+  const kind = cur ? cur.k : 'p';
+  const isOutro = kind === 'o';
+  const isKanca = (kind === 'b' || kind === 'm');
+  el.intro.style.opacity = 0;
+  el.hero.style.opacity = 0;
+
+  // Kanca sahnesi koyu, sakin bir zeminde duruyor; 3B arka plan
+  // telefonla birlikte aciliyor.
+  let ab = 0;
+  if (kind === 'b') ab = 1;
+  else if (kind === 'm') ab = 1 - easeOut(clamp01((local - (MORPH_DUR - 0.7)) / 0.7));
+  el.appbg.style.opacity = ab;
+  el.appvig.style.opacity = ab;
+
+  kancaCiz(kind, local, t);
+  kapanisCiz(isOutro, isOutro ? local : 0, t);
+
+  // ------------------------------------------------------ oyun bolumu
+  // Telefon maketi sahneden cekiliyor, ekranlar cercevesiz geliyor.
+  const isGames = cur && cur.k === 'g';
+  const gFade = 0.45;
+  // Serit YALNIZCA acilirken soluyor. Sonda sonmuyor: son kart
+  // (Arduino Atolyesi) kapanis ekraniyla capraz gecisle degisiyor.
+  // Eskiden serit sonda soluyordu ve arada telefon maketi bir an geri
+  // geliyordu — istenmeyen kisim buydu.
+  let gA = 0;
+  if (isGames) gA = clamp01(local / gFade);
+  else if (isOutro) gA = 1 - easeOut(clamp01(local / 0.5));
+  el.games.style.opacity = gA;
+  // Tuval HEP acik: oyun bolumunde de hareketli 3B arka plan gorunuyor,
+  // yalnizca telefon maketi gizleniyor (phone.visible).
+  el.gl.style.opacity = 1;
+
+  if (isGames && gameEls.length) {
+    // Oyunlar birbirine GECIYOR: biri sonerken digeri aciliyor.
+    // Once fade-out fade-in'den once bitiyordu ve arada bos kare
+    // kaliyordu.
+    // RITMIK MONTAJ. Uzun capraz gecis yerine kisa, sert kesme:
+    // kart hafif buyuk girip yerine oturuyor. Ses de her kartta bir
+    // tik calıyor — goruntu ve ritim ayni izgarada.
+    const step = len / gameEls.length, XF = 0.12;
+    gameEls.forEach((im, k) => {
+      const d = local - k * step;
+      const a = Math.min(clamp01(d / XF), 1 - clamp01((d - step) / XF));
+      im.style.opacity = Math.max(0, a);
+      const otur = easeOut(clamp01(d / 0.34));
+      const zoom = 1.07 - 0.07 * otur;               // punch-in
+      const egim = (k % 2 ? 1 : -1) * (1 - otur) * 1.6;
+      im.style.transform = `rotate(${egim}deg) scale(${zoom})`;
+    });
+  } else if (isOutro) {
+    // Son kart yerinde duruyor; sonen sey seridin kendisi.
+    gameEls.forEach((im, k) => {
+      im.style.opacity = (k === gameEls.length - 1) ? 1 : 0;
+    });
+  } else {
+    gameEls.forEach((im) => { im.style.opacity = 0; });
+  }
+
+  // --------------------------------------------------------- telefon
+  // Telefonun "gelis" animasyonu ilk telefon sahnesine kilitli.
+  const PSTART = STARTS[TL.findIndex((x) => x.k === 'p')];
+  const ts = t - PSTART;
+  phone.visible = ts > -0.55 && gA < 0.98 && !isOutro && !isKanca;
+
+  // Kacinci telefon sahnesindeyiz? Tam tur sayisi buna gore ilerliyor.
+  let pIdx = 0;
+  if (!sc.intro) for (let k = 0; k < i; k++) if (TL[k].k === 'p') pIdx++;
+
+  let spinTurns;
+  if (ts < 1.0) spinTurns = -0.5 + 0.5 * easeOut(clamp01((ts + 0.55) / 1.55));
+  else if (cur && cur.k === 'p' && local < SPIN && pIdx > 0)
+    spinTurns = (pIdx - 1) + ease(local / SPIN);
+  else spinTurns = pIdx;
+  const yaw = spinTurns * Math.PI * 2 + Math.sin(t * 0.55) * 0.10;
+
+  phone.rotation.set(Math.sin(t * 0.42) * 0.055, yaw, Math.sin(t * 0.33) * 0.03);
+
+  const arrive = clamp01((ts + 0.55) / 1.15);
+  camera.position.set(0, 0, 9.4 - 1.3 * easeOut(arrive));
+  camera.lookAt(0, 0, 0);
+  phone.position.set(0, LAYOUT.phoneY + Math.sin(t * 0.7) * 0.05, 0);
+  phone.scale.setScalar(LAYOUT.phoneScale * (0.80 + 0.20 * easeOut(arrive))
+                        * (1 - 0.12 * gA));
+
+
+  // Ekran dokusu: tam turun ortasinda, arka yuz kameraya bakarken.
+  if (cur && cur.k === 'p') {
+    const flipDone = (pIdx === 0) || (local >= SPIN * 0.5);
+    const prevShot = (() => {
+      for (let k = i - 1; k >= 0; k--) if (TL[k].k === 'p') return TL[k].s;
+      return cur.s;
+    })();
+    setTexture(flipDone ? cur.s : prevShot);
+  }
+
+  // ----------------------------------------------------------- metin
+  if (!isOutro) {
+    const c = COPY[LANG][i];
+    el.t1.innerHTML = fmtText(c[0]);
+    el.t2.innerHTML = c[1];
+    // Kanca sahnesinde baslik bloklarin USTUNDE, daha buyuk.
+    el.t1.style.fontSize = (isKanca ? LAYOUT.kancaSize : LAYOUT.size) + 'px';
+    el.t1.style.top = ((isKanca ? LAYOUT.kancaTop : LAYOUT.titleTop) * H) + 'px';
+    el.t2.style.top = (LAYOUT.subTop  * H) + 'px';
+
+    const gecikme = (isKanca || isGames || i === 0) ? 0.10 : SPIN * 0.45;
+    const inA  = clamp01((local - gecikme) / 0.55);
+    const outA = 1 - clamp01((local - (len - 0.45)) / 0.45);
+    const a    = Math.min(easeOut(inA), outA);
+    const dy   = (1 - easeOut(inA)) * 26;
+
+    el.t1.style.opacity = a;
+    el.t2.style.opacity = a * 0.92;
+    el.t1.style.transform = el.t2.style.transform = `translateY(${dy}px)`;
+
+    el.brand.style.opacity = 0;   // marka satiri artik kapanis blogunda
+  } else if (isOutro) {
+    el.t1.style.opacity = el.t2.style.opacity = 0;
+  }
+
+  arkaPlaniCiz(t);
+  renderer.render(scene, camera);
+}
+
+window.__renderFrame = renderFrame;
+window.__meta = { W, H, DURATION, FPS: 30 };
+boot().catch((e) => { window.__error = String(e); });
+</script>
+</body></html>
