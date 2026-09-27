@@ -175,8 +175,9 @@ karakteri labirentten geçirmek.
 Derslerin ardından gelen quizler neyin akılda kaldığını ölçüyor; her
 sorunun ardından açıklaması var. Yanlış cevap puan kaybettirmiyor.
 
-Beş karakterden biri seçiliyor (Puf, Mia, Bit, Kaşif, Bug), öğrendikçe
-jeton kazanılıyor ve şapka, gözlük, ayakkabı alınıyor.
+Uygulamanın maskotu Devi yol boyunca eşlik ediyor. Öğrendikçe jeton
+kazanılıyor; jetonlar avatar çerçevesi, profil afişi ve isim rozetine
+harcanıyor.
 
 Ebeveyn kapısının arkasında ilerleme, haftalık hedef ve sertifikalar
 var. Uygulamanın kendi satın almaları ve dış bağlantıları bu kapıdan
@@ -209,8 +210,8 @@ through a maze.
 Quizzes after the lessons check what stuck, with an explanation after
 every question. A wrong answer never costs points.
 
-Pick one of five characters (Puf, Mia, Bit, Kaşif, Bug), earn coins
-while learning, and spend them on hats, glasses and shoes.
+Devi, the app's mascot, comes along for the ride. Learning earns coins,
+and coins are spent on avatar frames, profile banners and name badges.
 
 Behind a parent gate: progress, the weekly goal and certificates. The
 app's own purchases and external links are not reachable without

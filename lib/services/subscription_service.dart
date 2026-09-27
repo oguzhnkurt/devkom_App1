@@ -44,7 +44,11 @@ class SubscriptionService {
   static const String _accessLevelId = 'premium';
 
   // App Store Connect / Google Play ürün kimlikleri ile birebir aynı olmalı.
-  static const String weeklyProductId = 'com.devkom.app.pro.weekly';
+  //
+  // HAFTALIK PLAN YOK. Bir ara `weeklyProductId` burada duruyordu ama
+  // ne App Store Connect'te ne de Play'de böyle bir ürün var; sabit
+  // hiçbir yerden okunmuyordu. Olmayan bir ürünü ima eden ölü sabit,
+  // "paywall neden haftalığı göstermiyor" diye aranacak bir yanlış iz.
   static const String monthlyProductId = 'com.devkom.app.pro.monthly';
   static const String yearlyProductId = 'com.devkom.app.pro.yearly';
 
