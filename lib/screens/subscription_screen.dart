@@ -3,6 +3,8 @@ import 'dart:math' as math;
 
 import 'package:intl/intl.dart';
 import 'package:adapty_flutter/adapty_flutter.dart';
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -1450,20 +1452,37 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         // App Store incelemesi bu cumleyi kullanicinin dilinde ve satin
         // alma teklifiyle AYNI ekranda gormek istiyor.
         Text(
-          _t(
-            'Abonelik otomatik yenilenir. Dönem bitmeden en az 24 saat önce '
-                'iptal edilmezse yenilenir; ödeme App Store hesabından '
-                'tahsil edilir.',
-            'The subscription renews automatically. Unless it is cancelled '
-                'at least 24 hours before the period ends, it renews and '
-                'your App Store account is charged.',
-            'Das Abo verlängert sich automatisch. Wird es nicht spätestens '
-                '24 Stunden vor Ablauf gekündigt, verlängert es sich und '
-                'dein App-Store-Konto wird belastet.',
-            'La suscripción se renueva automáticamente. Si no se cancela '
-                'al menos 24 horas antes de que acabe el periodo, se '
-                'renueva y se cobra en tu cuenta de App Store.',
-          ),
+          _android
+              ? _t(
+                  'Abonelik otomatik yenilenir. Dönem bitmeden en az 24 saat '
+                      'önce iptal edilmezse yenilenir; ödeme Google Play '
+                      'hesabından tahsil edilir.',
+                  'The subscription renews automatically. Unless it is '
+                      'cancelled at least 24 hours before the period ends, it '
+                      'renews and your Google Play account is charged.',
+                  'Das Abo verlängert sich automatisch. Wird es nicht '
+                      'spätestens 24 Stunden vor Ablauf gekündigt, verlängert '
+                      'es sich und dein Google-Play-Konto wird belastet.',
+                  'La suscripción se renueva automáticamente. Si no se '
+                      'cancela al menos 24 horas antes de que acabe el '
+                      'periodo, se renueva y se cobra en tu cuenta de '
+                      'Google Play.',
+                )
+              : _t(
+                  'Abonelik otomatik yenilenir. Dönem bitmeden en az 24 saat '
+                      'önce iptal edilmezse yenilenir; ödeme App Store '
+                      'hesabından tahsil edilir.',
+                  'The subscription renews automatically. Unless it is '
+                      'cancelled at least 24 hours before the period ends, it '
+                      'renews and your App Store account is charged.',
+                  'Das Abo verlängert sich automatisch. Wird es nicht '
+                      'spätestens 24 Stunden vor Ablauf gekündigt, verlängert '
+                      'es sich und dein App-Store-Konto wird belastet.',
+                  'La suscripción se renueva automáticamente. Si no se '
+                      'cancela al menos 24 horas antes de que acabe el '
+                      'periodo, se renueva y se cobra en tu cuenta de '
+                      'App Store.',
+                ),
           textAlign: TextAlign.center,
           style: style,
         ),
@@ -1501,8 +1520,33 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
   }
 
-  static const String _termsUrl =
+  /// ODEMENIN KOSULLARI MAGAZAYA GORE DEGISIYOR.
+  ///
+  /// Bu ekran iki magazada birden aciliyor ve abonelik kosullari ayni
+  /// degil: parayi iOS'ta Apple, Android'de Google tahsil ediyor.
+  ///
+  /// Eskiden ikisinde de Apple'in standart EULA'si acikiyor ve metin
+  /// "odeme App Store hesabindan tahsil edilir" diyordu. Android'de
+  /// bu YANLIS bir beyandi: Play'de Apple EULA'si gecersiz ve Google
+  /// faturalandirma bilgisinin dogru olmasini sart kosuyor. Ayrica
+  /// Play magaza aciklamasinda "Google Play hesabinizdan tahsil
+  /// edilir" yaziyor; uygulama baska sey derse beyanlar celisiyor.
+  ///
+  /// Dallanma [defaultTargetPlatform] ile yapiliyor, `dart:io`
+  /// uzerinden DEGIL: o kutuphane web'de patliyor ve widget
+  /// testlerinde bu dal denenemez hale geliyor.
+  static bool get _android => defaultTargetPlatform == TargetPlatform.android;
+
+  /// Apple'in standart EULA'si — yalnizca iOS icin.
+  static const String _appleTermsUrl =
       'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+
+  /// Google Play Hizmet Sartlari — yalnizca Android icin.
+  static const String _playTermsUrl =
+      'https://play.google.com/about/play-terms/';
+
+  static String get _termsUrl => _android ? _playTermsUrl : _appleTermsUrl;
+
   static const String _privacyUrl =
       'https://oguzhnkurt.github.io/devkom_App1/privacy-policy.html';
 
