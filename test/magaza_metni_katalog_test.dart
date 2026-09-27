@@ -38,24 +38,42 @@ void main() {
   /// yaziliyor. Bu yuzden kategori basina dort dilin karsiliklari elle
   /// veriliyor.
   ///
-  /// KELIME SINIRI SART: duz `contains('hat')` Ingilizce metindeki
-  /// "that" kelimesine takiliyordu. Desenler `\b` ile kelime basindan
-  /// baglaniyor, sonu Turkce ekler icin serbest ("sapkalar" yakalanir).
+  /// KELIME SINIRI SART AMA HER DESENDE DEGIL.
+  ///
+  /// Duz `contains('hat')` Ingilizce metindeki "that" kelimesine
+  /// takiliyordu, o yuzden sinir gerekiyor. Ama Dart'ta `\b` ASCII
+  /// tabanli: `s`, `o`, `u` gibi Turkce harfler kelime karakteri
+  /// SAYILMIYOR. Bu yuzden `\bsapka` (s = s-cedilla) HICBIR ZAMAN
+  /// eslesmiyor — " sapka" dizisinde bosluk da bastaki harf de
+  /// ASCII-disi oldugu icin orada sinir yok.
+  ///
+  /// Bu tuzak testi Python'la dogrularken kacmisti: Python'un `re`
+  /// modulu Unicode farkindadir ve orada `\b` calisir. Dart'ta
+  /// calismaz; test sessizce hep gecerdi.
+  ///
+  /// Cozum: her desen KENDI sinirini tasiyor. Sinir yalnizca ASCII
+  /// harfle BASLAYAN desenlerde var. Turkce karsiliklar duz altdizi
+  /// olarak araniyor; baska bir kelimenin icinde gecmeyecek kadar
+  /// ayirt ediciler.
   const izler = <StoreItemCategory, List<String>>{
     StoreItemCategory.hat: [
-      'şapka', 'sapka', r'hats?\b', r'H(u|ü)te?\b', 'sombrero',
+      // `hats?` Turkce "hatirla"/"hata" icindeki "hat"i yakaliyordu:
+      // `\b` ASCII oldugu icin sonraki `i` (noktasiz i) sinir sayiliyor.
+      // Ardindan Turkce harf gelmemesi sarti eklendi.
+      'şapka', r'\bsapka', r'\bhats?\b(?![ıçğöşüİÇĞÖŞÜ])',
+      r'\bH(u|ü)te?\b', r'\bsombrero',
     ],
     StoreItemCategory.glasses: [
-      'gözlük', 'gozluk', r'glasses\b', 'Brille', r'gafas\b',
+      'gözlük', r'\bgozluk', r'\bglasses\b', r'\bBrille', r'\bgafas\b',
     ],
     StoreItemCategory.shoes: [
-      'ayakkab', r'shoes\b', r'Schuhe\b', r'zapatos\b',
+      r'\bayakkab', r'\bshoes\b', r'\bSchuhe\b', r'\bzapatos\b',
     ],
     StoreItemCategory.necklace: [
-      'kolye', 'necklace', 'Halskette', r'collar\b',
+      r'\bkolye', r'\bnecklace', r'\bHalskette', r'\bcollar\b',
     ],
     StoreItemCategory.robotSkin: [
-      'robot k(i|ı)l(i|ı)f', 'robot skin',
+      r'\brobot k(i|ı)l(i|ı)f', r'\brobot skin',
     ],
   };
 
@@ -87,12 +105,15 @@ void main() {
       }
       if (icerde) toplanan.add(satir);
     }
-    expect(
-      bolumSayisi,
-      greaterThan(0),
-      reason: '$yol icinde magaza bolumu bulunamadi. Baslik yeniden '
-          'adlandirilmis olabilir; bu testin secicisi guncellenmeli.',
-    );
+    // `expect` DEGIL: bu yardimci `setUpAll` icinden cagriliyor ve
+    // orada basarisiz bir expect duzgun raporlanmiyor — test "gecti"
+    // gibi gorunup kontrol sessizce kapanabilir.
+    if (bolumSayisi == 0) {
+      throw StateError(
+        '$yol icinde magaza bolumu bulunamadi. Baslik yeniden '
+        'adlandirilmis olabilir; bu testin secicisi guncellenmeli.',
+      );
+    }
     return toplanan.join('\n');
   }
 
@@ -121,7 +142,7 @@ void main() {
         for (final kategori in kaldirilanKategoriler) {
           for (final iz in izler[kategori] ?? const <String>[]) {
             expect(
-              RegExp('\\b$iz', caseSensitive: false).hasMatch(metin),
+              RegExp(iz, caseSensitive: false).hasMatch(metin),
               isFalse,
               reason: '"$iz" geçiyor ama $kategori katalogdan kalkti. '
                   'Uygulamada olmayan bir urunu magazada anlatmak '
