@@ -60,13 +60,35 @@ void main() {
     }
   });
 
-  test('siralama ogeleri dort dile cevrilmis', () {
+  /// Kod parcasi mi?
+  ///
+  /// HTML dersindeki bir siralama ogesinin icerigi `<table>`. Bu
+  /// CEVRILMEZ; cevrilirse ders bozulur. Ayni sey C#, Java ve CSS
+  /// derslerindeki kod satirlari icin de gecerli. Olcut: icinde
+  /// `< > { } ; = ( )` gecen bir metin kod sayiliyor; "10 adım git"
+  /// gibi blok yazilari bu isaretlerin hicbirini tasimiyor.
+  bool kodMu(String metin) => RegExp(r'[<>{};=()]').hasMatch(metin);
+
+  test('siralama ogelerinin METINLERI dort dile cevrilmis', () {
     for (final adim in adimlar) {
       for (final oge in adim.items) {
+        if (kodMu(oge.content)) continue;
         for (final dil in ['en', 'de', 'es']) {
           expect(oge.contentFor(dil), isNot(oge.content),
               reason: '${adim.id}/${oge.id} $dil diline cevrilmemis.');
         }
+      }
+    }
+  });
+
+  test('siralama yonergeleri dort dile cevrilmis', () {
+    // Yonerge ve baglam her zaman metindir; kod istisnasi yok.
+    for (final adim in adimlar) {
+      for (final dil in ['en', 'de', 'es']) {
+        expect(adim.instructionFor(dil), isNot(adim.instruction),
+            reason: '${adim.id} yonergesi $dil diline cevrilmemis.');
+        expect(adim.contextFor(dil), isNot(adim.context),
+            reason: '${adim.id} baglami $dil diline cevrilmemis.');
       }
     }
   });
