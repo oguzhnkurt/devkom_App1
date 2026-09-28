@@ -437,6 +437,18 @@ void main() {
       expect(tezgahJs.contains('controls: !dar'), isTrue);
     });
 
+    test('arac kutusunun altina kacan blok geri itiliyor', () {
+      // GERCEK OLAY: cocuk blogu arac kutusunun hemen sagina birakiyor
+      // ve blogun sol yarisi kutunun arkasinda kaliyordu. Silinmis de
+      // degil, tasinmis da degil — oldugu yerde yarisi gorunmez. Bir
+      // cocuk icin bu "blogum kayboldu" demek. Blockly bunu
+      // kendiliginden yapmiyor: arac kutusu calisma alaninin USTUNE
+      // ciziliyor.
+      expect(tezgahJs.contains('bloklariGorunurYap'), isTrue);
+      expect(tezgahJs.contains("olay.type === 'move'"), isTrue,
+          reason: 'Duzeltme her tasima sonrasi calismali.');
+    });
+
     test('ayirac cizgisi olculerek konuluyor', () {
       // Genislik sabit degil: blok yazilari dile gore uzuyor.
       expect(tezgahJs.contains('ayiraciYerlestir'), isTrue);

@@ -260,6 +260,39 @@
     }
   }
 
+  /// Arac kutusunun ALTINA kacan bloklari calisma alanina geri iter.
+  ///
+  /// GERCEK OLAY: cocuk blogu arac kutusunun hemen sagina birakiyor ve
+  /// blogun sol yarisi kutunun arkasinda kaliyordu — ekranda "yarim
+  /// blok" duruyor. Silinmis de degil, tasinmis da degil; oldugu yerde
+  /// yarisi gorunmez. Bir cocuk icin bu "blogum kayboldu" demek.
+  ///
+  /// Blockly bunu kendiliginden yapmiyor: arac kutusu calisma alaninin
+  /// USTUNE ciziliyor ve altina blok girebiliyor. Her tasima sonrasi
+  /// en ustteki bloklarin sol kenari olculuyor; kutunun sag kenarinin
+  /// solunda kalan varsa gorunur hale gelecek kadar sagina itiliyor.
+  ///
+  /// Dongu riski yok: itilen blok bir kez daha 'move' uretiyor, ikinci
+  /// olcumde zaten temiz oldugu icin duruyor.
+  function bloklariGorunurYap() {
+    if (!ws) return;
+    try {
+      var kutu = ws.getFlyout && ws.getFlyout();
+      var sinir = (kutu && kutu.getWidth ? kutu.getWidth() : 0) + 8;
+      if (!sinir) return;
+      ws.getTopBlocks(false).forEach(function (blok) {
+        if (blok.isShadow && blok.isShadow()) return;
+        var el = blok.getSvgRoot && blok.getSvgRoot();
+        if (!el) return;
+        var r = el.getBoundingClientRect();
+        if (r.width === 0) return;
+        if (r.left >= sinir) return;
+        var kaydir = (sinir - r.left) / (ws.scale || 1);
+        blok.moveBy(kaydir, 0);
+      });
+    } catch (e) { /* olcum yapilamiyorsa dokunmuyoruz */ }
+  }
+
   /// Arac kutusunun sag kenarina cizgiyi koyar.
   ///
   /// Genislik sabit degil: blok yazilari dile gore uzuyor ve olcek
@@ -322,6 +355,7 @@
 
         ws.addChangeListener(function (olay) {
           if (olay && olay.isUiEvent) return;
+          if (olay && olay.type === 'move') bloklariGorunurYap();
           durumuBildir();
         });
 
