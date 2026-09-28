@@ -370,8 +370,9 @@ class _MarketScreenState extends State<MarketScreen> {
           _previewTimer?.cancel();
           _previewItem = null;
         });
-        _showSnack(_t(context, '${item.name} takıldı!', '${item.name} is on!',
-            '${item.name} ist an!', '¡${item.name} puesto!'));
+        final ad = item.adFor(_dil(context));
+        _showSnack(_t(context, '$ad takıldı!', '$ad is on!', '$ad ist an!',
+            '¡$ad puesto!'));
       } else {
         _showSnack(
             _t(context, 'Takılamadı, tekrar dene.', 'Could not apply it. Try again.',
@@ -387,10 +388,13 @@ class _MarketScreenState extends State<MarketScreen> {
             .refreshProgress();
         if (!mounted) return;
         setState(() => _ownedItemIds.add(item.id));
-        _showSnack(_t(context, '${item.name} senin oldu! ${item.iconEmoji}',
-            '${item.name} is yours! ${item.iconEmoji}',
-            '${item.name} gehört dir! ${item.iconEmoji}',
-            '¡${item.name} es tuyo! ${item.iconEmoji}'));
+        final ad = item.adFor(_dil(context));
+        _showSnack(_t(
+            context,
+            '$ad senin oldu! ${item.iconEmoji}',
+            '$ad is yours! ${item.iconEmoji}',
+            '$ad gehört dir! ${item.iconEmoji}',
+            '¡$ad es tuyo! ${item.iconEmoji}'));
       } else {
         _handlePurchaseError(result['error'], item);
       }
@@ -437,10 +441,10 @@ class _MarketScreenState extends State<MarketScreen> {
         title: Text(_t(context, 'Pro Üyelik Gerekli', 'Pro membership needed', 'Pro-Mitgliedschaft nötig', 'Necesitas Pro')),
         content: Text(_t(
             context,
-            '${item.name} yalnızca Pro üyelerde.',
-            '${item.name} is only for Pro members.',
-            '${item.name} gibt es nur für Pro-Mitglieder.',
-            '${item.name} es solo para miembros Pro.')),
+            '${item.adFor(_dil(context))} yalnızca Pro üyelerde.',
+            '${item.adFor(_dil(context))} is only for Pro members.',
+            '${item.adFor(_dil(context))} gibt es nur für Pro-Mitglieder.',
+            '${item.adFor(_dil(context))} es solo para miembros Pro.')),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text(_t(context, 'Vazgeç', 'Cancel', 'Abbrechen', 'Cancelar'))),
           ElevatedButton(
@@ -547,7 +551,7 @@ class _MarketScreenState extends State<MarketScreen> {
                     'Your frame shows on your profile.',
                     'Dein Rahmen erscheint in deinem Profil.',
                     'Tu marco aparece en tu perfil.')
-                : c.name,
+                : c.adFor(_dil(context)),
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 12,
@@ -582,7 +586,7 @@ class _MarketScreenState extends State<MarketScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  storeCategoryDisplayName(c),
+                  storeCategoryDisplayName(c, _dil(context)),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,
@@ -708,7 +712,7 @@ class _MarketScreenState extends State<MarketScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
-              item.name,
+              item.adFor(_dil(context)),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -757,6 +761,11 @@ class _MarketScreenState extends State<MarketScreen> {
 /// Bu ekran tamamen Türkçe sabit yazılarla yazılmıştı; İngilizce,
 /// Almanca ya da İspanyolca seçen çocuk uygulamanın geri kalanı
 /// çevrilmişken burada Türkçe görüyordu.
+/// Kullanicinin secili dil kodu. Katalog metinleri (`adFor`) ve kategori
+/// adlari dogrudan dil koduyla calisiyor, `_t` gibi dort metin almiyor.
+String _dil(BuildContext context) =>
+    Provider.of<SettingsProvider>(context).locale.languageCode;
+
 String _t(BuildContext context, String tr, String en, String de, String es) =>
     AppLang.pick(
       Provider.of<SettingsProvider>(context).locale.languageCode,

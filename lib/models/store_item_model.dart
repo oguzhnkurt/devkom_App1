@@ -1,3 +1,6 @@
+import '../data/store_catalog_locale.dart';
+import '../utils/lang.dart';
+
 /// Market (Store) modelleri.
 /// Bkz. supabase/migrations/23_store_and_jeton_economy.sql
 ///
@@ -66,26 +69,55 @@ StoreItemCategory _parseCategory(String value) {
   }
 }
 
-String storeCategoryDisplayName(StoreItemCategory category) {
+/// Market sekmelerinde görünen kategori adı, kullanıcının dilinde.
+///
+/// Önce yalnızca Türkçe dönüyordu: İngilizce seçmiş bir çocuk, dili
+/// İngilizce olan bir ekranın ortasında "Avatar Çerçeveleri" sekmesini
+/// görüyordu.
+String storeCategoryDisplayName(StoreItemCategory category, String lang) {
   switch (category) {
     case StoreItemCategory.profileBanner:
-      return 'Profil Afişleri';
+      return AppLang.pick(lang,
+          tr: 'Profil Afişleri',
+          en: 'Profile Banners',
+          de: 'Profilbanner',
+          es: 'Carteles de perfil');
     case StoreItemCategory.nameBadge:
-      return 'İsim Rozetleri';
+      return AppLang.pick(lang,
+          tr: 'İsim Rozetleri',
+          en: 'Name Badges',
+          de: 'Namensabzeichen',
+          es: 'Insignias de nombre');
     case StoreItemCategory.robotSkin:
-      return 'Robot Kılıfları';
+      return AppLang.pick(lang,
+          tr: 'Robot Kılıfları',
+          en: 'Robot Skins',
+          de: 'Roboter-Skins',
+          es: 'Aspectos de robot');
     case StoreItemCategory.avatarFrame:
-      return 'Avatar Çerçeveleri';
+      return AppLang.pick(lang,
+          tr: 'Avatar Çerçeveleri',
+          en: 'Avatar Frames',
+          de: 'Avatar-Rahmen',
+          es: 'Marcos de avatar');
     case StoreItemCategory.character:
-      return 'Karakterler';
+      return AppLang.pick(lang,
+          tr: 'Karakterler',
+          en: 'Characters',
+          de: 'Figuren',
+          es: 'Personajes');
     case StoreItemCategory.necklace:
-      return 'Kolyeler';
+      return AppLang.pick(lang,
+          tr: 'Kolyeler', en: 'Necklaces', de: 'Halsketten', es: 'Collares');
     case StoreItemCategory.hat:
-      return 'Şapkalar';
+      return AppLang.pick(lang,
+          tr: 'Şapkalar', en: 'Hats', de: 'Hüte', es: 'Sombreros');
     case StoreItemCategory.glasses:
-      return 'Gözlükler';
+      return AppLang.pick(lang,
+          tr: 'Gözlükler', en: 'Glasses', de: 'Brillen', es: 'Gafas');
     case StoreItemCategory.shoes:
-      return 'Ayakkabılar';
+      return AppLang.pick(lang,
+          tr: 'Ayakkabılar', en: 'Shoes', de: 'Schuhe', es: 'Zapatos');
   }
 }
 
@@ -140,6 +172,19 @@ class StoreItem {
   });
 
   bool get isFree => priceJeton == 0;
+
+  /// Ürünün kullanıcının dilindeki adı.
+  ///
+  /// `name` sütunu veritabanında tek ve Türkçe. Çeviriler kodda
+  /// (`kStoreUrunMetinleri`) tutuluyor; sebebi o dosyada anlatılıyor.
+  /// Kodun bilmediği bir ürün gelirse veritabanındaki ada düşüyor —
+  /// ekranda boşluk görünmesindense yanlış dilde bir kelime yeğ.
+  String adFor(String lang) =>
+      kStoreUrunMetinleri[itemKey]?.ad(lang) ?? name;
+
+  /// Ürünün kullanıcının dilindeki açıklaması. Yoksa boş metin.
+  String aciklamaFor(String lang) =>
+      kStoreUrunMetinleri[itemKey]?.aciklama(lang) ?? (description ?? '');
 
   factory StoreItem.fromMap(Map<String, dynamic> map) {
     return StoreItem(
