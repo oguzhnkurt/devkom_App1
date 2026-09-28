@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/interactive_lesson_model.dart';
+import 'scratch_ileri_lessons_data.dart';
+import 'scratch_kalem_lessons_data.dart';
 
 /// Scratch Course - Interactive lessons for kids
 /// Modern, engaging, FreeCodeCamp-inspired content
@@ -3358,6 +3360,18 @@ class ScratchLessonsData {
   static List<InteractiveLesson> get module8 =>
       ScratchKalemLessonsData.module8;
 
+  /// Modül 9, 10 ve 11 — Operatörler ve Şans, Listeler, Kendi Bloğun.
+  ///
+  /// Üçü birlikte `scratch_ileri_lessons_data.dart` içinde.
+  static List<InteractiveLesson> get module9 =>
+      ScratchIleriLessonsData.module9;
+
+  static List<InteractiveLesson> get module10 =>
+      ScratchIleriLessonsData.module10;
+
+  static List<InteractiveLesson> get module11 =>
+      ScratchIleriLessonsData.module11;
+
   static List<InteractiveLesson> get allLessons => [
     ...module1,
     ...module2,
@@ -3367,6 +3381,9 @@ class ScratchLessonsData {
     ...module6,
     ...module7,
     ...module8,
+    ...module9,
+    ...module10,
+    ...module11,
   ];
 
   /// Get lesson by ID
@@ -3388,6 +3405,10 @@ class ScratchLessonsData {
       case 5: return module5;
       case 6: return module6;
       case 7: return module7;
+      case 8: return module8;
+      case 9: return module9;
+      case 10: return module10;
+      case 11: return module11;
       default: return [];
     }
   }
