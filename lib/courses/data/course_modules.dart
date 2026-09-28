@@ -344,11 +344,29 @@ class CourseModules {
         ];
       case 'mblock':
         return [
+          // Kart takmadan geçen ilk modül. Eskiden kurs doğrudan cihaz
+          // sekmesi ve yükleme modu anlatımıyla başlıyordu; çocuk tek blok
+          // sürüklememişken bunlar havada kalıyordu. mBlock Scratch 3.0
+          // üzerine kurulu olduğu için ilk gün kukla tarafında kablosuz
+          // program yazılabiliyor — donanım harmanı bir sonraki modülde
+          // başlıyor ve orada anlam kazanıyor.
           CourseModule(
-            title: 'mBlock Nedir, Nerede Ne Var',
-            titleEn: 'What mBlock Is, and What Is Where',
-            titleDe: 'Was mBlock ist und was wo liegt',
-            titleEs: 'Qué es mBlock y dónde está cada cosa',
+            title: 'Bloklarla Başla',
+            titleEn: 'Start with Blocks',
+            titleDe: 'Fang mit Blöcken an',
+            titleEs: 'Empieza con bloques',
+            description: 'Kablosuz ilk üç ders: palet, sıra, tekrar',
+            descriptionEn: 'Three cable-free lessons: palette, order, repeat',
+            descriptionDe: 'Drei Lektionen ohne Kabel: Palette, Reihenfolge, Wiederholung',
+            descriptionEs: 'Tres lecciones sin cables: paleta, orden, repetición',
+            emoji: '🟩',
+            lessons: MBlockLessonsData.module0,
+          ),
+          CourseModule(
+            title: 'Karta Geçiş: Cihaz Sekmesi',
+            titleEn: 'Moving to the Board: the Devices Tab',
+            titleDe: 'Ab zur Platine: der Reiter Geräte',
+            titleEs: 'Pasar a la placa: la pestaña Dispositivos',
             description: 'Editör, iki mod ve dokuz kategorilik palet',
             descriptionEn: 'The editor, the two modes, the nine categories',
             descriptionDe: 'Der Editor, die zwei Modi, die neun Kategorien',

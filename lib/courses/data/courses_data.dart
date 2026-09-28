@@ -50,7 +50,10 @@ class CoursesData {
     // tanımadan "şu bloğu sürükle" deniyordu. Ama mBlock'ta bir bloğu
     // sürüklemeden önce bilinmesi gereken şeyler var — cihaz mı kukla mı
     // seçili, yükleme modunda mı canlı modda mı, blok hangi kategoride.
-    // Bu kurs önce editörü, sonra paleti, sonra ilk programı öğretiyor.
+    // Kurs artık kartsız başlıyor: ilk modülde kukla tarafında bloklarla
+    // (palet, sıra, tekrar) çalışılıyor, donanım harmanı ikinci modülde
+    // devreye giriyor. Eskiden cihaz/mod anlatımı en başta duruyordu ve
+    // çocuk tek blok sürüklememişken karşılığını görmüyordu.
     Course(
       id: 'mblock',
       name: 'mBlock ile Kodlama',
@@ -76,8 +79,8 @@ class CoursesData {
       category: CourseCategory.robotics,
       difficulty: DifficultyLevel.beginner,
       tags: ['mblock', 'blok', 'arduino', 'maker', 'robot'],
-      totalLessons: 8,
-      estimatedMinutes: 160,
+      totalLessons: 11,
+      estimatedMinutes: 220,
       sortOrder: 2,
       pathStep: 2,
       prerequisiteId: 'scratch',

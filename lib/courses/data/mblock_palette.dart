@@ -377,3 +377,133 @@ class MBlockBlocks {
         color: MBlockPalette.operators,
       );
 }
+
+/// mBlock'un KUKLA (sprite) tarafındaki palet.
+///
+/// NEDEN AYRI
+/// ----------
+/// `MBlockPalette` yukarıda Arduino Uno **cihazı** seçiliyken görünen
+/// dokuz kategoriyi tarif ediyor. Ama mBlock açıldığında çocuk önce
+/// kukla sekmesindedir: orada Scratch'in kendi kategorileri durur —
+/// Hareket, Görünüm, Ses, Olaylar, Kontrol, Algılama, İşlemler,
+/// Değişkenler, Bloklarım. Kursun ilk modülü hiç kart takmadan burada
+/// geçiyor; renkler Scratch 3.0'ın kendi renkleridir, cihaz
+/// paletindekilerle karıştırılmamalı (Hareket mavisi #4C97FF, Pin
+/// mavisi #4A90E2 — aynı değil).
+class MBlockKuklaPalette {
+  MBlockKuklaPalette._();
+
+  /// Hareket — git, dön, konuma git.
+  static const Color motion = Color(0xFF4C97FF);
+
+  /// Görünüm — de, düşün, büyüklük, göster/gizle.
+  static const Color looks = Color(0xFF9966FF);
+
+  /// Ses — sesi çal, sesi bitir.
+  static const Color sound = Color(0xFFCF63CF);
+
+  /// Algılama — fareye değiyor mu, tuşa basıldı mı.
+  static const Color sensing = Color(0xFF5CB1D6);
+
+  /// Olaylar, Kontrol, İşlemler, Değişkenler kukla tarafında da
+  /// cihaz tarafıyla aynı renktedir; onlar için `MBlockPalette` kullan.
+}
+
+/// Kukla tarafının sık kullanılan blokları, mBlock Türkçesiyle birebir.
+///
+/// Etiketler mBlock 5'in Türkçe arayüzünden alındı. Scratch'in Türkçe
+/// çevirisiyle aynıdır, çünkü mBlock bu blokları Scratch 3.0'dan devralır.
+class MBlockKuklaBlocks {
+  MBlockKuklaBlocks._();
+
+  /// Yeşil bayrak — kukla tarafının başlangıç bloğu.
+  static ScratchBlock greenFlag({String id = 'green_flag'}) => ScratchBlock(
+        id: id,
+        blockType: ScratchBlockType.events,
+        shape: ScratchBlockShape.cap,
+        label: '🏳 tıklandığında',
+        labelEn: 'when 🏳 clicked',
+        labelDe: 'wenn 🏳 angeklickt',
+        labelEs: 'al hacer clic en 🏳',
+        color: MBlockPalette.events,
+      );
+
+  static ScratchBlock move(String steps, {String? id}) => ScratchBlock(
+        id: id ?? 'move_$steps',
+        blockType: ScratchBlockType.motion,
+        shape: ScratchBlockShape.stack,
+        label: '$steps adım git',
+        labelEn: 'move $steps steps',
+        labelDe: 'gehe $steps er Schritt',
+        labelEs: 'mover $steps pasos',
+        color: MBlockKuklaPalette.motion,
+      );
+
+  static ScratchBlock turn(String degrees, {String? id}) => ScratchBlock(
+        id: id ?? 'turn_$degrees',
+        blockType: ScratchBlockType.motion,
+        shape: ScratchBlockShape.stack,
+        label: '↻ $degrees derece dön',
+        labelEn: 'turn ↻ $degrees degrees',
+        labelDe: 'drehe dich ↻ um $degrees Grad',
+        labelEs: 'girar ↻ $degrees grados',
+        color: MBlockKuklaPalette.motion,
+      );
+
+  static ScratchBlock say(String text,
+          {String? textEn, String? textDe, String? textEs, String? id}) =>
+      ScratchBlock(
+        id: id ?? 'say',
+        blockType: ScratchBlockType.looks,
+        shape: ScratchBlockShape.stack,
+        label: '$text de',
+        labelEn: 'say ${textEn ?? text}',
+        labelDe: 'sage ${textDe ?? textEn ?? text}',
+        labelEs: 'decir ${textEs ?? textEn ?? text}',
+        color: MBlockKuklaPalette.looks,
+      );
+
+  static ScratchBlock changeSize(String amount, {String? id}) => ScratchBlock(
+        id: id ?? 'change_size',
+        blockType: ScratchBlockType.looks,
+        shape: ScratchBlockShape.stack,
+        label: 'boyutu $amount değiştir',
+        labelEn: 'change size by $amount',
+        labelDe: 'ändere Größe um $amount',
+        labelEs: 'cambiar tamaño por $amount',
+        color: MBlockKuklaPalette.looks,
+      );
+
+  static ScratchBlock wait(String seconds, {String? id}) => ScratchBlock(
+        id: id ?? 'k_wait',
+        blockType: ScratchBlockType.control,
+        shape: ScratchBlockShape.stack,
+        label: '$seconds saniye bekle',
+        labelEn: 'wait $seconds seconds',
+        labelDe: 'warte $seconds Sekunden',
+        labelEs: 'esperar $seconds segundos',
+        color: MBlockPalette.control,
+      );
+
+  static ScratchBlock repeat(String times, {String? id}) => ScratchBlock(
+        id: id ?? 'k_repeat',
+        blockType: ScratchBlockType.control,
+        shape: ScratchBlockShape.cBlock,
+        label: '$times kere tekrarla',
+        labelEn: 'repeat $times',
+        labelDe: 'wiederhole $times mal',
+        labelEs: 'repetir $times veces',
+        color: MBlockPalette.control,
+      );
+
+  static ScratchBlock forever({String id = 'k_forever'}) => ScratchBlock(
+        id: id,
+        blockType: ScratchBlockType.control,
+        shape: ScratchBlockShape.cBlock,
+        label: 'sürekli tekrarla',
+        labelEn: 'forever',
+        labelDe: 'wiederhole fortlaufend',
+        labelEs: 'por siempre',
+        color: MBlockPalette.control,
+      );
+}

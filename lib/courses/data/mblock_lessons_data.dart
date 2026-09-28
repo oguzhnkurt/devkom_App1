@@ -1,6 +1,7 @@
 
 import '../models/interactive_lesson_model.dart';
 import 'mblock_palette.dart';
+import 'mblock_temel_lessons_data.dart';
 
 /// mBlock 5 kursu — editörü ve blokları sıfırdan öğreten dersler.
 ///
@@ -40,9 +41,9 @@ class MBlockLessonsData {
       subtitleEn: 'The editor that sends blocks to a real board',
       subtitleDe: 'Der Editor, der Blöcke auf eine echte Platine schickt',
       subtitleEs: 'El editor que envía bloques a una placa real',
-      order: 1,
+      order: 4,
       xpReward: 40,
-      badge: 'mblock_starter',
+      badge: 'mblock_device',
       steps: [
         IntroStep(
           id: 'm1_1_intro',
@@ -278,7 +279,7 @@ class MBlockLessonsData {
       subtitleEn: 'Nine categories, nine colours',
       subtitleDe: 'Neun Kategorien, neun Farben',
       subtitleEs: 'Nueve categorías, nueve colores',
-      order: 2,
+      order: 5,
       xpReward: 45,
       steps: [
         IntroStep(
@@ -563,7 +564,7 @@ class MBlockLessonsData {
       subtitleEn: 'The start block and digital output',
       subtitleDe: 'Der Startblock und der Digitalausgang',
       subtitleEs: 'El bloque de inicio y la salida digital',
-      order: 3,
+      order: 6,
       xpReward: 50,
       steps: [
         IntroStep(
@@ -781,7 +782,7 @@ class MBlockLessonsData {
       subtitleEn: 'C blocks and waiting',
       subtitleDe: 'C-Blöcke und das Warten',
       subtitleEs: 'Bloques en C y la espera',
-      order: 4,
+      order: 7,
       xpReward: 50,
       steps: [
         IntroStep(
@@ -998,7 +999,7 @@ class MBlockLessonsData {
       subtitleEn: 'read digital pin and if/then',
       subtitleDe: 'Digitalpin lesen und falls/dann',
       subtitleEs: 'lee pin digital y si/entonces',
-      order: 5,
+      order: 8,
       xpReward: 55,
       steps: [
         IntroStep(
@@ -1195,7 +1196,7 @@ class MBlockLessonsData {
       subtitleEn: 'analog read, 0-1023, PWM',
       subtitleDe: 'analogen Pin lesen, 0-1023, PWM',
       subtitleEs: 'lee pin analógico, 0-1023, PWM',
-      order: 6,
+      order: 9,
       xpReward: 60,
       steps: [
         IntroStep(
@@ -1471,7 +1472,7 @@ class MBlockLessonsData {
       subtitleEn: 'The Sensor category and serial port',
       subtitleDe: 'Die Kategorie sensor und die serielle Schnittstelle',
       subtitleEs: 'La categoría Sensor y el puerto serie',
-      order: 7,
+      order: 10,
       xpReward: 65,
       steps: [
         IntroStep(
@@ -1701,7 +1702,7 @@ class MBlockLessonsData {
       subtitleEn: 'Sensor, servo and buzzer together',
       subtitleDe: 'Sensor, Servo und Summer zusammen',
       subtitleEs: 'Sensor, servo y zumbador juntos',
-      order: 8,
+      order: 11,
       xpReward: 80,
       steps: [
         IntroStep(
@@ -1921,7 +1922,15 @@ class MBlockLessonsData {
     ),
   ];
 
+  /// Modül 0 — kart takmadan bloklarla başlangıç.
+  ///
+  /// Ayrı dosyada duruyor (`mblock_temel_lessons_data.dart`) çünkü bu
+  /// modülde donanım hiç geçmiyor; buradaki derslerle karışmasın.
+  static List<InteractiveLesson> get module0 =>
+      MBlockTemelLessonsData.module0;
+
   static List<InteractiveLesson> get allLessons => [
+        ...module0,
         ...module1,
         ...module2,
         ...module3,
