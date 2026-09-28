@@ -89,6 +89,23 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     if (success) {
       final loc = AppLocalizations.of(context);
 
+      // MESAJCI GEZINMEDEN ONCE ALINIYOR.
+      //
+      // Burasi eskiden `pushReplacement`ten 300 ms SONRA bir
+      // `Future.delayed` icinde `ScaffoldMessenger.of(context)`
+      // cagiriyordu. O context bu ekrana ait ve `pushReplacement`
+      // tamamlandiginda agactan kaldiriliyor; 300 ms tam da gecisin
+      // bitis anina denk geliyor. `mounted` kontrolu State'i soruyor,
+      // context'in hala gecerli olup olmadigini degil -- yani
+      // "Looking up a deactivated widget's ancestor is unsafe"
+      // hatasina acik bir yaristi.
+      //
+      // `ScaffoldMessenger.of` burada MaterialApp'in KOK mesajcisini
+      // donduruyor (bu ekranin kendi ScaffoldMessenger'i yok) ve o
+      // mesajci gezinmeden sonra da yasiyor. Referansi simdi aliyoruz,
+      // gecikmeye de gerek kalmiyor.
+      final messenger = ScaffoldMessenger.of(context);
+
       // Amac secimi adimi kaldirildi (tek kullanici tipi): dogrudan ana ekran.
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -96,17 +113,13 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         ),
       );
 
-      // Show success message after navigation
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(loc.registrationSuccess),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      });
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(loc.registrationSuccess),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
+      );
     } else if (authProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
