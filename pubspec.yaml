@@ -122,6 +122,17 @@ flutter:
     # `Icons.smart_toy_rounded` yedek simgesi cikiyordu. Kilit:
     # test/asset_bildirimi_test.dart
     - assets/maskot/
+    # mBLOCK BLOK EDITORU — scratch-blocks paketi.
+    #
+    # mBlock'un kendi blok motoru (Apache-2.0). npm'deki `scratch-blocks`
+    # 2.1.20 bir ES modulu olarak geliyor; tarayicida <script> ile
+    # calissin diye esbuild ile tek bir IIFE dosyasina paketlendi.
+    # Nasil uretildigi: assets/mblock/NASIL_URETILDI.md
+    #
+    # Klasor WebView'a `loadFlutterAsset` ile yerelden veriliyor; hicbir
+    # CDN'e cikilmiyor, cocugun cihazinda internet gerekmiyor.
+    - assets/mblock/
+    - assets/mblock/media/
 
   # Yazi tipi uygulamayla birlikte geliyor. Daha once `google_fonts` paketi
   # dosyalari calisma aninda internetten cekiyordu; indirme bitene kadar
