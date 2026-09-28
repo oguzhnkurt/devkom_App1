@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config/supabase_config.dart';
 import 'core/service_locator.dart';
@@ -131,7 +132,27 @@ void main() async {
     debugPrint('⚠️ Reklam servisi baslatilamadi: $e');
   }
 
-  runApp(const DevkomApp());
+  // KAYITLI DIL, ILK KAREDEN ONCE.
+  //
+  // `SettingsProvider` dili diskten asenkron okuyor. O okuma bitene
+  // kadar gecen birkac kare uygulamanin ILK gordugu yuzu -- acilis
+  // ekrani. Tercihi burada, `runApp`ten once okuyup saglayinca o
+  // karelerde de dogru dil kullaniliyor.
+  //
+  // Okunamazsa sorun degil: SettingsProvider cihazin diline duser ve
+  // kendi yuklemesini yine yapar.
+  Locale? kayitliDil;
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final kod = prefs.getString('language_code');
+    if (kod != null && kod.isNotEmpty) {
+      kayitliDil = Locale(kod, prefs.getString('country_code') ?? '');
+    }
+  } catch (e) {
+    debugPrint('⚠️ Kayitli dil okunamadi: $e');
+  }
+
+  runApp(DevkomApp(baslangicDili: kayitliDil));
 }
 
 // Global Supabase accessor
@@ -174,14 +195,19 @@ class _StartupErrorApp extends StatelessWidget {
 }
 
 class DevkomApp extends StatelessWidget {
-  const DevkomApp({super.key});
+  const DevkomApp({super.key, this.baslangicDili});
+
+  /// `main()` icinde runApp'ten once okunan kayitli dil. Ilk kare bu
+  /// dille ciziliyor; yoksa cihazin dili kullaniliyor.
+  final Locale? baslangicDili;
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(
+            create: (_) => SettingsProvider(baslangicDili: baslangicDili)),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settingsProvider, _) {

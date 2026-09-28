@@ -10,7 +10,21 @@ import '../widgets/mascot.dart';
 
 class SettingsProvider extends ChangeNotifier {
   // Language/Locale
-  Locale _locale = const Locale('tr', 'TR');
+  //
+  // BASLANGIC DEGERI SABIT TURKCE DEGIL.
+  //
+  // Burasi eskiden `const Locale('tr', 'TR')` idi ve gercek dil
+  // `_loadSettings()` ile diskten ASENKRON geliyordu. Yani uygulama
+  // HER acilista ilk karelerini Turkce ciziyordu -- kullanicinin dili
+  // Ingilizce olsa bile. Acilis ekrani tam da o karelerde duruyor;
+  // Ingilizce secmis bir kullanici uygulamanin ilk gordugu yuzunde
+  // Turkce bir metin okuyordu.
+  //
+  // Cihazin dili senkron olarak okunabiliyor, o yuzden ilk kare artik
+  // ondan baslıyor. Kayitli tercih (varsa) `main()` icinde runApp'ten
+  // ONCE okunup buraya veriliyor; ikisi birlikte parlamayi tamamen
+  // kapatiyor.
+  Locale _locale;
 
   // Theme Mode
   ThemeMode _themeMode = ThemeMode.light;
@@ -62,7 +76,12 @@ class SettingsProvider extends ChangeNotifier {
   String get currentLanguageName =>
       AppLang.nativeName[_locale.languageCode] ?? 'English';
 
-  SettingsProvider() {
+  /// [baslangicDili] verilirse ilk kare o dille ciziliyor.
+  ///
+  /// `main()` kayitli tercihi runApp'ten once okuyup buraya veriyor.
+  /// Verilmezse cihazin dili (destekleniyorsa) kullaniliyor.
+  SettingsProvider({Locale? baslangicDili})
+      : _locale = baslangicDili ?? _deviceLocaleOrDefault() {
     _loadSettings();
   }
 
