@@ -58,6 +58,11 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
   @override
   void initState() {
     super.initState();
+    // Yeni sohbet, yeni oneri gecmisi. Servis bir tekil (singleton) ve
+    // hangi onerileri gosterdigini hatirliyor; ekran her acildiginda
+    // sifirlanmazsa cocuk bir sonraki sohbete "az once gordugum uclu
+    // yine mi" diye basliyor.
+    _assistant.sohbetiSifirla();
     _logger.info('DevAiChat screen initialized', tag: 'DEVAICHAT');
   }
 

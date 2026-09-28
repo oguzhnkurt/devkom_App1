@@ -641,18 +641,36 @@ class _MarketScreenState extends State<MarketScreen> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                      boxShadow: item.requiresPro
-                          ? [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 14, spreadRadius: 2)]
-                          : null,
+                  // CERCEVELER IZGARADA KENDILERI GORUNUYOR.
+                  //
+                  // Onceden her urun, renginin %15'iyle boyanmis bir
+                  // daire icinde emojisiyle duruyordu: "Alev Cercevesi"
+                  // ile "Buz Cercevesi" arasindaki tek fark o dairenin
+                  // rengiydi. Cocuk ne aldigini ancak satin alip
+                  // profiline bakinca goruyordu. Simdi cerceve, satin
+                  // alindiginda gorunecegi haliyle -- animasyonuyla
+                  // birlikte -- kartin icinde donuyor.
+                  if (item.category == StoreItemCategory.avatarFrame)
+                    AvatarCercevesi(
+                      boyut: 72,
+                      cerceve: item,
+                      rozetGoster: false,
+                      child: Text(item.iconEmoji,
+                          style: const TextStyle(fontSize: 22)),
+                    )
+                  else
+                    Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                        boxShadow: item.requiresPro
+                            ? [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 14, spreadRadius: 2)]
+                            : null,
+                      ),
+                      child: Center(child: Text(item.iconEmoji, style: const TextStyle(fontSize: 34))),
                     ),
-                    child: Center(child: Text(item.iconEmoji, style: const TextStyle(fontSize: 34))),
-                  ),
                   if (item.requiresPro)
                     const Positioned(
                       top: 0,

@@ -237,14 +237,8 @@ class DevAssistantService {
   }
 
   /// Verilen kayit kimliklerinden oneri etiketleri uretir.
-  List<String> _relatedSuggestionsById(List<String> ids, String lang) {
-    final labels = <String>[];
-    for (final id in ids) {
-      final label = _labelFor(id, lang);
-      if (label != null) labels.add(label);
-    }
-    return labels.isEmpty ? _defaultSuggestions(lang) : labels;
-  }
+  List<String> _relatedSuggestionsById(List<String> ids, String lang) =>
+      _onerileriUret(tohumIds: ids, lang: lang);
 
   /// Mesajin dustugu kaydi dondurur; eslesme yoksa null.
   ///
@@ -344,28 +338,110 @@ class DevAssistantService {
     return true;
   }
 
-  /// Eslesen kaydin devam sorulari. Kayitta devam sorusu tanimli degilse
-  /// sohbet tikanmasin diye rastgele uc oneri donuyoruz.
-  List<String> _relatedSuggestions(KnowledgeEntry entry, String lang) {
-    if (entry.relatedIds.isEmpty) return _defaultSuggestions(lang);
-    final labels = <String>[];
-    for (final id in entry.relatedIds) {
-      final label = _labelFor(id, lang);
-      if (label != null) labels.add(label);
-    }
-    if (labels.isEmpty) return _defaultSuggestions(lang);
-    return labels;
-  }
+  /// Eslesen kaydin devam sorulari.
+  List<String> _relatedSuggestions(KnowledgeEntry entry, String lang) =>
+      _onerileriUret(
+          tohumIds: entry.relatedIds, lang: lang, kaynakId: entry.id);
 
-  /// Oneri listesinden her seferinde farkli uc soru sec. Hep ayni ucunu
-  /// gostermek sohbeti tekduze yapiyordu.
-  List<String> _defaultSuggestions(String lang) {
-    final all = List<String>.from(kSuggestedQuestionsFor(lang));
-    all.shuffle(_random);
-    return all.take(3).toList();
-  }
+  /// Hicbir sey eslesmediginde gosterilen oneriler.
+  List<String> _defaultSuggestions(String lang) =>
+      _onerileriUret(tohumIds: const [], lang: lang);
 
   final Random _random = Random();
+
+  // ------------------------------------------------------------ oneriler
+
+  /// Sohbet boyunca KULLANICIYA GOSTERILMIS oneri metinleri.
+  ///
+  /// NEDEN TUTULUYOR
+  /// ---------------
+  /// Oneriler eskiden yalnizca kaydin `relatedIds` listesinden
+  /// uretiliyordu ve o liste cogu kayitta iki kisilik. Yani "Dongu
+  /// nedir?" sorusunun altinda HER SEFERINDE ayni iki soru cikiyordu.
+  /// Cocuk uc-bes soru sonra kendini ayni halkanin icinde buluyordu:
+  /// dongu -> degisken -> dongu -> degisken. Sohbet ilerlemiyordu.
+  ///
+  /// Bu kume, daha once gosterilmis bir oneriyi geri plana atiyor.
+  /// Silinmiyor, sadece sona konuyor: bilgi tabani tukendiginde
+  /// "onerecek bir sey yok" demektense tekrar etmek daha iyi.
+  final Set<String> _gosterilenOneriler = {};
+
+  /// Yeni bir sohbet baslatilirken cagrilir; gecmis temizlenir.
+  void sohbetiSifirla() => _gosterilenOneriler.clear();
+
+  /// Kimlik -> kayit. Ikinci derece onerileri bulmak icin gerekiyor.
+  static final Map<String, KnowledgeEntry> _kayitlar = {
+    for (final e in kKnowledgeBase) e.id: e,
+  };
+
+  /// Kac oneri gosterilecek.
+  static const int _oneriSayisi = 3;
+
+  /// Devam sorularini uretir.
+  ///
+  /// DERINLIK: oneriler uc halkadan toplaniyor.
+  ///
+  ///   1. Kaydin kendi `relatedIds` listesi — en alakali olanlar.
+  ///   2. O kayitlarin `relatedIds` listeleri — bir adim OTESI. Konu
+  ///      boylece "dongu -> degisken -> dongu" halkasinda sikismak
+  ///      yerine "dongu -> degisken -> veri turu -> liste" diye
+  ///      aciliyor.
+  ///   3. Genel ornek soru havuzu — ilk ikisi yetmezse.
+  ///
+  /// CESITLILIK: her halka kendi icinde karistiriliyor ve daha once
+  /// gosterilen oneriler listenin sonuna atiliyor. Ayni kayda ikinci kez
+  /// gelindiginde bu yuzden ayni ucluyu degil, bir sonrakini goruyor.
+  List<String> _onerileriUret({
+    required List<String> tohumIds,
+    required String lang,
+    String? kaynakId,
+  }) {
+    final gorulenId = <String>{if (kaynakId != null) kaynakId};
+    final sirali = <String>[];
+
+    void ekle(Iterable<String> ids) {
+      final parti = ids.where(gorulenId.add).toList()..shuffle(_random);
+      for (final id in parti) {
+        final label = _labelFor(id, lang);
+        if (label != null && !sirali.contains(label)) sirali.add(label);
+      }
+    }
+
+    // 1. halka
+    ekle(tohumIds);
+
+    // 2. halka: tohumlarin komsulari
+    final ikinci = <String>[];
+    for (final id in tohumIds) {
+      ikinci.addAll(_kayitlar[id]?.relatedIds ?? const []);
+    }
+    ekle(ikinci);
+
+    // Kaynagin kendi etiketi onerilmemeli: az once cevaplandi.
+    final kaynakEtiket = kaynakId == null ? null : _labelFor(kaynakId, lang);
+    sirali.remove(kaynakEtiket);
+
+    // 3. halka: genel havuz
+    final havuz = List<String>.from(kSuggestedQuestionsFor(lang))
+      ..shuffle(_random);
+    for (final q in havuz) {
+      if (q != kaynakEtiket && !sirali.contains(q)) sirali.add(q);
+    }
+
+    // Daha once gosterilmis olanlar sona.
+    final taze = sirali.where((q) => !_gosterilenOneriler.contains(q)).toList();
+    final eski = sirali.where(_gosterilenOneriler.contains).toList();
+    final sonuc = [...taze, ...eski].take(_oneriSayisi).toList();
+
+    _gosterilenOneriler.addAll(sonuc);
+    // Havuz tukendiginde kilitlenmesin: hepsini gormusse sayfa basa donsun.
+    if (_gosterilenOneriler.length >= sirali.length && sirali.isNotEmpty) {
+      _gosterilenOneriler
+        ..clear()
+        ..addAll(sonuc);
+    }
+    return sonuc;
+  }
 
   /// Ilgili kayit icin oneri butonunda gosterilecek kisa soru metni.
   String? _labelFor(String id, String lang) {
