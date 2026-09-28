@@ -32,8 +32,10 @@ import 'package:flutter_test/flutter_test.dart';
 ///    ("class Ogrenci {"). Noktalı virgül, süslü parantez, `=`, `<`, `>`,
 ///    `ad(` ve `.metot` içeren satır parçaları kod sayılıp atlanıyor.
 ///  * [_izinli] listesi, ASCII hâli de doğru olan kelimeler ("yani",
-///    "iste") ile ders metninde bilerek ASCII kalan tanıtıcılar
-///    ("deger", "esya", "sensor") içindir. Bu listeye kelime eklemek,
+///    "iste", "takip") ile ders metninde bilerek ASCII kalan tanıtıcılar
+///    ("deger", "esya", "sensor") içindir. Bazı çiftler gerçekten ayrı
+///    kelimedir: "takip et" ile "takıp" (takmak) noktasız yazıldığında
+///    çakışıyor ama biri diğerinin bozulmuş hâli değil. Bu listeye kelime eklemek,
 ///    "bu yazım bilerek böyle" demektir — düzeltmekten kaçmak için
 ///    kullanılmamalı.
 void main() {
@@ -175,6 +177,12 @@ const _izinli = <String>{
   // Kendi başına doğru kelimeler; Türkçe harfli ikizleri de var.
   'yani', // "yani, sonuç olarak" — "yanı" (bir şeyin yanı) değil
   'iste', // "yardım iste" — "işte" değil
+  // "takip et" (izlemek) ile "takıp" (takmak) AYRI kelimeler; noktasız
+  // yazıldıklarında çakışıyorlar. mBlock dersinde "bloğu altına takıp"
+  // geçtiği anda, verideki bütün doğru "takip"ler onun bozulmuş hâli
+  // sanılıyordu. Buradaki izin "takip yazımı doğrudur" demek — bir
+  // düzeltmeden kaçmak değil.
+  'takip',
   // Ünsüz yumuşaması: sonuç→sonucu, direnç→direnci. Doğru yazım bunlar.
   'sonucu', 'sonucunu', 'direnci',
   // Ders metnine gömülü kod örneklerinin tanıtıcı adları. Türkçe harf
