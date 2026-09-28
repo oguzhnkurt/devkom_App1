@@ -213,7 +213,21 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
           children: [
             _buildHero(user, userProgress, isDark, isNewUser),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+              // ALT BOSLUK CAM CUBUGU HESABA KATIYOR.
+              //
+              // Disdaki Scaffold `extendBody: true` veriyor: govde cam
+              // gezinme cubugunun ARKASINA kadar uzaniyor. Sabit 24
+              // piksel birakildiginda sayfanin son ~60 pikseli cubugun
+              // altinda kaliyordu ve oraya kaydirmak mumkun degildi --
+              // Pro kartinin "Planlari gor" dugmesi tam oraya denk
+              // geliyordu, yani satin alma cagrisi hic gorunmuyordu.
+              //
+              // Flutter, `extendBody` acikken govdenin
+              // MediaQuery.padding.bottom degerine cubugun yuksekligini
+              // kendisi ekliyor. Dogru alt bosluk bu yuzden sabit degil,
+              // o degerin uzerine konan paydir.
+              padding: EdgeInsets.fromLTRB(
+                  20, 18, 20, 24 + MediaQuery.paddingOf(context).bottom),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
