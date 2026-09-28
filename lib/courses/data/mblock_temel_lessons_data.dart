@@ -983,7 +983,7 @@ class MBlockTemelLessonsData {
               'Çözüm Kontrol kategorisindeki şu blok:\n\n'
               '   0.2 saniye bekle\n\n'
               'Her dönüşün arasına bir bekleme koyarsan hareket gözle '
-              'takip edilebilir hale gelir. Animasyonun sırrı budur: '
+              'takip edilebilir hâle gelir. Animasyonun sırrı budur: '
               'tekrar + bekleme.',
           contentEn:
               'A computer runs blocks very fast. If you put only "turn 36 '

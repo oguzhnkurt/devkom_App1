@@ -125,14 +125,67 @@ void main() {
           reason: 'Ingilizce etiketlerde Turkce kalinti:\n${bad.join('\n')}');
     });
 
-    test('Arduino derslerinde yeşil bayrak başlangıç bloğu yok', () {
-      // Yükleme modunda yeşil bayrak gridir. Widget, id\'si "green_flag"
-      // olan bloğun yanına yeşil bayrak simgesi çiziyor — Arduino
-      // derslerinde bu simge yanlış bir şey öğretir.
-      final flags = all.where((b) => b.id == 'green_flag').toList();
-      expect(flags, isEmpty,
-          reason: 'Arduino/mBlock derslerinde green_flag: '
-              '${flags.map((b) => b.label).join(", ")}');
+    test('KART derslerinde yeşil bayrak başlangıç bloğu yok', () {
+      // Yükleme modunda yeşil bayrak gridir; kartın üstünde
+      // tıklanacak bir bayrak yok. Gerçek başlangıç bloğu
+      // "when Arduino Uno starts up".
+      //
+      // KURALIN KAPSAMI DARALTILDI. Kurs artık kartsız bir modülle
+      // başlıyor (modül 0: kukla tarafı, hiç donanım yok) ve ORADA
+      // yeşil bayrak doğru başlangıç bloğu — Scratch'te de öyle.
+      // Yasak, kartla çalışan derslere ait: bir derste Pin, seri port
+      // ya da Sensör kategorisinden blok varsa o ders kartla
+      // çalışıyordur ve içinde yeşil bayrak olamaz.
+      const donanimRenkleri = {
+        MBlockPalette.pin,
+        MBlockPalette.serialPort,
+        MBlockPalette.sensor,
+      };
+
+      final hatali = <String>[];
+      void dersleriTara(List<InteractiveLesson> dersler) {
+        for (final ders in dersler) {
+          final bloklar = blocksOf([ders]);
+          final donanimVar =
+              bloklar.any((b) => donanimRenkleri.contains(b.color));
+          if (!donanimVar) continue;
+          for (final b in bloklar) {
+            if (b.id == 'green_flag') {
+              hatali.add('${ders.id}: ${b.label}');
+            }
+          }
+        }
+      }
+
+      dersleriTara(MBlockLessonsData.allLessons);
+      for (final m in [
+        ArduinoLessonsData.module1,
+        ArduinoLessonsData.module2,
+        ArduinoLessonsData.module3,
+        ArduinoLessonsData.module4,
+        ArduinoLessonsData.module5,
+      ]) {
+        dersleriTara(m);
+      }
+
+      expect(hatali, isEmpty,
+          reason: 'Kartla çalışan derste yeşil bayrak var:\n'
+              '${hatali.join("\n")}');
+    });
+
+    test('kartsız modülde yeşil bayrak GERÇEKTEN kullanılıyor', () {
+      // Yukarıdaki daraltmanın bedava olmadığını sabitliyor: modül 0
+      // kukla tarafında geçiyor ve orada başlangıç bloğu yeşil bayrak.
+      // Biri modül 0'ı da kart bloğuyla başlatırsa bu test düşer ve
+      // daraltma anlamsız kalmaz.
+      final modul0 = blocksOf(MBlockLessonsData.module0);
+      expect(modul0.any((b) => b.id == 'green_flag'), isTrue,
+          reason: 'Modül 0 kukla tarafında; başlangıç bloğu yeşil bayrak '
+              'olmalı.');
+      for (final b in modul0) {
+        expect(b.color == MBlockPalette.pin, isFalse,
+            reason: 'Modül 0 kartsız olmalı ama Pin bloğu var: ${b.label}');
+      }
     });
 
     test('başlangıç bloğunun Türkçesi uydurulmadı', () {

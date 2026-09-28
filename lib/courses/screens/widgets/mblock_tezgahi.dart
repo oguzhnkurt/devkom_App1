@@ -46,6 +46,18 @@ class MBlockTezgahi extends StatefulWidget {
   /// Sayfanin paket icindeki yolu.
   static const String sayfa = 'assets/mblock/index.html';
 
+  /// Flutter'dan sayfaya gonderilen ayar.
+  ///
+  /// Ayri bir islev olmasinin sebebi sinanabilir olmasi: gonderilen
+  /// JSON'un dogrulugu bir ekran goruntusuyle degil bu dizeye bakarak
+  /// denetlenebiliyor.
+  static String kurulumJson(MBlockTezgahAyari ayar, String dil) => jsonEncode({
+        'dil': dil,
+        'bloklar': ayar.bloklar,
+        'baslangic': ayar.baslangicXml,
+        'saltOkunur': false,
+      });
+
   @override
   State<MBlockTezgahi> createState() => MBlockTezgahiState();
 }
@@ -64,18 +76,6 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
     super.initState();
     _kur();
   }
-
-  /// Flutter'dan sayfaya gonderilen ayar.
-  ///
-  /// Ayri bir islev olmasinin sebebi sinanabilir olmasi: gonderilen
-  /// JSON'un dogrulugu bir ekran goruntusuyle degil bu dizeye bakarak
-  /// denetlenebiliyor.
-  static String kurulumJson(MBlockTezgahAyari ayar, String dil) => jsonEncode({
-        'dil': dil,
-        'bloklar': ayar.bloklar,
-        'baslangic': ayar.baslangicXml,
-        'saltOkunur': false,
-      });
 
   void _kur() {
     // WebViewController, platform gerceklemesi kayitli degilse (birim

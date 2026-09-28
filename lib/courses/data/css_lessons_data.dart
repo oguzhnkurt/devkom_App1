@@ -1902,7 +1902,7 @@ class CssLessonsData {
           titleEn: 'The Project Plan',
           titleDe: 'Der Projektplan',
           titleEs: 'El plan del proyecto',
-          content: '🎯 Hedef: Sik bir profil kartı\n\n📦 Kutu modeli: padding, border-radius\n🧲 Flexbox: Iceriği ortala\n✨ Hover: Karta üzerine gelince buyusun\n🎬 Geçiş: Yumuşak animasyon\n\nHepsini birleştireceğiz!',
+          content: '🎯 Hedef: Sik bir profil kartı\n\n📦 Kutu modeli: padding, border-radius\n🧲 Flexbox: Iceriği ortala\n✨ Hover: Karta üzerine gelince büyüsün\n🎬 Geçiş: Yumuşak animasyon\n\nHepsini birleştireceğiz!',
           contentEn: '🎯 The goal: a stylish profile card\n\n📦 Box model: padding, border-radius\n🧲 Flexbox: centre the content\n✨ Hover: the card grows when you point at it\n🎬 Transition: a smooth animation\n\nWe are going to combine all of it!',
           contentDe: '🎯 Das Ziel: eine schicke Profilkarte\n\n📦 Box-Modell: padding, border-radius\n🧲 Flexbox: den Inhalt zentrieren\n✨ Hover: die Karte wird größer, wenn du darauf zeigst\n🎬 Transition: eine sanfte Animation\n\nAll das bringen wir zusammen!',
           contentEs: '🎯 El objetivo: una tarjeta de perfil con estilo\n\n📦 Modelo de caja: padding, border-radius\n🧲 Flexbox: centrar el contenido\n✨ Hover: la tarjeta crece cuando apuntas a ella\n🎬 Transition: una animación suave\n\n¡Vamos a combinarlo todo!',
