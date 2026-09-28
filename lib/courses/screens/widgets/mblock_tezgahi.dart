@@ -115,7 +115,7 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
     final dil = mounted ? lessonLangRead(context) : 'tr';
     // Sayfaya AYARI veriyoruz; sayfanin icerigine mudahale etmiyoruz.
     await c.runJavaScript(
-      'MBlockTezgah.kur(${jsonEncode(kurulumJson(widget.ayar, dil))})',
+      'MBlockTezgah.kur(${jsonEncode(MBlockTezgahi.kurulumJson(widget.ayar, dil))})',
     );
   }
 

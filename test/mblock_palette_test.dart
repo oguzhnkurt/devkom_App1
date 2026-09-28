@@ -136,11 +136,14 @@ void main() {
       // Yasak, kartla çalışan derslere ait: bir derste Pin, seri port
       // ya da Sensör kategorisinden blok varsa o ders kartla
       // çalışıyordur ve içinde yeşil bayrak olamaz.
-      const donanimRenkleri = {
+      // Kume DEGIL liste: Color'in sabit (const) kumeye girebilmesi
+      // icin ilkel esitligi olmasi gerekiyor, yok. Uc eleman icin
+      // `contains` zaten yeterli.
+      final donanimRenkleri = <Color>[
         MBlockPalette.pin,
         MBlockPalette.serialPort,
         MBlockPalette.sensor,
-      };
+      ];
 
       final hatali = <String>[];
       void dersleriTara(List<InteractiveLesson> dersler) {
