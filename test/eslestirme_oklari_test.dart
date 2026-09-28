@@ -31,7 +31,11 @@ final _adim = MatchingStep(
   instruction: 'Sekli, yaptigi isle eslestir.',
   pairs: const [
     MatchPair(id: 'a', left: 'Sapka', right: 'Yigini baslatir'),
-    MatchPair(id: 'b', left: 'C', right: 'Icine blok alir'),
+    // DIKKAT: sol metinler tek harf OLMAMALI. Sag sutundaki rozetler
+    // A/B/C harfi tasiyor; 'C' adinda bir kart find.text('C') ile
+    // rozetle cakisiyor ve test "birden fazla widget bulundu" diye
+    // dusuyor.
+    MatchPair(id: 'b', left: 'C blogu', right: 'Icine blok alir'),
     MatchPair(id: 'c', left: 'Oval', right: 'Bir deger soyler'),
   ],
 );
@@ -94,7 +98,7 @@ void main() {
     expect(find.byKey(const ValueKey('eslestirme-oklari-1')), findsOneWidget,
         reason: 'eslestirme kuruldu ama arada ok cizilmiyor');
 
-    await _esle(tester, 'C', 'Icine blok alir');
+    await _esle(tester, 'C blogu', 'Icine blok alir');
     expect(find.byKey(const ValueKey('eslestirme-oklari-2')), findsOneWidget);
 
     // Eslestirme bozulunca ok da kalkiyor.
@@ -109,7 +113,7 @@ void main() {
 
     // Kasten yanlis: her sol karti baska bir sagdakine bagliyoruz.
     await _esle(tester, 'Sapka', 'Icine blok alir');
-    await _esle(tester, 'C', 'Bir deger soyler');
+    await _esle(tester, 'C blogu', 'Bir deger soyler');
     await _esle(tester, 'Oval', 'Yigini baslatir');
 
     expect(find.text('Devam et'), findsOneWidget,
@@ -131,7 +135,7 @@ void main() {
     await _ciz(tester);
 
     await _esle(tester, 'Sapka', 'Icine blok alir');
-    await _esle(tester, 'C', 'Bir deger soyler');
+    await _esle(tester, 'C blogu', 'Bir deger soyler');
     await _esle(tester, 'Oval', 'Yigini baslatir');
     expect(find.text('Tekrar dene'), findsOneWidget);
 
@@ -146,7 +150,7 @@ void main() {
     final sonuclar = await _ciz(tester);
 
     await _esle(tester, 'Sapka', 'Yigini baslatir');
-    await _esle(tester, 'C', 'Icine blok alir');
+    await _esle(tester, 'C blogu', 'Icine blok alir');
     await _esle(tester, 'Oval', 'Bir deger soyler');
     await tester.pump(const Duration(milliseconds: 600));
 

@@ -2394,7 +2394,21 @@ class _OkBoyaci extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _OkBoyaci old) =>
-      !listEquals(old.oklar, oklar);
+      !_oklarAyni(old.oklar, oklar);
+}
+
+/// Iki ok listesi ayni mi.
+///
+/// Flutter'in hazir liste karsilastirmasi `package:flutter/foundation.dart`
+/// icinde; bu dosya yalnizca material'i alıyor ve tek bir karsilastirma
+/// icin yeni bir import acmak yerine kiyas burada duruyor.
+bool _oklarAyni(List<_EslesmeOku> a, List<_EslesmeOku> b) {
+  if (identical(a, b)) return true;
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
 }
 
 class _MatchingStepWidgetState extends State<MatchingStepWidget> {
@@ -2492,7 +2506,7 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
       ));
     });
 
-    if (!listEquals(yeni, _oklar) && mounted) {
+    if (!_oklarAyni(yeni, _oklar) && mounted) {
       setState(() => _oklar = yeni);
     }
   }
