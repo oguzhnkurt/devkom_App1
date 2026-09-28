@@ -60,19 +60,18 @@ void main() {
     }
   });
 
-  /// Kod parcasi mi?
-  ///
-  /// HTML dersindeki bir siralama ogesinin icerigi `<table>`. Bu
-  /// CEVRILMEZ; cevrilirse ders bozulur. Ayni sey C#, Java ve CSS
-  /// derslerindeki kod satirlari icin de gecerli. Olcut: icinde
-  /// `< > { } ; = ( )` gecen bir metin kod sayiliyor; "10 adım git"
-  /// gibi blok yazilari bu isaretlerin hicbirini tasimiyor.
-  bool kodMu(String metin) => RegExp(r'[<>{};=()]').hasMatch(metin);
-
   test('siralama ogelerinin METINLERI dort dile cevrilmis', () {
+    // Kod parcalari MUAF — ve bunu tahmin etmiyoruz: modelde zaten
+    // `isCode` var ve icerik dosyalari onu dogru isaretlemis
+    // (`<table>`, `h1`, `color: purple;`). Bir kod satirini cevirmek
+    // dersi bozar.
+    //
+    // Once bu ayrimi metnin icindeki isaretlerden tahmin etmeye
+    // calistim (`<>{};=()`), CSS'teki `h1` ogesinde dustu. Modelin
+    // tasidigi niyeti okumak varken karakter saymak yanlisti.
     for (final adim in adimlar) {
       for (final oge in adim.items) {
-        if (kodMu(oge.content)) continue;
+        if (oge.isCode) continue;
         for (final dil in ['en', 'de', 'es']) {
           expect(oge.contentFor(dil), isNot(oge.content),
               reason: '${adim.id}/${oge.id} $dil diline cevrilmemis.');
