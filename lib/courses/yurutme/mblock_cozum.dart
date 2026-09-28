@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 /// mBlock tezgahindan okunan ve beklenen programlarin modeli.
 ///
 /// NEDEN AYRI BIR DOSYA
@@ -9,6 +7,8 @@ import 'dart:convert';
 /// sinanabilir. Karsilastirma burada duruyor, tezgah yalnizca JSON
 /// tasiyor.
 library;
+
+import 'dart:convert';
 
 /// Cocugun tezgahta kurdugu tek bir blok.
 class MBlockBlok {
