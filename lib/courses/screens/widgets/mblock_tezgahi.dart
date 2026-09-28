@@ -83,7 +83,12 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
   /// da paketin eksik gitmesi) ve o durumda sayfadan HICBIR mesaj
   /// gelmiyor — yani hatayi ancak sure ile anlayabiliyoruz.
   Timer? _sabir;
-  static const Duration _sabirSuresi = Duration(seconds: 10);
+
+  /// 10 saniye AZDI. Hata ayiklama derlemesinde 2,1 MB'lik betigin ilk
+  /// ayrıstirilmasi soguk baslangicta bunu asabiliyor; ayni yapi ikinci
+  /// acilista saniyeler icinde geliyordu. "Az once vardi simdi yok"
+  /// sikayetinin sebebi buydu.
+  static const Duration _sabirSuresi = Duration(seconds: 25);
 
   @override
   void initState() {
@@ -147,9 +152,9 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
         // Konsola yazdiriyoruz: cocuga teknik metin gostermiyoruz ama
         // `flutter run` ciktisinda sebebi aranabilir olmali.
         debugPrint('⚠️ mBlock tezgahi ${_sabirSuresi.inSeconds} sn icinde '
-            'hazir demedi. En olasi sebepler: assets/mblock paketi '
-            'uygulamaya girmemis (pubspec), ya da sayfanin Icerik '
-            'Guvenligi Politikasi betikleri engelliyor.');
+            'hazir demedi. Yukaridaki "tezgahi durumu" satirina bak: '
+            'scratchBlocks/katalog/tezgah "undefined" ise betikler '
+            'calismamis, "object" ise sayfa yavas acilmis demektir.');
         setState(() => _hata = 'zaman asimi');
       });
     } catch (_) {
@@ -200,7 +205,16 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
     final metin = m.message;
     if (metin.contains('"tur":"hazir"')) {
       _sabir?.cancel();
-      if (mounted) setState(() => _hazir = true);
+      // HATAYI DA TEMIZLIYORUZ. Sabir sayaci dolduktan SONRA sayfa
+      // hazir derse ekran "Bloklar yuklenemedi" diye kalakaliyordu —
+      // tezgah calisir haldeyken. Sayaci gecikme olcusu olarak
+      // kullaniyoruz, kesin hukum olarak degil.
+      if (mounted) {
+        setState(() {
+          _hazir = true;
+          _hata = null;
+        });
+      }
       return;
     }
     if (metin.contains('"tur":"hata"')) {
@@ -217,6 +231,20 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
   void dispose() {
     _sabir?.cancel();
     super.dispose();
+  }
+
+  /// Sayfayi bastan yukler.
+  ///
+  /// Hata durumu bir cikmaz sokak olmamali: cocuk (ya da biz) tezgahi
+  /// yeniden deneyebilmeli, dersten cikip girmek zorunda kalmamali.
+  void yenidenDene() {
+    setState(() {
+      _hata = null;
+      _hazir = false;
+    });
+    _sabir?.cancel();
+    _web = null;
+    _kur();
   }
 
   /// Tahtayi bosaltir.
@@ -259,15 +287,34 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
                 if (_hata != null)
                   ColoredBox(
                     color: const Color(0xFFF9F9F9),
-                    child: _bilgi(
-                      lessonText(
-                        lang,
-                        'Bloklar yüklenemedi.',
-                        'The blocks could not load.',
-                        'Die Blöcke konnten nicht geladen werden.',
-                        'No se pudieron cargar los bloques.',
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _bilgi(
+                            lessonText(
+                              lang,
+                              'Bloklar yüklenemedi.',
+                              'The blocks could not load.',
+                              'Die Blöcke konnten nicht geladen werden.',
+                              'No se pudieron cargar los bloques.',
+                            ),
+                            Icons.error_outline_rounded,
+                          ),
+                          FilledButton.icon(
+                            onPressed: yenidenDene,
+                            icon: const Icon(Icons.refresh, size: 18),
+                            label: Text(
+                              lessonText(lang, 'Yeniden dene', 'Try again',
+                                  'Nochmal versuchen', 'Reintentar'),
+                              style: TextStyle(
+                                fontFamily: AppTheme.fontFamily,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      Icons.error_outline_rounded,
                     ),
                   ),
               ],
