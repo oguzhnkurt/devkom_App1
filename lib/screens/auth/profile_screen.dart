@@ -539,6 +539,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   /// E-posta + sifre alip anonim hesabi kalici hale getirir.
   Future<void> _showLinkAccountSheet(BuildContext context) async {
+    // DILI BURADA, SAYFA HALA CANLIYKEN ALIYORUZ.
+    //
+    // GERCEK OLAY: kayit basariyla tamamlandiktan sonra ekrana
+    // "Bir seyler ters gitti" hata ekrani dusuyordu. Baglama ISLEMI
+    // calisiyordu ("Anonim hesap e-postaya baglandi"), sorun sonrasinda
+    // ciziliyordu: sayfa agactan kalkiyor, ama alt sayfanin
+    // StatefulBuilder'i bir kez daha ciziliyor ve icerideki
+    // `_t4(…context…)` OLU bir context uzerinden Provider'a
+    // bakiyordu — "Looking up a deactivated widget's ancestor is
+    // unsafe".
+    //
+    // Cozum context'i saglamlastirmak degil, ONA HIC IHTIYAC
+    // DUYMAMAK: dil kodu alt sayfa acilmadan once bir kez okunuyor,
+    // icerideki butun yazilar bu kapanistan geciyor.
+    final dilKodu =
+        Provider.of<SettingsProvider>(context, listen: false)
+            .locale
+            .languageCode;
+    String t(String tr, String en, String de, String es) =>
+        AppLang.pick(dilKodu, tr: tr, en: en, de: de, es: es);
+
     final emailController = _linkEmailController..clear();
     final passwordController = _linkPasswordController..clear();
     String? error;
@@ -561,13 +582,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // sonradan `context` uzerinden ceviri ya da ScaffoldMessenger
             // aramak "deactivated widget's ancestor" hatasi veriyordu.
             final messenger = ScaffoldMessenger.maybeOf(context);
-            final basarili = _t4(
-                context,
+            final basarili = t(
                 'Hesabın oluşturuldu, ilerlemen kayıtlı.',
                 'Your account is ready and your progress is saved.',
                 'Dein Konto ist fertig, dein Fortschritt ist gespeichert.',
                 'Tu cuenta está lista y tu progreso está guardado.');
-            final genelHata = _t4(context, 'Kaydedilemedi, tekrar dene.',
+            final genelHata = t( 'Kaydedilemedi, tekrar dene.',
                 'Could not save, please try again.',
                 'Speichern fehlgeschlagen, versuch es erneut.',
                 'No se pudo guardar, inténtalo de nuevo.');
@@ -576,8 +596,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             final pass = passwordController.text;
 
             if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(mail)) {
-              setSheetState(() => error = _t4(
-                  context,
+              setSheetState(() => error = t(
                   'Geçerli bir e-posta yaz.',
                   'Enter a valid email address.',
                   'Gib eine gültige E-Mail-Adresse ein.',
@@ -585,8 +604,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               return;
             }
             if (pass.length < 6) {
-              setSheetState(() => error = _t4(
-                  context,
+              setSheetState(() => error = t(
                   'Şifre en az 6 karakter olmalı.',
                   'Password must be at least 6 characters.',
                   'Das Passwort muss mindestens 6 Zeichen haben.',
@@ -627,15 +645,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _t4(context, 'Hesabını oluştur', 'Create your account',
+                  t( 'Hesabını oluştur', 'Create your account',
                       'Erstelle dein Konto', 'Crea tu cuenta'),
                   style:
                       const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  _t4(
-                      context,
+                  t(
                       'Mevcut ilerlemen aynen korunur — yeni bir hesap açmıyoruz, '
                           'bu hesabı e-postana bağlıyoruz.',
                       'Your current progress stays exactly as it is — we are not '
@@ -656,7 +673,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   keyboardType: TextInputType.emailAddress,
                   autocorrect: false,
                   decoration: InputDecoration(
-                    labelText: _t4(context, 'E-posta', 'Email', 'E-Mail',
+                    labelText: t( 'E-posta', 'Email', 'E-Mail',
                         'Correo electrónico'),
                     prefixIcon: const Icon(Icons.mail_outline_rounded),
                     border: OutlineInputBorder(
@@ -669,9 +686,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   controller: passwordController,
                   obscureText: obscure,
                   decoration: InputDecoration(
-                    labelText: _t4(context, 'Şifre', 'Password', 'Passwort',
+                    labelText: t( 'Şifre', 'Password', 'Passwort',
                         'Contraseña'),
-                    helperText: _t4(context, 'En az 6 karakter',
+                    helperText: t( 'En az 6 karakter',
                         'At least 6 characters', 'Mindestens 6 Zeichen',
                         'Al menos 6 caracteres'),
                     prefixIcon: const Icon(Icons.lock_outline_rounded),
@@ -706,7 +723,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: CircularProgressIndicator(
                                 strokeWidth: 2, color: Colors.white),
                           )
-                        : Text(_t4(context, 'Kaydet', 'Save', 'Speichern',
+                        : Text(t( 'Kaydet', 'Save', 'Speichern',
                             'Guardar')),
                   ),
                 ),
