@@ -31,12 +31,48 @@
                background: #F9F9F9; -webkit-user-select: none; user-select: none;
                -webkit-tap-highlight-color: transparent; }
   #tezgah { position: absolute; inset: 0; }
-  /* Blockly'nin kendi baglam menusu ve uyarilari cocuga gerekmiyor. */
-  .blocklyWidgetDiv .goog-menu { font-family: sans-serif; }
+
+  /* ARAC KUTUSU ILE CALISMA ALANINI AYIRMA
+     --------------------------------------
+     scratch-blocks arac kutusunun arkasini YARI SAYDAM bir sekil
+     olarak ciziyor; ortada ne oldugu belirsiz, puslu bir serit
+     kaliyordu. Cocuk icin iki bolge tek bir bulanik alan gibi
+     goruluyordu. Arka plan tam opak yapildi ve sag kenarina ince bir
+     cizgi konuldu (#ayirac): solda BLOK LISTESI, saginda CALISMA
+     ALANI. */
+  .blocklyFlyoutBackground {
+    fill: #FFFFFF !important;
+    fill-opacity: 1 !important;
+  }
+
+  /* Arac kutusunun kendi kaydirma cubugu da yari saydam bir serit
+     olarak ayni yere biniyordu. Liste zaten parmakla kayiyor. */
+  .blocklyFlyout .blocklyScrollbarHandle,
+  .blocklyFlyout .blocklyScrollbarBackground,
+  .blocklyFlyoutScrollbar {
+    display: none !important;
+  }
+
+  /* Iki bolge birbirinden RENKLE de ayrilsin: arac kutusu beyaz,
+     calisma alani bir tik gri. Tek basina cizgi de yeterdi ama
+     cocugun "nereye birakacagim" sorusu boylece bakar bakmaz
+     cevaplaniyor. */
+  .blocklySvg { background: #F1F3F5 !important; }
+
+  #ayirac {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: #DFE3E8;
+    pointer-events: none;
+    display: none;
+  }
 </style>
 </head>
 <body>
 <div id="tezgah"></div>
+<div id="ayirac"></div>
 <script src="scratch_blocks.min.js"></script>
 <script src="mblock_bloklari.js"></script>
 <script src="tezgah.js"></script>

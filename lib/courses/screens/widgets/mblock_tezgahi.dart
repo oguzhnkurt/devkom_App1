@@ -36,7 +36,7 @@ class MBlockTezgahi extends StatefulWidget {
     super.key,
     required this.ayar,
     required this.onDurum,
-    this.yukseklik = 420,
+    this.yukseklik,
   });
 
   final MBlockTezgahAyari ayar;
@@ -44,7 +44,28 @@ class MBlockTezgahi extends StatefulWidget {
   /// Tahtadaki program her degistiginde cagriliyor.
   final ValueChanged<List<List<MBlockBlok>>> onDurum;
 
-  final double yukseklik;
+  /// Verilmezse ekran yuksekligine gore hesaplaniyor.
+  final double? yukseklik;
+
+  /// Blok olcegi — ekran GENISLIGINE gore.
+  ///
+  /// Kucuk ekranda tek bir olcek iki sekilde de yaniliyor: buyuk
+  /// olcekte arac kutusu calisma alanini yiyor, cok kucukte bloklar
+  /// cocuk parmagina gore ufaliyor. Aradaki denge genislige gore
+  /// kuruluyor. Ayri bir islev olmasinin sebebi sinanabilir olmasi.
+  static double olcekIcin(double genislik) {
+    if (genislik < 360) return 0.55; // iPhone SE ve benzeri
+    if (genislik < 400) return 0.62;
+    return 0.68;
+  }
+
+  /// Tezgah yuksekligi — ekran YUKSEKLIGINE gore.
+  ///
+  /// Sabit 420 piksel kucuk telefonda ekranin neredeyse tamamini
+  /// kapliyor, hedef ve dugmeler disarida kaliyordu; buyuk telefonda
+  /// ise bosuna kucuk duruyordu.
+  static double yukseklikIcin(double ekranYuksekligi) =>
+      (ekranYuksekligi * 0.46).clamp(300.0, 520.0);
 
   /// Sayfanin paket icindeki yolu.
   static const String sayfa = 'assets/mblock/index.html';
@@ -54,11 +75,14 @@ class MBlockTezgahi extends StatefulWidget {
   /// Ayri bir islev olmasinin sebebi sinanabilir olmasi: gonderilen
   /// JSON'un dogrulugu bir ekran goruntusuyle degil bu dizeye bakarak
   /// denetlenebiliyor.
-  static String kurulumJson(MBlockTezgahAyari ayar, String dil) => jsonEncode({
+  static String kurulumJson(MBlockTezgahAyari ayar, String dil,
+          {double olcek = 0.68}) =>
+      jsonEncode({
         'dil': dil,
         'bloklar': ayar.bloklar,
         'baslangic': ayar.baslangicXml,
         'saltOkunur': false,
+        'olcek': olcek,
       });
 
   @override
@@ -169,6 +193,9 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
     // icinde cagrilabilir; burasi sayfa yuklenince calisan bir geri
     // cagri. lessonLangRead() ayni degeri abone olmadan veriyor.
     final dil = mounted ? lessonLangRead(context) : 'tr';
+    final olcek = mounted
+        ? MBlockTezgahi.olcekIcin(MediaQuery.sizeOf(context).width)
+        : 0.68;
     // Sayfaya AYARI veriyoruz; sayfanin icerigine mudahale etmiyoruz.
     // TANILAMA: sayfanin gercekten yuklenip yuklenmedigini ve
     // betiklerin calisip calismadigini ayirt etmenin tek yolu bu.
@@ -192,7 +219,7 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
     try {
       await c.runJavaScript(
         'MBlockTezgah.kur('
-        '${jsonEncode(MBlockTezgahi.kurulumJson(widget.ayar, dil))})',
+        '${jsonEncode(MBlockTezgahi.kurulumJson(widget.ayar, dil, olcek: olcek))})',
       );
     } catch (e) {
       // `MBlockTezgah` tanimsizsa betikler hic yuklenmemis demektir.
@@ -258,7 +285,8 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
     final c = _web;
 
     return Container(
-      height: widget.yukseklik,
+      height: widget.yukseklik ??
+          MBlockTezgahi.yukseklikIcin(MediaQuery.sizeOf(context).height),
       decoration: BoxDecoration(
         color: const Color(0xFFF9F9F9),
         borderRadius: BorderRadius.circular(14),

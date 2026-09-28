@@ -382,12 +382,69 @@ void main() {
 
     test('kurulum JSON\'u sayfanin bekledigi alanlari tasiyor', () {
       final json = jsonDecode(
-        MBlockTezgahi.kurulumJson(adimlar.first.mblock!, 'de'),
+        MBlockTezgahi.kurulumJson(adimlar.first.mblock!, 'de', olcek: 0.55),
       ) as Map<String, dynamic>;
       expect(json['dil'], 'de');
       expect(json['bloklar'], isA<List<dynamic>>());
       expect(json.containsKey('baslangic'), isTrue);
       expect(json['saltOkunur'], isFalse);
+      expect(json['olcek'], 0.55);
+    });
+  });
+
+  group('kucuk ekran', () {
+    test('dar telefonda bloklar kuculuyor', () {
+      // Tek olcek iki sekilde de yaniliyor: buyuk olcekte arac kutusu
+      // calisma alanini yiyor, cok kucukte bloklar cocuk parmagina
+      // gore ufaliyor.
+      expect(MBlockTezgahi.olcekIcin(320),
+          lessThan(MBlockTezgahi.olcekIcin(430)));
+      expect(MBlockTezgahi.olcekIcin(320), greaterThanOrEqualTo(0.5),
+          reason: 'Bloklar cocuk parmagina gore fazla kuculmemeli.');
+      expect(MBlockTezgahi.olcekIcin(430), lessThanOrEqualTo(0.75));
+    });
+
+    test('tezgah yuksekligi ekrana uyuyor ama sinirlari var', () {
+      // Sabit 420 piksel kucuk telefonda ekranin neredeyse tamamini
+      // kapliyor, hedef ve dugmeler disarida kaliyordu.
+      final kucuk = MBlockTezgahi.yukseklikIcin(667); // iPhone SE
+      final buyuk = MBlockTezgahi.yukseklikIcin(956); // Pro Max
+      expect(kucuk, lessThan(buyuk));
+      expect(kucuk, greaterThanOrEqualTo(300),
+          reason: 'Cok kisa bir tezgahta blok kurulamaz.');
+      expect(kucuk, lessThan(667 * 0.55),
+          reason: 'Tezgah kucuk ekranda hedefe ve dugmelere yer '
+              'birakmali.');
+      expect(buyuk, lessThanOrEqualTo(520));
+    });
+  });
+
+  group('sayfa kucuk ekrani gozetiyor', () {
+    final tezgahJs =
+        File('assets/mblock/tezgah.js').readAsStringSync();
+
+    test('arac kutusunun sabit genisligi ve olcegi geciliyor', () {
+      // scratch-blocks arac kutusu, bloklar ne kadar dar olursa olsun
+      // 250 piksel donduruyor ve kendi sabit olcegini kullaniyor.
+      // Ikisi de gecilmezse 320 piksellik telefonda calisma alanina
+      // 70 piksel kaliyor.
+      expect(tezgahJs.contains('getFlyoutScale'), isTrue);
+      expect(tezgahJs.contains('kutu.getWidth = function'), isTrue);
+    });
+
+    test('dar ekranda yakinlastirma ve cop kutusu kapaniyor', () {
+      expect(tezgahJs.contains('trashcan: dar'), isTrue);
+      expect(tezgahJs.contains('controls: !dar'), isTrue);
+    });
+
+    test('ayirac cizgisi olculerek konuluyor', () {
+      // Genislik sabit degil: blok yazilari dile gore uzuyor.
+      expect(tezgahJs.contains('ayiraciYerlestir'), isTrue);
+      final html = File('assets/mblock/index.html').readAsStringSync();
+      expect(html.contains("id=\"ayirac\""), isTrue);
+      expect(html.contains('fill-opacity: 1'), isTrue,
+          reason: 'Arac kutusunun arkasi yari saydam kalirsa ortada '
+              'puslu bir serit goruluyor.');
     });
   });
 }

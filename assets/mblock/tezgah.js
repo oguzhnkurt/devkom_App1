@@ -229,6 +229,56 @@
     if (m && m.indexOf('Failed to fetch') >= 0) o.preventDefault();
   });
 
+  /// Arac kutusunu kucuk ekrana sigdirir.
+  ///
+  /// IKI AYRI SEY calisma alanini yiyordu:
+  ///  1. Calisma alaninin yakinlastirmasi arac kutusunu ETKILEMIYOR;
+  ///     kutunun kendi sabit olcegi var (`getFlyoutScale`).
+  ///  2. `getWidth()` bloklar ne kadar dar olursa olsun 250 piksel
+  ///     donduruyor — kategori seridi icin ayrilmis bir taban, ama
+  ///     bizde kategori yok. 320 piksellik bir telefonda geriye 70
+  ///     piksel kaliyordu.
+  ///
+  /// Ikisi de burada geciliyor: olcek disaridan geliyor, genislik ise
+  /// bloklarin GERCEK genisligi + kucuk bir bosluk.
+  function kutuyuOlcekle(olcek) {
+    try {
+      var kutu = ws && ws.getFlyout && ws.getFlyout();
+      if (!kutu) return;
+      kutu.getFlyoutScale = function () { return olcek; };
+      var ic = kutu.getWorkspace && kutu.getWorkspace();
+      if (ic && ic.setScale) ic.setScale(olcek);
+      if (kutu.reflowInternal_) kutu.reflowInternal_();
+      else if (kutu.reflow) kutu.reflow();
+      kutu.getWidth = function () {
+        return Math.round(this.width_ || 0) + 12;
+      };
+      if (kutu.position) kutu.position();
+      S.svgResize(ws);
+    } catch (e) {
+      bildir('hata', 'arac kutusu olceklenemedi: ' + String(e));
+    }
+  }
+
+  /// Arac kutusunun sag kenarina cizgiyi koyar.
+  ///
+  /// Genislik sabit degil: blok yazilari dile gore uzuyor ve olcek
+  /// telefonun genisligine gore degisiyor. Bu yuzden cizgi CSS'te
+  /// sabitlenmiyor, her yerlesimden sonra olculup konuluyor.
+  function ayiraciYerlestir() {
+    var cizgi = global.document.getElementById('ayirac');
+    if (!cizgi) return;
+    try {
+      var kutu = ws && ws.getFlyout && ws.getFlyout();
+      var genislik = kutu && kutu.getWidth ? kutu.getWidth() : 0;
+      if (!genislik) { cizgi.style.display = 'none'; return; }
+      cizgi.style.left = Math.round(genislik) + 'px';
+      cizgi.style.display = 'block';
+    } catch (e) {
+      cizgi.style.display = 'none';
+    }
+  }
+
   var API = {
     /// Flutter'dan cagriliyor.
     ///
@@ -246,6 +296,9 @@
 
         S.defineBlocksWithJsonArray(K.BLOKLAR.map(tanim));
 
+        // Telefonun genisligi: altinda kalan her seyi "dar" sayiyoruz.
+        var dar = (global.innerWidth || 400) < 380;
+
         if (ws) { ws.dispose(); ws = null; }
         ws = S.inject('tezgah', {
           media: 'media/',
@@ -253,8 +306,12 @@
           toolbox: aracKutusuXml(ayar.bloklar || null),
           readOnly: !!ayar.saltOkunur,
           scrollbars: true,
-          trashcan: true,
-          zoom: { controls: true, startScale: ayar.olcek || 0.675 }
+          // KUCUK EKRAN: yakinlastirma dugmeleri ve cop kutusu, dar
+          // bir calisma alaninda blok koyacak yerin yarisini
+          // kapliyordu. Ikisi de vazgecilebilir — blok silmek icin
+          // onu arac kutusunun uzerine birakmak zaten yetiyor.
+          trashcan: dar ? false : true,
+          zoom: { controls: !dar, startScale: ayar.olcek || 0.675 }
         });
 
         if (ayar.baslangic) {
@@ -266,6 +323,16 @@
         ws.addChangeListener(function (olay) {
           if (olay && olay.isUiEvent) return;
           durumuBildir();
+        });
+
+        kutuyuOlcekle(ayar.olcek || 0.675);
+        ayiraciYerlestir();
+        // Ekran donunce ya da klavye acilip kapaninca tezgah yeni
+        // olcuye uymali; yoksa bloklar kirpilmis kaliyor.
+        global.addEventListener('resize', function () {
+          if (!ws) return;
+          S.svgResize(ws);
+          ayiraciYerlestir();
         });
 
         bildir('hazir', { blokSayisi: K.BLOKLAR.length, dil: dil });
