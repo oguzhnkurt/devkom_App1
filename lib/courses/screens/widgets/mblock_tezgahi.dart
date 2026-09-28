@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -71,6 +72,17 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
   /// Kurulum sirasinda bir sey patlarsa cocuga ne yazacagiz.
   String? _hata;
 
+  /// Sabir sayaci.
+  ///
+  /// NEDEN: sayfa acilmazsa ekranda donen bir cark kaliyordu ve
+  /// sonsuza kadar donuyordu. Bir cocuk icin bu "bozuk" degil
+  /// "yukleniyor" demek; bekler, bekler, dersi birakir. En olasi
+  /// sebep betiklerin hic calismamasi (Icerik Guvenligi Politikasi ya
+  /// da paketin eksik gitmesi) ve o durumda sayfadan HICBIR mesaj
+  /// gelmiyor — yani hatayi ancak sure ile anlayabiliyoruz.
+  Timer? _sabir;
+  static const Duration _sabirSuresi = Duration(seconds: 10);
+
   @override
   void initState() {
     super.initState();
@@ -101,6 +113,16 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
         );
       _web = c;
       c.loadFlutterAsset(MBlockTezgahi.sayfa);
+      _sabir = Timer(_sabirSuresi, () {
+        if (!mounted || _hazir) return;
+        // Konsola yazdiriyoruz: cocuga teknik metin gostermiyoruz ama
+        // `flutter run` ciktisinda sebebi aranabilir olmali.
+        debugPrint('⚠️ mBlock tezgahi ${_sabirSuresi.inSeconds} sn icinde '
+            'hazir demedi. En olasi sebepler: assets/mblock paketi '
+            'uygulamaya girmemis (pubspec), ya da sayfanin Icerik '
+            'Guvenligi Politikasi betikleri engelliyor.');
+        setState(() => _hata = 'zaman asimi');
+      });
     } catch (_) {
       _web = null;
     }
@@ -114,24 +136,39 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
     // cagri. lessonLangRead() ayni degeri abone olmadan veriyor.
     final dil = mounted ? lessonLangRead(context) : 'tr';
     // Sayfaya AYARI veriyoruz; sayfanin icerigine mudahale etmiyoruz.
-    await c.runJavaScript(
-      'MBlockTezgah.kur(${jsonEncode(MBlockTezgahi.kurulumJson(widget.ayar, dil))})',
-    );
+    try {
+      await c.runJavaScript(
+        'MBlockTezgah.kur('
+        '${jsonEncode(MBlockTezgahi.kurulumJson(widget.ayar, dil))})',
+      );
+    } catch (e) {
+      // `MBlockTezgah` tanimsizsa betikler hic yuklenmemis demektir.
+      debugPrint('⚠️ mBlock tezgahi kurulamadi: $e');
+      if (mounted) setState(() => _hata = '$e');
+    }
   }
 
   void _mesaj(JavaScriptMessage m) {
     final metin = m.message;
     if (metin.contains('"tur":"hazir"')) {
+      _sabir?.cancel();
       if (mounted) setState(() => _hazir = true);
       return;
     }
     if (metin.contains('"tur":"hata"')) {
+      debugPrint('⚠️ mBlock tezgahi hata bildirdi: $metin');
       if (mounted) setState(() => _hata = metin);
       return;
     }
     final yiginlar = MBlockBlok.mesajdanYiginlar(metin);
     if (yiginlar.isEmpty && !metin.contains('"tur":"durum"')) return;
     widget.onDurum(yiginlar);
+  }
+
+  @override
+  void dispose() {
+    _sabir?.cancel();
+    super.dispose();
   }
 
   /// Tahtayi bosaltir.
