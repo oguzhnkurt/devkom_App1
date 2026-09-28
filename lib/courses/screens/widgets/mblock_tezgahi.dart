@@ -102,11 +102,16 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
           NavigationDelegate(
             // HICBIR YERE GIDILMEZ.
             onNavigationRequest: (_) => NavigationDecision.prevent,
-            onPageFinished: (_) => _sayfaHazir(),
+            onPageFinished: (url) {
+              debugPrint('🔎 mBlock tezgahi sayfasi yuklendi: $url');
+              _sayfaHazir();
+            },
             onWebResourceError: (e) {
               // Ses dosyalari kasten pakete alinmadi; onlarin hatasi
               // tezgahi bozmuyor.
               if (e.url != null && e.url!.contains('/media/')) return;
+              debugPrint('⚠️ mBlock tezgahi kaynak hatasi: '
+                  '${e.url} — ${e.description}');
               if (mounted) setState(() => _hata = e.description);
             },
           ),
@@ -136,6 +141,25 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
     // cagri. lessonLangRead() ayni degeri abone olmadan veriyor.
     final dil = mounted ? lessonLangRead(context) : 'tr';
     // Sayfaya AYARI veriyoruz; sayfanin icerigine mudahale etmiyoruz.
+    // TANILAMA: sayfanin gercekten yuklenip yuklenmedigini ve
+    // betiklerin calisip calismadigini ayirt etmenin tek yolu bu.
+    // Tezgah acilmadiginda "sayfa mi gelmedi, betik mi engellendi"
+    // sorusunun cevabini tahminle degil bu satirla veriyoruz.
+    try {
+      final tanilama = await c.runJavaScriptReturningResult(
+        'JSON.stringify({'
+        'baslik: document.title,'
+        'betikSayisi: document.scripts.length,'
+        'scratchBlocks: typeof window.ScratchBlocks,'
+        'katalog: typeof window.MBlockKatalog,'
+        'tezgah: typeof window.MBlockTezgah'
+        '})',
+      );
+      debugPrint('🔎 mBlock tezgahi durumu: $tanilama');
+    } catch (e) {
+      debugPrint('⚠️ mBlock tezgahi tanilama calismadi: $e');
+    }
+
     try {
       await c.runJavaScript(
         'MBlockTezgah.kur('

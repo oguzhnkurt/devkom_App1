@@ -11,8 +11,21 @@
   yazi tipi, resim ya da baglanti CEKILEMEZ. Kaynaklarin tamami
   assets/mblock/ altinda.
 -->
+<title>mBlock tezgahi</title>
+<!--
+  ICERIK GUVENLIGI POLITIKASI — SEMA TABANLI, `'self'` DEGIL.
+  ONCEDEN `default-src 'none'; script-src 'self'` yaziyordu ve sayfa
+  iOS'ta BOS aciliyordu. Sebep: `loadFlutterAsset` sayfayi `file://`
+  uzerinden yukluyor; WKWebView'da bir file: belgesinin kaynagi
+  opak (null) sayildigi icin `'self'` hicbir seye uymuyor ve kendi
+  betiklerimiz bile engelleniyor. Sayfadan tek bir mesaj bile
+  gelmiyordu, cunku betikler hic calismamisti.
+  Semalari acikca yazmak ayni korumayi veriyor: politikanin hicbir
+  yerinde http/https yok, yani uzaktan bir sey CEKILEMEZ; ustune
+  connect-src 'none' butun ag isteklerini kapatiyor.
+-->
 <meta http-equiv="Content-Security-Policy"
-      content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+      content="default-src 'none'; script-src 'self' file:; style-src 'self' file: 'unsafe-inline'; img-src 'self' file: data:; font-src 'self' file: data:; connect-src 'none'; form-action 'none'; base-uri 'none'; frame-src 'none'; object-src 'none'">
 <style>
   html, body { margin: 0; padding: 0; height: 100%; overflow: hidden;
                background: #F9F9F9; -webkit-user-select: none; user-select: none;

@@ -275,9 +275,27 @@ void main() {
 
     test('sayfa disariya cikmiyor', () {
       final html = File('${kok.path}/index.html').readAsStringSync();
-      expect(html.contains("default-src 'none'"), isTrue,
-          reason: 'Icerik Guvenligi Politikasi yok — sayfa uzaktan '
-              'bir sey cekebilir.');
+      final csp = RegExp(r'Content-Security-Policy"\s*\n?\s*content="([^"]*)"')
+          .firstMatch(html)
+          ?.group(1);
+      expect(csp, isNotNull,
+          reason: 'Icerik Guvenligi Politikasi yok — sayfa uzaktan bir sey '
+              'cekebilir.');
+
+      // ASIL KORUMA BUNLAR. Politikada `'self'` YAZMIYORUZ: sayfa
+      // file:// uzerinden aciliyor ve WKWebView'da file: belgesinin
+      // kaynagi opak sayildigi icin `'self'` kendi betiklerimizi bile
+      // engelliyor (iOS'ta tezgah bos aciliyordu). Semalari acikca
+      // yazmak ayni korumayi veriyor, asagidaki iki kural da onu
+      // sabitliyor.
+      expect(csp!.contains('http'), isFalse,
+          reason: 'Politikada http/https gecmemeli — uzaktan kaynak '
+              'cekilebilir hale gelir.');
+      expect(csp.contains("connect-src 'none'"), isTrue,
+          reason: 'Ag istekleri kapali olmali.');
+      expect(csp.contains("default-src 'none'"), isTrue,
+          reason: 'Izin verilmeyen her sey kapali kalmali.');
+
       expect(RegExp(r'(src|href)="https?:').hasMatch(html), isFalse,
           reason: 'Sayfa bir adrese bagli; cevrimdisi calismaz.');
     });
