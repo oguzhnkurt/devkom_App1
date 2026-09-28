@@ -141,6 +141,12 @@ class AuthProvider extends ChangeNotifier {
     await _loadCurrentUser();
   }
 
+  /// Kullaniciyi yeniden yuklemeyi dener.
+  ///
+  /// Kayit sonrasi profil gelmediginde ev ekrani sonsuza kadar donen bir
+  /// halka gosteriyordu; oradaki "Tekrar dene" bunu cagiriyor.
+  Future<void> kullaniciyiTazele() => _loadCurrentUser();
+
   /// Acilis: oturumu kur (yoksa anonim ac) ve kullaniciyi yukle.
   bool _bootstrapped = false;
   Future<void> _bootstrap() async {
@@ -372,11 +378,32 @@ class AuthProvider extends ChangeNotifier {
         ageGroup: ageGroup,
       );
 
-      if (_currentUser != null) {
+      // KULLANICI YOKSA BASARI DONULMEZ.
+      //
+      // Burasi eskiden istisna firlamadigi surece KOSULSUZ `true`
+      // donuyordu. `_currentUser` null kaldiginda kayit ekrani yine de
+      // ana ekrana geciyor, `RoleBasedHomeScreen` da kullaniciyi
+      // bulamayip sonsuza kadar donen bir halka gosteriyordu. Kullanici
+      // acisindan bu "kayit oldum, ekran takildi" demekti ve hicbir
+      // yerde hata gorunmuyordu.
+      if (_currentUser == null) {
+        _errorMessage = 'Hesap oluşturuldu ama profil yüklenemedi. '
+            'Lütfen giriş yapmayı dene.';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      // Yan isler kaydin kendisini gecersiz kilmamali: bildirim izni ya
+      // da Adapty tarafinda olusan bir hata yuzunden "kayit basarisiz"
+      // demek, olusmus bir hesabi yok saymak olurdu.
+      try {
         await _ensureNickname();
         await _loadUserProgress();
         await _setupNotifications();
         _identifyAdapty(_currentUser!.uid);
+      } catch (e) {
+        debugPrint('⚠️ Kayit sonrasi hazirlik adimi basarisiz: $e');
       }
 
       _isLoading = false;

@@ -18,9 +18,23 @@ import 'services/ads_service.dart';
 import 'services/subscription_service.dart';
 import 'theme.dart';
 import 'utils/app_localizations.dart';
+import 'widgets/hata_ekrani.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // WIDGET HATASI ARTIK GRI BIR DUVAR DEGIL.
+  //
+  // Bir widget'in `build`i istisna firlattiginda Flutter onun yerine
+  // `ErrorWidget` ciziyor: hata ayiklamada kirmizi, YAYINDA duz gri bir
+  // dikdortgen (0xF0C0C0C0), tek kelime yazmadan. Kullanici hesabini
+  // olusturup griye donen ve orada kalan bir ekranla karsilasmisti --
+  // ne cikis yolu ne de bize ulasacak bir ipucu vardi.
+  //
+  // Simdi yerine anlasilir bir ekran geciyor: cocuga cumle ve geri
+  // donus, geliste ise basliga uzun basinca acilan hata metni. Hata
+  // ayrica gunluge yaziliyor.
+  hataEkraniniKur();
 
   // Tarih adlarini (ay/gun) tum desteklenen dillerde yukle. Bu yapilmazsa
   // DateFormat yalnizca en_US biliyor ve 'tr'/'de'/'es' istegi hata atiyor.
