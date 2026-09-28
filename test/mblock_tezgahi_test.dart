@@ -116,6 +116,68 @@ void main() {
       );
     });
 
+    test('yuvaya takilan blok karsilastiriliyor', () {
+      // "eger <dijital oku pin 2> ise" ile "eger <analog oku pin 0> ise"
+      // ayni blok degil: fark yuvadaki blokta. Bu okunmazsa ders
+      // yanlis cozumu dogru sayar.
+      final dogru = yigin([
+        const MBlockBlok(tip: 'dev_eger', girdiler: {
+          'KOSUL': MBlockBlok(tip: 'dev_dijital_oku', alanlar: {'PIN': '2'}),
+        }),
+      ]);
+      const beklenen = [
+        MBlockBeklenen('dev_eger', girdiler: {
+          'KOSUL':
+              MBlockBeklenen('dev_dijital_oku', alanlar: {'PIN': '2'}),
+        }),
+      ];
+      expect(mblockCozumDogruMu(dogru, beklenen), isTrue);
+
+      final yanlisPin = yigin([
+        const MBlockBlok(tip: 'dev_eger', girdiler: {
+          'KOSUL': MBlockBlok(tip: 'dev_dijital_oku', alanlar: {'PIN': '7'}),
+        }),
+      ]);
+      expect(mblockCozumDogruMu(yanlisPin, beklenen), isFalse);
+
+      final yuvaBos = yigin([const MBlockBlok(tip: 'dev_eger')]);
+      expect(mblockCozumDogruMu(yuvaBos, beklenen), isFalse,
+          reason: 'Bos kosul yuvasi dogru sayilamaz');
+    });
+
+    test('ic ice yuvalar okunuyor (degil blogu)', () {
+      final kurulan = yigin([
+        const MBlockBlok(tip: 'dev_eger', girdiler: {
+          'KOSUL': MBlockBlok(tip: 'dev_degil', girdiler: {
+            'KOSUL':
+                MBlockBlok(tip: 'dev_dijital_oku', alanlar: {'PIN': '2'}),
+          }),
+        }),
+      ]);
+      expect(
+        mblockCozumDogruMu(kurulan, const [
+          MBlockBeklenen('dev_eger', girdiler: {
+            'KOSUL': MBlockBeklenen('dev_degil', girdiler: {
+              'KOSUL':
+                  MBlockBeklenen('dev_dijital_oku', alanlar: {'PIN': '2'}),
+            }),
+          }),
+        ]),
+        isTrue,
+      );
+
+      // "değil" unutulursa program tersini yapar; dogru sayilmamali.
+      expect(
+        mblockCozumDogruMu(kurulan, const [
+          MBlockBeklenen('dev_eger', girdiler: {
+            'KOSUL':
+                MBlockBeklenen('dev_dijital_oku', alanlar: {'PIN': '2'}),
+          }),
+        ]),
+        isFalse,
+      );
+    });
+
     test('1 ile 1.0 ayni sayi', () {
       final kurulan = yigin([
         const MBlockBlok(tip: 'dev_bekle', alanlar: {'SANIYE': '1.0'}),
@@ -141,8 +203,20 @@ void main() {
                 'alanlar': {},
                 'icerik': [
                   {
-                    'tip': 'dev_dijital_yaz',
-                    'alanlar': {'PIN': 9, 'SEVIYE': 'HIGH'}
+                    'tip': 'dev_eger',
+                    'alanlar': {},
+                    'girdiler': {
+                      'KOSUL': {
+                        'tip': 'dev_dijital_oku',
+                        'alanlar': {'PIN': 2}
+                      }
+                    },
+                    'icerik': [
+                      {
+                        'tip': 'dev_dijital_yaz',
+                        'alanlar': {'PIN': 9, 'SEVIYE': 'HIGH'}
+                      }
+                    ]
                   }
                 ]
               }
@@ -156,7 +230,14 @@ void main() {
           ['dev_kart_acilis', 'dev_surekli']);
       // Sayi olarak gelen alan da METNE cevriliyor: "9" ile 9 ayrimi
       // bir hata kaynagi olmamali.
-      expect(yiginlar.first[1].icerik.first.alanlar['PIN'], '9');
+      expect(
+        yiginlar.first[1].icerik.first.girdiler['KOSUL']!.alanlar['PIN'],
+        '2',
+      );
+      expect(
+        yiginlar.first[1].icerik.first.icerik.first.alanlar['PIN'],
+        '9',
+      );
     });
 
     test('bozuk mesaj dersi cokertmiyor', () {
@@ -217,6 +298,7 @@ void main() {
         'FFBF00', // Olaylar
         'FFAB19', // Kontrol
         '59C059', // Islemler
+        'FF8C1A', // Degiskenler
         '4C97FF', // Hareket
         '9966FF', // Gorunum
       ]) {
@@ -235,8 +317,18 @@ void main() {
           if (adim is BlockBuilderStep && adim.mblock != null) adim,
     ];
 
-    test('en az dort adim tezgaha bagli', () {
-      expect(adimlar.length, greaterThanOrEqualTo(4));
+    test('mBlock kursunun butun blok kurma adimlari tezgaha bagli', () {
+      // Yarisinin gercek tezgahta, yarisinin kart dizme ekraninda
+      // olmasi cocuk icin iki ayri oyun demek olurdu.
+      final tumu = <BlockBuilderStep>[
+        for (final ders in MBlockLessonsData.allLessons)
+          for (final adim in ders.steps)
+            if (adim is BlockBuilderStep) adim,
+      ];
+      expect(adimlar.length, tumu.length,
+          reason: 'Tezgaha baglanmamis blok kurma adimi var: '
+              '${tumu.where((a) => a.mblock == null).map((a) => a.id)}');
+      expect(adimlar.length, greaterThanOrEqualTo(6));
     });
 
     test('her cozum yalnizca arac kutusundaki bloklari kullaniyor', () {

@@ -1166,10 +1166,13 @@ class MBlockLessonsData {
                 conditionDe: 'Digitalpin lesen 2',
                 conditionEs: 'lee pin digital 2', id: 'if_pressed'),
             MBlockBlocks.digitalWrite('9', 'yüksek', id: 'led_on'),
-            MBlockBlocks.ifThen('dijital oku pin 2 = hayır',
-                conditionEn: 'read digital pin 2 = no',
-                conditionDe: 'Digitalpin lesen 2 = nein',
-                conditionEs: 'lee pin digital 2 = no',
+            // "= hayır" diye bir blok mBlock'ta YOK. Tersini sormanin
+            // gercek yolu Islemler kategorisindeki altigen "değil"
+            // blogu: <<dijital oku pin 2> değil>.
+            MBlockBlocks.ifThen('dijital oku pin 2 değil',
+                conditionEn: 'not read digital pin 2',
+                conditionDe: 'nicht Digitalpin lesen 2',
+                conditionEs: 'no lee pin digital 2',
                 id: 'if_released'),
             MBlockBlocks.digitalWrite('9', 'düşük', id: 'led_off'),
           ],
@@ -1181,6 +1184,37 @@ class MBlockLessonsData {
             'if_released',
             'led_off',
           ],
+          mblock: MBlockTezgahAyari(
+            bloklar: [
+              'dev_kart_acilis',
+              'dev_surekli',
+              'dev_eger',
+              'dev_dijital_oku',
+              'dev_degil',
+              'dev_dijital_yaz',
+            ],
+            cozum: [
+              MBlockBeklenen('dev_kart_acilis'),
+              MBlockBeklenen('dev_surekli', icerik: [
+                MBlockBeklenen('dev_eger', girdiler: {
+                  'KOSUL': MBlockBeklenen('dev_dijital_oku',
+                      alanlar: {'PIN': '2'}),
+                }, icerik: [
+                  MBlockBeklenen('dev_dijital_yaz',
+                      alanlar: {'PIN': '9', 'SEVIYE': 'HIGH'}),
+                ]),
+                MBlockBeklenen('dev_eger', girdiler: {
+                  'KOSUL': MBlockBeklenen('dev_degil', girdiler: {
+                    'KOSUL': MBlockBeklenen('dev_dijital_oku',
+                        alanlar: {'PIN': '2'}),
+                  }),
+                }, icerik: [
+                  MBlockBeklenen('dev_dijital_yaz',
+                      alanlar: {'PIN': '9', 'SEVIYE': 'LOW'}),
+                ]),
+              ]),
+            ],
+          ),
           xpReward: 40,
         ),
 
@@ -1450,6 +1484,40 @@ class MBlockLessonsData {
             'set_brightness',
             'pwm_out',
           ],
+          mblock: MBlockTezgahAyari(
+            bloklar: [
+              'dev_kart_acilis',
+              'dev_surekli',
+              'dev_degisken_yap',
+              'dev_degisken_oku',
+              'dev_harita',
+              'dev_analog_oku',
+              'dev_pwm_yaz',
+            ],
+            cozum: [
+              MBlockBeklenen('dev_kart_acilis'),
+              MBlockBeklenen('dev_surekli', icerik: [
+                // Haritanin 0-1023 ve 0-255 uclari denetleniyor: dersin
+                // ogrettigi sey tam olarak bu cevrim.
+                MBlockBeklenen('dev_degisken_yap', girdiler: {
+                  'DEGER': MBlockBeklenen('dev_harita', alanlar: {
+                    'A': '0',
+                    'B': '1023',
+                    'C': '0',
+                    'D': '255',
+                  }, girdiler: {
+                    'DEGER': MBlockBeklenen('dev_analog_oku',
+                        alanlar: {'PIN': '0'}),
+                  }),
+                }),
+                MBlockBeklenen('dev_pwm_yaz', alanlar: {
+                  'PIN': '5'
+                }, girdiler: {
+                  'GUC': MBlockBeklenen('dev_degisken_oku'),
+                }),
+              ]),
+            ],
+          ),
           xpReward: 40,
         ),
 

@@ -16,6 +16,7 @@ class MBlockBlok {
     required this.tip,
     this.alanlar = const {},
     this.icerik = const [],
+    this.girdiler = const {},
   });
 
   /// Katalogdaki blok kimligi: `dev_dijital_yaz` gibi.
@@ -31,6 +32,17 @@ class MBlockBlok {
   /// C blogunun (tekrarla, eger) icindeki bloklar.
   final List<MBlockBlok> icerik;
 
+  /// Bir YUVAYA takilan blok: altigen kosul, oval deger.
+  ///
+  /// `alanlar` ile farki su: sayi ve metin kutularinin bir DEGERI var
+  /// ("9", "Merhaba"); yuvaya takilan blogun degeri yok, kendisi var
+  /// ("dijital oku pin 2"). Ikisi ayri alanlarda duruyor cunku ders
+  /// "kutuya 9 yaz" ile "yuvaya su blogu tak" diye iki ayri sey
+  /// sorabiliyor.
+  ///
+  /// Anahtar yuvanin adi (`KOSUL`, `GUC`).
+  final Map<String, MBlockBlok> girdiler;
+
   static MBlockBlok _birindenOku(Map<String, dynamic> m) => MBlockBlok(
         tip: (m['tip'] ?? '').toString(),
         alanlar: {
@@ -38,6 +50,12 @@ class MBlockBlok {
             e.key.toString(): e.value.toString(),
         },
         icerik: _listeOku(m['icerik']),
+        girdiler: {
+          for (final e in ((m['girdiler'] as Map?) ?? {}).entries)
+            if (e.value is Map)
+              e.key.toString():
+                  _birindenOku((e.value as Map).cast<String, dynamic>()),
+        },
       );
 
   static List<MBlockBlok> _listeOku(dynamic liste) {
@@ -83,11 +101,16 @@ class MBlockBeklenen {
     this.tip, {
     this.alanlar = const {},
     this.icerik = const [],
+    this.girdiler = const {},
   });
 
   final String tip;
   final Map<String, String> alanlar;
   final List<MBlockBeklenen> icerik;
+
+  /// Yuvaya takilmasi beklenen bloklar. [alanlar] gibi bir ALT KUME:
+  /// yalnizca yazilan yuvalar denetlenir.
+  final Map<String, MBlockBeklenen> girdiler;
 
   @override
   String toString() =>
@@ -145,6 +168,11 @@ bool _blokUyuyor(MBlockBlok k, MBlockBeklenen b) {
     final deger = k.alanlar[e.key];
     if (deger == null) return false;
     if (!_degerEsit(deger, e.value)) return false;
+  }
+  for (final e in b.girdiler.entries) {
+    final takili = k.girdiler[e.key];
+    if (takili == null) return false;
+    if (!_blokUyuyor(takili, e.value)) return false;
   }
   return _diziUyuyor(k.icerik, b.icerik);
 }

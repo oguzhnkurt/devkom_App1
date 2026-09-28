@@ -162,18 +162,32 @@
         // Golge bloklarin (sayi/metin kutulari) degerleri de blogun
         // parcasi: "9 numarali pin" ile "13 numarali pin" ayni blok
         // degil.
+        //
+        // Yuvaya GERCEK bir blok takilmissa (altigen kosul, oval deger)
+        // o ayri bir sey: degeri yok, kendisi var. Ayri bir alanda
+        // bildiriliyor.
+        var girdiler = null;
         blok.inputList.forEach(function (girdi) {
           var hedef = girdi.connection && girdi.connection.targetBlock();
-          if (hedef && hedef.isShadow()) {
+          if (!hedef) return;
+          if (hedef.isShadow()) {
             hedef.inputList.forEach(function (g) {
               g.fieldRow.forEach(function (alan) {
                 if (alan.name) alanlar[girdi.name] = String(alan.getValue());
               });
             });
+          } else if (girdi.name !== 'ICERIK') {
+            // ICERIK bir statement yuvasi; asagida ayrica okunuyor.
+            var ic = yiginiOku(hedef, []);
+            if (ic.length) {
+              girdiler = girdiler || {};
+              girdiler[girdi.name] = ic[0];
+            }
           }
         });
 
         var kayit = { tip: blok.type, alanlar: alanlar };
+        if (girdiler) kayit.girdiler = girdiler;
         cikti.push(kayit);
 
         var icerik = blok.getInput('ICERIK');

@@ -30,6 +30,7 @@
     olaylar:  ['#FFBF00', '#E6AC00', '#CC9900'],
     kontrol:  ['#FFAB19', '#E69B16', '#CF8B17'],
     islemler: ['#59C059', '#46B946', '#389438'],
+    degisken: ['#FF8C1A', '#DB7615', '#B45F11'],
     hareket:  ['#4C97FF', '#4280D7', '#3373CC'],
     gorunum:  ['#9966FF', '#855CD6', '#774DCB']
   };
@@ -177,6 +178,32 @@
       en: 'map %1 from [%2 , %3] to [%4 , %5]',
       de: 'ordne %1 von [%2 , %3] zu [%4 , %5]',
       es: 'mapea %1 de [%2 , %3] a [%4 , %5]'
+    },
+
+    // --------------------------------------------------------- Islemler
+    {
+      // mBlock'ta ve Scratch'te bu blok bir ALTIGEN ve icine baska bir
+      // altigen alir: <<dijital oku pin 2> değil>.
+      id: 'dev_degil', kategori: 'islemler', sekil: 'altigen',
+      yuvalar: [yuva('KOSUL', 'kosul')],
+      tr: '%1 değil', en: 'not %1', de: 'nicht %1', es: 'no %1'
+    },
+
+    // ------------------------------------------------------ Degiskenler
+    {
+      id: 'dev_degisken_yap', kategori: 'degisken', sekil: 'duz',
+      yuvalar: [
+        yuva('AD', 'secim', 'parlaklik', [['parlaklik', 'parlaklik']]),
+        yuva('DEGER', 'sayi', 0)
+      ],
+      tr: '%1 değişkenini %2 yap', en: 'set %1 to %2',
+      de: 'setze %1 auf %2', es: 'dar a %1 el valor %2'
+    },
+    {
+      // Degiskenin kendisi: oval, bir deger soyler.
+      id: 'dev_degisken_oku', kategori: 'degisken', sekil: 'oval',
+      yuvalar: [],
+      tr: 'parlaklik', en: 'brightness', de: 'helligkeit', es: 'brillo'
     },
 
     // ------------------------------------------- Kukla tarafi (modül 0)
