@@ -73,7 +73,11 @@ class CoursesData {
       descriptionEs:
           'Aprende el editor mBlock desde cero: la paleta, los bloques, tu '
           'primer programa y proyectos que crecen.',
-      icon: '🧩',
+      // Scratch de 🧩 kullaniyordu; iki kurs listede birbirinin
+      // aynisi goruluyordu. mBlock'un isi bloklarla GERCEK bir karti
+      // calistirmak — tugla hem "blok kodlama"yi hem de elle tutulan
+      // bir sey yapmayi anlatiyor.
+      icon: '🧱',
       primaryColor: Color(0xFF4A90E2),
       secondaryColor: Color(0xFF4CBFE6),
       category: CourseCategory.robotics,

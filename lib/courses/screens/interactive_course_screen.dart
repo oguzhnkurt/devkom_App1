@@ -92,31 +92,38 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
       AdUnlockService.instance
           .reklamlaAcilabilir(_dersSirasi[lesson.id] ?? 1 << 30);
 
-  String _getCourseEmoji() {
-    switch (widget.course.id) {
-      case 'scratch':
-        return '🐱';
-      case 'scratch_junior':
-        return '🌟';
-      case 'html':
-        return '🌐';
-      case 'css':
-        return '🎨';
-      case 'javascript':
-        return '⚡';
-      case 'python':
-        return '🐍';
-      case 'arduino':
-        return '🤖';
-      case 'arduino_ide':
-        return '💻';
-      case 'java':
-        return '☕';
-      case 'csharp':
-        return '💜';
-      default:
-        return '📚';
-    }
+
+  /// Baslik arkasindaki konu sembolleri.
+  ///
+  /// Sabit bir tohumla uretiliyor: her acilista ayni yerde duruyorlar,
+  /// sayfa "titremiyor". Opaklik 0.12-0.22 — degradenin uzerinde
+  /// secilecek kadar var, basligi okumayi zorlastirmayacak kadar yok.
+  List<Widget> _kursSembolleri() {
+    const simgeler = <IconData>[
+      Icons.view_module_rounded,      // kod blogu
+      Icons.settings_rounded,         // dis / robotik
+      Icons.hub_rounded,              // devre dugumu
+      Icons.arrow_forward_rounded,    // akis yonu
+      Icons.data_object_rounded,      // kod parantezi
+      Icons.memory_rounded,           // yonga
+    ];
+    final rastgele = Random(widget.course.id.hashCode);
+    return List.generate(9, (i) {
+      final simge = simgeler[i % simgeler.length];
+      return Positioned(
+        left: rastgele.nextDouble() * 320,
+        top: rastgele.nextDouble() * 160,
+        child: Transform.rotate(
+          angle: (rastgele.nextDouble() - 0.5) * 0.7,
+          child: Icon(
+            simge,
+            size: 22 + rastgele.nextDouble() * 20,
+            color: Colors.white
+                .withValues(alpha: 0.12 + rastgele.nextDouble() * 0.10),
+          ),
+        ),
+      );
+    });
   }
 
   @override
@@ -199,30 +206,26 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
             Positioned(
               right: 20,
               bottom: 60,
-              child: _AnimatedEmoji(emoji: _getCourseEmoji()),
+              // TEK KAYNAK: kursun simgesi modelde duruyor.
+              //
+              // Burada ikinci bir liste vardi ve mBlock ona hic
+              // yazilmamisti; kurs varsayilana dusup KITAP simgesiyle
+              // aciliyordu. Blok kodlama ve robotik anlatan bir kursun
+              // basinda kitap durmasi yanlis bir isaret. Liste
+              // kaldirildi; her kurs kendi simgesini getiriyor.
+              child: _AnimatedEmoji(emoji: widget.course.icon),
             ),
-            // Decorative elements
-            ...List.generate(8, (i) {
-              final random = Random(i);
-              return Positioned(
-                left: random.nextDouble() * 300,
-                top: random.nextDouble() * 150,
-                child: Opacity(
-                  opacity: 0.15,
-                  child: Transform.rotate(
-                    angle: random.nextDouble() * 0.5,
-                    child: Container(
-                      width: 40 + random.nextDouble() * 30,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
+            // KONUYA AIT SEMBOLLER
+            //
+            // Burada beyaz, rastgele dondurulmus 8 dikdortgen vardi;
+            // "dekorasyon" diye konulmus ama hicbir sey anlatmiyordu.
+            // Uygulamanin konusu yazilim, robotik ve blok kodlama —
+            // arka plan da bunu soylesin: kod blogu, dis, devre
+            // dugumu, yon oku, kod parantezi.
+            //
+            // Semboller uygulamanin baska yerlerindeki `PlayfulBackground`
+            // ile AYNI dagarcik; ekranlar birbirine yabanci durmasin.
+            ..._kursSembolleri(),
           ],
         ),
       ),
