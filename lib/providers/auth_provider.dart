@@ -187,7 +187,13 @@ class AuthProvider extends ChangeNotifier {
       // Reklam servisi Pro bayragini buradan ogreniyor. Paywall'da
       // "Reklamsiz kullanim" yaziyor; bu bir vaat, o yuzden kullanici
       // her yuklendiginde tazeleniyor.
-      AdsService.instance.setProMember(_currentUser!.isPro);
+      //
+      // `isPro` DEGIL `hasActivePro`: `isPro` ham bayrak, suresi dolmus
+      // aboneligi de true birakiyordu. Sonuc sessiz bir gelir kaybiydi -
+      // aboneligi biten kullanici sonsuza kadar reklamsiz kaliyor, ne
+      // reklam geliri ne de yeniden abonelik baskisi olusuyordu.
+      // `hasActivePro` bitis tarihini de kontrol ediyor.
+      AdsService.instance.setProMember(_currentUser!.hasActivePro);
       try {
         await _ensureNickname();
         await _flushPendingProfileEdits();

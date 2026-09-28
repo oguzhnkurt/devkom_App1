@@ -76,11 +76,18 @@ class _MarketScreenState extends State<MarketScreen> {
     super.initState();
     _load();
     _refreshAdAvailability();
+    // Uygunluk SONRADAN degisiyor: Pro bayragi agdan geliyor, reklam
+    // servisi acilistan biraz sonra hazir oluyor, gunluk tavan reklam
+    // izlendikce doluyor. Tek seferlik `initState` hesabi bu yuzden
+    // yaniltiyordu - ekran acildiginda "hayir" cikan serit bir daha
+    // geri gelmiyordu.
+    AdsService.instance.durumSurumu.addListener(_refreshAdAvailability);
   }
 
   Future<void> _refreshAdAvailability() async {
     final can = await AdsService.instance.canWatchRewarded();
     if (!mounted) return;
+    if (can == _canWatchAd) return;
     setState(() => _canWatchAd = can);
   }
 
@@ -312,6 +319,7 @@ class _MarketScreenState extends State<MarketScreen> {
   @override
   void dispose() {
     _previewTimer?.cancel();
+    AdsService.instance.durumSurumu.removeListener(_refreshAdAvailability);
     super.dispose();
   }
 

@@ -75,11 +75,14 @@ class _AdTestScreenState extends State<AdTestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (!kDebugMode) {
-      return const Scaffold(
-        body: Center(child: Text('Yalnızca hata ayıklama derlemesinde.')),
-      );
-    }
+    // YAYIN DERLEMESINDE DE ACILIYOR - ama yalnizca OKUMA.
+    //
+    // Once burada `kDebugMode` degilse bos bir ekran donuyordu. Oysa
+    // "reklam gelmiyor" sorunu tam olarak yayinda, baskasinin
+    // telefonunda yasaniyor; tanisini goremedigimiz tek yer orasiydi.
+    // Reklami zorla acan dugmeler yine gizli (ve `AdsService` tarafinda
+    // da `kDebugMode` ile kapali), gosterilen sey sadece durum.
+    final yayin = !kDebugMode;
 
     final engel = _engel();
 
@@ -105,7 +108,14 @@ class _AdTestScreenState extends State<AdTestScreen> {
           const SizedBox(height: 16),
           _durum(),
           const SizedBox(height: 16),
-          _dugmeler(),
+          if (yayin)
+            const Text(
+              'Yayın derlemesi: yalnızca durum gösteriliyor. Reklamı '
+              'zorla açan düğmeler hata ayıklama derlemesinde çalışır.',
+              style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+            )
+          else
+            _dugmeler(),
           const SizedBox(height: 16),
           const Text('Kayıt', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
@@ -139,6 +149,15 @@ class _AdTestScreenState extends State<AdTestScreen> {
     }
     if (_ads.debugRewardedUnitId == null &&
         _ads.debugInterstitialUnitId == null) {
+      if (kReleaseMode) {
+        // Yayinda kimlikler `.env`ten okunuyor. Burada null gorunuyorsa
+        // ya dosya pakete girmemis ya da anahtar bos kalmis; ikisi de
+        // reklamlari SESSIZCE kapatir.
+        return 'Reklam birimi kimliği yok. Yayın derlemesinde kimlikler '
+            '.env dosyasından okunuyor: ADMOB_ANDROID_REWARDED / '
+            'ADMOB_IOS_REWARDED boş ya da .env pakete girmemiş olabilir '
+            '(pubspec.yaml assets listesi).';
+      }
       return 'Reklam birimi kimliği yok. Hata ayıklama derlemesinde '
           'Google\'ın test kimlikleri kullanılır; burada null görünüyorsa '
           'platform algılanmamış demektir.';

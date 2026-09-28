@@ -711,6 +711,17 @@ class SettingsScreen extends StatelessWidget {
           style: const TextStyle(inherit: true)),
       trailing: const Icon(Icons.chevron_right_rounded),
       onTap: () => _showAboutDialog(context),
+      // GIZLI TANI YOLU: surume UZUN BASINCA reklam tani ekrani aciliyor.
+      //
+      // "Reklam gelmiyor" sorunu her zaman baskasinin telefonunda, yayin
+      // derlemesinde yasaniyor - tam da tanisini goremedigimiz yerde.
+      // Normal bir dugme koymak cocuklarin karsisina anlamsiz bir gelistirici
+      // ekrani cikarirdi; uzun basis kazara bulunmuyor. Ekran yayinda
+      // yalnizca OKUMA: reklami zorla acan dugmeler gizli.
+      onLongPress: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AdTestScreen()),
+      ),
     );
   }
 

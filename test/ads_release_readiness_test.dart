@@ -33,6 +33,48 @@ void main() {
     expect(plist.contains('<key>NSUserTrackingUsageDescription</key>'), isFalse);
   });
 
+  // YAYINDA REKLAM BIRIMLERI `.env`TEN OKUNUYOR.
+  //
+  // Hata ayiklama derlemesi Google'in gomulu test kimliklerini
+  // kullaniyor; `.env` orada hic okunmuyor. Bu yuzden dosya pakete
+  // girmezse ya da anahtar bos kalirsa testlerde HER SEY calisir,
+  // yayinda ise reklam tek bir hata vermeden hic gelmez. Tam olarak
+  // gozden kacan asimetri bu.
+  test('.env pakete giriyor ve reklam birimleri dolu', () {
+    final pubspec = File('pubspec.yaml').readAsStringSync();
+    expect(RegExp(r'^\s*-\s*\.env\s*$', multiLine: true).hasMatch(pubspec),
+        isTrue,
+        reason: '.env pubspec assets listesinde degil; yayin derlemesinde '
+            'reklam birimi kimlikleri okunamaz ve reklam hic gelmez.');
+
+    final env = File('.env');
+    if (!env.existsSync()) return; // CI'da olmayabilir.
+
+    final degerler = <String, String>{};
+    for (final satir in env.readAsLinesSync()) {
+      final t = satir.trim();
+      if (t.isEmpty || t.startsWith('#') || !t.contains('=')) continue;
+      final i = t.indexOf('=');
+      degerler[t.substring(0, i).trim()] = t.substring(i + 1).trim();
+    }
+
+    const zorunlu = [
+      'ADMOB_IOS_REWARDED',
+      'ADMOB_IOS_INTERSTITIAL',
+      'ADMOB_ANDROID_REWARDED',
+      'ADMOB_ANDROID_INTERSTITIAL',
+    ];
+    for (final a in zorunlu) {
+      final v = degerler[a];
+      expect(v, isNotNull, reason: '$a .env icinde yok.');
+      expect(v, isNotEmpty, reason: '$a bos; o birim yayinda kapali kalir.');
+      expect(v!.startsWith('ca-app-pub-'), isTrue,
+          reason: '$a bir AdMob birim kimligine benzemiyor: $v');
+      expect(v.startsWith('ca-app-pub-3940256099942544'), isFalse,
+          reason: '$a Google\'in TEST birimi. Yayinda gelir getirmez.');
+    }
+  });
+
   test('yayinda test kimligi kullanilmiyor', () {
     final cfg = File('lib/config/ad_config.dart').readAsStringSync();
     // Test kimlikleri yalnizca `!kReleaseMode` dalinda donmeli.

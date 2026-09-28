@@ -83,6 +83,20 @@ class AdsService {
   /// yukleniyor; ag cevabi gelince zaten tazeleniyor.
   static const String _kIsProKey = 'ads_is_pro';
 
+  /// Reklam uygunlugu degistiginde artan sayac.
+  ///
+  /// NEDEN VAR
+  /// --------
+  /// Market ekrani "reklam izle" seridini `initState` icinde BIR KEZ
+  /// hesapliyordu. Pro durumu ise agdan sonra geliyor: ekran acildiginda
+  /// henuz bilinmiyorsa serit gizli kaliyor ve bir daha kendini
+  /// toparlamiyordu. Kullanici acisindan bu "reklam izle hicbir yerde
+  /// yok" demek. Artik durum her degistiginde bu sayac artiyor, ekranlar
+  /// dinleyip kendilerini tazeliyor.
+  final ValueNotifier<int> durumSurumu = ValueNotifier<int>(0);
+
+  void _durumDegisti() => durumSurumu.value++;
+
   bool _initialized = false;
   bool _isProMember = false;
   bool _interstitialDue = false;
@@ -123,6 +137,7 @@ class AdsService {
     }
     if (_isProMember == value) return;
     _isProMember = value;
+    _durumDegisti();
     if (value) {
       // Pro'ya geçen kullanıcının cebinde bekleyen reklam kalmasın.
       _interstitialDue = false;
@@ -149,7 +164,11 @@ class AdsService {
       await _platform.initialize();
       await _platform.applyChildSafeConfiguration();
       _initialized = true;
+      _durumDegisti();
       debugPrint('✅ AdsService initialized (kişiselleştirme kapalı)');
+      // Yayin derlemesinde de yaziliyor: `adb logcat` ya da Konsol ile
+      // telefonda reklamin neden gelmedigi tek satirdan anlasilsin.
+      unawaited(_taniyiGunlukle());
     } catch (e) {
       debugPrint('⚠️ AdsService initialization failed: $e');
     }
@@ -162,6 +181,52 @@ class AdsService {
     if (_isProMember || !isSupported || !_initialized) return false;
     if (_platform.rewardedUnitId == null) return false;
     return await _rewardedCountToday() < AdConfig.rewardedDailyCap;
+  }
+
+  /// Odullu video neden gosterilemiyor? Gosterilebiliyorsa `null`.
+  ///
+  /// NEDEN VAR
+  /// --------
+  /// [canWatchRewarded] tek bir `false` donduruyor ve serit sessizce
+  /// kayboluyor. Yayindaki bir telefonda "reklam gelmiyor" denince
+  /// elimizde hicbir ipucu olmuyordu; bes ayri sebepten hangisi oldugunu
+  /// ancak tahmin edebiliyorduk. Bu metin hem gunluge yaziliyor hem de
+  /// reklam tani ekraninda gosteriliyor.
+  Future<String?> odulluNedenYok() async {
+    if (!isSupported) return 'Bu platformda AdMob yok (masaustu/web).';
+    if (!_initialized) {
+      return 'AdsService baslatilamadi. AdMob uygulama kimligi '
+          '(AndroidManifest APPLICATION_ID / Info.plist '
+          'GADApplicationIdentifier) eksik ya da hatali olabilir.';
+    }
+    if (_isProMember) {
+      return 'Kullanici Pro sayiliyor; Pro uyeye reklam gosterilmiyor.';
+    }
+    if (_platform.rewardedUnitId == null) {
+      return kReleaseMode
+          ? '.env icindeki ADMOB_IOS_REWARDED / ADMOB_ANDROID_REWARDED '
+              'okunamadi. .env pakete girmemis ya da anahtar bos olabilir.'
+          : 'Odullu reklam birimi yok.';
+    }
+    final bugun = await _rewardedCountToday();
+    if (bugun >= AdConfig.rewardedDailyCap) {
+      return 'Gunluk hak doldu ($bugun/${AdConfig.rewardedDailyCap}).';
+    }
+    return null;
+  }
+
+  Future<void> _taniyiGunlukle() async {
+    try {
+      final neden = await odulluNedenYok();
+      if (neden == null) {
+        debugPrint('🎬 Odullu reklam hazir. '
+            'Birim: ${_platform.rewardedUnitId}');
+      } else {
+        debugPrint('🚫 Odullu reklam gosterilemiyor: $neden');
+      }
+    } catch (e) {
+      debugPrint('⚠️ Reklam tanisi yapilamadi: $e');
+    }
   }
 
   /// Ödüllü videoyu gösterir. Jetonu **çağıran** ekler — bu servis
@@ -196,6 +261,8 @@ class AdsService {
           earned: false, reason: RewardedAdFailure.dismissedEarly);
     }
     await _bumpRewardedCount();
+    // Gunluk tavana ulasildiysa serit hemen kaybolsun.
+    _durumDegisti();
     return RewardedAdResult.success;
   }
 
