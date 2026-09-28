@@ -3351,6 +3351,13 @@ class ScratchLessonsData {
   ];
 
   /// Get all Scratch lessons
+  /// Modül 8 — Kalem ve Çizim.
+  ///
+  /// Ayrı dosyada (`scratch_kalem_lessons_data.dart`): bu dosya zaten
+  /// 3500 satır ve yeni modüller aynı kalıpla ekleniyor.
+  static List<InteractiveLesson> get module8 =>
+      ScratchKalemLessonsData.module8;
+
   static List<InteractiveLesson> get allLessons => [
     ...module1,
     ...module2,
@@ -3359,6 +3366,7 @@ class ScratchLessonsData {
     ...module5,
     ...module6,
     ...module7,
+    ...module8,
   ];
 
   /// Get lesson by ID

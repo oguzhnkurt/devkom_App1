@@ -122,6 +122,18 @@ class CourseModules {
             emoji: '🎵',
             lessons: ScratchLessonsData.module7,
           ),
+          CourseModule(
+            title: 'Kalem ve Çizim',
+            titleEn: 'The Pen and Drawing',
+            titleDe: 'Stift und Zeichnen',
+            titleEs: 'El lápiz y el dibujo',
+            description: 'Kalem indir, döngüyle şekil çiz, 360 kuralı',
+            descriptionEn: 'Pen down, draw shapes with a loop, the rule of 360',
+            descriptionDe: 'Stift ein, Formen mit Schleifen, die 360-Regel',
+            descriptionEs: 'Bajar lápiz, figuras con bucles, la regla del 360',
+            emoji: '✏️',
+            lessons: ScratchLessonsData.module8,
+          ),
         ];
       case 'html':
         return [
