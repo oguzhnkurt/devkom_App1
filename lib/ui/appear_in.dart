@@ -17,6 +17,7 @@ class AppearIn extends StatelessWidget {
     this.delay = Duration.zero,
     this.offset = 18,
     this.duration = Motion.long2,
+    this.renk,
   });
 
   final Widget child;
@@ -26,6 +27,16 @@ class AppearIn extends StatelessWidget {
   final double offset;
 
   final Duration duration;
+
+  /// Belirirken icerigin uzerine vurulan renk.
+  ///
+  /// Verildiginde icerik once bu renkte gelir, yerine otururken kendi
+  /// rengine doner — yazi icin "renkli girdi, sonra siyahlasti" etkisi.
+  /// Renk yalnizca gorunusu boyar: metnin kendi rengi, ikonlar, kenarlik
+  /// hepsi alfa korunarak kaplanir, yani seffaf bolgeler seffaf kalir.
+  ///
+  /// Hareket azaltilmisken bu da calismaz — renk sicramasi da harekettir.
+  final Color? renk;
 
   @override
   Widget build(BuildContext context) {
@@ -41,11 +52,30 @@ class AppearIn extends StatelessWidget {
       tween: Tween(begin: 0, end: 1),
       duration: total,
       curve: Interval(start, 1.0, curve: Motion.emphasizedDecelerate),
-      builder: (context, v, c) => Opacity(
-        opacity: v,
-        child:
-            Transform.translate(offset: Offset(0, offset * (1 - v)), child: c),
-      ),
+      builder: (context, v, c) {
+        Widget icerik = Transform.translate(
+          offset: Offset(0, offset * (1 - v)),
+          child: c,
+        );
+        final vurgu = renk;
+        if (vurgu != null) {
+          // Renk, hareketten SONRA cozulsun: ilk yarida tam renkli durur,
+          // ikinci yarida kendi rengine doner. Ayni egriyle sonseydi renk
+          // daha kart yerine oturmadan kaybolur, etki gorulmezdi.
+          final cozulme = ((v - 0.35) / 0.65).clamp(0.0, 1.0);
+          icerik = ColorFiltered(
+            // srcATop: cocugun gordugu sekil aynen kalir, uzerine yari
+            // saydam renk surulur. Alfa korundugu icin yazinin kenarlari
+            // ve ikonlarin bosluklari bozulmaz.
+            colorFilter: ColorFilter.mode(
+              vurgu.withValues(alpha: 1 - cozulme),
+              BlendMode.srcATop,
+            ),
+            child: icerik,
+          );
+        }
+        return Opacity(opacity: v, child: icerik);
+      },
       child: child,
     );
   }

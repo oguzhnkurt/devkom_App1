@@ -618,16 +618,25 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
               // degisikligi fark etsin, metin aniden zipllamasin.
               key: ValueKey('p$i-${paragraflar[i].hashCode}'),
               offset: 14,
+              // Paragraf kursun renginde gelip yerine otururken kendi
+              // rengine donuyor: yeni gelen metin kendini belli ediyor,
+              // okunurken notr renge donduğu icin goz yormuyor.
+              renk: widget.course.primaryColor,
               child: Padding(
                 padding: EdgeInsets.only(bottom: i == gorunen - 1 ? 0 : 14),
                 child: Text(
                   paragraflar[i],
                   style: TextStyle(
-                    fontSize: 16,
+                    // ONCEDEN: 16 punto, w400, grey.shade700. Ders metni
+                    // aciklama kutusu gibi soluk duruyordu; cocuk icin
+                    // ANA metin bu, en okunakli yazi olmali.
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 16.5,
                     height: 1.7,
+                    fontWeight: FontWeight.w600,
                     color: widget.isDark
-                        ? Colors.grey.shade300
-                        : Colors.grey.shade700,
+                        ? Colors.grey.shade200
+                        : const Color(0xFF2A2A33),
                   ),
                 ),
               ),
@@ -2304,6 +2313,90 @@ class MatchingStepWidget extends StatefulWidget {
   State<MatchingStepWidget> createState() => _MatchingStepWidgetState();
 }
 
+/// Iki sutun arasinda cizilen tek bir baglanti.
+class _EslesmeOku {
+  const _EslesmeOku({
+    required this.bas,
+    required this.son,
+    required this.renk,
+  });
+
+  final Offset bas;
+  final Offset son;
+  final Color renk;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _EslesmeOku &&
+      other.bas == bas &&
+      other.son == son &&
+      other.renk == renk;
+
+  @override
+  int get hashCode => Object.hash(bas, son, renk);
+}
+
+/// Eslesen kartlari birlestiren oklar.
+///
+/// NEDEN
+/// -----
+/// Eslestirme adiminda cocuk soldaki 3 numarali karta, sagdaki B karta
+/// dokunuyordu ve ekranda bu iliskiyi gosteren hicbir sey yoktu: iki kart
+/// hafifce renkleniyordu, o kadar. Dort ciftte "hangisini neye
+/// baglamistim" sorusunun cevabi rozetleri tek tek okumaktan geciyordu.
+/// Ok, iliskiyi dogrudan gosteriyor.
+class _OkBoyaci extends CustomPainter {
+  _OkBoyaci(this.oklar);
+
+  final List<_EslesmeOku> oklar;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final ok in oklar) {
+      final kalem = Paint()
+        ..color = ok.renk
+        ..strokeWidth = 2.5
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round;
+
+      // Yumusak bir S egrisi: duz cizgi kalabalik listede baska
+      // kartlarin uzerinden gecerken hangi ucun hangisine ait oldugunu
+      // belirsizlestiriyor.
+      final orta = (ok.son.dx - ok.bas.dx) / 2;
+      final yol = Path()
+        ..moveTo(ok.bas.dx, ok.bas.dy)
+        ..cubicTo(
+          ok.bas.dx + orta,
+          ok.bas.dy,
+          ok.son.dx - orta,
+          ok.son.dy,
+          ok.son.dx,
+          ok.son.dy,
+        );
+      canvas.drawPath(yol, kalem);
+
+      // Baslangicta kucuk bir nokta, bitiste ok ucu: yonu gosteriyor.
+      canvas.drawCircle(
+        ok.bas,
+        3.5,
+        Paint()..color = ok.renk,
+      );
+
+      const ucBoyu = 7.0;
+      final uc = Path()
+        ..moveTo(ok.son.dx, ok.son.dy)
+        ..lineTo(ok.son.dx - ucBoyu, ok.son.dy - ucBoyu * 0.72)
+        ..lineTo(ok.son.dx - ucBoyu, ok.son.dy + ucBoyu * 0.72)
+        ..close();
+      canvas.drawPath(uc, Paint()..color = ok.renk);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _OkBoyaci old) =>
+      !listEquals(old.oklar, oklar);
+}
+
 class _MatchingStepWidgetState extends State<MatchingStepWidget> {
   String? _selectedLeft;
   final Map<String, String> _matches = {}; // leftId -> rightId
@@ -2320,6 +2413,15 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
   /// kerede veriliyor.
   bool _kontrolEdildi = false;
 
+  /// Yanlistan sonra "Devam et" gorunuyor mu.
+  ///
+  /// NEDEN: eskiden butun ciftler dogru olana kadar adim ilerlemiyordu.
+  /// Takilan cocuk icin bu bir duvar: dersin geri kalani, yanlis
+  /// hatirladigi tek bir eslestirmenin arkasinda kaliyordu. Artik yanlis
+  /// da bir cikis: dogrular gosteriliyor, XP verilmiyor (`onComplete(false)`)
+  /// ve ders devam ediyor.
+  bool _yanlisCikisiVar = false;
+
   /// Notlanmadiysa `null` (notr goster), notlandiysa dogru/yanlis.
   bool? _durum(String leftId) =>
       _kontrolEdildi ? (_matchCorrectness[leftId] ?? false) : null;
@@ -2334,6 +2436,13 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
   /// tohumla karistiriliyor.
   late List<MatchPair> _rightItems;
 
+  // --- Ok cizimi icin olcum ------------------------------------------------
+
+  final GlobalKey _tahtaAnahtari = GlobalKey();
+  final Map<String, GlobalKey> _solAnahtarlar = {};
+  final Map<String, GlobalKey> _sagAnahtarlar = {};
+  List<_EslesmeOku> _oklar = const [];
+
   @override
   void initState() {
     super.initState();
@@ -2341,9 +2450,57 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
       ..shuffle(Random(widget.step.id.hashCode));
     _rightItems = List.from(widget.step.pairs)
       ..shuffle(Random(widget.step.id.hashCode ^ 0x5A17));
+    for (final p in widget.step.pairs) {
+      _solAnahtarlar[p.id] = GlobalKey();
+      _sagAnahtarlar[p.id] = GlobalKey();
+    }
+  }
+
+  /// Kart konumlarini olcup oklari tazeler.
+  ///
+  /// Kartlarin yuksekligi metne gore degistigi icin konumlar ancak
+  /// yerlesimden SONRA bilinebiliyor; bu yuzden her karede bir kez, cizim
+  /// bittikten sonra olculuyor. Sonuc degismediyse `setState`
+  /// cagrilmiyor — yoksa olc/ciz/olc dongusu kurulurdu.
+  void _oklariTazele() {
+    final tahta =
+        _tahtaAnahtari.currentContext?.findRenderObject() as RenderBox?;
+    if (tahta == null || !tahta.hasSize) return;
+
+    final yeni = <_EslesmeOku>[];
+    _matches.forEach((solId, sagId) {
+      final sol = _solAnahtarlar[solId]?.currentContext?.findRenderObject()
+          as RenderBox?;
+      final sag = _sagAnahtarlar[sagId]?.currentContext?.findRenderObject()
+          as RenderBox?;
+      if (sol == null || sag == null || !sol.hasSize || !sag.hasSize) return;
+
+      final solNokta = tahta.globalToLocal(
+        sol.localToGlobal(Offset(sol.size.width, sol.size.height / 2)),
+      );
+      final sagNokta = tahta.globalToLocal(
+        sag.localToGlobal(Offset(0, sag.size.height / 2)),
+      );
+
+      final dogruMu = _durum(solId);
+      yeni.add(_EslesmeOku(
+        bas: solNokta + const Offset(4, 0),
+        son: sagNokta - const Offset(4, 0),
+        renk: dogruMu == null
+            ? widget.course.primaryColor
+            : (dogruMu ? Colors.green : Colors.red),
+      ));
+    });
+
+    if (!listEquals(yeni, _oklar) && mounted) {
+      setState(() => _oklar = yeni);
+    }
   }
 
   void _selectLeft(String id) {
+    // Notlandiktan sonra tahta kilitli: cevaplar gorunurken el degmesin.
+    if (_kontrolEdildi) return;
+
     // If already matched, allow unmatch
     if (_matches.containsKey(id)) {
       setState(() {
@@ -2359,7 +2516,7 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
   }
 
   void _selectRight(String rightId) {
-    if (_selectedLeft == null) return;
+    if (_selectedLeft == null || _kontrolEdildi) return;
 
     setState(() {
       _matches[_selectedLeft!] = rightId;
@@ -2393,16 +2550,38 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
         widget.onComplete(true);
       });
     } else {
-      // Puan KESILMEZ. Yanlis eslesmeler kirmizi isaretlenir, cocuk
-      // uzerine dokunup cozer.
+      // Puan KESILMEZ ama verilmez de: cocuk dogrulari gorur, isterse
+      // tekrar dener, istemezse derse devam eder.
       HapticFeedback.lightImpact();
+      setState(() => _yanlisCikisiVar = true);
     }
+  }
+
+  /// Tahtayi bosaltip yeniden denemeye acar.
+  void _tekrarDene() {
+    setState(() {
+      _matches.clear();
+      _matchCorrectness.clear();
+      _kontrolEdildi = false;
+      _yanlisCikisiVar = false;
+      _selectedLeft = null;
+      _oklar = const [];
+    });
+  }
+
+  /// Bir sol kartin dogru cevabinin sag sutundaki harfi (A, B, C...).
+  String _dogruHarf(String leftId) {
+    final i = _rightItems.indexWhere((p) => p.id == leftId);
+    return i < 0 ? '?' : String.fromCharCode(65 + i);
   }
 
   @override
   Widget build(BuildContext context) {
     final lang = lessonLang(context);
     final rightItems = _rightItems;
+    final yaziRengi = widget.isDark ? Colors.white : const Color(0xFF1A1A1A);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => _oklariTazele());
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2410,292 +2589,286 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
         Text(
           widget.step.instructionFor(lang),
           style: TextStyle(
+            fontFamily: AppTheme.fontFamily,
             fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
+            height: 1.4,
+            fontWeight: FontWeight.w800,
+            color: yaziRengi,
           ),
         ),
         const SizedBox(height: 24),
 
-        // Matching cards with improved design
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        // Kartlar + aralarindaki oklar ayni Stack'te: oklar kartlarin
+        // ALTINA ciziliyor ki uclari kart kenarlarinin altinda kalsin.
+        Stack(
+          key: _tahtaAnahtari,
           children: [
-            // Left column - Conditions
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    // FittedBox: kucuk ekranda hap KIRPILMIYOR, kuculuyor.
-                    //
-                    // Sutun iPhone SE'de 140 piksel; "Bedingungen" hapi
-                    // 12 punto kalin yaziyla 159 piksel istiyor ve Row
-                    // 19 piksel tasiyordu (Almanca ve Ingilizcede; Turkce
-                    // "Kosullar" sigiyordu, o yuzden yalnizca Turkce cizen
-                    // eski tasma testi bunu hic gormedi). Kelimeyi ucu
-                    // noktali kesmek bir kategori etiketinde okunaksiz
-                    // olurdu; oran korunarak kuculuyor. Genis ekranda
-                    // olcek 1, yani hicbir sey degismiyor.
-                    child: Row(
-                      children: [
-                        Flexible(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
-                            child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: widget.course.primaryColor.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            lessonText(lang, 'Koşullar', 'Conditions', 'Bedingungen', 'Condiciones'),
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: widget.course.primaryColor,
-                            ),
-                          ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ...List.generate(_shuffledPairs.length, (index) {
-                    final pair = _shuffledPairs[index];
-                    final isSelected = _selectedLeft == pair.id;
-                    final isMatched = _matches.containsKey(pair.id);
-                    final isCorrect = _durum(pair.id);
-                    final vurgu = isCorrect == null
-                        ? widget.course.primaryColor
-                        : (isCorrect ? Colors.green : Colors.red);
-
-                    return AnimatedContainer(
-                      duration: Motion.adapt(context, Motion.short4),
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: Material(
-                        elevation: isSelected ? 4 : (isMatched ? 2 : 0),
-                        borderRadius: BorderRadius.circular(12),
-                        child: InkWell(
-                          onTap: () => _selectLeft(pair.id),
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            decoration: BoxDecoration(
-                              color: isMatched
-                                  ? vurgu.withValues(alpha: 0.1)
-                                  : (isSelected
-                                      ? widget.course.primaryColor.withValues(alpha: 0.1)
-                                      : (widget.isDark ? const Color(0xFF1E1E2E) : Colors.white)),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isMatched
-                                    ? vurgu
-                                    : (isSelected
-                                        ? widget.course.primaryColor
-                                        : Colors.grey.shade300),
-                                width: isMatched || isSelected ? 2 : 1,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    color: isMatched
-                                        ? vurgu
-                                        : (isSelected
-                                            ? widget.course.primaryColor
-                                            : Colors.grey.shade400),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      '${index + 1}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    pair.leftFor(lang),
-                                    style: TextStyle(
-                                      fontFamily: pair.isLeftCode ? 'monospace' : null,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
-                                      color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
-                                    ),
-                                  ),
-                                ),
-                                if (isMatched && isCorrect != null)
-                                  Icon(
-                                    isCorrect ? Icons.check_circle : Icons.cancel,
-                                    color: isCorrect ? Colors.green : Colors.red,
-                                    size: 20,
-                                  )
-                                else if (isMatched)
-                                  Icon(Icons.link_rounded,
-                                      color: widget.course.primaryColor,
-                                      size: 20),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                ],
+            Positioned.fill(
+              child: IgnorePointer(
+                child: CustomPaint(
+                  // Anahtar ok sayisini tasiyor: testin cizimi disaridan
+                  // dogrulamasinin tek yolu bu (boyacinin alanlari ozel).
+                  key: ValueKey('eslestirme-oklari-${_oklar.length}'),
+                  painter: _OkBoyaci(_oklar),
+                ),
               ),
             ),
-            const SizedBox(width: 16),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Left column - Conditions
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _sutunBasligi(
+                        lessonText(lang, 'Koşullar', 'Conditions',
+                            'Bedingungen', 'Condiciones'),
+                        widget.course.primaryColor,
+                      ),
+                      ...List.generate(_shuffledPairs.length, (index) {
+                        final pair = _shuffledPairs[index];
+                        final isSelected = _selectedLeft == pair.id;
+                        final isMatched = _matches.containsKey(pair.id);
+                        final isCorrect = _durum(pair.id);
+                        final vurgu = isCorrect == null
+                            ? widget.course.primaryColor
+                            : (isCorrect ? Colors.green : Colors.red);
 
-            // Right column - Actions
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    // FittedBox: kucuk ekranda hap KIRPILMIYOR, kuculuyor.
-                    //
-                    // Sutun iPhone SE'de 140 piksel; "Bedingungen" hapi
-                    // 12 punto kalin yaziyla 159 piksel istiyor ve Row
-                    // 19 piksel tasiyordu (Almanca ve Ingilizcede; Turkce
-                    // "Kosullar" sigiyordu, o yuzden yalnizca Turkce cizen
-                    // eski tasma testi bunu hic gormedi). Kelimeyi ucu
-                    // noktali kesmek bir kategori etiketinde okunaksiz
-                    // olurdu; oran korunarak kuculuyor. Genis ekranda
-                    // olcek 1, yani hicbir sey degismiyor.
-                    child: Row(
-                      children: [
-                        Flexible(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
-                            child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: widget.course.secondaryColor.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            lessonText(lang, 'Sonuçlar', 'Results', 'Ergebnisse', 'Resultados'),
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: widget.course.secondaryColor,
-                            ),
-                          ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ...List.generate(rightItems.length, (index) {
-                    final pair = rightItems[index];
-                    final isMatched = _matches.values.contains(pair.id);
-                    bool? isCorrect;
-                    for (var entry in _matches.entries) {
-                      if (entry.value == pair.id) {
-                        isCorrect = _durum(entry.key);
-                        break;
-                      }
-                    }
-
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: Material(
-                        elevation: isMatched ? 2 : 0,
-                        borderRadius: BorderRadius.circular(12),
-                        child: InkWell(
-                          onTap: isMatched ? null : () => _selectRight(pair.id),
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            decoration: BoxDecoration(
-                              color: isMatched
-                                  ? (isCorrect == true
-                                      ? Colors.green.withValues(alpha: 0.1)
-                                      : (isCorrect == false
-                                          ? Colors.red.withValues(alpha: 0.1)
-                                          : (widget.isDark ? const Color(0xFF1E1E2E) : Colors.white)))
-                                  : (widget.isDark ? const Color(0xFF1E1E2E) : Colors.white),
+                        return AppearIn(
+                          delay: AppearIn.stagger(index, stepMs: 90),
+                          // Kart once kursun renginde gelir, yerine
+                          // otururken kendi rengine doner.
+                          renk: widget.course.primaryColor,
+                          child: AnimatedContainer(
+                            duration: Motion.adapt(context, Motion.short4),
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: Material(
+                              elevation:
+                                  isSelected ? 4 : (isMatched ? 2 : 0),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isMatched
-                                    ? (isCorrect == true
-                                        ? Colors.green
-                                        : (isCorrect == false ? Colors.red : Colors.grey.shade300))
-                                    : (_selectedLeft != null && !isMatched
-                                        ? widget.course.primaryColor.withValues(alpha: 0.3)
-                                        : Colors.grey.shade300),
-                                width: isMatched ? 2 : 1,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
+                              child: InkWell(
+                                onTap: () => _selectLeft(pair.id),
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  key: _solAnahtarlar[pair.id],
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 16),
                                   decoration: BoxDecoration(
                                     color: isMatched
-                                        ? (isCorrect == true
-                                            ? Colors.green
-                                            : (isCorrect == false
-                                                ? Colors.red
-                                                : Colors.grey.shade400))
-                                        : Colors.grey.shade400,
-                                    shape: BoxShape.circle,
+                                        ? vurgu.withValues(alpha: 0.1)
+                                        : (isSelected
+                                            ? widget.course.primaryColor
+                                                .withValues(alpha: 0.1)
+                                            : (widget.isDark
+                                                ? const Color(0xFF1E1E2E)
+                                                : Colors.white)),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: isMatched
+                                          ? vurgu
+                                          : (isSelected
+                                              ? widget.course.primaryColor
+                                              : Colors.grey.shade300),
+                                      width: isMatched || isSelected ? 2 : 1,
+                                    ),
                                   ),
-                                  child: Center(
-                                    child: Text(
-                                      String.fromCharCode(65 + index),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
+                                  child: Row(
+                                    children: [
+                                      _rozet('${index + 1}',
+                                          isMatched
+                                              ? vurgu
+                                              : (isSelected
+                                                  ? widget
+                                                      .course.primaryColor
+                                                  : Colors.grey.shade400)),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              pair.leftFor(lang),
+                                              style: TextStyle(
+                                                fontFamily: pair.isLeftCode
+                                                    ? 'monospace'
+                                                    : AppTheme.fontFamily,
+                                                fontSize: 16,
+                                                height: 1.3,
+                                                fontWeight: FontWeight.w700,
+                                                color: yaziRengi,
+                                              ),
+                                            ),
+                                            // Yanlisin karsisina DOGRU
+                                            // cevap yaziliyor: cocuk
+                                            // "yanlis" bilgisiyle degil,
+                                            // dogru bilgiyle devam etsin.
+                                            if (isCorrect == false) ...[
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                lessonText(
+                                                      lang,
+                                                      'Doğrusu',
+                                                      'Correct one',
+                                                      'Richtig ist',
+                                                      'La correcta',
+                                                    ) +
+                                                    ': ${_dogruHarf(pair.id)}',
+                                                style: TextStyle(
+                                                  fontFamily:
+                                                      AppTheme.fontFamily,
+                                                  fontSize: 13,
+                                                  fontWeight:
+                                                      FontWeight.w700,
+                                                  color: Colors.green
+                                                      .shade700,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
+                                      if (isMatched && isCorrect != null)
+                                        Icon(
+                                          isCorrect
+                                              ? Icons.check_circle
+                                              : Icons.cancel,
+                                          color: isCorrect
+                                              ? Colors.green
+                                              : Colors.red,
+                                          size: 20,
+                                        )
+                                      else if (isMatched)
+                                        Icon(Icons.link_rounded,
+                                            color:
+                                                widget.course.primaryColor,
+                                            size: 20),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    pair.rightFor(lang),
-                                    style: TextStyle(
-                                      fontFamily: pair.isRightCode ? 'monospace' : null,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
-                                      color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
-                                    ),
-                                  ),
-                                ),
-                                if (isMatched && isCorrect != null)
-                                  Icon(
-                                    isCorrect ? Icons.check_circle : Icons.cancel,
-                                    color: isCorrect ? Colors.green : Colors.red,
-                                    size: 20,
-                                  ),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+                // Oklarin gectigi serit. 16 piksel bir ok ucunu bile zor
+                // aliyordu; 34 piksel egrinin gorunmesine yetiyor ve
+                // sutunlari ezmiyor.
+                const SizedBox(width: 34),
+
+                // Right column - Actions
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _sutunBasligi(
+                        lessonText(lang, 'Sonuçlar', 'Results', 'Ergebnisse',
+                            'Resultados'),
+                        widget.course.secondaryColor,
                       ),
-                    );
-                  }),
-                ],
-              ),
+                      ...List.generate(rightItems.length, (index) {
+                        final pair = rightItems[index];
+                        final isMatched = _matches.values.contains(pair.id);
+                        bool? isCorrect;
+                        for (var entry in _matches.entries) {
+                          if (entry.value == pair.id) {
+                            isCorrect = _durum(entry.key);
+                            break;
+                          }
+                        }
+                        final vurgu = isCorrect == null
+                            ? Colors.grey.shade400
+                            : (isCorrect ? Colors.green : Colors.red);
+
+                        return AppearIn(
+                          delay: AppearIn.stagger(index, stepMs: 90),
+                          renk: widget.course.secondaryColor,
+                          child: AnimatedContainer(
+                            duration: Motion.adapt(context, Motion.short4),
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: Material(
+                              elevation: isMatched ? 2 : 0,
+                              borderRadius: BorderRadius.circular(12),
+                              child: InkWell(
+                                onTap: (isMatched || _kontrolEdildi)
+                                    ? null
+                                    : () => _selectRight(pair.id),
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  key: _sagAnahtarlar[pair.id],
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 16),
+                                  decoration: BoxDecoration(
+                                    color: isMatched && isCorrect != null
+                                        ? vurgu.withValues(alpha: 0.1)
+                                        : (widget.isDark
+                                            ? const Color(0xFF1E1E2E)
+                                            : Colors.white),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: isMatched
+                                          ? (isCorrect == null
+                                              ? widget.course.secondaryColor
+                                              : vurgu)
+                                          : (_selectedLeft != null
+                                              ? widget.course.primaryColor
+                                                  .withValues(alpha: 0.3)
+                                              : Colors.grey.shade300),
+                                      width: isMatched ? 2 : 1,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      _rozet(
+                                        String.fromCharCode(65 + index),
+                                        isMatched
+                                            ? (isCorrect == null
+                                                ? widget
+                                                    .course.secondaryColor
+                                                : vurgu)
+                                            : Colors.grey.shade400,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          pair.rightFor(lang),
+                                          style: TextStyle(
+                                            fontFamily: pair.isRightCode
+                                                ? 'monospace'
+                                                : AppTheme.fontFamily,
+                                            fontSize: 16,
+                                            height: 1.3,
+                                            fontWeight: FontWeight.w700,
+                                            color: yaziRengi,
+                                          ),
+                                        ),
+                                      ),
+                                      if (isMatched && isCorrect != null)
+                                        Icon(
+                                          isCorrect
+                                              ? Icons.check_circle
+                                              : Icons.cancel,
+                                          color: isCorrect
+                                              ? Colors.green
+                                              : Colors.red,
+                                          size: 20,
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -2713,22 +2886,113 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
             ),
             child: Row(
               children: [
-                Icon(Icons.touch_app, color: widget.course.primaryColor, size: 20),
+                Icon(Icons.touch_app,
+                    color: widget.course.primaryColor, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     lessonText(
-                    lang,
-                    'Şimdi sağ taraftan uygun sonucu seç',
-                    'Now pick the matching result on the right',
-                    'Wähle jetzt rechts das passende Ergebnis',
-                    'Ahora elige a la derecha el resultado que corresponde'),
+                        lang,
+                        'Şimdi sağ taraftan uygun sonucu seç',
+                        'Now pick the matching result on the right',
+                        'Wähle jetzt rechts das passende Ergebnis',
+                        'Ahora elige a la derecha el resultado que corresponde'),
                     style: TextStyle(
+                      fontFamily: AppTheme.fontFamily,
                       color: widget.course.primaryColor,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14.5,
                     ),
                   ),
+                ),
+              ],
+            ),
+          ),
+        ],
+
+        // Yanlis: ders burada durmuyor.
+        if (_yanlisCikisiVar) ...[
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.orange.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                  color: Colors.orange.withValues(alpha: 0.7), width: 2),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.lightbulb_outline,
+                        color: Colors.orange, size: 22),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        lessonText(
+                            lang,
+                            'Bazıları yanlış — doğruları kartların üstüne yazdım.',
+                            'Some are wrong — I wrote the correct ones on the cards.',
+                            'Einige stimmen nicht – die richtigen stehen auf den Karten.',
+                            'Algunas no son correctas: he escrito las correctas en las tarjetas.'),
+                        style: TextStyle(
+                          fontFamily: AppTheme.fontFamily,
+                          fontSize: 15,
+                          height: 1.35,
+                          fontWeight: FontWeight.w700,
+                          color: widget.isDark
+                              ? Colors.orange.shade200
+                              : Colors.orange.shade900,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _tekrarDene,
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: Text(
+                          lessonText(lang, 'Tekrar dene', 'Try again',
+                              'Nochmal versuchen', 'Intentar de nuevo'),
+                          style: TextStyle(
+                            fontFamily: AppTheme.fontFamily,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.orange.shade800,
+                          side: BorderSide(color: Colors.orange.shade700),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton.icon(
+                        // XP yok: `false` gonderiyoruz. Ama ders ilerliyor.
+                        onPressed: () => widget.onComplete(false),
+                        icon: const Icon(Icons.arrow_forward, size: 18),
+                        label: Text(
+                          lessonText(lang, 'Devam et', 'Continue', 'Weiter',
+                              'Continuar'),
+                          style: TextStyle(
+                            fontFamily: AppTheme.fontFamily,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: widget.course.primaryColor,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -2766,18 +3030,19 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                     children: [
                       Text(
                         lessonText(
-                          lang,
-                          'Harika! Tüm eşleştirmeler doğru!',
-                          'Great! Every match is correct!',
-                          'Super! Alle Zuordnungen stimmen!',
-                          '¡Genial! ¡Todas las parejas son correctas!'),
+                            lang,
+                            'Harika! Tüm eşleştirmeler doğru!',
+                            'Great! Every match is correct!',
+                            'Super! Alle Zuordnungen stimmen!',
+                            '¡Genial! ¡Todas las parejas son correctas!'),
                         style: TextStyle(
+                          fontFamily: AppTheme.fontFamily,
                           color: Colors.green,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w800,
                           fontSize: 16,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         lessonText(
                             lang,
@@ -2786,8 +3051,10 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
                             'Gut gemacht, du kannst weitermachen!',
                             '¡Muy bien, puedes continuar!'),
                         style: TextStyle(
+                          fontFamily: AppTheme.fontFamily,
                           color: Colors.green,
                           fontSize: 14,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
@@ -2800,6 +3067,64 @@ class _MatchingStepWidgetState extends State<MatchingStepWidget> {
       ],
     );
   }
+
+  /// Sutun basligindaki hap.
+  ///
+  /// FittedBox: kucuk ekranda hap KIRPILMIYOR, kuculuyor. Sutun iPhone
+  /// SE'de 140 piksel; "Bedingungen" hapi 12 punto kalin yaziyla 159
+  /// piksel istiyor ve Row tasiyordu (Almanca ve Ingilizcede; Turkce
+  /// "Kosullar" sigiyordu, o yuzden yalnizca Turkce cizen eski tasma
+  /// testi bunu hic gormedi). Kelimeyi ucu noktali kesmek bir kategori
+  /// etiketinde okunaksiz olurdu; oran korunarak kuculuyor.
+  Widget _sutunBasligi(String metin, Color renk) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: renk.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  metin,
+                  style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: renk,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _rozet(String yazi, Color renk) => Container(
+        width: 30,
+        height: 30,
+        decoration: BoxDecoration(color: renk, shape: BoxShape.circle),
+        child: Center(
+          child: Text(
+            yazi,
+            style: TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              fontSize: 14,
+            ),
+          ),
+        ),
+      );
 }
 
 
