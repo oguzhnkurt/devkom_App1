@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -68,6 +70,30 @@ Future<void> _ciz(WidgetTester tester, Course kurs) async {
 void main() {
   final css = CoursesData.allCourses.firstWhere((c) => c.id == 'css');
   final python = CoursesData.allCourses.firstWhere((c) => c.id == 'python');
+
+  // ORTAK KART. Hata bul / kodu tamamla / kodu yaz adimlari ayni
+  // `_StepPrompt` kartini kullaniyor. Ayri ayri cizmek yerine tek
+  // yerden kursun kimligini tasiyorlar; kaynakta bunun bozulmadigini
+  // sabitliyoruz (widget ozel oldugu icin disaridan kurulamiyor).
+  final kaynak =
+      File('lib/courses/screens/widgets/step_widgets.dart').readAsStringSync();
+
+  test('ortak gorev karti kursun rengini ve simgesini tasiyor', () {
+    final bas = kaynak.indexOf('class _StepPrompt');
+    final son = kaynak.indexOf('class ', bas + 10);
+    final govde = kaynak.substring(bas, son);
+    expect(govde.contains('course.primaryColor'), isTrue,
+        reason: 'Gorev karti beyaz bir kutuydu; kursun rengini tasimali.');
+    expect(govde.contains('course.secondaryColor'), isTrue);
+    expect(govde.contains('final Course course'), isTrue);
+  });
+
+  test('sabit mavi kalmadi', () {
+    // Hedef kutusu ve "KODU CALISTIR" dugmesi Python dersinde de, CSS
+    // dersinde de ayni maviydi.
+    expect(kaynak.contains('Colors.blue'), isFalse,
+        reason: 'Kursun rengi varken sabit mavi kullanilmamali.');
+  });
 
   testWidgets('soru kartinda kursun simgesi var, genel emoji yok',
       (tester) async {

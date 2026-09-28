@@ -1730,12 +1730,16 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         ),
         const SizedBox(height: 8),
 
-        // Goal
+        // HEDEF — kursun renginde.
+        //
+        // Sabit mavi yaziyordu: Python dersinde de, CSS dersinde de,
+        // Scratch dersinde de ayni mavi. Kursun kendi rengi zaten
+        // elimizde.
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.blue.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
+            color: widget.course.primaryColor.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
             children: [
@@ -1745,7 +1749,13 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
                 child: Text(
                   '$goalLabel: ${widget.step.goalFor(lang)}',
                   style: TextStyle(
-                    color: widget.isDark ? Colors.blue.shade200 : Colors.blue.shade700,
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 14.5,
+                    height: 1.35,
+                    fontWeight: FontWeight.w700,
+                    color: widget.isDark
+                        ? Colors.white
+                        : widget.course.primaryColor,
                   ),
                 ),
               ),
@@ -1864,7 +1874,8 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
             label: Text(lessonText(lang, 'KODU ÇALIŞTIR', 'RUN THE CODE',
                 'CODE AUSFÜHREN', 'EJECUTAR EL CÓDIGO')),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
+              // Sabit mavi degil: dugme de kursun rengini tasiyor.
+              backgroundColor: widget.course.primaryColor,
               foregroundColor: Colors.white,
               minimumSize: const Size.fromHeight(48),
               shape: RoundedRectangleBorder(
@@ -4290,45 +4301,96 @@ class _CodeSurface extends StatelessWidget {
 }
 
 /// Adimin basindaki yonerge kartı.
+/// Adimin ne istedigini soyleyen kart.
+///
+/// UC ADIMDA ORTAK: hata bul, kodu tamamla, kodu yaz. Once beyaz bir
+/// kutuydu; ortasinda bir emoji, altinda ortalanmis yazi. Hangi kursun
+/// icinde oldugun anlasilmiyordu ve butun dersler ayni ekran gibi
+/// duruyordu — kullanicinin "bu tarz ekranlar bana cok basit geliyor"
+/// dedigi sey tam olarak buydu.
+///
+/// Simdi kart kursun degradesini tasiyor. Emoji ADIMIN ne istedigini
+/// (🔍 hata bul, ✏️ kodu yaz), kose rozeti ise KURSUN ne oldugunu
+/// soyluyor.
 class _StepPrompt extends StatelessWidget {
   const _StepPrompt({
     required this.emoji,
     required this.text,
     required this.isDark,
+    required this.course,
+    this.etiket,
   });
 
   final String emoji;
   final String text;
   final bool isDark;
+  final Course course;
+
+  /// Ustteki kucuk baslik ("GÖREV", "HATAYI BUL"). Verilmezse yazilmaz.
+  final String? etiket;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [course.primaryColor, course.secondaryColor],
+        ),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            color: course.primaryColor.withValues(alpha: 0.26),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 36)),
-          const SizedBox(height: 12),
-          Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: AppTheme.fontFamily,
-              fontSize: 17,
-              height: 1.45,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+          Container(
+            width: 44,
+            height: 44,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.22),
+              shape: BoxShape.circle,
+            ),
+            child: Text(emoji, style: const TextStyle(fontSize: 22)),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (etiket != null) ...[
+                  Text(
+                    etiket!,
+                    style: TextStyle(
+                      fontFamily: AppTheme.fontFamily,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.3,
+                      color: Colors.white.withValues(alpha: 0.88),
+                    ),
+                  ),
+                  const SizedBox(height: 7),
+                ],
+                Text(
+                  text,
+                  style: const TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 17,
+                    height: 1.4,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -4469,8 +4531,11 @@ class _CodeCompleteStepWidgetState extends State<CodeCompleteStepWidget> {
       children: [
         _StepPrompt(
           emoji: '🧩',
+          etiket: lessonText(lang, 'BOŞLUKLARI DOLDUR', 'FILL THE BLANKS',
+              'LÜCKEN FÜLLEN', 'RELLENA LOS HUECOS'),
           text: widget.step.instructionFor(lang),
           isDark: widget.isDark,
+          course: widget.course,
         ),
         const SizedBox(height: 20),
         _CodeSurface(child: _template(lang)),
@@ -4642,8 +4707,11 @@ class _TypeCodeStepWidgetState extends State<TypeCodeStepWidget> {
       children: [
         _StepPrompt(
           emoji: '⌨️',
+          etiket: lessonText(lang, 'KODU SEN YAZ', 'TYPE THE CODE',
+              'TIPPE DEN CODE', 'ESCRIBE EL CÓDIGO'),
           text: widget.step.instructionFor(lang),
           isDark: widget.isDark,
+          course: widget.course,
         ),
         const SizedBox(height: 20),
 
@@ -4817,8 +4885,11 @@ class _SpotErrorStepWidgetState extends State<SpotErrorStepWidget> {
       children: [
         _StepPrompt(
           emoji: '🔍',
+          etiket: lessonText(lang, 'HATAYI BUL', 'FIND THE BUG',
+              'FINDE DEN FEHLER', 'ENCUENTRA EL ERROR'),
           text: widget.step.instructionFor(lang),
           isDark: widget.isDark,
+          course: widget.course,
         ),
         const SizedBox(height: 20),
 
