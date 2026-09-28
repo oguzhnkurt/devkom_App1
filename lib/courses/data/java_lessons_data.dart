@@ -1747,7 +1747,7 @@ class JavaLessonsData {
           titleEn: 'Step 2: Print the Result',
           titleDe: 'Schritt 2: das Ergebnis ausgeben',
           titleEs: 'Paso 2: mostrar el resultado',
-          content: 'Son olarak sonucu kullanıcıya gösterelim:\n\nSystem.out.println("Puanin: " + puan);\nSystem.out.println("Harf notun: " + harfNotu);\n\nBöylece kullanıcı hem sayısal hem harf notunu gorur!',
+          content: 'Son olarak sonucu kullanıcıya gösterelim:\n\nSystem.out.println("Puanin: " + puan);\nSystem.out.println("Harf notun: " + harfNotu);\n\nBöylece kullanıcı hem sayısal hem harf notunu görür!',
           contentEn: 'Finally, let\'s show the result to the user:\n\nSystem.out.println("Your score: " + score);\nSystem.out.println("Your letter grade: " + letterGrade);\n\nNow the user sees both the number and the letter!',
           contentDe: 'Zum Schluss zeigen wir dem Nutzer das Ergebnis:\n\nSystem.out.println("Deine Punktzahl: " + punkte);\nSystem.out.println("Dein Notenbuchstabe: " + notenBuchstabe);\n\nJetzt sieht der Nutzer die Zahl und den Buchstaben!',
           contentEs: 'Por último, mostremos el resultado al usuario:\n\nSystem.out.println("Tu puntuación: " + puntos);\nSystem.out.println("Tu nota con letra: " + notaLetra);\n\n¡Ahora el usuario ve el número y la letra!',

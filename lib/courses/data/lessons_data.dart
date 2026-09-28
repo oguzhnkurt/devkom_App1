@@ -34,7 +34,7 @@ class LessonsData {
           LessonContent(
             id: 'py01_2',
             type: ContentType.text,
-            content: 'Python, okunması ve yazılması kolay, güçlü bir programlama dilidir. 1991\'de Guido van Rossum tarafından olusturulmustur.',
+            content: 'Python, okunması ve yazılması kolay, güçlü bir programlama dilidir. 1991\'de Guido van Rossum tarafından oluşturulmuştur.',
           ),
           LessonContent(
             id: 'py01_3',
@@ -618,7 +618,7 @@ p {
         titleEn: 'Introduction to SQL',
         titleDe: 'Einführung in SQL',
         titleEs: 'Introducción a SQL',
-        description: 'Veritabani sorgulama',
+        description: 'Veritabanı sorgulama',
         order: 1,
         estimatedMinutes: 5,
         type: LessonType.theory,
@@ -632,7 +632,7 @@ p {
           LessonContent(
             id: 'sql01_2',
             type: ContentType.text,
-            content: 'SQL (Structured Query Language), veritabanlarindaki verileri sorgulamak, eklemek, güncellemek ve silmek için kullanılan dildir.',
+            content: 'SQL (Structured Query Language), veritabanlarındaki verileri sorgulamak, eklemek, güncellemek ve silmek için kullanılan dildir.',
           ),
         ],
       ),

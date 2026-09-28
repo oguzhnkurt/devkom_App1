@@ -693,7 +693,7 @@ class ScratchLessonsData {
           titleEn: 'Compare Them',
           titleDe: 'Vergleiche sie',
           titleEs: 'Compáralos',
-          description: 'Dongusuz vs Döngülü',
+          description: 'Döngüsüz vs Döngülü',
           descriptionEn: 'Without a loop vs. with a loop',
           descriptionDe: 'Ohne Schleife vs. mit Schleife',
           descriptionEs: 'Sin bucle vs. con bucle',

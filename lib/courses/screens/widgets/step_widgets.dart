@@ -1004,30 +1004,80 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Question
+        // SORU KARTI — kursun kendi rengiyle.
+        //
+        // ONCEDEN: beyaz bir kutu, ortasinda 40 puntoluk bir dusunen
+        // yuz emojisi ve altinda soru. Her kursta ayniydi; CSS dersi
+        // ile Java dersi ayirt edilemiyordu ve ekran "ders" degil
+        // "form" gibi duruyordu. Emoji de her soruda ayni sey
+        // soyluyordu: hicbir sey.
+        //
+        // Simdi kart kursun degradesini tasiyor ve kose rozetinde
+        // KURSUN simgesi duruyor (CSS'te palet, Python'da yilan,
+        // mBlock'ta tugla). Cocuk hangi dersin icinde oldugunu soruya
+        // bakarken de goruyor.
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
           decoration: BoxDecoration(
-            color: widget.isDark ? const Color(0xFF1E1E2E) : Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                widget.course.primaryColor,
+                widget.course.secondaryColor,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
+                color: widget.course.primaryColor.withValues(alpha: 0.26),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
-          child: Column(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('🤔', style: TextStyle(fontSize: 40)),
-              const SizedBox(height: 16),
-              Text(
-                widget.step.questionFor(lang),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
+              Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.22),
+                  shape: BoxShape.circle,
+                ),
+                child: Text(widget.course.icon,
+                    style: const TextStyle(fontSize: 22)),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      lessonText(lang, 'SORU', 'QUESTION', 'FRAGE',
+                          'PREGUNTA'),
+                      style: TextStyle(
+                        fontFamily: AppTheme.fontFamily,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.3,
+                        color: Colors.white.withValues(alpha: 0.88),
+                      ),
+                    ),
+                    const SizedBox(height: 7),
+                    Text(
+                      widget.step.questionFor(lang),
+                      style: const TextStyle(
+                        fontFamily: AppTheme.fontFamily,
+                        fontSize: 18,
+                        height: 1.35,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -1107,23 +1157,33 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
                   ] else ...[
                     // Yerine notr bir harf rozeti: secenekleri konusurken
                     // isaret etmeyi kolaylastiriyor, hicbir sey ele vermiyor.
+                    // Harf rozeti CEVAPLANMADAN once KURSUN renginde;
+                    // cevaplandiktan sonra dogru/yanlis rengini
+                    // aliyor. Boylece sayfa ders boyunca ayni kursun
+                    // rengini tasiyor ama geri bildirim hala en
+                    // guclu isaret.
                     Container(
-                      width: 28,
-                      height: 28,
+                      width: 30,
+                      height: 30,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: borderColor.withValues(alpha: 0.14),
+                        color: _answered
+                            ? borderColor.withValues(alpha: 0.16)
+                            : widget.course.primaryColor
+                                .withValues(alpha: 0.14),
                         shape: BoxShape.circle,
                       ),
                       child: Text(
                         String.fromCharCode(65 + slot),
                         style: TextStyle(
                           fontFamily: AppTheme.fontFamily,
-                          fontSize: 13,
+                          fontSize: 13.5,
                           fontWeight: FontWeight.w800,
-                          color: widget.isDark
-                              ? Colors.grey.shade300
-                              : Colors.grey.shade700,
+                          color: _answered
+                              ? (widget.isDark
+                                  ? Colors.grey.shade300
+                                  : Colors.grey.shade700)
+                              : widget.course.primaryColor,
                         ),
                       ),
                     ),
@@ -1133,9 +1193,14 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
                     child: Text(
                       option.textFor(lang),
                       style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                        fontFamily: option.isCode ? 'monospace' : null,
+                        // Sik yazisi uygulamanin yazi tipinde ve
+                        // okunakli: 15/normal soluk kaliyordu.
+                        fontSize: 15.5,
+                        height: 1.3,
+                        fontWeight:
+                            isSelected ? FontWeight.w800 : FontWeight.w600,
+                        fontFamily:
+                            option.isCode ? 'monospace' : AppTheme.fontFamily,
                         color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
                       ),
                     ),

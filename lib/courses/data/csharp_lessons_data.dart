@@ -127,7 +127,7 @@ class CSharpLessonsData {
           titleEn: 'What Is the .NET Platform?',
           titleDe: 'Was ist die .NET-Plattform?',
           titleEs: '¿Qué es la plataforma .NET?',
-          content: '.NET, C# kodunu çalıştıran bir platformdur - tıpkı Java\'nin JVM\'i gibi.\n\n.NET sayesinde C# kodun Windows, Mac, Linux gibi farklı sistemlerde calisabilir!',
+          content: '.NET, C# kodunu çalıştıran bir platformdur - tıpkı Java\'nin JVM\'i gibi.\n\n.NET sayesinde C# kodun Windows, Mac, Linux gibi farklı sistemlerde çalışabilir!',
           contentEn: '.NET is the platform that runs C# code - just like the JVM for Java.\n\nThanks to .NET your C# code can run on Windows, Mac and Linux!',
           contentDe: '.NET ist die Plattform, die C#-Code ausführt – genau wie die JVM bei Java.\n\nDank .NET kann dein C#-Code unter Windows, auf einem Mac und unter Linux laufen!',
           contentEs: '.NET es la plataforma que ejecuta el código C#, igual que la JVM para Java.\n\n¡Gracias a .NET tu código C# puede funcionar en Windows, Mac y Linux!',
@@ -954,7 +954,7 @@ class CSharpLessonsData {
         IntroStep(
           id: 'cs2_3_intro',
           mascotEmoji: '📋',
-          mascotMessage: 'Birden fazla veriyi tek yapıda tutmak için C#\'ta iki secenegin var: DIZILER ve LISTELER!',
+          mascotMessage: 'Birden fazla veriyi tek yapıda tutmak için C#\'ta iki seçeneğin var: DIZILER ve LISTELER!',
           mascotMessageEn: 'To hold several values in one structure C# gives you two options: ARRAYS and LISTS!',
           mascotMessageDe: 'Um mehrere Werte in einer Struktur zu halten, gibt dir C# zwei Möglichkeiten: ARRAYS und LISTEN!',
           mascotMessageEs: '¡Para guardar varios valores en una estructura, C# te da dos opciones: ARRAYS y LISTAS!',
