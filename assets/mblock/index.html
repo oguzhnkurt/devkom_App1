@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<!--
+  mBlock tezgahi.
+
+  Sayfa uygulamanin KENDI paketinden geliyor; disariya hicbir istek yok.
+  Icerik Guvenligi Politikasi bunu ayrica kilitliyor: uzaktan betik,
+  yazi tipi, resim ya da baglanti CEKILEMEZ. Kaynaklarin tamami
+  assets/mblock/ altinda.
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden;
+               background: #F9F9F9; -webkit-user-select: none; user-select: none;
+               -webkit-tap-highlight-color: transparent; }
+  #tezgah { position: absolute; inset: 0; }
+  /* Blockly'nin kendi baglam menusu ve uyarilari cocuga gerekmiyor. */
+  .blocklyWidgetDiv .goog-menu { font-family: sans-serif; }
+</style>
+</head>
+<body>
+<div id="tezgah"></div>
+<script src="scratch_blocks.min.js"></script>
+<script src="mblock_bloklari.js"></script>
+<script src="tezgah.js"></script>
+</body>
+</html>
