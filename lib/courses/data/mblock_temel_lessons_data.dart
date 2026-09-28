@@ -1,4 +1,5 @@
 import '../models/interactive_lesson_model.dart';
+import '../yurutme/mblock_cozum.dart';
 import 'mblock_palette.dart';
 
 /// mBlock kursunun SIFIR modülü — hiç kart takmadan bloklarla başlangıç.
@@ -667,6 +668,16 @@ class MBlockTemelLessonsData {
             MBlockKuklaBlocks.turn('15', id: 'turn_15'),
           ],
           correctSequence: ['green_flag', 'say_hi', 'move_50'],
+          mblock: MBlockTezgahAyari(
+            // Arac kutusu kasten DAR: on sekiz blogun tamami verilince
+            // dersin sordugu soru bir arama isine donuyor.
+            bloklar: ['dev_bayrak', 'dev_de', 'dev_git', 'dev_don'],
+            cozum: [
+              MBlockBeklenen('dev_bayrak'),
+              MBlockBeklenen('dev_de', alanlar: {'METIN': 'Merhaba!'}),
+              MBlockBeklenen('dev_git', alanlar: {'ADIM': '50'}),
+            ],
+          ),
           xpReward: 30,
         ),
 
@@ -1054,6 +1065,24 @@ class MBlockTemelLessonsData {
             MBlockKuklaBlocks.move('50', id: 'move_50'),
           ],
           correctSequence: ['green_flag', 'repeat_10', 'turn_36', 'wait_02'],
+          mblock: MBlockTezgahAyari(
+            bloklar: [
+              'dev_bayrak',
+              'dev_tekrarla',
+              'dev_don',
+              'dev_bekle',
+              'dev_git',
+            ],
+            cozum: [
+              MBlockBeklenen('dev_bayrak'),
+              MBlockBeklenen('dev_tekrarla', alanlar: {
+                'KERE': '10'
+              }, icerik: [
+                MBlockBeklenen('dev_don', alanlar: {'ACI': '36'}),
+                MBlockBeklenen('dev_bekle', alanlar: {'SANIYE': '0.2'}),
+              ]),
+            ],
+          ),
           xpReward: 35,
         ),
 

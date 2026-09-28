@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../yurutme/mblock_cozum.dart';
+
 /// Modern, FreeCodeCamp-inspired interactive lesson model
 /// Focused on engagement, not Wikipedia-style reading
 ///
@@ -490,6 +492,21 @@ class BlockBuilderStep extends LessonStep {
   final List<String> correctSequence; // Block IDs in order
   final String? previewAnimation;
 
+  /// mBlock tezgahi ayari — verilirse adim GERCEK editorle calisir.
+  ///
+  /// NEDEN BURADA BIR ALAN
+  /// ---------------------
+  /// mBlock derslerinde blok kurmak artik kartlari siraya dizmek degil,
+  /// scratch-blocks tezgahinda surukleyip yapistirmak. Bunun icin ayri
+  /// bir `StepType` acmak, adim turunu sayan her yeri (ekran, ilerleme,
+  /// testler) degistirmek demekti; oysa adimin ANLAMI ayni: blok kur.
+  /// Alan bos birakilirsa eski kart dizme ekrani cikiyor, yani Scratch
+  /// ve Arduino kurslari hic etkilenmiyor.
+  ///
+  /// Tip `Object?` degil cunku modelin tezgah ayarina bagimli olmasi
+  /// kasitli: ders dosyasi cozumu yazarken derleyici denetliyor.
+  final MBlockTezgahAyari? mblock;
+
   // Bilingual
   final String? instructionEn;
   final String? instructionDe;
@@ -505,6 +522,7 @@ class BlockBuilderStep extends LessonStep {
     required this.availableBlocks,
     required this.correctSequence,
     this.previewAnimation,
+    this.mblock,
     this.instructionEn,
     this.instructionDe,
     this.instructionEs,

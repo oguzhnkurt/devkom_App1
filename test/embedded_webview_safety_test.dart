@@ -74,12 +74,57 @@ void main() {
     }
   });
 
-  test('gomulu sayfaya JavaScript enjekte edilmiyor', () {
+  test('UZAK bir sayfaya JavaScript enjekte edilmiyor', () {
+    // KURALIN KAPSAMI DARALTILDI — sebebi asagida.
+    //
+    // Yasak bastan beri UCUNCU TARAFIN sayfasina mudahale etmekle
+    // ilgiliydi: reklam silmek kullanim sartlarina aykiri, otomatik
+    // tiklamak cocugu reklama tiklatabiliyor. Ama kural "hicbir yerde
+    // runJavaScript yok" diye yazilmisti ve bu, kendi paketimizden
+    // gelen bir sayfayi kurmayi da yasakliyordu.
+    //
+    // mBlock tezgahi (lib/courses/screens/widgets/mblock_tezgahi.dart)
+    // tam olarak boyle bir sayfa: scratch-blocks uygulamanin icinde,
+    // `loadFlutterAsset` ile aciliyor, hicbir adrese gidilmiyor ve
+    // sayfanin kendi Icerik Guvenligi Politikasi disariyi tamamen
+    // kapatiyor. Tezgaha hangi bloklarin verilecegini soylemek icin
+    // sayfayla konusmak sart.
+    //
+    // Yeni kural: runJavaScript YALNIZCA yerelden yuklenen sayfalarda
+    // serbest. Dosya `loadRequest` ile bir adrese gidiyorsa — yani
+    // sayfa bizim degilse — yasak aynen duruyor.
     for (final dosya in webViewDosyalari) {
-      expect(dosya.value.contains('runJavaScript'), isFalse,
-          reason: '${dosya.key}: ucuncu tarafin sayfasina mudahale '
-              'ediyor. Reklam silmek kullanim sartlarina aykiri, '
-              'otomatik tiklamak ise cocugu reklama tiklatabiliyor.');
+      final kaynak = dosya.value;
+      if (!kaynak.contains('runJavaScript')) continue;
+
+      final yerelden = kaynak.contains('loadFlutterAsset') ||
+          kaynak.contains('loadHtmlString');
+      expect(yerelden, isTrue,
+          reason: '${dosya.key}: runJavaScript kullaniyor ama sayfayi '
+              'yerelden yuklemiyor. Ucuncu tarafin sayfasina mudahale '
+              'edilemez.');
+
+      expect(kaynak.contains('loadRequest'), isFalse,
+          reason: '${dosya.key}: hem bir adrese gidiyor hem de '
+              'JavaScript calistiriyor. Yerel sayfa istisnasi yalnizca '
+              'uygulamanin KENDI sayfasi icin gecerli.');
     }
+  });
+
+  test('yerel sayfa istisnasini kullanan dosya paketten yukluyor', () {
+    // Tezgah bu istisnanin tek kullanicisi. Ileride biri
+    // `loadFlutterAsset`i silip adresten yuklemeye gecerse yukaridaki
+    // kural bunu yakalar; burasi dosyanin yerinde durdugunu ve
+    // gezinmeyi engelledigini ayrica sabitliyor.
+    final tezgah =
+        File('lib/courses/screens/widgets/mblock_tezgahi.dart');
+    expect(tezgah.existsSync(), isTrue);
+    final kaynak = tezgah
+        .readAsLinesSync()
+        .where((s) => !s.trimLeft().startsWith('//'))
+        .join('\n');
+    expect(kaynak.contains('loadFlutterAsset'), isTrue);
+    expect(kaynak.contains('NavigationDecision.prevent'), isTrue);
+    expect(kaynak.contains('loadRequest'), isFalse);
   });
 }

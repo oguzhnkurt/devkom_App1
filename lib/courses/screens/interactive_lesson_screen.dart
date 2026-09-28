@@ -7,6 +7,7 @@ import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/user_progress_service.dart';
+import 'widgets/mblock_blok_adimi.dart';
 import 'widgets/step_widgets.dart';
 import 'package:confetti/confetti.dart';
 import '../../theme.dart';
@@ -346,8 +347,24 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
         );
 
       case StepType.blockBuilder:
+        final blokAdimi = step as BlockBuilderStep;
+        // mBlock dersleri gercek tezgahi kullaniyor: kartlari siraya
+        // dizmek yerine surukleyip yapistirmak. Ayar yoksa (Scratch,
+        // Arduino) eski ekran aynen calisiyor.
+        final tezgahAyari = blokAdimi.mblock;
+        if (tezgahAyari != null) {
+          return MBlockBlokAdimi(
+            step: blokAdimi,
+            ayar: tezgahAyari,
+            course: widget.course,
+            isDark: isDark,
+            onComplete: (correct) => _onStepCompleted(
+              xpEarned: correct ? step.xpReward : 0,
+            ),
+          );
+        }
         return BlockBuilderStepWidget(
-          step: step as BlockBuilderStep,
+          step: blokAdimi,
           course: widget.course,
           isDark: isDark,
           onComplete: (correct) => _onStepCompleted(

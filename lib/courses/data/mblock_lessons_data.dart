@@ -1,5 +1,6 @@
 
 import '../models/interactive_lesson_model.dart';
+import '../yurutme/mblock_cozum.dart';
 import 'mblock_palette.dart';
 import 'mblock_temel_lessons_data.dart';
 
@@ -714,6 +715,14 @@ class MBlockLessonsData {
             MBlockBlocks.wait('1'),
           ],
           correctSequence: ['board_launch', 'led_on'],
+          mblock: MBlockTezgahAyari(
+            bloklar: ['dev_kart_acilis', 'dev_dijital_yaz', 'dev_bekle'],
+            cozum: [
+              MBlockBeklenen('dev_kart_acilis'),
+              MBlockBeklenen('dev_dijital_yaz',
+                  alanlar: {'PIN': '9', 'SEVIYE': 'HIGH'}),
+            ],
+          ),
           xpReward: 30,
         ),
 
@@ -924,6 +933,25 @@ class MBlockLessonsData {
             'led_off',
             'wait_off',
           ],
+          mblock: MBlockTezgahAyari(
+            bloklar: [
+              'dev_kart_acilis',
+              'dev_surekli',
+              'dev_dijital_yaz',
+              'dev_bekle',
+            ],
+            cozum: [
+              MBlockBeklenen('dev_kart_acilis'),
+              MBlockBeklenen('dev_surekli', icerik: [
+                MBlockBeklenen('dev_dijital_yaz',
+                    alanlar: {'PIN': '9', 'SEVIYE': 'HIGH'}),
+                MBlockBeklenen('dev_bekle', alanlar: {'SANIYE': '1'}),
+                MBlockBeklenen('dev_dijital_yaz',
+                    alanlar: {'PIN': '9', 'SEVIYE': 'LOW'}),
+                MBlockBeklenen('dev_bekle', alanlar: {'SANIYE': '1'}),
+              ]),
+            ],
+          ),
           xpReward: 35,
         ),
 
