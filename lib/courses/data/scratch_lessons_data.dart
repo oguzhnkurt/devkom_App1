@@ -542,31 +542,35 @@ class ScratchLessonsData {
         // Quiz: Order matters
         OrderingStep(
           id: 's1_2_order',
-          instruction: 'Blokları doğru sıraya koy',
-          instructionEn: 'Put the blocks in the right order',
-          instructionDe: 'Bring die Blöcke in die richtige Reihenfolge',
-          instructionEs: 'Pon los bloques en el orden correcto',
+          instruction: 'Blokları sürükleyip doğru sıraya koy',
+          instructionEn: 'Drag the blocks into the right order',
+          instructionDe: 'Zieh die Blöcke in die richtige Reihenfolge',
+          instructionEs: 'Arrastra los bloques al orden correcto',
           items: [
             OrderItem(id: 'move', content: '10 adım git', contentEn: 'move 10 steps', contentDe: 'gehe 10 er Schritt', contentEs: 'mover 10 pasos'),
-            OrderItem(id: 'flag', content: 'tıklandığında', contentEn: 'when clicked', contentDe: 'Wenn die grüne Flagge angeklickt wird', contentEs: 'al hacer clic en la bandera verde'),
+            OrderItem(id: 'flag', content: 'yeşil bayrak tıklandığında', contentEn: 'when green flag clicked', contentDe: 'Wenn die grüne Flagge angeklickt wird', contentEs: 'al hacer clic en la bandera verde'),
             OrderItem(id: 'say', content: 'Bitti! söyle', contentEn: 'say "Done!"', contentDe: 'sage "Fertig!"', contentEs: 'decir "¡Listo!"'),
           ],
           correctOrder: ['flag', 'move', 'say'],
-          context: 'Kedi yuruyup sonra "Bitti!" söylesin',
-          contextEn: 'Make the cat walk and then say "Done!"',
-          contextDe: 'Lass die Katze laufen und dann "Fertig!" sagen',
-          contextEs: 'Haz que el gato camine y luego diga "¡Listo!"',
+          context: 'Program yukarıdan aşağıya çalışır. Kedi önce yürüsün, '
+              'sonra "Bitti!" desin.',
+          contextEn: 'A program runs top to bottom. First the cat walks, '
+              'then it says "Done!".',
+          contextDe: 'Ein Programm läuft von oben nach unten. Erst läuft '
+              'die Katze, dann sagt sie "Fertig!".',
+          contextEs: 'Un programa se ejecuta de arriba abajo. Primero el '
+              'gato camina y luego dice "¡Listo!".',
           xpReward: 15,
         ),
 
         // Summary
         ExplanationStep(
           id: 's1_2_summary',
-          title: 'Harika Is!',
+          title: 'Harika İş!',
           titleEn: 'Great Work!',
           titleDe: 'Gut gemacht!',
           titleEs: '¡Buen trabajo!',
-          content: '🎊 İlk programını yazdın!\n\n✓ Yeşil bayragi öğrendin\n✓ Blokları birleştirdin\n✓ Kediyi yurutup konusturdun\n\nSen artık bir programcısın!',
+          content: '🎊 İlk programını yazdın!\n\n✓ Yeşil bayrağı öğrendin\n✓ Blokları birleştirdin\n✓ Kediyi yürütüp konuşturdun\n\nSen artık bir programcısın!',
           contentEn: '🎊 You wrote your first program!\n\n✓ You learned the green flag\n✓ You snapped blocks together\n✓ You made the cat walk and talk\n\nYou are a programmer now!',
           contentDe: '🎊 Du hast dein erstes Programm geschrieben!\n\n✓ Du hast die grüne Flagge kennengelernt\n✓ Du hast Blöcke zusammengesteckt\n✓ Du hast die Katze laufen und sprechen lassen\n\nDu bist jetzt Programmierer!',
           contentEs: '🎊 ¡Escribiste tu primer programa!\n\n✓ Conociste la bandera verde\n✓ Uniste bloques\n✓ Hiciste que el gato caminara y hablara\n\n¡Ya eres programador!',
