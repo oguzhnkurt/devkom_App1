@@ -219,10 +219,10 @@ class MBlockTemelLessonsData {
           visuals: [
             VisualElement(
               type: VisualType.scratchBlock,
-              content: '🏳 tıklandığında',
-              contentEn: 'when 🏳 clicked',
-              contentDe: 'wenn 🏳 angeklickt',
-              contentEs: 'al hacer clic en 🏳',
+              content: 'yeşil bayrak tıklandığında',
+              contentEn: 'when green flag clicked',
+              contentDe: 'wenn die grüne Flagge angeklickt',
+              contentEs: 'al hacer clic en la bandera verde',
               color: MBlockPalette.events,
               label: 'Olaylar · şapka',
               labelEn: 'Events · hat',
@@ -438,7 +438,7 @@ class MBlockTemelLessonsData {
       steps: [
         IntroStep(
           id: 'm0_2_intro',
-          mascotEmoji: '🏳',
+          mascotEmoji: '🟢',
           mascotMessage:
               'Şimdi üç bloktan bir yığın kuracağız ve yeşil bayrağa '
               'basacağız. Karakter konuşacak, sonra yürüyecek.\n\n'
@@ -494,7 +494,7 @@ class MBlockTemelLessonsData {
               'Olaylar kategorisi (sarı) sadece bir soruya cevap verir: '
               '"bu yığın NE ZAMAN çalışsın?"\n\n'
               'İlk ve en çok kullanılan cevabı şudur:\n\n'
-              '   🏳 tıklandığında\n\n'
+              '   yeşil bayrak tıklandığında\n\n'
               'Bu bloğu yığının en üstüne koyarsın. Sahnenin üstündeki '
               'yeşil bayrağa bastığın anda altındaki bloklar sırayla '
               'çalışmaya başlar.\n\n'
@@ -505,7 +505,7 @@ class MBlockTemelLessonsData {
               'The Events category (yellow) answers one question only: '
               '"WHEN should this stack run?"\n\n'
               'Its first and most used answer is:\n\n'
-              '   when 🏳 clicked\n\n'
+              '   when green flag clicked\n\n'
               'You put this block at the top of the stack. The moment you '
               'press the green flag above the stage, the blocks under it '
               'run in order.\n\n'
@@ -516,7 +516,7 @@ class MBlockTemelLessonsData {
               'Die Kategorie Ereignisse (gelb) beantwortet nur eine Frage: '
               '«WANN soll dieser Stapel laufen?»\n\n'
               'Ihre erste und häufigste Antwort ist:\n\n'
-              '   wenn 🏳 angeklickt\n\n'
+              '   wenn die grüne Flagge angeklickt\n\n'
               'Diesen Block setzt du oben auf den Stapel. Sobald du auf die '
               'grüne Flagge über der Bühne drückst, laufen die Blöcke '
               'darunter der Reihe nach.\n\n'
@@ -527,7 +527,7 @@ class MBlockTemelLessonsData {
               'La categoría Eventos (amarilla) responde a una sola '
               'pregunta: «¿CUÁNDO debe ejecutarse esta pila?»\n\n'
               'Su respuesta primera y más usada es:\n\n'
-              '   al hacer clic en 🏳\n\n'
+              '   al hacer clic en la bandera verde\n\n'
               'Pones este bloque arriba de la pila. En el momento en que '
               'pulsas la bandera verde encima del escenario, los bloques de '
               'debajo se ejecutan en orden.\n\n'
@@ -537,10 +537,10 @@ class MBlockTemelLessonsData {
           visuals: [
             VisualElement(
               type: VisualType.scratchBlock,
-              content: '🏳 tıklandığında',
-              contentEn: 'when 🏳 clicked',
-              contentDe: 'wenn 🏳 angeklickt',
-              contentEs: 'al hacer clic en 🏳',
+              content: 'yeşil bayrak tıklandığında',
+              contentEn: 'when green flag clicked',
+              contentDe: 'wenn die grüne Flagge angeklickt',
+              contentEs: 'al hacer clic en la bandera verde',
               color: MBlockPalette.events,
               label: 'Olaylar · şapka blok',
               labelEn: 'Events · hat block',
@@ -792,23 +792,23 @@ class MBlockTemelLessonsData {
           titleEn: 'Your First Stack Ran!',
           titleDe: 'Dein erster Stapel lief!',
           titleEs: '¡Tu primera pila funcionó!',
-          content: '🏳 Üç blokla çalışan bir program yaptın.\n\n'
+          content: '🟢 Üç blokla çalışan bir program yaptın.\n\n'
               '✓ Olaylar kategorisi "ne zaman" sorusunu cevaplıyor\n'
               '✓ Yeşil bayrak yığını başlatıyor\n'
               '✓ Bloklar yukarıdan aşağıya sırayla çalışıyor\n\n'
               'Sıradaki ders: aynı işi 10 kere yaptırmak.',
-          contentEn: '🏳 Three blocks and you have a working program.\n\n'
+          contentEn: '🟢 Three blocks and you have a working program.\n\n'
               '✓ The Events category answers "when"\n'
               '✓ The green flag starts the stack\n'
               '✓ Blocks run top to bottom, in order\n\n'
               'Next lesson: doing the same thing ten times.',
-          contentDe: '🏳 Drei Blöcke, und du hast ein laufendes '
+          contentDe: '🟢 Drei Blöcke, und du hast ein laufendes '
               'Programm.\n\n'
               '✓ Die Kategorie Ereignisse beantwortet das «Wann»\n'
               '✓ Die grüne Flagge startet den Stapel\n'
               '✓ Blöcke laufen von oben nach unten, der Reihe nach\n\n'
               'Nächste Lektion: dasselbe zehnmal machen.',
-          contentEs: '🏳 Tres bloques y ya tienes un programa que '
+          contentEs: '🟢 Tres bloques y ya tienes un programa que '
               'funciona.\n\n'
               '✓ La categoría Eventos responde al «cuándo»\n'
               '✓ La bandera verde inicia la pila\n'

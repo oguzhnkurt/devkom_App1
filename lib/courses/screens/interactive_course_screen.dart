@@ -125,7 +125,11 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
 
     if (_modules.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: Text(widget.course.name)),
+        // Kurs adi da cevrilmeli: Ingilizce ekranda "mBlock ile
+        // Kodlama" yaziyordu. Modelde nameEn/De/Es zaten vardi,
+        // yalnizca okunmuyordu.
+        appBar: AppBar(
+            title: Text(widget.course.nameFor(lessonLang(context)))),
         body: Center(
           child: Text(lessonLang(context) == 'en'
               ? 'Interactive content for this course is not ready yet.'
@@ -168,7 +172,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
       ),
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          widget.course.name,
+          widget.course.nameFor(lessonLang(context)),
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,

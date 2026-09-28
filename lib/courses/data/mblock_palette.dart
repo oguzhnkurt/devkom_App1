@@ -421,10 +421,13 @@ class MBlockKuklaBlocks {
         id: id,
         blockType: ScratchBlockType.events,
         shape: ScratchBlockShape.cap,
-        label: '🏳 tıklandığında',
-        labelEn: 'when 🏳 clicked',
-        labelDe: 'wenn 🏳 angeklickt',
-        labelEs: 'al hacer clic en 🏳',
+        // EMOJI YOK. 🏳 beyaz bayraktir; yesil bayragin emojisi yok.
+        // Zaten gerek de yok: ScratchBlockWidget id'si "green_flag"
+        // olan blogun yanina gercek yesil bayrak simgesini ciziyor.
+        label: 'tıklandığında',
+        labelEn: 'clicked',
+        labelDe: 'angeklickt',
+        labelEs: 'al hacer clic',
         color: MBlockPalette.events,
       );
 

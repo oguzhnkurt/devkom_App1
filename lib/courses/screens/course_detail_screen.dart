@@ -1,5 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/settings_provider.dart';
 import '../models/course_model.dart';
 import '../data/lessons_data.dart';
 import 'lesson_screen.dart';
@@ -63,7 +66,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ),
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          course.name,
+          // Kurs adi cevrilmeli; Ingilizce ekranda Turkce ad
+          // kaliyordu.
+          course.nameFor(
+              context.watch<SettingsProvider>().locale.languageCode),
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,

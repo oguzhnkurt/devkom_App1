@@ -21,11 +21,13 @@ import 'step_widgets.dart' show lessonLang, lessonLangRead, lessonText;
 ///
 ///  * Sayfa uygulamanin KENDI paketinden geliyor (`loadFlutterAsset`),
 ///    hicbir adrese cikilmiyor.
-///  * `onNavigationRequest` her gezinmeyi engelliyor. Sayfanin icinde
-///    bir baglanti olussa bile cocuk uygulamanin disina cikamaz —
+///  * `onNavigationRequest` yalnizca KENDI tezgah sayfamiza izin
+///    veriyor, baska her gezinmeyi engelliyor. Sayfanin icinde bir
+///    baglanti olussa bile cocuk uygulamanin disina cikamaz —
 ///    ebeveyn kapisi gomulu bir sayfanin baglantilarini korumuyor.
-///  * Sayfanin Icerik Guvenligi Politikasi `default-src 'none'`:
-///    uzaktan betik, yazi tipi, resim ya da baglanti CEKILEMEZ.
+///  * Sayfanin Icerik Guvenligi Politikasi sema tabanli ve hicbir
+///    yerinde http/https yok; `connect-src 'none'` ag isteklerini
+///    tamamen kapatiyor. Yani uzaktan hicbir sey CEKILEMEZ.
 ///  * `runJavaScript` yalnizca KENDI sayfamizi kurmak icin kullaniliyor
 ///    (`MBlockTezgah.kur(...)`). Yasak ucuncu tarafin sayfasina
 ///    mudahale etmekle ilgiliydi; burada uzak bir sayfa yok.
@@ -100,8 +102,30 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
         ..addJavaScriptChannel('TezgahKanali', onMessageReceived: _mesaj)
         ..setNavigationDelegate(
           NavigationDelegate(
-            // HICBIR YERE GIDILMEZ.
-            onNavigationRequest: (_) => NavigationDecision.prevent,
+            // SAYFANIN KENDI YUKLENMESI DE BIR GEZINME ISTEGIDIR.
+            //
+            // Burasi once kosulsuz `prevent` donuyordu ve tezgah iOS'ta
+            // HIC acilmadi: `loadFlutterAsset` bir file:// gezinmesi
+            // baslatiyor, delege onu da engelliyordu. Sayfa hic
+            // yuklenmedigi icin ne bir hata dusuyordu ne de sayfadan
+            // mesaj geliyordu — ekranda yalnizca sabir sayaci
+            // konusuyordu. (kod_tezgahi.dart'ta ayni kalip sorunsuz,
+            // cunku orada sayfa `loadHtmlString` ile geliyor ve bu bir
+            // gezinme istegi uretmiyor.)
+            //
+            // Kural: yalnizca KENDI paketimizdeki tezgah sayfasi.
+            // Baska her sey — cocugun ya da bir hatanin uretebilecegi
+            // her baglanti — engelleniyor.
+            onNavigationRequest: (istek) {
+              final adres = istek.url;
+              final bizim = adres.contains('assets/mblock/') ||
+                  adres.startsWith('about:');
+              if (!bizim) {
+                debugPrint('⛔ mBlock tezgahi gezinmeyi engelledi: $adres');
+                return NavigationDecision.prevent;
+              }
+              return NavigationDecision.navigate;
+            },
             onPageFinished: (url) {
               debugPrint('🔎 mBlock tezgahi sayfasi yuklendi: $url');
               _sayfaHazir();
