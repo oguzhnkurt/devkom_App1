@@ -19,7 +19,7 @@ void main() {
   final expected = <String>[
     'tap',
     'drop',
-    for (final v in voices) ...['correct_$v', 'wrong_$v', 'complete_$v'],
+    for (final v in voices) 'wrong_$v',
   ];
 
   test('her ses dosyasi var ve bos degil', () {
@@ -45,15 +45,29 @@ void main() {
     }
   });
 
-  test('her oyun rengi icin ucu de var', () {
-    // Bir rengin "dogru" sesi olup "yanlis" sesi olmazsa, o oyunda
-    // yanlis cevap sessiz kalir.
+  test('her oyun rengi icin yanlis sesi var', () {
+    // Bir renk eksik kalirsa o oyunda yanlis cevap sessiz gecer.
     for (final v in voices) {
-      for (final kind in ['correct', 'wrong', 'complete']) {
-        expect(File('assets/sounds/${kind}_$v.wav').existsSync(), isTrue,
-            reason: '$kind/$v eksik');
+      expect(File('assets/sounds/wrong_$v.wav').existsSync(), isTrue,
+          reason: 'wrong/$v eksik');
+    }
+  });
+
+  test('sentezlenmis dogru/bitis sesleri geri gelmedi', () {
+    // correct_* ve complete_* kulaga ucuz geliyordu ve bir turda
+    // onlarca kez duyuluyordu. Yerlerini gercek kayitlar aldi
+    // (oyun_dogru, bolum_bitti); dosyalar silindi.
+    for (final v in voices) {
+      for (final kind in ['correct', 'complete']) {
+        expect(File('assets/sounds/${kind}_$v.wav').existsSync(), isFalse,
+            reason: '$kind/$v geri gelmis');
       }
     }
+    final servis = File('lib/services/sound_service.dart').readAsStringSync();
+    expect(servis.contains("_play('oyun_dogru'"), isTrue);
+    expect(servis.contains("_play('bolum_bitti'"), isTrue);
+    expect(servis.contains("_play('correct_"), isFalse);
+    expect(servis.contains("_play('complete_"), isFalse);
   });
 
   group('gercek kayitlar', () {
@@ -69,6 +83,8 @@ void main() {
       'buyuk_basari': 3.0, // modul sinavi
       'oyun_bitti': 2.0,
       'kilit_acildi': 1.0,
+      'oyun_dogru': 1.0, // her dogru cevapta: en kisasi olmali
+      'bolum_bitti': 2.0,
     };
 
     test('dosyalar var, mono 44.1 kHz ve sinirdan kisa', () {

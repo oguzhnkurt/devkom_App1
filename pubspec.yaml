@@ -96,6 +96,10 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.14.3
+  # .mblock dosyalari birer zip: test/mblock_proje_test.dart proje
+  # dosyasini acip ders metnindeki sayilarla karsilastiriyor. Yalnizca
+  # test icin; uygulama paketine girmiyor.
+  archive: ^4.0.0
 
 flutter_launcher_icons:
   ios: true

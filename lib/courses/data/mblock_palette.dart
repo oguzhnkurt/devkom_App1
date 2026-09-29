@@ -466,6 +466,34 @@ class MBlockKuklaBlocks {
         color: MBlockKuklaPalette.looks,
       );
 
+  /// `sonraki kostüm` — Scratch'in kendi Türkçe yazımı (kısa hâli).
+  ///
+  /// Dans Partisi projesinin can damarı: dört kostümü sırayla
+  /// göstermek, karakteri dans ettiriyor.
+  static ScratchBlock nextCostume({String id = 'next_costume'}) =>
+      ScratchBlock(
+        id: id,
+        blockType: ScratchBlockType.looks,
+        shape: ScratchBlockShape.stack,
+        label: 'sonraki kostüm',
+        labelEn: 'next costume',
+        labelDe: 'wechsle zum nächsten Kostüm',
+        labelEs: 'siguiente disfraz',
+        color: MBlockKuklaPalette.looks,
+      );
+
+  static ScratchBlock switchBackdrop(String dekor, {String? id}) =>
+      ScratchBlock(
+        id: id ?? 'backdrop',
+        blockType: ScratchBlockType.looks,
+        shape: ScratchBlockShape.stack,
+        label: '$dekor dekoruna geç',
+        labelEn: 'switch backdrop to $dekor',
+        labelDe: 'wechsle zu Bühnenbild $dekor',
+        labelEs: 'cambiar fondo a $dekor',
+        color: MBlockKuklaPalette.looks,
+      );
+
   static ScratchBlock changeSize(String amount, {String? id}) => ScratchBlock(
         id: id ?? 'change_size',
         blockType: ScratchBlockType.looks,
@@ -497,6 +525,67 @@ class MBlockKuklaBlocks {
         labelDe: 'wiederhole $times mal',
         labelEs: 'repetir $times veces',
         color: MBlockPalette.control,
+      );
+
+  /// `%1 yönüne dön` — Scratch'in kendi Türkçe yazımı.
+  ///
+  /// Bu ve altındaki üç blok Akvaryum projesinden geldi: balıkların
+  /// yüzmesi tam olarak bu dörtlüyle yapılıyor.
+  static ScratchBlock pointInDirection(String derece, {String? id}) =>
+      ScratchBlock(
+        id: id ?? 'point_$derece',
+        blockType: ScratchBlockType.motion,
+        shape: ScratchBlockShape.stack,
+        label: '$derece yönüne dön',
+        labelEn: 'point in direction $derece',
+        labelDe: 'setze Richtung auf $derece Grad',
+        labelEs: 'apuntar en dirección $derece',
+        color: MBlockKuklaPalette.motion,
+      );
+
+  static ScratchBlock ifOnEdgeBounce({String id = 'edge_bounce'}) =>
+      ScratchBlock(
+        id: id,
+        blockType: ScratchBlockType.motion,
+        shape: ScratchBlockShape.stack,
+        label: 'kenara geldiyse sek',
+        labelEn: 'if on edge, bounce',
+        labelDe: 'pralle vom Rand ab',
+        labelEs: 'si toca un borde, rebotar',
+        color: MBlockKuklaPalette.motion,
+      );
+
+  /// `dönüş stilini %1 yap`. [solSag] false ise "tüm yönlere dönebilir".
+  static ScratchBlock setRotationStyle({bool solSag = true, String? id}) =>
+      ScratchBlock(
+        id: id ?? (solSag ? 'rot_left_right' : 'rot_all_around'),
+        blockType: ScratchBlockType.motion,
+        shape: ScratchBlockShape.stack,
+        label: solSag
+            ? 'dönüş stilini sol-sağ yap'
+            : 'dönüş stilini tüm yönlere dönebilir yap',
+        labelEn: solSag
+            ? 'set rotation style left-right'
+            : 'set rotation style all around',
+        labelDe: solSag
+            ? 'setze Drehtyp auf links-rechts'
+            : 'setze Drehtyp auf rundherum',
+        labelEs: solSag
+            ? 'fijar estilo de rotación a izquierda-derecha'
+            : 'fijar estilo de rotación a en todas direcciones',
+        color: MBlockKuklaPalette.motion,
+      );
+
+  static ScratchBlock playSoundUntilDone(String ses, {String? id}) =>
+      ScratchBlock(
+        id: id ?? 'sound_until_done',
+        blockType: ScratchBlockType.sound,
+        shape: ScratchBlockShape.stack,
+        label: '$ses sesini bitene kadar çal',
+        labelEn: 'play sound $ses until done',
+        labelDe: 'spiele Klang $ses ganz',
+        labelEs: 'tocar sonido $ses hasta que termine',
+        color: MBlockKuklaPalette.sound,
       );
 
   static ScratchBlock forever({String id = 'k_forever'}) => ScratchBlock(

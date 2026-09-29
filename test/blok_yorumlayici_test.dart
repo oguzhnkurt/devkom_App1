@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -139,4 +142,117 @@ void main() {
     // kalsin diye.
     expect(toplam, greaterThan(0));
   });
+
+  group('9-11. modullerin bloklari', () {
+    // GERCEK OLAY: cocuk 9.1'de "1 ile 6 arasinda rastgele bir sayi sec
+    // de" kodunu kurup KODU CALISTIR'a basiyordu ve ekranda "Sahnede
+    // degisen bir sey olmadi" yaziyordu. Yani rastgeleligi anlatan ders,
+    // calistirildiginda hicbir sayi gostermiyordu.
+    test('rastgele blok GERCEKTEN sayi soyluyor ve sayi araliginda', () {
+      for (var tohum = 0; tohum < 40; tohum++) {
+        final sonuc = BlokYorumlayici(rastgele: Random(tohum)).yurut([
+          _b('green_flag', sekil: ScratchBlockShape.cap),
+          _b('say_random_die'),
+        ]);
+        final soylenen = int.tryParse(sonuc.sonSahne.soyledigi ?? '');
+        expect(soylenen, isNotNull,
+            reason: 'Kukla bir SAYI soylemeliydi.');
+        expect(soylenen, inInclusiveRange(1, 6),
+            reason: 'Zar 1-6 disina cikti: $soylenen');
+      }
+    });
+
+    test('rastgele her calistirmada ayni sonucu vermiyor', () {
+      // Dersin butun konusu bu: ayni program, farkli sonuc.
+      final sonuclar = <String>{};
+      for (var i = 0; i < 60; i++) {
+        final s = const BlokYorumlayici().yurut([_b('say_random_die')]);
+        sonuclar.add(s.sonSahne.soyledigi ?? '');
+      }
+      expect(sonuclar.length, greaterThan(1),
+          reason: 'Altmis calistirmada hep ayni sayi cikti.');
+    });
+
+    test('listeye ekleme ve silme sahnede gorunuyor', () {
+      final sonuc = const BlokYorumlayici().yurut([
+        _b('green_flag', sekil: ScratchBlockShape.cap),
+        _b('add_apple'),
+        _b('add_banana'),
+      ]);
+      expect(sonuc.sonSahne.listeler['alışveriş'], ['elma', 'muz'],
+          reason: 'Ekleme sirasi listenin sirasidir.');
+
+      final silinmis = const BlokYorumlayici().yurut([
+        _b('add_apple'),
+        _b('add_banana'),
+        _b('delete_first'),
+      ]);
+      expect(silinmis.sonSahne.listeler['alışveriş'], ['muz'],
+          reason: '1. oge silinince alttaki yukari kayar.');
+    });
+
+    test('kalem ve donus sahneyi degistiriyor', () {
+      final sonuc = const BlokYorumlayici().yurut([
+        _b('pen_down'),
+        _b('move_100'),
+        _b('turn_90'),
+      ]);
+      expect(sonuc.sonSahne.kalemInik, isTrue);
+      expect(sonuc.sonSahne.x, 100);
+      expect(sonuc.sonSahne.yon, 180, reason: '90 + 90 = 180 derece.');
+
+      final kalkik = const BlokYorumlayici().yurut([
+        _b('pen_down'),
+        _b('pen_up'),
+      ]);
+      expect(kalkik.sonSahne.kalemInik, isFalse);
+    });
+
+    test('kare cizimi dort kenar dort donus', () {
+      // 8.2'nin kendisi: 4 kere { 100 adim git, 90 derece don }.
+      final sonuc = const BlokYorumlayici().yurut([
+        _b('green_flag', sekil: ScratchBlockShape.cap),
+        _b('pen_clear'),
+        _b('pen_down'),
+        _b('repeat_4', sekil: ScratchBlockShape.cBlock),
+        _b('move_100'),
+        _b('turn_90'),
+      ]);
+      final donusler =
+          sonuc.adimlar.where((a) => a.blokId == 'turn_90').length;
+      expect(donusler, 4);
+      // Dort kez 90 derece = tam tur: kukla basladigi yone bakiyor.
+      expect(sonuc.sonSahne.yon, 90);
+    });
+  });
+
+  group('kod calistirma ekrani', () {
+    late String oynatici;
+    setUpAll(() {
+      oynatici =
+          File('lib/widgets/block_animation_player.dart').readAsStringSync();
+    });
+
+    test('sahnedeki karakter bizim maskotumuz', () {
+      // Kedi Scratch'in maskotu; uygulamanin her yerinde Devi var.
+      expect(oynatici.contains('🐱'), isFalse,
+          reason: 'Kedi emojisi geri gelmis.');
+      expect(oynatici.contains('Mascot('), isTrue);
+    });
+
+    test('hareketsiz kodda yurume sahnesi cizilmiyor', () {
+      // "Rastgele sayi sec de" kodunda zemin cizgisi ve yesil duvar
+      // alakasiz duruyordu.
+      expect(oynatici.contains('if (_hareketVar) _sahne() else _sadeMaskot()'),
+          isTrue);
+    });
+
+    test('konusma metni sozlukten okunuyor', () {
+      // Etiketi temizlemek balona "1 ile 6 arasinda rastgele bir sayi
+      // sec" cumlesini yaziyordu; olmasi gereken bir SAYI.
+      expect(oynatici.contains('blokSozlugu[blok.id]'), isTrue);
+      expect(oynatici.contains('anlam.rastgeleAlt'), isTrue);
+    });
+  });
+
 }

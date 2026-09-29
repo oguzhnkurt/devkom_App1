@@ -165,6 +165,21 @@ class CalismaIzi extends StatelessWidget {
     if (sonuc.sonSahne.soyledigi != null) {
       parcalar.add('"${sonuc.sonSahne.soyledigi}"');
     }
+    if (sonuc.sonSahne.kostum != 1) {
+      parcalar.add('${lessonText(lang, 'kostüm', 'costume', 'Kostüm',
+          'disfraz')}: ${sonuc.sonSahne.kostum}');
+    }
+    if (sonuc.sonSahne.yon != 90) {
+      parcalar.add('${lessonText(lang, 'yön', 'direction', 'Richtung',
+          'dirección')}: ${sonuc.sonSahne.yon.toInt()}°');
+    }
+    if (sonuc.sonSahne.kalemInik) {
+      parcalar.add(lessonText(lang, 'kalem inik', 'pen down',
+          'Stift unten', 'lápiz abajo'));
+    }
+    sonuc.sonSahne.listeler.forEach((ad, icerik) {
+      parcalar.add('$ad: [${icerik.join(', ')}]');
+    });
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -174,12 +189,16 @@ class CalismaIzi extends StatelessWidget {
       ),
       child: Text(
         parcalar.isEmpty
+            // "Sahnede degisen bir sey olmadi" bir HATA gibi
+            // okunuyordu — oysa cogu zaman dogru olan buydu: bloklar
+            // sirayla calisti ama gorunur bir iz birakmadi. Cumle artik
+            // once ne OLDUGUNU soyluyor.
             ? lessonText(
                 lang,
-                'Sahnede değişen bir şey olmadı.',
-                'Nothing on the stage changed.',
-                'Auf der Bühne hat sich nichts geändert.',
-                'Nada cambió en el escenario.')
+                'Bloklar sırayla çalıştı; sahnede görünür bir iz bırakmadılar.',
+                'The blocks ran in order; they left no visible mark on the stage.',
+                'Die Blöcke liefen der Reihe nach; auf der Bühne blieb nichts sichtbar.',
+                'Los bloques se ejecutaron en orden; no dejaron marca visible en el escenario.')
             : parcalar.join('   ·   '),
         style: const TextStyle(
           fontFamily: 'monospace',

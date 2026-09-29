@@ -2582,7 +2582,7 @@ class PythonLessonsData {
           language: 'python',
           starterCode: '\n\nsayi = \nprint(sayi)',
           hints: [
-            'En basa import random yazmalısın',
+            'En başa import random yazmalısın',
             'random.randint(1, 10) rastgele sayı üretir',
           ],
           hintsEn: [

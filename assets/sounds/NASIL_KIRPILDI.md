@@ -2,16 +2,23 @@
 
 Klasörde iki ayrı kaynak var ve ikisi bilerek bir arada:
 
-## 1. Sentezlenmiş aile — `correct_*`, `wrong_*`, `complete_*`
+## 1. Sentezlenmiş aile — yalnızca `wrong_*`
 
 Uygulama için üretilen yumuşak sinüs tonları (Do majör). Dört ton rengi:
-`bright`, `warm`, `soft`, `deep`. Her oyun kendi rengini alıyor
-(`SfxVoice`), böylece bütün oyunlar aynı sesi çalmıyor ama "bu
-uygulamanın sesi" hissi bozulmuyor.
+`bright`, `warm`, `soft`, `deep`; her oyun kendi rengini alıyor
+(`SfxVoice`).
 
-**Bu aile satın alınan kayıtlarla değiştirilemez:** pakette dört ayrı
-"doğru" sesi yok, tek bir onay sesi var. Dördünü tek sesle
-değiştirmek oyunları sesten ayırt edilemez hâle getirirdi.
+`correct_*` ve `complete_*` de bu aileydi, **silindiler**. Gerekçe
+kullanıcının ifadesiyle: "Sabah Rutini görevini başarıyla tamamlayınca
+gelen ses çok itici… çok basit." Haklı bir itiraz — sentezlenmiş üçlü
+sekiz bitlik bir oyuncak sesi gibi duruyordu ve bir turda onlarca kez
+duyulduğu için kısa sürede yıpratıyordu. Yerlerini satın alınan
+paketten kırpılmış gerçek kayıtlar aldı.
+
+**Yanlış sesi neden hâlâ sentezlenmiş?** Paketteki başarısızlık
+sesleri (Failure, Cartoon Failure) çizgi film tarzında ve
+cezalandırıcı. 6-12 yaş için yumuşak, alçak bir "olmadı" tonu daha
+doğru: yanlış denemek öğrenmenin parçası.
 
 ## 2. Satın alınan paketten kırpılan gerçek kayıtlar
 
@@ -28,10 +35,12 @@ Kaynak: `mobile-game-app-pack` (kullanıcı tarafından satın alındı,
 | `ilk_basari.wav` | Big Band Celebration | 2,85 sn | Açılıştaki ilk görev |
 | `jeton.wav` | Collect Gold | 1,30 sn | Görev ödülü, oyunda puan |
 | `oyun_bitti.wav` | Cartoon Failure | 1,60 sn | Oyun bitti |
+| `oyun_dogru.wav` | Application Confirm | 0,55 sn | Oyunda doğru cevap |
+| `bolum_bitti.wav` | App Success | 1,40 sn | Oyunda seviye/bölüm bitti |
 | `kilit_acildi.wav` | Dings | 0,55 sn | Reklam izlendi, ders açıldı |
 
-Paketin kalan altı sesi (Application Confirm, Application Error,
-App Success, Cartoon Drama, Donation Received, Failure) **alınmadı**:
+Paketin kalan dört sesi (Application Error, Cartoon Drama,
+Donation Received, Failure) **alınmadı**:
 ya elimizdekinin neredeyse aynısı (Application Confirm ile App Pop Up
 aynı dosya boyutunda), ya da bağlanacak bir an yok. Kullanılmayan ses
 pakete ağırlık katıyor; `sound_assets_test.dart` içindeki "her ses
@@ -47,7 +56,10 @@ gövdesinin bittiği yer bulundu, sonuna kareli bir fade kondu (5 ms
 giriş fade'i de var: örneğin ortasından başlayan bir dalga "tık"
 sesi yapıyor).
 
-Ses seviyesi: RMS **-18…-20 dB**, tepe **-1,5 dB** sınırında. Bu
+Ses seviyesi: RMS **-18…-22 dB**, tepe **-1,5 dB** sınırında. En
+sık duyulan ses (`oyun_dogru`) en sessizi: -22 dB ve üstüne kodda
+0,85 kısma. Bir tur boyunca onlarca kez çalan bir sesin yüksek
+olması gerekmiyor, tersine. Bu
 aralık keyfî değil — sentezlenmiş ailenin RMS'i -12…-16 dB, gerçek
 kayıtlar transient taşıdığı için aynı RMS'te kulağa daha yüksek
 geliyor. İkisi yan yana çaldığında birinin diğerini bastırmaması

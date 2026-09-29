@@ -36,6 +36,12 @@ enum BlokKomutu {
   gitXY,
 
   /// `%1 de`
+  ///
+  /// [BlokAnlami.rastgeleAlt] ve [BlokAnlami.rastgeleUst] doluysa
+  /// soylenen sey SABIT DEGIL: her calistirmada o araliktan yeni bir
+  /// sayi seciliyor. "1 ile 6 arasinda rastgele bir sayi sec de"
+  /// blogunun butun dersi bu — ekranda hep ayni sayi cikarsa ders
+  /// kendi anlattigi seyi yalanlar.
   soyle,
 
   /// `%1 saniye bekle`
@@ -46,6 +52,26 @@ enum BlokKomutu {
 
   /// `%1 i %2 kadar degistir`
   degiskenArtir,
+
+  /// `↻ %1 derece don` — bulundugu yonden %1 kadar doner.
+  don,
+
+  /// `%1 yonune don` — yonu dogrudan %1 yapar (goreli degil, MUTLAK).
+  yonAyarla,
+
+  /// `sonraki kostum` — kuklanin kostum sirasini bir arttirir.
+  sonrakiKostum,
+
+  /// `kalem indir` / `kalem kaldir` / `sil`
+  kalemIndir,
+  kalemKaldir,
+  kalemSil,
+
+  /// `%1 i %2 ye ekle` — listeye oge ekler.
+  listeyeEkle,
+
+  /// `%2 in %1 ini sil` — listeden oge cikarir.
+  listedenSil,
 
   /// `%1 defa tekrarla` — C blogu, govdesi kendinden sonraki bloklar.
   tekrarla,
@@ -70,6 +96,9 @@ class BlokAnlami {
     this.sayi2,
     this.metin,
     this.degisken,
+    this.liste,
+    this.rastgeleAlt,
+    this.rastgeleUst,
   });
 
   final BlokKomutu komut;
@@ -85,6 +114,14 @@ class BlokAnlami {
 
   /// Degisken adi.
   final String? degisken;
+
+  /// Liste adi (`listeyeEkle`, `listedenSil`).
+  final String? liste;
+
+  /// `soyle` icin rastgele araligin alt ve ust siniri. Doluysa [metin]
+  /// yok sayilir ve her calistirmada yeni bir sayi soylenir.
+  final num? rastgeleAlt;
+  final num? rastgeleUst;
 
   bool get cBlogu =>
       komut == BlokKomutu.tekrarla ||

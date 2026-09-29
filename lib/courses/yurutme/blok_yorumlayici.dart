@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import '../models/interactive_lesson_model.dart';
 import 'blok_anlami.dart';
 import 'blok_sozlugu.dart';
@@ -7,20 +9,47 @@ class Sahne {
   Sahne({
     this.x = 0,
     this.y = 0,
+    this.kostum = 1,
+    this.yon = 90,
+    this.kalemInik = false,
     this.soyledigi,
     Map<String, num>? degiskenler,
-  }) : degiskenler = degiskenler ?? {};
+    Map<String, List<String>>? listeler,
+  })  : degiskenler = degiskenler ?? {},
+        listeler = listeler ?? {};
 
   double x;
   double y;
+
+  /// Kacinci kostum gosteriliyor (1'den baslar). "Sonraki kostum"
+  /// blogu bunu arttiriyor; bir karakteri dans ettiren sey bu.
+  int kostum;
+
+  /// Kuklanin baktigi yon, derece. Scratch'te 90 saga bakmak demek;
+  /// baslangic degeri de o.
+  double yon;
+
+  /// Kalem inik mi? Inikken kuklanin gittigi yer cizgi birakir.
+  bool kalemInik;
+
   String? soyledigi;
   final Map<String, num> degiskenler;
+
+  /// Liste adi -> icindekiler. Ekle/sil bloklari burayi degistiriyor,
+  /// boylece iz "alisveris: elma, muz" diyebiliyor.
+  final Map<String, List<String>> listeler;
 
   Sahne kopya() => Sahne(
         x: x,
         y: y,
+        kostum: kostum,
+        yon: yon,
+        kalemInik: kalemInik,
         soyledigi: soyledigi,
         degiskenler: Map<String, num>.from(degiskenler),
+        listeler: {
+          for (final e in listeler.entries) e.key: List<String>.from(e.value)
+        },
       );
 }
 
@@ -85,10 +114,15 @@ class Yurutme {
 /// [Yurutme.butceBitti] ile SOYLUYORUZ. Uygulama donmuyor, ekran da
 /// "bitti" diye yalan soylemiyor.
 class BlokYorumlayici {
-  const BlokYorumlayici({this.butce = 400});
+  const BlokYorumlayici({this.butce = 400, this.rastgele});
 
   /// En fazla kac adim calistirilir.
   final int butce;
+
+  /// Rastgele sayi kaynagi. Testler tohumlu bir [Random] gecerek ayni
+  /// sonucu tekrar uretebiliyor; ekranda null kaliyor, yani her
+  /// calistirma gercekten baska bir sayi veriyor.
+  final Random? rastgele;
 
   BlokAnlami _anlam(ScratchBlock blok) =>
       blokSozlugu[blok.id] ?? const BlokAnlami(BlokKomutu.etkisiz);
@@ -175,7 +209,42 @@ class BlokYorumlayici {
         sahne.x = (anlam.sayi ?? 0).toDouble();
         sahne.y = (anlam.sayi2 ?? 0).toDouble();
       case BlokKomutu.soyle:
-        sahne.soyledigi = anlam.metin;
+        // Rastgele araligi olan bloklar her calistirmada baska bir sayi
+        // soyluyor; sinirlar dahil (Scratch de boyle davraniyor).
+        if (anlam.rastgeleAlt != null && anlam.rastgeleUst != null) {
+          final alt = anlam.rastgeleAlt!.toInt();
+          final ust = anlam.rastgeleUst!.toInt();
+          final kaynak = rastgele ?? Random();
+          sahne.soyledigi = '${alt + kaynak.nextInt((ust - alt) + 1)}';
+        } else {
+          sahne.soyledigi = anlam.metin;
+        }
+      case BlokKomutu.sonrakiKostum:
+        sahne.kostum++;
+      case BlokKomutu.yonAyarla:
+        sahne.yon = (anlam.sayi ?? 90).toDouble() % 360;
+      case BlokKomutu.don:
+        // Scratch'te yon 0-360 arasinda dolasir.
+        sahne.yon = (sahne.yon + (anlam.sayi ?? 0).toDouble()) % 360;
+      case BlokKomutu.kalemIndir:
+        sahne.kalemInik = true;
+      case BlokKomutu.kalemKaldir:
+        sahne.kalemInik = false;
+      case BlokKomutu.kalemSil:
+        // Silmek kalemin inik/kalkik olmasini degistirmiyor; ekrandaki
+        // cizimi siliyor. Sahnede tuttugumuz sey cizim degil kalemin
+        // durumu oldugu icin burada gorunur bir degisiklik yok.
+        break;
+      case BlokKomutu.listeyeEkle:
+        sahne.listeler
+            .putIfAbsent(anlam.liste ?? '?', () => <String>[])
+            .add(anlam.metin ?? '');
+      case BlokKomutu.listedenSil:
+        final l = sahne.listeler[anlam.liste ?? '?'];
+        final sira = (anlam.sayi ?? 1).toInt();
+        if (l != null && sira >= 1 && sira <= l.length) {
+          l.removeAt(sira - 1);
+        }
       case BlokKomutu.degiskenAta:
         sahne.degiskenler[anlam.degisken ?? '?'] = anlam.sayi ?? 0;
       case BlokKomutu.degiskenArtir:

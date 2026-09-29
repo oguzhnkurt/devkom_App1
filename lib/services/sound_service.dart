@@ -12,17 +12,22 @@ import 'package:flutter/services.dart';
 ///
 /// Artik klasorde gercek sesler var. Iki kaynak bir arada:
 ///
-/// 1. SENTEZLENMIS AILE (`correct_*`, `wrong_*`, `complete_*`): Do
-///    majorde yumusak sinus tonlari, uygulama icin uretildi. "Dogru"
-///    yukselen bir ucluyu (do-mi-sol), "yanlis" kisa ve alcak inen bir
-///    ikiliyi calar — yanlis sesi bilerek cezalandirici degil, cunku
-///    yanlis denemek ogrenmenin parcasi. Her oyunun kendi ton rengi
-///    oldugu icin (bkz. [SfxVoice]) bu aile KAYITLA DEGISTIRILEMEZ:
-///    satin alinan pakette dort ayri "dogru" sesi yok.
+/// 1. SENTEZLENMIS AILE (`wrong_*`): Do majorde yumusak sinus tonlari,
+///    uygulama icin uretildi. Kisa ve alcak inen bir ikili calar —
+///    bilerek cezalandirici degil, cunku yanlis denemek ogrenmenin
+///    parcasi. Ton rengi (bkz. [SfxVoice]) yalnizca burada yasiyor.
+///
+///    `correct_*` ve `complete_*` de bir sure bu ailedendi ve SILINDI:
+///    kulaga ucuz geliyorlardi ve bir turda onlarca kez duyulan bir ses
+///    icin bu dayanilmaz oluyordu. Yerlerini gercek kayitlar aldi.
+///    Yanlis sesi neden hala sentezlenmis? Cunku satin alinan paketteki
+///    basarisizlik sesleri cizgi film tarzinda ve cezalandirici; 6-12
+///    yas icin yumusak bir "olmadi" tonu daha dogru.
 ///
 /// 2. GERCEK KAYITLAR (`tap`, `drop`, `dogru_cevap`, `odul`,
 ///    `ilk_basari`, `jeton`, `buyuk_basari`, `oyun_bitti`,
-///    `kilit_acildi`): satin alinan oyun/uygulama ses paketinden
+///    `kilit_acildi`, `oyun_dogru`, `bolum_bitti`): satin alinan
+///    oyun/uygulama ses paketinden
 ///    kirpildi. Hepsi tek kanal 44.1 kHz, RMS -18..-20 dB araliginda
 ///    normallendi (sentezlenmis ailenin ustune cikmasin diye) ve tepe
 ///    -1.5 dB'de sinirlandi. Uretim notu: `assets/sounds/NASIL_KIRPILDI.md`.
@@ -119,12 +124,27 @@ class SoundService {
     }
   }
 
-  /// Dogru cevap: yukselen uclu + hafif titresim.
+  /// DOGRU CEVAP.
   ///
-  /// [voice] verilmezse ekranin [useVoice] ile sectigi renk kullanilir.
+  /// Burada bir sure sentezlenmis bir sinus ucusu (do-mi-sol) caliyordu
+  /// ve her oyunun kendi ton rengi vardi. Kulaga UCUZ geliyordu: sekiz
+  /// bitlik bir oyuncak sesi gibi, ve bir turda onlarca kez duyuldugu
+  /// icin kisa surede itici hale geliyordu ("Sabah Rutini" gorevini
+  /// bitirince gelen ses tam olarak buydu).
+  ///
+  /// Artik satin alinan paketten kirpilmis kisa bir onay sesi caliyor:
+  /// tek ses, butun oyunlarda ayni. Ton rengi ailesi burada birakildi —
+  /// dort ayri gercek kayit yok, ve "her oyunun kendi dogru sesi" fikri
+  /// sesin kendisi rahatsiz ediciyse hicbir sey kazandirmiyor.
+  ///
+  /// Seviye de bilerek dusuk (RMS -22 dB ve ustune 0.85 kisma): bu ses
+  /// bir basari fanfari degil, "evet, oldu" demenin en kisa yolu.
+  ///
+  /// [voice] artik yalnizca yanlis cevap sesini etkiliyor; imza
+  /// bozulmasin diye duruyor.
   static Future<void> playCorrect({SfxVoice? voice}) async {
     await Future.wait([
-      _play('correct_${(voice ?? _voice).suffix}'),
+      _play('oyun_dogru', gain: 0.85),
       _haptic(HapticFeedback.lightImpact),
     ]);
   }
@@ -186,10 +206,15 @@ class SoundService {
     ]);
   }
 
-  /// Seviye/bolum tamamlandi: ayni renkte kucuk fanfar.
+  /// Seviye/bolum tamamlandi.
+  ///
+  /// Dogru cevap sesiyle ayni gerekce: sentezlenmis fanfar ucuz
+  /// duruyordu. Gercek kayit, dogru cevap sesinden daha dolu ama
+  /// "buyuk basari"dan (modul sinavi) daha kisa — uc kademe arasinda
+  /// fark kulakla duyuluyor.
   static Future<void> playLevelComplete({SfxVoice? voice}) async {
     await Future.wait([
-      _play('complete_${(voice ?? _voice).suffix}'),
+      _play('bolum_bitti'),
       _haptic(HapticFeedback.mediumImpact),
     ]);
   }

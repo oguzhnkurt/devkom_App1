@@ -3,6 +3,7 @@ import '../models/interactive_lesson_model.dart';
 import '../yurutme/mblock_cozum.dart';
 import 'mblock_palette.dart';
 import 'mblock_temel_lessons_data.dart';
+import 'mblock_proje_lessons_data.dart';
 
 /// mBlock 5 kursu — editörü ve blokları sıfırdan öğreten dersler.
 ///
@@ -2025,12 +2026,22 @@ class MBlockLessonsData {
   static List<InteractiveLesson> get module0 =>
       MBlockTemelLessonsData.module0;
 
+  /// Modül 5 — Projeler.
+  ///
+  /// Derslerden farkı: parçaları birleştiriyor ve sonunda bitmiş,
+  /// gösterilebilir bir şey çıkıyor. Ayrı dosyada
+  /// (`mblock_proje_lessons_data.dart`) çünkü proje metni ders
+  /// metninden başka türlü — adım adım kurulum yönergesi.
+  static List<InteractiveLesson> get module5 =>
+      MBlockProjeLessonsData.module5;
+
   static List<InteractiveLesson> get allLessons => [
         ...module0,
         ...module1,
         ...module2,
         ...module3,
         ...module4,
+        ...module5,
       ];
 
   static InteractiveLesson? byId(String id) {

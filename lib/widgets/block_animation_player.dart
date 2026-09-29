@@ -4,7 +4,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../courses/models/interactive_lesson_model.dart';
+import '../courses/yurutme/blok_anlami.dart';
+import '../courses/yurutme/blok_sozlugu.dart';
 import '../utils/lang.dart';
+import 'mascot.dart';
 
 /// Cocugun kurdugu blok dizisini sahnede canlandirir.
 ///
@@ -212,6 +215,25 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
   }
 
   Future<bool> _konus(ScratchBlock blok) async {
+    // RASTGELE BLOKLAR. "1 ile 6 arasinda rastgele bir sayi sec de"
+    // blogunun etiketini temizlemek, balona o cumlenin kendisini
+    // yazmak demekti — kuklanin bir SAYI soylemesi gerekiyordu ve bu
+    // dersin butun konusu oydu. Anlam artik blok sozlugunden okunuyor
+    // (bkz. blok_sozlugu.dart): sozlukte rastgele araligi varsa her
+    // calistirmada o araliktan yeni bir sayi cikiyor.
+    final anlam = blokSozlugu[blok.id];
+    if (anlam != null &&
+        anlam.komut == BlokKomutu.soyle &&
+        anlam.rastgeleAlt != null &&
+        anlam.rastgeleUst != null) {
+      final alt = anlam.rastgeleAlt!.toInt();
+      final ust = anlam.rastgeleUst!.toInt();
+      setState(() => _konusma = '${alt + _rastgele.nextInt(ust - alt + 1)}');
+      if (!await _bekle(const Duration(milliseconds: 1400))) return false;
+      setState(() => _konusma = null);
+      return true;
+    }
+
     // Metin blogun KENDI yazisindan cikariliyor: "Miyav! de" -> "Miyav!"
     // Eskiden kimlige gore sabit Turkce metinler vardi (say_hello ->
     // 'Merhaba!'), yani Ingilizce derste de Turkce konusuyordu.
@@ -408,8 +430,43 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
           ),
           const SizedBox(height: 6),
 
-          // Sahne
-          LayoutBuilder(
+          // SAHNE YALNIZCA GEREKIYORSA.
+          //
+          // "1 ile 6 arasinda rastgele bir sayi sec de" gibi bir kodun
+          // sahnede isi yok: kukla yurumuyor, ziplamiyor, isik
+          // yanmiyor. Yine de zemin cizgisi ve yesil duvarla birlikte
+          // bir yurume sahnesi ciziliyordu ve ekran kodla alakasiz
+          // duruyordu. Hareketi olmayan kodda artik yalnizca maskot ve
+          // konusma balonu var.
+          if (_hareketVar) _sahne() else _sadeMaskot(),
+
+          if (_bitti) ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green, size: 22),
+                const SizedBox(width: 8),
+                Text(
+                  _t('Kodun sonuna geldin!', 'Your code reached the end!',
+                      'Dein Code ist durchgelaufen!',
+                      '¡Tu código llegó al final!'),
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Yurume sahnesi: zemin, duvar, lamba, nota ve maskot.
+  Widget _sahne() {
+    return LayoutBuilder(
             builder: (context, kutu) {
               final genislik = kutu.maxWidth - widget.size;
               return SizedBox(
@@ -459,36 +516,31 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
                       curve: Curves.easeInOut,
                       left: (genislik * _x).clamp(0.0, genislik),
                       bottom: _havada ? 34 : 8,
-                      child: Text('🐱',
-                          style: TextStyle(fontSize: widget.size)),
+                      // Kedi emojisi Scratch'in maskotuydu, bizim
+                      // degil: uygulamanin her yerinde Devi var, burada
+                      // baska bir karakter cikiyordu.
+                      child: Mascot(size: widget.size, showShadow: false),
                     ),
                   ],
                 ),
               );
             },
-          ),
-
-          if (_bitti) ...[
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.check_circle, color: Colors.green, size: 22),
-                const SizedBox(width: 8),
-                Text(
-                  _t('Kodun sonuna geldin!', 'Your code reached the end!',
-                      'Dein Code ist durchgelaufen!',
-                      '¡Tu código llegó al final!'),
-                  style: const TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
+          );
   }
+
+  /// Hareketsiz kodda sahne yerine sade maskot.
+  Widget _sadeMaskot() => SizedBox(
+        height: 96,
+        child: Center(child: Mascot(size: widget.size + 10)),
+      );
+
+  /// Kodda sahnede gorunur bir sey yapan blok var mi?
+  bool get _hareketVar => widget.blocks.any((b) {
+        final e = _etkisi(b.id);
+        return e == _Etki.hareket ||
+            e == _Etki.ziplama ||
+            e == _Etki.isik ||
+            e == _Etki.ses;
+      });
+
 }

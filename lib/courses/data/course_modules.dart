@@ -458,6 +458,21 @@ class CourseModules {
             emoji: '🚧',
             lessons: MBlockLessonsData.module4,
           ),
+          // Projeler en sonda: derslerde öğrenilen parçaları birleştirip
+          // bitmiş bir şey çıkarmak, parçaları öğrendikten sonra anlam
+          // kazanıyor. Proje mBlock 5'te kuruluyor, uygulama rehber.
+          CourseModule(
+            title: 'Projeler',
+            titleEn: 'Projects',
+            titleDe: 'Projekte',
+            titleEs: 'Proyectos',
+            description: 'Akvaryum Dünyası ve Dans Partisi',
+            descriptionEn: 'Aquarium World and Dance Party',
+            descriptionDe: 'Aquarium-Welt und Tanzparty',
+            descriptionEs: 'Mundo acuario y Fiesta de baile',
+            emoji: '🐠',
+            lessons: MBlockLessonsData.module5,
+          ),
         ];
       case 'arduino':
         return [
