@@ -865,7 +865,7 @@ func main() {
           LessonContent(
             id: 'java01_3',
             type: ContentType.text,
-            content: '• Android uygulamaları\n• Kurumsal yazılımlar\n• Web sunuculari\n• Büyük veri sistemleri',
+            content: '• Android uygulamaları\n• Kurumsal yazılımlar\n• Web sunucuları\n• Büyük veri sistemleri',
           ),
           LessonContent(
             id: 'java01_4',

@@ -2202,7 +2202,7 @@ class ScratchLessonsData {
           titleEn: 'The Scoring Plan',
           titleDe: 'Der Punkteplan',
           titleEs: 'El plan de puntuación',
-          content: '1. Puan değişkeni oluştur\n2. Oyun basinda sıfırla\n3. Basarili olunca arttır\n4. Ekranda göster',
+          content: '1. Puan değişkeni oluştur\n2. Oyun başında sıfırla\n3. Başarılı olunca arttır\n4. Ekranda göster',
           contentEn: '1. Make a Score variable\n2. Reset it at the start of the game\n3. Increase it on every success\n4. Show it on the stage',
           contentDe: '1. Erstelle eine Variable Punkte\n2. Setz sie zu Spielbeginn zurück\n3. Erhöhe sie bei jedem Erfolg\n4. Zeig sie auf der Bühne',
           contentEs: '1. Crea una variable Puntos\n2. Reiníciala al empezar el juego\n3. Auméntala con cada acierto\n4. Muéstrala en el escenario',

@@ -2374,7 +2374,7 @@ class PythonLessonsData {
           highlights: [
             'try/except bloğu nedir',
             'Hangi hata türleri olusabilir',
-            'Kullanıcıdan gelen kotu veriyi yönetmek',
+            'Kullanıcıdan gelen kötü veriyi yönetmek',
           ],
           mascotMessageEn: 'Until now, an error would stop your whole program, right? Real developers anticipate errors in advance so their programs never crash. This is called "exception handling"!',
           mascotMessageDe: 'Bisher hat ein Fehler dein ganzes Programm gestoppt, oder? Echte Entwickler rechnen vorher mit Fehlern, damit ihre Programme nie abstürzen. Das nennt man «Ausnahmebehandlung»!',
@@ -2641,7 +2641,7 @@ class PythonLessonsData {
         IntroStep(
           id: 'p9_3_intro',
           mascotEmoji: '⚡',
-          mascotMessage: 'for döngüleriyle liste doldurmayı biliyorsun. Ama Python\'da bunu TEK SATIRDA yapmanın çok sık kullanılan bir yolu var: "list comprehension"! Profesyonel Python kodlarında her yerde karsina cikacak.',
+          mascotMessage: 'for döngüleriyle liste doldurmayı biliyorsun. Ama Python\'da bunu TEK SATIRDA yapmanın çok sık kullanılan bir yolu var: "list comprehension"! Profesyonel Python kodlarında her yerde karşına çıkacak.',
           highlights: [
             'List comprehension sozdizimi',
             'Koşullu comprehension (if ile)',
@@ -2868,7 +2868,7 @@ class PythonLessonsData {
             OrderItem(id: 'l4', content: '        self.yazar = yazar', contentEn: '        self.author = author', contentDe: '        self.author = author', contentEs: '        self.author = author', isCode: true),
           ],
           correctOrder: ['l1', 'l2', 'l3', 'l4'],
-          context: 'Python sınıfı (class) tanimi',
+          context: 'Python sınıfı (class) tanımı',
           instructionEn: 'Put the Book class lines in the correct order.',
           instructionDe: 'Bring die Zeilen der Klasse Book in die richtige Reihenfolge.',
           instructionEs: 'Pon en el orden correcto las líneas de la clase Book.',
@@ -2880,7 +2880,7 @@ class PythonLessonsData {
         ExplanationStep(
           id: 'p9_4_summary',
           title: 'OOP Dünyasına İlk Adımını Attın!',
-          content: '🏗️ Artık kendi veri türlerini tasarlayabiliyorsun!\n\n✓ class ile şablon oluşturmayı öğrendin\n✓ __init__ ile başlangıç değerleri atayabiliyorsun\n✓ Metod yazıp nesnenin "yapabildikleri"ni tanimliyorsun\n\nSırada: HER ŞEYİ birleştiren final proje - Öğrenci Not Sistemi!',
+          content: '🏗️ Artık kendi veri türlerini tasarlayabiliyorsun!\n\n✓ class ile şablon oluşturmayı öğrendin\n✓ __init__ ile başlangıç değerleri atayabiliyorsun\n✓ Metod yazıp nesnenin "yapabildikleri"ni tanımlıyorsun\n\nSırada: HER ŞEYİ birleştiren final proje - Öğrenci Not Sistemi!',
           tipEmoji: '🏆',
           tip: 'OOP Çırak rozetini kazandın!',
           titleEn: 'You Took Your First Step into OOP!',

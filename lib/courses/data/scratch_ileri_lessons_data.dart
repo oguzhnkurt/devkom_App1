@@ -54,27 +54,40 @@ class ScratchIleriLessonsData {
         color: islemRengi,
       );
 
-  static ScratchBlock _kucuktur(String a, String b, {required String id}) =>
+  static ScratchBlock _kucuktur(
+    String a,
+    String b, {
+    required String id,
+    String? aEn,
+    String? aDe,
+    String? aEs,
+  }) =>
       ScratchBlock(
         id: id,
         blockType: ScratchBlockType.operators,
         shape: ScratchBlockShape.boolean,
         label: '$a < $b',
-        labelEn: '$a < $b',
-        labelDe: '$a < $b',
-        labelEs: '$a < $b',
+        labelEn: '${aEn ?? a} < $b',
+        labelDe: '${aDe ?? aEn ?? a} < $b',
+        labelEs: '${aEs ?? aEn ?? a} < $b',
         color: islemRengi,
       );
 
-  static ScratchBlock _eger({required String kosul, required String id}) =>
+  static ScratchBlock _eger({
+    required String kosul,
+    required String id,
+    String? kosulEn,
+    String? kosulDe,
+    String? kosulEs,
+  }) =>
       ScratchBlock(
         id: id,
         blockType: ScratchBlockType.control,
         shape: ScratchBlockShape.cBlock,
         label: 'eğer $kosul ise',
-        labelEn: 'if $kosul then',
-        labelDe: 'falls $kosul, dann',
-        labelEs: 'si $kosul entonces',
+        labelEn: 'if ${kosulEn ?? kosul} then',
+        labelDe: 'falls ${kosulDe ?? kosulEn ?? kosul}, dann',
+        labelEs: 'si ${kosulEs ?? kosulEn ?? kosul} entonces',
         color: kontrolRengi,
       );
 
@@ -94,76 +107,135 @@ class ScratchIleriLessonsData {
         color: gorunumRengi,
       );
 
-  static ScratchBlock _listeyeEkle(String oge, String liste,
-          {required String id}) =>
+  static ScratchBlock _listeyeEkle(
+    String oge,
+    String liste, {
+    required String id,
+    required String ogeEn,
+    required String ogeDe,
+    required String ogeEs,
+    required String listeEn,
+    required String listeDe,
+    required String listeEs,
+  }) =>
       ScratchBlock(
         id: id,
         blockType: ScratchBlockType.variables,
         shape: ScratchBlockShape.stack,
         label: '$oge i $liste ye ekle',
-        labelEn: 'add $oge to $liste',
-        labelDe: 'füge $oge zu $liste hinzu',
-        labelEs: 'añadir $oge a $liste',
+        labelEn: 'add $ogeEn to $listeEn',
+        labelDe: 'füge $ogeDe zu $listeDe hinzu',
+        labelEs: 'añadir $ogeEs a $listeEs',
         color: listeRengi,
       );
 
-  static ScratchBlock _listeUzunlugu(String liste, {required String id}) =>
+  static ScratchBlock _listedenSil(
+    String sira,
+    String liste, {
+    required String id,
+    required String listeEn,
+    required String listeDe,
+    required String listeEs,
+  }) =>
+      ScratchBlock(
+        id: id,
+        blockType: ScratchBlockType.variables,
+        shape: ScratchBlockShape.stack,
+        label: '$liste in $sira ini sil',
+        labelEn: 'delete $sira of $listeEn',
+        labelDe: 'lösche $sira von $listeDe',
+        labelEs: 'borrar $sira de $listeEs',
+        color: listeRengi,
+      );
+
+  static ScratchBlock _listeUzunlugu(
+    String liste, {
+    required String id,
+    required String listeEn,
+    required String listeDe,
+    required String listeEs,
+  }) =>
       ScratchBlock(
         id: id,
         blockType: ScratchBlockType.variables,
         shape: ScratchBlockShape.reporter,
         label: '$liste in uzunluğu',
-        labelEn: 'length of $liste',
-        labelDe: 'Länge von $liste',
-        labelEs: 'longitud de $liste',
+        labelEn: 'length of $listeEn',
+        labelDe: 'Länge von $listeDe',
+        labelEs: 'longitud de $listeEs',
         color: listeRengi,
       );
 
-  static ScratchBlock _listeOgesi(String sira, String liste,
-          {required String id}) =>
+  static ScratchBlock _listeOgesi(
+    String sira,
+    String liste, {
+    required String id,
+    required String listeEn,
+    required String listeDe,
+    required String listeEs,
+  }) =>
       ScratchBlock(
         id: id,
         blockType: ScratchBlockType.variables,
         shape: ScratchBlockShape.reporter,
         label: "$liste' in $sira öğesi",
-        labelEn: 'item $sira of $liste',
-        labelDe: 'Element $sira von $liste',
-        labelEs: 'elemento $sira de $liste',
+        labelEn: 'item $sira of $listeEn',
+        labelDe: 'Element $sira von $listeDe',
+        labelEs: 'elemento $sira de $listeEs',
         color: listeRengi,
       );
 
-  static ScratchBlock _tanimla(String ad, {required String id}) => ScratchBlock(
+  static ScratchBlock _tanimla(
+    String ad, {
+    required String id,
+    String? en,
+    String? de,
+    String? es,
+  }) =>
+      ScratchBlock(
         id: id,
         blockType: ScratchBlockType.myBlocks,
         shape: ScratchBlockShape.cap,
         label: '$ad i tanımla',
-        labelEn: 'define $ad',
-        labelDe: 'Definiere $ad',
-        labelEs: 'definir $ad',
+        labelEn: 'define ${en ?? ad}',
+        labelDe: 'Definiere ${de ?? en ?? ad}',
+        labelEs: 'definir ${es ?? en ?? ad}',
         color: blokRengi,
       );
 
-  static ScratchBlock _kendiBlok(String ad, {required String id}) =>
+  static ScratchBlock _kendiBlok(
+    String ad, {
+    required String id,
+    String? en,
+    String? de,
+    String? es,
+  }) =>
       ScratchBlock(
         id: id,
         blockType: ScratchBlockType.myBlocks,
         shape: ScratchBlockShape.stack,
         label: ad,
-        labelEn: ad,
-        labelDe: ad,
-        labelEs: ad,
+        labelEn: en ?? ad,
+        labelDe: de ?? en ?? ad,
+        labelEs: es ?? en ?? ad,
         color: blokRengi,
       );
 
-  static ScratchBlock _tekrarla(String kere, {required String id}) =>
+  static ScratchBlock _tekrarla(
+    String kere, {
+    required String id,
+    String? en,
+    String? de,
+    String? es,
+  }) =>
       ScratchBlock(
         id: id,
         blockType: ScratchBlockType.control,
         shape: ScratchBlockShape.cBlock,
         label: '$kere kere tekrarla',
-        labelEn: 'repeat $kere',
-        labelDe: 'wiederhole $kere mal',
-        labelEs: 'repetir $kere veces',
+        labelEn: 'repeat ${en ?? kere}',
+        labelDe: 'wiederhole ${de ?? en ?? kere} mal',
+        labelEs: 'repetir ${es ?? en ?? kere} veces',
         color: kontrolRengi,
       );
 
@@ -178,14 +250,21 @@ class ScratchIleriLessonsData {
         color: hareketRengi,
       );
 
-  static ScratchBlock _don(String aci, {required String id}) => ScratchBlock(
+  static ScratchBlock _don(
+    String aci, {
+    required String id,
+    String? en,
+    String? de,
+    String? es,
+  }) =>
+      ScratchBlock(
         id: id,
         blockType: ScratchBlockType.motion,
         shape: ScratchBlockShape.stack,
         label: '↻ $aci derece dön',
-        labelEn: 'turn ↻ $aci degrees',
-        labelDe: 'drehe dich ↻ um $aci Grad',
-        labelEs: 'girar ↻ $aci grados',
+        labelEn: 'turn ↻ ${en ?? aci} degrees',
+        labelDe: 'drehe dich ↻ um ${de ?? en ?? aci} Grad',
+        labelEs: 'girar ↻ ${es ?? en ?? aci} grados',
         color: hareketRengi,
       );
 
@@ -722,13 +801,19 @@ class ScratchIleriLessonsData {
               '«¡Sigue!»',
           availableBlocks: [
             _bayrak(),
-            _eger(kosul: 'puan < 5', id: 'if_score_low'),
+            _eger(
+                kosul: 'puan < 5',
+                id: 'if_score_low',
+                kosulEn: 'score < 5',
+                kosulDe: 'Punkte < 5',
+                kosulEs: 'puntos < 5'),
             _de('Devam et!',
                 id: 'say_keep_going',
                 en: 'Keep going!',
                 de: 'Weiter so!',
                 es: '¡Sigue!'),
-            _kucuktur('puan', '5', id: 'lt_score_5'),
+            _kucuktur('puan', '5',
+                id: 'lt_score_5', aEn: 'score', aDe: 'Punkte', aEs: 'puntos'),
             _kucuktur('5', 'puan', id: 'lt_5_score'),
           ],
           correctSequence: [
@@ -1185,8 +1270,27 @@ class ScratchIleriLessonsData {
               'importa: manzana es el 1, plátano el 2.',
           availableBlocks: [
             _bayrak(),
-            _listeyeEkle('elma', 'alışveriş', id: 'add_apple'),
-            _listeyeEkle('muz', 'alışveriş', id: 'add_banana'),
+            _listeyeEkle('elma', 'alışveriş',
+                id: 'add_apple',
+                ogeEn: 'apple',
+                ogeDe: 'Apfel',
+                ogeEs: 'manzana',
+                listeEn: 'shopping',
+                listeDe: 'Einkauf',
+                listeEs: 'compra'),
+            _listeyeEkle('muz', 'alışveriş',
+                id: 'add_banana',
+                ogeEn: 'banana',
+                ogeDe: 'Banane',
+                ogeEs: 'plátano',
+                listeEn: 'shopping',
+                listeDe: 'Einkauf',
+                listeEs: 'compra'),
+            _listedenSil('1', 'alışveriş',
+                id: 'delete_first',
+                listeEn: 'shopping',
+                listeDe: 'Einkauf',
+                listeEs: 'compra'),
           ],
           correctSequence: [
             'green_flag',
@@ -1509,8 +1613,16 @@ class ScratchIleriLessonsData {
                     'Fragen',
                 es: 'elemento (aleatorio entre 1 y longitud de preguntas) '
                     'de preguntas'),
-            _listeUzunlugu('sorular', id: 'len_questions'),
-            _listeOgesi('1', 'sorular', id: 'item_1_questions'),
+            _listeUzunlugu('sorular',
+                id: 'len_questions',
+                listeEn: 'questions',
+                listeDe: 'Fragen',
+                listeEs: 'preguntas'),
+            _listeOgesi('1', 'sorular',
+                id: 'item_1_questions',
+                listeEn: 'questions',
+                listeDe: 'Fragen',
+                listeEs: 'preguntas'),
           ],
           correctSequence: [
             'green_flag',
@@ -1848,7 +1960,11 @@ class ScratchIleriLessonsData {
           goalEs: 'definir cuadrado → repetir 4 { mover 100, girar 90 }. '
               'Sin bandera arriba: la definición ya tiene su sombrero.',
           availableBlocks: [
-            _tanimla('kare', id: 'define_square'),
+            _tanimla('kare',
+                id: 'define_square',
+                en: 'square',
+                de: 'Quadrat',
+                es: 'cuadrado'),
             _tekrarla('4', id: 'repeat_4'),
             _git('100', id: 'move_100'),
             _don('90', id: 'turn_90'),
@@ -1880,9 +1996,17 @@ class ScratchIleriLessonsData {
           availableBlocks: [
             _bayrak(),
             _tekrarla('3', id: 'repeat_3'),
-            _kendiBlok('kare', id: 'call_square'),
+            _kendiBlok('kare',
+                id: 'call_square',
+                en: 'square',
+                de: 'Quadrat',
+                es: 'cuadrado'),
             _don('120', id: 'turn_120'),
-            _tanimla('kare', id: 'define_square_2'),
+            _tanimla('kare',
+                id: 'define_square_2',
+                en: 'square',
+                de: 'Quadrat',
+                es: 'cuadrado'),
           ],
           correctSequence: [
             'green_flag',
@@ -2070,7 +2194,7 @@ class ScratchIleriLessonsData {
               'Scratch\'in kendi bloklarına bak: "10 adım git" bloğunda bir '
               'boşluk var, sayıyı sen yazıyorsun. Kendi bloğuna da aynı '
               'boşluğu ekleyebilirsin. O boşluğa GİRDİ deniyor ve bir '
-              'bloğu on bloğun işini yapacak hale getiriyor.',
+              'bloğu on bloğun işini yapacak hâle getiriyor.',
           mascotMessageEn:
               'Your square block is nice, but it only draws squares. Are '
               'you going to make a second one for triangles and a third for '
@@ -2290,10 +2414,22 @@ class ScratchIleriLessonsData {
           goalEs: 'definir polígono (lados) → repetir (lados) { mover 100, '
               'girar (360 / lados) }',
           availableBlocks: [
-            _tanimla('çokgen (kenar)', id: 'define_polygon'),
-            _tekrarla('kenar', id: 'repeat_sides'),
+            _tanimla('çokgen (kenar)',
+                id: 'define_polygon',
+                en: 'polygon (sides)',
+                de: 'Vieleck (Seiten)',
+                es: 'polígono (lados)'),
+            _tekrarla('kenar',
+                id: 'repeat_sides',
+                en: 'sides',
+                de: 'Seiten',
+                es: 'lados'),
             _git('100', id: 'move_100_poly'),
-            _don('360 / kenar', id: 'turn_360_over_sides'),
+            _don('360 / kenar',
+                id: 'turn_360_over_sides',
+                en: '360 / sides',
+                de: '360 / Seiten',
+                es: '360 / lados'),
             _don('90', id: 'turn_90_fixed'),
           ],
           correctSequence: [
@@ -2321,8 +2457,16 @@ class ScratchIleriLessonsData {
               'calcula el ángulo.',
           availableBlocks: [
             _bayrak(),
-            _kendiBlok('çokgen 6', id: 'call_polygon_6'),
-            _kendiBlok('çokgen 4', id: 'call_polygon_4'),
+            _kendiBlok('çokgen 6',
+                id: 'call_polygon_6',
+                en: 'polygon 6',
+                de: 'Vieleck 6',
+                es: 'polígono 6'),
+            _kendiBlok('çokgen 4',
+                id: 'call_polygon_4',
+                en: 'polygon 4',
+                de: 'Vieleck 4',
+                es: 'polígono 4'),
             _don('60', id: 'turn_60_extra'),
           ],
           correctSequence: [

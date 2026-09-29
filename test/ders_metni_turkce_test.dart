@@ -80,6 +80,11 @@ void main() {
             if (kelime != kelime.toLowerCase()) continue;
             final onceki = km.start > 0 ? parca[km.start - 1] : ' ';
             final sonraki = km.end < parca.length ? parca[km.end] : ' ';
+            // `$adim adim git` gibi etiketlerde `$adim` bir DART
+            // DEGISKENI; metin degil. ASCII olmasi zorunlu (Dart
+            // tanitici adlari ASCII) ve cocuk onu hic gormuyor:
+            // ekranda degiskenin degeri cikiyor.
+            if (onceki == r'$' || onceki == '{') continue;
             if (onceki == '.' || onceki == '_' || onceki == "'") continue;
             if (sonraki == '.' || sonraki == '_' || sonraki == '(') continue;
             gecisler.add(_Gecis(kelime, dosya.path, satir, parca));
@@ -184,7 +189,7 @@ const _izinli = <String>{
   // düzeltmeden kaçmak değil.
   'takip',
   // Ünsüz yumuşaması: sonuç→sonucu, direnç→direnci. Doğru yazım bunlar.
-  'sonucu', 'sonucunu', 'direnci',
+  'sonucu', 'sonucunu', 'sonuca', 'sonucuyla', 'direnci',
   // Ders metnine gömülü kod örneklerinin tanıtıcı adları. Türkçe harf
   // konursa dersteki kod derlenmez / eşleşmez:
   //   C#: `class Esya { public int deger; }`
