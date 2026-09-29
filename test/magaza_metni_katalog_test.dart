@@ -126,7 +126,7 @@ void main() {
     'docs/MAGAZA_METNI.md': () => magazaGovdesi(
           'docs/MAGAZA_METNI.md',
           // `contains`, `startsWith` DEGIL: surum notu basligi
-          // tirnakla basliyor (`## "What's New in This Version" — 1.0.8`)
+          // tirnakla basliyor (`## "What's New in This Version" — 1.0.9`)
           // ve startsWith ile kacip taranmadan kaliyordu.
           (baslik) => appStoreBolumleri.any(baslik.contains),
         ),

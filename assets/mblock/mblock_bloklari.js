@@ -292,7 +292,11 @@
     },
     {
       id: 'dev_dokunuyor', kategori: 'algilama', sekil: 'altigen',
-      yuvalar: [yuva('NESNE', 'secim', 'Kase', [['Kase', 'Kase']])],
+      // Gorunen ad dile gore, DEGER hep 'Kase' (cozum onu bekliyor).
+      yuvalar: [yuva('NESNE', 'secim', 'Kase', {
+        tr: [['Kase', 'Kase']], en: [['Bowl', 'Kase']],
+        de: [['Schüssel', 'Kase']], es: [['Cuenco', 'Kase']]
+      })],
       tr: '%1 e değiyor mu?', en: 'touching %1?',
       de: 'wird %1 berührt?', es: '¿tocando %1?'
     },
@@ -322,8 +326,12 @@
       // kullaniyoruz.
       id: 'dev_degisken_degistir', kategori: 'degisken', sekil: 'duz',
       yuvalar: [
-        yuva('AD', 'secim', 'toplananelma',
-          [['toplananelma', 'toplananelma']]),
+        yuva('AD', 'secim', 'toplananelma', {
+          tr: [['toplananelma', 'toplananelma']],
+          en: [['score', 'toplananelma']],
+          de: [['punkte', 'toplananelma']],
+          es: [['puntos', 'toplananelma']]
+        }),
         yuva('DEGER', 'sayi', 1)
       ],
       tr: '%1 i %2 kadar değiştir', en: 'change %1 by %2',

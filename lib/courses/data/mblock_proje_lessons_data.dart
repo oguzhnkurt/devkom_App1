@@ -1288,12 +1288,12 @@ class MBlockProjeLessonsData {
               'Open a new project in mBlock 5.\n\n'
               '• Stage → backdrop: "Blue Sky" (blue sky, a brown strip '
               'of ground at the bottom)\n'
-              '• Sprite: "Apple" → rename it "Elma"\n'
-              '• Sprite: "Fruit Bowl" → rename it "Kase"\n\n'
+              '• Sprite: "Apple" (keep the name)\n'
+              '• Sprite: "Fruit Bowl" → rename it "Bowl"\n\n'
               'Then, in the Variables category, use "Make a Variable" to '
               'create two variables, both "for all sprites":\n\n'
-              '• toplananelma — the score\n'
-              '• süre — seconds left\n\n'
+              '• score — the score\n'
+              '• time — seconds left\n\n'
               'If the box next to a variable is ticked, a display appears '
               'in the corner of the stage. The player sees score and time '
               'there; you do not need an extra text sprite.',
@@ -1301,12 +1301,12 @@ class MBlockProjeLessonsData {
               'Öffne ein neues Projekt in mBlock 5.\n\n'
               '• Bühne → Bühnenbild: «Blue Sky» (blauer Himmel, unten ein '
               'brauner Erdstreifen)\n'
-              '• Figur: «Apple» → umbenennen in «Elma»\n'
-              '• Figur: «Fruit Bowl» → umbenennen in «Kase»\n\n'
+              '• Figur: «Apple» → umbenennen in «Apfel»\n'
+              '• Figur: «Fruit Bowl» → umbenennen in «Schüssel»\n\n'
               'Dann legst du unter Variablen mit «Neue Variable» zwei '
               'Variablen an, beide «für alle Figuren»:\n\n'
-              '• toplananelma — der Punktestand\n'
-              '• süre — die restlichen Sekunden\n\n'
+              '• punkte — der Punktestand\n'
+              '• zeit — die restlichen Sekunden\n\n'
               'Ist das Kästchen neben einer Variable angehakt, erscheint '
               'in der Bühnenecke eine Anzeige. Dort sieht der Spieler '
               'Punkte und Zeit; eine extra Textfigur brauchst du nicht.',
@@ -1314,12 +1314,12 @@ class MBlockProjeLessonsData {
               'Abre un proyecto nuevo en mBlock 5.\n\n'
               '• Escenario → fondo: «Blue Sky» (cielo azul, abajo una '
               'franja marrón de tierra)\n'
-              '• Objeto: «Apple» → cámbiale el nombre a «Elma»\n'
-              '• Objeto: «Fruit Bowl» → cámbiale el nombre a «Kase»\n\n'
+              '• Objeto: «Apple» → cámbiale el nombre a «Manzana»\n'
+              '• Objeto: «Fruit Bowl» → cámbiale el nombre a «Cuenco»\n\n'
               'Después, en Variables, usa «Crear una variable» para hacer '
               'dos variables, las dos «para todos los objetos»:\n\n'
-              '• toplananelma: la puntuación\n'
-              '• süre: los segundos que quedan\n\n'
+              '• puntos: la puntuación\n'
+              '• tiempo: los segundos que quedan\n\n'
               'Si la casilla junto a la variable está marcada, aparece un '
               'marcador en la esquina del escenario. Ahí el jugador ve '
               'puntos y tiempo; no hace falta otro objeto de texto.',
@@ -1327,15 +1327,12 @@ class MBlockProjeLessonsData {
           tip: 'Adları dosyadaki gibi bıraktık: Elma, Kase, toplananelma, '
               'süre. Sen istediğin adı verebilirsin — yeter ki bloklarda '
               'aynısını seç.',
-          tipEn: 'We kept the names from the project file: Elma (apple), '
-              'Kase (bowl), toplananelma, süre. You can pick your own — '
-              'just choose the same ones in the blocks.',
-          tipDe: 'Wir haben die Namen aus der Projektdatei behalten: Elma '
-              '(Apfel), Kase (Schüssel), toplananelma, süre. Du kannst '
-              'eigene wählen — nimm sie dann auch in den Blöcken.',
-          tipEs: 'Dejamos los nombres del archivo del proyecto: Elma '
-              '(manzana), Kase (cuenco), toplananelma, süre. Puedes usar '
-              'otros; elige los mismos en los bloques.',
+          tipEn: 'You can choose your own names — just pick the same ones '
+              'in the blocks later.',
+          tipDe: 'Du kannst eigene Namen wählen — nimm dann dieselben in '
+              'den Blöcken.',
+          tipEs: 'Puedes elegir tus propios nombres; luego elige los mismos '
+              'en los bloques.',
         ),
 
         ExplanationStep(
@@ -1360,7 +1357,7 @@ class MBlockProjeLessonsData {
               'Oval "farenin x i" bloğu Algılama kategorisinde; onu "x '
               'konumunu … yap" bloğunun beyaz kutusuna sürükleyip bırak.',
           contentEn:
-              "The Kase (bowl) sprite's code:\n\n"
+              "The Bowl sprite's code:\n\n"
               '   when clicked\n'
               '   set y to -122\n'
               '   forever\n'
@@ -1375,7 +1372,7 @@ class MBlockProjeLessonsData {
               'The round "mouse x" block is in Sensing; drag it into the '
               'white slot of "set x to …".',
           contentDe:
-              'Der Code der Figur Kase (Schüssel):\n\n'
+              'Der Code der Figur Schüssel:\n\n'
               '   Wenn angeklickt\n'
               '   setze y auf -122\n'
               '   wiederhole fortlaufend\n'
@@ -1390,7 +1387,7 @@ class MBlockProjeLessonsData {
               'Der runde Block «Maus x-Position» steht unter Fühlen; zieh '
               'ihn in das weiße Feld von «setze x auf …».',
           contentEs:
-              'El código del objeto Kase (cuenco):\n\n'
+              'El código del objeto Cuenco:\n\n'
               '   al hacer clic\n'
               '   dar a y el valor -122\n'
               '   por siempre\n'
@@ -1517,7 +1514,7 @@ class MBlockProjeLessonsData {
               'EINE Apfelfigur. Der Rest sind ihre KLONE.\n\n'
               'Das erste Skript des Apfels ist eine Apfelfabrik:\n\n'
               '   Wenn angeklickt\n'
-              '   setze toplananelma auf 0\n'
+              '   setze punkte auf 0\n'
               '   verstecke dich\n'
               '   wiederhole fortlaufend\n'
               '     gehe zu x: (Zufallszahl von -201 bis 155) y: 197\n'
@@ -1536,7 +1533,7 @@ class MBlockProjeLessonsData {
               'El primer programa de la manzana es una fábrica de '
               'manzanas:\n\n'
               '   al hacer clic\n'
-              '   dar a toplananelma el valor 0\n'
+              '   dar a puntos el valor 0\n'
               '   esconder\n'
               '   por siempre\n'
               '     ir a x: (número aleatorio entre -201 y 155) y: 197\n'
@@ -1660,8 +1657,8 @@ class MBlockProjeLessonsData {
               '   show\n'
               '   forever\n'
               '     change y by -8\n'
-              '     if <touching Kase?> then\n'
-              '       change toplananelma by 1\n'
+              '     if <touching Bowl?> then\n'
+              '       change score by 1\n'
               '       delete this clone\n'
               '     if <touching color ?> then   (brown)\n'
               '       delete this clone\n\n'
@@ -1681,8 +1678,8 @@ class MBlockProjeLessonsData {
               '   zeige dich\n'
               '   wiederhole fortlaufend\n'
               '     ändere y um -8\n'
-              '     falls <wird Kase berührt?>, dann\n'
-              '       ändere toplananelma um 1\n'
+              '     falls <wird Schüssel berührt?>, dann\n'
+              '       ändere punkte um 1\n'
               '       lösche diesen Klon\n'
               '     falls <wird Farbe berührt?>, dann   (braun)\n'
               '       lösche diesen Klon\n\n'
@@ -1701,8 +1698,8 @@ class MBlockProjeLessonsData {
               '   mostrar\n'
               '   por siempre\n'
               '     sumar a y -8\n'
-              '     si <¿tocando Kase?> entonces\n'
-              '       sumar a toplananelma 1\n'
+              '     si <¿tocando Cuenco?> entonces\n'
+              '       sumar a puntos 1\n'
               '       eliminar este clon\n'
               '     si <¿tocando el color ?> entonces   (marrón)\n'
               '       eliminar este clon\n\n'
@@ -1736,20 +1733,23 @@ class MBlockProjeLessonsData {
           goal: 'İkiz olarak başladığımda → göster → sürekli { y -8 '
               'değiştir, eğer Kase e değiyorsa { puan +1, bu ikizi sil } }',
           goalEn: 'When I start as a clone → show → forever { change y by '
-              '-8, if touching Kase { score +1, delete this clone } }',
+              '-8, if touching Bowl { score +1, delete this clone } }',
           goalDe: 'Wenn ich als Klon entstehe → zeige dich → fortlaufend { '
-              'ändere y um -8, falls Kase berührt { Punkte +1, lösche '
+              'ändere y um -8, falls Schüssel berührt { Punkte +1, lösche '
               'diesen Klon } }',
           goalEs: 'Al comenzar como clon → mostrar → por siempre { sumar '
-              'a y -8, si toca Kase { puntos +1, eliminar este clon } }',
+              'a y -8, si toca Cuenco { puntos +1, eliminar este clon } }',
           availableBlocks: [
             MBlockKuklaBlocks.whenIStartAsClone(),
             MBlockKuklaBlocks.show(),
             MBlockKuklaBlocks.hide(),
             MBlockKuklaBlocks.forever(),
             MBlockKuklaBlocks.changeY('-8', id: 'change_y_elma'),
-            MBlockKuklaBlocks.ifTouching('Kase', id: 'if_touching_kase'),
+            MBlockKuklaBlocks.ifTouching('Kase',
+                en: 'Bowl', de: 'Schüssel', es: 'Cuenco',
+                id: 'if_touching_kase'),
             MBlockKuklaBlocks.changeVariable('toplananelma', '1',
+                en: 'score', de: 'punkte', es: 'puntos',
                 id: 'change_toplananelma'),
             MBlockKuklaBlocks.deleteThisClone(),
           ],
@@ -1818,11 +1818,11 @@ class MBlockProjeLessonsData {
               'izliyor, bir yandan saati tutuyor.',
           contentEn:
               'A game that never ends is not a game. Add a second script '
-              'to the Kase sprite:\n\n'
+              'to the Bowl sprite:\n\n'
               '   when clicked\n'
-              '   set süre to 30\n'
-              '   repeat until <(süre) = 0>\n'
-              '     change süre by -1\n'
+              '   set time to 30\n'
+              '   repeat until <(time) = 0>\n'
+              '     change time by -1\n'
               '     wait 1 seconds\n'
               '   stop all\n\n'
               '• Each round the loop takes one off the time and waits a '
@@ -1836,11 +1836,11 @@ class MBlockProjeLessonsData {
               'the clock at the same time.',
           contentDe:
               'Ein Spiel, das nie endet, ist kein Spiel. Gib der Figur '
-              'Kase ein zweites Skript:\n\n'
+              'Schüssel ein zweites Skript:\n\n'
               '   Wenn angeklickt\n'
-              '   setze süre auf 30\n'
-              '   wiederhole bis <(süre) = 0>\n'
-              '     ändere süre um -1\n'
+              '   setze zeit auf 30\n'
+              '   wiederhole bis <(zeit) = 0>\n'
+              '     ändere zeit um -1\n'
               '     warte 1 Sekunden\n'
               '   stoppe alles\n\n'
               '• Jede Runde zieht die Schleife eins von der Zeit ab und '
@@ -1854,11 +1854,11 @@ class MBlockProjeLessonsData {
               'Maus und führt gleichzeitig die Uhr.',
           contentEs:
               'Un juego que nunca acaba no es un juego. Añade un segundo '
-              'programa al objeto Kase:\n\n'
+              'programa al objeto Cuenco:\n\n'
               '   al hacer clic\n'
-              '   dar a süre el valor 30\n'
-              '   repetir hasta que <(süre) = 0>\n'
-              '     sumar a süre -1\n'
+              '   dar a tiempo el valor 30\n'
+              '   repetir hasta que <(tiempo) = 0>\n'
+              '     sumar a tiempo -1\n'
               '     esperar 1 segundos\n'
               '   detener todos\n\n'
               '• En cada vuelta el bucle resta uno al tiempo y espera un '
@@ -1874,11 +1874,11 @@ class MBlockProjeLessonsData {
           tip: '"(süre) = 0" bloğu İşlemler kategorisinde; içine '
               'Değişkenler\'den oval "süre" bloğunu koyuyorsun.',
           tipEn: 'The "( ) = 0" block is in Operators; put the round '
-              '"süre" block from Variables inside it.',
+              '"time" block from Variables inside it.',
           tipDe: 'Der Block «( ) = 0» steht unter Operatoren; setz den '
-              'runden «süre»-Block aus Variablen hinein.',
+              'runden «zeit»-Block aus Variablen hinein.',
           tipEs: 'El bloque «( ) = 0» está en Operadores; mete dentro el '
-              'bloque redondo «süre» de Variables.',
+              'bloque redondo «tiempo» de Variables.',
         ),
 
         MultipleChoiceStep(
@@ -2019,8 +2019,8 @@ class MBlockProjeLessonsData {
               '• İkinci bir kukla ekle, çürük elma: tutarsan puan '
               'düşsün.',
           contentEn: '🍎 Checklist:\n\n'
-              '✓ Blue Sky backdrop, Elma and Kase sprites\n'
-              '✓ toplananelma and süre show in the corner\n'
+              '✓ Blue Sky backdrop, Apple and Bowl sprites\n'
+              '✓ score and time show in the corner\n'
               '✓ The bowl follows the mouse and keeps the countdown\n'
               '✓ The original apple is hidden and drops a clone every 0.3 '
               'seconds\n'
@@ -2035,8 +2035,8 @@ class MBlockProjeLessonsData {
               '• Add a second sprite, a rotten apple: catching it takes a '
               'point away.',
           contentDe: '🍎 Checkliste:\n\n'
-              '✓ Bühnenbild Blue Sky, Figuren Elma und Kase\n'
-              '✓ toplananelma und süre stehen in der Ecke\n'
+              '✓ Bühnenbild Blue Sky, Figuren Apfel und Schüssel\n'
+              '✓ punkte und zeit stehen in der Ecke\n'
               '✓ Die Schüssel folgt der Maus und zählt die Zeit herunter\n'
               '✓ Der Original-Apfel ist versteckt und lässt alle 0.3 '
               'Sekunden einen Klon fallen\n'
@@ -2050,8 +2050,8 @@ class MBlockProjeLessonsData {
               '• Füge einen faulen Apfel hinzu: wer ihn fängt, verliert '
               'einen Punkt.',
           contentEs: '🍎 Lista de control:\n\n'
-              '✓ Fondo Blue Sky, objetos Elma y Kase\n'
-              '✓ toplananelma y süre se ven en la esquina\n'
+              '✓ Fondo Blue Sky, objetos Manzana y Cuenco\n'
+              '✓ puntos y tiempo se ven en la esquina\n'
               '✓ El cuenco sigue al ratón y lleva la cuenta atrás\n'
               '✓ La manzana original está escondida y suelta un clon cada '
               '0.3 segundos\n'

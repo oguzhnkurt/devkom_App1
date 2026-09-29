@@ -686,27 +686,31 @@ class MBlockKuklaBlocks {
       );
 
   /// `eğer <Kase e değiyor mu?> ise` — kart dizme ekraninda tek kart.
-  static ScratchBlock ifTouching(String nesne, {String? id}) => ScratchBlock(
+  ///
+  /// Kukla adi dile gore: Turkce derste "Kase", Ingilizcede "Bowl".
+  static ScratchBlock ifTouching(String nesne,
+          {String? en, String? de, String? es, String? id}) =>
+      ScratchBlock(
         id: id ?? 'if_touching_$nesne',
         blockType: ScratchBlockType.control,
         shape: ScratchBlockShape.cBlock,
         label: 'eğer <$nesne e değiyor mu?> ise',
-        labelEn: 'if <touching $nesne?> then',
-        labelDe: 'falls <wird $nesne berührt?>, dann',
-        labelEs: 'si <¿tocando $nesne?> entonces',
+        labelEn: 'if <touching ${en ?? nesne}?> then',
+        labelDe: 'falls <wird ${de ?? en ?? nesne} berührt?>, dann',
+        labelEs: 'si <¿tocando ${es ?? en ?? nesne}?> entonces',
         color: MBlockPalette.control,
       );
 
   static ScratchBlock changeVariable(String ad, String miktar,
-          {String? id}) =>
+          {String? en, String? de, String? es, String? id}) =>
       ScratchBlock(
         id: id ?? 'change_${ad}_$miktar',
         blockType: ScratchBlockType.variables,
         shape: ScratchBlockShape.stack,
         label: '$ad i $miktar kadar değiştir',
-        labelEn: 'change $ad by $miktar',
-        labelDe: 'ändere $ad um $miktar',
-        labelEs: 'sumar a $ad $miktar',
+        labelEn: 'change ${en ?? ad} by $miktar',
+        labelDe: 'ändere ${de ?? en ?? ad} um $miktar',
+        labelEs: 'sumar a ${es ?? en ?? ad} $miktar',
         color: MBlockPalette.variables,
       );
 }

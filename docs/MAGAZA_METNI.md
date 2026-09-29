@@ -236,84 +236,151 @@ buy anything.
 `çocuklar için kodlama` ve `coding for kids` çıkarıldı — yukarıdaki
 kurala giriyor.
 
-## "What's New in This Version" — 1.0.8
+## "What's New in This Version" — 1.0.9
 
-1.0.7 (build 11) 15 Eylül 2026'da yayına çıktı. Aşağıdaki metin 1.0.8
-içindir.
+1.0.8 (build 14) 27 Eylül 2026'da incelemeye gönderildi. Aşağıdaki metin
+1.0.9 (build 15) içindir. 1.0.8'in notları git geçmişinde
+(`a7a9b6c` ve sonrası).
 
-**Reklam açıkça söyleniyor.** Ücretsiz sürümde reklam başladığında bunu
-sürüm notunda ve açıklamada söylememek App Store 2.3.1'e giriyor; ayrıca
-kullanıcı sürprizle karşılaşınca puanı düşürüyor.
-
-**Maskot değişikliği de söyleniyor.** Beş karakter tek maskota indi ve
-giyilebilir ürünler katalogdan kalktı. Kullanıcının satın aldığı bir şeyi
-sessizce geri almak güven kaybettirir; jetonlar iade edildi ve sürüm
-notunda bu yazıyor.
+**Pro'su biten kullanıcı söyleniyor.** Önceden aboneliği biten hesap
+reklamsız kalıyordu (hata). Artık ücretsiz sürümün kuralları geçerli;
+bunu sessizce değiştirmek sürprize ve düşük puana yol açar.
 
 ### tr
 
-• Ücretsiz sürümde reklam gösteriliyor. Reklamlar kişiselleştirilmiyor:
-hedefleme yapılmıyor, reklam kimliği kullanılmıyor. DevEducation Pro
-reklamları tamamen kaldırıyor.
+• mBlock kursuna Projeler modülü: Akvaryum Dünyası, Dans Partisi ve Elma
+Toplama Oyunu. Her proje adım adım, bilgisayarındaki mBlock 5 ile
+kuruluyor.
 
-• Ders ve oyun aralarında ara sıra tam ekran reklam çıkıyor. İlk
-derslerinde hiç çıkmıyor, arka arkaya gelmiyor ve günlük bir sınırı var.
-Market'te istersen kısa bir video izleyip jeton kazanabilirsin.
+• mBlock derslerinde gerçek blok editörü: blokları sürükleyip kodu kendin
+kuruyorsun. Kod uzayınca blok listesi kenara çekiliyor.
 
-• Ana sayfa yenilendi: günün görevi, ilerlemen ve sıradaki ders artık tek
-ekranda.
+• Scratch kursuna dört yeni modül: kalemle çizim, işlemler, listeler ve
+kendi bloğunu yapmak.
 
-• Maskot tek: Devi. Giyilebilir ürünler kaldırıldı, onlara harcanan
-jetonlar hesabına iade edildi. Market'te yerlerine avatar çerçeveleri,
-profil afişleri, isim rozetleri ve seri kalkanı var.
+• Oyunlar ekranı yenilendi: günün görevi, raflar ve jeton/seri sayacın.
 
-• Ders anlatımları paragraf paragraf açılıyor. Blok kurma adımında sıra
-yanlışsa nereye bakacağın söyleniyor ve kodu çalıştırıp adım adım
-izleyebiliyorsun.
+• Quiz ekranı renklendi: soruyu Devi soruyor, şıklar renkli kartlar.
 
-• DevAI daha çok soruya cevap veriyor: dört dilde selamlaşma, temel
-matematik, "bilgisayar nedir", "blok kodlama ne işe yarar" gibi.
+• Doğru cevap, bölüm sonu ve ödül sesleri yenilendi.
 
-• Adın, veli paylaşım kodun ve hesap işlemlerin tek bir "Hesap"
-bölümünde toplandı.
+• Market'teki "video izle, jeton kazan" seçeneği bazen görünmüyordu;
+düzeltildi. Pro aboneliği sona eren hesaplarda ücretsiz sürüm (reklamlı)
+artık doğru şekilde devreye giriyor.
 
-• Uygulamanın desteklediği diller App Store sayfasında artık doğru
-görünüyor: Türkçe, İngilizce, Almanca ve İspanyolca.
+• Hesap oluşturduktan sonra bazen çıkan hata ekranı giderildi.
+
+• DevAI'de hazır bir soruya dokununca klavye kapanıyor, alt menü
+kaybolmuyor.
+
+• Almanca ve İspanyolca'da kalan Türkçe yazılar çevrildi.
 
 • Performans iyileştirmeleri ve hata düzeltmeleri.
 
 ### en
 
-• The free version now shows ads. They are never personalised: no
-targeting and no advertising identifier is used. DevEducation Pro
-removes them completely.
+• New Projects module in the mBlock course: Aquarium World, Dance Party and
+Apple Catcher. Each project is built step by step in mBlock 5 on your
+computer.
 
-• A full-screen ad appears occasionally between lessons and games. It
-never appears during your first lessons, never twice in a row, and has a
-daily limit. In the shop you can watch a short video for coins if you
-want to.
+• A real block editor in the mBlock lessons: drag the blocks and build the
+code yourself. When the code gets long, the block list slides aside.
 
-• The home screen is new: today's mission, your progress and the next
-lesson are now on one screen.
+• Four new modules in the Scratch course: drawing with the pen, operators,
+lists and making your own blocks.
 
-• One mascot from now on: Devi. Wearable items are gone and the coins
-spent on them have been returned to your account. The shop now has
-avatar frames, profile banners, name badges and a streak shield instead.
+• The Games screen is new: today's mission, shelves and your coin/streak
+counter.
 
-• Lesson texts appear paragraph by paragraph. In block-building steps the
-app tells you where the order goes wrong, and you can run your code and
-follow it step by step.
+• The quiz screen is more colourful: Devi asks the question and the
+answers are colourful cards.
 
-• DevAI answers many more questions: greetings in four languages, basic
-maths, "what is a computer", "what is block coding good for".
+• New sounds for correct answers, finished chapters and rewards.
 
-• Your name, the parent sharing code and account actions are now in a
-single "Account" section.
+• The "watch a video, earn coins" option in the shop sometimes didn't
+appear; fixed. Accounts whose Pro subscription has ended now correctly
+get the free version (with ads).
 
-• The languages the app supports now show correctly on its App Store
-page: Turkish, English, German and Spanish.
+• Fixed an error screen that sometimes appeared right after creating an
+account.
+
+• In DevAI, tapping a suggested question now closes the keyboard, so the
+bottom menu stays visible.
+
+• Remaining Turkish texts in German and Spanish have been translated.
 
 • Performance improvements and bug fixes.
+
+### de
+
+• Neues Modul „Projekte“ im mBlock-Kurs: Aquarium-Welt, Tanzparty und
+Äpfel fangen. Jedes Projekt entsteht Schritt für Schritt in mBlock 5 auf
+deinem Computer.
+
+• Ein echter Block-Editor in den mBlock-Lektionen: Blöcke ziehen und den
+Code selbst bauen. Wird der Code lang, schiebt sich die Blockliste zur
+Seite.
+
+• Vier neue Module im Scratch-Kurs: Zeichnen mit dem Malstift,
+Operatoren, Listen und eigene Blöcke.
+
+• Der Spiele-Bildschirm ist neu: Tagesaufgabe, Regale und dein
+Münz-/Serienzähler.
+
+• Das Quiz ist bunter: Devi stellt die Frage, die Antworten sind farbige
+Karten.
+
+• Neue Klänge für richtige Antworten, beendete Kapitel und Belohnungen.
+
+• Die Option „Video ansehen, Münzen verdienen“ im Shop fehlte manchmal;
+behoben. Konten mit abgelaufenem Pro-Abo erhalten jetzt korrekt die
+kostenlose Version (mit Werbung).
+
+• Ein Fehlerbildschirm direkt nach dem Anlegen eines Kontos wurde
+behoben.
+
+• In DevAI schließt ein Tipp auf eine vorgeschlagene Frage jetzt die
+Tastatur, das Menü unten bleibt sichtbar.
+
+• Restliche türkische Texte auf Deutsch und Spanisch wurden übersetzt.
+
+• Leistungsverbesserungen und Fehlerbehebungen.
+
+### es
+
+• Nuevo módulo Proyectos en el curso de mBlock: Mundo acuario, Fiesta de
+baile y Atrapa manzanas. Cada proyecto se construye paso a paso en
+mBlock 5 en tu ordenador.
+
+• Un editor de bloques real en las lecciones de mBlock: arrastra los
+bloques y arma el código tú mismo. Cuando el código crece, la lista de
+bloques se aparta.
+
+• Cuatro módulos nuevos en el curso de Scratch: dibujar con el lápiz,
+operadores, listas y crear tus propios bloques.
+
+• La pantalla de juegos es nueva: misión del día, estantes y tu contador
+de monedas y racha.
+
+• El cuestionario tiene más color: Devi hace la pregunta y las respuestas
+son tarjetas de colores.
+
+• Nuevos sonidos para respuestas correctas, capítulos terminados y
+premios.
+
+• La opción «ver un vídeo y ganar monedas» de la tienda a veces no
+aparecía; corregido. Las cuentas cuya suscripción Pro ha terminado
+reciben ahora correctamente la versión gratuita (con anuncios).
+
+• Se corrigió una pantalla de error que a veces aparecía justo después
+de crear una cuenta.
+
+• En DevAI, al tocar una pregunta sugerida se cierra el teclado y el menú
+inferior sigue visible.
+
+• Se tradujeron los textos en turco que quedaban en alemán y español.
+
+• Mejoras de rendimiento y corrección de errores.
 
 ## Ekran görüntüleri — iki adım
 
