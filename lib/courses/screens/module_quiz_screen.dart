@@ -479,7 +479,7 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
     // Quiz bitti: odul sesi. Gecemeyen cocuk da bir ses duyuyor ama
     // kutlama degil — ceza sesi de degil (bkz. playWrong).
     if (_score >= passingScore) {
-      SoundService.playOdul();
+      SoundService.playBuyukBasari();
       _confettiController.play();
     }
   }

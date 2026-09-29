@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -56,13 +57,18 @@ void main() {
   });
 
   group('gercek kayitlar', () {
-    // Sentezlenmis sinus ailesinin yanina ucu de satin alinmis gercek
-    // kayit geldi: ders sorusu dogru cevabi, bolum odulu ve acilistaki
-    // ilk gorevin sesi.
+    // Sentezlenmis sinus ailesinin yaninda satin alinan ses paketinden
+    // kirpilmis gercek kayitlar. Ust sinir her sesin KAC KERE duyuldugu
+    // ile belirlendi: her soruda calan ses kisa olmali, bir kere
+    // duyulan biraz uzun olabilir.
     const yeniler = {
       'dogru_cevap': 1.0, // her soruda caliyor: kisa olmali
-      'odul': 2.0,
-      'ilk_basari': 3.0, // bir kere duyuluyor, biraz uzun olabilir
+      'odul': 2.0, // ders sonu
+      'ilk_basari': 3.0, // bir kere duyuluyor
+      'jeton': 1.5, // gorev odulu, oyunda puan
+      'buyuk_basari': 3.0, // modul sinavi
+      'oyun_bitti': 2.0,
+      'kilit_acildi': 1.0,
     };
 
     test('dosyalar var, mono 44.1 kHz ve sinirdan kisa', () {
@@ -99,6 +105,74 @@ void main() {
       expect(servis.contains("_play('dogru_cevap')"), isTrue);
       expect(servis.contains("_play('odul')"), isTrue);
       expect(servis.contains("_play('ilk_basari')"), isTrue);
+    });
+
+    test('her ses dosyasi servis tarafindan CALINIYOR', () {
+      // Kullanilmayan bir ses dosyasi pakete agirlik katiyor ve "bu ses
+      // nereye baglanmisti?" sorusunu doguruyor. Klasordeki her dosya
+      // serviste bir yerde gecmek zorunda. (correct.wav, wrong.wav ve
+      // level_complete.wav bu denetimle bulundu: ton rengi ailesi
+      // gelince kimse onlari calmiyordu, silindiler.)
+      final servis =
+          File('lib/services/sound_service.dart').readAsStringSync();
+      final sahipsiz = <String>[];
+      for (final f in Directory('assets/sounds')
+          .listSync()
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.wav'))) {
+        final ad = f.uri.pathSegments.last.replaceAll('.wav', '');
+        // Ton rengi eki calisma aninda ekleniyor:
+        // correct_bright -> _play('correct_' + suffix)
+        final govde = ad.replaceAll(RegExp(r'_(bright|warm|soft|deep)$'), '');
+        final aranan = "'$ad'";
+        final arananAile = "'${govde}_";
+        if (!servis.contains(aranan) && !servis.contains(arananAile)) {
+          sahipsiz.add(ad);
+        }
+      }
+      expect(sahipsiz, isEmpty,
+          reason: 'Bu sesler hicbir yerde calinmiyor: $sahipsiz');
+    });
+
+    test('kayitlar ne kisik ne de tavana vurmus', () {
+      // Paketten cikan sesler sentezlenmis ailenin ustune cikmasin diye
+      // RMS -14..-24 dB araligina normallendi; tepe -1 dB'nin altinda
+      // kalmali, yoksa hoparlorde kirilma duyuluyor.
+      double desibel(double oran) => 20 * math.log(oran) / math.ln10;
+      for (final ad in yeniler.keys) {
+        final bytes = File('assets/sounds/$ad.wav').readAsBytesSync();
+        final v = bytes.buffer.asByteData();
+        final n = v.getUint32(40, Endian.little) ~/ 2;
+        var kareToplam = 0.0;
+        var tepe = 1;
+        for (var i = 0; i < n; i++) {
+          final ornek = v.getInt16(44 + i * 2, Endian.little).abs();
+          if (ornek > tepe) tepe = ornek;
+          kareToplam += ornek * ornek;
+        }
+        final rms = desibel(math.sqrt(kareToplam / n) / 32768);
+        final tepeDb = desibel(tepe / 32768);
+        expect(tepeDb, lessThan(-1.0), reason: '$ad tepesi cok yuksek');
+        expect(rms, inInclusiveRange(-24.0, -14.0),
+            reason: '$ad ses seviyesi aileden kopuk: $rms dB');
+      }
+    });
+
+    test('yeni sesler gercekten baglandi', () {
+      String oku(String yol) => File(yol).readAsStringSync();
+      expect(oku('lib/courses/screens/module_quiz_screen.dart')
+          .contains('playBuyukBasari()'), isTrue,
+          reason: 'Modul sinavi hala ders sonu sesini caliyor.');
+      expect(oku('lib/courses/screens/interactive_course_screen.dart')
+          .contains('playKilitAcildi()'), isTrue,
+          reason: 'Reklam izlenip ders acildiginda ses yok.');
+      expect(oku('lib/screens/quests/quests_screen.dart')
+          .contains('playJeton()'), isTrue,
+          reason: 'Gorev odulu sessiz.');
+      final servis = oku('lib/services/sound_service.dart');
+      expect(servis.contains("_play('oyun_bitti'"), isTrue,
+          reason: 'Oyun bitti hala yanlis cevap sesini caliyor.');
+      expect(servis.contains('playScore() => playJeton()'), isTrue);
     });
 
     test('ilk gorev ve ders sonu sesleri bagli', () {

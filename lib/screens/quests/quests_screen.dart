@@ -6,6 +6,7 @@ import '../../models/quest_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/quest_service.dart';
 import '../../utils/pro_gate.dart';
+import '../../services/sound_service.dart';
 
 /// Görevlerim.
 ///
@@ -62,6 +63,8 @@ class _QuestsScreenState extends State<QuestsScreen> {
     if (!mounted) return;
 
     if (ok) {
+      // Jeton ve XP girdi: kazanmanin kendi sesi.
+      SoundService.playJeton();
       await context.read<AuthProvider>().refreshProgress();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -101,7 +104,10 @@ class _QuestsScreenState extends State<QuestsScreen> {
 
     setState(() => _busySlug = state.quest.slug);
     final saved = await _service.completeManual(state.quest, note);
-    if (saved) await _service.claimReward(state.quest);
+    if (saved) {
+      await _service.claimReward(state.quest);
+      SoundService.playJeton();
+    }
     if (!mounted) return;
     await context.read<AuthProvider>().refreshProgress();
     if (!mounted) return;

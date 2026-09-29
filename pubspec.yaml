@@ -113,6 +113,7 @@ flutter:
     - .env
     - assets/images/
     - assets/images/games/
+    - assets/images/ui/
     - assets/videos/
     - assets/sounds/
     - assets/html/

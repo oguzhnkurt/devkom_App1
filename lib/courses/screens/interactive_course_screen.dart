@@ -10,6 +10,7 @@ import '../models/interactive_lesson_model.dart';
 import '../data/course_modules.dart';
 import 'interactive_lesson_screen.dart';
 import 'module_quiz_screen.dart';
+import '../../services/sound_service.dart';
 import 'widgets/step_widgets.dart'
     show lessonLang, lessonLangRead, lessonText;
 
@@ -870,6 +871,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         if (sonuc == ProUnlock.kapali || !mounted) return;
         if (sonuc == ProUnlock.reklam) {
           await AdUnlockService.instance.ac(widget.course.id, lesson.id, sira);
+          SoundService.playKilitAcildi();
           if (!mounted) return;
           setState(() => _acilanDersler = {..._acilanDersler, lesson.id});
         }

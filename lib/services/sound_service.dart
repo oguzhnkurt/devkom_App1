@@ -10,11 +10,22 @@ import 'package:flutter/services.dart';
 /// `assets/sounds/` klasoru bostu. Cocuk dogru cevabi verdiginde duydugu
 /// sey klavye tikirtisiydi.
 ///
-/// Artik klasorde gercek sesler var (uygulama icin uretildi, lisans
-/// sorunu yok): Do majorde yumusak sinus tonlari. "Dogru" yukselen bir
-/// ucluyu (do-mi-sol), "yanlis" kisa ve alcak inen bir ikiliyi calar —
-/// yanlis sesi bilerek cezalandirici degil, cunku yanlis denemek
-/// ogrenmenin parcasi.
+/// Artik klasorde gercek sesler var. Iki kaynak bir arada:
+///
+/// 1. SENTEZLENMIS AILE (`correct_*`, `wrong_*`, `complete_*`): Do
+///    majorde yumusak sinus tonlari, uygulama icin uretildi. "Dogru"
+///    yukselen bir ucluyu (do-mi-sol), "yanlis" kisa ve alcak inen bir
+///    ikiliyi calar — yanlis sesi bilerek cezalandirici degil, cunku
+///    yanlis denemek ogrenmenin parcasi. Her oyunun kendi ton rengi
+///    oldugu icin (bkz. [SfxVoice]) bu aile KAYITLA DEGISTIRILEMEZ:
+///    satin alinan pakette dort ayri "dogru" sesi yok.
+///
+/// 2. GERCEK KAYITLAR (`tap`, `drop`, `dogru_cevap`, `odul`,
+///    `ilk_basari`, `jeton`, `buyuk_basari`, `oyun_bitti`,
+///    `kilit_acildi`): satin alinan oyun/uygulama ses paketinden
+///    kirpildi. Hepsi tek kanal 44.1 kHz, RMS -18..-20 dB araliginda
+///    normallendi (sentezlenmis ailenin ustune cikmasin diye) ve tepe
+///    -1.5 dB'de sinirlandi. Uretim notu: `assets/sounds/NASIL_KIRPILDI.md`.
 ///
 /// Ses ve titresim ayrı ayrı kapatilabilir; ikisi de ayarlardaki
 /// anahtarlara bagli ([configure] ile guncelleniyor).
@@ -184,10 +195,46 @@ class SoundService {
   }
 
   /// Oyun bitti.
+  ///
+  /// Onceden yanlis cevap sesinin kisilmis halini caliyordu: cocuk
+  /// "bir soruyu kacirdim" ile "oyun bitti"yi sesten ayirt edemiyordu.
+  /// Artik kendi sesi var — cizgi film tadinda, cezalandirici degil,
+  /// cunku oyunun bitmesi bir kaza degil.
   static Future<void> playGameOver() async {
     await Future.wait([
-      _play('wrong_${_voice.suffix}', gain: 0.9),
-      // Burada da agir degil orta siddet: oyunun bitmesi bir kaza degil.
+      _play('oyun_bitti', gain: 0.95),
+      _haptic(HapticFeedback.mediumImpact),
+    ]);
+  }
+
+  /// JETON KAZANMA.
+  ///
+  /// Oyunda puan, gorevde jeton: ikisi de "kazandim" anlari ve ikisi de
+  /// eskiden `drop` sesini caliyordu — yani bir parcanin yerine
+  /// oturmasiyla ayni ses. Kazanmanin kendi sesi olmasi gerekiyordu.
+  static Future<void> playJeton() async {
+    await Future.wait([
+      _play('jeton'),
+      _haptic(HapticFeedback.lightImpact),
+    ]);
+  }
+
+  /// MODUL SINAVI / BUYUK KILOMETRE TASI.
+  ///
+  /// [playOdul] bir dersin sonu; bu ise bir MODULUN sonu. Ikisi ayni
+  /// sesi calarsa modul sinavini bitirmek siradan bir ders bitirmek
+  /// gibi hissettiriyor. Bu yuzden buyuk olan burada.
+  static Future<void> playBuyukBasari() async {
+    await Future.wait([
+      _play('buyuk_basari'),
+      _haptic(HapticFeedback.heavyImpact),
+    ]);
+  }
+
+  /// Reklam izlendi, ders kilidi acildi.
+  static Future<void> playKilitAcildi() async {
+    await Future.wait([
+      _play('kilit_acildi'),
       _haptic(HapticFeedback.mediumImpact),
     ]);
   }
@@ -200,8 +247,8 @@ class SoundService {
     ]);
   }
 
-  /// Puan kazanma.
-  static Future<void> playScore() => playDrop();
+  /// Puan kazanma. Jeton sesiyle ayni: ikisi de "kazandim" demek.
+  static Future<void> playScore() => playJeton();
 
   // Eski cagri adlari — ekranlarda hala kullaniliyor.
   static Future<void> playCorrectSound() => playCorrect();
