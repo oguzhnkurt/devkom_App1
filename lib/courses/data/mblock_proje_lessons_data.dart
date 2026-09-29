@@ -1,4 +1,5 @@
 import '../models/interactive_lesson_model.dart';
+import '../yurutme/mblock_cozum.dart';
 import 'mblock_palette.dart';
 
 /// mBlock kursu — Modül 5: Projeler.
@@ -279,6 +280,25 @@ class MBlockProjeLessonsData {
             'move_2_fish',
             'edge_bounce',
           ],
+          // Gercek tezgah: cocuk blogu mBlock'takiyle ayni goruntude
+          // surukluyor. Arac kutusu kasten dar.
+          mblock: MBlockTezgahAyari(
+            bloklar: [
+              'dev_bayrak',
+              'dev_yonune_don',
+              'dev_surekli',
+              'dev_git',
+              'dev_sek',
+            ],
+            cozum: [
+              MBlockBeklenen('dev_bayrak'),
+              MBlockBeklenen('dev_yonune_don', alanlar: {'YON': '55'}),
+              MBlockBeklenen('dev_surekli', icerik: [
+                MBlockBeklenen('dev_git', alanlar: {'ADIM': '2'}),
+                MBlockBeklenen('dev_sek'),
+              ]),
+            ],
+          ),
           xpReward: 40,
         ),
 
@@ -508,6 +528,15 @@ class MBlockProjeLessonsData {
             'k_forever',
             'sound_bubbles',
           ],
+          mblock: MBlockTezgahAyari(
+            bloklar: ['dev_bayrak', 'dev_surekli', 'dev_ses_bitene', 'dev_bekle'],
+            cozum: [
+              MBlockBeklenen('dev_bayrak'),
+              MBlockBeklenen('dev_surekli', icerik: [
+                MBlockBeklenen('dev_ses_bitene', alanlar: {'SES': 'Bubbles'}),
+              ]),
+            ],
+          ),
           xpReward: 30,
         ),
 
@@ -897,6 +926,16 @@ class MBlockProjeLessonsData {
             'next_costume',
             'wait_02',
           ],
+          mblock: MBlockTezgahAyari(
+            bloklar: ['dev_bayrak', 'dev_surekli', 'dev_kostum', 'dev_bekle'],
+            cozum: [
+              MBlockBeklenen('dev_bayrak'),
+              MBlockBeklenen('dev_surekli', icerik: [
+                MBlockBeklenen('dev_kostum'),
+                MBlockBeklenen('dev_bekle', alanlar: {'SANIYE': '0.2'}),
+              ]),
+            ],
+          ),
           xpReward: 40,
         ),
 

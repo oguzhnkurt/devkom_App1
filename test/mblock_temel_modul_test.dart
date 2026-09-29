@@ -147,13 +147,15 @@ void main() {
   });
 
   group('mBlock ders sirasi', () {
-    test('butun derslerin order degeri 1..11 ve tekrarsiz', () {
+    test('order degerleri 1..N kesintisiz ve tekrarsiz', () {
+      // Sayi elle YAZILMIYOR: her yeni ders eklendiginde testi de
+      // duzeltmek zorunda kalmak, testi bir engel haline getiriyordu
+      // (once 11'di, proje modulu gelince 13 oldu). Onemli olan kac
+      // ders oldugu degil, sirada BOSLUK ya da TEKRAR olmamasi.
       final orders = MBlockLessonsData.allLessons.map((l) => l.order).toList()
         ..sort();
-      expect(orders, List.generate(11, (i) => i + 1),
-          reason: 'Modul 0 eklendiginde eski derslerin order degerleri '
-              '4..11 olacak sekilde kaydirilmisti; bir bosluk ya da tekrar '
-              'ders listesinin sirasini bozar.');
+      expect(orders, List.generate(orders.length, (i) => i + 1),
+          reason: 'Ders sirasinda bosluk ya da tekrar var: $orders');
     });
 
     test('blok kurma adimlarindaki her id gercekten paletten geliyor', () {

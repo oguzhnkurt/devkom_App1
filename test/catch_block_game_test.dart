@@ -81,14 +81,24 @@ void main() {
         reason: 'Yanlis cevapta ses yok.');
   });
 
-  test('sectigi ses rengi icin dosyalar gercekten var', () {
+  test('sectigi ses rengi icin dosya gercekten var', () {
+    // TON RENGI ARTIK YALNIZCA "YANLIS" SESINDE.
+    //
+    // `correct_*` ve `complete_*` sentezlenmis sinus aileleri silindi:
+    // kulaga ucuz geliyorlardi ve bir turda onlarca kez duyuldugu icin
+    // yipratiyorlardi (kullanicinin ifadesiyle "cok itici"). Yerlerini
+    // satin alinan paketten kirpilmis tek birer kayit aldi
+    // (oyun_dogru, bolum_bitti) — bu yuzden burada renge gore
+    // aranacak tek dosya wrong_*.
     final kod = _kodu(_kaynak());
     final m = RegExp(r'SfxVoice\.(\w+)').firstMatch(kod);
     expect(m, isNotNull, reason: 'Oyun bir ses rengi secmiyor.');
     final renk = m!.group(1);
-    for (final ad in ['correct', 'wrong', 'complete']) {
-      expect(File('assets/sounds/${ad}_$renk.wav').existsSync(), isTrue,
-          reason: 'assets/sounds/${ad}_$renk.wav yok.');
+    expect(File('assets/sounds/wrong_$renk.wav').existsSync(), isTrue,
+        reason: 'assets/sounds/wrong_$renk.wav yok.');
+    for (final ad in ['oyun_dogru', 'bolum_bitti']) {
+      expect(File('assets/sounds/$ad.wav').existsSync(), isTrue,
+          reason: 'assets/sounds/$ad.wav yok.');
     }
   });
 

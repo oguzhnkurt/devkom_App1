@@ -32,7 +32,9 @@
     islemler: ['#59C059', '#46B946', '#389438'],
     degisken: ['#FF8C1A', '#DB7615', '#B45F11'],
     hareket:  ['#4C97FF', '#4280D7', '#3373CC'],
-    gorunum:  ['#9966FF', '#855CD6', '#774DCB']
+    gorunum:  ['#9966FF', '#855CD6', '#774DCB'],
+    // Ses kategorisi kukla tarafinda; mBlock'un kendi pembesi.
+    ses:      ['#CF63CF', '#B14FB1', '#8F3F8F']
   };
 
   // Yuva tipleri.
@@ -229,6 +231,32 @@
       yuvalar: [yuva('MIKTAR', 'sayi', 10)],
       tr: 'boyutu %1 değiştir', en: 'change size by %1',
       de: 'ändere Größe um %1', es: 'cambiar tamaño por %1'
+    },
+
+    // ------------------------------------------- Proje bloklari (5. modul)
+    // Akvaryum ve Dans Partisi projeleri bu dortlusu olmadan tezgahta
+    // kurulamiyordu. Etiketler yine mBlock'un kendi dil dosyasindan.
+    {
+      id: 'dev_yonune_don', kategori: 'hareket', sekil: 'duz',
+      yuvalar: [yuva('YON', 'sayi', 90)],
+      tr: '%1 yönüne dön', en: 'point in direction %1',
+      de: 'setze Richtung auf %1 Grad', es: 'apuntar en dirección %1'
+    },
+    {
+      id: 'dev_sek', kategori: 'hareket', sekil: 'duz', yuvalar: [],
+      tr: 'kenara geldiyse sek', en: 'if on edge, bounce',
+      de: 'pralle vom Rand ab', es: 'si toca un borde, rebotar'
+    },
+    {
+      id: 'dev_kostum', kategori: 'gorunum', sekil: 'duz', yuvalar: [],
+      tr: 'sonraki kostüm', en: 'next costume',
+      de: 'wechsle zum nächsten Kostüm', es: 'siguiente disfraz'
+    },
+    {
+      id: 'dev_ses_bitene', kategori: 'ses', sekil: 'duz',
+      yuvalar: [yuva('SES', 'metin', 'Bubbles')],
+      tr: '%1 sesini bitene kadar çal', en: 'play sound %1 until done',
+      de: 'spiele Klang %1 ganz', es: 'tocar sonido %1 hasta que termine'
     }
   ];
 
