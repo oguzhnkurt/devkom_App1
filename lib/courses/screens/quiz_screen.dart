@@ -384,12 +384,18 @@ class _QuizScreenState extends State<QuizScreen> {
         children: [
           Icon(icon, size: 18, color: typeColor),
           const SizedBox(width: 8),
-          Text(
-            typeText,
-            style: TextStyle(
-              color: typeColor,
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
+          // Esnek: soru artik maskotun yanindaki balonda, dar telefonda
+          // (320 pt) "Çoktan Seçmeli" etiketi sagdan tasiyordu.
+          Flexible(
+            child: Text(
+              typeText,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: typeColor,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
             ),
           ),
         ],
