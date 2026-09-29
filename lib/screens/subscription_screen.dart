@@ -19,6 +19,7 @@ import '../ui/motion.dart';
 import '../ui/press_button.dart';
 import '../utils/lang.dart';
 import 'robotics_games_screen.dart' show ProGames;
+import 'teklif_acilisi.dart';
 
 /// Pro abonelik ekrani (paywall).
 ///
@@ -413,40 +414,52 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       return;
     }
 
-    final take = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) => _ExitOfferSheet(
+    // ACILIS GOSTERISI (hediye -> konfeti -> rozet -> karsilastirma).
+    //
+    // Bir ornek ekran kaydindan alindi; oradaki "80% OFF FOREVER",
+    // "tek seferlik" ve "bugun $240 kazan" iddialari ALINMADI. Buradaki
+    // her sayi magazanin gonderdigi fiyatlardan hesaplaniyor
+    // (bkz. teklif_acilisi.dart basindaki not).
+    final yuzde = saving ??
+        (yearly != null && discounted != null && yearly.price.amount > 0
+            ? ((1 - discounted.price.amount / yearly.price.amount) * 100)
+                .round()
+            : 0);
+    final capaYillik = anchorProduct == null
+        ? null
+        : (discounted != null
+            ? anchorProduct.price.amount
+            : _monthlyAmount(anchorProduct) * 12);
+    final farkTutari =
+        capaYillik == null ? null : capaYillik - offer.price.amount;
+    final take = await TeklifAcilisi.goster(
+      context,
+      TeklifAcilisi(
         lang: _lang,
-        isEn: _isEn,
-        title: discounted != null
-            ? _t('Gitmeden önce…', 'Before you go…', 'Bevor du gehst…', 'Antes de irte…')
-            : _t('Bir dakika…', 'One moment…', 'Einen Moment…', 'Un momento…'),
-        headline: discounted != null
-            ? _t(
-                'Sana özel bir fiyatımız var',
-                'We have a special price for you',
-                'Wir haben einen besonderen Preis für dich',
-                'Tenemos un precio especial para ti')
-            : _t(
-                'Yıllık plan çok daha uygun',
-                'The yearly plan costs far less',
-                'Der Jahresplan kostet viel weniger',
-                'El plan anual cuesta mucho menos'),
-        priceLine: offer.price.localizedString ??
+        yuzde: yuzde,
+        indirimMi: discounted != null,
+        teklifFiyati: offer.price.localizedString ??
             _formatPrice(offer.price.amount, offer.price.currencyCode),
-        perMonth: _t(
-            'ayda ${_monthlyEquivalent(offer)}',
-            '${_monthlyEquivalent(offer)} / month',
-            '${_monthlyEquivalent(offer)} / Monat',
-            '${_monthlyEquivalent(offer)} / mes'),
-        anchorLine: (anchorProduct != null && saving != null)
-            ? _formatPrice(_monthlyAmount(anchorProduct) * 12,
-                anchorProduct.price.currencyCode)
+        aylikKarsilik: _monthlyEquivalent(offer),
+        normalFiyat: (anchorProduct == null || capaYillik == null)
+            ? null
+            : (discounted != null
+                ? (anchorProduct.price.localizedString ??
+                    _formatPrice(capaYillik, anchorProduct.price.currencyCode))
+                : _formatPrice(capaYillik, anchorProduct.price.currencyCode)),
+        normalEtiket: anchorProduct == null
+            ? null
+            : (discounted != null
+                ? _t('Normal fiyat', 'Regular price', 'Normalpreis',
+                    'Precio normal')
+                : _t('${_periodLabel(anchorProduct)} plan',
+                    '${_periodLabel(anchorProduct)} plan',
+                    '${_periodLabel(anchorProduct)}er Plan',
+                    'Plan ${_periodLabel(anchorProduct).toLowerCase()}')),
+        fark: (farkTutari != null && farkTutari > 0)
+            ? _formatPrice(farkTutari, offer.price.currencyCode)
             : null,
-        saving: saving,
+        denemeGun: _trialDays(offer),
       ),
     );
 
@@ -1587,165 +1600,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 /// iki renk kumesi koyduk: dikkat dagitmayacak kadar yavas (12 sn'lik dongu),
 /// metnin okunurlugunu bozmayacak kadar soluk. Hareketi azaltma ayari acikken
 /// animasyon durur, gradyan sabit kalir.
-/// Kullanici vazgecip cikarken gosterilen son teklif.
-///
-/// Kapatilabilir ve "Hayir, tesekkurler" secenegi acikca duruyor: ikinci
-/// kez geri basan kullanici ekrandan cikabiliyor. Kapatilmasi zor bir
-/// teklif karanlik desen sayilir ve App Store incelemesinde risk.
-class _ExitOfferSheet extends StatelessWidget {
-  const _ExitOfferSheet({
-    required this.lang,
-    required this.isEn,
-    required this.title,
-    required this.headline,
-    required this.priceLine,
-    required this.perMonth,
-    required this.anchorLine,
-    required this.saving,
-  });
-
-  /// Arayuz dili. `isEn` iki dil varken yetiyordu; dort dilde yetmiyor.
-  final String lang;
-
-  final bool isEn;
-  final String title;
-  final String headline;
-  final String priceLine;
-  final String perMonth;
-
-  /// Karsilastirma fiyati; yoksa null ve hicbir indirim iddiasi yazilmaz.
-  final String? anchorLine;
-  final int? saving;
-
-  String _t(String tr, String en, [String? de, String? es]) =>
-      AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(22, 14, 22, 14),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDDE1E7),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontFamily: AppTheme.fontFamily,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.4,
-                  color: Color(0xFF5B616E),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                headline,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontFamily: AppTheme.fontFamily,
-                  fontSize: 22,
-                  height: 1.2,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF14161A),
-                ),
-              ),
-              const SizedBox(height: 18),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (anchorLine != null) ...[
-                    Text(
-                      anchorLine!,
-                      style: const TextStyle(
-                        fontFamily: AppTheme.fontFamily,
-                        fontSize: 15,
-                        color: Color(0xFF9AA1AD),
-                        decoration: TextDecoration.lineThrough,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                  ],
-                  Text(priceLine,
-                      style: AppTheme.number(
-                          fontSize: 30, color: const Color(0xFF14161A))),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                perMonth,
-                style: const TextStyle(
-                  fontFamily: AppTheme.fontFamily,
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF5B616E),
-                ),
-              ),
-              if (saving != null) ...[
-                const SizedBox(height: 12),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppTheme.successGreen.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    isEn ? 'Save $saving%' : '%$saving tasarruf',
-                    style: const TextStyle(
-                      fontFamily: AppTheme.fontFamily,
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.successGreen,
-                    ),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 20),
-              PressButton(
-                label: isEn ? 'Get This Price' : 'Bu Fiyattan Al',
-                height: 54,
-                onPressed: () => Navigator.pop(context, true),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: Text(
-                  isEn
-                      ? 'No thanks'
-                      : _t('Hayır, teşekkürler', 'No thanks', 'Nein, danke',
-                          'No, gracias'),
-                  style: const TextStyle(
-                    fontFamily: AppTheme.fontFamily,
-                    fontSize: 13.5,
-                    color: Color(0xFF5B616E),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-
 /// Pro ekranındaki maskot: yavaşça süzülüyor.
 ///
 /// [Mascot] zaten nefes alıp göz kırpıyor; buradaki ek hareket yukarı
