@@ -110,6 +110,11 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
   }
 
   Future<void> _sendMessage({String? preset}) async {
+    // KLAVYE ACIK KALIYORDU. Cocuk once yazi kutusuna dokunup sonra
+    // hazir bir soruya basinca klavye ekranda kaliyor, alttaki menu
+    // cubugunu ortuyordu; kapatmanin bir yolu da yoktu, ana sayfaya
+    // donemiyordu. Hazir soruya basmak "yazmayi birakti" demek.
+    if (preset != null) FocusScope.of(context).unfocus();
     final userMessage = (preset ?? _messageController.text).trim();
 
     final validationError = _validator.validateMessage(userMessage);
@@ -265,12 +270,20 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
         body: Column(
           children: [
             Expanded(
-              child: ListView.builder(
+              // Mesajlara dokunmak ya da kaydirmak klavyeyi kapatiyor:
+              // iOS klavyesinde "kapat" tusu yok.
+              child: GestureDetector(
+                onTap: () => FocusScope.of(context).unfocus(),
+                behavior: HitTestBehavior.translucent,
+                child: ListView.builder(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
                 controller: _scrollController,
                 padding: const EdgeInsets.all(16),
                 itemCount: _messages.length,
                 itemBuilder: (context, index) =>
                     _buildMessageBubble(_messages[index]),
+              ),
               ),
             ),
             if (_isTyping) _buildTypingIndicator(),
@@ -382,8 +395,9 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
                 const SizedBox(height: 4),
                 Text(
                   _formatTime(message.timestamp),
+                  // Gri, mor zeminde okunmuyordu.
                   style: TextStyle(
-                    color: Colors.grey[600],
+                    color: Colors.white.withValues(alpha: 0.75),
                     fontSize: 11,
                   ),
                 ),
