@@ -138,4 +138,21 @@ const Map<String, BlokAnlami> blokSozlugu = {
   'wait_05': BlokAnlami(BlokKomutu.bekle, sayi: 0.5),
   'sound_hiphop': BlokAnlami(BlokKomutu.etkisiz),
   'backdrop_spotlight': BlokAnlami(BlokKomutu.etkisiz),
+
+  // --- Elma Toplama projesi ----------------------------------------
+  // Sayilar tool/mblock_projeleri/elma_toplama.mblock dosyasindan.
+  // Mutlak y ve fareyi izleme yorumlayicida yok; uydurmak yerine
+  // "gorunur etkisi yok" diyoruz. Dusus (y -8) ve puan gercek.
+  'set_y_kase': BlokAnlami(BlokKomutu.etkisiz),
+  'set_x_mouse': BlokAnlami(BlokKomutu.etkisiz),
+  'change_y_kase': BlokAnlami(BlokKomutu.yDegistir, sayi: -8),
+  'change_y_elma': BlokAnlami(BlokKomutu.yDegistir, sayi: -8),
+  'start_as_clone': BlokAnlami(BlokKomutu.etkisiz),
+  'show': BlokAnlami(BlokKomutu.etkisiz),
+  'hide': BlokAnlami(BlokKomutu.etkisiz),
+  'if_touching_kase': BlokAnlami(BlokKomutu.etkisiz),
+  // 'change_score' ve 'delete_clone' Scratch kursunda zaten var;
+  // puan blogu burada kendi kimligiyle, silme ayni anlamla paylasiliyor.
+  'change_toplananelma': BlokAnlami(BlokKomutu.degiskenArtir,
+      degisken: 'toplananelma', sayi: 1),
 };

@@ -598,4 +598,115 @@ class MBlockKuklaBlocks {
         labelEs: 'por siempre',
         color: MBlockPalette.control,
       );
+
+  // ---------------------------------------------- Elma Toplama projesi
+  // Etiketler Scratch'in kendi dil dosyalarindan (scratch-l10n,
+  // editor/blocks). mBlock kukla bloklarini Scratch 3.0'dan devraliyor;
+  // Turkcede "clone" = "ikiz".
+
+  static ScratchBlock setY(String y, {String? id}) => ScratchBlock(
+        id: id ?? 'set_y_$y',
+        blockType: ScratchBlockType.motion,
+        shape: ScratchBlockShape.stack,
+        label: 'y konumunu $y yap',
+        labelEn: 'set y to $y',
+        labelDe: 'setze y auf $y',
+        labelEs: 'dar a y el valor $y',
+        color: MBlockKuklaPalette.motion,
+      );
+
+  static ScratchBlock changeY(String dy, {String? id}) => ScratchBlock(
+        id: id ?? 'change_y_$dy',
+        blockType: ScratchBlockType.motion,
+        shape: ScratchBlockShape.stack,
+        label: 'y konumunu $dy değiştir',
+        labelEn: 'change y by $dy',
+        labelDe: 'ändere y um $dy',
+        labelEs: 'sumar a y $dy',
+        color: MBlockKuklaPalette.motion,
+      );
+
+  /// `x konumunu (farenin x i) yap` — kase fareyi yatayda izliyor.
+  static ScratchBlock setXToMouseX({String id = 'set_x_mouse'}) =>
+      ScratchBlock(
+        id: id,
+        blockType: ScratchBlockType.motion,
+        shape: ScratchBlockShape.stack,
+        label: 'x konumunu (farenin x i) yap',
+        labelEn: 'set x to (mouse x)',
+        labelDe: 'setze x auf (Maus x-Position)',
+        labelEs: 'dar a x el valor (posición x del ratón)',
+        color: MBlockKuklaPalette.motion,
+      );
+
+  static ScratchBlock whenIStartAsClone({String id = 'start_as_clone'}) =>
+      ScratchBlock(
+        id: id,
+        blockType: ScratchBlockType.control,
+        shape: ScratchBlockShape.cap,
+        label: 'ikiz olarak başladığımda',
+        labelEn: 'when I start as a clone',
+        labelDe: 'Wenn ich als Klon entstehe',
+        labelEs: 'al comenzar como clon',
+        color: MBlockPalette.control,
+      );
+
+  static ScratchBlock deleteThisClone({String id = 'delete_clone'}) =>
+      ScratchBlock(
+        id: id,
+        blockType: ScratchBlockType.control,
+        shape: ScratchBlockShape.stack,
+        label: 'bu ikizi sil',
+        labelEn: 'delete this clone',
+        labelDe: 'lösche diesen Klon',
+        labelEs: 'eliminar este clon',
+        color: MBlockPalette.control,
+      );
+
+  static ScratchBlock show({String id = 'show'}) => ScratchBlock(
+        id: id,
+        blockType: ScratchBlockType.looks,
+        shape: ScratchBlockShape.stack,
+        label: 'göster',
+        labelEn: 'show',
+        labelDe: 'zeige dich',
+        labelEs: 'mostrar',
+        color: MBlockKuklaPalette.looks,
+      );
+
+  static ScratchBlock hide({String id = 'hide'}) => ScratchBlock(
+        id: id,
+        blockType: ScratchBlockType.looks,
+        shape: ScratchBlockShape.stack,
+        label: 'gizle',
+        labelEn: 'hide',
+        labelDe: 'verstecke dich',
+        labelEs: 'esconder',
+        color: MBlockKuklaPalette.looks,
+      );
+
+  /// `eğer <Kase e değiyor mu?> ise` — kart dizme ekraninda tek kart.
+  static ScratchBlock ifTouching(String nesne, {String? id}) => ScratchBlock(
+        id: id ?? 'if_touching_$nesne',
+        blockType: ScratchBlockType.control,
+        shape: ScratchBlockShape.cBlock,
+        label: 'eğer <$nesne e değiyor mu?> ise',
+        labelEn: 'if <touching $nesne?> then',
+        labelDe: 'falls <wird $nesne berührt?>, dann',
+        labelEs: 'si <¿tocando $nesne?> entonces',
+        color: MBlockPalette.control,
+      );
+
+  static ScratchBlock changeVariable(String ad, String miktar,
+          {String? id}) =>
+      ScratchBlock(
+        id: id ?? 'change_${ad}_$miktar',
+        blockType: ScratchBlockType.variables,
+        shape: ScratchBlockShape.stack,
+        label: '$ad i $miktar kadar değiştir',
+        labelEn: 'change $ad by $miktar',
+        labelDe: 'ändere $ad um $miktar',
+        labelEs: 'sumar a $ad $miktar',
+        color: MBlockPalette.variables,
+      );
 }

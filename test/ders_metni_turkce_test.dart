@@ -188,6 +188,9 @@ const _izinli = <String>{
   // sanılıyordu. Buradaki izin "takip yazımı doğrudur" demek — bir
   // düzeltmeden kaçmak değil.
   'takip',
+  // "30 turu" (tur: döngünün bir dönüşü) ile "türü" (çeşit) AYRI
+  // kelimeler; noktasız yazılınca çakışıyorlar.
+  'turu',
   // Ünsüz yumuşaması: sonuç→sonucu, direnç→direnci. Doğru yazım bunlar.
   'sonucu', 'sonucunu', 'sonuca', 'sonucuyla', 'direnci',
   // Ders metnine gömülü kod örneklerinin tanıtıcı adları. Türkçe harf

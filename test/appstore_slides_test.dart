@@ -72,7 +72,9 @@ void main() {
       "('08_path'",
       "('07_matching'",
       "('02_lesson'",
-      "('04_blocks'",
+      // 5. slayt artik gercek blok editoru (mBlock tezgahi); ayni
+      // "surukleyip kurar" hikayesi, kart dizme ekraninin yerine.
+      "('27_mblock_tezgah'",
       "('14_html_code'",
       "('12_chess'",
       "('13_slide_to_start'",
@@ -120,7 +122,7 @@ void main() {
       '08_path',
       '07_matching',
       '02_lesson',
-      '04_blocks',
+      '27_mblock_tezgah',
       '14_html_code',
     ]) {
       final tema = kurgu.substring(

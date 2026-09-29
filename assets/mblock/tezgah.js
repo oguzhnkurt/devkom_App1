@@ -87,6 +87,10 @@
         t.message1 = '%1';
         t.args1 = [{ type: 'input_statement', name: 'ICERIK' }];
         break;
+      case 'son':
+        // "bu ikizi sil": ustune takilir, altina hicbir sey takilmaz.
+        t.previousStatement = null;
+        break;
       case 'oval':
         t.output = null; t.outputShape = 2;
         break;

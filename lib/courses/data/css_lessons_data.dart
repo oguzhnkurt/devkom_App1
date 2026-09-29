@@ -1666,7 +1666,7 @@ class CssLessonsData {
           titleEn: 'transform: Growing With scale',
           titleDe: 'transform: mit scale größer werden',
           titleEs: 'transform: crecer con scale',
-          content: 'Hover\'da bir elemanı büyütmek çok sık kullanılan bir efekttir:\n\n.kart:hover {\n  transform: scale(1.05);\n}\n\nBu, kart üzerine gelince onu %5 büyütür - kullanıcıya "tiklanabilir" hissi verir!',
+          content: 'Hover\'da bir elemanı büyütmek çok sık kullanılan bir efekttir:\n\n.kart:hover {\n  transform: scale(1.05);\n}\n\nBu, kart üzerine gelince onu %5 büyütür - kullanıcıya "tıklanabilir" hissi verir!',
           contentEn: 'Growing an element on hover is a very common effect:\n\n.card:hover {\n  transform: scale(1.05);\n}\n\nThis makes the card 5% bigger when you point at it - it tells the user "you can click me"!',
           contentDe: 'Ein Element beim Hover größer zu machen ist ein sehr häufiger Effekt:\n\n.card:hover {\n  transform: scale(1.05);\n}\n\nDie Karte wird 5 % größer, wenn du darauf zeigst – das sagt dem Nutzer «du kannst mich anklicken»!',
           contentEs: 'Hacer que un elemento crezca al pasar el ratón es un efecto muy común:\n\n.card:hover {\n  transform: scale(1.05);\n}\n\n¡Esto hace la tarjeta un 5 % más grande cuando apuntas a ella: le dice al usuario «puedes hacer clic en mí»!',

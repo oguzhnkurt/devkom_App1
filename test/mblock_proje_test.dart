@@ -75,6 +75,7 @@ void main() {
   // main() icinde getter tanimlanamaz; sade bir fonksiyon.
   InteractiveLesson ders() => MBlockLessonsData.module5.first;
   InteractiveLesson dans() => MBlockLessonsData.module5[1];
+  InteractiveLesson elma() => MBlockLessonsData.module5[2];
 
   test('proje dersi mBlock kursunun son modulunde', () {
     final moduller = CourseModules.forCourse('mblock');
@@ -82,6 +83,7 @@ void main() {
     expect(moduller.last.lessons, isNotEmpty);
     expect(moduller.last.lessons.first.id, 'mblock_5_1');
     expect(moduller.last.lessons[1].id, 'mblock_5_2');
+    expect(moduller.last.lessons[2].id, 'mblock_5_3');
   });
 
   test('dersler dort dilde', () {
@@ -232,4 +234,130 @@ void main() {
     });
   });
 
+
+  group('Elma Toplama dersi proje dosyasiyla tutarli', () {
+    // Ders metnindeki her sayi (rastgele -201..155, y 197, 0.3 saniye,
+    // y -8, kase y -122, sure 30) dosyadan okunuyor. Dosya degisirse
+    // ders de degismek zorunda.
+    late String metin;
+    late Map<String, Map<String, dynamic>> kukla;
+
+    setUpAll(() {
+      metin = File('lib/courses/data/mblock_proje_lessons_data.dart')
+          .readAsStringSync();
+      final dosya = File('tool/mblock_projeleri/elma_toplama.mblock');
+      expect(dosya.existsSync(), isTrue,
+          reason: 'Elma Toplama kaynak dosyasi yok.');
+      final arsiv = ZipDecoder().decodeBytes(dosya.readAsBytesSync());
+      final json = arsiv.files.firstWhere((f) => f.name == 'project.json');
+      final proje = jsonDecode(utf8.decode(json.content as List<int>))
+          as Map<String, dynamic>;
+      kukla = {
+        for (final t in (proje['targets'] as List).cast<Map<String, dynamic>>())
+          '${t['name']}': t,
+      };
+      expect(kukla.keys, containsAll(['Stage', 'Elma', 'Kase']));
+    });
+
+    List<Map<String, dynamic>> bloklari(String ad) =>
+        (kukla[ad]!['blocks'] as Map)
+            .values
+            .whereType<Map<String, dynamic>>()
+            .toList();
+
+    /// Bir blogun sayi girdisini metin olarak okur ([4, '-8'] gibi).
+    String? girdi(Map<String, dynamic> b, String ad) {
+      final g = (b['inputs'] as Map)[ad];
+      if (g is! List || g.length < 2) return null;
+      final d = g.last;
+      if (d is List && d.length > 1) return '${d[1]}';
+      return null;
+    }
+
+    Map<String, dynamic> tek(String ad, String opcode) =>
+        bloklari(ad).singleWhere((b) => b['opcode'] == opcode);
+
+    test('elma rastgele x ve y 197 den dusuyor', () {
+      final rastgele = tek('Elma', 'operator_random');
+      expect(girdi(rastgele, 'FROM'), '-201');
+      expect(girdi(rastgele, 'TO'), '155');
+      expect(girdi(tek('Elma', 'motion_gotoxy'), 'Y'), '197');
+      expect(metin.contains('-201 ile 155 arasında rastgele bir sayı seç'),
+          isTrue);
+      expect(metin.contains('y: 197 konumuna git'), isTrue);
+    });
+
+    test('ikiz 0.3 saniyede bir, her turda y -8', () {
+      expect(girdi(tek('Elma', 'control_wait'), 'DURATION'), '0.3');
+      expect(girdi(tek('Elma', 'motion_changeyby'), 'DY'), '-8');
+      expect(metin.contains('0.3 saniye bekle'), isTrue);
+      expect(metin.contains('y konumunu -8 değiştir'), isTrue);
+      expect(metin.contains("changeY('-8', id: 'change_y_elma')"), isTrue);
+    });
+
+    test('ikiz kaseye ve kahverengi topraga degince siliniyor', () {
+      final menu = tek('Elma', 'sensing_touchingobjectmenu');
+      expect((menu['fields'] as Map)['TOUCHINGOBJECTMENU'][0], 'Kase');
+      final renk = tek('Elma', 'sensing_touchingcolor');
+      final g = (renk['inputs'] as Map)['COLOR'] as List;
+      expect('${(g[1] as List)[1]}'.toLowerCase(), '#663b00');
+      expect(
+          bloklari('Elma')
+              .where((b) => b['opcode'] == 'control_delete_this_clone')
+              .length,
+          2);
+    });
+
+    test('kase y -122 de duruyor ve fareyi izliyor', () {
+      expect(girdi(tek('Kase', 'motion_sety'), 'Y'), '-122');
+      final opcodes = bloklari('Kase').map((b) => b['opcode']).toSet();
+      expect(opcodes, containsAll(['motion_setx', 'sensing_mousex']));
+      expect(metin.contains('y konumunu -122 yap'), isTrue);
+    });
+
+    test('sure 30 saniye ve sonunda her sey duruyor', () {
+      final ata = bloklari('Kase')
+          .where((b) => b['opcode'] == 'data_setvariableto')
+          .single;
+      expect((ata['fields'] as Map)['VARIABLE'][0], 'süre');
+      expect(girdi(ata, 'VALUE'), '30');
+      expect(
+          (tek('Kase', 'control_stop')['fields'] as Map)['STOP_OPTION'][0],
+          'all');
+      expect(metin.contains('süre değişkenini 30 yap'), isTrue);
+    });
+
+    test('degisken ve kukla adlari dosyadakiyle ayni', () {
+      final degiskenler = ((kukla['Stage']!['variables'] as Map).values)
+          .map((v) => '${(v as List)[0]}')
+          .toSet();
+      expect(degiskenler, {'toplananelma', 'süre'});
+      expect(
+          (kukla['Stage']!['costumes'] as List)
+              .map((c) => (c as Map)['name']),
+          contains('Blue Sky'));
+      expect(metin.contains('"Blue Sky"'), isTrue);
+    });
+
+    test('kurma adimlari projedeki blok dizisini istiyor', () {
+      final adimlar = elma().steps.whereType<BlockBuilderStep>().toList();
+      expect(adimlar.length, 2);
+      expect(adimlar[0].correctSequence,
+          ['green_flag', 'set_y_kase', 'k_forever', 'set_x_mouse']);
+      expect(adimlar[1].correctSequence, [
+        'start_as_clone',
+        'show',
+        'k_forever',
+        'change_y_elma',
+        'if_touching_kase',
+        'change_toplananelma',
+        'delete_clone',
+      ]);
+      for (final a in adimlar) {
+        expect(a.availableBlocks.length, greaterThan(a.correctSequence.length),
+            reason: '${a.id}: celdirici yok.');
+        expect(a.mblock, isNotNull);
+      }
+    });
+  });
 }

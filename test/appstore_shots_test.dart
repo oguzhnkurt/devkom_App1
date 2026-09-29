@@ -23,6 +23,7 @@ library;
 // Türkçe mağaza slaytlarında İNGİLİZCE ekran görüntüleri kullanılıyordu
 // — Türk bir veli slaytta "when green flag clicked" görüyordu. Araç
 // artık her iki dili de üretiyor.
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -44,6 +45,10 @@ import 'package:devkom_app/courses/data/lessons_data.dart';
 import 'package:devkom_app/courses/data/quizzes_data.dart';
 import 'package:devkom_app/courses/screens/quiz_screen.dart';
 import 'package:devkom_app/courses/data/scratch_lessons_data.dart';
+import 'package:devkom_app/courses/data/mblock_lessons_data.dart';
+import 'package:devkom_app/courses/screens/widgets/mblock_blok_adimi.dart';
+import 'package:devkom_app/courses/screens/widgets/mblock_tezgahi.dart';
+import 'package:devkom_app/courses/yurutme/mblock_cozum.dart';
 import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
 import 'package:devkom_app/courses/screens/widgets/step_widgets.dart';
 import 'package:devkom_app/widgets/first_task.dart';
@@ -162,7 +167,9 @@ Future<void> _shoot(
         theme: ThemeData(
           useMaterial3: true,
           fontFamily: 'Nunito',
-          fontFamilyFallback: const ['EmojiFallback'],
+          // 'monospace' (DejaVu Sans Mono) yedek olarak da duruyor: Nunito'da
+          // "→" yok ve mBlock hedef kutusundaki oklar BOS KUTU cikiyordu.
+          fontFamilyFallback: const ['EmojiFallback', 'monospace'],
           scaffoldBackgroundColor: const Color(0xFFF5F7FA),
         ),
         home: RepaintBoundary(
@@ -817,6 +824,76 @@ void main() {
         settle: const Duration(milliseconds: 900),
       );
     });
+    // mBLOCK TEZGAHI — GERCEK BLOK EDITORU.
+    //
+    // Tezgah bir WebView (scratch-blocks). Flutter'in test motoru
+    // WebView CIZEMEZ: burada dersin geri kalani (baslik, hedef kutusu,
+    // dugmeler) gercek Flutter motoruyla ciziliyor, tezgahin yeri bos
+    // kaliyor. Yanina tezgahin EKRANDAKI dikdortgeni yaziliyor
+    // (27_mblock_tezgah.json). `tool/mblock_tezgah_slayt.py` ayni
+    // sayfayi (assets/mblock/index.html) gercek bir tarayicida, ayni
+    // olcekte ve ayni dilde cizip o dikdortgene yerlestiriyor.
+    //
+    // Yani slayttaki her piksel uygulamanin kendi kodundan geliyor —
+    // iki ayri motorla cizilmis olmasi disinda elle cizilmis bir sey
+    // yok.
+    testWidgets('27 mblock tezgahi ($lang, ${cihaz.ad})', (tester) async {
+      final step = MBlockLessonsData.module5
+          .expand((l) => l.steps)
+          .whereType<BlockBuilderStep>()
+          .firstWhere((s) => s.id == 'p1_build_balik');
+
+      await _shoot(
+        tester,
+        '27_mblock_tezgah',
+        // Ders ekrani mBlock adimlarini BlockBuilderStepWidget'a degil
+        // MBlockBlokAdimi'na yonlendiriyor (interactive_lesson_screen).
+        // Ilk denemede burada BlockBuilderStepWidget vardi ve slayt
+        // uygulamada hic gorunmeyen eski kart dizme ekranini cekti.
+        SingleChildScrollView(
+          child: MBlockBlokAdimi(
+            step: step,
+            ayar: step.mblock!,
+            course: CoursesData.byId('mblock')!,
+            isDark: false,
+            onComplete: (_) {},
+          ),
+        ),
+        lang: lang,
+        cihaz: cihaz,
+        act: (t) async {
+          final tezgah = find.byType(MBlockTezgahi);
+          if (tezgah.evaluate().isEmpty) return;
+          // Tahtada YARIM bir program: cocuk kuruyor, henuz bitirmedi.
+          // Sayfa bunu Flutter'a bildirmis gibi yapiyoruz ki "Kontrol et"
+          // dugmesi gercek uygulamadaki gibi acik gorunsun. Tarayicida
+          // cizilen tahtada da AYNI yigin var (bkz. araç).
+          t.widget<MBlockTezgahi>(tezgah).onDurum(const [
+            [
+              MBlockBlok(tip: 'dev_bayrak'),
+              MBlockBlok(tip: 'dev_yonune_don', alanlar: {'YON': '55'}),
+              MBlockBlok(tip: 'dev_surekli', icerik: [
+                MBlockBlok(tip: 'dev_git', alanlar: {'ADIM': '2'}),
+              ]),
+            ],
+          ]);
+          await t.pump(const Duration(milliseconds: 200));
+          final r = t.getRect(tezgah);
+          File('${cihaz.dizin(lang)}/27_mblock_tezgah.json')
+            ..createSync(recursive: true)
+            ..writeAsStringSync(jsonEncode({
+              'x': r.left,
+              'y': r.top,
+              'genislik': r.width,
+              'yukseklik': r.height,
+              'oran': cihaz.oran,
+              'dil': lang,
+              'olcek': MBlockTezgahi.olcekIcin(cihaz.genislik),
+            }));
+        },
+      );
+    });
+
     testWidgets('26 blok kodlama ($lang, ${cihaz.ad})', (tester) async {
       await _shoot(
         tester,

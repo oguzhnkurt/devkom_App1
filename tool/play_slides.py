@@ -23,7 +23,10 @@ listeleme baglami farkli:
     ikisini goruyor; seri hissi vermek icin hepsi ayni kaliba
     oturuyor (baslik hep ustte) ve altta numara serisi var.
 
-Bu yuzden Play seti KOYU ve DOYGUN: her slaytin kendi rengi var, yazi
+(ESKI) Bu yuzden Play seti KOYU ve DOYGUNDU; artik ekran goruntuleri
+App Store setiyle ayni gokkusagi motorundan cikiyor (bkz.
+ekran_goruntuleri). Asagidaki zemin/telefon yardimcilari tablet seti
+(tool/play_tablet_slides.py) icin duruyor: her slaytin kendi rengi var, yazi
 beyaz, telefon alt kenardan tasiyor. Uygulamanin kendi ekranlari acik
 temali oldugu icin koyu zeminde one cikiyor.
 
@@ -46,7 +49,8 @@ import sys
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from store_slides import SLIDES, PILLS, CROP_ASPECT, parse  # noqa: E402
+from store_slides import (SLIDES, PILLS, CROP_ASPECT, BALON,  # noqa: E402
+                          parse, slayt_ciz)
 
 W, H = 1080, 1920
 FONT_DIR = 'assets/fonts'
@@ -69,6 +73,7 @@ TEMA = {
     '07_matching':      ((13, 130, 98), (7, 62, 50)),
     '02_lesson':        ((186, 98, 14), (92, 44, 6)),
     '04_blocks':        ((104, 52, 190), (48, 22, 92)),
+    '27_mblock_tezgah': ((38, 96, 200), (16, 42, 104)),
     '14_html_code':     ((176, 56, 26), (86, 24, 10)),
     '12_chess':         ((170, 98, 38), (72, 36, 12)),
     '13_slide_to_start': ((88, 48, 186), (40, 20, 92)),
@@ -241,50 +246,26 @@ def sayac(slayt, i, toplam):
 
 
 def ekran_goruntuleri(dil):
+    """Telefon ekran goruntuleri — App Store setiyle AYNI gokkusagi
+    motoru (store_slides.slayt_ciz), yalnizca olcu 1080x1920.
+
+    Eskiden Play seti koyu ve doygundu, App Store seti acik pasteldi;
+    iki magazada iki ayri uygulama gibi duruyordu. Gokkusagi zemin
+    beyaz Play listesinde de kaybolmuyor. Eski koyu setteki '01 / 08'
+    sayaci kalkti: tasan telefonun altinda yarim kaliyordu.
+    """
     klasor = os.path.join(OUT, dil)
     os.makedirs(klasor, exist_ok=True)
-    global TEMA_AKTIF
-    for i, (dosya, kirp, _yer, _hap, metinler) in enumerate(SLIDES, 1):
-        if dil not in metinler:
-            continue
-        TEMA_AKTIF = TEMA[dosya]
+    for eski in os.listdir(klasor):
+        if eski.endswith('.png'):
+            os.remove(os.path.join(klasor, eski))
+    secim = [s for s in SLIDES if dil in s[4]]
+    for i, (dosya, kirp, _yer, _hap, metinler) in enumerate(secim, 1):
         bas, alt = metinler[dil]
-        slayt = zemin(*TEMA_AKTIF).convert('RGBA')
-
-        y = baslik(slayt, bas)
-        y = alt_satir(slayt, alt, y + 14)
-        if i == 1:
-            y = haplar(slayt, y + 26)
-
         shot = Image.open(
             os.path.join(SRC, DILLER[dil], dosya + '.png')).convert('RGB')
-
-        # EKRAN PENCERESI: store_slides'taki elle ayarlanmis oranlar.
-        # Ham ekranin tamami (1290x2796) konunca altta kocaman bos
-        # beyaz bir alan kaliyordu — telefonun yarisi bos duruyordu.
-        oran = CROP_ASPECT.get(dosya)
-        bas_y = round(shot.height * kirp)
-        if oran:
-            yukseklik = min(round(shot.width * oran), shot.height - bas_y)
-            shot = shot.crop((0, bas_y, shot.width, bas_y + yukseklik))
-        elif kirp:
-            shot = shot.crop((0, bas_y, shot.width, shot.height))
-
-        # TELEFONUN BOYU GEOMETRIDEN CIKIYOR.
-        #
-        # Sabit genislik verince kisa kirpilan ekranlarda (satranc
-        # 1.16) telefon slaytin ortasinda kucucuk kaliyor, uzun
-        # olanlarda tasma cok oluyordu. Burada once telefonun
-        # OTURACAGI yer belirleniyor, genislik ondan hesaplaniyor.
-        ty = min(max(y + 80, 600), 760)
-        en_boy = shot.height / shot.width
-        genislik = int(min(max((H + 70 - ty) / en_boy, 560), 880))
-        tel = telefon(shot, genislik)
-        tx = (W - tel.width) // 2
-        golge(slayt, tel, (tx, ty))
-        slayt.alpha_composite(tel, (tx, ty))
-
-        sayac(slayt, i, len([s for s in SLIDES if dil in s[4]]))
+        slayt = slayt_ciz(W, H, shot, kirp, dosya, bas, alt,
+                          BALON[dosya][dil], tohum=i * 7 + 1)
         yol = os.path.join(klasor, f'{i:02d}_{dosya}.png')
         slayt.convert('RGB').save(yol, 'PNG')
         print('  ', yol)

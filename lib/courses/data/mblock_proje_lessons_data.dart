@@ -31,6 +31,10 @@ import 'mblock_palette.dart';
 /// BLOK YAZILARI Scratch'in kendi Türkçe dil dosyasından:
 /// "%1 yönüne dön", "kenara geldiyse sek", "dönüş stilini %1 yap",
 /// "%1 sesini bitene kadar çal".
+///
+/// ELMA TOPLAMA (3. proje) ilk OYUN: sayılar
+/// `tool/mblock_projeleri/elma_toplama.mblock` dosyasından; ikiz
+/// ("clone") blok yazıları Scratch'in kendi dil dosyasından.
 class MBlockProjeLessonsData {
   MBlockProjeLessonsData._();
 
@@ -1176,6 +1180,895 @@ class MBlockProjeLessonsData {
           tipEn: 'You earned the Dance badge!',
           tipDe: 'Du hast das Tanz-Abzeichen verdient!',
           tipEs: '¡Has ganado la insignia del Baile!',
+        ),
+      ],
+    ),
+
+    // ------------------------------------------------------- Proje 3
+    // Sayilar tool/mblock_projeleri/elma_toplama.mblock dosyasindan:
+    // elma x -201..155 arasi rastgele, y 197; 0.3 saniyede bir ikiz;
+    // ikiz her adimda y -8; kase y -122 ve fareyi izliyor; sure 30.
+    // Kahverengi (#663b00) Blue Sky arka planinin en altindaki toprak
+    // seridi — kacirilan elma oraya degince siliniyor.
+    InteractiveLesson(
+      id: 'mblock_5_3',
+      courseId: 'mblock',
+      title: 'Proje: Elma Toplama Oyunu',
+      subtitle: 'İlk oyunun: puan, süre ve gökten yağan ikizler',
+      titleEn: 'Project: Apple Catcher',
+      titleDe: 'Projekt: Äpfel fangen',
+      titleEs: 'Proyecto: Atrapa manzanas',
+      subtitleEn: 'Your first game: score, timer and raining clones',
+      subtitleDe: 'Dein erstes Spiel: Punkte, Zeit und fallende Klone',
+      subtitleEs: 'Tu primer juego: puntos, tiempo y clones que caen',
+      order: 14,
+      xpReward: 150,
+      badge: 'apple_catcher',
+      steps: [
+        IntroStep(
+          id: 'p3_intro',
+          mascotEmoji: '🍎',
+          mascotMessage:
+              'Akvaryumu izledin, dans partisini izledin. Bu sefer '
+              'izlemeyeceksin — OYNAYACAKSIN.\n\n'
+              'Gökten elmalar yağıyor, sen fareyle kaseyi sağa sola '
+              'kaydırıp onları topluyorsun. Her elma bir puan, elinde 30 '
+              'saniye var.\n\n'
+              'Bir oyunu oyun yapan üç şey burada: oyuncunun yönettiği '
+              'bir şey (kase), tutulan bir puan ve biten bir süre.',
+          mascotMessageEn:
+              'You watched the aquarium, you watched the dance party. '
+              'This time you will not watch — you will PLAY.\n\n'
+              'Apples rain from the sky and you slide a bowl left and '
+              'right with the mouse to catch them. Every apple is one '
+              'point, and you have 30 seconds.\n\n'
+              'Three things turn a program into a game, and all three are '
+              'here: something the player controls (the bowl), a score '
+              'and a timer that runs out.',
+          mascotMessageDe:
+              'Du hast das Aquarium angeschaut, die Tanzparty auch. '
+              'Diesmal schaust du nicht zu — du SPIELST.\n\n'
+              'Äpfel fallen vom Himmel, und du schiebst mit der Maus eine '
+              'Schüssel hin und her, um sie zu fangen. Jeder Apfel ist '
+              'ein Punkt, du hast 30 Sekunden.\n\n'
+              'Drei Dinge machen aus einem Programm ein Spiel, und alle '
+              'drei sind hier: etwas, das der Spieler steuert (die '
+              'Schüssel), ein Punktestand und eine ablaufende Zeit.',
+          mascotMessageEs:
+              'Viste el acuario, viste la fiesta de baile. Esta vez no '
+              'vas a mirar: vas a JUGAR.\n\n'
+              'Llueven manzanas del cielo y tú mueves un cuenco a '
+              'izquierda y derecha con el ratón para atraparlas. Cada '
+              'manzana es un punto y tienes 30 segundos.\n\n'
+              'Tres cosas convierten un programa en un juego, y las tres '
+              'están aquí: algo que controla el jugador (el cuenco), una '
+              'puntuación y un tiempo que se acaba.',
+          highlights: [
+            'Kaseyi fare yönetiyor',
+            'Elmalar ikiz olarak doğuyor',
+            'Puan ve 30 saniyelik süre',
+          ],
+          highlightsEn: [
+            'The mouse steers the bowl',
+            'Apples are born as clones',
+            'A score and a 30-second timer',
+          ],
+          highlightsDe: [
+            'Die Maus steuert die Schüssel',
+            'Äpfel entstehen als Klone',
+            'Punkte und 30 Sekunden Zeit',
+          ],
+          highlightsEs: [
+            'El ratón guía el cuenco',
+            'Las manzanas nacen como clones',
+            'Puntos y 30 segundos',
+          ],
+        ),
+
+        ExplanationStep(
+          id: 'p3_kurulum',
+          title: 'Sahne, İki Kukla, İki Değişken',
+          titleEn: 'A Stage, Two Sprites, Two Variables',
+          titleDe: 'Eine Bühne, zwei Figuren, zwei Variablen',
+          titleEs: 'Un escenario, dos objetos, dos variables',
+          content:
+              'mBlock 5\'te yeni bir proje aç.\n\n'
+              '• Sahne → arka plan: "Blue Sky" (mavi gök, altta '
+              'kahverengi toprak şeridi)\n'
+              '• Kukla: "Apple" → adını "Elma" yap\n'
+              '• Kukla: "Fruit Bowl" → adını "Kase" yap\n\n'
+              'Sonra Değişkenler kategorisinde "Bir Değişken Oluştur" ile '
+              'iki değişken aç, ikisi de "tüm kuklalar için" olsun:\n\n'
+              '• toplananelma — puan\n'
+              '• süre — kalan saniye\n\n'
+              'Değişkenin yanındaki kutu işaretliyse sahnenin köşesinde '
+              'bir gösterge çıkar. Oyuncu puanı ve süreyi oradan görüyor; '
+              'ayrıca bir yazı kuklası yapmana gerek yok.',
+          contentEn:
+              'Open a new project in mBlock 5.\n\n'
+              '• Stage → backdrop: "Blue Sky" (blue sky, a brown strip '
+              'of ground at the bottom)\n'
+              '• Sprite: "Apple" → rename it "Elma"\n'
+              '• Sprite: "Fruit Bowl" → rename it "Kase"\n\n'
+              'Then, in the Variables category, use "Make a Variable" to '
+              'create two variables, both "for all sprites":\n\n'
+              '• toplananelma — the score\n'
+              '• süre — seconds left\n\n'
+              'If the box next to a variable is ticked, a display appears '
+              'in the corner of the stage. The player sees score and time '
+              'there; you do not need an extra text sprite.',
+          contentDe:
+              'Öffne ein neues Projekt in mBlock 5.\n\n'
+              '• Bühne → Bühnenbild: «Blue Sky» (blauer Himmel, unten ein '
+              'brauner Erdstreifen)\n'
+              '• Figur: «Apple» → umbenennen in «Elma»\n'
+              '• Figur: «Fruit Bowl» → umbenennen in «Kase»\n\n'
+              'Dann legst du unter Variablen mit «Neue Variable» zwei '
+              'Variablen an, beide «für alle Figuren»:\n\n'
+              '• toplananelma — der Punktestand\n'
+              '• süre — die restlichen Sekunden\n\n'
+              'Ist das Kästchen neben einer Variable angehakt, erscheint '
+              'in der Bühnenecke eine Anzeige. Dort sieht der Spieler '
+              'Punkte und Zeit; eine extra Textfigur brauchst du nicht.',
+          contentEs:
+              'Abre un proyecto nuevo en mBlock 5.\n\n'
+              '• Escenario → fondo: «Blue Sky» (cielo azul, abajo una '
+              'franja marrón de tierra)\n'
+              '• Objeto: «Apple» → cámbiale el nombre a «Elma»\n'
+              '• Objeto: «Fruit Bowl» → cámbiale el nombre a «Kase»\n\n'
+              'Después, en Variables, usa «Crear una variable» para hacer '
+              'dos variables, las dos «para todos los objetos»:\n\n'
+              '• toplananelma: la puntuación\n'
+              '• süre: los segundos que quedan\n\n'
+              'Si la casilla junto a la variable está marcada, aparece un '
+              'marcador en la esquina del escenario. Ahí el jugador ve '
+              'puntos y tiempo; no hace falta otro objeto de texto.',
+          tipEmoji: '🏷️',
+          tip: 'Adları dosyadaki gibi bıraktık: Elma, Kase, toplananelma, '
+              'süre. Sen istediğin adı verebilirsin — yeter ki bloklarda '
+              'aynısını seç.',
+          tipEn: 'We kept the names from the project file: Elma (apple), '
+              'Kase (bowl), toplananelma, süre. You can pick your own — '
+              'just choose the same ones in the blocks.',
+          tipDe: 'Wir haben die Namen aus der Projektdatei behalten: Elma '
+              '(Apfel), Kase (Schüssel), toplananelma, süre. Du kannst '
+              'eigene wählen — nimm sie dann auch in den Blöcken.',
+          tipEs: 'Dejamos los nombres del archivo del proyecto: Elma '
+              '(manzana), Kase (cuenco), toplananelma, süre. Puedes usar '
+              'otros; elige los mismos en los bloques.',
+        ),
+
+        ExplanationStep(
+          id: 'p3_kase',
+          title: 'Kase Fareyi İzliyor',
+          titleEn: 'The Bowl Follows the Mouse',
+          titleDe: 'Die Schüssel folgt der Maus',
+          titleEs: 'El cuenco sigue al ratón',
+          content:
+              'Kase kuklasının kodu:\n\n'
+              '   tıklandığında\n'
+              '   y konumunu -122 yap\n'
+              '   sürekli tekrarla\n'
+              '     x konumunu (farenin x i) yap\n\n'
+              'Sahnede x sağ-sol, y yukarı-aşağı demek.\n\n'
+              '• y -122 → kase sahnenin alt kısmına, toprağın hemen '
+              'üstüne yerleşiyor ve orada kalıyor.\n'
+              '• "farenin x i" bir DEĞER bloğu: farenin o an sahnede '
+              'nerede olduğunu söylüyor. Kasenin x\'ini sürekli ona '
+              'eşitlersen kase fareyi yatayda izliyor ama asla yukarı '
+              'kalkmıyor.\n\n'
+              'Oval "farenin x i" bloğu Algılama kategorisinde; onu "x '
+              'konumunu … yap" bloğunun beyaz kutusuna sürükleyip bırak.',
+          contentEn:
+              "The Kase (bowl) sprite's code:\n\n"
+              '   when clicked\n'
+              '   set y to -122\n'
+              '   forever\n'
+              '     set x to (mouse x)\n\n'
+              'On the stage, x means left-right and y means up-down.\n\n'
+              '• y -122 → the bowl sits near the bottom, just above the '
+              'ground, and stays there.\n'
+              '• "mouse x" is a VALUE block: it tells you where the mouse '
+              'is on the stage right now. Keep setting the bowl\'s x to '
+              'it and the bowl follows the mouse sideways but never '
+              'lifts off.\n\n'
+              'The round "mouse x" block is in Sensing; drag it into the '
+              'white slot of "set x to …".',
+          contentDe:
+              'Der Code der Figur Kase (Schüssel):\n\n'
+              '   Wenn angeklickt\n'
+              '   setze y auf -122\n'
+              '   wiederhole fortlaufend\n'
+              '     setze x auf (Maus x-Position)\n\n'
+              'Auf der Bühne heißt x links-rechts und y oben-unten.\n\n'
+              '• y -122 → die Schüssel steht unten, knapp über der Erde, '
+              'und bleibt dort.\n'
+              '• «Maus x-Position» ist ein WERT-Block: er sagt, wo die '
+              'Maus gerade auf der Bühne ist. Setzt du das x der '
+              'Schüssel ständig darauf, folgt sie der Maus seitlich, '
+              'hebt aber nie ab.\n\n'
+              'Der runde Block «Maus x-Position» steht unter Fühlen; zieh '
+              'ihn in das weiße Feld von «setze x auf …».',
+          contentEs:
+              'El código del objeto Kase (cuenco):\n\n'
+              '   al hacer clic\n'
+              '   dar a y el valor -122\n'
+              '   por siempre\n'
+              '     dar a x el valor (posición x del ratón)\n\n'
+              'En el escenario, x es izquierda-derecha e y es '
+              'arriba-abajo.\n\n'
+              '• y -122 → el cuenco queda abajo, justo encima de la '
+              'tierra, y no se mueve de ahí.\n'
+              '• «posición x del ratón» es un bloque de VALOR: dice dónde '
+              'está el ratón ahora mismo. Si igualas la x del cuenco a '
+              'ella todo el rato, el cuenco sigue al ratón de lado pero '
+              'nunca sube.\n\n'
+              'El bloque redondo «posición x del ratón» está en Sensores; '
+              'arrástralo al hueco blanco de «dar a x el valor …».',
+          visuals: [
+            VisualElement(
+              type: VisualType.scratchBlock,
+              content: 'farenin x i',
+              contentEn: 'mouse x',
+              contentDe: 'Maus x-Position',
+              contentEs: 'posición x del ratón',
+              color: MBlockKuklaPalette.sensing,
+              label: 'Algılama',
+              labelEn: 'Sensing',
+              labelDe: 'Fühlen',
+              labelEs: 'Sensores',
+            ),
+          ],
+        ),
+
+        BlockBuilderStep(
+          id: 'p3_build_kase',
+          instruction: 'Kaseyi fareye bağla.',
+          instructionEn: 'Hook the bowl to the mouse.',
+          instructionDe: 'Verbinde die Schüssel mit der Maus.',
+          instructionEs: 'Engancha el cuenco al ratón.',
+          goal: 'Tıklandığında → y konumunu -122 yap → sürekli { x '
+              'konumunu (farenin x i) yap }',
+          goalEn: 'When clicked → set y to -122 → forever { set x to '
+              '(mouse x) }',
+          goalDe: 'Wenn angeklickt → setze y auf -122 → fortlaufend { '
+              'setze x auf (Maus x-Position) }',
+          goalEs: 'Al hacer clic → dar a y el valor -122 → por siempre { '
+              'dar a x el valor (posición x del ratón) }',
+          availableBlocks: [
+            MBlockKuklaBlocks.greenFlag(),
+            MBlockKuklaBlocks.setY('-122', id: 'set_y_kase'),
+            MBlockKuklaBlocks.forever(),
+            MBlockKuklaBlocks.setXToMouseX(),
+            MBlockKuklaBlocks.changeY('-8', id: 'change_y_kase'),
+          ],
+          correctSequence: [
+            'green_flag',
+            'set_y_kase',
+            'k_forever',
+            'set_x_mouse',
+          ],
+          mblock: MBlockTezgahAyari(
+            bloklar: [
+              'dev_bayrak',
+              'dev_y_yap',
+              'dev_surekli',
+              'dev_x_yap',
+              'dev_fare_x',
+              'dev_y_degistir',
+            ],
+            cozum: [
+              MBlockBeklenen('dev_bayrak'),
+              MBlockBeklenen('dev_y_yap', alanlar: {'Y': '-122'}),
+              MBlockBeklenen('dev_surekli', icerik: [
+                MBlockBeklenen('dev_x_yap', girdiler: {
+                  'X': MBlockBeklenen('dev_fare_x'),
+                }),
+              ]),
+            ],
+          ),
+          xpReward: 40,
+        ),
+
+        ExplanationStep(
+          id: 'p3_ikiz',
+          title: 'Tek Elma, Sonsuz İkiz',
+          titleEn: 'One Apple, Endless Clones',
+          titleDe: 'Ein Apfel, endlos viele Klone',
+          titleEs: 'Una manzana, clones sin fin',
+          content:
+              'Gökten yüzlerce elma yağacak ama projede yalnızca BİR elma '
+              'kuklası var. Gerisi onun İKİZLERİ.\n\n'
+              'Elma kuklasının ilk kodu bir elma fabrikası:\n\n'
+              '   tıklandığında\n'
+              '   toplananelma değişkenini 0 yap\n'
+              '   gizle\n'
+              '   sürekli tekrarla\n'
+              '     x: (-201 ile 155 arasında rastgele bir sayı seç) y: 197 konumuna git\n'
+              '     0.3 saniye bekle\n'
+              '     kendim in ikizini yarat\n\n'
+              '• Puan her oyunun başında sıfırlanıyor.\n'
+              '• Asıl elma GİZLENİYOR: o sadece fabrika, kendisi '
+              'düşmüyor.\n'
+              '• y 197 sahnenin tepesi; x her seferinde rastgele, yani '
+              'elmalar hep farklı yerden düşüyor.\n'
+              '• 0.3 saniyede bir yeni ikiz: saniyede üç elmadan biraz '
+              'fazla.',
+          contentEn:
+              'Hundreds of apples will fall, but the project has only ONE '
+              'apple sprite. The rest are its CLONES.\n\n'
+              "The apple's first script is an apple factory:\n\n"
+              '   when clicked\n'
+              '   set toplananelma to 0\n'
+              '   hide\n'
+              '   forever\n'
+              '     go to x: (pick random -201 to 155) y: 197\n'
+              '     wait 0.3 seconds\n'
+              '     create clone of myself\n\n'
+              '• The score goes back to zero at the start of every game.\n'
+              '• The original apple HIDES: it is only the factory, it '
+              'never falls itself.\n'
+              '• y 197 is the top of the stage; x is random each time, so '
+              'apples fall from different places.\n'
+              '• A new clone every 0.3 seconds: a little over three '
+              'apples a second.',
+          contentDe:
+              'Hunderte Äpfel werden fallen, aber im Projekt gibt es nur '
+              'EINE Apfelfigur. Der Rest sind ihre KLONE.\n\n'
+              'Das erste Skript des Apfels ist eine Apfelfabrik:\n\n'
+              '   Wenn angeklickt\n'
+              '   setze toplananelma auf 0\n'
+              '   verstecke dich\n'
+              '   wiederhole fortlaufend\n'
+              '     gehe zu x: (Zufallszahl von -201 bis 155) y: 197\n'
+              '     warte 0.3 Sekunden\n'
+              '     erzeuge Klon von mir selbst\n\n'
+              '• Der Punktestand startet jedes Spiel bei null.\n'
+              '• Der Original-Apfel VERSTECKT sich: er ist nur die '
+              'Fabrik und fällt selbst nie.\n'
+              '• y 197 ist der obere Bühnenrand; x ist jedes Mal zufällig, '
+              'also fallen die Äpfel an verschiedenen Stellen.\n'
+              '• Alle 0.3 Sekunden ein neuer Klon: gut drei Äpfel pro '
+              'Sekunde.',
+          contentEs:
+              'Caerán cientos de manzanas, pero el proyecto solo tiene UN '
+              'objeto manzana. El resto son sus CLONES.\n\n'
+              'El primer programa de la manzana es una fábrica de '
+              'manzanas:\n\n'
+              '   al hacer clic\n'
+              '   dar a toplananelma el valor 0\n'
+              '   esconder\n'
+              '   por siempre\n'
+              '     ir a x: (número aleatorio entre -201 y 155) y: 197\n'
+              '     esperar 0.3 segundos\n'
+              '     crear clon de mí mismo\n\n'
+              '• La puntuación vuelve a cero al empezar cada partida.\n'
+              '• La manzana original se ESCONDE: solo es la fábrica, '
+              'nunca cae.\n'
+              '• y 197 es la parte de arriba del escenario; x es '
+              'aleatoria cada vez, así que caen desde sitios distintos.\n'
+              '• Un clon nuevo cada 0.3 segundos: algo más de tres '
+              'manzanas por segundo.',
+          tipEmoji: '🧬',
+          tip: 'Scratch ve mBlock Türkçede "clone" kelimesine "ikiz" '
+              'diyor. Kontrol kategorisinde üç ikiz bloğu var: ikizini '
+              'yarat, ikiz olarak başladığımda, bu ikizi sil.',
+          tipEn: 'The Control category has three clone blocks: create '
+              'clone of, when I start as a clone, delete this clone.',
+          tipDe: 'In der Kategorie Steuerung gibt es drei Klon-Blöcke: '
+              'erzeuge Klon von, Wenn ich als Klon entstehe, lösche '
+              'diesen Klon.',
+          tipEs: 'En la categoría Control hay tres bloques de clones: '
+              'crear clon de, al comenzar como clon, eliminar este clon.',
+        ),
+
+        MultipleChoiceStep(
+          id: 'p3_q1',
+          question: 'Asıl elma neden en başta "gizle" bloğunu çalıştırıyor?',
+          questionEn: 'Why does the original apple run "hide" at the '
+              'start?',
+          questionDe: 'Warum führt der Original-Apfel am Anfang '
+              '«verstecke dich» aus?',
+          questionEs: '¿Por qué la manzana original ejecuta «esconder» al '
+              'principio?',
+          options: [
+            ChoiceOption(
+              text: 'O sadece ikiz üretiyor; gizlenmezse tepede kıpırdayan '
+                  'ama hiç düşmeyen bir elma görünür',
+              textEn: 'It only makes clones; if it stayed visible you would '
+                  'see an apple jumping around at the top that never falls',
+              textDe: 'Er erzeugt nur Klone; sichtbar würde oben ein '
+                  'springender Apfel bleiben, der nie fällt',
+              textEs: 'Solo fabrica clones; si se viera, habría una '
+                  'manzana saltando arriba que nunca cae',
+            ),
+            ChoiceOption(
+              text: 'Gizlenmezse ikiz yaratamaz',
+              textEn: 'It cannot create clones unless it is hidden',
+              textDe: 'Ohne Verstecken kann er keine Klone erzeugen',
+              textEs: 'Si no se esconde no puede crear clones',
+            ),
+            ChoiceOption(
+              text: 'Puanı sıfırlamak için',
+              textEn: 'To reset the score',
+              textDe: 'Um die Punkte zurückzusetzen',
+              textEs: 'Para poner los puntos a cero',
+            ),
+            ChoiceOption(
+              text: 'Oyunu yavaşlatmak için',
+              textEn: 'To slow the game down',
+              textDe: 'Um das Spiel langsamer zu machen',
+              textEs: 'Para hacer el juego más lento',
+            ),
+          ],
+          correctIndex: 0,
+          explanation:
+              'Asıl elma her 0.3 saniyede rastgele bir yere ışınlanıyor '
+              've orada ikiz bırakıyor. Görünür kalsaydı tepede sürekli '
+              'yer değiştiren tuhaf bir elma olurdu. Gizli bir kuklanın '
+              'ikizi de gizli doğar — bu yüzden ikiz kendi kodunda ilk iş '
+              '"göster" diyor.',
+          explanationEn:
+              'The original apple jumps to a random spot every 0.3 '
+              'seconds and leaves a clone there. If it were visible, a '
+              'strange apple would keep hopping around at the top. A '
+              'clone of a hidden sprite is born hidden too — that is why '
+              'the clone says "show" first thing.',
+          explanationDe:
+              'Der Original-Apfel springt alle 0.3 Sekunden an eine '
+              'zufällige Stelle und hinterlässt dort einen Klon. Wäre er '
+              'sichtbar, hüpfte oben ständig ein seltsamer Apfel herum. '
+              'Der Klon einer versteckten Figur ist auch versteckt — '
+              'darum sagt der Klon als Erstes «zeige dich».',
+          explanationEs:
+              'La manzana original salta a un sitio aleatorio cada 0.3 '
+              'segundos y deja allí un clon. Si se viera, habría una '
+              'manzana rara saltando arriba sin parar. El clon de un '
+              'objeto escondido también nace escondido: por eso lo '
+              'primero que hace el clon es «mostrar».',
+          xpReward: 20,
+        ),
+
+        ExplanationStep(
+          id: 'p3_dusus',
+          title: 'Bir İkizin Hayatı',
+          titleEn: 'The Life of a Clone',
+          titleDe: 'Das Leben eines Klons',
+          titleEs: 'La vida de un clon',
+          content:
+              'Her ikiz doğduğu an kendi kodunu çalıştırıyor:\n\n'
+              '   ikiz olarak başladığımda\n'
+              '   göster\n'
+              '   sürekli tekrarla\n'
+              '     y konumunu -8 değiştir\n'
+              '     eğer <Kase e değiyor mu?> ise\n'
+              '       toplananelma i 1 kadar değiştir\n'
+              '       bu ikizi sil\n'
+              '     eğer <rengine değiyor mu?> ise   (kahverengi)\n'
+              '       bu ikizi sil\n\n'
+              '• y -8: her turda 8 adım aşağı. Düşmek bu kadar.\n'
+              '• Kaseye değerse puan bir artıyor ve elma yok oluyor — '
+              'kaseye girmiş gibi.\n'
+              '• Kaçırırsa en alttaki kahverengi toprağa değiyor ve yine '
+              'siliniyor.\n\n'
+              'Silmek neden şart? Silinmeyen ikizler ekranın dışında '
+              'birikir; mBlock bir süre sonra yeni ikiz yaratmayı '
+              'bırakır ve yağmur durur.',
+          contentEn:
+              'Every clone runs its own code the moment it is born:\n\n'
+              '   when I start as a clone\n'
+              '   show\n'
+              '   forever\n'
+              '     change y by -8\n'
+              '     if <touching Kase?> then\n'
+              '       change toplananelma by 1\n'
+              '       delete this clone\n'
+              '     if <touching color ?> then   (brown)\n'
+              '       delete this clone\n\n'
+              '• y -8: eight steps down every round. That is all falling '
+              'is.\n'
+              '• If it touches the bowl the score goes up by one and the '
+              'apple disappears — as if it dropped in.\n'
+              '• If it is missed, it touches the brown ground at the '
+              'bottom and is deleted too.\n\n'
+              'Why delete at all? Clones that are never deleted pile up '
+              'off screen; after a while mBlock stops making new clones '
+              'and the rain stops.',
+          contentDe:
+              'Jeder Klon startet seinen eigenen Code, sobald er '
+              'entsteht:\n\n'
+              '   Wenn ich als Klon entstehe\n'
+              '   zeige dich\n'
+              '   wiederhole fortlaufend\n'
+              '     ändere y um -8\n'
+              '     falls <wird Kase berührt?>, dann\n'
+              '       ändere toplananelma um 1\n'
+              '       lösche diesen Klon\n'
+              '     falls <wird Farbe berührt?>, dann   (braun)\n'
+              '       lösche diesen Klon\n\n'
+              '• y -8: jede Runde acht Schritte nach unten. Mehr ist '
+              'Fallen nicht.\n'
+              '• Berührt er die Schüssel, gibt es einen Punkt und der '
+              'Apfel verschwindet — als wäre er hineingefallen.\n'
+              '• Wird er verpasst, berührt er unten die braune Erde und '
+              'wird ebenfalls gelöscht.\n\n'
+              'Warum überhaupt löschen? Nie gelöschte Klone sammeln sich '
+              'außerhalb des Bildschirms; irgendwann erzeugt mBlock keine '
+              'neuen mehr, und der Regen hört auf.',
+          contentEs:
+              'Cada clon ejecuta su propio código en cuanto nace:\n\n'
+              '   al comenzar como clon\n'
+              '   mostrar\n'
+              '   por siempre\n'
+              '     sumar a y -8\n'
+              '     si <¿tocando Kase?> entonces\n'
+              '       sumar a toplananelma 1\n'
+              '       eliminar este clon\n'
+              '     si <¿tocando el color ?> entonces   (marrón)\n'
+              '       eliminar este clon\n\n'
+              '• y -8: ocho pasos hacia abajo en cada vuelta. Caer es '
+              'solo eso.\n'
+              '• Si toca el cuenco, suma un punto y la manzana '
+              'desaparece, como si hubiera caído dentro.\n'
+              '• Si se escapa, toca la tierra marrón de abajo y también '
+              'se elimina.\n\n'
+              '¿Por qué eliminar? Los clones que nunca se borran se '
+              'acumulan fuera de la pantalla; al rato mBlock deja de '
+              'crear clones nuevos y la lluvia se para.',
+          tipEmoji: '🎨',
+          tip: 'Renk kutusuna tıklayınca damlalık çıkıyor; sahnedeki '
+              'kahverengi toprağa tıkla, renk kendiliğinden seçilsin.',
+          tipEn: 'Click the colour box and an eyedropper appears; click '
+              'the brown ground on the stage to pick the exact colour.',
+          tipDe: 'Klick auf das Farbfeld, dann erscheint eine Pipette; '
+              'klick auf die braune Erde auf der Bühne.',
+          tipEs: 'Pulsa el cuadro de color y aparece un cuentagotas; pulsa '
+              'la tierra marrón del escenario para elegir el color.',
+        ),
+
+        BlockBuilderStep(
+          id: 'p3_build_ikiz',
+          instruction: 'İkize düşmeyi ve kaseye girmeyi öğret.',
+          instructionEn: 'Teach the clone to fall and land in the bowl.',
+          instructionDe: 'Bring dem Klon bei, zu fallen und in der '
+              'Schüssel zu landen.',
+          instructionEs: 'Enseña al clon a caer y a entrar en el cuenco.',
+          goal: 'İkiz olarak başladığımda → göster → sürekli { y -8 '
+              'değiştir, eğer Kase e değiyorsa { puan +1, bu ikizi sil } }',
+          goalEn: 'When I start as a clone → show → forever { change y by '
+              '-8, if touching Kase { score +1, delete this clone } }',
+          goalDe: 'Wenn ich als Klon entstehe → zeige dich → fortlaufend { '
+              'ändere y um -8, falls Kase berührt { Punkte +1, lösche '
+              'diesen Klon } }',
+          goalEs: 'Al comenzar como clon → mostrar → por siempre { sumar '
+              'a y -8, si toca Kase { puntos +1, eliminar este clon } }',
+          availableBlocks: [
+            MBlockKuklaBlocks.whenIStartAsClone(),
+            MBlockKuklaBlocks.show(),
+            MBlockKuklaBlocks.hide(),
+            MBlockKuklaBlocks.forever(),
+            MBlockKuklaBlocks.changeY('-8', id: 'change_y_elma'),
+            MBlockKuklaBlocks.ifTouching('Kase', id: 'if_touching_kase'),
+            MBlockKuklaBlocks.changeVariable('toplananelma', '1',
+                id: 'change_toplananelma'),
+            MBlockKuklaBlocks.deleteThisClone(),
+          ],
+          correctSequence: [
+            'start_as_clone',
+            'show',
+            'k_forever',
+            'change_y_elma',
+            'if_touching_kase',
+            'change_toplananelma',
+            'delete_clone',
+          ],
+          mblock: MBlockTezgahAyari(
+            bloklar: [
+              'dev_ikiz_basla',
+              'dev_goster',
+              'dev_gizle',
+              'dev_surekli',
+              'dev_y_degistir',
+              'dev_eger',
+              'dev_dokunuyor',
+              'dev_degisken_degistir',
+              'dev_ikizi_sil',
+            ],
+            cozum: [
+              MBlockBeklenen('dev_ikiz_basla'),
+              MBlockBeklenen('dev_goster'),
+              MBlockBeklenen('dev_surekli', icerik: [
+                MBlockBeklenen('dev_y_degistir', alanlar: {'DY': '-8'}),
+                MBlockBeklenen('dev_eger', girdiler: {
+                  'KOSUL': MBlockBeklenen('dev_dokunuyor',
+                      alanlar: {'NESNE': 'Kase'}),
+                }, icerik: [
+                  MBlockBeklenen('dev_degisken_degistir',
+                      alanlar: {'AD': 'toplananelma', 'DEGER': '1'}),
+                  MBlockBeklenen('dev_ikizi_sil'),
+                ]),
+              ]),
+            ],
+          ),
+          xpReward: 50,
+        ),
+
+        ExplanationStep(
+          id: 'p3_sure',
+          title: '30 Saniye Geri Sayım',
+          titleEn: 'A 30-Second Countdown',
+          titleDe: 'Ein 30-Sekunden-Countdown',
+          titleEs: 'Cuenta atrás de 30 segundos',
+          content:
+              'Oyun sonsuza kadar sürerse bir oyun değil. Kase kuklasına '
+              'ikinci bir kod ekle:\n\n'
+              '   tıklandığında\n'
+              '   süre değişkenini 30 yap\n'
+              '   <(süre) = 0> olana kadar tekrarla\n'
+              '     süre i -1 kadar değiştir\n'
+              '     1 saniye bekle\n'
+              '   durdur tümü\n\n'
+              '• Döngü her turda süreden bir çıkarıp bir saniye '
+              'bekliyor: 30, 29, 28… gösterge köşede geri sayıyor.\n'
+              '• Süre 0 olunca döngü bitiyor ve "durdur tümü" bütün '
+              'kodları — elma fabrikasını, düşen ikizleri, kaseyi — aynı '
+              'anda durduruyor.\n\n'
+              'Bir kuklanın iki kodu olabilir; ikisi de bayrakla aynı anda '
+              'başlar ve yan yana çalışır. Kase bir yandan fareyi '
+              'izliyor, bir yandan saati tutuyor.',
+          contentEn:
+              'A game that never ends is not a game. Add a second script '
+              'to the Kase sprite:\n\n'
+              '   when clicked\n'
+              '   set süre to 30\n'
+              '   repeat until <(süre) = 0>\n'
+              '     change süre by -1\n'
+              '     wait 1 seconds\n'
+              '   stop all\n\n'
+              '• Each round the loop takes one off the time and waits a '
+              'second: 30, 29, 28… the display counts down in the '
+              'corner.\n'
+              '• When the time reaches 0 the loop ends and "stop all" '
+              'halts every script — the apple factory, the falling '
+              'clones, the bowl — at once.\n\n'
+              'A sprite can have two scripts; both start with the flag '
+              'and run side by side. The bowl follows the mouse and keeps '
+              'the clock at the same time.',
+          contentDe:
+              'Ein Spiel, das nie endet, ist kein Spiel. Gib der Figur '
+              'Kase ein zweites Skript:\n\n'
+              '   Wenn angeklickt\n'
+              '   setze süre auf 30\n'
+              '   wiederhole bis <(süre) = 0>\n'
+              '     ändere süre um -1\n'
+              '     warte 1 Sekunden\n'
+              '   stoppe alles\n\n'
+              '• Jede Runde zieht die Schleife eins von der Zeit ab und '
+              'wartet eine Sekunde: 30, 29, 28 … die Anzeige zählt in '
+              'der Ecke herunter.\n'
+              '• Bei 0 endet die Schleife, und «stoppe alles» hält alle '
+              'Skripte — Apfelfabrik, fallende Klone, Schüssel — '
+              'gleichzeitig an.\n\n'
+              'Eine Figur kann zwei Skripte haben; beide starten mit der '
+              'Flagge und laufen nebeneinander. Die Schüssel folgt der '
+              'Maus und führt gleichzeitig die Uhr.',
+          contentEs:
+              'Un juego que nunca acaba no es un juego. Añade un segundo '
+              'programa al objeto Kase:\n\n'
+              '   al hacer clic\n'
+              '   dar a süre el valor 30\n'
+              '   repetir hasta que <(süre) = 0>\n'
+              '     sumar a süre -1\n'
+              '     esperar 1 segundos\n'
+              '   detener todos\n\n'
+              '• En cada vuelta el bucle resta uno al tiempo y espera un '
+              'segundo: 30, 29, 28… el marcador cuenta hacia atrás en la '
+              'esquina.\n'
+              '• Al llegar a 0 el bucle termina y «detener todos» para '
+              'todos los programas —la fábrica de manzanas, los clones, '
+              'el cuenco— a la vez.\n\n'
+              'Un objeto puede tener dos programas; los dos empiezan con '
+              'la bandera y funcionan a la par. El cuenco sigue al ratón '
+              'y lleva el reloj al mismo tiempo.',
+          tipEmoji: '⏱️',
+          tip: '"(süre) = 0" bloğu İşlemler kategorisinde; içine '
+              'Değişkenler\'den oval "süre" bloğunu koyuyorsun.',
+          tipEn: 'The "( ) = 0" block is in Operators; put the round '
+              '"süre" block from Variables inside it.',
+          tipDe: 'Der Block «( ) = 0» steht unter Operatoren; setz den '
+              'runden «süre»-Block aus Variablen hinein.',
+          tipEs: 'El bloque «( ) = 0» está en Operadores; mete dentro el '
+              'bloque redondo «süre» de Variables.',
+        ),
+
+        MultipleChoiceStep(
+          id: 'p3_q2',
+          question: 'Geri sayımdaki "1 saniye bekle" bloğunu silersen ne '
+              'olur?',
+          questionEn: 'What happens if you delete "wait 1 seconds" from '
+              'the countdown?',
+          questionDe: 'Was passiert, wenn du «warte 1 Sekunden» aus dem '
+              'Countdown löschst?',
+          questionEs: '¿Qué pasa si quitas «esperar 1 segundos» de la '
+              'cuenta atrás?',
+          options: [
+            ChoiceOption(
+              text: 'Süre bir anda 0\'a iner, oyun başlar başlamaz biter',
+              textEn: 'The time drops to 0 at once; the game ends as soon '
+                  'as it starts',
+              textDe: 'Die Zeit fällt sofort auf 0; das Spiel endet, '
+                  'kaum dass es beginnt',
+              textEs: 'El tiempo cae a 0 de golpe; el juego acaba nada '
+                  'más empezar',
+            ),
+            ChoiceOption(
+              text: 'Oyun sonsuza kadar sürer',
+              textEn: 'The game goes on forever',
+              textDe: 'Das Spiel läuft ewig',
+              textEs: 'El juego dura para siempre',
+            ),
+            ChoiceOption(
+              text: 'Elmalar daha hızlı düşer',
+              textEn: 'The apples fall faster',
+              textDe: 'Die Äpfel fallen schneller',
+              textEs: 'Las manzanas caen más rápido',
+            ),
+            ChoiceOption(
+              text: 'Hiçbir şey değişmez',
+              textEn: 'Nothing changes',
+              textDe: 'Es ändert sich nichts',
+              textEs: 'No cambia nada',
+            ),
+          ],
+          correctIndex: 0,
+          explanation:
+              'Bekleme olmadan döngü 30 turu göz açıp kapayıncaya kadar '
+              'bitirir; süre hemen 0 olur ve "durdur tümü" oyunu '
+              'kapatır. Saati saat yapan şey her turdaki o bir saniye.',
+          explanationEn:
+              'Without the wait the loop finishes all 30 rounds in the '
+              'blink of an eye; the time hits 0 and "stop all" ends the '
+              'game. The one second in every round is what makes the '
+              'clock a clock.',
+          explanationDe:
+              'Ohne Warten schafft die Schleife alle 30 Runden im '
+              'Handumdrehen; die Zeit steht sofort auf 0 und «stoppe '
+              'alles» beendet das Spiel. Erst die eine Sekunde pro Runde '
+              'macht die Uhr zur Uhr.',
+          explanationEs:
+              'Sin la espera el bucle hace las 30 vueltas en un '
+              'parpadeo; el tiempo llega a 0 y «detener todos» termina '
+              'el juego. El segundo de cada vuelta es lo que convierte '
+              'el bucle en un reloj.',
+          xpReward: 20,
+        ),
+
+        MatchingStep(
+          id: 'p3_match',
+          instruction: 'Her bloğu oyundaki işiyle eşleştir.',
+          instructionEn: 'Match each block with its job in the game.',
+          instructionDe: 'Ordne jeden Block seiner Aufgabe im Spiel zu.',
+          instructionEs: 'Une cada bloque con su tarea en el juego.',
+          pairs: [
+            MatchPair(
+              id: 'e1',
+              left: 'kendim in ikizini yarat',
+              right: 'Gökten yeni bir elma bırakır',
+              leftEn: 'create clone of myself',
+              rightEn: 'Drops a new apple from the sky',
+              leftDe: 'erzeuge Klon von mir selbst',
+              rightDe: 'Lässt einen neuen Apfel fallen',
+              leftEs: 'crear clon de mí mismo',
+              rightEs: 'Suelta una manzana nueva',
+            ),
+            MatchPair(
+              id: 'e2',
+              left: 'farenin x i',
+              right: 'Kaseyi oyuncunun eline verir',
+              leftEn: 'mouse x',
+              rightEn: 'Puts the bowl in the player\'s hand',
+              leftDe: 'Maus x-Position',
+              rightDe: 'Gibt dem Spieler die Schüssel in die Hand',
+              leftEs: 'posición x del ratón',
+              rightEs: 'Pone el cuenco en manos del jugador',
+            ),
+            MatchPair(
+              id: 'e3',
+              left: 'bu ikizi sil',
+              right: 'Tutulan ya da kaçan elmayı ortadan kaldırır',
+              leftEn: 'delete this clone',
+              rightEn: 'Removes a caught or missed apple',
+              leftDe: 'lösche diesen Klon',
+              rightDe: 'Entfernt einen gefangenen oder verpassten Apfel',
+              leftEs: 'eliminar este clon',
+              rightEs: 'Quita una manzana atrapada o perdida',
+            ),
+            MatchPair(
+              id: 'e4',
+              left: 'durdur tümü',
+              right: 'Süre bitince oyunu bitirir',
+              leftEn: 'stop all',
+              rightEn: 'Ends the game when time is up',
+              leftDe: 'stoppe alles',
+              rightDe: 'Beendet das Spiel, wenn die Zeit um ist',
+              leftEs: 'detener todos',
+              rightEs: 'Termina el juego cuando se acaba el tiempo',
+            ),
+          ],
+          xpReward: 20,
+        ),
+
+        ExplanationStep(
+          id: 'p3_ozet',
+          title: 'Oyun Hazır!',
+          titleEn: 'Game Ready!',
+          titleDe: 'Das Spiel ist fertig!',
+          titleEs: '¡Juego listo!',
+          content: '🍎 Kontrol listesi:\n\n'
+              '✓ Blue Sky arka planı, Elma ve Kase kuklaları\n'
+              '✓ toplananelma ve süre değişkenleri köşede görünüyor\n'
+              '✓ Kase fareyi izliyor, geri sayımı tutuyor\n'
+              '✓ Asıl elma gizli, 0.3 saniyede bir ikiz bırakıyor\n'
+              '✓ İkizler düşüyor, kaseye girince puan veriyor, toprağa '
+              'değince siliniyor\n\n'
+              'Kendi oyununu yap — birkaç fikir:\n\n'
+              '• -8 yerine -12 yaz: elmalar hızlanır, oyun zorlaşır.\n'
+              '• 0.3 yerine 0.6 yaz: yağmur seyrekleşir.\n'
+              '• Kaseye değince "pop" sesi çal — Elma kuklasında zaten '
+              'hazır.\n'
+              '• İkinci bir kukla ekle, çürük elma: tutarsan puan '
+              'düşsün.',
+          contentEn: '🍎 Checklist:\n\n'
+              '✓ Blue Sky backdrop, Elma and Kase sprites\n'
+              '✓ toplananelma and süre show in the corner\n'
+              '✓ The bowl follows the mouse and keeps the countdown\n'
+              '✓ The original apple is hidden and drops a clone every 0.3 '
+              'seconds\n'
+              '✓ Clones fall, score when they land in the bowl, vanish on '
+              'the ground\n\n'
+              'Make it your own game — a few ideas:\n\n'
+              '• Write -12 instead of -8: apples fall faster, the game '
+              'gets harder.\n'
+              '• Write 0.6 instead of 0.3: fewer apples.\n'
+              '• Play the "pop" sound when an apple lands — the apple '
+              'sprite already has it.\n'
+              '• Add a second sprite, a rotten apple: catching it takes a '
+              'point away.',
+          contentDe: '🍎 Checkliste:\n\n'
+              '✓ Bühnenbild Blue Sky, Figuren Elma und Kase\n'
+              '✓ toplananelma und süre stehen in der Ecke\n'
+              '✓ Die Schüssel folgt der Maus und zählt die Zeit herunter\n'
+              '✓ Der Original-Apfel ist versteckt und lässt alle 0.3 '
+              'Sekunden einen Klon fallen\n'
+              '✓ Klone fallen, geben in der Schüssel Punkte und '
+              'verschwinden auf der Erde\n\n'
+              'Mach es zu deinem Spiel — ein paar Ideen:\n\n'
+              '• Schreib -12 statt -8: die Äpfel fallen schneller.\n'
+              '• Schreib 0.6 statt 0.3: es regnet weniger Äpfel.\n'
+              '• Spiel beim Fangen den Klang «pop» — der Apfel hat ihn '
+              'schon.\n'
+              '• Füge einen faulen Apfel hinzu: wer ihn fängt, verliert '
+              'einen Punkt.',
+          contentEs: '🍎 Lista de control:\n\n'
+              '✓ Fondo Blue Sky, objetos Elma y Kase\n'
+              '✓ toplananelma y süre se ven en la esquina\n'
+              '✓ El cuenco sigue al ratón y lleva la cuenta atrás\n'
+              '✓ La manzana original está escondida y suelta un clon cada '
+              '0.3 segundos\n'
+              '✓ Los clones caen, puntúan en el cuenco y desaparecen en '
+              'la tierra\n\n'
+              'Hazlo tu juego — algunas ideas:\n\n'
+              '• Escribe -12 en vez de -8: las manzanas caen más rápido.\n'
+              '• Escribe 0.6 en vez de 0.3: llueven menos manzanas.\n'
+              '• Toca el sonido «pop» al atrapar una — la manzana ya lo '
+              'tiene.\n'
+              '• Añade una manzana podrida: si la atrapas, pierdes un '
+              'punto.',
+          tipEmoji: '🏆',
+          tip: 'Elma Avcısı rozetini kazandın!',
+          tipEn: 'You earned the Apple Catcher badge!',
+          tipDe: 'Du hast das Apfelfänger-Abzeichen verdient!',
+          tipEs: '¡Has ganado la insignia de Atrapamanzanas!',
         ),
       ],
     ),

@@ -34,7 +34,10 @@
     hareket:  ['#4C97FF', '#4280D7', '#3373CC'],
     gorunum:  ['#9966FF', '#855CD6', '#774DCB'],
     // Ses kategorisi kukla tarafinda; mBlock'un kendi pembesi.
-    ses:      ['#CF63CF', '#B14FB1', '#8F3F8F']
+    ses:      ['#CF63CF', '#B14FB1', '#8F3F8F'],
+    // Kukla tarafinin Algilama'si. Cihazin "sensor" mavisiyle ayni
+    // DEGIL (#4CBFE6): bu Scratch 3.0'in kendi Algilama rengi.
+    algilama: ['#5CB1D6', '#47A6CE', '#2E8EB8']
   };
 
   // Yuva tipleri.
@@ -257,6 +260,74 @@
       yuvalar: [yuva('SES', 'metin', 'Bubbles')],
       tr: '%1 sesini bitene kadar çal', en: 'play sound %1 until done',
       de: 'spiele Klang %1 ganz', es: 'tocar sonido %1 hasta que termine'
+    },
+
+    // ------------------------------------ Elma Toplama projesi (5. modul)
+    // Ilk OYUN projesi: oyuncunun yonettigi kase, gokten dusen ikiz
+    // elmalar, puan. Etiketler Scratch'in kendi dil dosyalarindan
+    // (scratch-l10n editor/blocks): mBlock kukla bloklarini oradan
+    // devraliyor. Turkcede "clone" = "ikiz" — mBlock'ta da yazan bu.
+    {
+      id: 'dev_x_yap', kategori: 'hareket', sekil: 'duz',
+      yuvalar: [yuva('X', 'sayi', 0)],
+      tr: 'x konumunu %1 yap', en: 'set x to %1',
+      de: 'setze x auf %1', es: 'dar a x el valor %1'
+    },
+    {
+      id: 'dev_y_yap', kategori: 'hareket', sekil: 'duz',
+      yuvalar: [yuva('Y', 'sayi', 0)],
+      tr: 'y konumunu %1 yap', en: 'set y to %1',
+      de: 'setze y auf %1', es: 'dar a y el valor %1'
+    },
+    {
+      id: 'dev_y_degistir', kategori: 'hareket', sekil: 'duz',
+      yuvalar: [yuva('DY', 'sayi', 10)],
+      tr: 'y konumunu %1 değiştir', en: 'change y by %1',
+      de: 'ändere y um %1', es: 'sumar a y %1'
+    },
+    {
+      id: 'dev_fare_x', kategori: 'algilama', sekil: 'oval', yuvalar: [],
+      tr: 'farenin x i', en: 'mouse x',
+      de: 'Maus x-Position', es: 'posición x del ratón'
+    },
+    {
+      id: 'dev_dokunuyor', kategori: 'algilama', sekil: 'altigen',
+      yuvalar: [yuva('NESNE', 'secim', 'Kase', [['Kase', 'Kase']])],
+      tr: '%1 e değiyor mu?', en: 'touching %1?',
+      de: 'wird %1 berührt?', es: '¿tocando %1?'
+    },
+    {
+      id: 'dev_ikiz_basla', kategori: 'kontrol', sekil: 'sapka', yuvalar: [],
+      tr: 'ikiz olarak başladığımda', en: 'when I start as a clone',
+      de: 'Wenn ich als Klon entstehe', es: 'al comenzar como clon'
+    },
+    {
+      // Scratch'te bu blok bir SON blok: altina bir sey takilmaz, cunku
+      // ikiz silindikten sonra calisacak kimse kalmiyor.
+      id: 'dev_ikizi_sil', kategori: 'kontrol', sekil: 'son', yuvalar: [],
+      tr: 'bu ikizi sil', en: 'delete this clone',
+      de: 'lösche diesen Klon', es: 'eliminar este clon'
+    },
+    {
+      id: 'dev_goster', kategori: 'gorunum', sekil: 'duz', yuvalar: [],
+      tr: 'göster', en: 'show', de: 'zeige dich', es: 'mostrar'
+    },
+    {
+      id: 'dev_gizle', kategori: 'gorunum', sekil: 'duz', yuvalar: [],
+      tr: 'gizle', en: 'hide', de: 'verstecke dich', es: 'esconder'
+    },
+    {
+      // Degisken adi projedeki gibi: "toplananelma". Cocuk mBlock'ta
+      // hangi adi yazdiysa listede o gorunur; burada dosyadakini
+      // kullaniyoruz.
+      id: 'dev_degisken_degistir', kategori: 'degisken', sekil: 'duz',
+      yuvalar: [
+        yuva('AD', 'secim', 'toplananelma',
+          [['toplananelma', 'toplananelma']]),
+        yuva('DEGER', 'sayi', 1)
+      ],
+      tr: '%1 i %2 kadar değiştir', en: 'change %1 by %2',
+      de: 'ändere %1 um %2', es: 'sumar a %1 %2'
     }
   ];
 

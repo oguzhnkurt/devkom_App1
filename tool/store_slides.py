@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""App Store slaytlarini kurar.
+"""App Store slaytlarini kurar — GOKKUSAGI tarzi.
 
     python3 tool/store_slides.py
 
@@ -8,27 +8,39 @@ Girdi : outputs/appstore/ekranlar{,_tr,_de,_es}/*.png
         motoruyla cizilmis GERCEK ekranlar, elde yapilmis taklit degil)
 Cikti : outputs/appstore/slaytlar_<dil>/NN_*.png  — 1290x2796
 
+Ayni motor Google Play setini de ciziyor (tool/play_slides.py,
+1080x1920): `slayt_ciz(W, H, ...)` olcuden bagimsiz.
+
 TASARIM
 -------
-Bes slayt, birbirine bagli: *bloklarla baslar -> gercek Arduino'yu
-programlar -> oyunla pekistirir -> gercek kodu okur -> devam etmek
-ister.*
+Sekiz slayt, birbirine bagli: *kodlama ogrenir -> adim adim ->
+oyunla pekistirir -> dersin ici -> bloklari surukler -> gercek kodu
+yazar -> satrancla dusunur -> ogrendigini sinar.*
 
 Her slaytta:
 
-  - Yumusak renkli zemin + arkada buyuk bulanik bir isik lekesi.
-    Duz gri zemin uzerine acik temali ekran koyunca slayt magazada
-    silinip gidiyordu.
-  - Basligin BIR KELIMESI vurgulu: ya renkli kutu icinde beyaz yazi
-    ya renkli yazi. Goz once o kelimeye takiliyor.
-  - Telefon DUZ duruyor ve alt kenardan tasiyor. (Bir denemede egik
-    ve perspektifliydi; ekrandaki yazi da egilince okunmuyordu.)
-  - Ekranin bir parcasi telefonun DISINA buyutulmus kart olarak
-    tasiniyor. Kucuk ekranda gozden kacan detay — bir blok, bir
-    aciklama kutusu — slaytta okunur boyutta oluyor.
-  - Baslik kimi slaytta ustte kimi altta; bes slayt yan yana
-    duracak, hepsi ayni kaliba oturursa liste tekduze goruntu
-    veriyor.
+  - Doygun, cok duraklı bir GOKKUSAGI gecisi. Renkler uygulamanin
+    kendi vurgu renkleri (mor baslik, mavi, robotik yesili, turuncu
+    kart, pembe). Her slaytin kendi paleti var; yan yana dizilince
+    bir renk akisi oluyor.
+  - Zeminde uygulamanin oyun alanindaki gibi soluk semboller: blok,
+    { }, </>, ok, halka.
+  - Beyaz, ortalanmis baslik. [kelime] beyaz hap icinde renkli yazi,
+    *kelime* sari yazi. Goz once o kelimeye takiliyor.
+  - Telefon DUZ duruyor ve alt kenardan TASIYOR. (Egik telefonda
+    ekrandaki yazi okunmuyordu; tam sigan telefon kartvizit gibi
+    duruyordu.)
+  - Maskot (Devi, uygulamadaki tek karakter) telefonun ust
+    kosesinden bakiyor, kisa bir balonla. EKRANIN ICERIGINI
+    KAPATMIYOR: ilk denemede telefonun ortasina binip listeyi
+    ortuyordu; artik yalnizca durum cubugu seridinin ustunde.
+
+DURUM CUBUGU SERIDI
+-------------------
+Ekran goruntuleri test motorunda durum cubugu OLMADAN cizildi
+(guvenli alan yok). Dinamik ada dogrudan icerigin ustune biniyor ve
+basligi kesiyordu. Ekranin ustune kendi ust renginde bir serit
+ekleniyor; ada o seridin icinde duruyor.
 
 ROZET VE PUAN YOK — BILEREK
 ---------------------------
@@ -36,24 +48,29 @@ Ornek alinan tasarimlarda "1M+ Learner", "JOIN 150,000+ PEOPLES",
 "#1 THERAPY EXPERIENCE" ve yildizlar var. Bizde YOK ve konulmayacak:
 hicbiri dogrulanabilir degil. Puanlar gercek deneyimden birikir;
 slaytta uydurulmaz (App Store Kural 2.3.1). Gercek bir sayi ya da
-odul olunca eklenir.
+odul olunca eklenir. Maskotun balonlari da iddia degil, cagri.
 
 Basliklari degistirmek icin tek yer: asagidaki SLIDES listesi.
 """
 
+import math
 import os
+import random
+
+import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 W, H = 1290, 2796
-INK = (20, 33, 61)
-INK_SOFT = (104, 118, 145)
 
 FONT_DIR = 'assets/fonts'
+MASKOT = 'assets/maskot/devi.png'
 SRC = 'outputs/appstore'
 
 # Ilk slayttaki kurs rozetleri. Hepsi uygulamada gercekten VAR OLAN
 # kurslar — katalogda karsiligi olmayan bir dil buraya yazilmaz
-# (test/appstore_slides_test.dart kontrol ediyor).
+# (test/appstore_slides_test.dart kontrol ediyor). Gokkusagi tarzinda
+# rozet cizilmiyor (alt satir kurslari zaten sayiyor); liste tablet
+# seti ve one cikan grafik icin duruyor.
 PILLS = [
     ('Scratch', (255, 140, 26)),
     ('Python', (55, 118, 171)),
@@ -63,24 +80,32 @@ PILLS = [
     ('C#', (149, 66, 244)),
 ]
 
-# Slayt basina renk: (zemin, isik lekesi, vurgu)
+# Gokkusagi paletleri: gecisin duraklari. Uygulamanin kendi renkleri.
+PALET = {
+    'mor':   [(124, 77, 255), (41, 121, 255), (0, 191, 165)],
+    'deniz': [(41, 121, 255), (0, 184, 212), (0, 200, 83)],
+    'gun':   [(255, 109, 0), (255, 64, 129), (124, 77, 255)],
+    # Sari ile BASLAMIYOR: sari zeminde beyaz baslik ve sari vurgu
+    # okunmuyordu (ilk denemede 4. slayt).
+    'sicak': [(255, 145, 0), (244, 81, 30), (216, 27, 96)],
+    'mavi':  [(0, 145, 234), (41, 121, 255), (124, 77, 255)],
+    'ates':  [(233, 30, 99), (255, 87, 34), (255, 152, 0)],
+    'orman': [(0, 200, 83), (0, 184, 212), (41, 121, 255)],
+    'gece':  [(124, 77, 255), (233, 30, 99), (255, 109, 0)],
+}
+
+# Slayt basina: (palet, hap icindeki yazinin rengi, maskot yani).
+# Maskot slayttan slayta yer degistiriyor; hep ayni kosede durunca
+# sekiz slayt ayni kaliptan cikmis gibi gorunuyordu.
 THEME = {
-    '09_home': ((238, 242, 255), (188, 205, 255), (37, 84, 214)),
-    '10_splash': ((243, 238, 255), (211, 196, 255), (108, 60, 224)),
-    '11_word_match': ((235, 247, 241), (177, 232, 208), (13, 145, 106)),
-    '02_lesson': ((255, 247, 234), (255, 220, 178), (214, 122, 20)),
-    '08_path': ((232, 246, 252), (176, 225, 243), (11, 124, 166)),
-    '04_blocks': ((247, 238, 255), (219, 197, 255), (122, 63, 214)),
-    '07_matching': ((235, 247, 241), (177, 232, 208), (13, 145, 106)),
-    '06_hint': ((233, 244, 255), (176, 216, 255), (18, 104, 196)),
-    '03_character': ((247, 238, 255), (219, 197, 255), (122, 63, 214)),
-    # Satranc tahtasinin kendi krem/kahve rengi; slaytin zemini de
-    # ona uyuyor.
-    '12_chess': ((248, 241, 231), (228, 203, 171), (140, 90, 48)),
-    '13_slide_to_start': ((246, 243, 255), (214, 199, 255), (108, 60, 224)),
-    # HTML kod ekrani: editorun kendi koyu zeminine yakin bir sicaklik.
-    '14_html_code': ((255, 240, 234), (255, 206, 186), (196, 68, 30)),
-    '01_first_task': ((255, 247, 234), (255, 220, 178), (214, 122, 20)),
+    '09_home':           ('mor',   (108, 60, 224), 'sag'),
+    '08_path':           ('deniz', (21, 101, 192), 'sol'),
+    '07_matching':       ('gun',   (233, 30, 99),  'sag'),
+    '02_lesson':         ('sicak', (230, 81, 0),   'sol'),
+    '27_mblock_tezgah':  ('mavi',  (41, 98, 255),  'sag'),
+    '14_html_code':      ('ates',  (216, 27, 96),  'sol'),
+    '12_chess':          ('orman', (0, 137, 123),  'sag'),
+    '13_slide_to_start': ('gece',  (124, 77, 255), 'sol'),
 }
 
 # TELEFONUN DISINA TASAN BUYUTULMUS KART YOK.
@@ -88,38 +113,61 @@ THEME = {
 # Bir surumde ekranin bir parcasi buyutulup slaytin kenarindan
 # sarkitiliyordu. Iki sorunu vardi: ekranda zaten gorunen seyi
 # tekrar gosteriyordu ve telefonun icerigini kapatiyordu. Kaldirildi;
-# slayt artik baslik + tek telefon.
+# slayt baslik + tek telefon + maskot.
 
-# Kirpma penceresinin en-boy orani.
+# Telefonun slayt genisligine orani. Tezgah ekrani biraz daha genis:
+# bloklarin yazisi okunmali.
+TELEFON = {
+    '27_mblock_tezgah': 0.80,
+}
+TELEFON_VARSAYILAN = 0.74
+
+# Kirpma penceresinin en-boy orani (play tablet seti hala kullaniyor).
+# Gokkusagi slaytinda telefon alt kenardan tastigi icin pencere,
+# telefonun gorunen boyuna gore ayrica hesaplaniyor.
 CROP_ASPECT = {
     '09_home': 1.95,
     '10_splash': 1.55,
     '11_word_match': 1.55,
     '02_lesson': 1.55,
     '08_path': 1.95,
-    # Blok ekrani bilerek daha dar kirpiliyor: genis kirpinca
-    # bloklarin yazisi slaytta okunmuyordu.
     '04_blocks': 1.52,
+    '27_mblock_tezgah': 1.55,
     '07_matching': 1.9,
     '06_hint': 1.9,
     '03_character': 1.02,
-    # Tahtanin cevresine sikica kirpiliyor: genis kirpinca tahtanin
-    # altinda kocaman bos bir alan kaliyordu.
     '12_chess': 1.16,
     '13_slide_to_start': 1.78,
     '14_html_code': 1.45,
     '01_first_task': 1.5,
 }
 
-# Baslik: [koseli parantez] = renkli kutu icinde beyaz yazi,
-#         *yildiz*        = vurgu renginde yazi.
+# Maskotun balonu. Kisa bir cagri — iddia degil.
+BALON = {
+    '09_home': {'tr': 'Hadi başlayalım!', 'en': 'Let’s start!',
+                'de': 'Los geht’s!', 'es': '¡Empecemos!'},
+    '08_path': {'tr': 'Sıradaki ders!', 'en': 'Next lesson!',
+                'de': 'Nächste Lektion!', 'es': '¡Siguiente lección!'},
+    '07_matching': {'tr': 'Ben de oynarım!', 'en': 'Let me play!',
+                    'de': 'Ich spiel mit!', 'es': '¡Yo también juego!'},
+    '02_lesson': {'tr': 'Birlikte öğrenelim!', 'en': 'Let’s learn!',
+                  'de': 'Lass uns lernen!', 'es': '¡Aprendamos!'},
+    '27_mblock_tezgah': {'tr': 'Sürükle, bırak!', 'en': 'Drag and drop!',
+                         'de': 'Ziehen, ablegen!',
+                         'es': '¡Arrastra y suelta!'},
+    '14_html_code': {'tr': 'Gerçek kod!', 'en': 'Real code!',
+                     'de': 'Echter Code!', 'es': '¡Código real!'},
+    '12_chess': {'tr': 'Hamle sende!', 'en': 'Your move!',
+                 'de': 'Du bist dran!', 'es': '¡Te toca!'},
+    '13_slide_to_start': {'tr': 'Bunu biliyorum!', 'en': 'I know this!',
+                          'de': 'Das weiß ich!', 'es': '¡Me la sé!'},
+}
+
+# Baslik: [koseli parantez] = beyaz hap icinde renkli yazi,
+#         *yildiz*        = sari yazi.
 SLIDES = [
-    # (dosya, kirpmanin BASLADIGI oran, baslik yeri, hap etiket var mi,
-    #  {dil: (baslik, alt satir)})
-    #
-    # SIMDILIK IKI DIL: Turkiye'ye Turkce, disariya Ingilizce.
-    # Almanca ve Ispanyolca metinler `docs/MAGAZA_METNI.md` icinde
-    # duruyor; o iki ulke acildiginda buraya geri eklenir.
+    # (dosya, kirpmanin BASLADIGI oran, (eski) baslik yeri, hap etiket
+    #  var mi, {dil: (baslik, alt satir)})
     #
     # HER SLAYT DOLU BIR EKRAN. Bir surumde 2. slayt acilis ekrani
     # (kocaman bos mor zemin, ortada simge) ve 3. slayt kelime
@@ -170,17 +218,26 @@ SLIDES = [
         'es': ('Aprende Scratch\n*paso a paso*',
                'Qué es un bloque y para qué sirve — en pasos cortos'),
     }),
-    # Ekran artik Scratch dersinin kendi blok adimi (s1_2_build2).
-    # Onceki metin Arduino'dan soz ediyordu; gorselle ortusmuyordu.
-    ('04_blocks', 0.015, 'alt', False, {
+    # GERCEK BLOK EDITORU (mBlock tezgahi, scratch-blocks).
+    #
+    # Onceki 5. slayt Scratch dersinin kart dizme ekraniydi
+    # (04_blocks). Ayni hikayeyi — "bloklari surukleyip kodu kurar" —
+    # artik gercek blok editoru anlatiyor. Ekran WebView oldugu icin
+    # iki motorla ciziliyor: ders Flutter'dan, tezgah kendi sayfasindan
+    # (bkz. tool/mblock_tezgah_slayt.py). Elle cizilmis bir sey yok.
+    #
+    # "mBlock'taki bloklar" iddiasi dogru: etiketler mBlock/Scratch'in
+    # kendi dil dosyasindan, renkler mblock_palette.dart ile ayni
+    # (test/mblock_tezgahi_test.dart ikisini de denetliyor).
+    ('27_mblock_tezgah', 0.0, 'alt', False, {
         'tr': ('Blokları *sürükleyip*\nkodu kurar',
-               'Gerçek Scratch blokları — sıra yanlışsa nereye bakacağını söyler'),
+               'Gerçek blok editörü — mBlock’taki bloklar, aynı yazı ve renkle'),
         'en': ('*Drags* blocks\ninto working code',
-               'Real Scratch blocks — if the order is off, it says where to look'),
+               'A real block editor — the same blocks, words and colours as mBlock'),
         'de': ('*Zieht* Blöcke zu\nfertigem Code',
-               'Echte Scratch-Blöcke — bei falscher Reihenfolge zeigt es wohin'),
+               'Ein echter Block-Editor — dieselben Blöcke, Wörter und Farben wie mBlock'),
         'es': ('*Arrastra* bloques\ny arma el código',
-               'Bloques reales de Scratch — si el orden falla, te dice dónde mirar'),
+               'Un editor de bloques real — los mismos bloques, textos y colores que mBlock'),
     }),
     # Bloklarin yaninda gercek kod: uygulama blokta kalmiyor.
     ('14_html_code', 0.0, 'alt', False, {
@@ -221,18 +278,7 @@ SLIDES = [
 
 def font(weight, size):
     return ImageFont.truetype(
-        os.path.join(FONT_DIR, f'Nunito-{weight}.ttf'), size)
-
-
-def background(base, orb, orb_at):
-    bg = Image.new('RGB', (W, H), base)
-    halo = Image.new('RGB', (W, H), base)
-    d = ImageDraw.Draw(halo)
-    cx, cy = orb_at
-    r = 720
-    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=orb)
-    halo = halo.filter(ImageFilter.GaussianBlur(200))
-    return Image.blend(bg, halo, 0.75)
+        os.path.join(FONT_DIR, f'Nunito-{weight}.ttf'), int(size))
 
 
 def parse(text):
@@ -258,98 +304,271 @@ def parse(text):
     return out
 
 
-def headline(slide, text, accent, top, max_w, size=104):
-    """Vurgulu baslik. Satir sonlari elle konuyor (\\n)."""
-    d = ImageDraw.Draw(slide)
-    f = font('800', size)
-    y = top
-    for satir in text.split('\n'):
-        parcalar = parse(satir)
-        genislik = sum(
-            d.textlength(t, font=f) + (40 if s == 'kutu' else 0)
-            for t, s in parcalar)
-        if genislik > max_w:
+# ------------------------------------------------------------- zemin
+
+_ZEMIN = {}
+
+
+def gradyan(w, h, renkler, aci=35):
+    """Cok duraklı capraz gecis + buyuk yumusak isik lekeleri."""
+    anahtar = (w, h, tuple(renkler), aci)
+    if anahtar in _ZEMIN:
+        return _ZEMIN[anahtar].copy()
+    ca, sa = math.cos(math.radians(aci)), math.sin(math.radians(aci))
+    boy = abs(w * ca) + abs(h * sa)
+    ys, xs = np.mgrid[0:h, 0:w].astype(np.float32)
+    t = np.clip((xs * ca + ys * sa) / boy, 0, 1)
+    n = len(renkler) - 1
+    i = np.minimum((t * n).astype(int), n - 1)
+    f = (t * n - i)[..., None]
+    r = np.array(renkler, dtype=np.float32)
+    rgb = r[i] + (r[i + 1] - r[i]) * f
+    g = Image.fromarray(rgb.astype(np.uint8), 'RGB').convert('RGBA')
+
+    leke = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(leke)
+    for cx, cy, rr, al in [(0.15, 0.12, 0.55, 70), (0.9, 0.55, 0.5, 55),
+                           (0.3, 0.95, 0.45, 45)]:
+        R = int(rr * w)
+        d.ellipse([cx * w - R, cy * h - R, cx * w + R, cy * h + R],
+                  fill=(255, 255, 255, al))
+    g.alpha_composite(leke.filter(ImageFilter.GaussianBlur(w * 0.12)))
+    _ZEMIN[anahtar] = g
+    return g.copy()
+
+
+def semboller(w, h, tohum=7, adet=22):
+    """Uygulamanin oyun alani zemini gibi: blok, { }, </>, ok, halka."""
+    k = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(k)
+    rnd = random.Random(tohum)
+    for _ in range(adet):
+        x, y = rnd.random() * w, rnd.random() * h
+        s = w * (0.05 + rnd.random() * 0.06)
+        c = (255, 255, 255, int(28 + rnd.random() * 30))
+        tur = rnd.choice(['blok', 'parantez', 'ok', 'daire', 'kod'])
+        if tur == 'blok':
+            d.rounded_rectangle([x, y, x + s * 1.8, y + s * 0.8],
+                                radius=s * 0.2, outline=c,
+                                width=max(4, int(s * 0.09)))
+            d.rectangle([x + s * 0.3, y + s * 0.8 - 2, x + s * 0.7,
+                         y + s * 0.95], fill=c)
+        elif tur == 'parantez':
+            d.text((x, y), '{ }', font=font('800', s * 1.3), fill=c)
+        elif tur == 'kod':
+            d.text((x, y), '</>', font=font('800', s * 1.1), fill=c)
+        elif tur == 'ok':
+            d.line([x, y + s / 2, x + s * 1.4, y + s / 2], fill=c,
+                   width=max(5, int(s * 0.12)))
+            d.polygon([(x + s * 1.4, y + s * 0.2), (x + s * 1.8, y + s / 2),
+                       (x + s * 1.4, y + s * 0.8)], fill=c)
+        else:
+            d.ellipse([x, y, x + s, y + s], outline=c,
+                      width=max(4, int(s * 0.1)))
+    return k
+
+
+# ------------------------------------------------------------ telefon
+
+def telefon(ekran, genislik):
+    """DUZ telefon, ustte durum cubugu seridi ve dinamik ada."""
+    ek = ekran.convert('RGBA')
+    serit = int(ek.width * 0.10)
+    ust = ek.getpixel((ek.width // 2, 2))
+    tam = Image.new('RGBA', (ek.width, ek.height + serit), ust)
+    tam.paste(ek, (0, serit))
+    k = genislik / tam.width
+    ew, eh = int(tam.width * k), int(tam.height * k)
+    e = tam.resize((ew, eh), Image.LANCZOS)
+    cer = int(genislik * 0.035)
+    r_dis = int(genislik * 0.14)
+    r_ic = r_dis - cer
+    tw, th = ew + 2 * cer, eh + 2 * cer
+    t = Image.new('RGBA', (tw, th), (0, 0, 0, 0))
+    d = ImageDraw.Draw(t)
+    d.rounded_rectangle([0, 0, tw - 1, th - 1], radius=r_dis,
+                        fill=(18, 20, 32, 255))
+    d.rounded_rectangle([3, 3, tw - 4, th - 4], radius=r_dis - 3,
+                        outline=(70, 74, 96, 255), width=3)
+    m = Image.new('L', (ew, eh), 0)
+    ImageDraw.Draw(m).rounded_rectangle([0, 0, ew - 1, eh - 1],
+                                        radius=r_ic, fill=255)
+    t.paste(e, (cer, cer), m)
+    ada_w = int(ew * 0.28)
+    ada_h = int(ada_w * 0.3)
+    ay = cer + int(ew * 0.025)
+    d.rounded_rectangle([tw // 2 - ada_w // 2, ay, tw // 2 + ada_w // 2,
+                         ay + ada_h], radius=ada_h // 2,
+                        fill=(8, 8, 12, 255))
+    return t
+
+
+def golge(img, bulan, alfa, kay=(0, 30)):
+    a = img.split()[3].point(lambda v: int(v * alfa / 255))
+    g = Image.new('RGBA', (img.width + bulan * 4, img.height + bulan * 4),
+                  (0, 0, 0, 0))
+    sh = Image.new('RGBA', img.size, (20, 10, 60, 255))
+    sh.putalpha(a)
+    g.paste(sh, (bulan * 2 + kay[0], bulan * 2 + kay[1]), sh)
+    return g.filter(ImageFilter.GaussianBlur(bulan))
+
+
+# -------------------------------------------------------------- metin
+
+def baslik_olc(d, metin, boy):
+    f = font('800', boy)
+    pad = boy * 0.22
+    en = 0
+    for satir in metin.split('\n'):
+        g = sum(d.textlength(t, font=f) + (pad * 1.2 if s == 'kutu' else 0)
+                for t, s in parse(satir))
+        en = max(en, g)
+    return en
+
+
+def baslik(tuval, metin, y, boy, hap_renk, sinir):
+    """Ortalanmis beyaz baslik. Sigmazsa kuculur; en kucukte de
+    sigmazsa DURUR — uzun bir ceviri sessizce tasmasin."""
+    d = ImageDraw.Draw(tuval)
+    en_kucuk = int(boy * 0.78)
+    while baslik_olc(d, metin, boy) > sinir:
+        boy -= 2
+        if boy < en_kucuk:
             raise SystemExit(
-                f'baslik satiri cok uzun ({round(genislik)} > {max_w}): '
-                f'{satir!r}')
-        x = 88
-        for t, s in parcalar:
-            tw = d.textlength(t, font=f)
+                f'baslik satiri cok uzun ({round(baslik_olc(d, metin, boy))}'
+                f' > {sinir}): {metin!r}')
+    f = font('800', boy)
+    pad = boy * 0.22
+    for satir in metin.split('\n'):
+        parcalar = parse(satir)
+        gen = [d.textlength(t, font=f) + (pad * 1.2 if s == 'kutu' else 0)
+               for t, s in parcalar]
+        x = (tuval.width - sum(gen)) / 2
+        for (t, s), gw in zip(parcalar, gen):
             if s == 'kutu':
+                x0 = x + pad * 0.6
+                tw = gw - pad * 1.2
                 d.rounded_rectangle(
-                    [x, y - 6, x + tw + 40, y + size + 14], 22, fill=accent)
-                d.text((x + 20, y), t, font=f, fill=(255, 255, 255))
-                x += tw + 40
-            elif s == 'vurgu':
-                d.text((x, y), t, font=f, fill=accent)
-                x += tw
+                    [x0 - pad * 0.6, y - pad * 0.25, x0 + tw + pad * 0.6,
+                     y + boy * 1.08], radius=boy * 0.28,
+                    fill=(255, 255, 255, 255))
+                d.text((x0, y - boy * 0.08), t, font=f, fill=hap_renk)
             else:
-                d.text((x, y), t, font=f, fill=INK)
-                x += tw
-        y += size + 26
+                renk = (255, 226, 138) if s == 'vurgu' else (255, 255, 255)
+                # Sari vurgu turuncu zeminde silikti; golgesi koyu.
+                golge_a = 150 if s == 'vurgu' else 90
+                d.text((x + 3, y - boy * 0.08 + 5), t, font=f,
+                       fill=(30, 10, 70, golge_a))
+                d.text((x, y - boy * 0.08), t, font=f, fill=renk)
+            x += gw
+        y += int(boy * 1.22)
     return y
 
 
-def card(img, radius=34, blur=26, alpha=60, border=None):
-    """Yuvarlak koseli, golgeli kart."""
-    w, h = img.size
-    mask = Image.new('L', (w, h), 0)
-    ImageDraw.Draw(mask).rounded_rectangle([0, 0, w - 1, h - 1], radius,
-                                           fill=255)
-    body = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    body.paste(img, (0, 0), mask)
-    if border:
-        ImageDraw.Draw(body).rounded_rectangle(
-            [0, 0, w - 1, h - 1], radius, outline=border + (255,), width=6)
-
-    pad = blur * 3
-    out = Image.new('RGBA', (w + pad * 2, h + pad * 2), (0, 0, 0, 0))
-    sil = Image.new('RGBA', (w, h), (20, 33, 61, alpha))
-    out.paste(sil, (pad, pad + 18), body)
-    out = out.filter(ImageFilter.GaussianBlur(blur))
-    out.paste(body, (pad, pad), body)
-    return out
+def sar(d, metin, f, sinir):
+    satirlar, buf = [], ''
+    for k in metin.split(' '):
+        deneme = (buf + ' ' + k).strip()
+        if d.textlength(deneme, font=f) > sinir and buf:
+            satirlar.append(buf)
+            buf = k
+        else:
+            buf = deneme
+    if buf:
+        satirlar.append(buf)
+    return satirlar
 
 
-def device(shot, screen_w):
-    scale = screen_w / shot.width
-    shot = shot.resize((screen_w, round(shot.height * scale)), Image.LANCZOS)
-    bezel = max(12, round(screen_w * 0.022))
-    radius_out = round(screen_w * 0.105)
-    dw, dh = shot.width + bezel * 2, shot.height + bezel * 2
-    dev = Image.new('RGBA', (dw, dh), (0, 0, 0, 0))
-    ImageDraw.Draw(dev).rounded_rectangle(
-        [0, 0, dw - 1, dh - 1], radius_out, fill=(24, 32, 46, 255))
-    mask = Image.new('L', shot.size, 0)
-    ImageDraw.Draw(mask).rounded_rectangle(
-        [0, 0, shot.width - 1, shot.height - 1], radius_out - bezel, fill=255)
-    dev.paste(shot, (bezel, bezel), mask)
-    return card(dev, radius=radius_out, blur=32, alpha=74)
+def alt_satir(tuval, metin, y, boy, sinir):
+    """Ortalanmis alt aciklama, en fazla iki satir."""
+    d = ImageDraw.Draw(tuval)
+    f = font('700', boy)
+    satirlar = sar(d, metin, f, sinir)
+    if len(satirlar) > 2:
+        raise SystemExit(f'alt satir 2 satiri asiyor: {metin!r}')
+    for s in satirlar:
+        w = d.textlength(s, font=f)
+        # Golgesiz alt satir acik zemin bolgelerinde kayboluyordu.
+        d.text(((tuval.width - w) / 2 + 2, y + 3), s, font=f,
+               fill=(30, 10, 70, 110))
+        d.text(((tuval.width - w) / 2, y), s, font=f,
+               fill=(255, 255, 255, 255))
+        y += int(boy * 1.3)
+    return y
 
 
-def chips(slide, y, accent):
-    """Kurs rozetleri — hafif dagilmis, duz sutun degil."""
-    d = ImageDraw.Draw(slide)
-    f = font('800', 40)
-    x = 88
-    row = y
-    for i, (label, color) in enumerate(PILLS):
-        tw = d.textlength(label, font=f)
-        pw, ph = round(tw) + 134, 86
-        if x + pw > W - 88:
-            x = 88 + (46 if (i // 3) % 2 else 0)
-            row += 106
-        chip = Image.new('RGBA', (pw + 90, ph + 90), (0, 0, 0, 0))
-        cd = ImageDraw.Draw(chip)
-        cd.rounded_rectangle([45, 45, 45 + pw, 45 + ph], ph // 2,
-                             fill=(255, 255, 255, 255))
-        cd.ellipse([45 + 22, 45 + 23, 45 + 62, 45 + 63], fill=color)
-        cd.text((45 + 80, 45 + 20), label, font=f, fill=INK)
-        chip = card(chip.crop((45, 45, 45 + pw, 45 + ph)), radius=ph // 2,
-                    blur=18, alpha=42)
-        slide.paste(chip, (x - 54, row - 54), chip)
-        x += pw + 26
-    return row + 118
+# ------------------------------------------------------------- maskot
+
+def maskot(tuval, boy, x, y, balon, yon):
+    """Devi + balon. `yon` maskotun baktigi taraf; balon o tarafta."""
+    dv = Image.open(MASKOT).convert('RGBA').resize((boy, boy), Image.LANCZOS)
+    if yon == 'sol':
+        dv = dv.transpose(Image.FLIP_LEFT_RIGHT)
+    g = golge(dv, int(boy * 0.04), 110, (0, int(boy * 0.05)))
+    tuval.alpha_composite(g, (x - int(boy * 0.08), y - int(boy * 0.08)))
+    tuval.alpha_composite(dv, (x, y))
+    if not balon:
+        return
+    d = ImageDraw.Draw(tuval)
+    fb = boy * 0.13
+    kenar = tuval.width * 0.03
+    while True:
+        f = font('800', fb)
+        tw = d.textlength(balon, font=f)
+        pad = int(boy * 0.07)
+        bx = x + boy * 0.92 if yon == 'sag' else x + boy * 0.08 - tw - pad * 2
+        if kenar <= bx and bx + tw + pad * 2 <= tuval.width - kenar:
+            break
+        fb -= 2
+        if fb < boy * 0.08:
+            raise SystemExit(f'balon sigmiyor: {balon!r}')
+    by = y + int(boy * 0.18)
+    d.rounded_rectangle([bx, by, bx + tw + pad * 2, by + fb + pad * 2],
+                        radius=boy * 0.1, fill=(255, 255, 255, 255))
+    d.text((bx + pad, by + pad - fb * 0.15), balon, font=f,
+           fill=(90, 50, 200, 255))
+
+
+# -------------------------------------------------------------- slayt
+
+def slayt_ciz(w, h, ham, crop_top, ad, bas, alt, balon, tohum=3):
+    """Tek gokkusagi slayti. Olcuden bagimsiz: App Store 1290x2796,
+    Play 1080x1920 ayni fonksiyondan cikiyor."""
+    palet, hap_renk, maskot_yer = THEME[ad]
+    t = gradyan(w, h, PALET[palet])
+    t.alpha_composite(semboller(w, h, tohum))
+
+    kenar = int(w * 0.07)
+    y = baslik(t, bas, int(h * 0.05), int(w * 0.085), hap_renk,
+               w - 2 * kenar)
+    y = alt_satir(t, alt, y + int(w * 0.012), int(w * 0.036),
+                  w - 2 * kenar)
+
+    # Maskot telefonun ust kosesinden bakiyor; balonu alt satira
+    # binmesin diye telefon gerekirse asagi iniyor.
+    mb = int(w * (0.30 if h / w > 2 else 0.26))
+    py = max(int(h * 0.30), y + int(h * 0.015) + int(mb * 0.44))
+
+    # Telefon alt kenardan TASIYOR. Ekranin telefonda gorunecek kismi
+    # kadar kirpiliyor (+ biraz tasma); fazlasini cizmenin anlami yok.
+    tel_w = int(w * TELEFON.get(ad, TELEFON_VARSAYILAN))
+    cer = tel_w * 0.035
+    olcek = (tel_w - 2 * cer) / ham.width
+    cy = round(ham.height * crop_top)
+    gorunen = (h - py + int(h * 0.04)) / olcek
+    kes = ham.crop((0, cy, ham.width,
+                    min(ham.height, cy + int(gorunen))))
+    ph = telefon(kes, tel_w)
+    px = (w - ph.width) // 2
+    t.alpha_composite(golge(ph, 40, 120, (0, 50)), (px - 80, py - 80))
+    t.alpha_composite(ph, (px, py))
+
+    my = py - int(mb * 0.62)
+    if maskot_yer == 'sag':
+        maskot(t, mb, px + ph.width - int(mb * 0.78), my, balon, 'sol')
+    else:
+        maskot(t, mb, px - int(mb * 0.22), my, balon, 'sag')
+    return t.convert('RGB')
 
 
 def build(lang):
@@ -365,90 +584,21 @@ def build(lang):
     os.makedirs(out_dir, exist_ok=True)
 
     made = []
-    for i, (name, crop_top, yer, pills, texts) in enumerate(SLIDES, start=1):
+    for i, (name, crop_top, _yer, _pills, texts) in enumerate(SLIDES, 1):
         path = os.path.join(src_dir, f'{name}.png')
         if not os.path.exists(path):
             raise SystemExit(
                 f'{path} yok. Once ekranlari uret:\n'
                 '  flutter test --run-skipped --tags shots '
                 'test/appstore_shots_test.dart')
-
         head, sub = texts[lang]
-        base, orb, accent = THEME[name]
-        slide = background(base, orb,
-                           (W // 2, 380 if yer == 'ust' else H - 520))
-        d = ImageDraw.Draw(slide)
-        max_w = W - 176
-        f_sub = font('600', 38)
-
         ham = Image.open(path).convert('RGB')
-
-        if yer == 'ust':
-            y = headline(slide, head, accent, 150, max_w)
-            y += 12
-            for line in _wrap(d, sub, f_sub, max_w):
-                d.text((88, y), line, font=f_sub, fill=INK_SOFT)
-                y += 52
-            if pills:
-                y = chips(slide, y + 40, accent)
-            top = y + 40
-            alt_sinir = H
-        else:
-            # Baslik altta: once yerini olcuyoruz.
-            satir = len(head.split('\n'))
-            alt_yuk = satir * 130 + len(_wrap(d, sub, f_sub, max_w)) * 52 + 80
-            alt_sinir = H - alt_yuk
-            top = 150
-
-        # --- telefon ---
-        aspect = CROP_ASPECT[name]
-        want_h = min(ham.height, round(ham.width * aspect))
-        cy = min(round(ham.height * crop_top), ham.height - want_h)
-        shot = ham.crop((0, cy, ham.width, cy + want_h))
-        dev = device(shot, 1000)
-
-        # 'ust' slaytta telefon ALT kenardan, 'alt' slaytta UST
-        # kenardan tasiyor. Tamamini sigdirmaya calisinca kucuk
-        # kaliyor ve etrafinda olu bosluk olusuyor.
-        # Telefon bosluga gore buyutuluyor ama GENISLIK SINIRI var:
-        # kisa ekranlarda (karakter, ilk gorev) yukseklige gore
-        # buyutunce telefon slayti tasip cercevesi kayboluyordu.
-        alan = alt_sinir - top
-        k = min((alan + 320) / dev.height, 1250 / dev.width)
-        dev = dev.resize((round(dev.width * k), round(dev.height * k)),
-                         Image.LANCZOS)
-        if dev.height >= alan:
-            oy = top - 60 if yer == 'ust' else alt_sinir - dev.height + 60
-        else:
-            oy = top + (alan - dev.height) // 2
-        slide.paste(dev, ((W - dev.width) // 2, oy), dev)
-
-        # --- telefonun disina tasan detay ---
-        if yer == 'alt':
-            y = headline(slide, head, accent, alt_sinir + 20, max_w)
-            y += 8
-            for line in _wrap(d, sub, f_sub, max_w):
-                d.text((88, y), line, font=f_sub, fill=INK_SOFT)
-                y += 52
-
+        slide = slayt_ciz(W, H, ham, crop_top, name, head, sub,
+                          BALON[name][lang], tohum=i * 7)
         out = os.path.join(out_dir, f'{i:02d}_{name}.png')
-        slide.convert('RGB').save(out)
+        slide.save(out)
         made.append(out)
     return made
-
-
-def _wrap(draw, text, fnt, max_w):
-    out = []
-    line = ''
-    for word in text.split(' '):
-        trial = word if not line else line + ' ' + word
-        if draw.textlength(trial, font=fnt) <= max_w:
-            line = trial
-        else:
-            out.append(line)
-            line = word
-    out.append(line)
-    return out
 
 
 if __name__ == '__main__':
