@@ -77,7 +77,8 @@ void main() {
       "('27_mblock_tezgah'",
       "('14_html_code'",
       "('12_chess'",
-      "('13_slide_to_start'",
+      // Son slayt gercek quiz sorusu (eskiden bos quiz giris ekrani).
+      "('06_hint'",
     ];
     var onceki = -1;
     for (final ad in sira) {

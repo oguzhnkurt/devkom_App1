@@ -105,7 +105,7 @@ THEME = {
     '27_mblock_tezgah':  ('mavi',  (41, 98, 255),  'sag'),
     '14_html_code':      ('ates',  (216, 27, 96),  'sol'),
     '12_chess':          ('orman', (0, 137, 123),  'sag'),
-    '13_slide_to_start': ('gece',  (124, 77, 255), 'sol'),
+    '06_hint':           ('gece',  (124, 77, 255), 'sol'),
 }
 
 # TELEFONUN DISINA TASAN BUYUTULMUS KART YOK.
@@ -159,7 +159,7 @@ BALON = {
                      'de': 'Echter Code!', 'es': '¡Código real!'},
     '12_chess': {'tr': 'Hamle sende!', 'en': 'Your move!',
                  'de': 'Du bist dran!', 'es': '¡Te toca!'},
-    '13_slide_to_start': {'tr': 'Bunu biliyorum!', 'en': 'I know this!',
+    '06_hint': {'tr': 'Bunu biliyorum!', 'en': 'I know this!',
                           'de': 'Das weiß ich!', 'es': '¡Me la sé!'},
 }
 
@@ -263,7 +263,10 @@ SLIDES = [
         'es': ('Piensa antes\ncon el [ajedrez]',
                'Tres niveles de dificultad — planea la jugada sin prisa'),
     }),
-    ('13_slide_to_start', 0.20, 'ust', False, {
+    # QUIZ SORUSU. Onceki 8. slayt quiz giris ekraniydi ("Basla" icin
+    # kaydir): basligi soz veriyor, ekrani hic soru gostermiyordu. Artik
+    # gercek quiz ekrani — soru, secilmis cevap ve aciklama.
+    ('06_hint', 0.0, 'ust', False, {
         'tr': ('Öğrendiğini [sınar]',
                'Derslerden gelen sorular · doğru cevapla, jeton ve XP kazan'),
         'en': ('[Tests] what it learned',
