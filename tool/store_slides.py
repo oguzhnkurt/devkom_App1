@@ -142,6 +142,15 @@ CROP_ASPECT = {
     '01_first_task': 1.5,
 }
 
+# YELPAZE: bazi slaytlarda ortadaki telefonun iki yaninda, biraz
+# kucuk ve hafif egik iki telefon daha duruyor. Satranc tek basina
+# "bir oyun" diyordu; yaninda iki oyun daha "oyunlarla dusunur"
+# diyor. Yan telefonlar dekor degil — onlar da gercek ekran.
+#   {slayt: [(sol ekran, kirpma basi), (sag ekran, kirpma basi)]}
+YELPAZE = {
+    '12_chess': [('17_pattern', 0.10), ('19_color_coding', 0.02)],
+}
+
 # Maskotun balonu. Kisa bir cagri — iddia degil.
 BALON = {
     '09_home': {'tr': 'Hadi başlayalım!', 'en': 'Let’s start!',
@@ -253,15 +262,19 @@ SLIDES = [
     # Satranc: kodlama disindaki tek "dusunme" oyunu. Uc zorluk
     # seviyesi gercek (Baslangic / Orta / Ileri); ELO sayisi slayta
     # YAZILMIYOR, iddia gibi durur.
-    ('12_chess', 0.235, 'alt', False, {
-        'tr': ('[Satranç] ile\nstratejik düşünür',
-               'Üç zorluk seviyesi — acele etmeden, hamlesini planlayarak'),
-        'en': ('Thinks ahead\nwith [chess]',
-               'Three difficulty levels — plans the move instead of rushing'),
-        'de': ('Denkt voraus\nbeim [Schach]',
-               'Drei Schwierigkeitsgrade — plant den Zug, statt zu hetzen'),
-        'es': ('Piensa antes\ncon el [ajedrez]',
-               'Tres niveles de dificultad — planea la jugada sin prisa'),
+    #
+    # Yaninda iki oyun daha (YELPAZE): Kod Dedektifi (sayi dizisini
+    # tamamla) ve Renkli Kodlar (renk sirasini hatirla). Alt satirdaki
+    # "sayi bulmacalari, hafiza oyunlari" bu ikisi.
+    ('12_chess', 0.20, 'alt', False, {
+        'tr': ('[Oyunlarla]\nmantığını geliştirir',
+               'Satranç, sayı bulmacaları, hafıza oyunları — düşünerek oynar'),
+        'en': ('Sharpens logic\nwith [games]',
+               'Chess, number puzzles, memory games — playing by thinking'),
+        'de': ('Logisch denken\nmit [Spielen]',
+               'Schach, Zahlenrätsel, Gedächtnisspiele — spielen mit Köpfchen'),
+        'es': ('Piensa con lógica\ncon [juegos]',
+               'Ajedrez, acertijos numéricos, juegos de memoria — jugar pensando'),
     }),
     # QUIZ SORUSU. Onceki 8. slayt quiz giris ekraniydi ("Basla" icin
     # kaydir): basligi soz veriyor, ekrani hic soru gostermiyordu. Artik
@@ -534,7 +547,23 @@ def maskot(tuval, boy, x, y, balon, yon):
 
 # -------------------------------------------------------------- slayt
 
-def slayt_ciz(w, h, ham, crop_top, ad, bas, alt, balon, tohum=3):
+def yan_telefon(t, ham, crop_top, tel_w, merkez_x, ust_y, aci):
+    """Yelpazedeki yan telefon: kucuk, hafif egik, arkada."""
+    w, h = t.size
+    olcek = (tel_w - 2 * tel_w * 0.035) / ham.width
+    cy = round(ham.height * crop_top)
+    gorunen = (h - ust_y + int(h * 0.08)) / olcek
+    kes = ham.crop((0, cy, ham.width, min(ham.height, cy + int(gorunen))))
+    ph = telefon(kes, tel_w).rotate(aci, resample=Image.BICUBIC, expand=True)
+    x = merkez_x - ph.width // 2
+    t.alpha_composite(golge(ph, 30, 110, (0, 40)), (x - 60, ust_y - 60))
+    t.alpha_composite(ph, (x, ust_y))
+
+
+def slayt_ciz(w, h, ham, crop_top, ad, bas, alt, balon, tohum=3,
+              yanlar=None):
+    """`yanlar`: [(ham, kirpma basi), (ham, kirpma basi)] verilirse
+    ortadaki telefon kuculur, iki yaninda egik iki telefon durur."""
     """Tek gokkusagi slayti. Olcuden bagimsiz: App Store 1290x2796,
     Play 1080x1920 ayni fonksiyondan cikiyor."""
     palet, hap_renk, maskot_yer = THEME[ad]
@@ -555,6 +584,21 @@ def slayt_ciz(w, h, ham, crop_top, ad, bas, alt, balon, tohum=3):
     # Telefon alt kenardan TASIYOR. Ekranin telefonda gorunecek kismi
     # kadar kirpiliyor (+ biraz tasma); fazlasini cizmenin anlami yok.
     tel_w = int(w * TELEFON.get(ad, TELEFON_VARSAYILAN))
+    if yanlar:
+        # Once arkadakiler: ortadaki telefon onlarin ustune biniyor.
+        # Ilk denemede orta telefon 0.62, yanlar 0.50 idi: yanlarin
+        # yalnizca kenar seridi gorunuyor, oyunlar tanınmiyordu. Orta
+        # telefon inceldi, yanlar disa acildi.
+        tel_w = int(w * 0.50)
+        yan_w = int(w * 0.46)
+        # Uzun App Store tuvalinde telefonlar alt kenara ulasmiyor,
+        # altta bos bir bant kaliyordu: kume asagi kayiyor.
+        if h / w > 2:
+            py += int(h * 0.09)
+        yan_y = py + int(h * 0.035)
+        (sol, sol_k), (sag, sag_k) = yanlar
+        yan_telefon(t, sol, sol_k, yan_w, int(w * 0.215), yan_y, 5)
+        yan_telefon(t, sag, sag_k, yan_w, int(w * 0.785), yan_y, -5)
     cer = tel_w * 0.035
     olcek = (tel_w - 2 * cer) / ham.width
     cy = round(ham.height * crop_top)
@@ -572,6 +616,13 @@ def slayt_ciz(w, h, ham, crop_top, ad, bas, alt, balon, tohum=3):
     else:
         maskot(t, mb, px - int(mb * 0.22), my, balon, 'sag')
     return t.convert('RGB')
+
+
+def yan_ekranlar(klasor, ad):
+    if ad not in YELPAZE:
+        return None
+    return [(Image.open(os.path.join(klasor, f'{e}.png')).convert('RGB'), k)
+            for e, k in YELPAZE[ad]]
 
 
 def build(lang):
@@ -597,7 +648,8 @@ def build(lang):
         head, sub = texts[lang]
         ham = Image.open(path).convert('RGB')
         slide = slayt_ciz(W, H, ham, crop_top, name, head, sub,
-                          BALON[name][lang], tohum=i * 7)
+                          BALON[name][lang], tohum=i * 7,
+                          yanlar=yan_ekranlar(src_dir, name))
         out = os.path.join(out_dir, f'{i:02d}_{name}.png')
         slide.save(out)
         made.append(out)

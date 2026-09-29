@@ -1,3 +1,5 @@
+import '../utils/lang.dart';
+
 /// Difficulty levels for chess AI
 enum ChessDifficulty {
   beginner, // Depth 1-2, Random moves
@@ -163,15 +165,19 @@ extension ChessDifficultyExtension on ChessDifficulty {
     }
   }
 
+  // Almanca ve Ispanyolca eskiden Turkceye dusuyordu: "Başlangıç"
+  // magaza gorselinde Almanca ekranda gorundu.
   String displayNameFor(String languageCode) {
-    if (languageCode != 'en') return displayName;
     switch (this) {
       case ChessDifficulty.beginner:
-        return 'Beginner';
+        return AppLang.pick(languageCode,
+            tr: 'Başlangıç', en: 'Beginner', de: 'Anfänger', es: 'Principiante');
       case ChessDifficulty.intermediate:
-        return 'Intermediate';
+        return AppLang.pick(languageCode,
+            tr: 'Orta', en: 'Intermediate', de: 'Mittel', es: 'Intermedio');
       case ChessDifficulty.advanced:
-        return 'Advanced';
+        return AppLang.pick(languageCode,
+            tr: 'İleri', en: 'Advanced', de: 'Fortgeschritten', es: 'Avanzado');
     }
   }
 
@@ -187,16 +193,22 @@ extension ChessDifficultyExtension on ChessDifficulty {
   }
 
   String descriptionFor(String languageCode) {
-    if (languageCode != 'en') return description;
     switch (this) {
       case ChessDifficulty.beginner:
-        return 'For beginners';
+        return AppLang.pick(languageCode,
+            tr: 'Yeni başlayanlar için', en: 'For beginners',
+            de: 'Für Einsteiger', es: 'Para principiantes');
       case ChessDifficulty.intermediate:
-        return 'For intermediate players';
+        return AppLang.pick(languageCode,
+            tr: 'Orta seviye oyuncular için', en: 'For intermediate players',
+            de: 'Für Fortgeschrittene', es: 'Para jugadores intermedios');
       case ChessDifficulty.advanced:
-        return 'For advanced players';
+        return AppLang.pick(languageCode,
+            tr: 'İleri seviye oyuncular için', en: 'For advanced players',
+            de: 'Für Profis', es: 'Para jugadores avanzados');
     }
   }
+
 
   int get depth {
     switch (this) {

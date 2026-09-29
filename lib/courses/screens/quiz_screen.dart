@@ -12,6 +12,7 @@ import 'widgets/step_widgets.dart' show lessonLangRead;
 import '../../utils/lang.dart';
 import '../../widgets/cikis_penceresi.dart';
 import '../../services/sound_service.dart';
+import '../../widgets/mascot.dart';
 
 /// Quiz Screen - Interactive quiz experience
 class QuizScreen extends StatefulWidget {
@@ -69,6 +70,16 @@ class _QuizScreenState extends State<QuizScreen> {
       backgroundColor: isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: widget.course.primaryColor,
+        elevation: 0,
+        // Duz mavi serit yerine kursun iki renginden bir gecis: quiz
+        // oyunlar ekraniyla ayni aileden gorunsun.
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [widget.course.primaryColor, _acik(widget.course.primaryColor)],
+            ),
+          ),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.white),
           onPressed: () => _showExitDialog(),
@@ -94,6 +105,22 @@ class _QuizScreenState extends State<QuizScreen> {
       ),
       body: Stack(
         children: [
+          // Zemin: kursun renginden beyaza yumusak bir gecis.
+          if (!isDark)
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      widget.course.primaryColor.withValues(alpha: 0.10),
+                      const Color(0xFFF5F7FA),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           _showResult ? _buildResultScreen(isDark) : _buildQuestionScreen(isDark),
           Align(
             alignment: Alignment.topCenter,
@@ -143,9 +170,7 @@ class _QuizScreenState extends State<QuizScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildQuestionHeader(isDark),
-                  const SizedBox(height: 24),
-                  _buildQuestion(isDark),
+                  _buildSoruKarti(isDark),
                   const SizedBox(height: 20),
                   _buildOptions(isDark),
                   if (_hintVisible && _currentQuestion.explanationFor(_lang) != null) ...[
@@ -172,11 +197,17 @@ class _QuizScreenState extends State<QuizScreen> {
           final filled = index <= _currentQuestionIndex;
           return Expanded(
             child: Container(
-              height: 6,
+              height: 10,
               margin: EdgeInsets.only(right: index == total - 1 ? 0 : 6),
               decoration: BoxDecoration(
-                color: filled ? widget.course.primaryColor : widget.course.primaryColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(4),
+                gradient: filled
+                    ? LinearGradient(colors: [
+                        widget.course.primaryColor,
+                        _acik(widget.course.primaryColor),
+                      ])
+                    : null,
+                color: filled ? null : widget.course.primaryColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(6),
               ),
             ),
           );
@@ -211,6 +242,82 @@ class _QuizScreenState extends State<QuizScreen> {
       ),
     );
   }
+
+  /// Soruyu Devi soruyor: solda maskot, sagda konusma balonu. Balonun
+  /// icinde soru tipi, soru ve (varsa) kod parcasi.
+  Widget _buildSoruKarti(bool isDark) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Mascot(
+            size: 76,
+            mood: _hasAnswered ? MascotMood.happy : MascotMood.thinking,
+            showShadow: false,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(6),
+                topRight: Radius.circular(22),
+                bottomLeft: Radius.circular(22),
+                bottomRight: Radius.circular(22),
+              ),
+              border: Border.all(
+                color: widget.course.primaryColor.withValues(alpha: 0.25),
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: widget.course.primaryColor.withValues(alpha: 0.12),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildQuestionHeader(isDark),
+                const SizedBox(height: 12),
+                _buildQuestion(isDark),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Kursun renginin acik tonu. Degradenin ikinci rengi olarak
+  /// `secondaryColor` kullanilinca (Python: mavi + sari) ortada bulanik
+  /// bir zeytin rengi cikiyordu.
+  static Color _acik(Color c) => Color.lerp(c, Colors.white, 0.35)!;
+
+  /// Sik kartlarinin renkleri: her sik kendi renginde, bir oyun gibi.
+  static const _sikRenkleri = [
+    Color(0xFFFF6B6B), // mercan
+    Color(0xFF4D96FF), // gok mavisi
+    Color(0xFFFFA726), // turuncu
+    Color(0xFF26C6A6), // nane
+    Color(0xFF9B5DE5), // mor
+  ];
+
+  /// Sikin yanindaki kucuk sekil: renk korlugu olan cocuk da siklari
+  /// yalnizca renkle degil sekille de ayirabilsin.
+  static const _sikSekilleri = [
+    Icons.change_history_rounded,
+    Icons.diamond_rounded,
+    Icons.circle,
+    Icons.square_rounded,
+    Icons.star_rounded,
+  ];
 
   Widget _buildQuestionHeader(bool isDark) {
     IconData icon;
@@ -297,7 +404,7 @@ class _QuizScreenState extends State<QuizScreen> {
         Text(
           _currentQuestion.questionFor(_lang),
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 19,
             fontWeight: FontWeight.bold,
             height: 1.4,
             color: isDark ? Colors.white : const Color(0xFF1A1A1A),
@@ -345,68 +452,81 @@ class _QuizScreenState extends State<QuizScreen> {
 
   Widget _buildMultipleChoice(bool isDark) {
     final selectedIndex = _answers[_currentQuestionIndex];
+    final secenekler = _currentQuestion.optionsFor(_lang);
 
     return Column(
-      children: List.generate(_currentQuestion.optionsFor(_lang).length, (index) {
+      children: List.generate(secenekler.length, (index) {
         final isSelected = selectedIndex == index;
-        final option = _currentQuestion.optionsFor(_lang)[index];
+        final baskasiSecili = selectedIndex != null && !isSelected;
+        final renk = _sikRenkleri[index % _sikRenkleri.length];
+        final koyu = Color.lerp(renk, Colors.black, 0.28)!;
 
+        // JEL KART: renkli yuz + altta koyu bir "kalinlik". Secilince
+        // beyaz cerceve ve tik; digerleri biraz soluyor.
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: InkWell(
+          child: GestureDetector(
             onTap: () {
               setState(() => _answers[_currentQuestionIndex] = index);
             },
-            borderRadius: BorderRadius.circular(12),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? widget.course.primaryColor.withValues(alpha: 0.1)
-                    : (isDark ? const Color(0xFF1E1E2E) : Colors.white),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isSelected
-                      ? widget.course.primaryColor
-                      : (isDark ? Colors.grey.shade800 : Colors.grey.shade300),
-                  width: isSelected ? 2 : 1,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? widget.course.primaryColor
-                          : (isDark ? Colors.grey.shade800 : Colors.grey.shade200),
-                      shape: BoxShape.circle,
+            child: AnimatedScale(
+              scale: isSelected ? 1.03 : 1.0,
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutBack,
+              child: AnimatedOpacity(
+                opacity: baskasiSecili ? 0.82 : 1.0,
+                duration: const Duration(milliseconds: 200),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: renk,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: isSelected ? Colors.white : renk,
+                      width: 3,
                     ),
-                    child: Center(
-                      child: isSelected
-                          ? const Icon(Icons.check, color: Colors.white, size: 18)
-                          : Text(
-                              String.fromCharCode(65 + index), // A, B, C, D
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white70 : Colors.grey.shade700,
-                              ),
-                            ),
-                    ),
+                    boxShadow: [
+                      BoxShadow(color: koyu, offset: const Offset(0, 5)),
+                      if (isSelected)
+                        BoxShadow(
+                          color: renk.withValues(alpha: 0.45),
+                          blurRadius: 16,
+                          offset: const Offset(0, 8),
+                        ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      option,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _sikSekilleri[index % _sikSekilleri.length],
+                          color: renk,
+                          size: 20,
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Text(
+                          secenekler[index],
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      if (isSelected)
+                        const Icon(Icons.check_circle_rounded,
+                            color: Colors.white, size: 26),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -725,7 +845,11 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            passed ? 'Tebrikler!' : 'Tekrar Dene!',
+            passed
+                ? AppLang.pick(_lang,
+                    tr: 'Tebrikler!', en: 'Well done!', de: 'Super!', es: '¡Bien hecho!')
+                : AppLang.pick(_lang,
+                    tr: 'Tekrar Dene!', en: 'Try again!', de: 'Nochmal!', es: '¡Inténtalo otra vez!'),
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,

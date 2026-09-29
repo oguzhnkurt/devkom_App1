@@ -50,7 +50,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from store_slides import (SLIDES, PILLS, CROP_ASPECT, BALON,  # noqa: E402
-                          parse, slayt_ciz)
+                          parse, slayt_ciz, yan_ekranlar)
 
 W, H = 1080, 1920
 FONT_DIR = 'assets/fonts'
@@ -265,7 +265,9 @@ def ekran_goruntuleri(dil):
         shot = Image.open(
             os.path.join(SRC, DILLER[dil], dosya + '.png')).convert('RGB')
         slayt = slayt_ciz(W, H, shot, kirp, dosya, bas, alt,
-                          BALON[dosya][dil], tohum=i * 7 + 1)
+                          BALON[dosya][dil], tohum=i * 7 + 1,
+                          yanlar=yan_ekranlar(os.path.join(SRC, DILLER[dil]),
+                                              dosya))
         yol = os.path.join(klasor, f'{i:02d}_{dosya}.png')
         slayt.convert('RGB').save(yol, 'PNG')
         print('  ', yol)
