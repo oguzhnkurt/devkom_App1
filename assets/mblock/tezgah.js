@@ -312,6 +312,155 @@
     }
   }
 
+  // ===============================================================
+  // KATLANIR PALET
+  // ===============================================================
+  //
+  // GERCEK OLAY: "Bubbles sesini bitene kadar cal" gibi uzun yazili bir
+  // blok arac kutusundaysa kutu o blok kadar genisliyor — 362 piksellik
+  // bir tezgahin 256 pikselini kapliyordu. Cocugun kurdugu kod geriye
+  // kalan dar seride sagdan tasiyor, bloklarin yarisi gorunmuyordu.
+  //
+  // Saydam bir palet ise yaramazdi: palet calisma alaninin USTUNDE ve
+  // dokunuslari o yakaliyor; altindaki bloklar gorunse bile tutulamaz.
+  //
+  // Iki katmanli cozum:
+  //  1. TAVAN: palet tezgahin %45'inden genis olamaz; uzun bloklarda
+  //     paletin olcegi kuculuyor (ama okunaklilik icin bir tabani var).
+  //  2. KATLANMA: kod yine de sigmiyorsa palet kendiliginden kapaniyor
+  //     ve kod sola, tam genislige yayiliyor. Solda bir "+ Bloklar"
+  //     sekmesi kaliyor; dokununca palet geri geliyor. Kisa kodlarda
+  //     hicbir sey degismiyor: palet yalnizca GEREKTIGINDE kapaniyor.
+
+  var PALET_TAVANI = 0.45;
+  var PALET_OLCEK_TABANI = 0.5;
+  var paletAcik = true;
+
+  var SEKME_YAZISI = {
+    tr: 'Bloklar', en: 'Blocks', de: 'Blöcke', es: 'Bloques'
+  };
+
+  function kutu() { return ws && ws.getFlyout && ws.getFlyout(); }
+
+  /// Paletin genisligi tezgahin %45'ini gecmesin.
+  function paletiSinirla(olcek) {
+    var k = kutu();
+    if (!k) return;
+    var tavan = (global.innerWidth || 360) * PALET_TAVANI;
+    var genislik = k.getWidth();
+    if (genislik <= tavan) return;
+    // Genislik olcekle dogru orantili (12 piksellik bosluk haric).
+    var yeni = olcek * (tavan - 12) / Math.max(1, genislik - 12);
+    kutuyuOlcekle(Math.max(PALET_OLCEK_TABANI, yeni));
+  }
+
+  /// Kodun bir kismi gorunmuyor mu? Sagdan tasiyor ya da paletin
+  /// altinda kaliyor. [haricId] surukenen blok: o parmagin altinda,
+  /// sayilmiyor.
+  function kodGizli(haricId) {
+    if (!ws) return false;
+    var sag = (global.innerWidth || 360) - 6;
+    var k = kutu();
+    var sol = paletAcik && k ? k.getWidth() : 0;
+    return ws.getTopBlocks(false).some(function (b) {
+      if (b.isShadow && b.isShadow()) return false;
+      if (b.id === haricId) return false;
+      var el = b.getSvgRoot && b.getSvgRoot();
+      if (!el) return false;
+      var r = el.getBoundingClientRect();
+      return r.width > 0 && (r.right > sag || r.left < sol);
+    });
+  }
+
+  /// Butun yiginlari AYNI miktarda kaydirir ki birbirlerine gore
+  /// yerleri bozulmasin; en soldaki [solKenar] pikselde dursun.
+  function koduSolaYasla(solKenar, haricId) {
+    if (!ws) return;
+    var enSol = Infinity;
+    var bloklar = ws.getTopBlocks(false).filter(function (b) {
+      // Parmagin altindaki (surukleneni) oynatmiyoruz.
+      return !(b.isShadow && b.isShadow()) && b.id !== haricId;
+    });
+    bloklar.forEach(function (b) {
+      var r = b.getSvgRoot().getBoundingClientRect();
+      if (r.width > 0) enSol = Math.min(enSol, r.left);
+    });
+    if (!isFinite(enSol)) return;
+    var kaydir = (solKenar - enSol) / (ws.scale || 1);
+    if (Math.abs(kaydir) < 1) return;
+    bloklar.forEach(function (b) { b.moveBy(kaydir, 0); });
+  }
+
+  function sekmeyiGuncelle() {
+    var sekme = global.document.getElementById('paletSekmesi');
+    var kapat = global.document.getElementById('paletKapat');
+    var cizgi = global.document.getElementById('ayirac');
+    if (sekme) {
+      sekme.textContent = '+ ' + (SEKME_YAZISI[dil] || SEKME_YAZISI.en);
+      sekme.style.display = paletAcik ? 'none' : 'block';
+    }
+    if (kapat) {
+      var k = kutu();
+      kapat.style.display = paletAcik && k ? 'flex' : 'none';
+      if (k) kapat.style.left = Math.round(k.getWidth() - 40) + 'px';
+    }
+    if (cizgi && !paletAcik) cizgi.style.display = 'none';
+  }
+
+  function paletiKapat(haricId) {
+    var k = kutu();
+    if (!k || !paletAcik) return;
+    paletAcik = false;
+    k.setVisible(false);
+    S.svgResize(ws);
+    koduSolaYasla(12, haricId);
+    sekmeyiGuncelle();
+    bildir('palet', { acik: false });
+  }
+
+  function paletiAc() {
+    var k = kutu();
+    if (!k || paletAcik) return;
+    paletAcik = true;
+    k.setVisible(true);
+    S.svgResize(ws);
+    ayiraciYerlestir();
+    sekmeyiGuncelle();
+    // KODU ITMIYORUZ: palet gorunurken scratch-blocks icerigi paletin
+    // sag kenarina kendisi sabitliyor (kod bos alandan genisse sol
+    // kenari tam oraya oturuyor, geri kalani yatay kaydirmayla
+    // goruluyor). Burada ayrica moveBy cagirmak bu sabitlemeyle
+    // cekisiyor ve kodu yuzlerce piksel uzaga firlatiyordu.
+    bildir('palet', { acik: true });
+  }
+
+  /// SURUKLEME BASLARKEN: kod gizliyse palet yoldan cekiliyor.
+  ///
+  /// Cocuk paletten bir blok cektigi anda, blogu takacagi yigini
+  /// GORMESI gerekiyor. Palet acikken yigin paletin altinda ya da
+  /// sagdan tasmis olabilir; o durumda palet parmak hala ekrandayken
+  /// kapaniyor ve kod tam genislige yayiliyor. Kisa kodlarda hicbir
+  /// sey olmuyor — palet yalnizca GEREKTIGINDE cekiliyor.
+  ///
+  /// NEDEN KAPATIRKEN DEGIL DE ACARKEN KODU ITMIYORUZ: palet geri
+  /// geldiginde kodu paletin sagina itmeyi denedik; scratch-blocks
+  /// genis icerigi goruntu sinirina sabitliyor ve itme ya hic ise
+  /// yaramiyor ya da kodu yuzlerce piksel uzaga firlatiyordu. Palet
+  /// acikken kodun arkada kalmasi sorun degil: bir sonraki surukleme
+  /// basladiginda palet zaten cekiliyor.
+  function suruklemeBasladi(blokId) {
+    if (paletAcik && kodGizli(blokId)) paletiKapat(blokId);
+  }
+
+  /// Surukleme bittiginde: kod hala sigmiyorsa paleti kapat.
+  function suruklemeBitti() {
+    if (!paletAcik) return;
+    // Blockly yerlesimi bir sonraki karede bitiriyor; olcum ondan sonra.
+    global.setTimeout(function () {
+      if (paletAcik && kodGizli()) paletiKapat();
+    }, 60);
+  }
+
   var API = {
     /// Flutter'dan cagriliyor.
     ///
@@ -354,19 +503,36 @@
         }
 
         ws.addChangeListener(function (olay) {
+          // Surukleme bitisi bir UI olayi; asagidaki filtreden ONCE.
+          if (olay && olay.type === 'drag') {
+            if (olay.isStart) suruklemeBasladi(olay.blockId);
+            else suruklemeBitti();
+          }
           if (olay && olay.isUiEvent) return;
-          if (olay && olay.type === 'move') bloklariGorunurYap();
+          if (olay && olay.type === 'move' && paletAcik) bloklariGorunurYap();
           durumuBildir();
         });
 
+        paletAcik = true;
         kutuyuOlcekle(ayar.olcek || 0.675);
+        paletiSinirla(ayar.olcek || 0.675);
         ayiraciYerlestir();
+        // Hazir program (baslangic) paletin ALTINDA dogabiliyor.
+        if (ayar.baslangic) bloklariGorunurYap();
+        if (kodGizli()) paletiKapat();
+        sekmeyiGuncelle();
+
+        var sekme = global.document.getElementById('paletSekmesi');
+        if (sekme) sekme.onclick = paletiAc;
+        var kapat = global.document.getElementById('paletKapat');
+        if (kapat) kapat.onclick = paletiKapat;
         // Ekran donunce ya da klavye acilip kapaninca tezgah yeni
         // olcuye uymali; yoksa bloklar kirpilmis kaliyor.
         global.addEventListener('resize', function () {
           if (!ws) return;
           S.svgResize(ws);
-          ayiraciYerlestir();
+          if (paletAcik) ayiraciYerlestir();
+          sekmeyiGuncelle();
         });
 
         bildir('hazir', { blokSayisi: K.BLOKLAR.length, dil: dil });
@@ -378,8 +544,13 @@
 
     /// Tahtayi bosaltir (cocuk "bastan basla" derse).
     temizle: function () {
-      if (ws) { ws.clear(); durumuBildir(); }
+      if (ws) { ws.clear(); paletiAc(); durumuBildir(); }
     },
+
+    /// Flutter ya da testler icin.
+    paletAc: function () { paletiAc(); },
+    paletKapat: function () { paletiKapat(); },
+    paletAcikMi: function () { return paletAcik; },
 
     /// Testlerin ve Flutter'in okuyabilmesi icin.
     durum: function () {

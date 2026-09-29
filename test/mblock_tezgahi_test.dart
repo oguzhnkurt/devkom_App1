@@ -328,6 +328,72 @@ void main() {
     });
   });
 
+  group('katlanir palet', () {
+    // GERCEK OLAY: "Bubbles sesini bitene kadar cal" gibi uzun yazili
+    // bir blok paletteyken palet o blok kadar genisliyor, 362 piksellik
+    // tezgahin 256 pikselini kapliyordu. Cocugun kurdugu kodun yarisi
+    // sagdan tasiyor, bir kismi paletin altinda kaliyordu.
+    //
+    // Cozum gercek tarayicida (Chromium, 362x300) denendi: surukleme
+    // BASLARKEN kod gizliyse palet cekiliyor, kod tam genislige
+    // yayiliyor, blok yine yigina takilabiliyor. Kisa kodlarda palet
+    // hic kapanmiyor.
+    late String js;
+    late String html;
+    setUpAll(() {
+      js = File('assets/mblock/tezgah.js').readAsStringSync();
+      html = File('assets/mblock/index.html').readAsStringSync();
+    });
+
+    test('palet genisligi tavanli', () {
+      expect(js.contains('PALET_TAVANI'), isTrue);
+      expect(js.contains('paletiSinirla('), isTrue);
+      // Okunaklilik icin bir taban var; palet sonsuza kadar kuculmez.
+      expect(js.contains('PALET_OLCEK_TABANI'), isTrue);
+    });
+
+    test('surukleme basinda kod gizliyse palet cekiliyor', () {
+      expect(js.contains("olay.type === 'drag'"), isTrue,
+          reason: 'Surukleme olayi dinlenmiyor.');
+      expect(js.contains('suruklemeBasladi(olay.blockId)'), isTrue);
+      expect(js.contains('kodGizli('), isTrue);
+      // Surukleme olayi bir UI olayi; filtre ONCE gelirse hic gorulmez.
+      final surukleme = js.indexOf("olay.type === 'drag'");
+      final filtre = js.indexOf('if (olay && olay.isUiEvent) return;');
+      expect(surukleme, lessThan(filtre),
+          reason: 'UI olaylari surukleme dinlenmeden once eleniyor.');
+    });
+
+    test('parmagin altindaki blok oynatilmiyor', () {
+      expect(js.contains('function koduSolaYasla(solKenar, haricId)'),
+          isTrue);
+      expect(js.contains('b.id !== haricId'), isTrue);
+    });
+
+    test('palete geri donus sekmesi dort dilde ve paletin ustunde', () {
+      for (final yazi in const [
+        "tr: 'Bloklar'",
+        "en: 'Blocks'",
+        "de: 'Blöcke'",
+        "es: 'Bloques'",
+      ]) {
+        expect(js.contains(yazi), isTrue, reason: 'eksik: $yazi');
+      }
+      expect(html.contains('id="paletSekmesi"'), isTrue);
+      expect(html.contains('id="paletKapat"'), isTrue);
+      // Blockly paleti z-index 20'ye koyuyor; dugmeler altta kalirsa
+      // gorunmez. Ilk denemede tam olarak bu oldu.
+      expect(html.contains('z-index: 30'), isTrue);
+    });
+
+    test('temizleyince palet geri aciliyor', () {
+      final bas = js.indexOf('temizle: function');
+      final govde = js.substring(bas, js.indexOf('},', bas));
+      expect(govde.contains('paletiAc()'), isTrue,
+          reason: 'Tahta bosken palet kapali kalirsa cocuk blok bulamaz.');
+    });
+  });
+
   group('derslerin tezgah ayarlari', () {
     final adimlar = <BlockBuilderStep>[
       for (final ders in MBlockLessonsData.allLessons)

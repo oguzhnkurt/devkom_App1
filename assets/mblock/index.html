@@ -59,6 +59,30 @@
      cevaplaniyor. */
   .blocklySvg { background: #F1F3F5 !important; }
 
+  /* Palet kapaliyken soldaki sekme. Buyuk ve renkli: cocugun
+     "bloklar nereye gitti?" sorusunun cevabi bakar bakmaz gorunmeli. */
+  #paletSekmesi {
+    position: absolute; left: 8px; top: 8px; display: none;
+    padding: 9px 14px; border: 0; border-radius: 18px;
+    background: #4C97FF; color: #fff; font: 700 14px/1 -apple-system, sans-serif;
+    box-shadow: 0 3px 0 #3373CC;
+    /* Blockly'nin kendi CSS'i paleti z-index 20'ye koyuyor; dugmeler
+       onun USTUNDE olmali, yoksa paletin arkasinda gorunmez kaliyor. */
+    z-index: 30;
+  }
+  #paletSekmesi:active { transform: translateY(2px); box-shadow: 0 1px 0 #3373CC; }
+
+  /* Palet acikken paletin sag ALT kosesinde kapatma dugmesi. Ustte
+     olsaydi uzun ilk blogun yazisinin ustune binebiliyordu; paletin
+     alt kismi hemen her zaman bos. */
+  #paletKapat {
+    position: absolute; bottom: 10px; width: 30px; height: 30px; display: none;
+    align-items: center; justify-content: center; padding: 0;
+    border: 1px solid #DFE3E8; border-radius: 13px; background: #fff;
+    color: #5A6270; font: 700 20px/1 -apple-system, sans-serif; z-index: 30;
+    box-shadow: 0 2px 0 #DFE3E8;
+  }
+
   #ayirac {
     position: absolute;
     top: 0;
@@ -73,6 +97,9 @@
 <body>
 <div id="tezgah"></div>
 <div id="ayirac"></div>
+<!-- Katlanir palet: bkz. tezgah.js "KATLANIR PALET". -->
+<button id="paletSekmesi" type="button"></button>
+<button id="paletKapat" type="button" aria-label="kapat">&#8249;</button>
 <script src="scratch_blocks.min.js"></script>
 <script src="mblock_bloklari.js"></script>
 <script src="tezgah.js"></script>
