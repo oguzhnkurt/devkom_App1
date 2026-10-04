@@ -8,6 +8,7 @@ import '../../utils/score_calculator.dart';
 import '../../services/sound_service.dart';
 import '../../providers/settings_provider.dart';
 import '../../theme.dart';
+import '../../utils/lang.dart';
 
 /// Pipes Puzzle Game - Boruları döndürerek bağlantı yap
 class PipesGameScreen extends StatelessWidget {
@@ -19,16 +20,19 @@ class PipesGameScreen extends StatelessWidget {
     // calmak oyunlari birbirinden ayirt edilemez kiliyordu.
     SoundService.useVoice(SfxVoice.deep);
 
-    final isEnglish = Provider.of<SettingsProvider>(context, listen: false)
-            .locale
-            .languageCode ==
-        'en';
+    final lang = Provider.of<SettingsProvider>(context, listen: false)
+        .locale
+        .languageCode;
     return Scaffold(
       backgroundColor: const Color(0xFF1a1a2e),
       appBar: AppBar(
         // Kart 'Boru Bulmacası' diyor; baslik da ayni dilde olmalı.
         title: Text(
-          isEnglish ? 'Pipes Puzzle' : 'Boru Bulmacası',
+          AppLang.pick(lang,
+              tr: 'Boru Bulmacası',
+              en: 'Pipes Puzzle',
+              de: 'Rohr-Rätsel',
+              es: 'Rompecabezas de tuberías'),
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -42,27 +46,30 @@ class PipesGameScreen extends StatelessWidget {
         ],
       ),
       body: GameWidget(
-        game: PipesGame(isEnglish: isEnglish),
+        game: PipesGame(lang: lang),
       ),
     );
   }
 
   void _showGameInfo(BuildContext context) {
-    final isEn = Provider.of<SettingsProvider>(context, listen: false)
-            .locale
-            .languageCode ==
-        'en';
+    final lang = Provider.of<SettingsProvider>(context, listen: false)
+        .locale
+        .languageCode;
+    String t(String tr, String en, String de, String es) =>
+        AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isEn ? '🎮 Pipes Puzzle' : '🎮 Boru Bulmacası'),
+        title: Text(t('🎮 Boru Bulmacası', '🎮 Pipes Puzzle', '🎮 Rohr-Rätsel',
+            '🎮 Rompecabezas de tuberías')),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                isEn ? 'How to Play?' : 'Nasıl Oynanır?',
+                t('Nasıl Oynanır?', 'How to Play?', 'Wie spielt man?',
+                    '¿Cómo se juega?'),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -70,19 +77,27 @@ class PipesGameScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                isEn
-                    ? '• Build a pipeline from the green dot (source) to the red dot (target)\n'
-                        '• Tap pipe pieces to rotate them\n'
-                        '• Connect all the pipes to reach the target\n'
-                        '• Try to finish with as few moves as possible!'
-                    : '• Yeşil noktadan (kaynak) kırmızı noktaya (hedef) boru hattı oluşturun\n'
+                t(
+                    '• Yeşil noktadan (kaynak) kırmızı noktaya (hedef) boru hattı oluşturun\n'
                         '• Boru parçalarına dokunarak döndürün\n'
                         '• Tüm boruları bağlayarak hedefe ulaşın\n'
                         '• En az hamleyle tamamlamaya çalışın!',
+                    '• Build a pipeline from the green dot (source) to the red dot (target)\n'
+                        '• Tap pipe pieces to rotate them\n'
+                        '• Connect all the pipes to reach the target\n'
+                        '• Try to finish with as few moves as possible!',
+                    '• Baue eine Leitung vom grünen Punkt (Quelle) zum roten Punkt (Ziel)\n'
+                        '• Tippe auf Rohrteile, um sie zu drehen\n'
+                        '• Verbinde alle Rohre, um das Ziel zu erreichen\n'
+                        '• Versuche, mit möglichst wenigen Zügen fertig zu werden!',
+                    '• Construye una tubería del punto verde (origen) al punto rojo (destino)\n'
+                        '• Toca las piezas para girarlas\n'
+                        '• Conecta todas las tuberías para llegar al destino\n'
+                        '• ¡Intenta terminar con los menos movimientos posibles!'),
               ),
               const SizedBox(height: 16),
               Text(
-                isEn ? 'Pipe Types' : 'Boru Türleri',
+                t('Boru Türleri', 'Pipe Types', 'Rohrarten', 'Tipos de tubería'),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -90,15 +105,23 @@ class PipesGameScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                isEn
-                    ? '🟢 Green: Starting point\n'
-                        '🔴 Red: Target point\n'
-                        '━ Straight pipe: Two-way connection\n'
-                        '┛ Corner pipe: 90 degree turn'
-                    : '🟢 Yeşil: Başlangıç noktası\n'
+                t(
+                    '🟢 Yeşil: Başlangıç noktası\n'
                         '🔴 Kırmızı: Hedef noktası\n'
                         '━ Düz boru: İki yönlü bağlantı\n'
                         '┛ Köşe boru: 90 derece dönüş',
+                    '🟢 Green: Starting point\n'
+                        '🔴 Red: Target point\n'
+                        '━ Straight pipe: Two-way connection\n'
+                        '┛ Corner pipe: 90 degree turn',
+                    '🟢 Grün: Startpunkt\n'
+                        '🔴 Rot: Zielpunkt\n'
+                        '━ Gerades Rohr: Verbindung in zwei Richtungen\n'
+                        '┛ Eckrohr: 90-Grad-Drehung',
+                    '🟢 Verde: punto de inicio\n'
+                        '🔴 Rojo: punto de destino\n'
+                        '━ Tubo recto: conexión en dos sentidos\n'
+                        '┛ Tubo de esquina: giro de 90 grados'),
               ),
             ],
           ),
@@ -106,7 +129,7 @@ class PipesGameScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(isEn ? 'OK' : 'Tamam'),
+            child: Text(t('Tamam', 'OK', 'OK', 'Vale')),
           ),
         ],
       ),
@@ -172,10 +195,20 @@ class PipeTile {
 }
 
 class PipesGame extends FlameGame with TapCallbacks {
-  PipesGame({this.isEnglish = false});
+  PipesGame({this.lang = AppLang.tr});
 
-  /// Uygulama dili İngilizce'yse canvas üzerindeki metinler İngilizce olur.
-  final bool isEnglish;
+  /// Uygulama dili. Canvas üzerindeki metinler (Seviye/Skor/Hamle, durum
+  /// satiri, Yeni Oyun) dort dilde bu koda gore yaziliyor. Eskiden yalnizca
+  /// "en mi" diye bakiliyordu; Almanca ve Ispanyolca kullanici Turkce
+  /// "Seviye/Skor" goruyordu.
+  final String lang;
+
+  String _t(String tr, String en, String de, String es) =>
+      AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
+  String _seviye(int n) => _t('Seviye: $n', 'Level: $n', 'Level: $n', 'Nivel: $n');
+  String _skor(int n) => _t('Skor: $n', 'Score: $n', 'Punkte: $n', 'Puntos: $n');
+  String _hamle(int n) =>
+      _t('Hamle: $n', 'Moves: $n', 'Züge: $n', 'Movimientos: $n');
 
   static const double spacing = 3.0;
   static const double uiHeight = 110.0;
@@ -234,7 +267,7 @@ class PipesGame extends FlameGame with TapCallbacks {
     // UI elementleri
     // Seviye göstergesi
     levelText = TextComponent(
-      text: isEnglish ? 'Level: $currentLevel' : 'Seviye: $currentLevel',
+      text: _seviye(currentLevel),
       position: Vector2(20, 20),
       textRenderer: TextPaint(
         // Flame'in TextPaint'i uygulama temasini DEVRALMIYOR; yazi tipi
@@ -252,7 +285,7 @@ class PipesGame extends FlameGame with TapCallbacks {
 
     // Skor göstergesi
     scoreText = TextComponent(
-      text: isEnglish ? 'Score: $score' : 'Skor: $score',
+      text: _skor(score),
       position: Vector2(size.x - 20, 20),
       anchor: Anchor.topRight,
       textRenderer: TextPaint(
@@ -270,7 +303,7 @@ class PipesGame extends FlameGame with TapCallbacks {
     add(scoreText);
 
     moveCountText = TextComponent(
-      text: isEnglish ? 'Moves: 0' : 'Hamle: 0',
+      text: _hamle(0),
       position: Vector2(20, 50),
       textRenderer: TextPaint(
         // Flame'in TextPaint'i uygulama temasini DEVRALMIYOR; yazi tipi
@@ -312,7 +345,7 @@ class PipesGame extends FlameGame with TapCallbacks {
       position: Vector2(size.x - 160, 56),
       size: Vector2(140, 44),
       onPressed: _newGame,
-      isEnglish: isEnglish,
+      lang: lang,
     );
     add(newGameButton);
 
@@ -324,15 +357,15 @@ class PipesGame extends FlameGame with TapCallbacks {
     currentLevel = 1;
     score = 0;
     levelText.text =
-        isEnglish ? 'Level: $currentLevel' : 'Seviye: $currentLevel';
-    scoreText.text = isEnglish ? 'Score: $score' : 'Skor: $score';
+        _seviye(currentLevel);
+    scoreText.text = _skor(score);
     resetGame();
   }
 
   void resetGame() {
     moveCount = 0;
     gameWon = false;
-    moveCountText.text = isEnglish ? 'Moves: 0' : 'Hamle: 0';
+    moveCountText.text = _hamle(0);
     statusText.text = '';
 
     // Grid boyutu değişince tile size yeniden hesapla
@@ -557,16 +590,18 @@ class PipesGame extends FlameGame with TapCallbacks {
       // Skor kazanma sesi
       SoundService.playScore();
 
-      statusText.text = isEnglish
-          ? '🎉 Congratulations! +$levelScore points!'
-          : '🎉 Tebrikler! +$levelScore puan!';
-      scoreText.text = isEnglish ? 'Score: $score' : 'Skor: $score';
+      statusText.text = _t(
+          '🎉 Tebrikler! +$levelScore puan!',
+          '🎉 Congratulations! +$levelScore points!',
+          '🎉 Glückwunsch! +$levelScore Punkte!',
+          '🎉 ¡Enhorabuena! +$levelScore puntos!');
+      scoreText.text = _skor(score);
 
       // 2 saniye sonra sonraki seviyeye geç
       Future.delayed(const Duration(seconds: 2), () {
         currentLevel++;
         levelText.text =
-            isEnglish ? 'Level: $currentLevel' : 'Seviye: $currentLevel';
+            _seviye(currentLevel);
         resetGame();
       });
     }
@@ -588,7 +623,7 @@ class PipesGame extends FlameGame with TapCallbacks {
 
     tile.rotate();
     moveCount++;
-    moveCountText.text = isEnglish ? 'Moves: $moveCount' : 'Hamle: $moveCount';
+    moveCountText.text = _hamle(moveCount);
 
     _checkConnections();
   }
@@ -739,15 +774,14 @@ class NewGameButton extends PositionComponent with TapCallbacks {
   late Paint buttonPaint;
   late TextComponent buttonText;
 
-  /// Tus yazisi Turkce sabitti; ekranin geri kalani `isEnglish` ile
-  /// ceviriliyken Ingilizce kullanici "Yeni Oyun" goruyordu.
-  final bool isEnglish;
+  /// Tus yazisi uygulama dilinde (dort dil).
+  final String lang;
 
   NewGameButton({
     required Vector2 position,
     required Vector2 size,
     required this.onPressed,
-    required this.isEnglish,
+    required this.lang,
   }) : super(position: position, size: size);
 
   @override
@@ -757,7 +791,8 @@ class NewGameButton extends PositionComponent with TapCallbacks {
     buttonPaint = Paint()..color = const Color(0xFF4CAF50);
 
     buttonText = TextComponent(
-      text: isEnglish ? 'New Game' : 'Yeni Oyun',
+      text: AppLang.pick(lang,
+          tr: 'Yeni Oyun', en: 'New Game', de: 'Neues Spiel', es: 'Nuevo juego'),
       anchor: Anchor.center,
       position: size / 2,
       textRenderer: TextPaint(

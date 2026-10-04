@@ -15,7 +15,6 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:devkom_app/courses/data/courses_data.dart';
-import 'package:devkom_app/widgets/mascot.dart';
 
 void main() {
   final arac = File('test/appstore_shots_test.dart').readAsStringSync();

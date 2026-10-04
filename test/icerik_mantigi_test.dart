@@ -111,8 +111,6 @@ void main() {
               // ayrica cozum sirasindaysa "yukaridan asagi dokun"a.
               final celdiriciYok =
                   adim.correctSequence.length == blokIds.length;
-              final paletCozumSirasinda =
-                  blokIds.join('|') == adim.correctSequence.join('|');
               // NOT: paletin veri sirasi onemsiz — BlockBuilderStepWidget
               // `karistir()` ile sabit tohumlu karistiriyor ve sonucun
               // cozume esit olmamasini garanti ediyor. Yirmi adimin

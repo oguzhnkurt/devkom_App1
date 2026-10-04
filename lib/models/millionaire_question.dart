@@ -1,3 +1,5 @@
+import '../utils/lang.dart';
+
 class MillionaireQuestion {
   final String? id;
   final String question;
@@ -10,6 +12,13 @@ class MillionaireQuestion {
   // correctAnswerIndex her iki dil için de aynı sırayı korur.
   final String? questionEn;
   final List<String>? optionsEn;
+  // Almanca ve Ispanyolca. Yoksa AppLang'in zinciri gecerli: once
+  // Ingilizce, o da yoksa Turkce. Eskiden yalnizca 'en' biliniyordu ve
+  // Almanca/Ispanyolca secen cocuk soruyu Turkce goruyordu.
+  final String? questionDe;
+  final List<String>? optionsDe;
+  final String? questionEs;
+  final List<String>? optionsEs;
 
   MillionaireQuestion({
     this.id,
@@ -21,22 +30,39 @@ class MillionaireQuestion {
     this.imageUrl,
     this.questionEn,
     this.optionsEn,
+    this.questionDe,
+    this.optionsDe,
+    this.questionEs,
+    this.optionsEs,
   });
 
   /// Dile göre soru metnini döndürür (İngilizce çeviri yoksa Türkçe'ye düşer).
   String questionFor(String languageCode) {
-    if (languageCode == 'en' && questionEn != null && questionEn!.isNotEmpty) {
-      return questionEn!;
-    }
-    return question;
+    String? dolu(String? s) => (s != null && s.isNotEmpty) ? s : null;
+    return AppLang.pick(languageCode,
+        tr: question,
+        en: dolu(questionEn) ?? question,
+        de: dolu(questionDe),
+        es: dolu(questionEs));
   }
 
   /// Dile göre şık listesini döndürür (İngilizce çeviri yoksa Türkçe'ye düşer).
   List<String> optionsFor(String languageCode) {
-    if (languageCode == 'en' && optionsEn != null && optionsEn!.length == options.length) {
-      return optionsEn!;
+    // Sik sayisi Turkceyle ayni olmayan ceviri kullanilmiyor: dogru cevap
+    // `correctAnswerIndex` ile bulunuyor, sira kayarsa yanlis sik dogru sayilir.
+    List<String>? uygun(List<String>? l) =>
+        (l != null && l.length == options.length) ? l : null;
+    final en = uygun(optionsEn) ?? options;
+    switch (languageCode) {
+      case AppLang.tr:
+        return options;
+      case AppLang.de:
+        return uygun(optionsDe) ?? en;
+      case AppLang.es:
+        return uygun(optionsEs) ?? en;
+      default:
+        return en;
     }
-    return options;
   }
 
   factory MillionaireQuestion.fromMap(Map<String, dynamic> map) {

@@ -145,7 +145,7 @@ class ArduinoGorevleri {
       hedefEs: 'Enciende el LED del pin 13.',
       havuz: [_baslat, _ledYak, _ledSondur],
       cozum: ['board_launch', 'led_on'],
-      ipucuTr: 'Her Arduino programı "Arduino açılınca" bloğuyla başlar.',
+      ipucuTr: 'Her Arduino programı "Arduino Uno açılınca" bloğuyla başlar.',
       ipucuEn: 'Every Arduino program starts with the "when Arduino starts up" block.',
       ipucuDe: 'Jedes Arduino-Programm beginnt mit dem Startblock.',
       ipucuEs: 'Todo programa de Arduino empieza con el bloque de inicio.',
@@ -276,7 +276,21 @@ class ArduinoGorevleri {
   // Kimlikler SABIT tutuluyor: cozum listesi ve kartin animasyonu bu
   // kimliklere bakiyor, etiketlere degil (etiket dort dilde degisiyor).
 
-  static final ScratchBlock _baslat = MBlockBlocks.boardLaunch();
+  // Baslangic blogu: mBlock derslerinde blok, mBlock'un kendi Turkce
+  // arayuzundeki gibi Ingilizce ("when Arduino Uno starts up") kaliyor;
+  // cocuk onu gercek editorde o haliyle arayacak. Bu oyun ise uygulamanin
+  // kendi sanal karti — burada Turkce gosteriliyor ve ipucundaki adla
+  // ("Arduino acilinca") birebir ayni.
+  static final ScratchBlock _baslat = ScratchBlock(
+    id: 'board_launch',
+    blockType: ScratchBlockType.events,
+    shape: ScratchBlockShape.cap,
+    label: 'Arduino Uno açılınca',
+    labelEn: 'when Arduino Uno starts up',
+    labelDe: 'wenn Arduino Uno startet',
+    labelEs: 'cuando Arduino Uno se inicia',
+    color: MBlockPalette.events,
+  );
 
   static final ScratchBlock _surekli = MBlockBlocks.forever();
 

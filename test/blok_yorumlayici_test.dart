@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:devkom_app/courses/data/course_modules.dart';
 import 'package:devkom_app/courses/data/courses_data.dart';
 import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
-import 'package:devkom_app/courses/yurutme/blok_anlami.dart';
 import 'package:devkom_app/courses/yurutme/blok_sozlugu.dart';
 import 'package:devkom_app/courses/yurutme/blok_yorumlayici.dart';
 
