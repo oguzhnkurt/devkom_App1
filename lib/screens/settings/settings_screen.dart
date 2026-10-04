@@ -446,7 +446,7 @@ class SettingsScreen extends StatelessWidget {
                         trailing: const Icon(Icons.open_in_new, size: 18),
                         onTap: () async {
                           final uri = Uri.parse(
-                            'https://oguzhnkurt.github.io/devkom_App1/privacy-policy.html',
+                            'https://www.devkom.com.tr/deveducation-privacy.html',
                           );
                           await launchUrl(uri,
                               mode: LaunchMode.externalApplication);

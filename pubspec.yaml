@@ -2,7 +2,7 @@ name: devkom_app
 description: "A new Flutter project."
 publish_to: 'none'
 
-version: 1.0.9+15
+version: 1.0.10+16
 
 environment:
   sdk: ^3.6.0
@@ -81,6 +81,18 @@ dependencies:
   # Package.swift'iyle geldigi icin bagimliligi SPM uzerinden
   # cozuyor ve sorun ortadan kalkiyor.
   google_mobile_ads: ^8.0.0
+
+  # Meta (Facebook) uygulama olaylari. TEK AMACI: Meta'daki uygulama
+  # yukleme reklamlarinin iOS 14.5+ cihazlarda olculebilmesi (Toplu
+  # Olay Olcumu / SKAdNetwork). Meta, SDK'si olmayan bir uygulamaya
+  # "iOS 14+ kampanyasi" actirmiyor; o kampanya olmadan reklam yalniz
+  # iOS 13.7 ve oncesine gidiyor, yani pratikte hic kimseye.
+  #
+  # Reklam kimligi (IDFA) TOPLANMIYOR, ATT izni ISTENMIYOR: ayarlar
+  # lib/services/meta_install_service.dart ve ios/Runner/Info.plist.
+  # Karar ve gerekce: uygulama 13+ / veli odakli konumlandi (4 Ekim
+  # 2026), bkz. docs/META_SDK_KURULUMU.md.
+  facebook_app_events: ^0.30.5
 
   # Sertifika paylasimi (PNG olarak kaydedip paylasiyoruz; ayri bir PDF
   # paketi eklemeye gerek yok, telefonlarda PNG paylasimi daha kolay).

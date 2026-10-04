@@ -16,6 +16,7 @@ import 'services/connectivity_service.dart';
 import 'services/score_cache_service.dart';
 import 'services/ad_navigator_observer.dart';
 import 'services/ads_service.dart';
+import 'services/meta_install_service.dart';
 import 'services/subscription_service.dart';
 import 'theme.dart';
 import 'utils/app_localizations.dart';
@@ -130,6 +131,15 @@ void main() async {
     await AdsService.instance.initialize();
   } catch (e) {
     debugPrint('⚠️ Reklam servisi baslatilamadi: $e');
+  }
+
+  // META UYGULAMA OLAYLARI — kendi try'inda, reklam servisi gibi.
+  // Basarisiz olursa uygulama etkilenmez; yalniz Meta reklamlarinin
+  // olcumu eksik kalir. Ayrintilar servisin basinda.
+  try {
+    await MetaInstallService.initialize();
+  } catch (e) {
+    debugPrint('⚠️ Meta olay servisi baslatilamadi: $e');
   }
 
   // KAYITLI DIL, ILK KAREDEN ONCE.

@@ -4,15 +4,6 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>tr</string>
-	<!-- App Store "Languages" alani uygulamanin bildirdigi yerellestirmelerden
-	     okunuyor. Bunlar olmadan iOS uygulamayi yalnizca Ingilizce sayiyor ve
-	     magaza sayfasinda "English" yaziyordu; oysa tum arayuz Turkce. -->
-	<!-- Uygulamanin destekledigi diller. App Store urun sayfasindaki
-	     "Diller" alani BU listeden okunuyor; uygulama icindeki ceviriler
-	     yetmiyor. Liste tr+en iken magaza sayfasi uygulamayi yalnizca
-	     Turkce sanip Almanya/Ispanya'daki kullaniciya oyle gosteriyordu.
-	     lib/utils/app_localizations.dart dort dil destekliyor, burasi da
-	     onunla ayni kalmali. -->
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>tr</string>
@@ -50,13 +41,6 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<!-- iPad YONELIMLERI GERI GELDI.
-	     16 Eylul'de iPad destegi kapatilmisti; Apple 1.0.8'i
-	     reddetti (hata 90101): "This bundle does not support one or
-	     more of the devices supported by the previous app version."
-	     Bir guncellemede cihaz destegi DARALTILAMIYOR. Canli 1.0.7
-	     iPad'i destekledigi icin destek geri acildi.
-	     Bkz. claude/ipad-destegi-kaldirildi.md -->
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -80,25 +64,8 @@
 	<string>Devkom, konuma dayalı özellikler için konum erişimi gerektirir.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Devkom, konuma dayalı özellikler için konum erişimi gerektirir.</string>
-	<!-- AdMob uygulama kimligi (Devkom / iOS, AdMob panelinden).
-	     Reklam BIRIMI kimlikleri burada degil, .env icinde
-	     (bkz. lib/config/ad_config.dart). -->
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-4519840641603310~9762876692</string>
-	<!-- Kitlede cocuk oldugu icin reklamlar kisisellestirilmiyor ve
-	     reklam kimligi kullanilmiyor; bu yuzden ATT izin ekrani (
-	     NSUserTrackingUsageDescription) BILEREK eklenmedi. Eklenirse
-	     App Store, kullanmadigimiz bir izni istedigimiz icin geri
-	     cevirebilir. Bkz. lib/services/ads_service.dart. -->
-	<!-- SKAdNetwork: reklam kaynaklariyla yukleme eslestirmesi.
-	     Onceden YALNIZCA Google'in kendi kimligi (cstr6suwn9) vardi.
-	     AdMob talebi kendi alicilarina da satiyor; listede olmayan bir
-	     agin gosterdigi reklamdan gelen yukleme Apple tarafindan
-	     eslestirilmiyor, yani o reklam "ise yaramamis" gibi
-	     gorunuyor ve zamanla daha az/daha ucuz reklam aliniyor.
-	     Liste Google'in resmi sayfasindan alindi (50 kimlik):
-	     https://developers.google.com/admob/ios/ios14
-	     Kimlikler UYDURULMADI; yeni surumlerde sayfadan guncellenmeli. -->
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>
@@ -302,6 +269,25 @@
 			<string>3qcr597p9d.skadnetwork</string>
 		</dict>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb1644718090391447</string>
+			</array>
+		</dict>
+	</array>
+	<key>FacebookAppID</key>
+	<string>1644718090391447</string>
+	<key>FacebookClientToken</key>
+	<string>eb755830b4d5daa5fccde1722ea9f417</string>
+	<key>FacebookDisplayName</key>
+	<string>DevEducation</string>
+	<key>FacebookAutoLogAppEventsEnabled</key>
+	<true/>
+	<key>FacebookAdvertiserIDCollectionEnabled</key>
+	<false/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Devkom, ses kaydetmek için mikrofon erişimi gerektirir.</string>
 </dict>

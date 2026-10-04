@@ -1561,7 +1561,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   static String get _termsUrl => _android ? _playTermsUrl : _appleTermsUrl;
 
   static const String _privacyUrl =
-      'https://oguzhnkurt.github.io/devkom_App1/privacy-policy.html';
+      'https://www.devkom.com.tr/deveducation-privacy.html';
 
   Future<void> _openUrl(String url) async {
     try {
