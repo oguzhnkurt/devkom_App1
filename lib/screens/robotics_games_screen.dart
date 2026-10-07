@@ -15,39 +15,37 @@ import '../utils/lang.dart';
 import '../utils/pro_gate.dart';
 import '../widgets/avatar_cercevesi.dart';
 import '../widgets/mascot.dart';
+import '../widgets/oyun_bilgi_sayfasi.dart';
 import '../widgets/oyun_kimligi.dart';
+import '../widgets/oyun_sahnesi.dart';
+import '../models/learner_profile.dart';
+import '../services/next_lesson_service.dart';
+import '../services/user_progress_service.dart';
 import '../widgets/playful_background.dart';
 import 'game_play_screen.dart';
 
 /// Oyunlar ekranı.
 ///
-/// NEDEN IZGARA KALKTI
-/// -------------------
-/// Ekran 2 sütunlu bir `GridView`'dı: her kart bir görsel, bir başlık, iki
-/// satır açıklama ve "8 dk · Orta" yazısı taşıyordu. Düzenliydi ama bir
-/// oyun rafı değil, bir tablo gibi duruyordu — on dört oyun aynı ağırlıkta,
-/// aynı boyutta, aynı sırayla. Çocuk nereden başlayacağını bilmiyordu ve
-/// açıklama metinlerini kimse okumuyordu.
+/// DUZEN (Ekim 2026)
+/// -----------------
+/// Ustte kategori filtreleri (Algoritma, Mantik, Veri, Robotik, Kelime —
+/// cocugun ne ogrendigine gore), altinda "Senin icin" karti (okudugu
+/// kursa uyan oyun, Gunun Gorevi olarak) ve kolaydan zora iki sutunlu
+/// tum oyunlar.
 ///
-/// Şimdi ekranın bir GİRİŞİ var: en üstte tek bir "Günün Görevi" kartı
-/// (bugün ne oynayacağına karar vermek zorunda değilsin), altında konuya
-/// göre yatay raflar. Yatay raf, ızgaranın yapamadığı iki şeyi yapıyor:
-/// bir rafta sekiz oyun olsa bile ekranda üç tanesi görünüyor (seçim
-/// bunaltmıyor) ve kaydırmanın kendisi "burada daha çok şey var" diyor.
+/// Onceki iki surum ve neden birakildi:
+///  * 2 sutunlu GridView, her kartta aciklama ve "8 dk": tablo gibi
+///    duruyordu, aciklamalari kimse okumuyordu.
+///  * Konu konu yatay raflar: ucuncu kart yarim kaliyor, rafin
+///    sonundaki oyunlar kesfedilmiyordu; raf adlari keyfiydi.
 ///
-/// KARTLARDAKİ YAZI NEDEN AZALDI
-/// -----------------------------
-/// Açıklama metinleri silindi. Bu ekranın okuma yazması daha zayıf bir
-/// çocuğa da hizmet etmesi gerekiyor: kartta oyunun görseli, adı ve
-/// zorluğu (üç yıldız) var, gerisi oyunun kendi ekranında. "8 dk" yazısı
-/// da kalktı — süre bir vaat değildi, tahmindi.
-///
-/// GÖRSELLER
-/// ---------
-/// Başlıktaki jeton, Günün Görevi'ndeki sandık ve Pro tacı satın alınan
-/// oyun arayüzü ikon paketinden (`assets/images/ui/`, bkz. o klasördeki
-/// NASIL_HAZIRLANDI.md). Jetonun üstündeki dolar işareti kaldırılıp
-/// yerine yıldız konuldu: burası para değil, oyun içi jeton.
+/// KARTLAR
+/// -------
+/// Kartta oyunun canli kapagi (`OyunSahnesi`: oyunun ana hareketi kodla
+/// ciziliyor ve donguyle oynuyor), adi ve zorlugu (Kolay/Orta/Zor). Yildiz
+/// ve tac yok: cocuk yildizi kazandigi yildiz sandi, taci anlamadi. Pro
+/// oyuna dokununca oyunun kapagiyla acilan bilgi sayfasi (`OyunBilgiSayfasi`)
+/// "kisa bir video izle, bir tur ucretsiz oyna" secenegini anlatiyor.
 class RoboticsGamesScreen extends StatefulWidget {
   const RoboticsGamesScreen({super.key});
 
@@ -59,6 +57,9 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen> {
   final GamesService _gamesService = GamesService();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+
+  /// Secili kategori filtresi; null = Tumu.
+  _Kategori? _kategori;
 
   @override
   void dispose() {
@@ -252,142 +253,231 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen> {
   }
 
   Widget _aramaSonuclari(List<GameModel> games) {
-    games.sort((a, b) => a.difficulty.compareTo(b.difficulty));
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
-      itemCount: games.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, i) => AppearIn(
-        delay: AppearIn.stagger(i),
-        child: _oyunKarti(games[i], genislik: double.infinity, yatay: true),
-      ),
+    games.sort(_kolaydanZora);
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(0, 18, 0, 28),
+      children: [_izgara(games)],
     );
   }
 
+  /// Kolaydan zora; esitse ucretsiz oyun once, sonra ada gore.
+  static int _kolaydanZora(GameModel a, GameModel b) {
+    if (a.difficulty != b.difficulty) return a.difficulty.compareTo(b.difficulty);
+    final pa = ProGames.isProGame(a.type) ? 1 : 0;
+    final pb = ProGames.isProGame(b.type) ? 1 : 0;
+    if (pa != pb) return pa.compareTo(pb);
+    return a.title.compareTo(b.title);
+  }
+
+  /// Ekranin govdesi: kategori filtreleri, "Senin icin" karti ve
+  /// kolaydan zora tum oyunlar.
+  ///
+  /// NEDEN BOYLE (Ekim 2026)
+  /// -----------------------
+  /// Yatay raflarda ucuncu kart yarim kaliyor, rafin sonundaki oyunlar
+  /// kesfedilmiyordu; raf adlari da ("Robot Gorevleri", "Zeka ve Kelime")
+  /// keyfiydi — Arduino iki rafta birden geciyordu. Simdi oyunlar cocugun
+  /// NE OGRENDIGINE gore gruplu ve ustte dokunulan filtrelerde; liste tek,
+  /// iki sutun, kolaydan zora.
   Widget _raflar(List<GameModel> games) {
-    final gunun = _gununGorevi(games);
-    final bolumler = _Bolumler.ayir(games);
+    final kategoriler = _Kategoriler.hepsi;
+    final secili = _kategori == null
+        ? (List<GameModel>.from(games)..sort(_kolaydanZora))
+        : (games.where((g) => _kategori!.turler.contains(g.type)).toList()
+          ..sort(_kolaydanZora));
+    final oneri = _seninIcin(games);
 
     return ListView(
       padding: const EdgeInsets.only(bottom: 28),
       children: [
-        const SizedBox(height: 16),
-        if (gunun != null)
+        const SizedBox(height: 14),
+        // Filtre cipleri (yana kayan tek satir).
+        SizedBox(
+          height: 44,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: [
+              _cip(null, AppLang.pick(_lang, tr: 'Tümü', en: 'All', de: 'Alle', es: 'Todos'), null),
+              for (final k in kategoriler) _cip(k, k.ad(_lang), k.simge),
+            ],
+          ),
+        ),
+        if (oneri != null && _kategori == null) ...[
+          _bolumBasligi(
+            AppLang.pick(_lang, tr: 'Senin için', en: 'For you', de: 'Für dich', es: 'Para ti'),
+            oneri.kursAdi == null
+                ? null
+                : AppLang.pick(_lang,
+                    tr: '${oneri.kursAdi} kursuna uygun',
+                    en: 'Fits your ${oneri.kursAdi} course',
+                    de: 'Passt zu deinem ${oneri.kursAdi}-Kurs',
+                    es: 'Para tu curso de ${oneri.kursAdi}'),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: AppearIn(child: _GununGoreviKarti(
-              game: gunun,
-              lang: _lang,
-              onTap: () => _openGame(gunun, ProGames.isProGame(gunun.type)),
-            )),
-          ),
-        for (final bolum in bolumler) ...[
-          const SizedBox(height: 22),
-          _bolumBasligi(bolum),
-          const SizedBox(height: 12),
-          // IKI SUTUN (Ekim 2026). Yatay raflarda ucuncu kart yarim
-          // gorunuyordu ve rafin sonundaki oyunlari kimse kesfetmiyordu.
-          // Bolumler alt alta, her bolumde tum oyunlar ikiser ikiser.
-          LayoutBuilder(builder: (context, c) {
-            const ara = 12.0;
-            final gen = (c.maxWidth - 32 - ara) / 2;
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Wrap(
-                spacing: ara,
-                runSpacing: ara,
-                children: [
-                  for (var i = 0; i < bolum.games.length; i++)
-                    AppearIn(
-                      delay: AppearIn.stagger(i),
-                      child: _oyunKarti(bolum.games[i], genislik: gen),
-                    ),
-                ],
+            child: AppearIn(
+              child: _GununGoreviKarti(
+                game: oneri.game,
+                lang: _lang,
+                onTap: () => _openGame(oneri.game, ProGames.isProGame(oneri.game.type)),
               ),
-            );
-          }),
+            ),
+          ),
         ],
+        _bolumBasligi(
+          _kategori == null
+              ? AppLang.pick(_lang, tr: 'Tüm oyunlar', en: 'All games', de: 'Alle Spiele', es: 'Todos los juegos')
+              : _kategori!.ad(_lang),
+          AppLang.pick(_lang, tr: 'Kolaydan zora', en: 'Easy to hard', de: 'Leicht bis schwer', es: 'De fácil a difícil'),
+        ),
+        _izgara(secili),
       ],
     );
   }
 
-  Widget _bolumBasligi(_Bolum bolum) {
+  /// Iki sutunlu oyun izgarasi (Wrap: kartlar kendi yuksekliginde).
+  Widget _izgara(List<GameModel> games) {
+    return LayoutBuilder(builder: (context, c) {
+      const ara = 12.0;
+      final gen = (c.maxWidth - 32 - ara) / 2;
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Wrap(
+          spacing: ara,
+          runSpacing: ara + 4,
+          children: [
+            for (var i = 0; i < games.length; i++)
+              AppearIn(
+                delay: AppearIn.stagger(i),
+                child: _oyunKarti(games[i], genislik: gen),
+              ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _cip(_Kategori? k, String ad, IconData? simge) {
+    final secili = _kategori == k;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.only(right: 8),
+      child: GestureDetector(
+        onTap: () => setState(() => _kategori = k),
+        child: AnimatedContainer(
+          duration: Motion.short4,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+          decoration: BoxDecoration(
+            color: secili ? const Color(0xFF241C3B) : Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (simge != null) ...[
+                Icon(simge, size: 17, color: secili ? Colors.white : k!.renk),
+                const SizedBox(width: 5),
+              ],
+              Text(
+                ad,
+                style: TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: secili ? Colors.white : const Color(0xFF241C3B),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _bolumBasligi(String ad, String? sag) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 10),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: bolum.renk.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(11),
-            ),
-            child: Icon(bolum.simge, size: 19, color: bolum.renk),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            bolum.ad(_lang),
-            style: const TextStyle(
-              fontFamily: AppTheme.fontFamily,
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF241C3B),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: bolum.renk.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
-            ),
+          Expanded(
             child: Text(
-              '${bolum.games.length}',
-              style: TextStyle(
+              ad,
+              style: const TextStyle(
                 fontFamily: AppTheme.fontFamily,
-                fontSize: 12,
+                fontSize: 19,
                 fontWeight: FontWeight.w800,
-                color: bolum.renk,
+                color: Color(0xFF241C3B),
               ),
             ),
           ),
+          if (sag != null)
+            Text(
+              sag,
+              style: const TextStyle(
+                fontFamily: AppTheme.fontFamily,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF7C4DFF),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _oyunKarti(GameModel game,
-      {required double genislik, bool yatay = false}) {
-    // Rozet yalnızca kilit gerçekten geçerliyse: Pro üyeye her kartta
-    // asma kilit göstermek satın aldığı şeyi kilitli hissettiriyor.
+  Widget _oyunKarti(GameModel game, {required double genislik}) {
+    // Pro etiketi yalnizca kilit gercekten gecerliyse: Pro uyeye her
+    // kartta "reklamla" yazmak satin aldigi seyi kilitli hissettiriyor.
     final needsPro = ProGames.isProGame(game.type);
     final locked = needsPro && !ProGate.watchIsPro(context);
-    return _JelKart(
+    return _OyunKarti(
       game: game,
       lang: _lang,
       genislik: genislik,
-      yatay: yatay,
       isProLocked: locked,
       onTap: () => _openGame(game, needsPro),
     );
   }
 
-  /// Günün görevi: her gün başka bir oyun, ama aynı gün herkeste aynı.
+  /// "Senin icin": cocugun su an okudugu kursa uyan oyunlardan biri.
   ///
-  /// Rastgele seçmiyoruz — ekran her açılışta başka bir oyun önerseydi
-  /// "günün görevi" olmazdı. Yılın kaçıncı günü olduğuna bakıyoruz, yani
-  /// seçim gece yarısı değişiyor ve gün boyu sabit kalıyor.
-  ///
-  /// Kilitli oyunlar listeye girmiyor: çocuğu bir kilide davet etmek
-  /// görevden çok reklam olurdu.
-  GameModel? _gununGorevi(List<GameModel> games) {
-    final acik = games.where((g) => !ProGames.isProGame(g.type)).toList()
-      ..sort((a, b) => a.id.compareTo(b.id));
-    if (acik.isEmpty) return null;
+  /// Her gun baska bir oyun, ama ayni gun herkeste ayni (yilin gunune
+  /// gore). Ucretsiz oyunlar once: cocugu gunun ilk onerisinde bir
+  /// kilide davet etmek gorevden cok reklam olurdu. Kursa uygun ucretsiz
+  /// oyun yoksa kursa uygun herhangi biri.
+  ({GameModel game, String? kursAdi})? _seninIcin(List<GameModel> games) {
+    String? kursId;
+    String? kursAdi;
+    try {
+      final auth = context.read<AuthProvider>();
+      final ilerleme = auth.userProgress ?? UserProgressService().getVisitorProgress();
+      final profil = auth.currentUser?.learnerProfile ?? const LearnerProfile();
+      final adim = NextLessonService.resolve(profil, ilerleme.completedLessonIds.toSet());
+      kursId = adim?.course.id;
+      kursAdi = adim?.course.nameFor(_lang);
+    } catch (_) {
+      // Ilerleme okunamazsa kursa ozel oneri yok; genel oneri yeter.
+    }
+    final uygun = _Kategoriler.kursaUygun[kursId] ?? const <GameType>[];
+    List<GameModel> aday = games.where((g) => uygun.contains(g.type)).toList();
+    final acik = aday.where((g) => !ProGames.isProGame(g.type)).toList();
+    if (acik.isNotEmpty) aday = acik;
+    if (aday.isEmpty) {
+      aday = games.where((g) => !ProGames.isProGame(g.type)).toList();
+      kursAdi = null;
+    }
+    if (aday.isEmpty) return null;
+    aday.sort((a, b) => a.id.compareTo(b.id));
     final bugun = DateTime.now();
     final gun = bugun.difference(DateTime(bugun.year)).inDays;
-    return acik[gun % acik.length];
+    return (game: aday[gun % aday.length], kursAdi: kursAdi);
   }
 
   Future<void> _openGame(GameModel game, bool needsPro) async {
@@ -398,15 +488,19 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen> {
       final sonuc = await ProGate.ensureOrAd(
         context,
         featureName: game.title,
-        explanation: 'Bu oyun Pro üyelikte. Blok kodlama, sıralama, sağ-sol, '
-            'koordinat, renk kodlama ve kelime eşleştirme oyunları herkese '
-            'açık kalıyor.',
         reklamEtiketi: (lang) => AppLang.pick(
           lang,
           tr: 'Reklam izle, bir tur oyna',
           en: 'Watch an ad, play one round',
           de: 'Werbung ansehen, eine Runde spielen',
           es: 'Ver un anuncio y jugar una ronda',
+        ),
+        // Oyunun kendi kapagiyla acilan bilgi sayfasi.
+        sayfa: (_, reklamVar) => OyunBilgiSayfasi(
+          game: game,
+          lang: _lang,
+          reklamVar: reklamVar,
+          kategori: _Kategoriler.oyununKategorisi(game.type)?.ad(_lang) ?? '',
         ),
       );
       if (sonuc == ProUnlock.kapali || !mounted) return;
@@ -636,16 +730,16 @@ class _SayacKapsulu extends StatelessWidget {
       );
 }
 
-/// Yatay raflardan biri.
-class _Bolum {
-  const _Bolum({
+/// Bir kategori: cocugun ne ogrendigi.
+class _Kategori {
+  const _Kategori({
     required this.tr,
     required this.en,
     required this.de,
     required this.es,
     required this.simge,
     required this.renk,
-    required this.games,
+    required this.turler,
   });
 
   final String tr;
@@ -654,145 +748,85 @@ class _Bolum {
   final String es;
   final IconData simge;
   final Color renk;
-  final List<GameModel> games;
+  final Set<GameType> turler;
 
   String ad(String lang) => AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
 }
 
-/// Oyunları raflara ayırır.
+/// Oyunlarin kategorileri ve kurslarla eslesmesi.
 ///
-/// Ayrım oyunun TÜRÜNE göre, katalogdaki `GameCategory` alanına göre
-/// değil: kategori alanı yaş grubu ve platform karışımı taşıyor
-/// (age4to6, arduino, software) ve çocuğa "hangi oyun bu" sorusunda
-/// yardımcı olmuyor. Rafın adı çocuğun yapacağı şeyi söylüyor.
-class _Bolumler {
-  _Bolumler._();
+/// Ayrim oyunun TURUNE gore, katalogdaki `GameCategory` alanina gore
+/// degil: o alan yas grubu ve platform karisimi tasiyor.
+class _Kategoriler {
+  _Kategoriler._();
 
-  static const _robot = {
-    GameType.robotSimulator,
-    GameType.arduinoSimulator,
-    GameType.leftRightCoding,
-    GameType.mazeExplorer,
-  };
+  static const hepsi = <_Kategori>[
+    _Kategori(
+      tr: 'Algoritma', en: 'Algorithms', de: 'Algorithmen', es: 'Algoritmos',
+      simge: Icons.extension_rounded,
+      renk: Color(0xFFFF8C1A),
+      turler: {GameType.sequencing, GameType.blockCoding, GameType.leftRightCoding, GameType.mazeExplorer},
+    ),
+    _Kategori(
+      tr: 'Mantık', en: 'Logic', de: 'Logik', es: 'Lógica',
+      simge: Icons.search_rounded,
+      renk: Color(0xFFD81B60),
+      turler: {GameType.bugHunter, GameType.patternDetective, GameType.pipesPuzzle, GameType.chess},
+    ),
+    _Kategori(
+      tr: 'Veri', en: 'Data', de: 'Daten', es: 'Datos',
+      simge: Icons.inventory_2_rounded,
+      renk: Color(0xFF3949AB),
+      turler: {GameType.variableMaster, GameType.coordinates, GameType.colorCoding},
+    ),
+    _Kategori(
+      tr: 'Robotik', en: 'Robotics', de: 'Robotik', es: 'Robótica',
+      simge: Icons.smart_toy_rounded,
+      renk: Color(0xFF00897B),
+      turler: {GameType.arduinoSimulator, GameType.robotSimulator, GameType.matchingGame},
+    ),
+    _Kategori(
+      tr: 'Kelime', en: 'Words', de: 'Wörter', es: 'Palabras',
+      simge: Icons.abc_rounded,
+      renk: Color(0xFFF57C00),
+      turler: {GameType.wordMatch, GameType.quiz},
+    ),
+  ];
 
-  static const _bulmaca = {
-    GameType.blockCoding,
-    GameType.sequencing,
-    GameType.patternDetective,
-    GameType.variableMaster,
-    GameType.bugHunter,
-    GameType.pipesPuzzle,
-    GameType.puzzle,
-  };
-
-  static List<_Bolum> ayir(List<GameModel> games) {
-    // Her rafın içinde: önce kolay, sonra alfabetik. Çocuk rafa baktığında
-    // ilk gördüğü kart en kolayı olsun.
-    List<GameModel> sec(bool Function(GameModel) kosul) {
-      final l = games.where(kosul).toList()
-        ..sort((a, b) {
-          if (a.difficulty != b.difficulty) {
-            return a.difficulty.compareTo(b.difficulty);
-          }
-          return a.title.compareTo(b.title);
-        });
-      return l;
+  static _Kategori? oyununKategorisi(GameType t) {
+    for (final k in hepsi) {
+      if (k.turler.contains(t)) return k;
     }
-
-    final raflar = <_Bolum>[
-      _Bolum(
-        tr: 'Robot Görevleri',
-        en: 'Robot Missions',
-        de: 'Roboter-Missionen',
-        es: 'Misiones robot',
-        simge: Icons.smart_toy_rounded,
-        renk: const Color(0xFF2E7D32),
-        games: sec((g) => _robot.contains(g.type)),
-      ),
-      _Bolum(
-        tr: 'Kod Bulmacaları',
-        en: 'Code Puzzles',
-        de: 'Code-Rätsel',
-        es: 'Puzles de código',
-        simge: Icons.extension_rounded,
-        renk: const Color(0xFF7C4DFF),
-        games: sec((g) => _bulmaca.contains(g.type)),
-      ),
-      _Bolum(
-        tr: 'Zeka ve Kelime',
-        en: 'Brain & Words',
-        de: 'Köpfchen & Wörter',
-        es: 'Ingenio y palabras',
-        simge: Icons.psychology_rounded,
-        renk: const Color(0xFFF57C00),
-        games: sec((g) =>
-            !_robot.contains(g.type) && !_bulmaca.contains(g.type)),
-      ),
-    ];
-    // Boş raf çizilmiyor: başlığı olup altı boş bir şerit, oyunun
-    // silindiğini değil ekranın bozulduğunu düşündürüyor.
-    return raflar.where((r) => r.games.isNotEmpty).toList();
+    return null;
   }
+
+  /// Kursa gore "Senin icin" adaylari (oncelik sirasiyla).
+  static const kursaUygun = <String, List<GameType>>{
+    'scratch': [GameType.sequencing, GameType.blockCoding, GameType.leftRightCoding, GameType.coordinates, GameType.colorCoding],
+    'mblock': [GameType.blockCoding, GameType.sequencing, GameType.robotSimulator, GameType.arduinoSimulator],
+    'arduino': [GameType.arduinoSimulator, GameType.matchingGame, GameType.blockCoding],
+    'arduino_ide': [GameType.matchingGame, GameType.arduinoSimulator],
+    'html': [GameType.wordMatch, GameType.quiz],
+    'css': [GameType.wordMatch, GameType.colorCoding],
+    'python': [GameType.bugHunter, GameType.variableMaster, GameType.patternDetective, GameType.quiz],
+    'java': [GameType.bugHunter, GameType.variableMaster, GameType.wordMatch],
+    'csharp': [GameType.bugHunter, GameType.variableMaster, GameType.wordMatch],
+  };
 }
 
-/// Oyunun görsel kimliği: simge, renk, ekran görüntüsü.
-///
-/// Bilerek stok fotoğraf kullanmıyoruz. Kartlarda daha önce stok
-/// fotoğraflar vardı — matematik defterine tutulmuş bir kalem, sahnede
-/// duran biri — ve hiçbiri oyunla ilgili değildi. Her oyunun kendi
-/// simgesi ve rengi olunca hem tutarlı bir görsel dil çıkıyor hem de
-/// okuma yazması zayıf bir çocuk oyunu simgesinden tanıyabiliyor.
+/// Oyunun gorsel kimligi: simge, renk.
 class _OyunGorseli {
   _OyunGorseli._();
 
-
-  // Simge ve renk tek yerde: oyunun kendi ekranindaki baslik da ayni
-  // degerleri kullaniyor (`OyunKimligi`), kart ile ekran ayni renkte.
-  static IconData simge(GameType type) => OyunKimligi.simge(type);
-
   static Color renk(GameType type) => OyunKimligi.renk(type);
 
-  /// Rengin koyu tonu: jöle kartın alt kenarı ve gölgesi.
+  /// Rengin koyu tonu: jole kartin alt kenari ve golgesi.
   static Color koyu(Color c) =>
       Color.lerp(c, const Color(0xFF14102B), 0.34) ?? c;
-
-  /// Zorluk 1–5, yıldız 3. Üç yıldız beş kademeden daha okunaklı:
-  /// çocuk "4/5 zor" ile "5/5 zor" arasındaki farkı zaten yaşamıyor.
-  static int yildiz(int difficulty) {
-    if (difficulty <= 2) return 1;
-    if (difficulty == 3) return 2;
-    return 3;
-  }
 }
 
-/// Üç yıldızlı zorluk göstergesi.
-class _Yildizlar extends StatelessWidget {
-  const _Yildizlar({required this.dolu, required this.renk, this.boyut = 15});
-
-  final int dolu;
-  final Color renk;
-  final double boyut;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (var i = 0; i < 3; i++)
-          Padding(
-            padding: const EdgeInsets.only(right: 2),
-            child: Icon(
-              i < dolu ? Icons.star_rounded : Icons.star_outline_rounded,
-              size: boyut,
-              color: i < dolu ? renk : renk.withValues(alpha: 0.32),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-/// Günün görevi kartı: ekranın girişi.
+/// "Senin icin" / Gunun Gorevi karti: solda davet, sagda oyunun canli
+/// kapagi.
 class _GununGoreviKarti extends StatelessWidget {
   const _GununGoreviKarti({
     required this.game,
@@ -813,21 +847,38 @@ class _GununGoreviKarti extends StatelessWidget {
       koyu: koyu,
       yaricap: 26,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
+        height: 168,
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [renk, Color.lerp(renk, Colors.white, 0.26) ?? renk],
-          ),
           borderRadius: BorderRadius.circular(26),
+          color: renk,
         ),
-        child: Row(
+        child: Stack(
           children: [
-            Expanded(
+            // Kapak sag yarida; sola dogru oyunun rengine eriyor.
+            // Sahnenin kendi en-boy orani (5:3) korunuyor; sol kismi
+            // renge eriyen gecisin altinda kaliyor.
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: 168 * 5 / 3,
+              child: OyunSahnesi(tur: game.type, lang: lang),
+            ),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [renk, renk, renk.withValues(alpha: 0)],
+                    stops: const [0, 0.42, 0.68],
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 16, 150, 14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     AppLang.pick(lang,
@@ -837,75 +888,64 @@ class _GununGoreviKarti extends StatelessWidget {
                         es: '¡MISIÓN DEL DÍA!'),
                     style: TextStyle(
                       fontFamily: AppTheme.fontFamily,
-                      fontSize: 12,
+                      fontSize: 11.5,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 1.1,
                       color: Colors.white.withValues(alpha: 0.9),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Text(
                     game.titleFor(lang),
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontFamily: AppTheme.fontFamily,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
+                      fontSize: 23,
+                      fontWeight: FontWeight.w900,
                       color: Colors.white,
-                      height: 1.12,
+                      height: 1.1,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
+                  const SizedBox(height: 4),
+                  Text(
+                    oyunDaveti(game.type, lang),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: AppTheme.fontFamily,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white.withValues(alpha: 0.95),
+                      height: 1.25,
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.play_arrow_rounded, size: 19, color: koyu),
+                        const SizedBox(width: 2),
+                        Text(
+                          AppLang.pick(lang, tr: 'Oyna', en: 'Play', de: 'Spielen', es: 'Jugar'),
+                          style: TextStyle(
+                            fontFamily: AppTheme.fontFamily,
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w800,
+                            color: koyu,
+                          ),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.play_arrow_rounded,
-                                size: 19, color: koyu),
-                            const SizedBox(width: 2),
-                            Text(
-                              AppLang.pick(lang,
-                                  tr: 'Oyna',
-                                  en: 'Play',
-                                  de: 'Spielen',
-                                  es: 'Jugar'),
-                              style: TextStyle(
-                                fontFamily: AppTheme.fontFamily,
-                                fontSize: 14.5,
-                                fontWeight: FontWeight.w800,
-                                color: koyu,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      _Yildizlar(
-                        dolu: _OyunGorseli.yildiz(game.difficulty),
-                        renk: Colors.white,
-                        boyut: 17,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(width: 6),
-            Image.asset(
-              'assets/images/ui/sandik.png',
-              width: 86,
-              filterQuality: FilterQuality.medium,
-              errorBuilder: (_, __, ___) => Icon(Icons.card_giftcard_rounded,
-                  size: 60, color: Colors.white.withValues(alpha: 0.9)),
             ),
           ],
         ),
@@ -914,187 +954,128 @@ class _GununGoreviKarti extends StatelessWidget {
   }
 }
 
-/// Bir oyun kartı — "jöle buton".
+/// Oyun karti: ustte oyunun canli kapagi, altta adi ve zorlugu.
 ///
-/// NEDEN GÖLGE DEĞİL DE KALIN ALT KENAR
-/// ------------------------------------
-/// Eski kart ince gri kenarlıklı düz bir `Card`'dı: bir liste satırı gibi
-/// duruyor, basılabilir olduğunu söylemiyordu. Buradaki kart oyun
-/// arayüzlerindeki fiziksel buton mantığını kullanıyor — altında kendi
-/// renginin koyusuyla 6 piksellik bir "gövde" var (bulanıklık yok,
-/// bilerek: bulanık gölge cam, keskin kenar plastik hissi veriyor).
-/// Basınca kart o 6 pikselin üstüne oturuyor, yani gerçekten eziliyor.
-class _JelKart extends StatelessWidget {
-  const _JelKart({
+/// Yildiz yok (cocuk yildizi "kazandigim" diye okuyordu), tac yok (ne
+/// demek oldugu anlasilmiyordu). Pro oyunda kapagin kosesinde kucuk bir
+/// "Reklamla" etiketi; dokununca bilgi sayfasi her seyi anlatiyor.
+class _OyunKarti extends StatelessWidget {
+  const _OyunKarti({
     required this.game,
     required this.lang,
     required this.genislik,
     required this.isProLocked,
     required this.onTap,
-    this.yatay = false,
   });
 
   final GameModel game;
   final String lang;
   final double genislik;
   final bool isProLocked;
-  final bool yatay;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final renk = _OyunGorseli.renk(game.type);
     final koyu = _OyunGorseli.koyu(renk);
-    final acik = Color.lerp(renk, Colors.white, 0.18)!;
     return _JelBas(
       onTap: onTap,
       koyu: koyu,
-      yaricap: 24,
+      yaricap: 22,
       child: Container(
         width: genislik,
-        height: yatay ? 84 : 172,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [acik, renk],
-          ),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
         ),
-        child: Stack(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Arkada buyuk, soluk, egik simge: kart duz bir renk
-            // blogu gibi durmasin.
-            Positioned(
-              right: yatay ? 8 : -18,
-              bottom: yatay ? -22 : -20,
-              child: Transform.rotate(
-                angle: -0.35,
-                child: Icon(_OyunGorseli.simge(game.type),
-                    size: yatay ? 92 : 112,
-                    color: Colors.white.withValues(alpha: 0.16)),
-              ),
-            ),
-            // Ust kosede yumusak bir isik.
-            Positioned(
-              left: -30,
-              top: -40,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.14),
-                ),
+            SizedBox(
+              height: genislik * 0.62,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  OyunSahnesi(tur: game.type, lang: lang),
+                  if (isProLocked)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(5, 2, 8, 2),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.45),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.play_arrow_rounded, size: 14, color: Colors.white),
+                            Text(
+                              AppLang.pick(lang,
+                                  tr: 'Reklamla', en: 'With ad', de: 'Mit Werbung', es: 'Con anuncio'),
+                              style: const TextStyle(
+                                fontFamily: AppTheme.fontFamily,
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(12),
-              child: yatay ? _yatayIcerik() : _dikeyIcerik(),
-            ),
-            if (isProLocked)
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.28),
-                    borderRadius: BorderRadius.circular(14),
+              padding: const EdgeInsets.fromLTRB(12, 9, 10, 11),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 40,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        game.titleFor(lang),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: AppTheme.fontFamily,
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF241C3B),
+                          height: 1.15,
+                        ),
+                      ),
+                    ),
                   ),
-                  child: Image.asset(
-                    'assets/images/ui/tac.png',
-                    width: 18,
-                    height: 18,
-                    filterQuality: FilterQuality.medium,
-                    errorBuilder: (_, __, ___) => const Icon(
-                        Icons.lock_rounded,
-                        size: 14,
-                        color: AppTheme.accentYellow),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: renk.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+                    child: Text(
+                      zorlukEtiketi(game.difficulty, lang),
+                      style: TextStyle(
+                        fontFamily: AppTheme.fontFamily,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w800,
+                        color: koyu,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
+            ),
           ],
         ),
       ),
-    );
-  }
-
-  /// Beyaz daire icinde oyunun simgesi — oyun ekranindaki baslikla ayni.
-  Widget _rozet(double boyut) => Container(
-        width: boyut,
-        height: boyut,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.12),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Icon(_OyunGorseli.simge(game.type),
-            size: boyut * 0.52, color: _OyunGorseli.renk(game.type)),
-      );
-
-  Widget _baslik(int satir, {TextAlign hiza = TextAlign.start}) => Text(
-        game.titleFor(lang),
-        maxLines: satir,
-        textAlign: hiza,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontFamily: AppTheme.fontFamily,
-          fontSize: 16,
-          fontWeight: FontWeight.w900,
-          color: Colors.white,
-          height: 1.15,
-          shadows: [
-            Shadow(
-              color: Colors.black.withValues(alpha: 0.18),
-              offset: const Offset(0, 1),
-              blurRadius: 2,
-            ),
-          ],
-        ),
-      );
-
-  Widget _dikeyIcerik() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _rozet(58),
-        const Spacer(),
-        _baslik(2),
-        const SizedBox(height: 6),
-        _Yildizlar(
-            dolu: _OyunGorseli.yildiz(game.difficulty), renk: Colors.white),
-      ],
-    );
-  }
-
-  Widget _yatayIcerik() {
-    return Row(
-      children: [
-        _rozet(52),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _baslik(1),
-              const SizedBox(height: 4),
-              _Yildizlar(
-                  dolu: _OyunGorseli.yildiz(game.difficulty),
-                  renk: Colors.white),
-            ],
-          ),
-        ),
-        const Icon(Icons.chevron_right_rounded, color: Colors.white),
-      ],
     );
   }
 }

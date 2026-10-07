@@ -105,22 +105,42 @@ void main() {
           .join('\n');
       expect(kod.contains('GridView'), isFalse,
           reason: 'Izgara geri gelmis.');
-      // Ekim 2026: yatay raflar yerine bolum bolum iki sutun (Wrap).
-      // Yatay rafta ucuncu kart yarim kaliyor, sondaki oyunlar
-      // kesfedilmiyordu.
-      expect(kaynak.contains('scrollDirection: Axis.horizontal'), isFalse,
-          reason: 'Yatay raf geri gelmis.');
+      // Ekim 2026: konu konu yatay raflar yerine kategori filtreleri ve
+      // kolaydan zora tek, iki sutunlu liste (Wrap). Yatay kaydirma
+      // yalnizca filtre ciplerinde.
       expect(kaynak.contains('child: Wrap('), isTrue,
-          reason: 'Iki sutunlu bolum duzeni yok.');
+          reason: 'Iki sutunlu oyun listesi yok.');
+      expect('scrollDirection: Axis.horizontal'.allMatches(kaynak).length, 1,
+          reason: 'Yatay kaydirma yalnizca filtre ciplerinde olmali.');
       expect(kaynak.contains("tr: 'GÜNÜN GÖREVİ!'"), isTrue);
       for (final yazi in const [
-        "tr: 'Robot Görevleri'",
-        "tr: 'Kod Bulmacaları'",
-        "en: 'Robot Missions'",
-        "de: 'Roboter-Missionen'",
-        "es: 'Misiones robot'",
+        "tr: 'Algoritma'",
+        "tr: 'Mantık'",
+        "tr: 'Robotik'",
+        "en: 'Algorithms'",
+        "de: 'Algorithmen'",
+        "es: 'Algoritmos'",
+        "tr: 'Kolaydan zora'",
       ]) {
         expect(kaynak.contains(yazi), isTrue, reason: 'eksik: $yazi');
+      }
+    });
+
+    test('her oyun bir kategoride, hicbiri iki kategoride degil', () {
+      // Eski raflarda Arduino iki yerde birden geciyordu.
+      final kat = kaynak.substring(kaynak.indexOf('static const hepsi'),
+          kaynak.indexOf('static _Kategori? oyununKategorisi'));
+      for (final t in const [
+        'sequencing', 'blockCoding', 'leftRightCoding', 'mazeExplorer',
+        'bugHunter', 'patternDetective', 'pipesPuzzle', 'chess',
+        'variableMaster', 'coordinates', 'colorCoding',
+        'arduinoSimulator', 'robotSimulator', 'matchingGame',
+        'wordMatch', 'quiz',
+      ]) {
+        expect('GameType.$t,'.allMatches(kat).length +
+                'GameType.$t}'.allMatches(kat).length,
+            1,
+            reason: '$t tam bir kategoride olmali');
       }
     });
 
@@ -130,8 +150,15 @@ void main() {
           reason: 'Kartlara aciklama metni geri gelmis.');
       expect(kaynak.contains('estimatedMinutes'), isFalse,
           reason: 'Kartta yine sure yaziyor.');
-      expect(kaynak.contains('class _Yildizlar'), isTrue,
-          reason: 'Zorluk yildizlari yok.');
+      // Yildiz yok (cocuk "kazandigim yildiz" sandi), zorluk yaziyla.
+      expect(kaynak.contains('class _Yildizlar'), isFalse,
+          reason: 'Yildizlar geri gelmis.');
+      expect(kaynak.contains('zorlukEtiketi('), isTrue,
+          reason: 'Kartta Kolay/Orta/Zor yazmiyor.');
+      // Tac yok; Pro oyun kapaktaki "Reklamla" etiketi ve bilgi sayfasiyla
+      // anlatiliyor.
+      expect(kaynak.contains('tac.png'), isFalse, reason: 'Tac geri gelmis.');
+      expect(kaynak.contains('OyunBilgiSayfasi('), isTrue);
     });
 
     test('sayaclar gercek ilerleme kaydindan geliyor', () {

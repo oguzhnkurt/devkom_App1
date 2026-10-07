@@ -26,7 +26,9 @@ enum ProUnlock {
 }
 
 /// Kilit sayfasindan cikan secim.
-enum _Secim { pro, reklam, iptal }
+/// Pro/reklam sayfasinda cocugun secimi. Ozel sayfalar (oyun bilgi
+/// sayfasi gibi) bu degeri `Navigator.pop` ile donduruyor.
+enum ProSecim { pro, reklam, iptal }
 
 class ProGate {
   ProGate._();
@@ -66,7 +68,7 @@ class ProGate {
   }) async {
     if (isPro(context)) return true;
 
-    final secim = await showModalBottomSheet<_Secim>(
+    final secim = await showModalBottomSheet<ProSecim>(
       context: context,
       backgroundColor: Colors.white,
       // Sayfa kucuk ekranda 0.25 px tasiyordu ("BOTTOM OVERFLOWED"): icerik
@@ -83,7 +85,7 @@ class ProGate {
       ),
     );
 
-    if (secim == _Secim.pro && context.mounted) {
+    if (secim == ProSecim.pro && context.mounted) {
       await Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
@@ -105,35 +107,41 @@ class ProGate {
   /// Donen [ProUnlock.reklam] TEK SEFERLIK bir izin: cagiran taraf bunu
   /// ya tek tur oyun olarak kullanir ya da [AdUnlockService] ile kalici
   /// hale getirir.
+  /// [sayfa] verilirse varsayilan Pro listesi yerine o sayfa acilir
+  /// (ornek: oyunun kapagiyla acilan bilgi sayfasi).
   static Future<ProUnlock> ensureOrAd(
     BuildContext context, {
     required String featureName,
     String? explanation,
     required String Function(String lang) reklamEtiketi,
+    Widget Function(BuildContext, bool reklamVar)? sayfa,
   }) async {
     if (isPro(context)) return ProUnlock.pro;
 
     final reklamVar = await AdsService.instance.canWatchRewarded();
     if (!context.mounted) return ProUnlock.kapali;
 
-    final secim = await showModalBottomSheet<_Secim>(
+    final secim = await showModalBottomSheet<ProSecim>(
       context: context,
       backgroundColor: Colors.white,
       isScrollControlled: true,
       useSafeArea: true,
+      clipBehavior: Clip.antiAlias,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
-      builder: (sheetContext) => _ProSheet(
-        featureName: featureName,
-        explanation: explanation,
-        reklamEtiketi: reklamVar ? reklamEtiketi : null,
-      ),
+      builder: (sheetContext) => sayfa != null
+          ? sayfa(sheetContext, reklamVar)
+          : _ProSheet(
+              featureName: featureName,
+              explanation: explanation,
+              reklamEtiketi: reklamVar ? reklamEtiketi : null,
+            ),
     );
 
     if (!context.mounted) return ProUnlock.kapali;
 
-    if (secim == _Secim.pro) {
+    if (secim == ProSecim.pro) {
       await Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
@@ -144,7 +152,7 @@ class ProGate {
       return isPro(context) ? ProUnlock.pro : ProUnlock.kapali;
     }
 
-    if (secim == _Secim.reklam) {
+    if (secim == ProSecim.reklam) {
       final sonuc = await AdsService.instance.showRewarded();
       if (!context.mounted) return ProUnlock.kapali;
       if (sonuc.earned) return ProUnlock.reklam;
@@ -374,7 +382,7 @@ class _ProSheet extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: () => Navigator.pop(context, _Secim.pro),
+                onPressed: () => Navigator.pop(context, ProSecim.pro),
                 style: FilledButton.styleFrom(
                   backgroundColor: const Color(0xFF6C3CE0),
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -393,7 +401,7 @@ class _ProSheet extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () => Navigator.pop(context, _Secim.reklam),
+                  onPressed: () => Navigator.pop(context, ProSecim.reklam),
                   icon: const Icon(Icons.play_circle_outline_rounded, size: 20),
                   label: Text(reklamEtiketi!(lang)),
                   style: OutlinedButton.styleFrom(
@@ -409,7 +417,7 @@ class _ProSheet extends StatelessWidget {
             const SizedBox(height: 6),
             Center(
               child: TextButton(
-                onPressed: () => Navigator.pop(context, _Secim.iptal),
+                onPressed: () => Navigator.pop(context, ProSecim.iptal),
                 child: Text(AppLang.pick(lang,
                     tr: 'Şimdi değil',
                     en: 'Not now',

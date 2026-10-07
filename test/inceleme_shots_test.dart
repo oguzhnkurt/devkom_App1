@@ -34,6 +34,9 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:devkom_app/models/game_model.dart';
+import 'package:devkom_app/services/embedded_games_service.dart';
+import 'package:devkom_app/widgets/oyun_bilgi_sayfasi.dart';
 import 'package:devkom_app/services/sound_service.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart' show ChessBoard;
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -781,6 +784,28 @@ void main() {
       await _shoot(tester, '00_etkinlikler', const ActivityHubScreen(),
           lang: lang, cihaz: cihaz, fullScreen: true,
           settle: const Duration(milliseconds: 900));
+    });
+    testWidgets('32 pro bilgi sayfasi ($lang, ${cihaz.ad})', (tester) async {
+      final g = EmbeddedGamesService.getAllEmbeddedGames()
+          .firstWhere((g) => g.type == GameType.bugHunter);
+      await _shoot(
+          tester,
+          '32_pro_bilgi_sayfasi',
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Material(
+              color: Colors.white,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(22)),
+              clipBehavior: Clip.antiAlias,
+              child: OyunBilgiSayfasi(
+                  game: g, lang: lang, reklamVar: true, kategori: 'Mantık'),
+            ),
+          ),
+          lang: lang,
+          cihaz: cihaz,
+          fullScreen: true,
+          settle: const Duration(milliseconds: 1500));
     });
     testWidgets('00 oyunlar sekmesi ($lang, ${cihaz.ad})', (tester) async {
       await _shoot(tester, '00_oyunlar', const RoboticsGamesScreen(),
