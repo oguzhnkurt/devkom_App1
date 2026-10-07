@@ -236,151 +236,73 @@ buy anything.
 `çocuklar için kodlama` ve `coding for kids` çıkarıldı — yukarıdaki
 kurala giriyor.
 
-## "What's New in This Version" — 1.0.9
+## "What's New in This Version" — 1.0.11
 
-1.0.8 (build 14) 27 Eylül 2026'da incelemeye gönderildi. Aşağıdaki metin
-1.0.9 (build 15) içindir. 1.0.8'in notları git geçmişinde
-(`a7a9b6c` ve sonrası).
+1.0.10 (build 16) 4 Ekim 2026'da incelemeye gitti (Meta SDK, gizlilik
+bağlantısı). Aşağıdaki metin **1.0.11 (build 17)** içindir. 1.0.9'un notları
+git geçmişinde.
 
-**Pro'su biten kullanıcı söyleniyor.** Önceden aboneliği biten hesap
-reklamsız kalıyordu (hata). Artık ücretsiz sürümün kuralları geçerli;
-bunu sessizce değiştirmek sürprize ve düşük puana yol açar.
+İçerik: oyun çevirileri (`bad3b6e`), oyun ekranlarının ortak başlık ve
+zemini, açık zeminli ekranlarda görünmeyen başlık/geri tuşu düzeltmesi.
 
 ### tr
 
-• mBlock kursuna Projeler modülü: Akvaryum Dünyası, Dans Partisi ve Elma
-Toplama Oyunu. Her proje adım adım, bilgisayarındaki mBlock 5 ile
-kuruluyor.
+• Oyun ekranları yenilendi: her oyunun kendi renginde başlık, yumuşak zemin
+ve renkli cevap kartları.
 
-• mBlock derslerinde gerçek blok editörü: blokları sürükleyip kodu kendin
-kuruyorsun. Kod uzayınca blok listesi kenara çekiliyor.
+• Etkinlikler ve Kurslar ekranında görünmeyen geri tuşu ve başlık
+düzeltildi.
 
-• Scratch kursuna dört yeni modül: kalemle çizim, işlemler, listeler ve
-kendi bloğunu yapmak.
+• Bilgi Yarışması'nın soruları artık Almanca ve İspanyolca.
 
-• Oyunlar ekranı yenilendi: günün görevi, raflar ve jeton/seri sayacın.
+• Boru Bulmacası'nın skor satırı dört dilde.
 
-• Quiz ekranı renklendi: soruyu Devi soruyor, şıklar renkli kartlar.
+• Arduino Atölyesi'nde başlangıç bloğu Türkçe: "Arduino Uno açılınca".
 
-• Doğru cevap, bölüm sonu ve ödül sesleri yenilendi.
-
-• Market'teki "video izle, jeton kazan" seçeneği bazen görünmüyordu;
-düzeltildi. Pro aboneliği sona eren hesaplarda ücretsiz sürüm (reklamlı)
-artık doğru şekilde devreye giriyor.
-
-• Hesap oluşturduktan sonra bazen çıkan hata ekranı giderildi.
-
-• DevAI'de hazır bir soruya dokununca klavye kapanıyor, alt menü
-kaybolmuyor.
-
-• Almanca ve İspanyolca'da kalan Türkçe yazılar çevrildi.
-
-• Performans iyileştirmeleri ve hata düzeltmeleri.
+• Hata düzeltmeleri ve iyileştirmeler.
 
 ### en
 
-• New Projects module in the mBlock course: Aquarium World, Dance Party and
-Apple Catcher. Each project is built step by step in mBlock 5 on your
-computer.
+• Refreshed game screens: each game has its own colorful header, a softer
+background and colorful answer cards.
 
-• A real block editor in the mBlock lessons: drag the blocks and build the
-code yourself. When the code gets long, the block list slides aside.
+• Fixed the back button and title that were hard to see on the
+Activities and Courses screens.
 
-• Four new modules in the Scratch course: drawing with the pen, operators,
-lists and making your own blocks.
+• Knowledge Quiz questions are now in German and Spanish too.
 
-• The Games screen is new: today's mission, shelves and your coin/streak
-counter.
+• The Pipes Puzzle score bar now speaks all four languages.
 
-• The quiz screen is more colourful: Devi asks the question and the
-answers are colourful cards.
-
-• New sounds for correct answers, finished chapters and rewards.
-
-• The "watch a video, earn coins" option in the shop sometimes didn't
-appear; fixed. Accounts whose Pro subscription has ended now correctly
-get the free version (with ads).
-
-• Fixed an error screen that sometimes appeared right after creating an
-account.
-
-• In DevAI, tapping a suggested question now closes the keyboard, so the
-bottom menu stays visible.
-
-• Remaining Turkish texts in German and Spanish have been translated.
-
-• Performance improvements and bug fixes.
+• Fixes and improvements.
 
 ### de
 
-• Neues Modul „Projekte“ im mBlock-Kurs: Aquarium-Welt, Tanzparty und
-Äpfel fangen. Jedes Projekt entsteht Schritt für Schritt in mBlock 5 auf
-deinem Computer.
+• Neue Spielbildschirme: bunte Kopfzeile in der Farbe des Spiels, ein
+sanfter Hintergrund und farbige Antwortkarten.
 
-• Ein echter Block-Editor in den mBlock-Lektionen: Blöcke ziehen und den
-Code selbst bauen. Wird der Code lang, schiebt sich die Blockliste zur
-Seite.
+• Zurück-Taste und Titel auf den Seiten Aktivitäten und Kurse sind wieder
+gut sichtbar.
 
-• Vier neue Module im Scratch-Kurs: Zeichnen mit dem Malstift,
-Operatoren, Listen und eigene Blöcke.
+• Die Fragen im Wissensquiz gibt es jetzt auf Deutsch.
 
-• Der Spiele-Bildschirm ist neu: Tagesaufgabe, Regale und dein
-Münz-/Serienzähler.
+• Die Anzeige im Rohr-Rätsel (Level, Punkte, Züge) ist jetzt auf Deutsch.
 
-• Das Quiz ist bunter: Devi stellt die Frage, die Antworten sind farbige
-Karten.
-
-• Neue Klänge für richtige Antworten, beendete Kapitel und Belohnungen.
-
-• Die Option „Video ansehen, Münzen verdienen“ im Shop fehlte manchmal;
-behoben. Konten mit abgelaufenem Pro-Abo erhalten jetzt korrekt die
-kostenlose Version (mit Werbung).
-
-• Ein Fehlerbildschirm direkt nach dem Anlegen eines Kontos wurde
-behoben.
-
-• In DevAI schließt ein Tipp auf eine vorgeschlagene Frage jetzt die
-Tastatur, das Menü unten bleibt sichtbar.
-
-• Restliche türkische Texte auf Deutsch und Spanisch wurden übersetzt.
-
-• Leistungsverbesserungen und Fehlerbehebungen.
+• Fehlerbehebungen und Verbesserungen.
 
 ### es
 
-• Nuevo módulo Proyectos en el curso de mBlock: Mundo acuario, Fiesta de
-baile y Atrapa manzanas. Cada proyecto se construye paso a paso en
-mBlock 5 en tu ordenador.
+• Pantallas de juego renovadas: cada juego tiene su propia cabecera de
+color, un fondo suave y tarjetas de respuesta de colores.
 
-• Un editor de bloques real en las lecciones de mBlock: arrastra los
-bloques y arma el código tú mismo. Cuando el código crece, la lista de
-bloques se aparta.
+• Se corrigieron el botón de volver y el título que casi no se veían en
+Actividades y Cursos.
 
-• Cuatro módulos nuevos en el curso de Scratch: dibujar con el lápiz,
-operadores, listas y crear tus propios bloques.
+• Las preguntas del concurso de conocimiento ya están en español.
 
-• La pantalla de juegos es nueva: misión del día, estantes y tu contador
-de monedas y racha.
+• El marcador del rompecabezas de tuberías (nivel, puntos, movimientos)
+ya está en español.
 
-• El cuestionario tiene más color: Devi hace la pregunta y las respuestas
-son tarjetas de colores.
-
-• Nuevos sonidos para respuestas correctas, capítulos terminados y
-premios.
-
-• La opción «ver un vídeo y ganar monedas» de la tienda a veces no
-aparecía; corregido. Las cuentas cuya suscripción Pro ha terminado
-reciben ahora correctamente la versión gratuita (con anuncios).
-
-• Se corrigió una pantalla de error que a veces aparecía justo después
-de crear una cuenta.
-
-• En DevAI, al tocar una pregunta sugerida se cierra el teclado y el menú
-inferior sigue visible.
-
-• Se tradujeron los textos en turco que quedaban en alemán y español.
-
-• Mejoras de rendimiento y corrección de errores.
+• Corrección de errores y mejoras.
 
 ## Ekran görüntüleri — iki adım
 

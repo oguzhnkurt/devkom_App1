@@ -81,7 +81,7 @@ class AppTheme {
       headlineLarge: _f(fontSize: 28, fontWeight: FontWeight.w700, color: darkGray, letterSpacing: -0.25, height: 1.20),
       headlineMedium: _f(fontSize: 24, fontWeight: FontWeight.w700, color: darkGray, height: 1.25),
       headlineSmall: _f(fontSize: 21, fontWeight: FontWeight.w700, color: darkGray, height: 1.28),
-      titleLarge: _f(fontSize: 20, fontWeight: FontWeight.w700, color: darkGray, height: 1.30),
+      titleLarge: _f(fontSize: 20, fontWeight: FontWeight.w800, color: darkGray, letterSpacing: 0, height: 1.30),
       titleMedium: _f(fontSize: 17, fontWeight: FontWeight.w600, color: darkGray, letterSpacing: 0.1, height: 1.35),
       titleSmall: _f(fontSize: 15, fontWeight: FontWeight.w600, color: darkGray, letterSpacing: 0.1, height: 1.35),
       bodyLarge: _f(fontSize: 16, fontWeight: FontWeight.w400, color: darkGray, letterSpacing: 0.15, height: 1.50),
@@ -145,18 +145,18 @@ class AppTheme {
         centerTitle: true,
         scrolledUnderElevation: 4,
         shadowColor: Colors.black.withValues(alpha: 0.2),
-        // 1.2 harf araligi Turkce basliklarda kelimeleri dagitiyordu; ayrica
-        // baslik agirligi govde metninden net ayrilsin diye 800'e cikti.
-        titleTextStyle: _f(
-          fontSize: 20,
-          fontWeight: FontWeight.w800,
-          color: white,
-          letterSpacing: 0,
-        ),
-        iconTheme: const IconThemeData(
-          color: white,
-          size: 24,
-        ),
+        // BASLIK VE SIMGE RENGI BURADA VERILMIYOR — BILEREK.
+        //
+        // Eskiden `titleTextStyle` ve `iconTheme` burada `color: white`
+        // tasiyordu. Flutter'da tema rengi, ekranin kendi AppBar'ina
+        // verdigi `foregroundColor`'dan ONCE geliyor: acik zeminli bir
+        // ekran `foregroundColor: koyu` dese bile baslik ve geri oku BEYAZ
+        // ciziliyordu. Etkinlikler ekraninda geri tusu ve baslik zeminle
+        // ayni renkteydi, gorunmuyordu.
+        //
+        // Simdi ikisi de `foregroundColor`'dan geliyor (varsayilan: beyaz,
+        // yukarida). Baslik yazi tipi ve 800 agirligi `textTheme.titleLarge`
+        // uzerinden (AppBar varsayilani o).
       ),
 
       // Card theme

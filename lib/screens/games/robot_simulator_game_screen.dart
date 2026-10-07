@@ -1,5 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../models/game_model.dart';
+import '../../widgets/oyun_basligi.dart';
+import '../../widgets/oyun_kimligi.dart';
 import 'package:provider/provider.dart';
 import '../../models/store_item_model.dart';
 import '../../providers/auth_provider.dart';
@@ -344,11 +347,11 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
     final sensorDistance = _sensorDistanceAhead();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_tl('Robot Simülatörü', 'Robot Simulator', 'Roboter-Simulator', 'Simulador de robots')),
-        backgroundColor: const Color(0xFF6C63FF),
-        foregroundColor: Colors.white,
-        actions: [
+      backgroundColor: OyunZemini.ustRenk(OyunKimligi.renk(GameType.robotSimulator)),
+      appBar: OyunBasligi.oyun(
+        GameType.robotSimulator,
+        baslikWidget: Text(_tl('Robot Simülatörü', 'Robot Simulator', 'Roboter-Simulator', 'Simulador de robots')),
+        eylemler: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Center(
@@ -371,7 +374,9 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
           ),
         ],
       ),
-      body: SafeArea(
+      body: OyunZemini(
+        renk: OyunKimligi.renk(GameType.robotSimulator),
+        child: SafeArea(
           top: false,
           child: Column(
             children: [
@@ -527,6 +532,7 @@ class _RobotSimulatorGameScreenState extends State<RobotSimulatorGameScreen>
               ),
             ],
           )),
+      ),
     );
   }
 

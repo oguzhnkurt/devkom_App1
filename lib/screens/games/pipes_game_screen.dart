@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../models/game_model.dart';
+import '../../widgets/oyun_basligi.dart';
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
@@ -25,9 +27,9 @@ class PipesGameScreen extends StatelessWidget {
         .languageCode;
     return Scaffold(
       backgroundColor: const Color(0xFF1a1a2e),
-      appBar: AppBar(
-        // Kart 'Boru Bulmacası' diyor; baslik da ayni dilde olmalı.
-        title: Text(
+      appBar: OyunBasligi.oyun(
+        GameType.pipesPuzzle,
+        baslikWidget: Text(
           AppLang.pick(lang,
               tr: 'Boru Bulmacası',
               en: 'Pipes Puzzle',
@@ -38,7 +40,7 @@ class PipesGameScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
+        eylemler: [
           IconButton(
             icon: const Icon(Icons.info_outline_rounded),
             onPressed: () => _showGameInfo(context),

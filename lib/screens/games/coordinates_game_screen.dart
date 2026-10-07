@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../widgets/oyun_basligi.dart';
+import '../../widgets/oyun_kimligi.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import '../../theme.dart';
@@ -350,9 +352,11 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_tl('Koordinat Macerası', 'Coordinate Adventure', 'Koordinaten-Abenteuer', 'Aventura de coordenadas')),
-        actions: [
+      backgroundColor: OyunZemini.ustRenk(OyunKimligi.renk(GameType.coordinates)),
+      appBar: OyunBasligi.oyun(
+        GameType.coordinates,
+        baslikWidget: Text(_tl('Koordinat Macerası', 'Coordinate Adventure', 'Koordinaten-Abenteuer', 'Aventura de coordenadas')),
+        eylemler: [
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -373,7 +377,9 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: OyunZemini(
+        renk: OyunKimligi.renk(GameType.coordinates),
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
@@ -600,6 +606,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -812,11 +819,15 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
 
   Widget _buildCompletionScreen() {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_tl('Oyun Tamamlandı!', 'Game Complete!', 'Spiel geschafft!', '¡Juego completado!')),
-        automaticallyImplyLeading: false,
+      backgroundColor: OyunZemini.ustRenk(OyunKimligi.renk(GameType.coordinates)),
+      appBar: OyunBasligi.oyun(
+        GameType.coordinates,
+        baslikWidget: Text(_tl('Oyun Tamamlandı!', 'Game Complete!', 'Spiel geschafft!', '¡Juego completado!')),
+        geriTusu: false,
       ),
-      body: Container(
+      body: OyunZemini(
+        renk: OyunKimligi.renk(GameType.coordinates),
+        child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -977,6 +988,7 @@ class _CoordinatesGameScreenState extends State<CoordinatesGameScreen> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

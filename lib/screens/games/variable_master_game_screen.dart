@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/oyun_basligi.dart';
+import '../../widgets/oyun_kimligi.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import '../../theme.dart';
@@ -411,13 +413,12 @@ class _VariableMasterGameContentState
     }
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppTheme.primaryBlue,
-        foregroundColor: Colors.white,
-        elevation: 3,
-        title: Text(_tl('Değişken Ustası', 'Variable Master', 'Variablen-Meister', 'Maestro de variables'),
+      backgroundColor: OyunZemini.ustRenk(OyunKimligi.renk(GameType.variableMaster)),
+      appBar: OyunBasligi.oyun(
+        GameType.variableMaster,
+        baslikWidget: Text(_tl('Değişken Ustası', 'Variable Master', 'Variablen-Meister', 'Maestro de variables'),
             style: const TextStyle(fontWeight: FontWeight.bold)),
-        actions: [
+        eylemler: [
           IconButton(
             icon: const Icon(Icons.lightbulb_outline_rounded),
             onPressed: _showHintDialog,
@@ -425,17 +426,17 @@ class _VariableMasterGameContentState
           ),
         ],
       ),
-      body: SafeArea(
+      body: OyunZemini(
+        renk: OyunKimligi.renk(GameType.variableMaster),
+        child: SafeArea(
           top: false,
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  AppTheme.primaryBlue.withValues(alpha: 0.05),
-                  Colors.white,
-                ],
+                // Zemin artik OyunZemini'nden geliyor.
+                  colors: [Colors.transparent, Colors.transparent],
               ),
             ),
             child: Column(
@@ -461,19 +462,24 @@ class _VariableMasterGameContentState
               ],
             ),
           )),
+      ),
     );
   }
 
   Widget _buildHeader() {
+    // Eskiden kenardan kenara beyaz bir seritti; artik basligin altinda
+    // yuzen yuvarlak bir kart.
     return Container(
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
         color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: OyunKimligi.renk(GameType.variableMaster).withValues(alpha: 0.14),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -754,40 +760,22 @@ class _VariableMasterGameContentState
       ),
       itemCount: options.length,
       itemBuilder: (context, index) {
-        return _buildOptionCard(options[index]);
+        return _buildOptionCard(options[index], index);
       },
     );
   }
 
-  Widget _buildOptionCard(int option) {
-    return Card(
-      elevation: 3,
-      child: InkWell(
-        onTap: () => _checkAnswer(option),
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                AppTheme.primaryBlue.withValues(alpha: 0.05),
-              ],
-            ),
-          ),
-          child: Center(
-            child: Text(
-              '$option',
-              style: const TextStyle(
-                fontSize: 42,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.primaryBlue,
-                fontFamily: 'monospace',
-              ),
-            ),
-          ),
+  Widget _buildOptionCard(int option, int index) {
+    return OyunCevapKarti(
+      sira: index,
+      onTap: () => _checkAnswer(option),
+      child: Text(
+        '$option',
+        style: const TextStyle(
+          fontSize: 42,
+          fontWeight: FontWeight.w800,
+          color: Colors.white,
+          fontFamily: 'monospace',
         ),
       ),
     );
@@ -795,14 +783,16 @@ class _VariableMasterGameContentState
 
   Widget _buildResultScreen() {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
-        foregroundColor: Colors.white,
-        title: Text(gameWon
+      backgroundColor: OyunZemini.ustRenk(gameWon ? AppTheme.successGreen : AppTheme.errorRed),
+      appBar: OyunBasligi(
+        renk: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
+        baslikWidget: Text(gameWon
             ? (_tl('Tebrikler!', 'Congratulations!', 'Glückwunsch!', '¡Felicidades!'))
             : (_tl('Oyun Bitti', 'Game Over', 'Spiel vorbei', 'Fin del juego'))),
       ),
-      body: SafeArea(
+      body: OyunZemini(
+        renk: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
+        child: SafeArea(
           top: false,
           child: Center(
             child: Padding(
@@ -880,6 +870,7 @@ class _VariableMasterGameContentState
               ),
             ),
           )),
+      ),
     );
   }
 

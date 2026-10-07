@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../models/game_model.dart';
+import '../../widgets/oyun_basligi.dart';
+import '../../widgets/oyun_kimligi.dart';
 
 import '../../courses/models/interactive_lesson_model.dart';
 import '../../data/arduino_gorev_data.dart';
@@ -240,13 +243,12 @@ class _ArduinoBlocksGameScreenState extends State<ArduinoBlocksGameScreen> {
     final ara = EkranOlcusu.bosluk(context, 16);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F8),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0E5C63),
-        foregroundColor: Colors.white,
-        title: Text(_t('Arduino Atölyesi', 'Arduino Workshop',
+      backgroundColor: OyunZemini.ustRenk(OyunKimligi.renk(GameType.arduinoSimulator)),
+      appBar: OyunBasligi.oyun(
+        GameType.arduinoSimulator,
+        baslikWidget: Text(_t('Arduino Atölyesi', 'Arduino Workshop',
             'Arduino-Werkstatt', 'Taller de Arduino')),
-        actions: [
+        eylemler: [
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 16),
@@ -259,7 +261,9 @@ class _ArduinoBlocksGameScreenState extends State<ArduinoBlocksGameScreen> {
           ),
         ],
       ),
-      body: SafeArea(
+      body: OyunZemini(
+        renk: OyunKimligi.renk(GameType.arduinoSimulator),
+        child: SafeArea(
         child: _bitti
             ? _bitisEkrani()
             : ListView(
@@ -299,6 +303,7 @@ class _ArduinoBlocksGameScreenState extends State<ArduinoBlocksGameScreen> {
                   ],
                 ],
               ),
+      ),
       ),
     );
   }

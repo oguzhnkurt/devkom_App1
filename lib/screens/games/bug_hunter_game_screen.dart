@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/oyun_basligi.dart';
+import '../../widgets/oyun_kimligi.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import '../../theme.dart';
@@ -653,15 +655,12 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppTheme.primaryBlue,
-        foregroundColor: Colors.white,
-        elevation: 3,
-        // Kart adi 'Hata Avcisi' oldugu icin baslik da dile uymalı;
-        // aksi halde kullanici Turkce karttan Ingilizce bir ekrana giriyor.
-        title: Text(_tl('Hata Avcısı', 'Bug Hunter', 'Fehlerjäger', 'Cazador de errores'),
+      backgroundColor: OyunZemini.ustRenk(OyunKimligi.renk(GameType.bugHunter)),
+      appBar: OyunBasligi.oyun(
+        GameType.bugHunter,
+        baslikWidget: Text(_tl('Hata Avcısı', 'Bug Hunter', 'Fehlerjäger', 'Cazador de errores'),
             style: const TextStyle(fontWeight: FontWeight.bold)),
-        actions: [
+        eylemler: [
           IconButton(
             icon: const Icon(Icons.lightbulb_outline_rounded),
             onPressed: _showHintDialog,
@@ -669,17 +668,17 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
           ),
         ],
       ),
-      body: SafeArea(
+      body: OyunZemini(
+        renk: OyunKimligi.renk(GameType.bugHunter),
+        child: SafeArea(
           top: false,
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  AppTheme.errorRed.withValues(alpha: 0.05),
-                  Colors.white,
-                ],
+                // Zemin artik OyunZemini'nden geliyor.
+                  colors: [Colors.transparent, Colors.transparent],
               ),
             ),
             child: Column(
@@ -703,19 +702,24 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
               ],
             ),
           )),
+      ),
     );
   }
 
   Widget _buildHeader() {
+    // Eskiden kenardan kenara beyaz bir seritti; artik basligin altinda
+    // yuzen yuvarlak bir kart.
     return Container(
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
         color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: OyunKimligi.renk(GameType.bugHunter).withValues(alpha: 0.14),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -1011,14 +1015,16 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
 
   Widget _buildResultScreen() {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
-        foregroundColor: Colors.white,
-        title: Text(gameWon
+      backgroundColor: OyunZemini.ustRenk(gameWon ? AppTheme.successGreen : AppTheme.errorRed),
+      appBar: OyunBasligi(
+        renk: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
+        baslikWidget: Text(gameWon
             ? (_tl('Tebrikler!', 'Congratulations!', 'Glückwunsch!', '¡Felicidades!'))
             : (_tl('Oyun Bitti', 'Game Over', 'Spiel vorbei', 'Fin del juego'))),
       ),
-      body: SafeArea(
+      body: OyunZemini(
+        renk: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
+        child: SafeArea(
           top: false,
           child: Center(
             child: Padding(
@@ -1098,6 +1104,7 @@ class _BugHunterGameContentState extends State<_BugHunterGameContent> {
               ),
             ),
           )),
+      ),
     );
   }
 

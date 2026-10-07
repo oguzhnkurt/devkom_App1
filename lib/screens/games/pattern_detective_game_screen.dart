@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/oyun_basligi.dart';
+import '../../widgets/oyun_kimligi.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import '../../theme.dart';
@@ -634,13 +636,12 @@ class _PatternDetectiveGameContentState
     }
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppTheme.primaryBlue,
-        foregroundColor: Colors.white,
-        elevation: 3,
-        title: Text(_tl('Kod Dedektifi', 'Code Detective', 'Code-Detektiv', 'Detective de código'),
+      backgroundColor: OyunZemini.ustRenk(OyunKimligi.renk(GameType.patternDetective)),
+      appBar: OyunBasligi.oyun(
+        GameType.patternDetective,
+        baslikWidget: Text(_tl('Kod Dedektifi', 'Code Detective', 'Code-Detektiv', 'Detective de código'),
             style: const TextStyle(fontWeight: FontWeight.bold)),
-        actions: [
+        eylemler: [
           IconButton(
             icon: const Icon(Icons.lightbulb_outline_rounded),
             onPressed: _showHintDialog,
@@ -648,17 +649,17 @@ class _PatternDetectiveGameContentState
           ),
         ],
       ),
-      body: SafeArea(
+      body: OyunZemini(
+        renk: OyunKimligi.renk(GameType.patternDetective),
+        child: SafeArea(
           top: false,
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  AppTheme.primaryBlue.withValues(alpha: 0.05),
-                  Colors.white,
-                ],
+                // Zemin artik OyunZemini'nden geliyor.
+                  colors: [Colors.transparent, Colors.transparent],
               ),
             ),
             child: Column(
@@ -682,19 +683,24 @@ class _PatternDetectiveGameContentState
               ],
             ),
           )),
+      ),
     );
   }
 
   Widget _buildHeader() {
+    // Eskiden kenardan kenara beyaz bir seritti; artik basligin altinda
+    // yuzen yuvarlak bir kart.
     return Container(
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
         color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: OyunKimligi.renk(GameType.patternDetective).withValues(alpha: 0.14),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -925,41 +931,23 @@ class _PatternDetectiveGameContentState
       ),
       itemCount: options.length,
       itemBuilder: (context, index) {
-        return _buildOptionCard(options[index]);
+        return _buildOptionCard(options[index], index);
       },
     );
   }
 
-  Widget _buildOptionCard(String option) {
-    return Card(
-      elevation: 3,
-      child: InkWell(
-        onTap: () => _checkAnswer(option),
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                AppTheme.primaryBlue.withValues(alpha: 0.05),
-              ],
-            ),
-          ),
-          child: Center(
-            child: _buildOptionContent(option),
-          ),
-        ),
-      ),
+  Widget _buildOptionCard(String option, int index) {
+    return OyunCevapKarti(
+      sira: index,
+      onTap: () => _checkAnswer(option),
+      child: _buildOptionContent(option),
     );
   }
 
   Widget _buildOptionContent(String option) {
     if (option.startsWith('shape_')) {
       final index = int.parse(option.split('_')[1]);
-      return Icon(shapes[index], size: 48, color: AppTheme.primaryBlue);
+      return Icon(shapes[index], size: 48);
     } else if (option.startsWith('color_')) {
       final index = int.parse(option.split('_')[1]);
       return Container(
@@ -968,6 +956,8 @@ class _PatternDetectiveGameContentState
         decoration: BoxDecoration(
           color: colors[index],
           shape: BoxShape.circle,
+          // Kart artik renkli; renk dairesi zeminden beyaz kenarla ayriliyor.
+          border: Border.all(color: Colors.white, width: 4),
           boxShadow: [
             BoxShadow(
               color: colors[index].withValues(alpha: 0.3),
@@ -981,9 +971,9 @@ class _PatternDetectiveGameContentState
       return Text(
         option,
         style: const TextStyle(
-          fontSize: 36,
-          fontWeight: FontWeight.bold,
-          color: AppTheme.primaryBlue,
+          fontSize: 38,
+          fontWeight: FontWeight.w800,
+          color: Colors.white,
         ),
       );
     }
@@ -991,14 +981,16 @@ class _PatternDetectiveGameContentState
 
   Widget _buildResultScreen() {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
-        foregroundColor: Colors.white,
-        title: Text(gameWon
+      backgroundColor: OyunZemini.ustRenk(gameWon ? AppTheme.successGreen : AppTheme.errorRed),
+      appBar: OyunBasligi(
+        renk: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
+        baslikWidget: Text(gameWon
             ? (_tl('Tebrikler!', 'Congratulations!', 'Glückwunsch!', '¡Felicidades!'))
             : (_tl('Oyun Bitti', 'Game Over', 'Spiel vorbei', 'Fin del juego'))),
       ),
-      body: SafeArea(
+      body: OyunZemini(
+        renk: gameWon ? AppTheme.successGreen : AppTheme.errorRed,
+        child: SafeArea(
           top: false,
           child: Center(
             child: Padding(
@@ -1077,6 +1069,7 @@ class _PatternDetectiveGameContentState
               ),
             ),
           )),
+      ),
     );
   }
 

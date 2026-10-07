@@ -1,5 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../models/game_model.dart';
+import '../../widgets/oyun_basligi.dart';
+import '../../widgets/oyun_kimligi.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/settings_provider.dart';
@@ -189,9 +192,11 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_tl('Labirent Kaşifi', 'Maze Explorer', 'Labyrinth-Forscher', 'Explorador del laberinto')),
-        actions: [
+      backgroundColor: OyunZemini.ustRenk(OyunKimligi.renk(GameType.mazeExplorer)),
+      appBar: OyunBasligi.oyun(
+        GameType.mazeExplorer,
+        baslikWidget: Text(_tl('Labirent Kaşifi', 'Maze Explorer', 'Labyrinth-Forscher', 'Explorador del laberinto')),
+        eylemler: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Center(
@@ -203,7 +208,9 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
           ),
         ],
       ),
-      body: SafeArea(
+      body: OyunZemini(
+        renk: OyunKimligi.renk(GameType.mazeExplorer),
+        child: SafeArea(
           top: false,
           child: Column(
             children: [
@@ -353,6 +360,7 @@ class _MazeExplorerGameScreenState extends State<MazeExplorerGameScreen> {
               ),
             ],
           )),
+      ),
     );
   }
 }

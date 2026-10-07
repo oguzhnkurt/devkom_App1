@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../models/game_model.dart';
+import '../../widgets/oyun_basligi.dart';
+import '../../widgets/oyun_kimligi.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/user_progress_service.dart';
@@ -438,16 +441,16 @@ class _MatchingGameScreenState extends State<MatchingGameScreen> {
     final seconds = _secondsLeft % 60;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
+      backgroundColor: OyunZemini.ustRenk(OyunKimligi.renk(GameType.matchingGame)),
+      appBar: OyunBasligi.oyun(
+        GameType.matchingGame,
+        baslikWidget: Text(
             (_isEn ? _levels[_levelIndex]['titleEn']?.toString() : null) ??
                 _levels[_levelIndex]['title']?.toString() ??
                 (_isEn ? (widget.gameData?['titleEn']?.toString()) : null) ??
                 widget.gameData?['title']?.toString() ??
                 (_tl('Eşleştirme Oyunu', 'Matching Game', 'Zuordnungsspiel', 'Juego de emparejar'))),
-        backgroundColor: const Color(0xFF2196F3),
-        foregroundColor: Colors.white,
-        actions: [
+        eylemler: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Center(
@@ -466,7 +469,9 @@ class _MatchingGameScreenState extends State<MatchingGameScreen> {
           ),
         ],
       ),
-      body: SafeArea(
+      body: OyunZemini(
+        renk: OyunKimligi.renk(GameType.matchingGame),
+        child: SafeArea(
           top: false,
           child: Column(
             children: [
@@ -545,6 +550,7 @@ class _MatchingGameScreenState extends State<MatchingGameScreen> {
               ),
             ],
           )),
+      ),
     );
   }
 

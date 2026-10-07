@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/oyun_basligi.dart';
 import 'package:confetti/confetti.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
@@ -142,12 +143,14 @@ class _GameResultScreenState extends State<GameResultScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_tl('Oyun Sonucu', 'Game Result', 'Spielergebnis', 'Resultado del juego')),
-        backgroundColor: AppTheme.primaryBlue,
-        foregroundColor: AppTheme.white,
+      backgroundColor: OyunZemini.ustRenk(AppTheme.primaryBlue),
+      appBar: OyunBasligi(
+        renk: AppTheme.primaryBlue,
+        baslikWidget: Text(_tl('Oyun Sonucu', 'Game Result', 'Spielergebnis', 'Resultado del juego')),
       ),
-      body: SafeArea(
+      body: OyunZemini(
+        renk: AppTheme.primaryBlue,
+        child: SafeArea(
           top: false,
           child: Stack(
             children: [
@@ -179,6 +182,7 @@ class _GameResultScreenState extends State<GameResultScreen> {
               ),
             ],
           )),
+      ),
     );
   }
 

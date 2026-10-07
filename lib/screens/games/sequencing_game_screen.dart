@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../models/game_model.dart';
+import '../../widgets/oyun_basligi.dart';
+import '../../widgets/oyun_kimligi.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart' as app_auth;
@@ -730,9 +733,11 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
         : level['commands'] as List;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_tl('Komut Dizilimi - Seviye ${_currentLevel + 1}', 'Command Sequencing - Level ${_currentLevel + 1}', 'Befehlsfolge - Level ${_currentLevel + 1}', 'Secuencia de comandos - Nivel ${_currentLevel + 1}')),
-        actions: [
+      backgroundColor: OyunZemini.ustRenk(OyunKimligi.renk(GameType.sequencing)),
+      appBar: OyunBasligi.oyun(
+        GameType.sequencing,
+        baslikWidget: Text(_tl('Komut Dizilimi - Seviye ${_currentLevel + 1}', 'Command Sequencing - Level ${_currentLevel + 1}', 'Befehlsfolge - Level ${_currentLevel + 1}', 'Secuencia de comandos - Nivel ${_currentLevel + 1}')),
+        eylemler: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Center(
@@ -757,7 +762,9 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
           ),
         ],
       ),
-      body: AnswerFeedbackBar.host(
+      body: OyunZemini(
+        renk: OyunKimligi.renk(GameType.sequencing),
+        child: AnswerFeedbackBar.host(
         child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
@@ -917,6 +924,7 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
                 detail: _feedbackDetail,
                 onContinue: _onFeedbackContinue,
               ),
+      ),
       ),
     );
   }

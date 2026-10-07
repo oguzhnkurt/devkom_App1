@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../models/game_model.dart';
+import '../../widgets/oyun_basligi.dart';
+import '../../widgets/oyun_kimligi.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import '../../theme.dart';
@@ -245,11 +248,13 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isPracticeMode
+      backgroundColor: OyunZemini.ustRenk(OyunKimligi.renk(GameType.colorCoding)),
+      appBar: OyunBasligi.oyun(
+        GameType.colorCoding,
+        baslikWidget: Text(isPracticeMode
             ? (_tl('Renkli Kodlar (Pratik)', 'Color Codes (Practice)', 'Farbcodes (Übung)', 'Códigos de colores (práctica)'))
             : (_tl('Renkli Kodlar', 'Color Codes', 'Farbcodes', 'Códigos de colores'))),
-        actions: [
+        eylemler: [
           // Pratik Modu Toggle
           IconButton(
             icon: Icon(
@@ -284,7 +289,9 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
             ),
         ],
       ),
-      body: SafeArea(
+      body: OyunZemini(
+        renk: OyunKimligi.renk(GameType.colorCoding),
+        child: SafeArea(
           top: false,
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -547,6 +554,7 @@ class _ColorCodingScreenState extends State<ColorCodingScreen> {
               ],
             ),
           )),
+      ),
     );
   }
 }

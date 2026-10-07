@@ -82,6 +82,9 @@ class _CourseCatalogScreenState extends State<CourseCatalogScreen> {
       floating: false,
       pinned: true,
       backgroundColor: isDark ? const Color(0xFF0A0A0F) : Colors.white,
+      // Beyaz zeminde geri oku temanin beyaz on plan rengiyle cizilip
+      // kayboluyordu.
+      foregroundColor: isDark ? Colors.white : const Color(0xFF1A1A1A),
       flexibleSpace: FlexibleSpaceBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,

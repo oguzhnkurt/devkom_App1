@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/oyun_basligi.dart';
 import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
@@ -130,10 +131,9 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
     if (_isLoading) {
       return Scaffold(
         backgroundColor: const Color(0xFF0D1B2A),
-        appBar: AppBar(
-          title: Text(_tl('Bilgi Yarışması 🎯', 'Knowledge Quiz 🎯', 'Wissensquiz 🎯', 'Concurso de conocimiento 🎯')),
-          centerTitle: true,
-          backgroundColor: const Color(0xFF1B263B),
+        appBar: OyunBasligi(
+          renk: const Color(0xFF1B263B),
+          baslikWidget: Text(_tl('Bilgi Yarışması 🎯', 'Knowledge Quiz 🎯', 'Wissensquiz 🎯', 'Concurso de conocimiento 🎯')),
         ),
         body: Center(
           child: Column(
@@ -154,10 +154,9 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
     if (_errorMessage != null) {
       return Scaffold(
         backgroundColor: const Color(0xFF0D1B2A),
-        appBar: AppBar(
-          title: Text(_tl('Bilgi Yarışması 🎯', 'Knowledge Quiz 🎯', 'Wissensquiz 🎯', 'Concurso de conocimiento 🎯')),
-          centerTitle: true,
-          backgroundColor: const Color(0xFF1B263B),
+        appBar: OyunBasligi(
+          renk: const Color(0xFF1B263B),
+          baslikWidget: Text(_tl('Bilgi Yarışması 🎯', 'Knowledge Quiz 🎯', 'Wissensquiz 🎯', 'Concurso de conocimiento 🎯')),
         ),
         body: Center(
           child: Column(
@@ -187,10 +186,9 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
     if (_questions.isEmpty) {
       return Scaffold(
         backgroundColor: const Color(0xFF0D1B2A),
-        appBar: AppBar(
-          title: Text(_tl('Bilgi Yarışması 🎯', 'Knowledge Quiz 🎯', 'Wissensquiz 🎯', 'Concurso de conocimiento 🎯')),
-          centerTitle: true,
-          backgroundColor: const Color(0xFF1B263B),
+        appBar: OyunBasligi(
+          renk: const Color(0xFF1B263B),
+          baslikWidget: Text(_tl('Bilgi Yarışması 🎯', 'Knowledge Quiz 🎯', 'Wissensquiz 🎯', 'Concurso de conocimiento 🎯')),
         ),
         body: Center(
           child: Column(
@@ -217,10 +215,9 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0D1B2A),
-      appBar: AppBar(
-        title: Text(_tl('Bilgi Yarışması 🎯', 'Knowledge Quiz 🎯', 'Wissensquiz 🎯', 'Concurso de conocimiento 🎯')),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF1B263B),
+      appBar: OyunBasligi(
+        renk: const Color(0xFF1B263B),
+        baslikWidget: Text(_tl('Bilgi Yarışması 🎯', 'Knowledge Quiz 🎯', 'Wissensquiz 🎯', 'Concurso de conocimiento 🎯')),
       ),
       body: SafeArea(
         child: _gameOver ? _buildGameOverScreen() : _buildGameScreen(),

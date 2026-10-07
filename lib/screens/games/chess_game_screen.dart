@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../widgets/oyun_basligi.dart';
+import '../../widgets/oyun_kimligi.dart';
 import 'package:chess/chess.dart' as chess_lib;
 import 'package:flutter_chess_board/flutter_chess_board.dart';
 // TODO: Migrate to Supabase
@@ -608,9 +610,11 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_tl('Satranç Oyunu', 'Chess Game', 'Schachspiel', 'Juego de ajedrez')),
-        actions: [
+      backgroundColor: OyunZemini.ustRenk(OyunKimligi.renk(GameType.chess)),
+      appBar: OyunBasligi.oyun(
+        GameType.chess,
+        baslikWidget: Text(_tl('Satranç Oyunu', 'Chess Game', 'Schachspiel', 'Juego de ajedrez')),
+        eylemler: [
           if (_isGameStarted) ...[
             Center(
               child: Padding(
@@ -632,10 +636,13 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
           ],
         ],
       ),
-      body: SafeArea(
+      body: OyunZemini(
+        renk: OyunKimligi.renk(GameType.chess),
+        child: SafeArea(
           top: false,
           child:
               _isGameStarted ? _buildGameView() : _buildDifficultySelection()),
+      ),
     );
   }
 

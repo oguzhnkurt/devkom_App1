@@ -1,5 +1,7 @@
 // Professional block coding game
 import 'package:flutter/material.dart';
+import '../../widgets/oyun_basligi.dart';
+import '../../widgets/oyun_kimligi.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -607,11 +609,11 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_tl('Kod Blokları', 'Code Blocks', 'Code-Blöcke', 'Bloques de código')),
-        backgroundColor: const Color(0xFF0FBD8C), // Scratch green
-        foregroundColor: Colors.white,
-        actions: [
+      backgroundColor: OyunZemini.ustRenk(OyunKimligi.renk(GameType.blockCoding)),
+      appBar: OyunBasligi.oyun(
+        GameType.blockCoding,
+        baslikWidget: Text(_tl('Kod Blokları', 'Code Blocks', 'Code-Blöcke', 'Bloques de código')),
+        eylemler: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Center(
@@ -624,7 +626,9 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
           ),
         ],
       ),
-      body: SafeArea(
+      body: OyunZemini(
+        renk: OyunKimligi.renk(GameType.blockCoding),
+        child: SafeArea(
           top: false,
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -633,6 +637,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
               return isWideScreen ? _buildWideLayout() : _buildNarrowLayout();
             },
           )),
+      ),
     );
   }
 
