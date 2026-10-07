@@ -152,6 +152,66 @@ class ChildLinkService {
     }
   }
 
+  /// Bu cihazin bagli oldugu BUTUN cocuklar (ebeveyn tarafi).
+  ///
+  /// Bir ebeveynin birden fazla cocugu olabiliyor; [linkedChild] yalnizca
+  /// ilkini donduruyordu. Siralama baglanma zamanina gore: ilk eklenen
+  /// cocuk listede hep ayni yerde kaliyor.
+  static Future<List<ChildLink>> linkedChildren() async {
+    try {
+      final uid = _db.auth.currentUser?.id;
+      if (uid == null) return const [];
+      final rows = await _db
+          .from('child_links')
+          .select('child_id, created_at')
+          .eq('parent_id', uid)
+          .order('created_at');
+      final ids = [for (final r in rows as List) r['child_id'] as String];
+      if (ids.isEmpty) return const [];
+
+      final names = <String, String?>{};
+      try {
+        final users =
+            await _db.from('users').select('id, name').inFilter('id', ids);
+        for (final u in users as List) {
+          names[u['id'] as String] = u['name'] as String?;
+        }
+      } catch (_) {
+        // Ad okunamazsa bag yine gecerli; isimsiz gosteriyoruz.
+      }
+      return [
+        for (final id in ids) ChildLink(childId: id, childName: names[id]),
+      ];
+    } catch (e) {
+      debugPrint('ChildLinkService.linkedChildren: $e');
+      return const [];
+    }
+  }
+
+  /// Cocugun ilerleme satirini YALNIZCA OKUR.
+  ///
+  /// Eskiden rapor `UserProgressService.loadUserProgress` ile aliniyordu.
+  /// O fonksiyon cocugun kendi cihazi icin yazilmis: satir gorunmezse
+  /// YENI bir satir olusturuyor, gun donunde seriyi ve gunluk hedefleri
+  /// sifirlayip YAZIYOR. Ebeveyn cihazinda bunlarin hicbiri olmamali.
+  ///
+  /// Satir okunamazsa (baglanti yok ya da veritabaninda ebeveyn okuma
+  /// izni yok) null doner; rapor o zaman ilerleme olmadan kuruluyor ve
+  /// bunu ekranda durustce soyluyor.
+  static Future<Map<String, dynamic>?> childProgressRow(String childId) async {
+    try {
+      final row = await _db
+          .from('user_progress')
+          .select()
+          .eq('user_id', childId)
+          .maybeSingle();
+      return row;
+    } catch (e) {
+      debugPrint('ChildLinkService.childProgressRow: $e');
+      return null;
+    }
+  }
+
   /// Bu cocugu kimler takip ediyor? (Cocuk tarafi.)
   ///
   /// Cocuk kimin izledigini gorebilmeli — bu bir izleme ozelligi ve

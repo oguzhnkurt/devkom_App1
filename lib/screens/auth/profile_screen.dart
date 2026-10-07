@@ -18,6 +18,7 @@ import '../../utils/app_localizations.dart';
 import '../../utils/pro_gate.dart';
 import '../report/progress_report_screen.dart';
 import '../../widgets/mascot.dart';
+import '../../widgets/veli_takip_karti.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -186,6 +187,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                   child: Column(
                     children: [
+                      // Veli takibi: kodu yaz, bitti. Ilerlemeni kaydet'in
+                      // USTUNDE (Ekim 2026 geri bildirimi).
+                      const VeliTakipKarti(),
+                      const SizedBox(height: 20),
                       if (authProvider.isAnonymous) ...[
                         _buildSaveProgressCard(context),
                         const SizedBox(height: 20),

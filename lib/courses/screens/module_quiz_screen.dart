@@ -461,7 +461,7 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
 
     if (_score >= passingScore) {
       if (authProvider.isAuthenticated) {
-        await authProvider.addXP(xpReward);
+        await authProvider.addXP(xpReward, source: 'quiz');
         final userId = authProvider.currentUser?.uid;
         if (userId != null) {
           await UserProgressService().addJeton(userId, correct * 3, source: 'module_quiz');

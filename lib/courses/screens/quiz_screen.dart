@@ -802,7 +802,7 @@ class _QuizScreenState extends State<QuizScreen> {
     // Award XP if passed
     if (_score >= widget.quiz.passingScore) {
       if (authProvider.isAuthenticated) {
-        await authProvider.addXP(widget.quiz.xpReward);
+        await authProvider.addXP(widget.quiz.xpReward, source: 'quiz');
         // Jeton ödülü: doğru cevap başına (Market'te harcanabilir)
         final userId = authProvider.currentUser?.uid;
         if (userId != null) {

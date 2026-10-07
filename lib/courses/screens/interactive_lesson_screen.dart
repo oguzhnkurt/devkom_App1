@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
 import '../../providers/auth_provider.dart';
-import '../../services/user_progress_service.dart';
 import 'widgets/mblock_blok_adimi.dart';
 import 'widgets/step_widgets.dart';
 import 'package:confetti/confetti.dart';
@@ -110,13 +109,10 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
     final totalXp = _earnedXp + widget.lesson.xpReward;
 
     if (authProvider.isAuthenticated) {
-      await authProvider.addXP(totalXp);
-      // Jeton ödülü (Market'te harcanabilir)
-      final userId = authProvider.currentUser?.uid;
-      if (userId != null) {
-        await UserProgressService().addJeton(userId, 8, source: 'interactive_lesson');
-        await authProvider.refreshProgress();
-      }
+      // XP + 8 jeton + dersin kimligi tek yerde. Eskiden yalnizca XP ve
+      // jeton veriliyordu, ders "bitti" diye hic yazilmiyordu; kurs
+      // ilerlemesi ve veli raporu bu yuzden sifirda kaliyordu.
+      await authProvider.dersTamamlandi(widget.lesson.id, totalXp);
     }
 
     // Show completion dialog

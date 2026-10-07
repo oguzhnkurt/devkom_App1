@@ -1,4 +1,5 @@
 import '../courses/data/courses_data.dart';
+import '../courses/models/course_model.dart';
 import '../models/user_progress_model.dart';
 import '../utils/lang.dart';
 import 'progress_report_service.dart';
@@ -80,9 +81,12 @@ class CertificateService {
     // Kurs basina tamamlanan ders sayisi. Rapor varsa oradan, yoksa
     // ders kimliklerinin on ekinden.
     final byCourse = <String, int>{};
+    // Kurs basina gercek ders sayisi (rapor varsa oradan).
+    final totals = <String, int>{};
     if (report != null) {
       for (final c in report.courses) {
         byCourse[c.course.id] = c.completed;
+        totals[c.course.id] = c.total;
       }
     } else {
       for (final id in completedIds) {
@@ -98,6 +102,7 @@ class CertificateService {
     final list = <Certificate>[];
     for (final course in CoursesData.learningPath) {
       final done = byCourse[course.id] ?? 0;
+      final total = totals[course.id] ?? course.totalLessons;
       list.add(Certificate(
         id: 'course_${course.id}',
         title: '${course.nameFor('tr')} Sertifikası',
@@ -111,15 +116,16 @@ class CertificateService {
             'Alle Lektionen im Kurs ${course.nameFor('de')} abschließen',
         requirementEs:
             'Completa todas las lecciones del curso ${course.nameFor('es')}',
-        completed: done.clamp(0, course.totalLessons),
-        total: course.totalLessons,
+        completed: done.clamp(0, total),
+        total: total,
       ));
     }
 
+    int totalOf(Course c) => totals[c.id] ?? c.totalLessons;
     final pathTotal =
-        CoursesData.learningPath.fold<int>(0, (a, c) => a + c.totalLessons);
+        CoursesData.learningPath.fold<int>(0, (a, c) => a + totalOf(c));
     final pathDone = CoursesData.learningPath.fold<int>(
-        0, (a, c) => a + (byCourse[c.id] ?? 0).clamp(0, c.totalLessons));
+        0, (a, c) => a + (byCourse[c.id] ?? 0).clamp(0, totalOf(c)));
 
     list.add(Certificate(
       id: 'path_complete',

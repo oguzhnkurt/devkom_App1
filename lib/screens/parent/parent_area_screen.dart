@@ -6,7 +6,6 @@ import '../../providers/auth_provider.dart';
 import '../../services/certificate_service.dart';
 import '../../services/child_link_service.dart';
 import '../../services/progress_report_service.dart';
-import '../../services/user_progress_service.dart';
 import '../../services/weekly_goal_service.dart';
 import '../../theme.dart';
 import '../../ui/appear_in.dart';
@@ -58,9 +57,6 @@ class _ParentAreaScreenState extends State<ParentAreaScreen> {
   bool _loading = true;
   String? _error;
 
-  /// Bu cihaz baska bir cocuga bagliysa rapor ONUN verisinden kuruluyor.
-  ChildLink? _linkedChild;
-
   /// Cocugun cihazinda gosterilen eslestirme kodu.
   String? _pairCode;
   int _watchers = 0;
@@ -72,25 +68,22 @@ class _ParentAreaScreenState extends State<ParentAreaScreen> {
   }
 
   Future<void> _load() async {
-    var progress = context.read<AuthProvider>().userProgress;
+    // Bu ekran CIHAZIN SAHIBININ (cocugun) kendi raporu. Velinin cocuk
+    // raporu artik Profil'deki "Cocugumu takip et" kartindan aciliyor
+    // (CocukRaporuScreen). Eskiden burada bagli cocugun satiri
+    // `loadUserProgress` ile okunuyordu; o fonksiyon satir yoksa yenisini
+    // olusturup seriyi sifirlayarak YAZIYORDU.
+    final progress = context.read<AuthProvider>().userProgress;
     try {
-      // Once: bu cihaz bir cocuga bagli mi? Bagliysa rapor onun
-      // verisinden kuruluyor, cihazin sahibininkinden degil.
-      final link = await ChildLinkService.linkedChild();
-      if (link != null) {
-        progress = await UserProgressService().loadUserProgress(link.childId);
-      }
-
-      final report = await _service.build(progress, forUserId: link?.childId);
+      final report = await _service.build(progress);
       final target = await WeeklyGoalService.target();
 
       // Cocugun kendi cihazinda: kod ve kac kisinin takip ettigi.
-      final code = link == null ? await ChildLinkService.currentCode() : null;
-      final watchers = link == null ? await ChildLinkService.watcherCount() : 0;
+      final code = await ChildLinkService.currentCode();
+      final watchers = await ChildLinkService.watcherCount();
 
       if (!mounted) return;
       setState(() {
-        _linkedChild = link;
         _pairCode = code;
         _watchers = watchers;
         _report = report;
@@ -121,9 +114,7 @@ class _ParentAreaScreenState extends State<ParentAreaScreen> {
   @override
   Widget build(BuildContext context) {
     final progress = context.watch<AuthProvider>().userProgress;
-    // Bagli bir cocuk varsa onun adi; yoksa cihazin sahibinin adi.
-    final childName = _linkedChild?.childName ??
-        context.watch<AuthProvider>().currentUser?.name;
+    final childName = context.watch<AuthProvider>().currentUser?.name;
 
     return Scaffold(
       backgroundColor: AppTheme.lightGray,
@@ -261,56 +252,6 @@ class _ParentAreaScreenState extends State<ParentAreaScreen> {
   ///    erisim ve ebeveyn kapisindan gecmek gerekiyor.
   ///  * Ebeveynin cihazinda: kime bagli oldugu ve bagi koparma.
   Widget _linkCard() {
-    final link = _linkedChild;
-
-    if (link != null) {
-      return _card(
-        child: Row(
-          children: [
-            const Icon(Icons.link_rounded, color: AppTheme.primaryBlue),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    link.childName ??
-                        _t('Çocuğun', 'Your child', 'Dein Kind', 'Tu hijo/a'),
-                    style: const TextStyle(
-                      fontFamily: AppTheme.fontFamily,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.darkGray,
-                    ),
-                  ),
-                  Text(
-                    _t(
-                        'Bu rapor ona ait.',
-                        'This report is theirs.',
-                        'Dieser Bericht gehört ihm/ihr.',
-                        'Este informe es suyo.'),
-                    style: const TextStyle(
-                      fontFamily: AppTheme.fontFamily,
-                      fontSize: 12.5,
-                      color: AppTheme.mediumGray,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                await ChildLinkService.unlink(childId: link.childId);
-                if (mounted) _load();
-              },
-              child:
-                  Text(_t('Bağı kaldır', 'Unlink', 'Trennen', 'Desvincular')),
-            ),
-          ],
-        ),
-      );
-    }
-
     return _card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,14 +261,15 @@ class _ParentAreaScreenState extends State<ParentAreaScreen> {
           const SizedBox(height: 4),
           Text(
             _t(
-              'Bu kodu ebeveyn telefonundaki uygulamaya girerek çocuğunuzun '
-                  'ilerlemesini oradan takip edebilirsiniz.',
-              'Enter this code in the app on a parent phone to follow your '
-                  "child's progress from there.",
-              'Gib diesen Code in der App auf einem Elterntelefon ein, um '
-                  'den Fortschritt deines Kindes dort zu verfolgen.',
-              'Escribe este código en la app del móvil de una madre o padre '
-                  'para seguir el progreso desde allí.',
+              'Ebeveyn kendi telefonunda uygulamayı açıp Profil → '
+                  '"Çocuğumu takip et" kutusuna bu kodu yazınca raporu '
+                  'oradan görür.',
+              'On their own phone, a parent opens the app, goes to Profile → '
+                  '"Follow my child" and types this code to see the report.',
+              'Auf dem eigenen Telefon öffnen Eltern die App, gehen zu Profil → '
+                  '„Mein Kind begleiten“ und geben diesen Code ein.',
+              'En su propio móvil, la madre o el padre abre la app, va a Perfil → '
+                  '«Seguir a mi hijo/a» y escribe este código.',
             ),
             style: const TextStyle(
               fontFamily: AppTheme.fontFamily,
@@ -397,127 +339,11 @@ class _ParentAreaScreenState extends State<ParentAreaScreen> {
                 label: Text(
                     _t('Yeni kod', 'New code', 'Neuer Code', 'Código nuevo')),
               ),
-              const Spacer(),
-              TextButton.icon(
-                onPressed: _enterCode,
-                icon: const Icon(Icons.login_rounded, size: 17),
-                label: Text(_t('Kod gir', 'Enter a code', 'Code eingeben',
-                    'Introducir código')),
-              ),
             ],
           ),
         ],
       ),
     );
-  }
-
-  /// Ebeveynin kod girdigi kutu.
-  Future<void> _enterCode() async {
-    final controller = TextEditingController();
-    var busy = false;
-    String? error;
-
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (dialogContext, setLocal) => AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text(
-            _t(
-                'Çocuğunun kodunu gir',
-                "Enter your child's code",
-                'Code deines Kindes eingeben',
-                'Escribe el código de tu hijo/a'),
-            style: const TextStyle(
-              fontFamily: AppTheme.fontFamily,
-              fontWeight: FontWeight.w800,
-              fontSize: 18,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _t(
-                  'Kodu çocuğunun telefonunda Ayarlar → Ebeveyn Alanı '
-                      'bölümünde bulabilirsin.',
-                  'You can find the code on your child\'s phone under '
-                      'Settings → Parent Area.',
-                  'Du findest den Code auf dem Telefon deines Kindes unter '
-                      'Einstellungen → Elternbereich.',
-                  'Encontrarás el código en el móvil de tu hijo/a en '
-                      'Ajustes → Área para familias.',
-                ),
-                style: const TextStyle(
-                  fontFamily: AppTheme.fontFamily,
-                  fontSize: 13,
-                  height: 1.4,
-                  color: AppTheme.mediumGray,
-                ),
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: controller,
-                autofocus: true,
-                textCapitalization: TextCapitalization.characters,
-                textAlign: TextAlign.center,
-                maxLength: 7,
-                style: const TextStyle(
-                  fontFamily: AppTheme.fontFamily,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 5,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'ABC-123',
-                  counterText: '',
-                  errorText: error,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onChanged: (_) {
-                  if (error != null) setLocal(() => error = null);
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: busy ? null : () => Navigator.pop(dialogContext),
-              child: Text(_t('Vazgeç', 'Cancel', 'Abbrechen', 'Cancelar')),
-            ),
-            FilledButton(
-              onPressed: busy
-                  ? null
-                  : () async {
-                      setLocal(() => busy = true);
-                      final childId =
-                          await ChildLinkService.redeem(controller.text);
-                      if (childId == null) {
-                        setLocal(() {
-                          busy = false;
-                          error = _t(
-                            'Bu kod geçerli değil ya da süresi dolmuş.',
-                            'That code is not valid or has expired.',
-                            'Dieser Code ist ungültig oder abgelaufen.',
-                            'Ese código no es válido o ha caducado.',
-                          );
-                        });
-                        return;
-                      }
-                      if (dialogContext.mounted) Navigator.pop(dialogContext);
-                      if (mounted) _load();
-                    },
-              child: Text(_t('Bağlan', 'Connect', 'Verbinden', 'Conectar')),
-            ),
-          ],
-        ),
-      ),
-    );
-    controller.dispose();
   }
 
   /// Bu haftaki hedef — ekranin en ustunde, cunku ebeveynin sordugu ilk
@@ -910,7 +736,7 @@ class _ParentAreaScreenState extends State<ParentAreaScreen> {
           Row(
             children: [
               _stat(_t('Ders', 'Lessons', 'Lektionen', 'Lecciones'),
-                  progress.completedLessonIds.length),
+                  progress.completedLessonIds.toSet().length),
               _stat('XP', progress.totalXP),
               _stat(_t('Seviye', 'Level', 'Stufe', 'Nivel'), progress.level),
               _stat(_t('Gün serisi', 'Day streak', 'Tagesserie', 'Racha'),

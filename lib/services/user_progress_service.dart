@@ -245,6 +245,59 @@ class UserProgressService extends ChangeNotifier {
     }
   }
 
+  /// Interaktif dersin bitisini KAYDEDER.
+  ///
+  /// EKSIK OLAN SEY (Ekim 2026): ders ekranlari bitiste yalnizca XP ve
+  /// jeton veriyordu; dersin kimligi `completed_lesson_ids` listesine hic
+  /// yazilmiyordu. `onLessonCompleted` vardi ama hicbir ekran onu
+  /// cagirmiyordu. Sonuc: kurs ilerlemesi, sertifikalar, "siradaki ders"
+  /// ve veli raporundaki ders sayilari hep sifirda kaliyordu.
+  ///
+  /// `onLessonCompleted`'tan farki: reklam isaretlemiyor (ders ekranlari
+  /// bugune kadar reklam isaretlemiyordu; reklam davranisini bu duzeltme
+  /// degistirmemeli) ve TEKRARI ayri sayiyor. Ayni ders ikinci kez
+  /// bitirilince XP yine yaziliyor ama gunluk kirilimdaki "ders" sayisi
+  /// artmiyor; boylece veli raporundaki "yeni ders" sayilari toplam
+  /// biten ders sayisiyla celismiyor.
+  ///
+  /// Ders yeni bitirildiyse true doner.
+  Future<bool> dersiKaydet(String userId, String lessonId, int xpReward) async {
+    try {
+      if (_currentProgress == null) await loadUserProgress(userId);
+      final onceki = _currentProgress?.completedLessonIds ?? const <String>[];
+      final yeni = !onceki.contains(lessonId);
+
+      await addXP(userId, xpReward, source: yeni ? 'lesson' : 'lesson_tekrar');
+      await addJeton(userId, 8, source: 'lesson');
+
+      final liste = List<String>.from(_currentProgress?.completedLessonIds ?? onceki);
+      if (!liste.contains(lessonId)) liste.add(lessonId);
+      final gunluk = (_currentProgress?.dailyLessonsCompleted ?? 0) + 1;
+
+      await _supabase.from(_progressTable).update({
+        'daily_lessons_completed': gunluk,
+        'completed_lesson_ids': liste,
+        'last_active_date': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('user_id', userId);
+
+      _currentProgress = _currentProgress?.copyWith(
+        dailyLessonsCompleted: gunluk,
+        completedLessonIds: liste,
+        lastActiveDate: DateTime.now(),
+      );
+
+      if (yeni && liste.length == 1) {
+        await _awardBadge(userId, 'first_step');
+      }
+      notifyListeners();
+      return yeni;
+    } catch (e) {
+      debugPrint('Ders kaydedilemedi: $e');
+      return false;
+    }
+  }
+
   /// Oyun oynandığında
   Future<void> onGamePlayed(String userId, int score, int xpReward) async {
     try {

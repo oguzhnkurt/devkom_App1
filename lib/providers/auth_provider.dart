@@ -553,11 +553,14 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // Add XP to user
-  Future<void> addXP(int xp) async {
+  ///
+  /// [source] gunluk kirilimda neyin sayilacagini belirler ('quiz',
+  /// 'video'...). Verilmezse yalnizca XP yazilir.
+  Future<void> addXP(int xp, {String? source}) async {
     if (_currentUser == null || _userProgress == null) return;
 
     try {
-      await _progressService.addXP(_currentUser!.uid, xp);
+      await _progressService.addXP(_currentUser!.uid, xp, source: source);
       // Refresh progress after XP update
       _userProgress = _progressService.currentProgress;
       notifyListeners();
@@ -565,6 +568,17 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('Failed to add XP: $e');
     }
+  }
+
+  /// Bir interaktif dersin bittigini kaydeder: XP, 8 jeton ve dersin
+  /// kimligi (`completed_lesson_ids`). Bkz. [UserProgressService.dersiKaydet].
+  Future<bool> dersTamamlandi(String lessonId, int xp) async {
+    final user = _currentUser;
+    if (user == null) return false;
+    final yeni = await _progressService.dersiKaydet(user.uid, lessonId, xp);
+    _userProgress = _progressService.currentProgress ?? _userProgress;
+    notifyListeners();
+    return yeni;
   }
 
   /// Jeton ekler ve ilerlemeyi tazeler.

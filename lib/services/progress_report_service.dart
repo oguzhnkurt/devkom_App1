@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../courses/data/course_modules.dart';
 import '../courses/data/courses_data.dart';
 import '../courses/models/course_model.dart';
 import '../models/user_progress_model.dart';
@@ -9,9 +10,16 @@ class CourseProgress {
   final Course course;
   final int completed;
 
-  const CourseProgress({required this.course, required this.completed});
+  const CourseProgress({
+    required this.course,
+    required this.completed,
+    int? total,
+  }) : _total = total;
 
-  int get total => course.totalLessons;
+  final int? _total;
+
+  /// Kurstaki GERCEK ders sayisi. Verilmezse kurs tanimindaki sayi.
+  int get total => _total ?? course.totalLessons;
   double get ratio => total == 0 ? 0 : (completed / total).clamp(0.0, 1.0);
   bool get started => completed > 0;
   bool get finished => total > 0 && completed >= total;
@@ -105,15 +113,22 @@ class ProgressReportService {
     UserProgress? progress, {
     String? forUserId,
   }) async {
-    final counts = <String, int>{};
-    for (final lessonId in progress?.completedLessonIds ?? const <String>[]) {
-      final courseId = _courseIdOf(lessonId);
-      if (courseId != null) counts[courseId] = (counts[courseId] ?? 0) + 1;
-    }
-
-    final courses = CoursesData.learningPath
-        .map((c) => CourseProgress(course: c, completed: counts[c.id] ?? 0))
-        .toList();
+    // Kurs basina biten ders: kursun GERCEK dersleriyle kesisim. On ekten
+    // saymak hem tekrarlari hem de artik var olmayan eski kimlikleri
+    // sayiyordu; toplam da elle yazilmis bir sabitten geliyordu.
+    final done = (progress?.completedLessonIds ?? const <String>[]).toSet();
+    final courses = CoursesData.learningPath.map((c) {
+      final dersler = CourseModules.allLessons(c.id);
+      if (dersler.isEmpty) {
+        final n = done.where((id) => _courseIdOf(id) == c.id).length;
+        return CourseProgress(course: c, completed: n);
+      }
+      return CourseProgress(
+        course: c,
+        completed: dersler.where((l) => done.contains(l.id)).length,
+        total: dersler.length,
+      );
+    }).toList();
 
     return ProgressReport(
       courses: courses,

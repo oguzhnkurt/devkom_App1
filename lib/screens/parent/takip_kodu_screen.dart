@@ -77,15 +77,18 @@ class _TakipKoduScreenState extends State<TakipKoduScreen> {
               children: [
                 Text(
                   _t(
-                    'Annen ya da baban bu kodu kendi telefonundaki '
-                        'uygulamaya yazarsa, neler öğrendiğini oradan '
-                        'görebilir.',
-                    'If a parent types this code into the app on their own '
-                        'phone, they can see what you are learning.',
-                    'Wenn Mama oder Papa diesen Code in der App auf ihrem '
-                        'Telefon eingibt, sehen sie, was du lernst.',
-                    'Si tu madre o tu padre escribe este código en la app de '
-                        'su móvil, podrá ver lo que estás aprendiendo.',
+                    'Annen ya da baban kendi telefonunda uygulamayı açıp '
+                        'Profil → "Çocuğumu takip et" kutusuna bu kodu '
+                        'yazarsa, neler öğrendiğini oradan görebilir.',
+                    'If a parent opens the app on their own phone and types '
+                        'this code into Profile → "Follow my child", they can '
+                        'see what you are learning.',
+                    'Wenn Mama oder Papa auf ihrem Telefon unter Profil → '
+                        '„Mein Kind begleiten“ diesen Code eingibt, sehen sie, '
+                        'was du lernst.',
+                    'Si tu madre o tu padre escribe este código en su móvil, '
+                        'en Perfil → «Seguir a mi hijo/a», podrá ver lo que '
+                        'estás aprendiendo.',
                   ),
                   style: const TextStyle(
                     fontFamily: AppTheme.fontFamily,
