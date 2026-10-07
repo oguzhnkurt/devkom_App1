@@ -28,15 +28,13 @@ void main() {
     expect(src.contains('child: _buildActivityCard(isDark)'), isTrue,
         reason: 'ana sayfada etkinlik kartı yok');
 
-    // Ilk acilis (Ekim 2026): etkinlik alani "Baslarken" listesinin bir
-    // adimi. Liste yeni kullanici dalinda cagriliyor ve Etkinlikler'i
-    // aciyor.
+    // Ilk acilis (Ekim 2026): etkinlik alani "Kesfet" kartlarindan biri.
     final dal = src.indexOf('if (isNewUser && next != null) ...[');
     expect(dal, greaterThan(-1), reason: 'ilk açılış dalı yok');
-    expect(src.indexOf('_buildBaslarken(next, isDark)', dal), greaterThan(dal),
-        reason: 'ilk açılışta "Başlarken" listesi yok');
-    final govde = src.substring(src.indexOf('Widget _buildBaslarken('),
-        src.indexOf('Widget _buildYolculuk('));
+    expect(src.indexOf('_buildKesfet(next, isDark)', dal), greaterThan(dal),
+        reason: 'ilk açılışta "Keşfet" kartları yok');
+    final govde = src.substring(src.indexOf('Widget _buildKesfet('),
+        src.indexOf('Widget _kesfetKarti('));
     expect(govde.contains('ActivityHubScreen()'), isTrue,
         reason: 'yeni kullanıcı etkinlik alanına ulaşamıyor');
   });
