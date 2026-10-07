@@ -54,9 +54,18 @@ class _MarketScreenState extends State<MarketScreen> {
   StoreItem? _previewItem;
   Timer? _previewTimer;
 
-  /// Önizlemede gösterilecek çerçeve: dokunulan, yoksa kuşanılan.
-  StoreItem? get _onizlenen =>
-      _previewItem ?? _equipped[StoreItemCategory.avatarFrame];
+  /// Onizlemede gosterilecek sey: dokunulan urun kendi kategorisinde
+  /// kusanilanin yerine geciyor, digerleri kusanili kaliyor. Boylece
+  /// cocuk "bu rozet benim cercevemde nasil durur" sorusunun cevabini
+  /// almadan jeton harcamiyor.
+  StoreItem? _onizlenen(StoreItemCategory k) =>
+      _previewItem?.category == k ? _previewItem : _equipped[k];
+
+  static const _onizlenebilir = {
+    StoreItemCategory.avatarFrame,
+    StoreItemCategory.nameBadge,
+    StoreItemCategory.profileTag,
+  };
 
   void _onizle(StoreItem item) {
     _previewTimer?.cancel();
@@ -518,9 +527,12 @@ class _MarketScreenState extends State<MarketScreen> {
   /// dene"). Giydirme kalktı. Onun yerine artık satılan ŞEYİ gösteriyor:
   /// Devi'nin etrafındaki çerçeve, profil ekranındakinin birebir aynısı.
   Widget _buildStagePreview() {
-    final c = _onizlenen;
+    final c = _onizlenen(StoreItemCategory.avatarFrame);
+    final rozet = _onizlenen(StoreItemCategory.nameBadge);
+    final etiket = _onizlenen(StoreItemCategory.profileTag);
     final accent =
         c == null ? Mascot.tone : AvatarCercevesi.renk(c.colorHex);
+    final p = _previewItem;
 
     return Container(
       width: double.infinity,
@@ -529,7 +541,7 @@ class _MarketScreenState extends State<MarketScreen> {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [accent.withValues(alpha: 0.12), Colors.white],
+          colors: [accent.withValues(alpha: 0.14), Colors.white],
         ),
       ),
       child: Column(
@@ -537,21 +549,21 @@ class _MarketScreenState extends State<MarketScreen> {
           AvatarCercevesi(
             boyut: 104,
             cerceve: c,
+            rozet: rozet,
+            etiket: etiket,
             child: const Mascot(size: 74, showShadow: false),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: etiket != null ? 18 : 8),
           Text(
-            // VAAT TAM OLARAK OLANI SOYLUYOR: cerceve profilde gorunur.
-            // Once "bir urune dokun, karakterinde dene!" yaziyordu ve
-            // denenecek bir sey yoktu.
-            c == null
-                ? _t(
+            // VAAT TAM OLARAK OLANI SOYLUYOR: takilanlar profilde gorunur.
+            p != null
+                ? '${p.adFor(_dil(context))} · ${_t(context, 'deneniyor', 'trying on', 'Vorschau', 'probando')}'
+                : _t(
                     context,
-                    'Çerçeven profilinde görünür.',
-                    'Your frame shows on your profile.',
-                    'Dein Rahmen erscheint in deinem Profil.',
-                    'Tu marco aparece en tu perfil.')
-                : c.adFor(_dil(context)),
+                    'Çerçeve, rozet ve etiketin profilinde görünür.',
+                    'Your frame, badge and label show on your profile.',
+                    'Rahmen, Abzeichen und Etikett erscheinen in deinem Profil.',
+                    'Tu marco, insignia y etiqueta aparecen en tu perfil.'),
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 12,
@@ -639,7 +651,7 @@ class _MarketScreenState extends State<MarketScreen> {
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: item.category == StoreItemCategory.avatarFrame
+              onTap: _onizlenebilir.contains(item.category)
                   ? () => _onizle(item)
                   : null,
               child: Stack(
@@ -662,6 +674,19 @@ class _MarketScreenState extends State<MarketScreen> {
                       child: Text(item.iconEmoji,
                           style: const TextStyle(fontSize: 22)),
                     )
+                  else if (item.category == StoreItemCategory.nameBadge)
+                    TakiliRozet(rozet: item, boyut: 64)
+                  else if (item.category == StoreItemCategory.profileTag)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: FittedBox(
+                        child: TakiliEtiket(
+                          etiket: item,
+                          yazi: item.adFor(_dil(context)),
+                          boy: 13,
+                        ),
+                      ),
+                    )
                   else
                     Container(
                       width: 72,
@@ -675,13 +700,37 @@ class _MarketScreenState extends State<MarketScreen> {
                       ),
                       child: Center(child: Text(item.iconEmoji, style: const TextStyle(fontSize: 34))),
                     ),
+                  if (item.priceJeton >= 400)
+                    Positioned(
+                      top: 6,
+                      left: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(colors: [
+                            Color(0xFFFFB300),
+                            Color(0xFFFF4FD8),
+                          ]),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          _t(context, '✨ EFSANE', '✨ LEGEND', '✨ LEGENDE',
+                              '✨ LEYENDA'),
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900),
+                        ),
+                      ),
+                    ),
                   if (item.requiresPro)
                     const Positioned(
                       top: 0,
                       right: 0,
                       child: Text('👑', style: TextStyle(fontSize: 18)),
                     ),
-                  if (item.category == StoreItemCategory.avatarFrame)
+                  if (_onizlenebilir.contains(item.category))
                     Positioned(
                       bottom: -2,
                       child: Container(

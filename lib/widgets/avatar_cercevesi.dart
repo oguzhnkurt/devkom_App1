@@ -42,6 +42,8 @@ class AvatarCercevesi extends StatefulWidget {
     required this.child,
     this.cerceve,
     this.rozetGoster = true,
+    this.rozet,
+    this.etiket,
   });
 
   final double boyut;
@@ -54,6 +56,15 @@ class AvatarCercevesi extends StatefulWidget {
 
   /// Sağ alttaki emoji rozeti. Küçük boyutlarda kapatmak için.
   final bool rozetGoster;
+
+  /// Marketten alinip TAKILAN rozet (name_badge). Cercevenin sag altina
+  /// madalya gibi iliştiriliyor; cercevenin kendi kose simgesinin yerini
+  /// aliyor. Cerceve olmasa da (sade halka) takilabiliyor.
+  final StoreItem? rozet;
+
+  /// Marketten alinip TAKILAN etiket (profile_tag). Cercevenin altina
+  /// kurdele gibi asiliyor: "Kod Ustasi", "Robot Kasifi"...
+  final StoreItem? etiket;
 
   static Color renk(String hex) {
     final t = hex.replaceFirst('#', '');
@@ -89,6 +100,41 @@ class _AvatarCercevesiState extends State<AvatarCercevesi>
 
   @override
   Widget build(BuildContext context) {
+    final govde = _govde(context);
+    final rozet = widget.rozet;
+    final etiket = widget.etiket;
+    if (rozet == null && etiket == null) return govde;
+    final boyut = widget.boyut;
+    final lang = Localizations.maybeLocaleOf(context)?.languageCode ?? 'tr';
+    return SizedBox(
+      width: boyut,
+      height: boyut,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          govde,
+          if (rozet != null)
+            Positioned(
+              right: -boyut * 0.02,
+              bottom: etiket == null ? 0 : boyut * 0.08,
+              child: TakiliRozet(rozet: rozet, boyut: boyut * 0.3),
+            ),
+          if (etiket != null)
+            Positioned(
+              bottom: -boyut * 0.1,
+              child: TakiliEtiket(
+                etiket: etiket,
+                yazi: etiket.adFor(lang),
+                boy: (boyut * 0.11).clamp(9.0, 16.0),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _govde(BuildContext context) {
     final c = widget.cerceve;
     final boyut = widget.boyut;
 
@@ -146,7 +192,7 @@ class _AvatarCercevesiState extends State<AvatarCercevesi>
               ),
             ),
           ),
-          if (widget.rozetGoster && c.iconEmoji.isNotEmpty)
+          if (widget.rozetGoster && widget.rozet == null && c.iconEmoji.isNotEmpty)
             Positioned(
               bottom: 0,
               right: boyut * 0.02,
@@ -172,6 +218,84 @@ class _AvatarCercevesiState extends State<AvatarCercevesi>
   }
 }
 
+/// Cerceveye takilan rozet: renkli, parlak kenarli bir madalyon.
+class TakiliRozet extends StatelessWidget {
+  const TakiliRozet({super.key, required this.rozet, required this.boyut});
+  final StoreItem rozet;
+  final double boyut;
+
+  @override
+  Widget build(BuildContext context) {
+    final renk = AvatarCercevesi.renk(rozet.colorHex);
+    return Container(
+      width: boyut,
+      height: boyut,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          center: const Alignment(-0.35, -0.4),
+          colors: [Color.lerp(renk, Colors.white, 0.55)!, renk],
+        ),
+        border: Border.all(color: Colors.white, width: boyut * 0.07),
+        boxShadow: [
+          BoxShadow(
+            color: renk.withValues(alpha: 0.55),
+            blurRadius: boyut * 0.25,
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(rozet.iconEmoji, style: TextStyle(fontSize: boyut * 0.5)),
+      ),
+    );
+  }
+}
+
+/// Cercevenin altina asilan etiket kurdelesi.
+class TakiliEtiket extends StatelessWidget {
+  const TakiliEtiket({
+    super.key,
+    required this.etiket,
+    required this.yazi,
+    this.boy = 13,
+  });
+  final StoreItem etiket;
+  final String yazi;
+  final double boy;
+
+  @override
+  Widget build(BuildContext context) {
+    final renk = AvatarCercevesi.renk(etiket.colorHex);
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: boy * 0.8, vertical: boy * 0.3),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color.lerp(renk, Colors.white, 0.2)!, Color.lerp(renk, Colors.black, 0.2)!],
+        ),
+        borderRadius: BorderRadius.circular(boy),
+        border: Border.all(color: Colors.white, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Text(
+        '${etiket.iconEmoji} $yazi',
+        maxLines: 1,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: boy,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.2,
+        ),
+      ),
+    );
+  }
+}
+
 // --------------------------------------------------------------- stiller
 
 /// Çerçevenin çizim ailesi.
@@ -190,6 +314,15 @@ enum CerceveStili {
   yaprak,
   serit,
   civata,
+
+  /// PAHALI (Ekim 2026): iki yana acilan, cirpan kanatlar.
+  kanat,
+
+  /// PAHALI: tepede sallanan tac ve halkaya dizili parlayan taslar.
+  tac,
+
+  /// PAHALI: zit yonde donen iki halka, gokkusagi parlaklik, kivilcimlar.
+  efsane,
 }
 
 /// `item_key` → stil. Bilinmeyen anahtar `sweep`e düşüyor: katalogda
@@ -238,6 +371,17 @@ CerceveStili cerceveStili(String itemKey) {
     case 'frame_bronze':
     case 'frame_royal':
       return CerceveStili.sweep;
+
+    case 'frame_dragon':
+    case 'frame_angel':
+      return CerceveStili.kanat;
+
+    case 'frame_emperor':
+      return CerceveStili.tac;
+
+    case 'frame_cosmic':
+    case 'frame_legend':
+      return CerceveStili.efsane;
 
     default:
       return CerceveStili.sweep;
@@ -298,6 +442,15 @@ class _CercevePainter extends CustomPainter {
         break;
       case CerceveStili.civata:
         _civata(canvas, merkez, r);
+        break;
+      case CerceveStili.kanat:
+        _kanat(canvas, merkez, r);
+        break;
+      case CerceveStili.tac:
+        _tac(canvas, merkez, r);
+        break;
+      case CerceveStili.efsane:
+        _efsane(canvas, merkez, r);
         break;
     }
   }
@@ -628,6 +781,148 @@ class _CercevePainter extends CustomPainter {
           ..color = _acik.withValues(alpha: 0.55)
           ..strokeWidth = kalinlik * 0.22
           ..maskFilter = MaskFilter.blur(BlurStyle.normal, kalinlik * 0.2));
+  }
+
+  // ------------------------------------------------ pahali aileler
+
+  /// Iki yana acilan tuy kanatlar; her biri kendi ritminde cirpiyor.
+  void _kanat(Canvas canvas, Offset m, double r) {
+    final cirp = math.sin(t * _tau * 2) * 0.16;
+    for (final yon in const [-1.0, 1.0]) {
+      canvas.save();
+      canvas.translate(m.dx + yon * r * 0.78, m.dy + r * 0.05);
+      canvas.rotate(yon * (0.18 + cirp));
+      for (var i = 0; i < 4; i++) {
+        final boy = r * (0.95 - i * 0.16);
+        final en = r * 0.23;
+        final aci = yon * (-0.75 + i * 0.42);
+        canvas.save();
+        canvas.rotate(aci);
+        final rect = Rect.fromLTWH(
+            yon > 0 ? 0 : -boy, -en / 2, boy, en);
+        final tuy = Paint()
+          ..shader = LinearGradient(
+            begin: yon > 0 ? Alignment.centerLeft : Alignment.centerRight,
+            end: yon > 0 ? Alignment.centerRight : Alignment.centerLeft,
+            colors: [_acik, ana, _koyu],
+          ).createShader(rect);
+        canvas.drawOval(rect, tuy);
+        canvas.drawOval(
+            rect,
+            Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = kalinlik * 0.18
+              ..color = Colors.white.withValues(alpha: 0.7));
+        canvas.restore();
+      }
+      canvas.restore();
+    }
+    _sweep(canvas, m, r);
+  }
+
+  /// Altin halka, tepede hafifce sallanan tac, halkada goz kirpan taslar.
+  void _tac(Canvas canvas, Offset m, double r) {
+    _sweep(canvas, m, r);
+    const taslar = [
+      Color(0xFFE53935),
+      Color(0xFF1E88E5),
+      Color(0xFF43A047),
+      Color(0xFF8E24AA),
+    ];
+    for (var i = 0; i < 8; i++) {
+      final aci = i / 8 * _tau + _tau / 16;
+      final p = m + Offset(math.cos(aci), math.sin(aci)) * r;
+      final parla = 0.55 + 0.45 * math.sin((t * 3 + i * 0.37) * _tau);
+      canvas.drawCircle(p, kalinlik * 0.62,
+          Paint()..color = taslar[i % taslar.length]);
+      canvas.drawCircle(
+          p + Offset(-kalinlik * 0.18, -kalinlik * 0.18),
+          kalinlik * 0.2 * parla,
+          Paint()..color = Colors.white.withValues(alpha: 0.9));
+    }
+    // Tac.
+    final sallan = math.sin(t * _tau) * 0.06;
+    canvas.save();
+    canvas.translate(m.dx, m.dy - r - kalinlik * 0.2);
+    canvas.rotate(sallan);
+    final w = r * 0.9, h = r * 0.55;
+    final yol = Path()
+      ..moveTo(-w / 2, 0)
+      ..lineTo(-w / 2, -h * 0.55)
+      ..lineTo(-w / 4, -h * 0.25)
+      ..lineTo(0, -h)
+      ..lineTo(w / 4, -h * 0.25)
+      ..lineTo(w / 2, -h * 0.55)
+      ..lineTo(w / 2, 0)
+      ..close();
+    canvas.drawPath(
+        yol,
+        Paint()
+          ..shader = LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [const Color(0xFFFFF59D), ana, _koyu],
+          ).createShader(Rect.fromLTWH(-w / 2, -h, w, h)));
+    canvas.drawPath(
+        yol,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = kalinlik * 0.2
+          ..color = _koyu);
+    for (final x in [-w / 2, 0.0, w / 2]) {
+      final y = x == 0 ? -h : -h * 0.55;
+      canvas.drawCircle(Offset(x, y), kalinlik * 0.42,
+          Paint()..color = const Color(0xFFE53935));
+    }
+    canvas.drawCircle(Offset(0, -h * 0.3), kalinlik * 0.5,
+        Paint()..color = const Color(0xFF1E88E5));
+    canvas.restore();
+  }
+
+  /// Gokkusagi parlakligi, zit yonde donen kesik halkalar, kivilcimlar.
+  void _efsane(Canvas canvas, Offset m, double r) {
+    final rect = Rect.fromCircle(center: m, radius: r);
+    canvas.drawCircle(
+        m,
+        r,
+        _halkaKalem
+          ..shader = SweepGradient(
+            transform: GradientRotation(t * _tau),
+            colors: [
+              ana,
+              const Color(0xFFFF4FD8),
+              const Color(0xFFFFD54F),
+              const Color(0xFF4DD0E1),
+              ana,
+            ],
+          ).createShader(rect));
+    final kesik = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = kalinlik * 0.28
+      ..strokeCap = StrokeCap.round
+      ..color = Colors.white.withValues(alpha: 0.85);
+    for (var i = 0; i < 6; i++) {
+      final a = -t * _tau * 1.5 + i * _tau / 6;
+      canvas.drawArc(Rect.fromCircle(center: m, radius: r + kalinlik * 1.05),
+          a, 0.45, false, kesik);
+      final b = t * _tau + i * _tau / 6;
+      canvas.drawArc(Rect.fromCircle(center: m, radius: r - kalinlik * 0.95),
+          b, 0.3, false, kesik..color = _acik.withValues(alpha: 0.7));
+      kesik.color = Colors.white.withValues(alpha: 0.85);
+    }
+    // Kivilcimlar: dort kollu parilti, nabiz gibi buyuyup kuculuyor.
+    for (var i = 0; i < 5; i++) {
+      final aci = (t * 0.5 + i / 5) * _tau;
+      final p = m + Offset(math.cos(aci), math.sin(aci)) * (r + kalinlik * 1.9);
+      final b = kalinlik * (0.5 + 0.5 * math.sin((t * 4 + i) * _tau).abs());
+      final yol = Path()
+        ..moveTo(p.dx, p.dy - b * 1.6)
+        ..quadraticBezierTo(p.dx, p.dy, p.dx + b * 1.6, p.dy)
+        ..quadraticBezierTo(p.dx, p.dy, p.dx, p.dy + b * 1.6)
+        ..quadraticBezierTo(p.dx, p.dy, p.dx - b * 1.6, p.dy)
+        ..quadraticBezierTo(p.dx, p.dy, p.dx, p.dy - b * 1.6);
+      canvas.drawPath(yol, Paint()..color = Colors.white.withValues(alpha: 0.95));
+    }
   }
 
   @override

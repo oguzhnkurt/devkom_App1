@@ -27,8 +27,12 @@ enum StoreItemCategory {
   /// Profil başlığındaki renkli alan. Çocuk her profil açtığında görüyor.
   profileBanner,
 
-  /// Sıralamada adının yanında görünen küçük rozet.
+  /// Rozet: sıralamada adının yanında VE avatar çerçevesine takılı
+  /// madalyon olarak görünüyor.
   nameBadge,
+
+  /// Etiket: avatar çerçevesinin altına asılan kurdele ("Kod Ustası").
+  profileTag,
 }
 
 /// Artik satilmayan, giyilemeyen kategoriler.
@@ -54,6 +58,8 @@ StoreItemCategory _parseCategory(String value) {
       return StoreItemCategory.profileBanner;
     case 'name_badge':
       return StoreItemCategory.nameBadge;
+    case 'profile_tag':
+      return StoreItemCategory.profileTag;
     case 'character':
       return StoreItemCategory.character;
     case 'necklace':
@@ -84,10 +90,16 @@ String storeCategoryDisplayName(StoreItemCategory category, String lang) {
           es: 'Carteles de perfil');
     case StoreItemCategory.nameBadge:
       return AppLang.pick(lang,
-          tr: 'İsim Rozetleri',
-          en: 'Name Badges',
-          de: 'Namensabzeichen',
-          es: 'Insignias de nombre');
+          tr: 'Rozetler',
+          en: 'Badges',
+          de: 'Abzeichen',
+          es: 'Insignias');
+    case StoreItemCategory.profileTag:
+      return AppLang.pick(lang,
+          tr: 'Etiketler',
+          en: 'Labels',
+          de: 'Etiketten',
+          es: 'Etiquetas');
     case StoreItemCategory.robotSkin:
       return AppLang.pick(lang,
           tr: 'Robot Kılıfları',
@@ -128,6 +140,8 @@ String storeCategoryKey(StoreItemCategory category) {
       return 'profile_banner';
     case StoreItemCategory.nameBadge:
       return 'name_badge';
+    case StoreItemCategory.profileTag:
+      return 'profile_tag';
     case StoreItemCategory.robotSkin:
       return 'robot_skin';
     case StoreItemCategory.avatarFrame:

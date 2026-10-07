@@ -18,6 +18,7 @@ import '../../utils/app_localizations.dart';
 import '../../utils/pro_gate.dart';
 import '../report/progress_report_screen.dart';
 import '../../widgets/mascot.dart';
+import '../market_screen.dart';
 import '../../widgets/veli_takip_karti.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -60,15 +61,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// Kusanilmis profil afisi: baslik alaninin rengi.
   StoreItem? _afis;
 
+  /// Cerceveye takili rozet ve etiket (Ekim 2026). Profil acilinca en
+  /// ustte, avatarin uzerinde gorunuyorlar.
+  StoreItem? _rozet;
+  StoreItem? _etiket;
+
   Future<void> _cerceveyiYukle() async {
     try {
       final servis = StoreService();
       final c = await servis.getEquippedItem(StoreItemCategory.avatarFrame);
       final a = await servis.getEquippedItem(StoreItemCategory.profileBanner);
+      final r = await servis.getEquippedItem(StoreItemCategory.nameBadge);
+      final e = await servis.getEquippedItem(StoreItemCategory.profileTag);
       if (!mounted) return;
       setState(() {
         _cerceve = c;
         _afis = a;
+        _rozet = r;
+        _etiket = e;
       });
     } catch (_) {
       // Okunamazsa varsayilan gorunum: sade halka, kurumsal mavi baslik.
@@ -82,7 +92,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _linkPasswordController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -121,8 +130,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         size: 56, color: Colors.grey[400]),
                     const SizedBox(height: 16),
                     Text(
-                      _t4(context, 'Profilin yüklenemedi',
-                          'Profile could not load', 'Profil konnte nicht geladen werden',
+                      _t4(
+                          context,
+                          'Profilin yüklenemedi',
+                          'Profile could not load',
+                          'Profil konnte nicht geladen werden',
                           'No se pudo cargar el perfil'),
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
@@ -169,8 +181,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return SingleChildScrollView(
             // Alt cam gezinme cubugu icerigin uzerinde duruyor; son kart
             // onun altinda kalmasin diye cubugun yuksegi kadar bosluk.
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.paddingOf(context).bottom),
+            padding:
+                EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
             child: Column(
               children: [
                 _buildHeader(context, user, theme),
@@ -296,7 +308,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // NOT: Burada e-posta gosteriliyordu; kisisel veriyi ekranda
               // tutmamak icin kaldirildi.
               Text(
-                _t4(context, 'Takma adını değiştirmek için dokun',
+                _t4(
+                    context,
+                    'Takma adını değiştirmek için dokun',
                     'Tap to change your nickname',
                     'Tippe, um deinen Spitznamen zu ändern',
                     'Toca para cambiar tu apodo'),
@@ -328,10 +342,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// burada da Devi duruyor. Cocuk hicbir sey kusanmamissa eskiden
   /// bas harfleri goruyordu; simdi herkes ayni arkadasi goruyor.
   Widget _buildCharacterAvatar(ThemeData theme, UserModel user) {
-    return AvatarCercevesi(
-      boyut: 150,
-      cerceve: _cerceve,
-      child: const Mascot(size: 112, showShadow: false),
+    return GestureDetector(
+      // Avatara dokunmak Market'i aciyor; donunce takilanlar yenileniyor.
+      key: const ValueKey('profil_avatar'),
+      onTap: () async {
+        await Navigator.of(context)
+            .push(MaterialPageRoute(builder: (_) => const MarketScreen()));
+        if (mounted) _cerceveyiYukle();
+      },
+      child: Padding(
+        // Etiket kurdelesi avatarin altina sarkiyor; adla cakismasin.
+        padding: EdgeInsets.only(bottom: _etiket != null ? 14 : 0),
+        child: AvatarCercevesi(
+          boyut: 150,
+          cerceve: _cerceve,
+          rozet: _rozet,
+          etiket: _etiket,
+          child: const Mascot(size: 112, showShadow: false),
+        ),
+      ),
     );
   }
 
@@ -558,10 +587,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // Cozum context'i saglamlastirmak degil, ONA HIC IHTIYAC
     // DUYMAMAK: dil kodu alt sayfa acilmadan once bir kez okunuyor,
     // icerideki butun yazilar bu kapanistan geciyor.
-    final dilKodu =
-        Provider.of<SettingsProvider>(context, listen: false)
-            .locale
-            .languageCode;
+    final dilKodu = Provider.of<SettingsProvider>(context, listen: false)
+        .locale
+        .languageCode;
     String t(String tr, String en, String de, String es) =>
         AppLang.pick(dilKodu, tr: tr, en: en, de: de, es: es);
 
@@ -592,7 +620,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Your account is ready and your progress is saved.',
                 'Dein Konto ist fertig, dein Fortschritt ist gespeichert.',
                 'Tu cuenta está lista y tu progreso está guardado.');
-            final genelHata = t( 'Kaydedilemedi, tekrar dene.',
+            final genelHata = t(
+                'Kaydedilemedi, tekrar dene.',
                 'Could not save, please try again.',
                 'Speichern fehlgeschlagen, versuch es erneut.',
                 'No se pudo guardar, inténtalo de nuevo.');
@@ -650,10 +679,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  t( 'Hesabını oluştur', 'Create your account',
+                  t('Hesabını oluştur', 'Create your account',
                       'Erstelle dein Konto', 'Crea tu cuenta'),
-                  style:
-                      const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+                  style: const TextStyle(
+                      fontSize: 19, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -678,8 +707,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   keyboardType: TextInputType.emailAddress,
                   autocorrect: false,
                   decoration: InputDecoration(
-                    labelText: t( 'E-posta', 'Email', 'E-Mail',
-                        'Correo electrónico'),
+                    labelText:
+                        t('E-posta', 'Email', 'E-Mail', 'Correo electrónico'),
                     prefixIcon: const Icon(Icons.mail_outline_rounded),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -691,11 +720,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   controller: passwordController,
                   obscureText: obscure,
                   decoration: InputDecoration(
-                    labelText: t( 'Şifre', 'Password', 'Passwort',
-                        'Contraseña'),
-                    helperText: t( 'En az 6 karakter',
-                        'At least 6 characters', 'Mindestens 6 Zeichen',
-                        'Al menos 6 caracteres'),
+                    labelText: t('Şifre', 'Password', 'Passwort', 'Contraseña'),
+                    helperText: t('En az 6 karakter', 'At least 6 characters',
+                        'Mindestens 6 Zeichen', 'Al menos 6 caracteres'),
                     prefixIcon: const Icon(Icons.lock_outline_rounded),
                     suffixIcon: IconButton(
                       icon: Icon(obscure
@@ -728,8 +755,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: CircularProgressIndicator(
                                 strokeWidth: 2, color: Colors.white),
                           )
-                        : Text(t( 'Kaydet', 'Save', 'Speichern',
-                            'Guardar')),
+                        : Text(t('Kaydet', 'Save', 'Speichern', 'Guardar')),
                   ),
                 ),
               ],
@@ -967,8 +993,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-
-
   // ==========================================
   // SLIDE-UP ONAY PANELLERI (showModalBottomSheet)
   // ==========================================
@@ -1032,7 +1056,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 }
-
 
 /// Ortak "slide up" onay paneli - Quizo tasarımındaki yuvarlatılmış üst
 /// köşeli, tutamaçlı (drag handle) alt sayfa hissini örnek alır; kurumsal
@@ -1139,9 +1162,7 @@ class _ConfirmSheet extends StatelessWidget {
 /// Bu ekrandaki kısa arayüz yazıları için dört dilli yardımcı.
 String _t4(BuildContext context, String tr, String en, String de, String es) =>
     AppLang.pick(
-      Provider.of<SettingsProvider>(context, listen: false)
-          .locale
-          .languageCode,
+      Provider.of<SettingsProvider>(context, listen: false).locale.languageCode,
       tr: tr,
       en: en,
       de: de,
