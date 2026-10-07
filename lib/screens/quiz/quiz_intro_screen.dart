@@ -66,9 +66,29 @@ class QuizIntroScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 12),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: TextButton(
+                  // GERI TUSU. Ekran Etkinlikler'den ve ana sayfadan
+                  // itiliyor ama ustunde hicbir geri tusu yoktu: cocuk
+                  // yalnizca "Gec" ile quize girebiliyor, geri donemiyordu
+                  // (Ekim 2026 geri bildirimi). Rotaya soruluyor; ilk
+                  // ekran olarak acilirsa tus cizilmiyor.
+                  Row(
+                    children: [
+                      if (ModalRoute.of(context)?.canPop ?? false)
+                        Material(
+                          color: Colors.white,
+                          shape: const CircleBorder(),
+                          elevation: 2,
+                          shadowColor: _purple.withValues(alpha: 0.3),
+                          child: IconButton(
+                            tooltip: MaterialLocalizations.of(context)
+                                .backButtonTooltip,
+                            icon: const Icon(Icons.arrow_back_rounded,
+                                color: _purple),
+                            onPressed: () => Navigator.of(context).maybePop(),
+                          ),
+                        ),
+                      const Spacer(),
+                      TextButton(
                       onPressed: () => _enter(context),
                       child: Text(
                           AppLang.pick(lang,
@@ -78,7 +98,8 @@ class QuizIntroScreen extends StatelessWidget {
                               es: 'Saltar'),
                           style:
                               TextStyle(color: _purple.withValues(alpha: 0.7))),
-                    ),
+                      ),
+                    ],
                   ),
                   const Spacer(),
                   Container(
