@@ -25,7 +25,6 @@ import 'quiz/quiz_intro_screen.dart';
 import '../courses/screens/interactive_lesson_screen.dart';
 import '../models/learner_profile.dart';
 import '../providers/settings_provider.dart';
-import '../services/learning_path_service.dart';
 import '../services/next_lesson_service.dart';
 import '../ui/count_up.dart';
 import '../ui/motion.dart';
@@ -35,12 +34,12 @@ import '../utils/lang.dart';
 import '../utils/pro_gate.dart';
 import 'subscription_screen.dart';
 import '../ui/kod_akintisi.dart';
-import '../courses/data/course_modules.dart';
 import '../models/game_model.dart';
 import '../services/embedded_games_service.dart';
 import '../widgets/oyun_kimligi.dart';
 import '../widgets/oyun_sahnesi.dart';
 import 'game_play_screen.dart';
+import '../widgets/surpriz_sandik.dart';
 
 /// Unified Home Screen - Minimal, modern dashboard for all ages
 class UnifiedHomeScreen extends StatefulWidget {
@@ -202,7 +201,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                 // ILK ACILIS (hic ders bitirmemis cocuk): tek bir ders
-                // karti, kaydirmali "Kesfet" kartlari ve kurs afisleri.
+                // karti, surpriz oyun sandigi ve kaydirmali "Kesfet" kartlari.
                 //
                 // Eskiden ayni ekranda alti ayri blok vardi: ders karti,
                 // kilitli daireler seridi, Etkinlikler karti, uc kisayol,
@@ -214,9 +213,18 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                 if (isNewUser && next != null) ...[
                   _FadeInUp(child: _buildIlkGorev(next, isDark)),
                   const SizedBox(height: 24),
-                  _FadeInUp(delay: 60, child: _buildKesfet(next, isDark)),
+                  // Surpriz sandik: "bugun ne oynasam?" (Ekim 2026,
+                  // "Ogrenecegin kurslar" seridinin yerine).
+                  _FadeInUp(
+                    delay: 60,
+                    child: SurprizSandik(
+                      lang: _lang,
+                      onOyna: (g) => Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => GamePlayScreen(game: g))),
+                    ),
+                  ),
                   const SizedBox(height: 24),
-                  _FadeInUp(delay: 120, child: _buildKursAfisleri(profile, isDark)),
+                  _FadeInUp(delay: 120, child: _buildKesfet(next, isDark)),
                 ] else ...[
                   if (!isNewUser) ...[
                     _buildGenelBakis(userProgress, isDark),
@@ -1710,131 +1718,6 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
           ],
         ),
       ),
-    );
-  }
-
-  /// Ogrenecegin kurslar: onumuzdeki kurslar afis gibi, yana kayan.
-  /// Ilk afiste "Buradasin". Kilitli gri daireler yerine kursun kendi
-  /// rengi ve simgesi; ders sayisi kursun gercek ders listesinden.
-  Widget _buildKursAfisleri(LearnerProfile profile, bool isDark) {
-    final yol = LearningPathService.buildPath(profile).take(6).toList();
-    if (yol.length < 2) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _bolumBasligi(
-          _t('Öğreneceğin kurslar', 'Courses ahead', 'Deine Kurse', 'Tus cursos'),
-          isDark,
-          sag: _t('Tümü', 'All', 'Alle', 'Todos'),
-          onSag: () => Navigator.push(context,
-              MaterialPageRoute(builder: (_) => const CourseCatalogScreen())),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 178,
-          child: OverflowBox(
-            maxWidth: MediaQuery.sizeOf(context).width,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              itemCount: yol.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (_, i) {
-                final k = yol[i];
-                final ders = CourseModules.allLessons(k.id).length;
-                return GestureDetector(
-                  onTap: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const CourseCatalogScreen())),
-                  child: Container(
-                    width: 124,
-                    margin: const EdgeInsets.only(bottom: 6),
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [k.secondaryColor, k.primaryColor],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color.lerp(k.primaryColor, Colors.black, 0.3)!,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      children: [
-                        // arkada buyuk, soluk simge
-                        Positioned(
-                          right: -18,
-                          bottom: 20,
-                          child: Opacity(
-                            opacity: 0.22,
-                            child: Text(k.icon, style: const TextStyle(fontSize: 76)),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 44,
-                                height: 44,
-                                alignment: Alignment.center,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Text(k.icon, style: const TextStyle(fontSize: 22)),
-                              ),
-                              const Spacer(),
-                              Text(
-                                k.nameFor(_lang),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontFamily: AppTheme.fontFamily,
-                                  fontSize: 15,
-                                  height: 1.15,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: i == 0
-                                      ? Colors.white
-                                      : Colors.white.withValues(alpha: 0.25),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  i == 0
-                                      ? _t('Buradasın', 'You are here', 'Du bist hier', 'Estás aquí')
-                                      : _t('$ders ders', '$ders lessons', '$ders Lektionen', '$ders lecciones'),
-                                  style: TextStyle(
-                                    fontFamily: AppTheme.fontFamily,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800,
-                                    color: i == 0 ? k.primaryColor : Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-      ],
     );
   }
 
