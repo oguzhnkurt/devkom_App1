@@ -249,7 +249,7 @@ herkesin Scratch'ten başlaması, kurs sayfalarının dört dile çevrilmesi.
 ### tr
 
 • Oyun ekranları yenilendi: her oyunun kendi renginde başlık, yumuşak zemin
-ve renkli cevap kartları.
+ve renkli cevap kartları. Oyunlar sekmesi de renkli kartlarla yenilendi.
 
 • Etkinlikler ve Kurslar ekranında görünmeyen geri tuşu ve başlık
 düzeltildi.
@@ -269,7 +269,7 @@ düzeltildi.
 ### en
 
 • Refreshed game screens: each game has its own colorful header, a softer
-background and colorful answer cards.
+background and colorful answer cards. The Games tab has new colorful cards too.
 
 • Fixed the back button and title that were hard to see on the
 Activities and Courses screens.
@@ -289,7 +289,7 @@ Activities and Courses screens.
 ### de
 
 • Neue Spielbildschirme: bunte Kopfzeile in der Farbe des Spiels, ein
-sanfter Hintergrund und farbige Antwortkarten.
+sanfter Hintergrund und farbige Antwortkarten. Auch der Spiele-Tab zeigt neue bunte Karten.
 
 • Zurück-Taste und Titel auf den Seiten Aktivitäten und Kurse sind wieder
 gut sichtbar.
@@ -309,7 +309,7 @@ gut sichtbar.
 ### es
 
 • Pantallas de juego renovadas: cada juego tiene su propia cabecera de
-color, un fondo suave y tarjetas de respuesta de colores.
+color, un fondo suave y tarjetas de respuesta de colores. La pestaña Juegos también estrena tarjetas de colores.
 
 • Se corrigieron el botón de volver y el título que casi no se veían en
 Actividades y Cursos.

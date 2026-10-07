@@ -285,19 +285,27 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen> {
           const SizedBox(height: 22),
           _bolumBasligi(bolum),
           const SizedBox(height: 12),
-          SizedBox(
-            height: 208,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
+          // IKI SUTUN (Ekim 2026). Yatay raflarda ucuncu kart yarim
+          // gorunuyordu ve rafin sonundaki oyunlari kimse kesfetmiyordu.
+          // Bolumler alt alta, her bolumde tum oyunlar ikiser ikiser.
+          LayoutBuilder(builder: (context, c) {
+            const ara = 12.0;
+            final gen = (c.maxWidth - 32 - ara) / 2;
+            return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: bolum.games.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (context, i) => AppearIn(
-                delay: AppearIn.stagger(i),
-                child: _oyunKarti(bolum.games[i], genislik: 158),
+              child: Wrap(
+                spacing: ara,
+                runSpacing: ara,
+                children: [
+                  for (var i = 0; i < bolum.games.length; i++)
+                    AppearIn(
+                      delay: AppearIn.stagger(i),
+                      child: _oyunKarti(bolum.games[i], genislik: gen),
+                    ),
+                ],
               ),
-            ),
-          ),
+            );
+          }),
         ],
       ],
     );
@@ -737,10 +745,6 @@ class _Bolumler {
 class _OyunGorseli {
   _OyunGorseli._();
 
-  /// Oyunun gerçek oynanış görüntüsü. Dosya yoksa renkli simgeye
-  /// düşülüyor, böylece görüntüsü henüz alınmamış bir oyun kartı boş
-  /// kalmıyor.
-  static String shot(GameType type) => 'assets/images/games/${type.name}.png';
 
   // Simge ve renk tek yerde: oyunun kendi ekranindaki baslik da ayni
   // degerleri kullaniyor (`OyunKimligi`), kart ile ekran ayni renkte.
@@ -941,111 +945,155 @@ class _JelKart extends StatelessWidget {
   Widget build(BuildContext context) {
     final renk = _OyunGorseli.renk(game.type);
     final koyu = _OyunGorseli.koyu(renk);
+    final acik = Color.lerp(renk, Colors.white, 0.18)!;
     return _JelBas(
       onTap: onTap,
       koyu: koyu,
-      yaricap: 22,
+      yaricap: 24,
       child: Container(
         width: genislik,
+        height: yatay ? 84 : 172,
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: renk, width: 3),
+          borderRadius: BorderRadius.circular(24),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [acik, renk],
+          ),
         ),
-        padding: const EdgeInsets.all(9),
-        child: yatay ? _yatayIcerik(renk) : _dikeyIcerik(renk),
+        child: Stack(
+          children: [
+            // Arkada buyuk, soluk, egik simge: kart duz bir renk
+            // blogu gibi durmasin.
+            Positioned(
+              right: yatay ? 8 : -18,
+              bottom: yatay ? -22 : -20,
+              child: Transform.rotate(
+                angle: -0.35,
+                child: Icon(_OyunGorseli.simge(game.type),
+                    size: yatay ? 92 : 112,
+                    color: Colors.white.withValues(alpha: 0.16)),
+              ),
+            ),
+            // Ust kosede yumusak bir isik.
+            Positioned(
+              left: -30,
+              top: -40,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.14),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: yatay ? _yatayIcerik() : _dikeyIcerik(),
+            ),
+            if (isProLocked)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.28),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Image.asset(
+                    'assets/images/ui/tac.png',
+                    width: 18,
+                    height: 18,
+                    filterQuality: FilterQuality.medium,
+                    errorBuilder: (_, __, ___) => const Icon(
+                        Icons.lock_rounded,
+                        size: 14,
+                        color: AppTheme.accentYellow),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _gorsel(Color renk, {required double yukseklik}) {
-    return Stack(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(15),
-          child: Container(
-            height: yukseklik,
-            width: double.infinity,
-            color: renk.withValues(alpha: 0.14),
-            child: Image.asset(
-              _OyunGorseli.shot(game.type),
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Center(
-                child: Icon(_OyunGorseli.simge(game.type),
-                    color: renk, size: yukseklik * 0.42),
-              ),
+  /// Beyaz daire icinde oyunun simgesi — oyun ekranindaki baslikla ayni.
+  Widget _rozet(double boyut) => Container(
+        width: boyut,
+        height: boyut,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
             ),
-          ),
+          ],
         ),
-        if (isProLocked)
-          Positioned(
-            top: 5,
-            right: 5,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1B1B1B).withValues(alpha: 0.72),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Image.asset(
-                'assets/images/ui/tac.png',
-                width: 18,
-                height: 18,
-                filterQuality: FilterQuality.medium,
-                errorBuilder: (_, __, ___) => const Icon(Icons.lock_rounded,
-                    size: 14, color: AppTheme.accentYellow),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
+        child: Icon(_OyunGorseli.simge(game.type),
+            size: boyut * 0.52, color: _OyunGorseli.renk(game.type)),
+      );
 
-  Widget _baslik(int satir) => Text(
+  Widget _baslik(int satir, {TextAlign hiza = TextAlign.start}) => Text(
         game.titleFor(lang),
         maxLines: satir,
+        textAlign: hiza,
         overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: AppTheme.fontFamily,
           fontSize: 16,
-          fontWeight: FontWeight.w800,
-          color: Color(0xFF241C3B),
+          fontWeight: FontWeight.w900,
+          color: Colors.white,
           height: 1.15,
+          shadows: [
+            Shadow(
+              color: Colors.black.withValues(alpha: 0.18),
+              offset: const Offset(0, 1),
+              blurRadius: 2,
+            ),
+          ],
         ),
       );
 
-  Widget _dikeyIcerik(Color renk) {
+  Widget _dikeyIcerik() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
       children: [
-        _gorsel(renk, yukseklik: 96),
-        const SizedBox(height: 9),
-        SizedBox(height: 38, child: _baslik(2)),
-        const SizedBox(height: 4),
-        _Yildizlar(dolu: _OyunGorseli.yildiz(game.difficulty), renk: renk),
+        _rozet(58),
+        const Spacer(),
+        _baslik(2),
+        const SizedBox(height: 6),
+        _Yildizlar(
+            dolu: _OyunGorseli.yildiz(game.difficulty), renk: Colors.white),
       ],
     );
   }
 
-  Widget _yatayIcerik(Color renk) {
+  Widget _yatayIcerik() {
     return Row(
       children: [
-        SizedBox(width: 92, child: _gorsel(renk, yukseklik: 66)),
+        _rozet(52),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _baslik(2),
-              const SizedBox(height: 6),
+              _baslik(1),
+              const SizedBox(height: 4),
               _Yildizlar(
-                  dolu: _OyunGorseli.yildiz(game.difficulty), renk: renk),
+                  dolu: _OyunGorseli.yildiz(game.difficulty),
+                  renk: Colors.white),
             ],
           ),
         ),
-        Icon(Icons.chevron_right_rounded, color: renk.withValues(alpha: 0.7)),
+        const Icon(Icons.chevron_right_rounded, color: Colors.white),
       ],
     );
   }

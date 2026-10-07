@@ -193,7 +193,14 @@ Future<void> _shoot(
       ),
     ),
   );
-  await tester.pump(settle);
+  // Tek bir uzun pump yetmiyor: gecikmeli giris animasyonlari
+  // (AppearIn) zamanlayici o pump'in icinde dolunca basliyor ve ilerlemek
+  // icin yeni kareler istiyor. Oyunlar sekmesinde kartlarin yarisi
+  // gorunmez cikiyordu.
+  for (var i = 0; i < 8; i++) {
+    await tester.pump(settle ~/ 8);
+  }
+  await tester.pump(const Duration(milliseconds: 400));
 
   // Image.asset test motorunda kendiliginden COZULMUYOR: acilis
   // ekranindaki uygulama simgesi bir kosuda robot, digerinde bos mor

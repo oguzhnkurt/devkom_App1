@@ -93,7 +93,7 @@ void main() {
       }
     });
 
-    test('izgara gitti, raf geldi', () {
+    test('izgara yok, bolum bolum iki sutun', () {
       // 2x2 GridView bir oyun rafi degil tablo gibi duruyordu.
       //
       // Denetim YORUMLARI atliyor: dosyanin basindaki aciklama izgaranin
@@ -105,8 +105,13 @@ void main() {
           .join('\n');
       expect(kod.contains('GridView'), isFalse,
           reason: 'Izgara geri gelmis.');
-      expect(kaynak.contains('scrollDirection: Axis.horizontal'), isTrue,
-          reason: 'Yatay raflar kayboldu.');
+      // Ekim 2026: yatay raflar yerine bolum bolum iki sutun (Wrap).
+      // Yatay rafta ucuncu kart yarim kaliyor, sondaki oyunlar
+      // kesfedilmiyordu.
+      expect(kaynak.contains('scrollDirection: Axis.horizontal'), isFalse,
+          reason: 'Yatay raf geri gelmis.');
+      expect(kaynak.contains('child: Wrap('), isTrue,
+          reason: 'Iki sutunlu bolum duzeni yok.');
       expect(kaynak.contains("tr: 'GÜNÜN GÖREVİ!'"), isTrue);
       for (final yazi in const [
         "tr: 'Robot Görevleri'",
