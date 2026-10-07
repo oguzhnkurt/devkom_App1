@@ -176,7 +176,7 @@ Derslerin ardından gelen quizler neyin akılda kaldığını ölçüyor; her
 sorunun ardından açıklaması var. Yanlış cevap puan kaybettirmiyor.
 
 Uygulamanın maskotu Devi yol boyunca eşlik ediyor. Öğrendikçe jeton
-kazanılıyor; jetonlar avatar çerçevesi, profil afişi ve isim rozetine
+kazanılıyor; jetonlar avatar çerçevesi, profil afişi, rozet ve etikete
 harcanıyor.
 
 Ebeveyn kapısının arkasında ilerleme, haftalık hedef ve sertifikalar
@@ -211,7 +211,7 @@ Quizzes after the lessons check what stuck, with an explanation after
 every question. A wrong answer never costs points.
 
 Devi, the app's mascot, comes along for the ride. Learning earns coins,
-and coins are spent on avatar frames, profile banners and name badges.
+and coins are spent on avatar frames, profile banners, badges and labels.
 
 Behind a parent gate: progress, the weekly goal and certificates. The
 app's own purchases and external links are not reachable without

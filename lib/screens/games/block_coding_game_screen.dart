@@ -1,5 +1,8 @@
 // Professional block coding game
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../widgets/oyun_basligi.dart';
 import '../../widgets/oyun_kimligi.dart';
 import 'dart:async';
@@ -61,7 +64,18 @@ class BlockCodingGameScreen extends StatefulWidget {
 }
 
 class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
+  /// Yildizlarin nabzi ve bayragin dalgalanmasi.
+  late final AnimationController _nabiz = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 1400))
+    ..repeat();
+
+  /// Robotun gectigi kareler (calisirken iz birakiyor).
+  final List<String> _iz = [];
+
+  /// O an calisan blogun sirasi; kod alaninda parliyor.
+  int? _calisanBlok;
+
   // Player state
   int _playerX = 0;
   int _playerY = 0;
@@ -147,6 +161,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
   @override
   void dispose() {
     _animationController.dispose();
+    _nabiz.dispose();
     super.dispose();
   }
 
@@ -157,6 +172,8 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
       _playerDirection = Direction.right;
       _collectedStars.clear();
       _codeBlocks.clear();
+      _iz.clear();
+      _calisanBlok = null;
       _isRunning = false;
 
       switch (level) {
@@ -311,10 +328,14 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
       _playerY = 0;
       _playerDirection = Direction.right;
       _collectedStars.clear();
+      _iz
+        ..clear()
+        ..add('0,0');
     });
 
     try {
       await _executeBlocks(_codeBlocks);
+      if (mounted) setState(() => _calisanBlok = null);
 
       // Check if goal reached
       if (_playerX == _goalX && _playerY == _goalY) {
@@ -349,6 +370,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
   Future<void> _executeBlocks(List<CodeBlock> blocks) async {
     for (var i = 0; i < blocks.length; i++) {
       final block = blocks[i];
+      if (mounted) setState(() => _calisanBlok = i);
 
       if (block.type == BlockType.repeat) {
         final tekrar = block.repeatCount ?? 0;
@@ -357,6 +379,7 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
           // Bos dongu: yapacak is yok.
           continue;
         }
+        if (mounted) setState(() => _calisanBlok = i + 1);
         for (var t = 0; t < tekrar; t++) {
           await _executeCommand(icerdeki.type);
         }
@@ -414,16 +437,22 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
         break;
     }
 
-    if (newX < 0 || newX >= 5 || newY < 0 || newY >= 5) return;
-    if (_grid[newY][newX] == 1) return;
+    if (newX < 0 || newX >= 5 || newY < 0 || newY >= 5 ||
+        _grid[newY][newX] == 1) {
+      // Duvara ya da kenara carpti: kisa bir titresim.
+      HapticFeedback.heavyImpact();
+      return;
+    }
 
     _playerX = newX;
     _playerY = newY;
+    _iz.add('$newX,$newY');
 
     if (_grid[newY][newX] == 2 && !_collectedStars.contains('$newX,$newY')) {
       _collectedStars.add('$newX,$newY');
       _score += 10;
       _totalStarsCollected++;
+      SoundService.playJeton();
     }
   }
 
@@ -668,8 +697,13 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
       children: [
         Expanded(flex: 3, child: _buildGameGrid()),
         Container(
-          height: 148,
-          color: Colors.grey[100],
+          height: 132,
+          margin: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.75),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: Colors.white),
+          ),
           child: _buildBlockPaletteHorizontal(),
         ),
         Expanded(flex: 2, child: _buildCodeArea()),
@@ -721,8 +755,8 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Wrap(
         alignment: WrapAlignment.center,
-        spacing: 8,
-        runSpacing: 8,
+        spacing: 10,
+        runSpacing: 12,
         children: [
           _buildDraggableBlock(BlockType.moveForward),
           _buildDraggableBlock(BlockType.turnRight),
@@ -734,13 +768,15 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
   }
 
   Widget _buildDraggableBlock(BlockType type) {
+    // DOKUNARAK EKLEME: eskiden blok yalnizca surukleniyordu. 6-8 yas
+    // icin surukle-birak zor; dokunmak blogu kodun sonuna ekliyor,
+    // surukleme de calismaya devam ediyor.
     return Draggable<BlockType>(
       data: type,
       feedback: Material(
-        elevation: 8,
-        borderRadius: BorderRadius.circular(8),
-        child: Opacity(
-          opacity: 0.8,
+        type: MaterialType.transparency,
+        child: Transform.rotate(
+          angle: -0.04,
           child: _buildBlockDisplay(type, isDragging: true),
         ),
       ),
@@ -748,58 +784,64 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
         opacity: 0.3,
         child: _buildBlockDisplay(type),
       ),
-      child: _buildBlockDisplay(type),
+      child: _Basinca(
+        key: ValueKey('blok_paleti_${type.name}'),
+        onTap: _isRunning
+            ? null
+            : () {
+                HapticFeedback.lightImpact();
+                _addBlock(type);
+              },
+        child: _buildBlockDisplay(type),
+      ),
     );
   }
 
-  Widget _buildBlockDisplay(BlockType type, {bool isDragging = false}) {
-    Color color;
-    IconData icon;
-    String label;
-
+  (Color, IconData, String) _blokGorunumu(BlockType type, {int? tekrar}) {
     switch (type) {
       case BlockType.moveForward:
-        color = Colors.blue;
-        icon = Icons.arrow_upward_rounded;
-        label = _tl('1 Adım Git', 'Move 1 Step', '1 Schritt gehen', 'Avanzar 1 paso'); // Grid'de tek kare ileri gider
-        break;
+        return (const Color(0xFF4C97FF), Icons.arrow_upward_rounded,
+            _tl('1 Adım Git', 'Move 1 Step', '1 Schritt gehen', 'Avanzar 1 paso'));
       case BlockType.turnRight:
-        color = Colors.orange;
-        icon = Icons.rotate_right_rounded;
-        label = _tl('Sağa Dön', 'Turn Right', 'Nach rechts drehen', 'Girar a la derecha'); // Grid'de 90° sağa döner
-        break;
+        return (const Color(0xFFFF8C1A), Icons.rotate_right_rounded,
+            _tl('Sağa Dön', 'Turn Right', 'Nach rechts drehen', 'Girar a la derecha'));
       case BlockType.turnLeft:
-        color = Colors.purple;
-        icon = Icons.rotate_left_rounded;
-        label = _tl('Sola Dön', 'Turn Left', 'Nach links drehen', 'Girar a la izquierda'); // Grid'de 90° sola döner
-        break;
+        return (const Color(0xFF9966FF), Icons.rotate_left_rounded,
+            _tl('Sola Dön', 'Turn Left', 'Nach links drehen', 'Girar a la izquierda'));
       case BlockType.repeat:
-        color = Colors.green;
-        icon = Icons.repeat_rounded;
-        label = _tl('Tekrarla', 'Repeat', 'Wiederholen', 'Repetir');
-        break;
+        return (
+          const Color(0xFFFFAB19),
+          Icons.repeat_rounded,
+          tekrar == null
+              ? _tl('Tekrarla', 'Repeat', 'Wiederholen', 'Repetir')
+              // Etiket neyi tekrarladigini soyluyor.
+              : _tl('Sonrakini ${tekrar}x tekrarla', 'Repeat the next one ${tekrar}x',
+                  'Wiederhole den nächsten ${tekrar}x', 'Repite el siguiente ${tekrar}x'),
+        );
     }
+  }
 
-    return Container(
-      width: isDragging ? 140 : null,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
-        border: Border.all(color: color, width: 2),
-        borderRadius: BorderRadius.circular(8),
-      ),
+  /// Scratch'e benzeyen blok: dolu renk, ustte kucuk bir girinti (centik),
+  /// altta koyu bir golge. Bloklar "takilacak parca" gibi duruyor.
+  Widget _buildBlockDisplay(BlockType type, {bool isDragging = false}) {
+    final (color, icon, label) = _blokGorunumu(type);
+    return _BlokSekli(
+      renk: color,
+      genislik: isDragging ? 150 : null,
+      golge: !isDragging,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(width: 8),
+          Icon(icon, color: Colors.white, size: 20),
+          const SizedBox(width: 6),
           Flexible(
             child: Text(
               label,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
+              style: const TextStyle(
+                fontFamily: 'Nunito',
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+                fontSize: 13.5,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -810,121 +852,189 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
   }
 
   Widget _buildGameGrid() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Center(
-        child: AspectRatio(
-          aspectRatio: 1,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+    final toplamYildiz = _grid.expand((r) => r).where((c) => c == 2).length;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
+      child: Column(
+        children: [
+          // Gorev seridi: hedef ve toplanan yildizlar.
+          Row(
+            children: [
+              Flexible(
+                child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
                 ),
-              ],
-            ),
-            child: LayoutBuilder(
-              builder: (context, kutu) {
-                // Kukla hucrenin icinde cizilirse her komutta bir kareden
-                // kaybolup digerinde beliriyor. Izgara kuklasiz ciziliyor,
-                // kukla ustune AnimatedPositioned ile konuyor; donme de
-                // AnimatedRotation'a bagli, boylece "ileri git" ile "don"
-                // arasindaki fark gorunur oluyor.
-                const kenar = 8.0;
-                const bosluk = 4.0;
-                final hucre = (kutu.maxWidth - kenar * 2 - bosluk * 4) / 5;
-                double konum(int i) => kenar + i * (hucre + bosluk);
+                child: Text(
+                  _tl('🏁 Bayrağa ulaş!', '🏁 Reach the flag!', '🏁 Erreiche die Flagge!',
+                      '🏁 ¡Llega a la bandera!'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontFamily: 'Nunito', fontWeight: FontWeight.w900, fontSize: 13),
+                ),
+              ),
+              ),
+              const SizedBox(width: 8),
+              if (toplamYildiz > 0)
+                Container(
+                  key: const ValueKey('blok_yildiz_sayaci'),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF4CC),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    '⭐ ${_collectedStars.length}/$toplamYildiz',
+                    style: const TextStyle(
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w900,
+                        fontSize: 13,
+                        color: Color(0xFF8A6500)),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF3E8E41), Color(0xFF2E6B31)],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: const [
+                      BoxShadow(color: Color(0xFF1F4A21), offset: Offset(0, 6)),
+                    ],
+                  ),
+                  child: LayoutBuilder(
+                    builder: (context, kutu) {
+                      // Kukla hucrenin icinde cizilirse her komutta bir kareden
+                      // kaybolup digerinde beliriyor. Izgara kuklasiz ciziliyor,
+                      // kukla ustune AnimatedPositioned ile konuyor.
+                      const kenar = 4.0;
+                      const bosluk = 3.0;
+                      final hucre = (kutu.maxWidth - kenar * 2 - bosluk * 4) / 5;
+                      double konum(int i) => kenar + i * (hucre + bosluk);
 
-                return Stack(
-                  children: [
-                    GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(kenar),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 5,
-                        mainAxisSpacing: bosluk,
-                        crossAxisSpacing: bosluk,
-                      ),
-                      itemCount: 25,
-                      itemBuilder: (context, index) {
-                        final x = index % 5;
-                        final y = index ~/ 5;
-                        final isGoal = x == _goalX && y == _goalY;
-                        final cellType = _grid[y][x];
-                        final hasStar = cellType == 2;
-                        final isCollected = _collectedStars.contains('$x,$y');
-
-                        return AnimatedContainer(
-                          duration: Motion.adapt(context, Motion.medium2),
-                          decoration: BoxDecoration(
-                            color: cellType == 1
-                                ? Colors.grey[800]
-                                : isGoal
-                                    ? Colors.green[200]
-                                    : Colors.grey[50],
-                            border: Border.all(
-                                color: Colors.grey[300]!, width: 1.5),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Stack(
+                      return AnimatedBuilder(
+                        animation: _nabiz,
+                        builder: (context, _) {
+                          final v = _nabiz.value * math.pi * 2;
+                          return Stack(
                             children: [
-                              if (isGoal)
-                                Center(
-                                  child: Icon(Icons.flag_rounded,
-                                      color: Colors.green[700], size: 28),
+                              for (var y = 0; y < 5; y++)
+                                for (var x = 0; x < 5; x++)
+                                  Positioned(
+                                    left: konum(x),
+                                    top: konum(y),
+                                    width: hucre,
+                                    height: hucre,
+                                    child: _hucre(x, y, hucre, v),
+                                  ),
+                              AnimatedPositioned(
+                                duration: Motion.adapt(context, Motion.short4),
+                                curve: Motion.emphasized,
+                                left: konum(_playerX),
+                                top: konum(_playerY),
+                                width: hucre,
+                                height: hucre,
+                                child: Center(
+                                  child: AnimatedRotation(
+                                    turns: _playerDirection.index / 4,
+                                    duration: Motion.adapt(context, Motion.short4),
+                                    curve: Motion.emphasized,
+                                    child: AnimatedBuilder(
+                                      animation: _animationController,
+                                      builder: (context, child) {
+                                        final scale = _isRunning
+                                            ? 1.0 + (_animationController.value * 0.15)
+                                            : 1.0 + 0.04 * math.sin(v * 2);
+                                        return Transform.scale(scale: scale, child: child);
+                                      },
+                                      child: CustomPaint(
+                                        key: const ValueKey('blok_robot'),
+                                        size: Size.square(hucre * 0.78),
+                                        painter: _RobotRessami(),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              if (hasStar && !isCollected)
-                                const Center(
-                                  child: Icon(Icons.star_rounded,
-                                      color: Colors.amber, size: 22),
-                                ),
+                              ),
                             ],
-                          ),
-                        );
-                      },
-                    ),
-                    AnimatedPositioned(
-                      duration: Motion.adapt(context, Motion.short4),
-                      curve: Motion.emphasized,
-                      left: konum(_playerX),
-                      top: konum(_playerY),
-                      width: hucre,
-                      height: hucre,
-                      child: Center(
-                        child: AnimatedRotation(
-                          turns: _playerDirection.index / 4,
-                          duration: Motion.adapt(context, Motion.short4),
-                          curve: Motion.emphasized,
-                          child: AnimatedBuilder(
-                            animation: _animationController,
-                            builder: (context, child) {
-                              // Kukla her zaman gorunur, sadece hareket
-                              // ederken hafifce buyur.
-                              final scale = _isRunning
-                                  ? 1.0 + (_animationController.value * 0.2)
-                                  : 1.0;
-                              return Transform.scale(scale: scale, child: child);
-                            },
-                            child: const Icon(
-                              Icons.navigation_rounded,
-                              color: Colors.blue,
-                              size: 32,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              },
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
+        ],
+      ),
+    );
+  }
+
+  Widget _hucre(int x, int y, double boy, double v) {
+    final isGoal = x == _goalX && y == _goalY;
+    final cellType = _grid[y][x];
+    final duvar = cellType == 1;
+    final yildiz = cellType == 2 && !_collectedStars.contains('$x,$y');
+    final izde = _iz.contains('$x,$y');
+    final acik = (x + y).isEven;
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(boy * 0.18),
+        gradient: duvar
+            ? const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF9E9E9E), Color(0xFF616161)],
+              )
+            : null,
+        color: duvar
+            ? null
+            : isGoal
+                ? const Color(0xFFFFF59D)
+                : (acik ? const Color(0xFFA8DB72) : const Color(0xFF97CF5E)),
+        boxShadow: duvar
+            ? const [BoxShadow(color: Color(0xFF424242), offset: Offset(0, 3))]
+            : null,
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (izde && !duvar)
+            Container(
+              width: boy * 0.22,
+              height: boy * 0.22,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.55),
+                shape: BoxShape.circle,
+              ),
+            ),
+          if (duvar) Text('🪨', style: TextStyle(fontSize: boy * 0.42)),
+          if (isGoal)
+            Transform.rotate(
+              angle: 0.12 * math.sin(v * 2),
+              alignment: Alignment.bottomLeft,
+              child: Text('🏁', style: TextStyle(fontSize: boy * 0.5)),
+            ),
+          if (yildiz)
+            Transform.scale(
+              scale: 0.9 + 0.15 * math.sin(v * 2 + x),
+              child: Text('⭐', style: TextStyle(fontSize: boy * 0.45)),
+            ),
+        ],
       ),
     );
   }
@@ -939,14 +1049,23 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
           margin: const EdgeInsets.all(12),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color:
-                candidateData.isNotEmpty ? Colors.green[50] : Colors.grey[50],
+            color: candidateData.isNotEmpty
+                ? const Color(0xFFE8FFF5)
+                : Colors.white,
             border: Border.all(
-              color:
-                  candidateData.isNotEmpty ? Colors.green : Colors.grey[300]!,
+              color: candidateData.isNotEmpty
+                  ? const Color(0xFF0FBD8C)
+                  : const Color(0xFFE1E5EC),
               width: 2,
             ),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1000,15 +1119,18 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
                             _isRunning
                                 ? (_tl('Çalışıyor...', 'Running...', 'Läuft ...', 'Ejecutando...'))
                                 : (_tl('Çalıştır', 'Run', 'Ausführen', 'Ejecutar')),
-                            style: const TextStyle(fontSize: 12),
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w900),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 const Color(0xFF0FBD8C), // Scratch green
                             foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: const StadiumBorder(),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 8,
+                              horizontal: 14,
+                              vertical: 10,
                             ),
                           ),
                         ),
@@ -1062,112 +1184,222 @@ class _BlockCodingGameScreenState extends State<BlockCodingGameScreen>
   }
 
   Widget _buildCodeBlockTile(CodeBlock block, int index) {
-    Color color;
-    IconData icon;
-    String label;
-
-    switch (block.type) {
-      case BlockType.moveForward:
-        color = Colors.blue;
-        icon = Icons.arrow_upward_rounded;
-        label = _tl('1 Adım Git', 'Move 1 Step', '1 Schritt gehen', 'Avanzar 1 paso');
-        break;
-      case BlockType.turnRight:
-        color = Colors.orange;
-        icon = Icons.rotate_right_rounded;
-        label = _tl('Sağa Dön', 'Turn Right', 'Nach rechts drehen', 'Girar a la derecha');
-        break;
-      case BlockType.turnLeft:
-        color = Colors.purple;
-        icon = Icons.rotate_left_rounded;
-        label = _tl('Sola Dön', 'Turn Left', 'Nach links drehen', 'Girar a la izquierda');
-        break;
-      case BlockType.repeat:
-        color = Colors.green;
-        icon = Icons.repeat_rounded;
-        // Etiket neyi tekrarladigini soyluyor: "Tekrarla 2x" cocuga
-        // neyin tekrarlandigini anlatmiyordu.
-        label = _tl(
-            'Sonrakini ${block.repeatCount}x tekrarla',
-            'Repeat the next one ${block.repeatCount}x',
-            'Wiederhole den nächsten ${block.repeatCount}x',
-            'Repite el siguiente ${block.repeatCount}x');
-        break;
-    }
+    final (color, icon, label) =
+        _blokGorunumu(block.type, tekrar: block.repeatCount);
 
     // Tekrar blogunun ICINDEKI blok iceri giriyor ve solunda dongunun
-    // renginde bir sirt tasiyor: cocuk neyin tekrarlandigini duz bir
-    // listede goremiyordu.
+    // renginde bir sirt tasiyor: cocuk neyin tekrarlandigini goruyor.
     final icerde = _tekrarIcinde(index);
+    final calisiyor = _calisanBlok == index;
 
-    return Container(
+    return Padding(
       key: ValueKey(block.id),
-      margin: EdgeInsets.only(bottom: 6, left: icerde ? 22 : 0),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        border: icerde
-            ? Border(
-                top: BorderSide(color: color, width: 2),
-                right: BorderSide(color: color, width: 2),
-                bottom: BorderSide(color: color, width: 2),
-                left: BorderSide(color: Colors.green, width: 8),
-              )
-            : Border.all(color: color, width: 2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: ListTile(
-        dense: true,
-        leading: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.drag_handle_rounded, color: color, size: 18),
-            const SizedBox(width: 4),
-            Text(
-              '${index + 1}.',
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
+      padding: EdgeInsets.only(bottom: 6, left: icerde ? 22 : 0),
+      child: Row(
+        children: [
+          if (icerde)
+            Container(
+              width: 6,
+              height: 40,
+              margin: const EdgeInsets.only(right: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFAB19),
+                borderRadius: BorderRadius.circular(3),
               ),
             ),
-          ],
-        ),
-        title: Row(
-          children: [
-            Icon(icon, color: color, size: 18),
-            const SizedBox(width: 8),
-            // Almanca "Nach rechts drehen" ve ispanyolca "Girar a la
-            // derecha" bu satirdan tasiyordu; etiket artik sigmazsa
-            // kisaliyor.
-            Expanded(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
+          Expanded(
+            child: AnimatedScale(
+              scale: calisiyor ? 1.04 : 1,
+              duration: const Duration(milliseconds: 180),
+              child: _BlokSekli(
+                renk: color,
+                parlak: calisiyor,
+                child: Row(
+                  children: [
+                    Text(
+                      '${index + 1}',
+                      style: TextStyle(
+                        fontFamily: 'Nunito',
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontWeight: FontWeight.w900,
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(icon, color: Colors.white, size: 18),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'Nunito',
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 13.5,
+                        ),
+                      ),
+                    ),
+                    InkResponse(
+                      onTap: _isRunning ? null : () => _removeBlock(index),
+                      radius: 22,
+                      child: Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: Icon(Icons.close_rounded,
+                            color: Colors.white.withValues(alpha: 0.9), size: 18),
+                      ),
+                    ),
+                    const Icon(Icons.drag_handle_rounded,
+                        color: Colors.white70, size: 18),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.close_rounded, size: 18),
-          onPressed: () => _removeBlock(index),
-          color: Colors.red,
-          padding: EdgeInsets.zero,
-          // Ikon kucuk ama BASILABILIR ALAN degil: bos
-          // BoxConstraints(), IconButton'in 48x48 varsayilan
-          // hedefini siliyordu ve geriye yalnizca ikonun kendi
-          // boyu kaliyordu. En az 44x44 (Apple HIG).
-          constraints: const BoxConstraints(
-            minWidth: 44,
-            minHeight: 44,
           ),
-        ),
+        ],
       ),
     );
   }
+}
+
+/// Basinca biraz cokup geri gelen sarmalayici (palet bloklari).
+class _Basinca extends StatefulWidget {
+  const _Basinca({super.key, required this.child, required this.onTap});
+  final Widget child;
+  final VoidCallback? onTap;
+
+  @override
+  State<_Basinca> createState() => _BasincaState();
+}
+
+class _BasincaState extends State<_Basinca> {
+  bool _basili = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _basili = true),
+      onTapCancel: () => setState(() => _basili = false),
+      onTapUp: (_) {
+        setState(() => _basili = false);
+        widget.onTap?.call();
+      },
+      child: AnimatedScale(
+        scale: _basili ? 0.92 : 1,
+        duration: const Duration(milliseconds: 90),
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+/// Scratch tarzi blok govdesi: dolu renk, ustte centik, altta golge.
+class _BlokSekli extends StatelessWidget {
+  const _BlokSekli({
+    required this.renk,
+    required this.child,
+    this.genislik,
+    this.golge = true,
+    this.parlak = false,
+  });
+
+  final Color renk;
+  final Widget child;
+  final double? genislik;
+  final bool golge;
+  final bool parlak;
+
+  @override
+  Widget build(BuildContext context) {
+    final koyu = Color.lerp(renk, Colors.black, 0.25)!;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: genislik,
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+          decoration: BoxDecoration(
+            color: renk,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: koyu, width: 1.2),
+            boxShadow: [
+              if (golge) BoxShadow(color: koyu, offset: const Offset(0, 3)),
+              if (parlak)
+                BoxShadow(
+                  color: Colors.yellowAccent.withValues(alpha: 0.9),
+                  blurRadius: 14,
+                  spreadRadius: 2,
+                ),
+            ],
+          ),
+          child: child,
+        ),
+        // Centik: Scratch bloklarinin ust kenarindaki girinti.
+        Positioned(
+          top: -1,
+          left: 14,
+          child: Container(
+            width: 16,
+            height: 5,
+            decoration: BoxDecoration(
+              color: Color.lerp(renk, Colors.white, 0.35),
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(4)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Izgaradaki robot. Yukari bakan halde ciziliyor; yon AnimatedRotation ile.
+class _RobotRessami extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size s) {
+    final w = s.width, h = s.height;
+    // Tekerlekler
+    final teker = Paint()..color = const Color(0xFF37474F);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.fromLTWH(0, h * 0.3, w * 0.16, h * 0.5), Radius.circular(w * 0.06)),
+        teker);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.fromLTWH(w * 0.84, h * 0.3, w * 0.16, h * 0.5), Radius.circular(w * 0.06)),
+        teker);
+    // Govde
+    final govde = Rect.fromLTWH(w * 0.12, h * 0.18, w * 0.76, h * 0.72);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(govde.shift(Offset(0, h * 0.04)), Radius.circular(w * 0.22)),
+        Paint()..color = const Color(0xFF0D47A1));
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(govde, Radius.circular(w * 0.22)),
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF64B5F6), Color(0xFF1E88E5)],
+        ).createShader(govde),
+    );
+    // Anten
+    canvas.drawLine(Offset(w / 2, h * 0.18), Offset(w / 2, h * 0.04),
+        Paint()
+          ..color = const Color(0xFF1E88E5)
+          ..strokeWidth = w * 0.05);
+    canvas.drawCircle(Offset(w / 2, h * 0.04), w * 0.07, Paint()..color = const Color(0xFFFF5252));
+    // Yuz (ileriye, yani yukariya bakiyor)
+    final yuz = Rect.fromLTWH(w * 0.22, h * 0.26, w * 0.56, h * 0.3);
+    canvas.drawRRect(RRect.fromRectAndRadius(yuz, Radius.circular(w * 0.12)),
+        Paint()..color = const Color(0xFFE3F2FD));
+    final goz = Paint()..color = const Color(0xFF0D47A1);
+    canvas.drawCircle(Offset(w * 0.38, h * 0.39), w * 0.07, goz);
+    canvas.drawCircle(Offset(w * 0.62, h * 0.39), w * 0.07, goz);
+    final parilti = Paint()..color = Colors.white;
+    canvas.drawCircle(Offset(w * 0.40, h * 0.37), w * 0.025, parilti);
+    canvas.drawCircle(Offset(w * 0.64, h * 0.37), w * 0.025, parilti);
+    // Gogus isigi
+    canvas.drawCircle(Offset(w / 2, h * 0.72), w * 0.06, Paint()..color = const Color(0xFFFFD54F));
+  }
+
+  @override
+  bool shouldRepaint(_RobotRessami old) => false;
 }

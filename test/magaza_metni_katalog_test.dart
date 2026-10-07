@@ -164,8 +164,8 @@ void main() {
     });
   });
 
-  test('satilan kategoriler tam olarak uc tane', () {
-    // Metinler "avatar cercevesi, profil afisi ve isim rozeti" diyor.
+  test('satilan kategoriler tam olarak dort tane', () {
+    // Metinler "avatar cercevesi, profil afisi, rozet ve etiket" diyor.
     // Katalog buyurse metin de buyumeli; bu test o ani yakaliyor.
     expect(
       satilanKategoriler.toSet(),
@@ -173,6 +173,7 @@ void main() {
         StoreItemCategory.avatarFrame,
         StoreItemCategory.profileBanner,
         StoreItemCategory.nameBadge,
+        StoreItemCategory.profileTag,
       },
       reason: 'Katalog degismis — magaza metinlerindeki urun cumlesi de '
           'guncellenmeli.',

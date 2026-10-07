@@ -56,7 +56,16 @@ class TokenSequenceBuilder extends StatefulWidget {
     this.locked = false,
     this.emptyHint = 'Parçalara dokun ya da sürükle',
     this.correctness,
+    this.hedefUzunluk,
+    this.aktifIndex,
   });
+
+  /// Cevabin kac parca olacagi. Verilirse bos yuvalar numarali, kesik
+  /// cizgili kutular olarak gorunuyor: cocuk kac adim kaldigini goruyor.
+  final int? hedefUzunluk;
+
+  /// "Calistir" animasyonunda o an calisan adim; parlayip buyuyor.
+  final int? aktifIndex;
 
   /// Henuz kullanilmamis parcalar.
   final List<SequenceToken> bank;
@@ -148,7 +157,7 @@ class _TokenSequenceBuilderState extends State<TokenSequenceBuilder> {
               width: hot ? 2 : 1.5,
             ),
           ),
-          child: widget.answer.isEmpty
+          child: widget.answer.isEmpty && widget.hedefUzunluk == null
               ? Center(
                   child: Text(
                     widget.emptyHint,
@@ -166,6 +175,10 @@ class _TokenSequenceBuilderState extends State<TokenSequenceBuilder> {
                   children: [
                     for (int i = 0; i < widget.answer.length; i++)
                       _buildAnswerSlot(i),
+                    for (int i = widget.answer.length;
+                        i < (widget.hedefUzunluk ?? 0);
+                        i++)
+                      _BosYuva(no: i + 1),
                   ],
                 ),
         );
@@ -182,6 +195,7 @@ class _TokenSequenceBuilderState extends State<TokenSequenceBuilder> {
     final chip = _TokenChip(
       token: token,
       index: index + 1,
+      aktif: widget.aktifIndex == index,
       state: ok == null
           ? _ChipState.placed
           : (ok ? _ChipState.correct : _ChipState.wrong),
@@ -294,10 +308,14 @@ class _TokenChip extends StatelessWidget {
     required this.state,
     this.index,
     this.onTap,
+    this.aktif = false,
   });
 
   final SequenceToken token;
   final _ChipState state;
+
+  /// Calistirma animasyonunda su an calisan adim.
+  final bool aktif;
 
   /// Cevaptaki sira numarasi. Siralama etkinliginde "kacinci adim" bilgisi
   /// olmadan cocuk kendi cevabini okuyamiyor.
@@ -314,9 +332,13 @@ class _TokenChip extends StatelessWidget {
     late final Color ink;
     switch (state) {
       case _ChipState.bank:
-        bg = Colors.white;
-        border = const Color(0xFFDDE1E7);
-        ink = const Color(0xFF14161A);
+        // Renkli parca (token.color) havuzda dolu renkte, 3B duruyor:
+        // "al beni" diyor. Renksiz parca eski sade gorunumde.
+        bg = token.color ?? Colors.white;
+        border = token.color == null
+            ? const Color(0xFFDDE1E7)
+            : Color.lerp(token.color, Colors.black, 0.18)!;
+        ink = token.color == null ? const Color(0xFF14161A) : Colors.white;
         break;
       case _ChipState.placed:
       case _ChipState.dragging:
@@ -340,7 +362,11 @@ class _TokenChip extends StatelessWidget {
       // Dokunma hedefi Draggable'in kendisinde degil burada; ic ice InkWell
       // koymak webde istisna firlatiyor (flutter#69774).
       onTap: onTap,
-      child: AnimatedContainer(
+      child: AnimatedScale(
+        scale: aktif ? 1.12 : 1.0,
+        duration: Motion.short3,
+        curve: Curves.easeOutBack,
+        child: AnimatedContainer(
         duration: Motion.short3,
         curve: Motion.emphasized,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
@@ -356,7 +382,22 @@ class _TokenChip extends StatelessWidget {
                     offset: const Offset(0, 6),
                   ),
                 ]
-              : null,
+              : aktif
+                  ? [
+                      BoxShadow(
+                        color: accent.withValues(alpha: 0.6),
+                        blurRadius: 18,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                  : state == _ChipState.bank && token.color != null
+                      ? [
+                          BoxShadow(
+                            color: Color.lerp(token.color, Colors.black, 0.35)!,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -400,6 +441,36 @@ class _TokenChip extends StatelessWidget {
               Icon(Icons.close_rounded, size: 16, color: ink),
             ],
           ],
+        ),
+      ),
+      ),
+    );
+  }
+}
+
+/// Henuz doldurulmamis numarali yuva.
+class _BosYuva extends StatelessWidget {
+  const _BosYuva({required this.no});
+  final int no;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 46,
+      height: 44,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F6F9),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFCBD2DC), width: 1.5),
+      ),
+      child: Text(
+        '$no',
+        style: const TextStyle(
+          fontFamily: AppTheme.fontFamily,
+          fontSize: 15,
+          fontWeight: FontWeight.w800,
+          color: Color(0xFFA6AEBB),
         ),
       ),
     );

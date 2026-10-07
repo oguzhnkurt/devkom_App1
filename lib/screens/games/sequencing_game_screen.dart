@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../models/game_model.dart';
 import '../../widgets/oyun_basligi.dart';
 import '../../widgets/oyun_kimligi.dart';
@@ -392,6 +393,27 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
     });
   }
 
+  /// "Calistir": kontrol etmeden once adimlar sirayla parliyor, tipki
+  /// kodun satir satir calismasi gibi. Sonra sonuc geliyor.
+  int? _calisanAdim;
+
+  Future<void> _calistirVeKontrolEt() async {
+    if (_isChecking) return;
+    setState(() => _isChecking = true);
+    final hizli = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    if (!hizli) {
+      for (var i = 0; i < _userSequence.length; i++) {
+        if (!mounted) return;
+        setState(() => _calisanAdim = i);
+        HapticFeedback.selectionClick();
+        await Future.delayed(const Duration(milliseconds: 320));
+      }
+    }
+    if (!mounted) return;
+    setState(() => _calisanAdim = null);
+    _checkAnswer();
+  }
+
   void _checkAnswer() {
     bool isCorrect = _userSequence.length == _correctSequence.length;
     if (isCorrect) {
@@ -471,7 +493,38 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
         id: cmd['id'] as String,
         label: _cmdLabel(cmd),
         icon: _getIcon((cmd['icon'] as String?) ?? ''),
+        color: _komutRengi(cmd['id'] as String),
       );
+
+  /// Her komutun kendi rengi (Scratch blok renklerinden). Renk komutun
+  /// seviyedeki SABIT sirasindan geliyor, karistirilmis siradan degil:
+  /// boylece bir komut havuzdan cevaba gecince rengini koruyor.
+  static const _palet = [
+    Color(0xFF4C97FF),
+    Color(0xFFFF8C1A),
+    Color(0xFF9966FF),
+    Color(0xFF0FBD8C),
+    Color(0xFFFF6680),
+    Color(0xFFFFAB19),
+    Color(0xFF5CB1D6),
+    Color(0xFF59C059),
+  ];
+
+  Color _komutRengi(String id) {
+    final komutlar = _levels[_currentLevel]['commands'] as List;
+    final i = komutlar.indexWhere((c) => (c as Map)['id'] == id);
+    return _palet[(i < 0 ? 0 : i) % _palet.length];
+  }
+
+  /// Seviyenin konusuna gore buyuk resim.
+  String _seviyeSimgesi(Map<String, dynamic> level) {
+    if (level['hasRobotMap'] == true) return '🤖';
+    final t = (level['title'] as String? ?? '').toLowerCase();
+    if (t.contains('sabah')) return '🌅';
+    if (t.contains('döngü') || t.contains('dongu')) return '🔁';
+    if (t.contains('koşul') || t.contains('kosul')) return '🔀';
+    return '🧩';
+  }
 
   Map<String, dynamic>? _cmdById(List<dynamic> commands, String id) {
     for (final c in commands) {
@@ -719,6 +772,121 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
     );
   }
 
+  Widget _gorevKarti(Map<String, dynamic> level) {
+    final renk = OyunKimligi.renk(GameType.sequencing);
+    final dolu = _userSequence.length;
+    final toplam = _correctSequence.length;
+    return Container(
+      key: const ValueKey('komut_gorev_karti'),
+      padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [renk, Color.lerp(renk, const Color(0xFF00BFA5), 0.55)!],
+        ),
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: Color.lerp(renk, Colors.black, 0.3)!,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          TweenAnimationBuilder<double>(
+            key: ValueKey(_currentLevel),
+            tween: Tween(begin: 0.4, end: 1),
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.elasticOut,
+            builder: (_, v, child) => Transform.scale(scale: v, child: child),
+            child: Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.22),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Text(_seviyeSimgesi(level),
+                  style: const TextStyle(fontSize: 38)),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _tl('Görev ${_currentLevel + 1}/${_levels.length}',
+                      'Mission ${_currentLevel + 1}/${_levels.length}',
+                      'Mission ${_currentLevel + 1}/${_levels.length}',
+                      'Misión ${_currentLevel + 1}/${_levels.length}'),
+                  style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white.withValues(alpha: 0.85),
+                  ),
+                ),
+                Text(
+                  _levelTitle(level),
+                  style: const TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 21,
+                    height: 1.1,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _levelDescription(level),
+                  style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 13.5,
+                    height: 1.3,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white.withValues(alpha: 0.92),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    for (var i = 0; i < toplam; i++)
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        margin: const EdgeInsets.only(right: 5),
+                        width: i < dolu ? 18 : 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: i < dolu
+                              ? Colors.white
+                              : Colors.white.withValues(alpha: 0.35),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$dolu/$toplam',
+                      style: const TextStyle(
+                        fontFamily: AppTheme.fontFamily,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_currentLevel >= _levels.length) {
@@ -772,33 +940,10 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Level info
-                  Card(
-                    color: Colors.blue.shade50,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _levelTitle(level),
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            _levelDescription(level),
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  // GOREV KARTI. Eskiden duz mavi bir Card'di; simdi seviyenin
+                  // konusunu gosteren buyuk bir resim, baslik, ve kac adim
+                  // yerlestirildigini gosteren noktalar var.
+                  _gorevKarti(level),
                   const SizedBox(height: 24),
 
                   // Robot map visualization (if level has robot map)
@@ -869,6 +1014,8 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
                       answer: _answerTokens(commands),
                       bank: _bankTokens(commands),
                       locked: _isChecking,
+                      hedefUzunluk: _correctSequence.length,
+                      aktifIndex: _calisanAdim,
                       correctness:
                           _feedback == null ? null : _correctnessFlags(),
                       emptyHint: _tl('Aşağıdaki komutlara dokun ya da buraya sürükle', 'Tap a command below, or drag it here', 'Tippe unten auf einen Befehl oder zieh ihn hierher', 'Toca un comando de abajo o arrástralo aquí'),
@@ -897,13 +1044,14 @@ class _SequencingGameScreenState extends State<SequencingGameScreen> {
                       Expanded(
                         flex: 3,
                         child: PressButton(
-                          label: _tl('Kontrol Et', 'Check', 'Prüfen', 'Comprobar'),
+                          label: _tl('▶ Çalıştır', '▶ Run', '▶ Ausführen', '▶ Ejecutar'),
+                          color: const Color(0xFF0FBD8C),
                           // Cevap eksikken buton pasif: cocuk bos cevabi
                           // gonderip bosuna "yanlis" yemesin.
                           onPressed:
                               _userSequence.length == _correctSequence.length &&
                                       !_isChecking
-                                  ? _checkAnswer
+                                  ? _calistirVeKontrolEt
                                   : null,
                           height: 52,
                         ),
