@@ -23,7 +23,7 @@ class AnaSekmeler {
         UnifiedDashboard(),
         RoboticsGamesScreen(),
         CourseCatalogScreen(),
-        DevAiChatScreen(showBackButton: false),
+        DevAiChatScreen(showBackButton: false, dersiOtomatikAc: true),
         ProfileScreen(),
       ];
 

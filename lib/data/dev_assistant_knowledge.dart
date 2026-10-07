@@ -2069,7 +2069,157 @@ const List<KnowledgeEntry> kKnowledgeBase = [
         'de fotos de gatos y él deduce los rasgos comunes.\n\nNo es magia: '
         'detrás hay matemáticas y muchísimos datos. Si quieres aprender IA, '
         'Python y matemáticas son la base adecuada.',
-    relatedIds: ['python', 'math_needed'],
+    relatedIds: ['ai_ogrenme', 'ai_nerede', 'ai_hata', 'ai_guvenlik'],
+  ),
+  // YAPAY ZEKA DERSI SONRASI (Ekim 2026). Devi'nin yapay zeka dersi bu
+  // dort soruyu oneriyor; her birinin kendi kaydi var ki cocuk genel
+  // "yapay zeka nedir" cevabini dort kez okumasin.
+  KnowledgeEntry(
+    id: 'ai_ogrenme',
+    keywords: [
+      'yapay zeka nasil ogrenir',
+      'nasil ogrenir',
+      'how does ai learn',
+      'ai learn',
+      'wie lernt',
+      'como aprende',
+    ],
+    answerTr:
+        'Yapay zekâ ÖRNEKLERDEN öğrenir. Ona çok sayıda örnek gösterilir: '
+        '"bu kedi", "bu köpek". Sonra yeni bir resim görünce tahmin eder.\n\n'
+        'Tahmin yanlışsa düzeltilir, o da biraz daha iyileşir. Bu döngü '
+        'binlerce kez tekrarlanır. Tıpkı senin derslerde pratik yapman gibi!',
+    answerEn:
+        'AI learns from EXAMPLES. It is shown lots of them: "this is a cat", '
+        '"this is a dog". Then, when it sees a new picture, it makes a guess.\n\n'
+        'If the guess is wrong it gets corrected and improves a little. This '
+        'loop repeats thousands of times. Just like you practising in lessons!',
+    answerDe:
+        'Eine KI lernt aus BEISPIELEN. Man zeigt ihr ganz viele: „das ist eine '
+        'Katze", „das ist ein Hund". Sieht sie ein neues Bild, rät sie.\n\n'
+        'Ist die Antwort falsch, wird sie korrigiert und wird ein bisschen '
+        'besser. Das passiert tausende Male. Genau wie du beim Üben!',
+    answerEs:
+        'La IA aprende de EJEMPLOS. Se le enseñan muchísimos: «esto es un gato», '
+        '«esto es un perro». Luego, al ver una foto nueva, hace una predicción.\n\n'
+        'Si se equivoca, se corrige y mejora un poco. Ese ciclo se repite miles '
+        'de veces. ¡Como cuando tú practicas en las lecciones!',
+    relatedIds: ['ai_hata', 'ai_nerede', 'python'],
+  ),
+  KnowledgeEntry(
+    id: 'ai_nerede',
+    keywords: [
+      'nerelerde kullanilir',
+      'zeka nerelerde',
+      'nerede kullanilir',
+      'where is ai used',
+      'ai used',
+      'wo wird',
+      'donde se usa',
+    ],
+    answerTr:
+        'Yapay zekâ her yerde! Birkaç örnek:\n'
+        '- Haritalar en hızlı yolu tahmin eder.\n'
+        '- Çeviri uygulamaları bir dili başka dile çevirir.\n'
+        '- Sesli asistanlar konuşmanı yazıya döker.\n'
+        '- Doktorlara röntgenleri incelerken yardım eder.\n'
+        '- Satrançta bilgisayar rakibi de bir oyun yapay zekâsıdır.',
+    answerEn:
+        'AI is everywhere! A few examples:\n'
+        '- Maps guess the fastest route.\n'
+        '- Translation apps turn one language into another.\n'
+        '- Voice assistants turn your speech into text.\n'
+        '- It helps doctors look at X-rays.\n'
+        '- The computer opponent in chess is a game AI too.',
+    answerDe:
+        'KI ist überall! Ein paar Beispiele:\n'
+        '- Karten-Apps schätzen den schnellsten Weg.\n'
+        '- Übersetzer machen aus einer Sprache eine andere.\n'
+        '- Sprachassistenten machen aus Sprache Text.\n'
+        '- Sie hilft Ärzten beim Ansehen von Röntgenbildern.\n'
+        '- Der Computergegner im Schach ist auch eine Spiel-KI.',
+    answerEs:
+        '¡La IA está en todas partes! Algunos ejemplos:\n'
+        '- Los mapas calculan la ruta más rápida.\n'
+        '- Los traductores pasan de un idioma a otro.\n'
+        '- Los asistentes de voz convierten tu voz en texto.\n'
+        '- Ayuda a los médicos a revisar radiografías.\n'
+        '- El rival del ordenador en el ajedrez también es una IA de juego.',
+    relatedIds: ['ai_ogrenme', 'ai_guvenlik', 'python'],
+  ),
+  KnowledgeEntry(
+    id: 'ai_hata',
+    keywords: [
+      'hata yapar mi',
+      'zeka hata',
+      'yanilir mi',
+      'does ai make mistakes',
+      'make mistakes',
+      'macht fehler',
+      'ki fehler',
+      'se equivoca',
+    ],
+    answerTr:
+        'Evet, yapay zekâ da hata yapabilir! Gördüğü örnekler yanlış ya da '
+        'eksikse yanlış tahmin eder. Bazen de emin gibi konuşup yanılır.\n\n'
+        'O yüzden önemli bir bilgiyi başka bir yerden kontrol et, emin '
+        'değilsen bir büyüğüne sor. Akıllı kullanıcı her şeye hemen inanmaz.',
+    answerEn:
+        'Yes, AI can make mistakes too! If the examples it learned from were '
+        'wrong or missing, its guesses are wrong. Sometimes it sounds sure and '
+        'is still wrong.\n\n'
+        'So check important facts somewhere else, and ask an adult if you are '
+        'not sure. A smart user does not believe everything straight away.',
+    answerDe:
+        'Ja, auch eine KI macht Fehler! Waren ihre Beispiele falsch oder '
+        'unvollständig, rät sie falsch. Manchmal klingt sie sicher und irrt '
+        'sich trotzdem.\n\n'
+        'Prüfe Wichtiges deshalb noch woanders nach und frag einen Erwachsenen, '
+        'wenn du unsicher bist. Kluge Nutzer glauben nicht alles sofort.',
+    answerEs:
+        '¡Sí, la IA también se equivoca! Si los ejemplos con los que aprendió '
+        'eran erróneos o incompletos, sus predicciones fallan. A veces suena '
+        'segura y aun así se equivoca.\n\n'
+        'Por eso, comprueba la información importante en otro sitio y pregunta '
+        'a un adulto si no estás seguro. Un usuario listo no se lo cree todo.',
+    relatedIds: ['ai_guvenlik', 'ai_ogrenme'],
+  ),
+  KnowledgeEntry(
+    id: 'ai_guvenlik',
+    keywords: [
+      'guvenli kullan',
+      'zekayi guvenli',
+      'guvenle kullan',
+      'use ai safely',
+      'safely',
+      'sicher nutzen',
+      'forma segura',
+    ],
+    answerTr:
+        'Yapay zekâyı güvenle kullanmak için üç kural:\n'
+        '1. Adını soyadını, adresini, okulunu ve şifreni yazma.\n'
+        '2. Cevabı kontrol et; yapay zekâ da yanılabilir.\n'
+        '3. Emin olmadığın bir şey olursa bir büyüğüne sor.\n\n'
+        'Bana yazdıkların bu telefonda kalır, internete gönderilmez.',
+    answerEn:
+        'Three rules for using AI safely:\n'
+        '1. Never type your full name, address, school or passwords.\n'
+        '2. Check the answer; AI can be wrong too.\n'
+        '3. If something feels unsure, ask an adult.\n\n'
+        'What you write to me stays on this phone and is not sent online.',
+    answerDe:
+        'Drei Regeln, um KI sicher zu nutzen:\n'
+        '1. Schreib nie deinen vollen Namen, deine Adresse, Schule oder Passwörter.\n'
+        '2. Prüfe die Antwort; auch eine KI kann irren.\n'
+        '3. Wenn du unsicher bist, frag einen Erwachsenen.\n\n'
+        'Was du mir schreibst, bleibt auf diesem Handy und wird nicht verschickt.',
+    answerEs:
+        'Tres reglas para usar la IA de forma segura:\n'
+        '1. No escribas tu nombre completo, dirección, colegio ni contraseñas.\n'
+        '2. Comprueba la respuesta; la IA también se equivoca.\n'
+        '3. Si algo te genera dudas, pregunta a un adulto.\n\n'
+        'Lo que me escribes se queda en este teléfono y no se envía a internet.',
+    relatedIds: ['ai_hata', 'ai_nerede'],
   ),
   KnowledgeEntry(
     id: 'internet',

@@ -443,6 +443,10 @@ class DevAssistantService {
     return sonuc;
   }
 
+  /// Bir kaydin oneri metni (ornegin yapay zeka dersinden sonra sohbete
+  /// birakilan sorular icin).
+  String? etiket(String id, String lang) => _labelFor(id, lang);
+
   /// Ilgili kayit icin oneri butonunda gosterilecek kisa soru metni.
   String? _labelFor(String id, String lang) {
     switch (lang) {
@@ -502,6 +506,10 @@ class DevAssistantService {
     'print_input': 'print ve input nedir?',
     'loop_types': 'for ve while farkı ne?',
     'ai': 'Yapay zeka nedir?',
+    'ai_ogrenme': 'Yapay zeka nasıl öğrenir?',
+    'ai_nerede': 'Yapay zeka nerelerde kullanılır?',
+    'ai_hata': 'Yapay zeka hata yapar mı?',
+    'ai_guvenlik': 'Yapay zekayı güvenli kullanmak için ne yapmalıyım?',
     'internet': 'İnternet nasıl çalışır?',
     'computer_basics': 'Bilgisayar nasıl çalışır?',
     'make_game': 'Nasıl oyun yaparım?',
@@ -613,6 +621,10 @@ class DevAssistantService {
     'print_input': 'What are print and input?',
     'loop_types': 'for vs while, what is the difference?',
     'ai': 'What is artificial intelligence?',
+    'ai_ogrenme': 'How does AI learn?',
+    'ai_nerede': 'Where is AI used?',
+    'ai_hata': 'Does AI make mistakes?',
+    'ai_guvenlik': 'How do I use AI safely?',
     'internet': 'How does the internet work?',
     'computer_basics': 'How does a computer work?',
     'make_game': 'How do I make a game?',
@@ -724,6 +736,10 @@ class DevAssistantService {
     'print_input': 'Was sind print und input?',
     'loop_types': 'Was ist der Unterschied zwischen for und while?',
     'ai': 'Was ist künstliche Intelligenz?',
+    'ai_ogrenme': 'Wie lernt eine KI?',
+    'ai_nerede': 'Wo wird KI benutzt?',
+    'ai_hata': 'Macht KI Fehler?',
+    'ai_guvenlik': 'Wie kann ich KI sicher nutzen?',
     'internet': 'Wie funktioniert das Internet?',
     'computer_basics': 'Wie funktioniert ein Computer?',
     'make_game': 'Wie baue ich ein Spiel?',
@@ -835,6 +851,10 @@ class DevAssistantService {
     'print_input': '¿Qué son print e input?',
     'loop_types': '¿Qué diferencia hay entre for y while?',
     'ai': '¿Qué es la inteligencia artificial?',
+    'ai_ogrenme': '¿Cómo aprende una IA?',
+    'ai_nerede': '¿Dónde se usa la IA?',
+    'ai_hata': '¿La IA se equivoca?',
+    'ai_guvenlik': '¿Cómo uso la IA de forma segura?',
     'internet': '¿Cómo funciona internet?',
     'computer_basics': '¿Cómo funciona un ordenador?',
     'make_game': '¿Cómo hago un juego?',

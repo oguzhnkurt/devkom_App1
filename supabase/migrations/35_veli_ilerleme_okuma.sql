@@ -9,6 +9,14 @@
 -- RLS satiri gizliyor ve veli raporunda bu bolumler bos kaliyor
 -- (uygulama o durumda "kurs ilerlemesi su an alinamadi" diyor).
 --
+-- URETIM KONTROLU (7 Ekim 2026, SQL Editor, salt okuma):
+--   user_progress uzerinde "linked parent reads progress" (SELECT,
+--   is_linked_parent(user_id)) ZATEN VAR. Bu dosya uretimde calistirilmadi;
+--   calistirilsa da asagidaki kontrol yuzunden hicbir sey degismez.
+--   Ayrica: log_daily_activity gunu `current_date` ile yaziyor ve
+--   veritabani saat dilimi UTC. Turkiye saatiyle 00:00-03:00 arasi
+--   calisma bir onceki gune yaziliyor (bilinen, kucuk etki).
+--
 -- Ders (32'den): repoda olmamasi veritabaninda olmadigi anlamina gelmiyor.
 -- Bu yuzden once KONTROL, sonra gerekirse kurulum:
 --

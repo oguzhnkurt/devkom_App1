@@ -103,8 +103,10 @@ void main() {
     expect(src.contains("return 'Şimdi';"), isFalse);
   });
 
-  test('zemin akıntıyı kullanıyor', () {
-    expect(src.contains('KodAkintisi('), isTrue,
+  test('zemin Devi\'nin gökyüzü', () {
+    // Önce soluk kod simgeleri (KodAkintisi) vardı; Ekim 2026'da yapay
+    // zekâ dersiyle birlikte sinir ağı takımyıldızına geçti.
+    expect(src.contains('DeviGokyuzu('), isTrue,
         reason: 'Sohbet zemini yine düz bir renk geçişi.');
   });
 }

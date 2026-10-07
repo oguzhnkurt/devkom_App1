@@ -11,25 +11,25 @@ class AppConstants {
 
   /// Asistan karsilama mesaji (Turkce)
   static const String aiWelcomeMessageTr =
-      'Merhaba! Ben $aiChatName, DevEducation yardım asistanıyım. Scratch, Python, HTML, '
+      'Merhaba! Ben Devi, DevEducation\'da kodlama arkadaşınım. Scratch, Python, HTML, '
       'Arduino ve robotik konularında; ayrıca XP, jeton ve oyunlar hakkında sorularını '
       'yanıtlarım. Ne öğrenmek istersin?';
 
   /// Asistan karsilama mesaji (Ingilizce)
   static const String aiWelcomeMessageEn =
-      'Hi! I am $aiChatName, the DevEducation help assistant. I answer questions about '
+      'Hi! I am Devi, your coding buddy on DevEducation. I answer questions about '
       'Scratch, Python, HTML, Arduino and robotics, plus XP, coins and games. '
       'What would you like to learn?';
 
   /// Asistan karsilama mesaji (Almanca)
   static const String aiWelcomeMessageDe =
-      'Hallo! Ich bin $aiChatName, der Lernhelfer von DevEducation. Ich beantworte '
+      'Hallo! Ich bin Devi, dein Coding-Kumpel bei DevEducation. Ich beantworte '
       'Fragen zu Scratch, Python, HTML, Arduino und Robotik sowie zu XP, Münzen und '
       'Spielen. Was möchtest du lernen?';
 
   /// Asistan karsilama mesaji (Ispanyolca)
   static const String aiWelcomeMessageEs =
-      '¡Hola! Soy $aiChatName, el asistente de DevEducation. Respondo preguntas sobre '
+      '¡Hola! Soy Devi, tu compañero de programación en DevEducation. Respondo preguntas sobre '
       'Scratch, Python, HTML, Arduino y robótica, y también sobre XP, monedas y '
       'juegos. ¿Qué te gustaría aprender?';
 
