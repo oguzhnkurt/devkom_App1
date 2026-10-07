@@ -64,7 +64,6 @@ import 'package:devkom_app/screens/games/block_coding_game_screen.dart';
 import 'package:devkom_app/screens/games/bug_hunter_game_screen.dart';
 import 'package:devkom_app/screens/games/color_coding_screen.dart';
 import 'package:devkom_app/screens/games/coordinates_game_screen.dart';
-import 'package:devkom_app/screens/games/left_right_coding_game_screen.dart';
 import 'package:devkom_app/screens/games/millionaire_game_screen.dart';
 import 'package:devkom_app/screens/games/pattern_detective_game_screen.dart';
 import 'package:devkom_app/screens/games/pipes_game_screen.dart';
@@ -869,17 +868,6 @@ void main() {
         tester,
         '22_pipes',
         const PipesGameScreen(),
-        lang: lang,
-        cihaz: cihaz,
-        fullScreen: true,
-        settle: const Duration(milliseconds: 900),
-      );
-    });
-    testWidgets('23 sagim solum ($lang, ${cihaz.ad})', (tester) async {
-      await _shoot(
-        tester,
-        '23_left_right',
-        const LeftRightCodingGameScreen(),
         lang: lang,
         cihaz: cihaz,
         fullScreen: true,

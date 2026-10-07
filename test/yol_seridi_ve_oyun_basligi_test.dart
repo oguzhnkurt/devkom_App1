@@ -131,7 +131,7 @@ void main() {
       final kat = kaynak.substring(kaynak.indexOf('static const hepsi'),
           kaynak.indexOf('static _Kategori? oyununKategorisi'));
       for (final t in const [
-        'sequencing', 'blockCoding', 'leftRightCoding', 'mazeExplorer',
+        'sequencing', 'blockCoding', 'mazeExplorer',
         'bugHunter', 'patternDetective', 'pipesPuzzle', 'chess',
         'variableMaster', 'coordinates', 'colorCoding',
         'arduinoSimulator', 'robotSimulator', 'matchingGame',

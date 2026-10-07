@@ -20,7 +20,9 @@ enum GameType {
   mazeExplorer,  // Labirent Kaşifi
   colorCoding,   // Renkli Kodlar
   robotSimulator,// Robot Simülatörü
-  leftRightCoding, // Sağım-Solum Kodlama (Flame 2D oyunu)
+  /// KALDIRILDI (Ekim 2026). Deger yalnizca eski skor/veritabani
+  /// kayitlari okunabilsin diye duruyor; katalogda yok.
+  leftRightCoding,
   arduinoSimulator, // Arduino Atölyesi (eski ad: Devre Simülatörü)
   pipesPuzzle, // Boru Bulmacası (Pipes Puzzle)
   patternDetective, // Kod Dedektifi (Pattern Matching)

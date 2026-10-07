@@ -172,33 +172,6 @@ class EmbeddedGamesService {
         },
       ),
 
-      // 4. SAĞIM-SOLUM KODLAMA
-      GameModel(
-        id: 'embedded_left_right',
-        title: 'Sağım-Solum',
-        description: '⚡ Hızlı düşün, hızlı oyna! Robotunu hedefe ulaştır. Wordwall tarzı eğlenceli oyun!',
-        titleEn: 'Left-Right Coding',
-        descriptionEn: '⚡ Think fast, play fast! Get your robot to the goal. A fun Wordwall-style game!',
-        titleDe: 'Links-Rechts-Coding',
-        descriptionDe: '⚡ Denk schnell, spiel schnell! Bring deinen Roboter ins Ziel.',
-        titleEs: 'Código izquierda-derecha',
-        descriptionEs: '⚡ ¡Piensa rápido, juega rápido! Lleva tu robot hasta la meta.',
-        category: GameCategory.age4to6,
-        type: GameType.leftRightCoding,
-        thumbnailUrl: 'https://images.unsplash.com/photo-1561557944-6e7860d1a7eb?w=400',
-        difficulty: 1,
-        estimatedMinutes: 10,
-        tags: ['hızlı', 'yön', 'kodlama', 'sağ-sol', 'flame'],
-        isActive: true,
-        createdAt: now,
-        gameData: {
-          'levels': 10,
-          'gridSizes': [5, 7, 9],
-          'description': 'Sağ-Sol komutlarıyla robotunu hedefe ulaştır',
-        },
-      ),
-
-      // 3. KOORDİNAT ÖĞRENİMİ
       GameModel(
         id: 'embedded_coordinates',
         title: 'Koordinat Macerası',
@@ -578,12 +551,12 @@ class EmbeddedGamesService {
   }
 
   /// Ziyaretçiler için erişilebilir oyunları döndürür
-  /// Sadece Quiz ve Sağım-Solum oyunları
+  /// Sadece Quiz (Sağım-Solum Ekim 2026'da kaldırıldı)
   static List<GameModel> getVisitorGames() {
     return getAllEmbeddedGames()
         .where((game) =>
           game.isActive &&
-          (game.id == 'embedded_quiz' || game.id == 'embedded_left_right'))
+          game.id == 'embedded_quiz')
         .toList();
   }
 }

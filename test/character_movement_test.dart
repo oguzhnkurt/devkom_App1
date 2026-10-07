@@ -38,20 +38,6 @@ void main() {
             reason: 'hareket azaltma ayari sorulmuyor');
       });
     });
-
-    test('Sag-Sol kuklasi MoveToEffect ile kayiyor', () {
-      final k = oku('lib/screens/games/left_right_coding_game_screen.dart');
-      expect(k.contains('MoveToEffect'), isTrue);
-      expect(k.contains('Motion.reducedRaw'), isTrue,
-          reason: 'hareket azaltma ayarinda aninda konumlanmali');
-      // Eski davranis: moveTo dogrudan position atiyordu.
-      expect(
-        RegExp(r'void moveTo\(int newX, int newY\) \{[^}]*_updatePosition\(\);')
-            .hasMatch(k),
-        isFalse,
-        reason: 'moveTo hala isinlaniyor',
-      );
-    });
   });
 
   group('Renkli Kodlar', () {

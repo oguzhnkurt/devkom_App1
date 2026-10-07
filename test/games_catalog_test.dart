@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:devkom_app/models/game_model.dart';
@@ -24,7 +25,6 @@ void main() {
     GameType.wordMatch,
     GameType.sequencing,
     GameType.mazeExplorer,
-    GameType.leftRightCoding,
     GameType.arduinoSimulator,
     GameType.pipesPuzzle,
     GameType.colorCoding,
@@ -67,6 +67,12 @@ void main() {
         expect(comingSoonTypes.contains(g.type), isFalse,
             reason: '"${g.title}" henuz yazilmamis bir tur.');
       }
+    });
+
+    test('Sagim-Solum kaldirildi (Ekim 2026)', () {
+      expect(games.any((g) => g.type == GameType.leftRightCoding), isFalse);
+      expect(File('lib/screens/games/left_right_coding_game_screen.dart')
+          .existsSync(), isFalse);
     });
 
     test('ekrani olan her oyun turu katalogda da var', () {

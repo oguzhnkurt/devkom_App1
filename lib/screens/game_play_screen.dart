@@ -9,7 +9,6 @@ import 'games/word_match_game_screen.dart';
 import 'games/sequencing_game_screen.dart';
 import 'games/maze_explorer_game_screen.dart';
 import 'games/maze_3d_game_screen.dart';
-import 'games/left_right_coding_game_screen.dart';
 import 'games/arduino_blocks_game_screen.dart';
 import 'games/pipes_game_screen.dart';
 import 'games/color_coding_screen.dart';
@@ -50,6 +49,8 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
       case GameType.wordMatch:
         return WordMatchGameScreen(gameData: widget.game.gameData);
       case GameType.sequencing:
+      // Sagim-Solum kaldirildi; eski bir baglanti gelirse Komut Dizilimi.
+      case GameType.leftRightCoding:
         return SequencingGameScreen(gameData: widget.game.gameData);
       case GameType.mazeExplorer:
         // Check if it's the 3D maze or regular maze
@@ -57,8 +58,6 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
           return Maze3DGameScreen(gameData: widget.game.gameData);
         }
         return MazeExplorerGameScreen(gameData: widget.game.gameData);
-      case GameType.leftRightCoding:
-        return LeftRightCodingGameScreen(gameData: widget.game.gameData);
       case GameType.arduinoSimulator:
         // Eski breadboard simulatoru kaldirildi (telefonda kablolama
         // calismiyordu, bkz. ArduinoBlocksGameScreen'in basindaki not).

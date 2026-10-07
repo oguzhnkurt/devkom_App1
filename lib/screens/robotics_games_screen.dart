@@ -765,7 +765,7 @@ class _Kategoriler {
       tr: 'Algoritma', en: 'Algorithms', de: 'Algorithmen', es: 'Algoritmos',
       simge: Icons.extension_rounded,
       renk: Color(0xFFFF8C1A),
-      turler: {GameType.sequencing, GameType.blockCoding, GameType.leftRightCoding, GameType.mazeExplorer},
+      turler: {GameType.sequencing, GameType.blockCoding, GameType.mazeExplorer},
     ),
     _Kategori(
       tr: 'Mantık', en: 'Logic', de: 'Logik', es: 'Lógica',
@@ -802,7 +802,7 @@ class _Kategoriler {
 
   /// Kursa gore "Senin icin" adaylari (oncelik sirasiyla).
   static const kursaUygun = <String, List<GameType>>{
-    'scratch': [GameType.sequencing, GameType.blockCoding, GameType.leftRightCoding, GameType.coordinates, GameType.colorCoding],
+    'scratch': [GameType.sequencing, GameType.blockCoding, GameType.coordinates, GameType.colorCoding],
     'mblock': [GameType.blockCoding, GameType.sequencing, GameType.robotSimulator, GameType.arduinoSimulator],
     'arduino': [GameType.arduinoSimulator, GameType.matchingGame, GameType.blockCoding],
     'arduino_ide': [GameType.matchingGame, GameType.arduinoSimulator],
@@ -1154,7 +1154,6 @@ class ProGames {
     GameType.quiz,
     GameType.blockCoding,
     GameType.sequencing,
-    GameType.leftRightCoding,
     GameType.coordinates,
     GameType.colorCoding,
     GameType.wordMatch,

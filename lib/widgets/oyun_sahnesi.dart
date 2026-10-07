@@ -118,8 +118,6 @@ class _SahneRessami extends CustomPainter {
         _bilgiYarismasi(canvas);
       case GameType.robotSimulator:
         _robotSimulator(canvas);
-      case GameType.leftRightCoding:
-        _sagimSolum(canvas);
       case GameType.coordinates:
         _koordinat(canvas);
       case GameType.blockCoding:
@@ -229,17 +227,6 @@ class _SahneRessami extends CustomPainter {
     c.drawRRect(_rr(-b * .32, b * .2, b * .22, b * .14, b * .05), _boya(const Color(0xFF546E7A)));
     c.drawRRect(_rr(b * .1, b * .2, b * .22, b * .14, b * .05), _boya(const Color(0xFF546E7A)));
     c.restore();
-  }
-
-  void _yildiz(Canvas c, Offset m, double r, Color col) {
-    final p = Path();
-    for (var i = 0; i < 10; i++) {
-      final a = -math.pi / 2 + i * math.pi / 5;
-      final rr = i.isEven ? r : r * 0.45;
-      final pt = m + Offset(math.cos(a) * rr, math.sin(a) * rr);
-      i == 0 ? p.moveTo(pt.dx, pt.dy) : p.lineTo(pt.dx, pt.dy);
-    }
-    c.drawPath(p..close(), _boya(col));
   }
 
   void _parilti(Canvas c, Offset m, double guc) {
@@ -564,50 +551,6 @@ class _SahneRessami extends CustomPainter {
     for (final x in [-.5, 0.0, .5]) {
       c.drawCircle(Offset(m.dx + b * x, m.dy - b * (x == 0 ? .98 : .82)), b * .08, _boya(const Color(0xFF212121)));
     }
-  }
-
-  /// Sag-Solum: kedi ortada, sol/sag okulari sirayla yaniyor, kedi o
-  /// yone kayiyor; hedef yildiz.
-  void _sagimSolum(Canvas c) {
-    // yol
-    c.drawRRect(_rr(18, 50, 164, 22, 11), _boya(Colors.white.withValues(alpha: 0.75)));
-    for (var i = 0; i < 7; i++) {
-      c.drawCircle(Offset(30 + i * 23.0, 61), 2, _boya(renk.withValues(alpha: 0.35)));
-    }
-    _yildiz(c, const Offset(168, 61), 8, const Color(0xFFFFC107));
-    // kedi saga dogru zikzakla ilerliyor
-    final saga = math.sin(t * math.pi * 2) > -0.2;
-    final x = 40 + 110 * _yumusak(0.05, 0.85) + (saga ? 0 : -6);
-    final y = 52 + math.sin(t * math.pi * 8).abs() * -5;
-    _kedi(c, Offset(x, y), 13);
-    // oklar
-    void ok(Offset m, bool sag, bool yanik) {
-      _kutu(c, _rr(m.dx - 22, m.dy - 13, 44, 26, 10), yanik ? renk : Colors.white);
-      final p = Path();
-      final s = sag ? 1 : -1;
-      p.moveTo(m.dx - 9 * s, m.dy - 3);
-      p.lineTo(m.dx + 1 * s, m.dy - 3);
-      p.lineTo(m.dx + 1 * s, m.dy - 8);
-      p.lineTo(m.dx + 10 * s, m.dy);
-      p.lineTo(m.dx + 1 * s, m.dy + 8);
-      p.lineTo(m.dx + 1 * s, m.dy + 3);
-      p.lineTo(m.dx - 9 * s, m.dy + 3);
-      p.close();
-      c.drawPath(p, _boya(yanik ? Colors.white : renk));
-    }
-    ok(const Offset(70, 98), false, !saga);
-    ok(const Offset(130, 98), true, saga);
-  }
-
-  /// Basit kedi (Scratch kedisine benzemeyen, yuvarlak bir kedi).
-  void _kedi(Canvas c, Offset m, double b) {
-    final g = _boya(const Color(0xFFFFA726));
-    c.drawPath(Path()..moveTo(m.dx - b * .6, m.dy - b * .3)..lineTo(m.dx - b * .45, m.dy - b * .95)..lineTo(m.dx - b * .1, m.dy - b * .5)..close(), g);
-    c.drawPath(Path()..moveTo(m.dx + b * .6, m.dy - b * .3)..lineTo(m.dx + b * .45, m.dy - b * .95)..lineTo(m.dx + b * .1, m.dy - b * .5)..close(), g);
-    c.drawCircle(m, b * .65, g);
-    c.drawCircle(m + Offset(-b * .22, -b * .05), b * .09, _boya(const Color(0xFF3E2723)));
-    c.drawCircle(m + Offset(b * .22, -b * .05), b * .09, _boya(const Color(0xFF3E2723)));
-    c.drawCircle(m + Offset(0, b * .14), b * .07, _boya(const Color(0xFFE91E63)));
   }
 
   /// Koordinat Macerasi: eksenler, izgara, nokta (x,y) arasinda zipliyor.
@@ -972,10 +915,6 @@ String oyunDaveti(GameType tur, String lang) {
         'Give commands and drive the robot to the flag!',
         'Gib Befehle und bring den Roboter zur Flagge!',
         '¡Da órdenes y lleva al robot a la bandera!'),
-    GameType.leftRightCoding => t('Sağ mı sol mu? Hızlı karar ver!',
-        'Left or right? Decide fast!',
-        'Links oder rechts? Entscheide schnell!',
-        '¿Izquierda o derecha? ¡Decide rápido!'),
     GameType.coordinates => t('Robotu doğru (x, y) noktasına götür!',
         'Move the robot to the right (x, y) point!',
         'Bring den Roboter zum richtigen (x, y)-Punkt!',

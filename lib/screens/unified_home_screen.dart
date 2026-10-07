@@ -1491,7 +1491,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
     final tur = switch (kursId) {
       'scratch' => GameType.sequencing,
       'mblock' => GameType.blockCoding,
-      'arduino' || 'arduino_ide' => GameType.leftRightCoding,
+      'arduino' || 'arduino_ide' => GameType.blockCoding,
       'html' || 'css' => GameType.wordMatch,
       'python' || 'java' || 'csharp' => GameType.quiz,
       _ => GameType.sequencing,
