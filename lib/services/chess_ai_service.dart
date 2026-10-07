@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:chess/chess.dart' as chess_lib;
 import 'package:flutter/foundation.dart';
 import '../models/chess_game_model.dart';
+import 'satranc_rakip.dart';
 
 // Conditional import for stockfish - use stub on web
 import 'package:stockfish_chess_engine/stockfish_chess_engine.dart'
@@ -30,6 +31,12 @@ class ChessAIService {
   /// bekliyor.
   bool _stockfishReady = false;
   final _random = Random();
+  late final SatrancRakip _rakip = SatrancRakip(_random);
+
+  /// Orta seviyede motor yerine "dikkatli ama kusurlu" rakibin oynadigi
+  /// hamlelerin orani. Stockfish'in en zayif ayari bile cocuk icin
+  /// fazla isabetli; arada bir insani bir hamle geliyor.
+  static const double ortaInsaniHamle = 0.25;
 
   /// Oyun su an basit yapay zekayla mi oynaniyor.
   bool get usingSimpleAI => kIsWeb || !_stockfishReady;
@@ -141,6 +148,20 @@ class ChessAIService {
     required chess_lib.Chess game,
     required ChessDifficulty difficulty,
   }) async {
+    // KOLAY: motor hic kullanilmiyor. Stockfish'in en zayif ayari bile
+    // yeni baslayan bir cocuk icin fazla gucluydu (bkz. satranc_rakip.dart).
+    if (difficulty == ChessDifficulty.beginner) {
+      await Future.delayed(const Duration(milliseconds: 450));
+      return _rakip.kolayHamle(game);
+    }
+
+    // ORTA: dortte bir hamle insani rakipten.
+    if (difficulty == ChessDifficulty.intermediate &&
+        _random.nextDouble() < ortaInsaniHamle) {
+      await Future.delayed(const Duration(milliseconds: 450));
+      return _rakip.dikkatliHamle(game, gurultu: 120);
+    }
+
     if (!_isInitialized) {
       await initialize();
     }
@@ -210,101 +231,21 @@ class ChessAIService {
     }
   }
 
-  /// Simple AI for web platform or fallback
-  /// Uses basic chess logic to pick moves
+  /// Motorsuz rakip (web, motorun kalkmadigi cihaz ya da motor
+  /// sustugunda). Seviyeler motorlu halin kabaca karsiligi.
   String? _getSimpleAIMove(chess_lib.Chess game, ChessDifficulty difficulty) {
     try {
-      final moves = game.generate_moves();
-      if (moves.isEmpty) return null;
-
-      debugPrint('🎲 Using simple AI - ${moves.length} legal moves');
-
-      // For beginner difficulty, pick random move
-      if (difficulty == ChessDifficulty.beginner) {
-        final move = moves[_random.nextInt(moves.length)];
-        return game.move_to_san(move);
+      switch (difficulty) {
+        case ChessDifficulty.beginner:
+          return _rakip.kolayHamle(game);
+        case ChessDifficulty.intermediate:
+          return _rakip.dikkatliHamle(game, gurultu: 120);
+        case ChessDifficulty.advanced:
+          return _rakip.dikkatliHamle(game, gurultu: 10);
       }
-
-      // For intermediate/advanced, prefer captures and center control
-      // Prioritize: checkmate > capture > center control > random
-      chess_lib.Move? bestMove;
-      int bestScore = -999999;
-
-      for (final move in moves) {
-        int score = 0;
-
-        // Make the move temporarily to evaluate
-        final tempGame = chess_lib.Chess.fromFEN(game.fen);
-        tempGame.move({'from': move.fromAlgebraic, 'to': move.toAlgebraic});
-
-        // Check for checkmate (highest priority)
-        if (tempGame.in_checkmate) {
-          score += 10000;
-        }
-
-        // Check for check
-        if (tempGame.in_check) {
-          score += 50;
-        }
-
-        // Prefer captures
-        if (move.captured != null) {
-          score += _getPieceValue(move.captured!) + 100;
-        }
-
-        // Prefer center control (e4, d4, e5, d5)
-        if (['e4', 'd4', 'e5', 'd5'].contains(move.toAlgebraic)) {
-          score += 30;
-        }
-
-        // Avoid losing pieces (check if move square is attacked)
-        // This is a simplified check
-        score -= _getPieceValue(move.piece) ~/ 10;
-
-        // Add randomness for variety (more for beginner)
-        if (difficulty == ChessDifficulty.intermediate) {
-          score += _random.nextInt(20);
-        } else {
-          score += _random.nextInt(10);
-        }
-
-        if (score > bestScore) {
-          bestScore = score;
-          bestMove = move;
-        }
-      }
-
-      if (bestMove != null) {
-        final sanMove = game.move_to_san(bestMove);
-        debugPrint('✅ Simple AI move: $sanMove (score: $bestScore)');
-        return sanMove;
-      }
-
-      // Fallback to random
-      final move = moves[_random.nextInt(moves.length)];
-      return game.move_to_san(move);
     } catch (e) {
       debugPrint('❌ Error in simple AI: $e');
       return null;
-    }
-  }
-
-  /// Get piece value for simple evaluation
-  int _getPieceValue(chess_lib.PieceType piece) {
-    switch (piece) {
-      case chess_lib.PieceType.PAWN:
-        return 100;
-      case chess_lib.PieceType.KNIGHT:
-      case chess_lib.PieceType.BISHOP:
-        return 300;
-      case chess_lib.PieceType.ROOK:
-        return 500;
-      case chess_lib.PieceType.QUEEN:
-        return 900;
-      case chess_lib.PieceType.KING:
-        return 10000;
-      default:
-        return 0; // Unknown piece type
     }
   }
 
@@ -369,10 +310,15 @@ extension on ChessDifficulty {
   /// Stockfish skill level (0-20)
   int get stockfishSkillLevel {
     switch (this) {
+      // Kolay seviye motoru kullanmiyor (getBestMove); bu deger yalnizca
+      // bir gun motora dusulurse diye en zayif ayar.
       case ChessDifficulty.beginner:
-        return 1; // Very weak
+        return 0;
+      // ORTA: eskiden 10'du — "orta" adi altinda neredeyse usta. Cocuk
+      // icin ne zor ne kolay: 3 ve kisa dusunme suresi, ustune dortte
+      // bir insani hamle.
       case ChessDifficulty.intermediate:
-        return 10; // Medium strength
+        return 3;
       case ChessDifficulty.advanced:
         return 20; // Maximum strength
     }
@@ -384,7 +330,7 @@ extension on ChessDifficulty {
       case ChessDifficulty.beginner:
         return 500; // 0.5 seconds
       case ChessDifficulty.intermediate:
-        return 1000; // 1 second
+        return 300;
       case ChessDifficulty.advanced:
         return 1500; // 1.5 seconds
     }

@@ -52,4 +52,44 @@ void main() {
     expect(s.contains(r'AI hareketi başarısız: $e'), isFalse);
     expect(s.contains('Bilgisayar bu hamlede takıldı'), isTrue);
   });
+
+  test('oyun sonu tahtayi ortmuyor: acilir-kapanir panel', () {
+    // Sonuc eskiden tahtanin ustune acilan bir pencereydi; cocuk nasil
+    // mat oldugunu goremiyordu (Ekim 2026 geri bildirimi).
+    final s = File(ekran).readAsStringSync();
+    expect(s.contains('_showResultDialog'), isFalse);
+    expect(s.contains('Widget _buildSonucPaneli()'), isTrue);
+    expect(s.contains('_sonucAcik = !_sonucAcik'), isTrue,
+        reason: 'Panel basligina dokununca kapanip acilmali.');
+    // Mat olan sah tahtada isaretli.
+    expect(s.contains('_tehditAltindakiSah()'), isTrue);
+  });
+
+  test('tasa dokununca gidebilecegi kareler gosteriliyor', () {
+    final s = File(ekran).readAsStringSync();
+    expect(s.contains("generate_moves({'square': kare})"), isTrue);
+    expect(s.contains('_buildIpucuKatmani(maxWidth)'), isTrue);
+    // Noktaya dokununca hamle yapiliyor.
+    expect(s.contains('onTapUp: (d) => _kareyeDokunuldu('), isTrue);
+  });
+
+  test('iki tahta secenegi', () {
+    final s = File(ekran).readAsStringSync();
+    expect(RegExp(r'_buildThemeOption\(\s*BoardColor\.').allMatches(s).length,
+        2);
+  });
+
+  test('kolay seviye Stockfish kullanmiyor, orta seviye yumusatildi', () {
+    final s = File(servis).readAsStringSync();
+    final i = s.indexOf('if (difficulty == ChessDifficulty.beginner) {');
+    expect(i, greaterThan(0));
+    expect(s.indexOf('_rakip.kolayHamle(game)', i), greaterThan(i));
+    expect(i, lessThan(s.indexOf("_stockfish!.stdin = 'ucinewgame'")),
+        reason: 'Kolay seviye motora hic ulasmamali.');
+    // Orta seviye eskiden Skill 10'du.
+    final orta = s.substring(s.indexOf('int get stockfishSkillLevel'));
+    expect(orta.contains('return 10;'), isFalse);
+    expect(orta.contains('return 20;'), isTrue,
+        reason: 'Zor seviye oldugu gibi kalmali.');
+  });
 }

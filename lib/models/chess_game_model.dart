@@ -2,9 +2,9 @@ import '../utils/lang.dart';
 
 /// Difficulty levels for chess AI
 enum ChessDifficulty {
-  beginner, // Depth 1-2, Random moves
-  intermediate, // Depth 3-4, Basic strategy
-  advanced, // Depth 5-6, Advanced tactics
+  beginner, // Kendi rakibimiz: cogu hamle rastgele, mati cogu zaman gormez
+  intermediate, // Stockfish Skill 3, 300 ms + dortte bir insani hamle
+  advanced, // Stockfish Skill 20, 1.5 sn
 }
 
 /// Game result
@@ -223,10 +223,12 @@ extension ChessDifficultyExtension on ChessDifficulty {
 
   int get estimatedElo {
     switch (this) {
+      // Ekim 2026: kolay seviye bilerek hata yapan kendi rakibimiz,
+      // orta seviye Stockfish 3 + insani hamleler (chess_ai_service.dart).
       case ChessDifficulty.beginner:
-        return 800;
+        return 400;
       case ChessDifficulty.intermediate:
-        return 1400;
+        return 1000;
       case ChessDifficulty.advanced:
         return 2000;
     }

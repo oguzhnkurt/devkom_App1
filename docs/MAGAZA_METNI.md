@@ -256,6 +256,8 @@ düzeltildi.
 
 • Öğrenme yolu artık herkes için Scratch ile başlıyor.
 
+• Satranç: taşa dokununca gidebileceği kareler gösteriliyor. Oyun bitince tahta açık kalıyor, nasıl mat olduğunu görebiliyorsun. Kolay seviye artık gerçekten kolay, orta seviye daha dengeli.
+
 • Bilgi Yarışması'nın soruları artık Almanca ve İspanyolca.
 
 • Boru Bulmacası'nın skor satırı dört dilde.
@@ -273,6 +275,8 @@ background and colorful answer cards.
 Activities and Courses screens.
 
 • The learning path now starts with Scratch for everyone.
+
+• Chess: tap a piece to see where it can move. When the game ends the board stays visible, so you can see how the checkmate happened. Easy is now truly easy, and Medium is more balanced.
 
 • Course pages (modules and lessons) are now fully in English.
 
@@ -292,6 +296,8 @@ gut sichtbar.
 
 • Der Lernpfad beginnt jetzt für alle mit Scratch.
 
+• Schach: Tippe auf eine Figur, um ihre möglichen Züge zu sehen. Nach der Partie bleibt das Brett sichtbar, so siehst du, wie das Matt entstand. Die leichte Stufe ist jetzt wirklich leicht, die mittlere ausgewogener.
+
 • Kursseiten (Module und Lektionen) sind jetzt auf Deutsch.
 
 • Die Fragen im Wissensquiz gibt es jetzt auf Deutsch.
@@ -309,6 +315,8 @@ color, un fondo suave y tarjetas de respuesta de colores.
 Actividades y Cursos.
 
 • La ruta de aprendizaje ahora empieza con Scratch para todos.
+
+• Ajedrez: toca una pieza para ver adónde puede moverse. Al terminar la partida el tablero sigue visible y puedes ver cómo fue el jaque mate. El nivel fácil ahora es fácil de verdad y el intermedio, más equilibrado.
 
 • Las páginas de los cursos (módulos y lecciones) ya están en español.
 

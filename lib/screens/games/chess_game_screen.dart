@@ -26,7 +26,14 @@ import '../../utils/lang.dart';
 class ChessGameScreen extends StatefulWidget {
   final ChessDifficulty? initialDifficulty;
 
-  const ChessGameScreen({super.key, this.initialDifficulty});
+  /// Oyunu bu konumdan baslatir (ekran goruntusu araci ve testler icin;
+  /// uygulama hep bastan baslatiyor). Konum oyun sonuysa sonuc paneli
+  /// hemen acilir.
+  @visibleForTesting
+  final String? baslangicFen;
+
+  const ChessGameScreen(
+      {super.key, this.initialDifficulty, this.baslangicFen});
 
   @override
   State<ChessGameScreen> createState() => _ChessGameScreenState();
@@ -59,6 +66,22 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
   String? _lastAIMove;
   String? _lastMoveFrom;
   String? _lastMoveTo;
+
+  // DOKUNARAK OYNAMA VE HAMLE IPUCU.
+  //
+  // Taslar eskiden yalnizca SURUKLENEREK oynaniyordu ve bir tasin nereye
+  // gidebilecegi hicbir yerde gorunmuyordu. Artik cocuk tasina bir kez
+  // dokununca gidebilecegi kareler tahtada nokta nokta isaretleniyor
+  // (alinabilecek tasin karesi halka); noktaya dokununca tas oraya
+  // gidiyor. Surukleme de calismaya devam ediyor.
+  String? _secili;
+  Set<String> _hedefler = const {};
+  Set<String> _alinanHedefler = const {};
+
+  /// Oyun sonu paneli acik mi. Sonuc eskiden tahtanin USTUNE acilan bir
+  /// pencereydi: cocuk nasil mat oldugunu goremiyordu. Panel artik
+  /// tahtanin altinda ve kapanabiliyor; tahta hep gorunuyor.
+  bool _sonucAcik = true;
 
   // User data
   UserModel? _currentUser;
@@ -151,11 +174,17 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     }
 
     try {
-      // Initialize AI service once
-      await _aiService.initialize();
+      // Kolay seviye motoru hic kullanmiyor; Stockfish surecini bosuna
+      // ayaga kaldirmiyoruz (pil, bellek).
+      if (_selectedDifficulty != ChessDifficulty.beginner) {
+        await _aiService.initialize();
+      }
 
       if (!mounted) return;
 
+      if (widget.baslangicFen != null) {
+        _boardController = ChessBoardController.fromFEN(widget.baslangicFen!);
+      }
       setState(() {
         _isGameStarted = true;
         _gameId = const Uuid().v4();
@@ -188,6 +217,11 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
 
       debugPrint(
           '🎮 Chess game started with difficulty: ${_selectedDifficulty?.name}');
+
+      if (widget.baslangicFen != null) {
+        _checkGameState();
+        if (_gameResult != GameResult.ongoing) await _endGame();
+      }
     } catch (e) {
       debugPrint('❌ Failed to start game: $e');
       if (mounted) {
@@ -219,6 +253,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
 
   Future<void> _onMove() async {
     if (_gameResult != GameResult.ongoing || _isAIThinking) return;
+    _secimiTemizle();
 
     // Get move count before AI move (board controller tracks moves internally)
     final currentMoveCount = _boardController.game.history.length;
@@ -282,6 +317,9 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
         _checkGameState();
 
         if (_gameResult != GameResult.ongoing) {
+          // "AI dusunuyor..." seridi sonuc ekraninin arkasinda donmeye
+          // devam ediyordu: bayrak ancak sonuc kapaninca iniyordu.
+          setState(() => _isAIThinking = false);
           await _endGame();
         }
       }
@@ -329,9 +367,14 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     _gameTimer?.cancel();
     _endTime = DateTime.now();
 
-    // Show result dialog
+    // Sonuc paneli tahtanin altinda aciliyor (pencere degil).
     if (mounted) {
-      await _showResultDialog();
+      setState(() => _sonucAcik = true);
+      if (_gameResult == GameResult.win) {
+        SoundService.playLevelComplete();
+      } else if (_gameResult == GameResult.loss) {
+        SoundService.playGameOver();
+      }
     }
 
     // Save game to Firestore
@@ -363,17 +406,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
       // Add to leaderboard if player won
       if (_gameResult == GameResult.win) {
         try {
-          // Calculate score (higher is better: faster wins get more points)
-          final baseScore = 1000;
-          final timeBonus =
-              (_elapsedSeconds > 0) ? (3600 ~/ _elapsedSeconds) : 0;
-          final difficultyMultiplier =
-              _selectedDifficulty == ChessDifficulty.advanced
-                  ? 3
-                  : _selectedDifficulty == ChessDifficulty.intermediate
-                      ? 2
-                      : 1;
-          final score = (baseScore + timeBonus) * difficultyMultiplier;
+          final score = _puan;
 
           final leaderboardEntry = LeaderboardEntry(
             id: '',
@@ -421,161 +454,200 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     }
   }
 
-  Future<void> _showResultDialog() async {
-    if (_gameResult == GameResult.ongoing) return;
-
-    // Calculate score (same logic as in _saveAndEndGame)
-    final baseScore = 1000;
+  /// Oyun sonu puani (kaydedilen puanla ayni hesap).
+  int get _puan {
+    const baseScore = 1000;
     final timeBonus = (_elapsedSeconds > 0) ? (3600 ~/ _elapsedSeconds) : 0;
     final difficultyMultiplier = _selectedDifficulty == ChessDifficulty.advanced
         ? 3
         : _selectedDifficulty == ChessDifficulty.intermediate
             ? 2
             : 1;
-    final score = (baseScore + timeBonus) * difficultyMultiplier;
+    return (baseScore + timeBonus) * difficultyMultiplier;
+  }
 
-    // Determine result message and icon
-    String title;
-    String message;
-    IconData icon;
-    ui.Color color;
-
+  /// Oyun sonu paneli: tahtanin ALTINDA, acilip kapanan.
+  ///
+  /// Eskiden sonuc tahtanin ustune acilan bir pencereydi ve tahtayi
+  /// ortuyordu; cocuk nasil mat oldugunu goremiyordu. Simdi tahta acik
+  /// kaliyor: son hamle sari, mat olan sah kirmizi isaretli. Panelin
+  /// basligina dokununca ayrintilar kapanip aciliyor.
+  Widget _buildSonucPaneli() {
+    final String baslik;
+    final String mesaj;
+    final IconData ikon;
+    final ui.Color renk;
     if (_gameResult == GameResult.win) {
-      title = _tl('🎉 Tebrikler!', '🎉 Congratulations!', '🎉 Glückwunsch!', '🎉 ¡Felicidades!');
-      message = _tl('Şah mat ettiniz! Harika bir oyun sergileyerek yapay zekayı yendiniz.', 'Checkmate! You beat the AI with a great game.', 'Schachmatt! Du hast die KI mit einer starken Partie geschlagen.', '¡Jaque mate! Has ganado a la IA con una gran partida.');
-      icon = Icons.emoji_events_rounded;
-      color = AppTheme.successGreen;
+      baslik = _tl('🎉 Tebrikler, kazandın!', '🎉 You won!', '🎉 Du hast gewonnen!', '🎉 ¡Has ganado!');
+      mesaj = _tl('Şah mat ettin! Kırmızı kare rakibin mat olan şahı.', 'Checkmate! The red square is the checkmated king.', 'Schachmatt! Das rote Feld ist der mattgesetzte König.', '¡Jaque mate! La casilla roja es el rey en jaque mate.');
+      ikon = Icons.emoji_events_rounded;
+      renk = AppTheme.successGreen;
     } else if (_gameResult == GameResult.loss) {
-      title = _tl('😔 Mat Oldunuz', '😔 You Were Checkmated', '😔 Du wurdest mattgesetzt', '😔 Te han hecho jaque mate');
-      message = _tl('Yapay zeka şah mat yaptı. Daha fazla pratik yaparak gelişebilirsiniz!', 'The AI delivered checkmate. Keep practicing to improve!', 'Die KI hat mattgesetzt. Mit mehr Übung wirst du besser!', 'La IA dio jaque mate. ¡Con más práctica mejorarás!');
-      icon = Icons.psychology_rounded;
-      color = AppTheme.errorRed;
+      baslik = _tl('😔 Mat oldun', '😔 Checkmate', '😔 Schachmatt', '😔 Jaque mate');
+      mesaj = _tl('Tahtaya bak: sarı kareler rakibin son hamlesi, kırmızı kare mat olan şahın. Bir dahaki sefere şahının kaçış karelerini açık tut!', 'Look at the board: the yellow squares are the last move, the red square is your checkmated king. Next time keep escape squares open for your king!', 'Schau aufs Brett: Gelb ist der letzte Zug, Rot dein mattgesetzter König. Halte deinem König beim nächsten Mal Fluchtfelder frei!', 'Mira el tablero: las casillas amarillas son la última jugada y la roja es tu rey en jaque mate. ¡La próxima vez deja casillas de escape a tu rey!');
+      ikon = Icons.psychology_rounded;
+      renk = AppTheme.errorRed;
     } else {
-      title = _tl('🤝 Berabere', '🤝 Draw', '🤝 Unentschieden', '🤝 Tablas');
-      message = _tl('Oyun berabere bitti. İyi bir savunma sergileyerek yapay zekayı durdurdunuz.', 'The game ended in a draw. You held off the AI with a solid defense.', 'Die Partie endet unentschieden. Mit solider Verteidigung hast du die KI aufgehalten.', 'La partida terminó en tablas. Detuviste a la IA con una buena defensa.');
-      icon = Icons.handshake_rounded;
-      color = AppTheme.accentTeal;
+      baslik = _tl('🤝 Berabere', '🤝 Draw', '🤝 Unentschieden', '🤝 Tablas');
+      mesaj = _tl('Oyun berabere bitti. İyi bir savunma yaptın!', 'The game ended in a draw. Good defending!', 'Die Partie endet unentschieden. Gut verteidigt!', 'La partida terminó en tablas. ¡Buena defensa!');
+      ikon = Icons.handshake_rounded;
+      renk = AppTheme.accentTeal;
     }
 
-    // Show custom game end dialog
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Row(
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: renk.withValues(alpha: 0.5), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: renk.withValues(alpha: 0.18),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+        alignment: Alignment.topCenter,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
+            InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => setState(() => _sonucAcik = !_sonucAcik),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    Icon(ikon, color: renk, size: 28),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        baslik,
+                        style: TextStyle(
+                          color: renk,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 19,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      _sonucAcik
+                          ? Icons.keyboard_arrow_down_rounded
+                          : Icons.keyboard_arrow_up_rounded,
+                      color: AppTheme.mediumGray,
+                      size: 28,
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              message,
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppTheme.lightGray,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
+            if (_sonucAcik) ...[
+              Text(mesaj, style: const TextStyle(fontSize: 14.5, height: 1.35)),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
                 children: [
-                  _buildStatRow(_tl('⏱️ Süre', '⏱️ Duration', '⏱️ Dauer', '⏱️ Duración'),
-                      _formatDuration(_elapsedSeconds)),
-                  const SizedBox(height: 8),
-                  _buildStatRow(_tl('🎯 Hamle Sayısı', '🎯 Move Count', '🎯 Anzahl der Züge', '🎯 Número de jugadas'),
-                      '${_moveHistory.length}'),
-                  const SizedBox(height: 8),
-                  _buildStatRow(
-                      _tl('🏆 Puan', '🏆 Score', '🏆 Punkte', '🏆 Puntos'), score.toString()),
-                  const SizedBox(height: 8),
-                  _buildStatRow(_tl('📊 Zorluk', '📊 Difficulty', '📊 Schwierigkeit', '📊 Dificultad'),
+                  _sonucCipi(Icons.timer_rounded, _formatDuration(_elapsedSeconds)),
+                  _sonucCipi(Icons.swap_horiz_rounded,
+                      _tl('${_moveHistory.length} hamle', '${_moveHistory.length} moves', '${_moveHistory.length} Züge', '${_moveHistory.length} jugadas')),
+                  // Puan yalnizca kazaninca (kayipta "1000 puan" yaziyordu).
+                  if (_gameResult == GameResult.win)
+                    _sonucCipi(Icons.emoji_events_rounded,
+                        _tl('$_puan puan', '$_puan points', '$_puan Punkte', '$_puan puntos')),
+                  _sonucCipi(Icons.psychology_rounded,
                       _selectedDifficulty?.displayNameFor(_lang) ?? ''),
                 ],
               ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pop(); // Go back to games list
-            },
-            child: Text(_tl('Oyunlara Dön', 'Back to Games', 'Zurück zu den Spielen', 'Volver a los juegos')),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _resetGame();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryBlue,
-            ),
-            child: Text(_tl('Yeni Oyun', 'New Game', 'Neue Partie', 'Nueva partida')),
-          ),
-          if (_gameResult != GameResult.loss)
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                // Navigate to leaderboard
-                await Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) => GameResultScreen(
-                      userId: _currentUser!.uid,
-                      userName: _currentUser!.displayName,
-                      gameType: GameType.chess,
-                      score: score,
-                      timeSeconds: _elapsedSeconds,
-                      difficulty: _selectedDifficulty?.index,
+            ],
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).maybePop(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: Text(
+                      _tl('Oyunlara Dön', 'Back to Games', 'Zu den Spielen', 'Volver a los juegos'),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.successGreen,
-              ),
-              child: Text(_tl('Skor Tablosu', 'Leaderboard', 'Bestenliste', 'Clasificación')),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _resetGame,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryBlue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: Text(
+                      _tl('Yeni Oyun', 'New Game', 'Neue Partie', 'Nueva partida'),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
             ),
-        ],
+            if (_sonucAcik &&
+                _gameResult != GameResult.loss &&
+                _currentUser != null)
+              TextButton(
+                onPressed: () async {
+                  await Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => GameResultScreen(
+                        userId: _currentUser!.uid,
+                        userName: _currentUser!.displayName,
+                        gameType: GameType.chess,
+                        score: _puan,
+                        timeSeconds: _elapsedSeconds,
+                        difficulty: _selectedDifficulty?.index,
+                      ),
+                    ),
+                  );
+                },
+                child: Text(_tl('Skor Tablosu', 'Leaderboard', 'Bestenliste', 'Clasificación')),
+              ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildStatRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 14,
-          ),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-            color: AppTheme.primaryBlue,
-          ),
-        ),
-      ],
+  Widget _sonucCipi(IconData ikon, String yazi) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppTheme.lightGray,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(ikon, size: 16, color: AppTheme.primaryBlue),
+          const SizedBox(width: 5),
+          Text(yazi,
+              style: const TextStyle(
+                  fontWeight: FontWeight.w700, color: AppTheme.darkBlue)),
+        ],
+      ),
     );
   }
 
@@ -598,7 +670,161 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
       _lastAIMove = null;
       _lastMoveFrom = null;
       _lastMoveTo = null;
+      _secili = null;
+      _hedefler = const {};
+      _alinanHedefler = const {};
+      _sonucAcik = true;
     });
+  }
+
+  // ------------------------------------------------ dokunarak oynama
+
+  /// Tahtadaki bir noktanin karesi (beyaz altta).
+  String _kare(Offset p, double kenar) {
+    final s = kenar / 8;
+    final sutun = (p.dx / s).floor().clamp(0, 7);
+    final satir = (p.dy / s).floor().clamp(0, 7);
+    return '${'abcdefgh'[sutun]}${8 - satir}';
+  }
+
+  void _secimiTemizle() {
+    if (_secili == null && _hedefler.isEmpty) return;
+    setState(() {
+      _secili = null;
+      _hedefler = const {};
+      _alinanHedefler = const {};
+    });
+  }
+
+  /// Parmak tahtaya degdi. Kendi tasina degdiyse tas secilir ve
+  /// gidebilecegi kareler gosterilir — surukleme baslarken de noktalar
+  /// gorunuyor.
+  void _kareyeBasildi(String kare) {
+    if (!_cocukOynayabilir) return;
+    // Secili tasin hedefine basildi: hamleyi dokunma bitince yapiyoruz.
+    if (_secili != null && _hedefler.contains(kare)) return;
+    final tas = _boardController.game.get(kare);
+    if (tas != null && tas.color == chess_lib.Color.WHITE) {
+      final hamleler =
+          _boardController.game.generate_moves({'square': kare});
+      setState(() {
+        _secili = kare;
+        _hedefler = {for (final m in hamleler) m.toAlgebraic};
+        _alinanHedefler = {
+          for (final m in hamleler)
+            if (m.captured != null) m.toAlgebraic
+        };
+      });
+    } else {
+      _secimiTemizle();
+    }
+  }
+
+  /// Dokunma (surukleme degil) bitti: secili tasin hedefiyse oyna.
+  Future<void> _kareyeDokunuldu(String kare) async {
+    if (!_cocukOynayabilir || _secili == null || !_hedefler.contains(kare)) {
+      return;
+    }
+    final nereden = _secili!;
+    final tas = _boardController.game.get(nereden);
+    _secimiTemizle();
+    // Piyon son siraya: dokunarak oynayan cocuga terfi sorulmuyor,
+    // vezir oluyor (sureklemede paketin kendi secim penceresi acilir).
+    if (tas?.type == chess_lib.PieceType.PAWN && kare[1] == '8') {
+      _boardController.makeMoveWithPromotion(
+          from: nereden, to: kare, pieceToPromoteTo: 'q');
+    } else {
+      _boardController.makeMove(from: nereden, to: kare);
+    }
+    SoundService.playDrop();
+    await _onMove();
+  }
+
+  /// Sah tehdit altindaysa (ya da mat olduysa) onun karesi.
+  String? _tehditAltindakiSah() {
+    final oyun = _boardController.game;
+    if (!oyun.in_check) return null;
+    for (final dosya in 'abcdefgh'.split('')) {
+      for (var sira = 1; sira <= 8; sira++) {
+        final kare = '$dosya$sira';
+        final t = oyun.get(kare);
+        if (t != null &&
+            t.type == chess_lib.PieceType.KING &&
+            t.color == oyun.turn) {
+          return kare;
+        }
+      }
+    }
+    return null;
+  }
+
+  /// Secili kare, hamle noktalari ve tehdit altindaki sah.
+  /// IgnorePointer: dokunmalar alttaki tahtaya gidiyor.
+  Widget _buildIpucuKatmani(double kenar) {
+    final s = kenar / 8;
+    Rect yer(String kare) {
+      final x = kare.codeUnitAt(0) - 97;
+      final y = 8 - int.parse(kare[1]);
+      return Rect.fromLTWH(x * s, y * s, s, s);
+    }
+
+    final sah = _tehditAltindakiSah();
+    return IgnorePointer(
+      child: SizedBox(
+        width: kenar,
+        height: kenar,
+        child: Stack(
+          children: [
+            if (sah != null)
+              Positioned.fromRect(
+                rect: yer(sah),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(colors: [
+                      Colors.red.withValues(alpha: 0.85),
+                      Colors.red.withValues(alpha: 0.25),
+                    ]),
+                  ),
+                ),
+              ),
+            if (_secili != null)
+              Positioned.fromRect(
+                rect: yer(_secili!),
+                child: Container(
+                  color: const ui.Color(0xFF66BB6A).withValues(alpha: 0.45),
+                ),
+              ),
+            for (final k in _hedefler)
+              Positioned.fromRect(
+                rect: yer(k),
+                child: Center(
+                  child: _alinanHedefler.contains(k)
+                      // Alinabilecek tas: kareyi cevreleyen halka.
+                      ? Container(
+                          width: s * 0.92,
+                          height: s * 0.92,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.black.withValues(alpha: 0.30),
+                              width: s * 0.09,
+                            ),
+                          ),
+                        )
+                      : Container(
+                          width: s * 0.30,
+                          height: s * 0.30,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.black.withValues(alpha: 0.38),
+                          ),
+                        ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   String _formatDuration(int seconds) {
@@ -855,17 +1081,34 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                                   // cocugun oynadigi bir seye donuyor,
                                   // ustelik "neden benim sıram gelmiyor"
                                   // diye anlasilmaz hale geliyordu.
-                                  ChessBoard(
-                                    controller: _boardController,
-                                    boardColor: _selectedBoardColor,
-                                    boardOrientation: PlayerColor.white,
-                                    onMove: _onMove,
-                                    enableUserMoves: _cocukOynayabilir,
+                                  // Listener: parmak degdigi anda tas
+                                  // secilir (surukleme baslarken de
+                                  // noktalar gorunur). GestureDetector:
+                                  // surukleme olmayan dokunma, secili
+                                  // tasi noktaya goturur.
+                                  Listener(
+                                    behavior: HitTestBehavior.opaque,
+                                    onPointerDown: (e) => _kareyeBasildi(
+                                        _kare(e.localPosition, maxWidth)),
+                                    child: GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onTapUp: (d) => _kareyeDokunuldu(
+                                          _kare(d.localPosition, maxWidth)),
+                                      child: ChessBoard(
+                                        controller: _boardController,
+                                        boardColor: _selectedBoardColor,
+                                        boardOrientation: PlayerColor.white,
+                                        onMove: _onMove,
+                                        enableUserMoves: _cocukOynayabilir,
+                                      ),
+                                    ),
                                   ),
                                   // Last move highlight overlay
                                   if (_lastMoveFrom != null &&
                                       _lastMoveTo != null)
-                                    _buildMoveHighlightOverlay(),
+                                    IgnorePointer(
+                                        child: _buildMoveHighlightOverlay()),
+                                  _buildIpucuKatmani(maxWidth),
                                 ],
                               ),
                             ),
@@ -926,7 +1169,10 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
           ),
         ),
 
-        // Game info
+        // Oyun bittiyse sonuc paneli, surerken bilgi seridi.
+        if (_gameResult != GameResult.ongoing)
+          _buildSonucPaneli()
+        else
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -1004,16 +1250,12 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
+                // IKI TAHTA YETER (Ekim 2026): dort secenekten ikisi
+                // (koyu kahverengi, turuncu) birbirine cok benziyordu.
                 _buildThemeOption(
                     BoardColor.brown,
-                    _tl('Klasik Kahverengi', 'Classic Brown', 'Klassisches Braun', 'Marrón clásico'),
+                    _tl('Klasik', 'Classic', 'Klassisch', 'Clásico'),
                     setDialogState),
-                const SizedBox(height: 12),
-                _buildThemeOption(BoardColor.darkBrown,
-                    _tl('Koyu Kahverengi', 'Dark Brown', 'Dunkelbraun', 'Marrón oscuro'), setDialogState),
-                const SizedBox(height: 12),
-                _buildThemeOption(BoardColor.orange,
-                    _tl('Turuncu', 'Orange', 'Orange', 'Naranja'), setDialogState),
                 const SizedBox(height: 12),
                 _buildThemeOption(BoardColor.green, _tl('Yeşil', 'Green', 'Grün', 'Verde'),
                     setDialogState),
@@ -1199,9 +1441,9 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               child: IgnorePointer(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.yellow.withValues(alpha: 0.15),
+                    color: Colors.yellow.withValues(alpha: 0.35),
                     border: Border.all(
-                      color: Colors.yellow.withValues(alpha: 0.4),
+                      color: Colors.amber.withValues(alpha: 0.8),
                       width: 2,
                     ),
                   ),
@@ -1217,9 +1459,9 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               child: IgnorePointer(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.yellow.withValues(alpha: 0.2),
+                    color: Colors.yellow.withValues(alpha: 0.45),
                     border: Border.all(
-                      color: Colors.yellow.withValues(alpha: 0.5),
+                      color: Colors.amber.withValues(alpha: 0.9),
                       width: 2,
                     ),
                   ),

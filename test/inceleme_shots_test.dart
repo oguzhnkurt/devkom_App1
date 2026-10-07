@@ -34,6 +34,8 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:devkom_app/services/sound_service.dart';
+import 'package:flutter_chess_board/flutter_chess_board.dart' show ChessBoard;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
@@ -331,6 +333,7 @@ void main() {
   // baslatmak assert'i gecmeye yetiyor, ekran bos veriyle ciziliyor —
   // magaza slayti icin istedigimiz de bu.
   setUpAll(() async {
+    SoundService.configure(sound: false);
     // Supabase acilirken SharedPreferences'i okuyor; sahte degerler
     // once verilmezse eklenti kanali yok diye patliyor.
     SharedPreferences.setMockInitialValues({});
@@ -587,6 +590,68 @@ void main() {
           for (var i = 0; i < 14; i++) {
             await tester.pump(const Duration(milliseconds: 400));
           }
+        }
+      },
+    );
+  });
+
+  // Satranc: tasa dokununca hamle noktalari (Ekim 2026).
+  testWidgets('30 satranc ipucu ($lang, ${cihaz.ad})', (tester) async {
+    await _shoot(
+      tester,
+      '30_satranc_ipucu',
+      const ChessGameScreen(initialDifficulty: ChessDifficulty.beginner),
+      lang: lang,
+      cihaz: cihaz,
+      fullScreen: true,
+      settle: const Duration(milliseconds: 900),
+      act: (tester) async {
+        await tester.pump(const Duration(milliseconds: 300));
+        final basla = find.widgetWithText(
+          ElevatedButton,
+          AppLang.pick(lang,
+              tr: 'Başlat', en: 'Start', de: 'Starten', es: 'Empezar'),
+        );
+        if (basla.evaluate().isEmpty) return;
+        await tester.tap(basla.first);
+        for (var i = 0; i < 14; i++) {
+          await tester.pump(const Duration(milliseconds: 400));
+        }
+        // g1 atina dokun: tahtanin sol ustunden (7. sutun, 8. satir).
+        final tahta = tester.getRect(find.byType(ChessBoard));
+        final s = tahta.width / 8;
+        await tester.tapAt(tahta.topLeft + Offset(6.5 * s, 7.5 * s));
+        await tester.pump(const Duration(milliseconds: 300));
+      },
+    );
+  });
+
+  // Satranc: mat olunca tahta acik, sonuc paneli altta.
+  testWidgets('31 satranc mat ($lang, ${cihaz.ad})', (tester) async {
+    await _shoot(
+      tester,
+      '31_satranc_mat',
+      const ChessGameScreen(
+        initialDifficulty: ChessDifficulty.beginner,
+        // Aptal mati: beyaz mat.
+        baslangicFen:
+            'rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3',
+      ),
+      lang: lang,
+      cihaz: cihaz,
+      fullScreen: true,
+      settle: const Duration(milliseconds: 900),
+      act: (tester) async {
+        await tester.pump(const Duration(milliseconds: 300));
+        final basla = find.widgetWithText(
+          ElevatedButton,
+          AppLang.pick(lang,
+              tr: 'Başlat', en: 'Start', de: 'Starten', es: 'Empezar'),
+        );
+        if (basla.evaluate().isEmpty) return;
+        await tester.tap(basla.first);
+        for (var i = 0; i < 14; i++) {
+          await tester.pump(const Duration(milliseconds: 400));
         }
       },
     );
