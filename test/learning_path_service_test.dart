@@ -61,8 +61,9 @@ void main() {
         level: SkillLevel.someBlocks,
         goal: LearningGoal.websites,
       );
-      expect(ids.first, 'html');
-      expect(ids[1], 'css');
+      expect(ids.first, 'scratch');
+      expect(ids[1], 'html');
+      expect(ids[2], 'css');
     });
 
     test('yapay zeka hedefinde Python one geliyor', () {
@@ -71,7 +72,8 @@ void main() {
         level: SkillLevel.someCode,
         goal: LearningGoal.ai,
       );
-      expect(ids.first, 'python');
+      expect(ids.first, 'scratch');
+      expect(ids[1], 'python');
     });
 
     test('"kesfetmek istiyorum" varsayilan sirayi bozmuyor', () {
@@ -85,26 +87,38 @@ void main() {
   });
 
   group('Deneyim seviyesi giris noktasini belirler', () {
-    test('kod yazabilen cocuga Scratch ilk adim olarak gosterilmiyor', () {
+    test("kod yazabilen cocukta Scratch'ten sonra yazili kurslar geliyor", () {
       final ids = idsFor(
         age: LearnerAgeBand.age13plus,
         level: SkillLevel.someCode,
         goal: LearningGoal.games,
       );
-      expect(ids.first, isNot('scratch'));
-      // Kurs kayboluyor degil, sadece yolun sonuna aliniyor.
-      expect(ids.contains('scratch'), isTrue);
-      expect(ids.indexOf('scratch'), greaterThan(ids.length ~/ 2));
+      expect(ids.first, 'scratch');
+      expect(ids[1], 'python');
+      // Atlanan blok kurslari (mBlock, Arduino) yolun sonunda.
+      expect(ids.indexOf('mblock'), greaterThan(ids.length ~/ 2));
     });
 
-    test('bloklari bilen cocukta Scratch geriye, siradaki adim one geliyor', () {
+    test("bloklari bilen cocukta Scratch'ten sonra mBlock geliyor", () {
       final ids = idsFor(
         age: LearnerAgeBand.age10to12,
         level: SkillLevel.someBlocks,
         goal: LearningGoal.robotics,
       );
-      expect(ids.first, 'mblock');
-      expect(ids.indexOf('scratch'), greaterThan(ids.indexOf('mblock')));
+      expect(ids.first, 'scratch');
+      expect(ids[1], 'mblock');
+    });
+
+    test('onboarding ne secilirse secilsin ilk kurs Scratch', () {
+      // Urun karari (Ekim 2026): herkes 1. kurstan basliyor.
+      for (final goal in LearningGoal.values) {
+        for (final level in SkillLevel.values) {
+          for (final age in LearnerAgeBand.values) {
+            final ids = idsFor(age: age, level: level, goal: goal);
+            expect(ids.first, 'scratch', reason: '$age / $level / $goal');
+          }
+        }
+      }
     });
 
     test('hic kod yazmamis cocuk her zaman Scratch ile basliyor', () {
@@ -138,7 +152,8 @@ void main() {
         level: SkillLevel.someCode,
         goal: LearningGoal.websites,
       );
-      expect(ids.first, 'html');
+      expect(ids.first, 'scratch');
+      expect(ids[1], 'html');
     });
   });
 
@@ -193,7 +208,7 @@ void main() {
       );
       final summary = LearningPathService.summaryTr(profile);
       expect(summary, contains('web sitesi'));
-      expect(summary, contains('HTML'));
+      expect(summary, contains('Scratch'));
     });
   });
 

@@ -259,7 +259,9 @@ def ekran_goruntuleri(dil):
     for eski in os.listdir(klasor):
         if eski.endswith('.png'):
             os.remove(os.path.join(klasor, eski))
-    secim = [s for s in SLIDES if dil in s[4]]
+    # Google Play telefon icin en fazla 8 ekran goruntusu aliyor; App
+    # Store seti 10. Play ilk sekizi kullaniyor (satranc ve quiz disarida).
+    secim = [s for s in SLIDES if dil in s[4]][:8]
     for i, (dosya, kirp, _yer, _hap, metinler) in enumerate(secim, 1):
         bas, alt = metinler[dil]
         shot = Image.open(

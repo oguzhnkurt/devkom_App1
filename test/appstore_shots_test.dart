@@ -44,6 +44,8 @@ import 'package:devkom_app/courses/data/html_lessons_data.dart';
 import 'package:devkom_app/courses/data/lessons_data.dart';
 import 'package:devkom_app/courses/data/quizzes_data.dart';
 import 'package:devkom_app/courses/screens/quiz_screen.dart';
+import 'package:devkom_app/courses/screens/interactive_course_screen.dart';
+import 'package:devkom_app/services/sound_service.dart';
 import 'package:devkom_app/courses/data/scratch_lessons_data.dart';
 import 'package:devkom_app/courses/data/mblock_lessons_data.dart';
 import 'package:devkom_app/courses/screens/widgets/mblock_blok_adimi.dart';
@@ -329,6 +331,9 @@ void main() {
   // baslatmak assert'i gecmeye yetiyor, ekran bos veriyle ciziliyor —
   // magaza slayti icin istedigimiz de bu.
   setUpAll(() async {
+    // Testte ses calmasin: audioplayers eklentisi yok (bitis sesi
+    // "MissingPluginException" ile testi dusuruyordu).
+    SoundService.configure(sound: false);
     // Supabase acilirken SharedPreferences'i okuyor; sahte degerler
     // once verilmezse eklenti kanali yok diye patliyor.
     SharedPreferences.setMockInitialValues({});
@@ -652,6 +657,85 @@ void main() {
           await t.pump(const Duration(milliseconds: 120));
           await t.tap(blok.last, warnIfMissed: false);
           await t.pump(const Duration(milliseconds: 250));
+        }
+      },
+    );
+  });
+
+  // ---- SCRATCH VURGULU IKI SLAYT (Ekim 2026) -------------------------
+  //
+  // Apple Ads verisi: kurulumlarin cogu "scratch" aramasindan geliyor.
+  // Aramada yalnizca ilk uc slayt gorunuyor; Scratch arayan veli o uc
+  // slaytta Scratch'i gormeli. Ikisi de gercek ekran.
+
+  // Scratch kursunun kendi sayfasi: moduller ("Ilk Oyunun", "Klonlar",
+  // "Degiskenler & Puan"...) — "Scratch ile oyun yapar" iddiasinin
+  // karsiligi bu liste.
+  testWidgets('28 scratch kursu ($lang, ${cihaz.ad})', (tester) async {
+    await _shoot(
+      tester,
+      '28_scratch_kurs',
+      InteractiveCourseScreen(course: scratch),
+      lang: lang,
+      cihaz: cihaz,
+      fullScreen: true,
+      settle: const Duration(milliseconds: 900),
+    );
+  });
+
+  // Scratch programi TAMAMLANMIS ve CALISTIRILMIS: bloklar dizili,
+  // altta "Kodun ne yapti" izi. 04_blocks cocugun cozdugu ani
+  // gosteriyor; bu slayt sonucunu.
+  testWidgets('29 scratch calistir ($lang, ${cihaz.ad})', (tester) async {
+    final step = ScratchLessonsData.module1
+        .expand((l) => l.steps)
+        .whereType<BlockBuilderStep>()
+        .firstWhere((s) => s.id == 's1_2_build2');
+    final etiketler = [
+      for (final id in step.correctSequence)
+        step.availableBlocks.firstWhere((b) => b.id == id).labelFor(lang),
+    ];
+
+    await _shoot(
+      tester,
+      '29_scratch_calistir',
+      SingleChildScrollView(
+        child: BlockBuilderStepWidget(
+          step: step,
+          course: scratch,
+          isDark: false,
+          onComplete: (_) {},
+        ),
+      ),
+      lang: lang,
+      cihaz: cihaz,
+      act: (t) async {
+        for (final etiket in etiketler) {
+          final blok = find.text(etiket);
+          if (blok.evaluate().isEmpty) continue;
+          await t.ensureVisible(blok.last);
+          await t.pump(const Duration(milliseconds: 120));
+          await t.tap(blok.last, warnIfMissed: false);
+          await t.pump(const Duration(milliseconds: 250));
+        }
+        final calistir = find.text(AppLang.pick(lang,
+            tr: 'KODU ÇALIŞTIR',
+            en: 'RUN THE CODE',
+            de: 'CODE AUSFÜHREN',
+            es: 'EJECUTAR EL CÓDIGO'));
+        if (calistir.evaluate().isNotEmpty) {
+          await t.ensureVisible(calistir.first);
+          await t.tap(calistir.first, warnIfMissed: false);
+        }
+        // Kedi animasyonu ve kutlama zamanlayicilari bitsin.
+        for (var i = 0; i < 20; i++) {
+          await t.pump(const Duration(milliseconds: 300));
+        }
+        // Sayfayi en uste al: slaytta bloklar ve sahne ustte gorunmeli.
+        final kaydir = find.byType(Scrollable);
+        if (kaydir.evaluate().isNotEmpty) {
+          await t.drag(kaydir.first, const Offset(0, 3000));
+          await t.pump(const Duration(milliseconds: 300));
         }
       },
     );

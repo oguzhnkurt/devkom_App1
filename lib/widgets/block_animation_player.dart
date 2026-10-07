@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../courses/models/interactive_lesson_model.dart';
 import '../courses/yurutme/blok_anlami.dart';
 import '../courses/yurutme/blok_sozlugu.dart';
+import '../courses/yurutme/konusma_metni.dart';
 import '../utils/lang.dart';
 import 'mascot.dart';
 
@@ -237,12 +238,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
     // Metin blogun KENDI yazisindan cikariliyor: "Miyav! de" -> "Miyav!"
     // Eskiden kimlige gore sabit Turkce metinler vardi (say_hello ->
     // 'Merhaba!'), yani Ingilizce derste de Turkce konusuyordu.
-    final etiket = blok.labelFor(widget.lang);
-    final temiz = etiket
-        .replaceAll(RegExp(r'^\s*(say|sage|decir|di)\s+', caseSensitive: false), '')
-        .replaceAll(RegExp(r'\s+(de|sagen)\s*$', caseSensitive: false), '')
-        .trim();
-    setState(() => _konusma = temiz.isEmpty ? etiket : temiz);
+    setState(() => _konusma = konusmaMetni(blok, widget.lang));
     if (!await _bekle(const Duration(milliseconds: 1200))) return false;
     setState(() => _konusma = null);
     return true;

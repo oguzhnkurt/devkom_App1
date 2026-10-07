@@ -7,8 +7,9 @@ import '../models/learner_profile.dart';
 /// CoursesData zaten kolaydan zora bir yol tutuyor (pathStep 1..8). Burada
 /// yaptigimiz sey o yolu cocugun cevaplarina gore kirpip yeniden siralamak:
 ///
-///  - Deneyim seviyesi NEREDEN baslanacagini belirler. Python bilen bir cocuga
-///    Scratch'i ilk adim diye gostermek onu kaybetmenin en hizli yolu.
+///  - Ilk kurs HER ZAMAN 1. adim (Scratch); asagidaki kurallar ondan
+///    sonraki sirayi belirler (bkz. buildPath sonundaki not).
+///  - Deneyim seviyesi hangi kurslarin arkaya alinacagini belirler.
 ///  - Hedef SIRAYI belirler. Robot yapmak isteyen cocuk once Arduino'yu
 ///    gormeli; HTML/CSS onun icin sonra gelir.
 ///  - Yas araligi klavyeyle yazmaya ne zaman geciecegini belirler. 4-6 yas
@@ -80,6 +81,16 @@ class LearningPathService {
       final diff = rank(a).compareTo(rank(b));
       return diff != 0 ? diff : a.pathStep.compareTo(b.pathStep);
     });
+
+    // 1. KURS HER ZAMAN BASTA (urun karari, Ekim 2026).
+    //
+    // Onboarding'de ne secilirse secilsin ilk kurs yolun 1. adimi
+    // (Scratch). Apple Ads verisi kurulumlarin Scratch aramasindan
+    // geldigini gosterdi; uygulamayi Scratch icin indiren cocugu HTML ya
+    // da Python ile karsilamak beklentiyi bozuyordu. Cevaplar yine
+    // 2. adimdan itibaren sirayi kisisellestiriyor.
+    final ilk = all.indexWhere((c) => c.pathStep == 1);
+    if (ilk > 0) all.insert(0, all.removeAt(ilk));
     return all;
   }
 

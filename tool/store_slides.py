@@ -13,9 +13,15 @@ Ayni motor Google Play setini de ciziyor (tool/play_slides.py,
 
 TASARIM
 -------
-Sekiz slayt, birbirine bagli: *kodlama ogrenir -> adim adim ->
-oyunla pekistirir -> dersin ici -> bloklari surukler -> gercek kodu
-yazar -> satrancla dusunur -> ogrendigini sinar.*
+On slayt, birbirine bagli: *kodlama ogrenir -> Scratch ile oyun
+yapar -> kodunu calistirir -> bloklardan gercek koda -> adim adim ->
+bloklari surukler -> gercek kodu yazar -> oyunla pekistirir ->
+satrancla dusunur -> ogrendigini sinar.*
+
+SCRATCH ILK UCTE (Ekim 2026): Apple Ads kurulumlarinin cogu "scratch"
+aramasindan geliyor ve aramada yalnizca ilk uc slayt gorunuyor.
+2. ve 3. slayt Scratch'e ayrildi. App Store en fazla 10 slayt aliyor;
+Google Play 8 — Play seti ilk sekizi kullaniyor (tool/play_slides.py).
 
 Her slaytta:
 
@@ -92,6 +98,9 @@ PALET = {
     'ates':  [(233, 30, 99), (255, 87, 34), (255, 152, 0)],
     'orman': [(0, 200, 83), (0, 184, 212), (41, 121, 255)],
     'gece':  [(124, 77, 255), (233, 30, 99), (255, 109, 0)],
+    # Scratch'in kendi turuncusu ve hareket bloklarinin mavisi.
+    'turuncu': [(255, 140, 26), (244, 81, 30), (124, 77, 255)],
+    'gok':     [(76, 151, 255), (124, 77, 255), (233, 30, 99)],
 }
 
 # Slayt basina: (palet, hap icindeki yazinin rengi, maskot yani).
@@ -99,6 +108,8 @@ PALET = {
 # sekiz slayt ayni kaliptan cikmis gibi gorunuyordu.
 THEME = {
     '09_home':           ('mor',   (108, 60, 224), 'sag'),
+    '28_scratch_kurs':   ('turuncu', (230, 81, 0), 'sol'),
+    '29_scratch_calistir': ('gok', (41, 98, 255),  'sag'),
     '08_path':           ('deniz', (21, 101, 192), 'sol'),
     '07_matching':       ('gun',   (233, 30, 99),  'sag'),
     '02_lesson':         ('sicak', (230, 81, 0),   'sol'),
@@ -153,6 +164,11 @@ YELPAZE = {
 
 # Maskotun balonu. Kisa bir cagri — iddia degil.
 BALON = {
+    '28_scratch_kurs': {'tr': 'İlk oyunum!', 'en': 'My first game!',
+                        'de': 'Mein erstes Spiel!',
+                        'es': '¡Mi primer juego!'},
+    '29_scratch_calistir': {'tr': 'Çalıştı!', 'en': 'It works!',
+                            'de': 'Es läuft!', 'es': '¡Funciona!'},
     '09_home': {'tr': 'Hadi başlayalım!', 'en': 'Let’s start!',
                 'de': 'Los geht’s!', 'es': '¡Empecemos!'},
     '08_path': {'tr': 'Sıradaki ders!', 'en': 'Next lesson!',
@@ -193,6 +209,31 @@ SLIDES = [
         'es': ('Aprende a [programar]\ny robótica',
                'Empieza de cero · 9 cursos · Scratch, mBlock, Arduino, Python'),
     }),
+    # SCRATCH KURSU: kursun kendi sayfasi, modulleriyle. "Ilk Oyunun"
+    # modulu gercek ("Gercek bir oyun yap!"); alt satirdaki konular
+    # modul adlarindan (Degiskenler & Puan, Klonlar, Liste).
+    ('28_scratch_kurs', 0.0, 'alt', False, {
+        'tr': ('[Scratch] ile ilk\noyununu yapar',
+               'Hareket, puan, klonlar, listeler — modül modül kendi oyununa'),
+        'en': ('Makes a first\ngame with [Scratch]',
+               'Motion, score, clones, lists — module by module to your own game'),
+        'de': ('Das erste Spiel\nmit [Scratch]',
+               'Bewegung, Punkte, Klone, Listen — Modul für Modul zum eigenen Spiel'),
+        'es': ('Su primer juego\ncon [Scratch]',
+               'Movimiento, puntos, clones, listas — módulo a módulo, su propio juego'),
+    }),
+    # Scratch programi dizilmis ve CALISTIRILMIS: "Kodun ne yapti" izi
+    # gercek yurutmeden (lib/courses/yurutme), uydurma degil.
+    ('29_scratch_calistir', 0.15, 'alt', False, {
+        'tr': ('Kodunu *çalıştırır*,\nne yaptığını görür',
+               'Scratch blokları — her blok adım adım, sonucu ekranda'),
+        'en': ('*Runs* the code,\nsees what it does',
+               'Scratch blocks — block by block, with the result on screen'),
+        'de': ('*Startet* den Code,\nsieht, was er tut',
+               'Scratch-Blöcke — Block für Block, mit dem Ergebnis'),
+        'es': ('*Ejecuta* el código\ny ve qué hace',
+               'Bloques de Scratch — paso a paso, con el resultado en pantalla'),
+    }),
     ('08_path', 0.0, 'alt', False, {
         'tr': ('[Bloklardan]\ngerçek koda',
                '9 kurs, adım adım — her kurs bir öncekinin üstüne biner'),
@@ -202,20 +243,6 @@ SLIDES = [
                '9 Kurse, Schritt für Schritt — jeder baut auf dem letzten auf'),
         'es': ('De los [bloques]\nal código',
                '9 cursos, paso a paso — cada uno se apoya en el anterior'),
-    }),
-    ('07_matching', 0.0, 'ust', False, {
-        'tr': ('[Oyunla] pekiştirir',
-               '16 mini oyun · terimleri eşleştir, komutları sırala, '
-               'labirenti geç'),
-        'en': ('Practises by [playing]',
-               '16 mini games · match terms, order commands, '
-               'get through the maze'),
-        'de': ('Übt beim [Spielen]',
-               '16 Minispiele · Begriffe zuordnen, Befehle ordnen, '
-               'durchs Labyrinth'),
-        'es': ('Practica [jugando]',
-               '16 minijuegos · empareja términos, ordena instrucciones, '
-               'cruza el laberinto'),
     }),
     ('02_lesson', 0.0, 'alt', False, {
         'tr': ('Scratch’i *adım adım*\nöğrenir',
@@ -258,6 +285,20 @@ SLIDES = [
                'HTML, CSS, Python, C# — Zeile für Zeile, mit Tipps'),
         'es': ('Después escribe\n*código real*',
                'HTML, CSS, Python, C# — línea a línea, con pistas'),
+    }),
+    ('07_matching', 0.0, 'ust', False, {
+        'tr': ('[Oyunla] pekiştirir',
+               '16 mini oyun · terimleri eşleştir, komutları sırala, '
+               'labirenti geç'),
+        'en': ('Practises by [playing]',
+               '16 mini games · match terms, order commands, '
+               'get through the maze'),
+        'de': ('Übt beim [Spielen]',
+               '16 Minispiele · Begriffe zuordnen, Befehle ordnen, '
+               'durchs Labyrinth'),
+        'es': ('Practica [jugando]',
+               '16 minijuegos · empareja términos, ordena instrucciones, '
+               'cruza el laberinto'),
     }),
     # Satranc: kodlama disindaki tek "dusunme" oyunu. Uc zorluk
     # seviyesi gercek (Baslangic / Orta / Ileri); ELO sayisi slayta

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../theme.dart';
 import '../../models/interactive_lesson_model.dart';
+import '../../yurutme/blok_anlami.dart';
+import '../../yurutme/blok_sozlugu.dart';
 import '../../yurutme/blok_yorumlayici.dart';
+import '../../yurutme/konusma_metni.dart';
 import 'step_widgets.dart' show lessonText;
 
 /// Kodun ne YAPTIGINI satir satir gosteren iz.
@@ -153,6 +156,23 @@ class CalismaIzi extends StatelessWidget {
     );
   }
 
+  /// Son soylenen metin, cocugun dilinde.
+  ///
+  /// Sozlukteki metin Turkce; sabit metinli bloklarda (rastgele sayi
+  /// soylemeyenlerde) metin blogun kendi etiketinden aliniyor.
+  String _soyledigi(Yurutme sonuc) {
+    for (final adim in sonuc.adimlar.reversed) {
+      final anlam = blokSozlugu[adim.blokId];
+      if (anlam == null || anlam.komut != BlokKomutu.soyle) continue;
+      if (anlam.rastgeleAlt != null) break; // sayi: dile bagli degil
+      for (final b in bloklar) {
+        if (b.id == adim.blokId) return konusmaMetni(b, lang);
+      }
+      break;
+    }
+    return sonuc.sonSahne.soyledigi!;
+  }
+
   Widget _sonucSeridi(Yurutme sonuc) {
     final parcalar = <String>[];
     sonuc.sonSahne.degiskenler.forEach((ad, deger) {
@@ -163,7 +183,7 @@ class CalismaIzi extends StatelessWidget {
       parcalar.add('y: ${sonuc.sonSahne.y.toInt()}');
     }
     if (sonuc.sonSahne.soyledigi != null) {
-      parcalar.add('"${sonuc.sonSahne.soyledigi}"');
+      parcalar.add('"${_soyledigi(sonuc)}"');
     }
     if (sonuc.sonSahne.kostum != 1) {
       parcalar.add('${lessonText(lang, 'kostüm', 'costume', 'Kostüm',

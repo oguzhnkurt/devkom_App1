@@ -51,7 +51,7 @@ void main() {
             'karakter degisince slayt kendiliginden duzelsin.');
   });
 
-  test('sekiz slayt, dogru sirada', () {
+  test('on slayt, dogru sirada', () {
     // Slaytlar tek bir cumlenin adimlari: ne ogretiyoruz -> hangi
     // sirayla -> oyunla pekistirir -> bir dersin ici -> bloklari
     // surukler -> gercek kodu yazar -> satrancla dusunur ->
@@ -66,15 +66,20 @@ void main() {
     // Hepsi UYGULAMANIN DOLU ekranlari. Once acik gri, yarisi bos
     // ekranlar konmustu ve slaytlar magazada hicbir sey soylemeden
     // duruyordu.
+    //
+    // EKIM 2026: Apple Ads kurulumlarinin cogu "scratch" aramasindan;
+    // 2. ve 3. slayt Scratch (kurs sayfasi, calistirilmis program).
     final sira = [
       "('09_home'",
+      "('28_scratch_kurs'",
+      "('29_scratch_calistir'",
       "('08_path'",
-      "('07_matching'",
       "('02_lesson'",
-      // 5. slayt artik gercek blok editoru (mBlock tezgahi); ayni
+      // Gercek blok editoru (mBlock tezgahi); ayni
       // "surukleyip kurar" hikayesi, kart dizme ekraninin yerine.
       "('27_mblock_tezgah'",
       "('14_html_code'",
+      "('07_matching'",
       "('12_chess'",
       // Son slayt gercek quiz sorusu (eskiden bos quiz giris ekrani).
       "('06_hint'",
@@ -119,6 +124,8 @@ void main() {
     // rengi var (THEME).
     for (final ad in const [
       '09_home',
+      '28_scratch_kurs',
+      '29_scratch_calistir',
       '08_path',
       '07_matching',
       '02_lesson',
@@ -203,6 +210,16 @@ void main() {
     expect(kurgu.contains('baslik satiri cok uzun'), isTrue,
         reason: 'Baslik genisligi kontrolu aractan kaldirilmis. Uzun bir '
             'ceviri sessizce tasarsa slayt bozuluyor.');
+  });
+
+  test('App Store en fazla 10 slayt aliyor', () {
+    final slaytSayisi = RegExp(r"\(\s*'\d\d_").allMatches(slaytMetni).length;
+    expect(slaytSayisi, lessThanOrEqualTo(10),
+        reason: 'App Store 10 ekran goruntusunden fazlasini kabul etmiyor.');
+    final play = File('tool/play_slides.py').readAsStringSync();
+    expect(play.contains('[:8]'), isTrue,
+        reason: 'Google Play en fazla 8 telefon gorseli aliyor; Play seti '
+            'SLIDES listesinin ilk sekiziyle sinirli olmali.');
   });
 
   test('her slaytin dort dilde de basligi var', () {

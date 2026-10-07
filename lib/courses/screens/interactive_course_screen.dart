@@ -293,7 +293,8 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      lessonText(lessonLang(context), 'İlerleme', 'Progress'),
+                      lessonText(lessonLang(context), 'İlerleme', 'Progress',
+                          'Fortschritt', 'Progreso'),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -303,7 +304,8 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                     const SizedBox(height: 8),
                     _buildStatRow(
                       icon: Icons.school,
-                      label: 'Ders',
+                      label: lessonText(lessonLang(context), 'Ders',
+                          'Lessons', 'Lektionen', 'Lecciones'),
                       value: '$completedLessons / $totalLessons',
                       color: widget.course.primaryColor,
                     ),
@@ -342,7 +344,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                   const SizedBox(width: 8),
                   Text(
                     lessonText(lessonLang(context), 'Öğrenmeye Başla',
-                        'Start learning'),
+                        'Start learning', 'Los geht’s', 'Empezar a aprender'),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -434,7 +436,9 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    lessonLang(context) == 'en' ? 'Module ${index + 1}' : 'Modül ${index + 1}',
+                    lessonText(lessonLang(context), 'Modül ${index + 1}',
+                        'Module ${index + 1}', 'Modul ${index + 1}',
+                        'Módulo ${index + 1}'),
                     style: TextStyle(
                       fontSize: 11,
                       color: isSelected
@@ -506,7 +510,12 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '${module.lessons.length} ders',
+                  lessonText(
+                      lessonLang(context),
+                      '${module.lessons.length} ders',
+                      '${module.lessons.length} lessons',
+                      '${module.lessons.length} Lektionen',
+                      '${module.lessons.length} lecciones'),
                   style: TextStyle(
                     fontSize: 12,
                     color: widget.course.primaryColor,
@@ -592,7 +601,8 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      lang == 'en' ? 'Module Quiz' : 'Modül Quizi',
+                      lessonText(lang, 'Modül Quizi', 'Module Quiz', 'Modul-Quiz',
+                          'Quiz del módulo'),
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -601,9 +611,12 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      lang == 'en'
-                          ? 'Test yourself with ${questions.length} questions from this module'
-                          : 'Bu moduldeki ${questions.length} soruyla kendini test et',
+                      lessonText(
+                          lang,
+                          'Bu modüldeki ${questions.length} soruyla kendini test et',
+                          'Test yourself with ${questions.length} questions from this module',
+                          'Teste dich mit ${questions.length} Fragen aus diesem Modul',
+                          'Ponte a prueba con ${questions.length} preguntas de este módulo'),
                       style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 12),
                     ),
                   ],
@@ -736,7 +749,9 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                               lessonText(
                                   lessonLang(context),
                                   '${lesson.steps.length} adım',
-                                  '${lesson.steps.length} steps'),
+                                  '${lesson.steps.length} steps',
+                                  '${lesson.steps.length} Schritte',
+                                  '${lesson.steps.length} pasos'),
                               Colors.blue,
                             ),
                             const SizedBox(width: 16),
@@ -749,7 +764,8 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                               const SizedBox(width: 16),
                               _buildLessonStat(
                                 Icons.emoji_events,
-                                'Rozet',
+                                lessonText(lessonLang(context), 'Rozet',
+                                    'Badge', 'Abzeichen', 'Insignia'),
                                 Colors.purple,
                               ),
                             ],

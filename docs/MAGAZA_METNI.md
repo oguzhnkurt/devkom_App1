@@ -243,7 +243,8 @@ bağlantısı). Aşağıdaki metin **1.0.11 (build 17)** içindir. 1.0.9'un notl
 git geçmişinde.
 
 İçerik: oyun çevirileri (`bad3b6e`), oyun ekranlarının ortak başlık ve
-zemini, açık zeminli ekranlarda görünmeyen başlık/geri tuşu düzeltmesi.
+zemini, açık zeminli ekranlarda görünmeyen başlık/geri tuşu düzeltmesi,
+herkesin Scratch'ten başlaması, kurs sayfalarının dört dile çevrilmesi.
 
 ### tr
 
@@ -252,6 +253,8 @@ ve renkli cevap kartları.
 
 • Etkinlikler ve Kurslar ekranında görünmeyen geri tuşu ve başlık
 düzeltildi.
+
+• Öğrenme yolu artık herkes için Scratch ile başlıyor.
 
 • Bilgi Yarışması'nın soruları artık Almanca ve İspanyolca.
 
@@ -269,6 +272,10 @@ background and colorful answer cards.
 • Fixed the back button and title that were hard to see on the
 Activities and Courses screens.
 
+• The learning path now starts with Scratch for everyone.
+
+• Course pages (modules and lessons) are now fully in English.
+
 • Knowledge Quiz questions are now in German and Spanish too.
 
 • The Pipes Puzzle score bar now speaks all four languages.
@@ -283,6 +290,10 @@ sanfter Hintergrund und farbige Antwortkarten.
 • Zurück-Taste und Titel auf den Seiten Aktivitäten und Kurse sind wieder
 gut sichtbar.
 
+• Der Lernpfad beginnt jetzt für alle mit Scratch.
+
+• Kursseiten (Module und Lektionen) sind jetzt auf Deutsch.
+
 • Die Fragen im Wissensquiz gibt es jetzt auf Deutsch.
 
 • Die Anzeige im Rohr-Rätsel (Level, Punkte, Züge) ist jetzt auf Deutsch.
@@ -296,6 +307,10 @@ color, un fondo suave y tarjetas de respuesta de colores.
 
 • Se corrigieron el botón de volver y el título que casi no se veían en
 Actividades y Cursos.
+
+• La ruta de aprendizaje ahora empieza con Scratch para todos.
+
+• Las páginas de los cursos (módulos y lecciones) ya están en español.
 
 • Las preguntas del concurso de conocimiento ya están en español.
 

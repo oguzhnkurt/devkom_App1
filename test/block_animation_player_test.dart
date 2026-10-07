@@ -63,7 +63,9 @@ void main() {
     // Eskiden kimlige gore sabit Turkce metin vardi: Ingilizce derste de
     // kedi "Merhaba!" diyordu.
     expect(kaynak.contains("message = 'Merhaba!';"), isFalse);
-    expect(kaynak.contains("blok.labelFor(widget.lang)"), isTrue);
+    // Etiketten cikarma artik ortak fonksiyonda (konusma_metni.dart);
+    // "Kodun ne yapti" izi de ayni fonksiyonu kullaniyor.
+    expect(kaynak.contains("konusmaMetni(blok, widget.lang)"), isTrue);
   });
 
   test('sahne yazilari dort dilde', () {
