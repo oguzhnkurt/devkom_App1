@@ -35,7 +35,11 @@ class DevAiChatScreen extends StatefulWidget {
   ///    kendi route'u yoktur, geri oku basilirsa ana ekran kapanir.
   final bool showBackButton;
 
-  const DevAiChatScreen({super.key, this.showBackButton = true});
+  /// Ekran acilinca otomatik sorulacak soru (ana sayfadaki "Devi'ye sor"
+  /// karti). Null ise sohbet bos baslar.
+  final String? ilkSoru;
+
+  const DevAiChatScreen({super.key, this.showBackButton = true, this.ilkSoru});
 
   @override
   State<DevAiChatScreen> createState() => _DevAiChatScreenState();
@@ -84,6 +88,12 @@ class _DevAiChatScreenState extends State<DevAiChatScreen> {
       final oneriler = List<String>.from(kSuggestedQuestionsFor(lang))
         ..shuffle();
       _suggestions = oneriler.take(4).toList();
+      final ilk = widget.ilkSoru;
+      if (ilk != null && ilk.trim().isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _sendMessage(preset: ilk);
+        });
+      }
     }
   }
 

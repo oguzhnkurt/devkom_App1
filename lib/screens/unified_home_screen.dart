@@ -40,6 +40,9 @@ import '../widgets/oyun_kimligi.dart';
 import '../widgets/oyun_sahnesi.dart';
 import 'game_play_screen.dart';
 import '../widgets/surpriz_sandik.dart';
+import '../widgets/devi_bilmece_karti.dart';
+import '../bilmece/devi_bilmeceleri_api.dart';
+import '../data/dev_assistant_knowledge.dart' show kSuggestedQuestionsFor;
 
 /// Unified Home Screen - Minimal, modern dashboard for all ages
 class UnifiedHomeScreen extends StatefulWidget {
@@ -225,6 +228,10 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                   ),
                   const SizedBox(height: 24),
                   _FadeInUp(delay: 120, child: _buildKesfet(next, isDark)),
+                  const SizedBox(height: 24),
+                  // Devi'nin bilmecesi: her gun 3 soru (Scratch, mBlock,
+                  // Arduino/Tinkercad/donanim), ana sayfada cozulur.
+                  _FadeInUp(delay: 160, child: DeviBilmeceKarti(lang: _lang)),
                 ] else ...[
                   if (!isNewUser) ...[
                     _buildGenelBakis(userProgress, isDark),
@@ -1532,11 +1539,14 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
   /// yerine (Ekim 2026 geri bildirimi: "Baslarken ve Yolculugun'u
   /// begenmedim").
   Widget _buildKesfet(NextStep next, bool isDark) {
+    // KESFET CESITLI (Ekim 2026): her kart baska bir sey — bir oyun
+    // onerisi, Devi'ye bir soru, gunun bilgisi, etkinlikler. Eskiden uc
+    // kartin ikisi oyundu.
     final oyun = _isinmaOyunu(next.course.id);
-    GameModel? quiz;
-    for (final g in EmbeddedGamesService.getAllEmbeddedGames()) {
-      if (g.type == GameType.quiz) quiz = g;
-    }
+    final bugun = DateTime.now();
+    final gun = DeviBilmeceleri.gunIndeksi(bugun);
+    final sorular = kSuggestedQuestionsFor(_lang);
+    final soru = sorular.isEmpty ? null : sorular[gun % sorular.length];
     int jeton;
     try {
       jeton = context.watch<AuthProvider>().userProgress?.jetonBalance ?? 0;
@@ -1548,23 +1558,118 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
       if (oyun != null)
         _kesfetKarti(
           renk: OyunKimligi.renk(oyun.type),
-          ust: _t('ISINMA OYUNU', 'WARM-UP GAME', 'AUFWÄRMSPIEL', 'CALENTAMIENTO'),
+          ust: _t('OYUN ÖNERİSİ', 'GAME PICK', 'SPIELTIPP', 'JUEGO RECOMENDADO'),
           baslik: oyun.titleFor(_lang),
           dugme: _t('Oyna', 'Play', 'Spielen', 'Jugar'),
           gorsel: OyunSahnesi(tur: oyun.type, lang: _lang),
           onTap: () => Navigator.push(context,
               MaterialPageRoute(builder: (_) => GamePlayScreen(game: oyun))),
         ),
-      if (quiz != null)
+      if (soru != null)
         _kesfetKarti(
-          renk: OyunKimligi.renk(GameType.quiz),
-          ust: _t('BİLGİNİ SINA', 'TEST YOURSELF', 'TESTE DICH', 'PONTE A PRUEBA'),
-          baslik: _t('Bilgi Yarışması', 'Quiz', 'Quiz', 'Concurso'),
-          dugme: _t('Başla', 'Start', 'Los', 'Empezar'),
-          gorsel: OyunSahnesi(tur: GameType.quiz, lang: _lang),
-          onTap: () => Navigator.push(context,
-              MaterialPageRoute(builder: (_) => const QuizIntroScreen())),
+          renk: const Color(0xFF5E35B1),
+          ust: _t("DEVİ'YE SOR", 'ASK DEVI', 'FRAG DEVI', 'PREGUNTA A DEVI'),
+          baslik: _t('Kodlama asistanın', 'Your coding helper', 'Dein Coding-Helfer', 'Tu ayudante de código'),
+          dugme: _t('Sor', 'Ask', 'Fragen', 'Preguntar'),
+          dugmeSimge: Icons.auto_awesome_rounded,
+          gorsel: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF9575CD), Color(0xFF5E35B1)],
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 14, 12, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Image.asset(Mascot.durgunGorsel,
+                      width: 84,
+                      errorBuilder: (_, __, ___) => const Icon(
+                          Icons.smart_toy_rounded,
+                          size: 64,
+                          color: Colors.white)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(12, 9, 12, 10),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(16),
+                            topRight: Radius.circular(16),
+                            bottomRight: Radius.circular(16),
+                            bottomLeft: Radius.circular(4),
+                          ),
+                        ),
+                        child: Text(
+                          soru,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontFamily: AppTheme.fontFamily,
+                            fontSize: 13.5,
+                            height: 1.25,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF4527A0),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => DevAiChatScreen(ilkSoru: soru))),
         ),
+      _kesfetKarti(
+        renk: const Color(0xFFF9A825),
+        ust: _t('BİLİYOR MUYDUN?', 'DID YOU KNOW?', 'WUSSTEST DU?', '¿SABÍAS QUE...?'),
+        baslik: _t('Günün bilgisi', 'Fact of the day', 'Fakt des Tages', 'Dato del día'),
+        gorsel: DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFFFE082), Color(0xFFFFB300)],
+            ),
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                right: -14,
+                top: -10,
+                child: Icon(Icons.lightbulb_rounded,
+                    size: 96, color: Colors.white.withValues(alpha: 0.35)),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 22, 8),
+                child: Text(
+                  DeviBilmeceleri.gununBilgisi(bugun, _lang),
+                  maxLines: 5,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 14,
+                    height: 1.3,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF5D4037),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        onTap: () {},
+      ),
       _kesfetKarti(
         renk: const Color(0xFF7C4DFF),
         ust: _t('ETKİNLİKLER', 'ACTIVITIES', 'AKTIVITÄTEN', 'ACTIVIDADES'),
@@ -1637,7 +1742,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
     required Color renk,
     required String ust,
     required String baslik,
-    required String dugme,
+    String? dugme,
     IconData dugmeSimge = Icons.play_arrow_rounded,
     required Widget gorsel,
     required VoidCallback onTap,
@@ -1689,6 +1794,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                       ],
                     ),
                   ),
+                  if (dugme != null)
                   Container(
                     padding: const EdgeInsets.fromLTRB(10, 7, 14, 7),
                     decoration: BoxDecoration(

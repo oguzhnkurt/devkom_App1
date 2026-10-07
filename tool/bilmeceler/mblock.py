@@ -1,0 +1,148 @@
+# Devi'nin bilmeceleri — mBLOCK (24)
+# Blok adlari mBlock'un ceviri dosyasindan (tool/bloklar/mblock_*.json).
+MBLOCK = [
+ (1, {
+  'tr': ("mBlock hangi blok tabanlı programın üzerine kurulmuştur?", ["Python", "Scratch 3.0", "Excel"], "mBlock 5, Scratch 3.0 temelli olduğu için bloklar çok tanıdık gelir."),
+  'en': ("mBlock is built on which block-based tool?", ["Python", "Scratch 3.0", "Excel"], "mBlock 5 is based on Scratch 3.0, so the blocks feel familiar."),
+  'de': ("Auf welchem Block-Werkzeug baut mBlock auf?", ["Python", "Scratch 3.0", "Excel"], "mBlock 5 basiert auf Scratch 3.0, darum wirken die Blöcke vertraut."),
+  'es': ("¿Sobre qué herramienta de bloques está hecho mBlock?", ["Python", "Scratch 3.0", "Excel"], "mBlock 5 se basa en Scratch 3.0, por eso los bloques resultan familiares."),
+ }),
+ (0, {
+  'tr': ("mBlock'ta Arduino kartını programlamak için hangi sekmeye geçersin?", ["Cihazlar", "Kuklalar", "Arka planlar"], "Kuklalar ekrandaki karakterler, Cihazlar ise gerçek kartlar içindir."),
+  'en': ("In mBlock, which tab do you use to program an Arduino board?", ["Devices", "Sprites", "Backgrounds"], "Sprites are characters on screen; Devices are real boards."),
+  'de': ("Welchen Reiter nutzt du in mBlock, um ein Arduino-Board zu programmieren?", ["Geräte", "Figuren", "Hintergründe"], "Figuren sind Bildschirmfiguren, Geräte sind echte Boards."),
+  'es': ("En mBlock, ¿qué pestaña usas para programar una placa Arduino?", ["Dispositivos", "Objetos", "Fondos"], "Los objetos son personajes en pantalla; los dispositivos son placas reales."),
+ }),
+ (2, {
+  'tr': ("“dijital ayarla pin 13 çıkış yüksek” ne yapar?", ["13. pini okur", "Kartı kapatır", "13. pine elektrik verir, LED yanar"], "Yüksek, pine 5 volt vermek demektir."),
+  'en': ("What does “set digital pin 13 output as high” do?", ["Reads pin 13", "Turns the board off", "Sends power to pin 13, the LED lights up"], "High means giving the pin 5 volts."),
+  'de': ("Was macht „digitalen Pin von Ausgang 13 als hoch setzen“?", ["Liest Pin 13", "Schaltet das Board aus", "Gibt Strom auf Pin 13, die LED leuchtet"], "Hoch bedeutet, dass der Pin 5 Volt bekommt."),
+  'es': ("¿Qué hace “pon el pin digital 13 a alto”?", ["Lee el pin 13", "Apaga la placa", "Da corriente al pin 13 y el LED se enciende"], "Alto significa dar 5 voltios al pin."),
+ }),
+ (0, {
+  'tr': ("LED'i söndürmek için “dijital ayarla pin 13 çıkış ...” ne olmalı?", ["düşük", "yüksek", "255"], "Düşük, pine elektrik vermemek demektir; LED söner."),
+  'en': ("To turn the LED off, “set digital pin 13 output as ...” should be?", ["low", "high", "255"], "Low means no power on the pin, so the LED goes off."),
+  'de': ("Um die LED auszuschalten: „digitalen Pin 13 als ... setzen“?", ["niedrig", "hoch", "255"], "Niedrig bedeutet keinen Strom am Pin; die LED geht aus."),
+  'es': ("Para apagar el LED, “pon el pin digital 13 a ...” debe ser:", ["bajo", "alto", "255"], "Bajo significa sin corriente en el pin; el LED se apaga."),
+ }),
+ (1, {
+  'tr': ("“PWM ayarla pin ... çıkış ...” bloğuna hangi aralıkta değer yazılır?", ["0 - 1", "0 - 255", "0 - 1023"], "PWM 0 (kapalı) ile 255 (tam güç) arasında ayarlanır."),
+  'en': ("What value range goes into “set PWM ... output as ...”?", ["0 - 1", "0 - 255", "0 - 1023"], "PWM goes from 0 (off) to 255 (full power)."),
+  'de': ("Welcher Wertebereich gehört in „PWM-Ausgang ... als ... festlegen“?", ["0 - 1", "0 - 255", "0 - 1023"], "PWM reicht von 0 (aus) bis 255 (volle Leistung)."),
+  'es': ("¿Qué rango de valores va en “pon la salida PWM ... a ...”?", ["0 - 1", "0 - 255", "0 - 1023"], "PWM va de 0 (apagado) a 255 (potencia máxima)."),
+ }),
+ (2, {
+  'tr': ("PWM ile LED'in parlaklığını ayarlıyorsun. En parlak hangisi?", ["0", "100", "255"], "255 tam güçtür; 0'da LED söner."),
+  'en': ("You set an LED's brightness with PWM. Which is brightest?", ["0", "100", "255"], "255 is full power; at 0 the LED is off."),
+  'de': ("Du stellst die LED-Helligkeit mit PWM ein. Was ist am hellsten?", ["0", "100", "255"], "255 ist volle Leistung; bei 0 ist die LED aus."),
+  'es': ("Ajustas el brillo de un LED con PWM. ¿Cuál es el más brillante?", ["0", "100", "255"], "255 es potencia máxima; con 0 el LED se apaga."),
+ }),
+ (2, {
+  'tr': ("“analog oku pin (A) 0” hangi aralıkta sayı verir?", ["0 - 1", "0 - 255", "0 - 1023"], "Analog girişler 0 ile 1023 arasında okunur."),
+  'en': ("What range does “read analog pin (A) 0” give?", ["0 - 1", "0 - 255", "0 - 1023"], "Analog inputs read from 0 to 1023."),
+  'de': ("Welchen Bereich liefert „analogen Pin (A) 0 lesen“?", ["0 - 1", "0 - 255", "0 - 1023"], "Analoge Eingänge liefern 0 bis 1023."),
+  'es': ("¿Qué rango da “lee pin analógico 0”?", ["0 - 1", "0 - 255", "0 - 1023"], "Las entradas analógicas leen de 0 a 1023."),
+ }),
+ (1, {
+  'tr': ("“servo pin 9 açı ...” bloğuna en fazla kaç derece yazılır?", ["90", "180", "360"], "Standart servo motor 0 ile 180 derece arasında döner."),
+  'en': ("What is the largest angle for “set servo pin 9 angle as ...”?", ["90", "180", "360"], "A standard servo turns between 0 and 180 degrees."),
+  'de': ("Welcher Winkel ist bei „setze Servo an Anschluss 9 auf Winkel ...“ am größten?", ["90", "180", "360"], "Ein Standard-Servo dreht zwischen 0 und 180 Grad."),
+  'es': ("¿Cuál es el ángulo máximo en “mueve el servo en pin 9 al ángulo ...”?", ["90", "180", "360"], "Un servo estándar gira entre 0 y 180 grados."),
+ }),
+ (0, {
+  'tr': ("Servo motoru tam ortaya getirmek için kaç derece yazarsın?", ["90", "0", "180"], "0 ile 180'in ortası 90 derecedir."),
+  'en': ("Which angle puts the servo exactly in the middle?", ["90", "0", "180"], "The middle of 0 and 180 is 90 degrees."),
+  'de': ("Welcher Winkel stellt das Servo genau in die Mitte?", ["90", "0", "180"], "Die Mitte zwischen 0 und 180 ist 90 Grad."),
+  'es': ("¿Qué ángulo pone el servo justo en el centro?", ["90", "0", "180"], "El punto medio entre 0 y 180 es 90 grados."),
+ }),
+ (1, {
+  'tr': ("“mesafe algılayıcı ... trig pin ... echo pin” hangi sensörü okur?", ["Işık sensörü", "Ultrasonik mesafe sensörü", "Sıcaklık sensörü"], "Ultrasonik sensör ses gönderir, yankının dönüş süresinden mesafeyi bulur."),
+  'en': ("“read ultrasonic sensor trig pin ... echo pin ...” reads which sensor?", ["Light sensor", "Ultrasonic distance sensor", "Temperature sensor"], "It sends sound and measures distance from how long the echo takes."),
+  'de': ("Welchen Sensor liest „read ultrasonic sensor trig pin ... echo pin ...“?", ["Lichtsensor", "Ultraschall-Abstandssensor", "Temperatursensor"], "Er sendet Schall und misst den Abstand über die Laufzeit des Echos."),
+  'es': ("¿Qué sensor lee “lee sensor de ultrasonidos, pin de activación ..., pin de eco ...”?", ["Sensor de luz", "Sensor de distancia ultrasónico", "Sensor de temperatura"], "Envía sonido y calcula la distancia por lo que tarda el eco."),
+ }),
+ (2, {
+  'tr': ("“pinde çal ... nota C4 ile 1 vuruş” bloğu hangi parçayı çalıştırır?", ["LED", "Servo motor", "Buzzer"], "Buzzer verilen notaya göre ses çıkarır."),
+  'en': ("“play pin ... with note C4 for 1 beats” drives which part?", ["LED", "Servo motor", "Buzzer"], "A buzzer makes a sound for the given note."),
+  'de': ("„Pin ... spielt Note C4 für 1 Schläge“ steuert welches Bauteil?", ["LED", "Servomotor", "Summer"], "Ein Summer (Buzzer) erzeugt den Ton der Note."),
+  'es': ("“toca nota C4 en pin ... durante 1 tiempos” controla qué pieza?", ["LED", "Servomotor", "Zumbador"], "El zumbador (buzzer) produce el sonido de la nota."),
+ }),
+ (0, {
+  'tr': ("“seri porta ... yaz” bloğu ne işe yarar?", ["Karttan bilgisayara mesaj gönderir", "LED'i yakar", "Motoru döndürür"], "Seri port, kartla bilgisayarın konuşma yoludur."),
+  'en': ("What is “write ... to serial port” for?", ["It sends a message from the board to the computer", "It lights the LED", "It turns the motor"], "The serial port is how the board and computer talk."),
+  'de': ("Wofür ist „... an serielle Schnittstelle schreiben“?", ["Es schickt eine Nachricht vom Board an den Computer", "Es schaltet die LED ein", "Es dreht den Motor"], "Über die serielle Schnittstelle sprechen Board und Computer."),
+  'es': ("¿Para qué sirve “escribe ... al puerto serie”?", ["Envía un mensaje de la placa al ordenador", "Enciende el LED", "Gira el motor"], "El puerto serie es cómo hablan la placa y el ordenador."),
+ }),
+ (1, {
+  'tr': ("Butona basılıp basılmadığını hangi blokla okursun?", ["PWM ayarla", "dijital oku pin", "servo pin açı"], "Buton ya basılıdır ya değildir: bu dijital bir bilgidir."),
+  'en': ("Which block reads whether a button is pressed?", ["set PWM", "read digital pin", "set servo pin angle"], "A button is either pressed or not: that is digital information."),
+  'de': ("Mit welchem Block liest du, ob ein Taster gedrückt ist?", ["PWM festlegen", "Digitalpin lesen", "Servo-Winkel setzen"], "Ein Taster ist gedrückt oder nicht: eine digitale Information."),
+  'es': ("¿Con qué bloque lees si un botón está pulsado?", ["pon la salida PWM", "lee pin digital", "mueve el servo"], "Un botón está pulsado o no: es información digital."),
+ }),
+ (2, {
+  'tr': ("Arduino Uno'daki programı hangi şapka bloğu başlatır?", ["🏁 e tıklandığında", "bu kuklaya tıklandığında", "Arduino Uno açılınca"], "Kartta yeşil bayrak yok; program kart açılınca başlar."),
+  'en': ("Which hat block starts the program on an Arduino Uno?", ["when 🏁 clicked", "when this sprite clicked", "when Arduino Uno starts up"], "A board has no green flag; the program starts when the board starts."),
+  'de': ("Welcher Hutblock startet das Programm auf dem Arduino Uno?", ["Wenn 🏁 angeklickt wird", "Wenn diese Figur angeklickt wird", "wenn Arduino Uno startet"], "Ein Board hat keine grüne Flagge; das Programm startet beim Einschalten."),
+  'es': ("¿Qué bloque de sombrero inicia el programa en Arduino Uno?", ["al hacer clic en 🏁", "al hacer clic en este objeto", "cuando Arduino Uno se inicia"], "Una placa no tiene bandera verde; el programa empieza al encenderla."),
+ }),
+ (0, {
+  'tr': ("Arduino kartı bilgisayara genelde neyle bağlanır?", ["USB kablosu", "Hoparlör kablosu", "Kulaklık"], "USB kablosu hem kodu gönderir hem karta güç verir."),
+  'en': ("How is an Arduino board usually connected to the computer?", ["USB cable", "Speaker cable", "Headphones"], "The USB cable sends the code and also powers the board."),
+  'de': ("Womit verbindet man ein Arduino-Board meist mit dem Computer?", ["USB-Kabel", "Lautsprecherkabel", "Kopfhörer"], "Das USB-Kabel überträgt den Code und versorgt das Board mit Strom."),
+  'es': ("¿Con qué se conecta normalmente una placa Arduino al ordenador?", ["Cable USB", "Cable de altavoz", "Auriculares"], "El cable USB envía el código y además alimenta la placa."),
+ }),
+ (1, {
+  'tr': ("mBlock'a yeni kart ya da sensör blokları eklemek için ne kullanırsın?", ["Kostüm", "Uzantı", "Dekor"], "Uzantılar yeni blok kategorileri ekler."),
+  'en': ("What do you use to add new board or sensor blocks to mBlock?", ["Costume", "Extension", "Backdrop"], "Extensions add new block categories."),
+  'de': ("Womit fügst du mBlock neue Board- oder Sensorblöcke hinzu?", ["Kostüm", "Erweiterung", "Bühnenbild"], "Erweiterungen fügen neue Blockkategorien hinzu."),
+  'es': ("¿Qué usas para añadir bloques de placas o sensores a mBlock?", ["Disfraz", "Extensión", "Fondo"], "Las extensiones añaden nuevas categorías de bloques."),
+ }),
+ (2, {
+  'tr': ("“dijital ayarla pin” bloğu mBlock'ta hangi kategoride?", ["Sensör", "Veri", "Pin"], "Pinlere elektrik veren ve okuyan bloklar Pin kategorisindedir."),
+  'en': ("Which mBlock category has “set digital pin”?", ["Sensor", "Data", "Pin"], "Blocks that power or read pins are in the Pin category."),
+  'de': ("In welcher mBlock-Kategorie ist „digitalen Pin setzen“?", ["Sensor", "Daten", "Pin"], "Blöcke, die Pins schalten oder lesen, stehen unter Pin."),
+  'es': ("¿En qué categoría de mBlock está “pon el pin digital”?", ["Sensor", "Datos", "Pin"], "Los bloques que activan o leen pines están en Pin."),
+ }),
+ (0, {
+  'tr': ("mBlock'u hangi şirket geliştiriyor?", ["Makeblock", "Apple", "Lego"], "mBlock, eğitim robotları da üreten Makeblock'un programıdır."),
+  'en': ("Which company makes mBlock?", ["Makeblock", "Apple", "Lego"], "mBlock is made by Makeblock, who also build educational robots."),
+  'de': ("Welche Firma entwickelt mBlock?", ["Makeblock", "Apple", "Lego"], "mBlock stammt von Makeblock, die auch Lernroboter bauen."),
+  'es': ("¿Qué empresa desarrolla mBlock?", ["Makeblock", "Apple", "Lego"], "mBlock es de Makeblock, que también fabrica robots educativos."),
+ }),
+ (1, {
+  'tr': ("mBlock'ta blokların yanında hangi kodu da görebilirsin?", ["HTML", "Arduino C kodu", "Hiçbiri"], "Yükleme modunda bloklar Arduino C koduna çevrilir; kod görünümünden bakabilirsin."),
+  'en': ("Besides blocks, which code can you see in mBlock?", ["HTML", "Arduino C code", "None"], "In upload mode the blocks become Arduino C code; you can view it."),
+  'de': ("Welchen Code kannst du in mBlock neben den Blöcken sehen?", ["HTML", "Arduino-C-Code", "Keinen"], "Im Upload-Modus werden die Blöcke zu Arduino-C-Code; du kannst ihn ansehen."),
+  'es': ("Además de los bloques, ¿qué código puedes ver en mBlock?", ["HTML", "Código C de Arduino", "Ninguno"], "En modo carga los bloques se convierten en código C de Arduino; puedes verlo."),
+ }),
+ (2, {
+  'tr': ("Sayı 150, “... kısıtlaması (0, 100) arasında” bloğundan geçince kaç olur?", ["150", "0", "100"], "Kısıtlama, sayıyı verilen aralığın dışına çıkarmaz; üst sınır 100'dür."),
+  'en': ("150 goes through “constraint ... between (0, 100)”. What comes out?", ["150", "0", "100"], "Constraint keeps the number inside the range; the top limit is 100."),
+  'de': ("150 läuft durch „Einschränkung ... zwischen (0, 100)“. Was kommt heraus?", ["150", "0", "100"], "Die Einschränkung hält die Zahl im Bereich; die Obergrenze ist 100."),
+  'es': ("150 pasa por “restringir ... entre (0, 100)”. ¿Qué sale?", ["150", "0", "100"], "Restringir mantiene el número en el rango; el límite superior es 100."),
+ }),
+ (1, {
+  'tr': ("Sensörden 0-1023 gelir, LED 0-255 ister. Hangi blok çevirir?", ["kısıtla", "Harita (map)", "seri porta yaz"], "Harita (map) bir aralıktaki sayıyı başka bir aralığa orantılı taşır."),
+  'en': ("A sensor gives 0-1023, the LED wants 0-255. Which block converts?", ["constraint", "map", "write to serial port"], "map moves a number from one range to another proportionally."),
+  'de': ("Ein Sensor liefert 0-1023, die LED braucht 0-255. Welcher Block rechnet um?", ["Einschränkung", "map (Karte)", "an serielle Schnittstelle schreiben"], "map überträgt eine Zahl anteilig von einem Bereich in einen anderen."),
+  'es': ("Un sensor da 0-1023 y el LED quiere 0-255. ¿Qué bloque convierte?", ["restringir", "mapear", "escribe al puerto serie"], "mapear lleva un número de un rango a otro de forma proporcional."),
+ }),
+ (0, {
+  'tr': ("“zamanlayıcıyı sıfırla” bloğu hangi kategoride?", ["Sensör", "Pin", "Seri port"], "Zamanlayıcı bloklarını mBlock'ta Sensör kategorisinde bulursun."),
+  'en': ("Which category has “reset timer”?", ["Sensor", "Pin", "Serial port"], "In mBlock the timer blocks are in the Sensor category."),
+  'de': ("In welcher Kategorie ist „setze Stoppuhr zurück“?", ["Sensor", "Pin", "Serielle Schnittstelle"], "In mBlock stehen die Stoppuhr-Blöcke unter Sensor."),
+  'es': ("¿En qué categoría está “reiniciar temporizador”?", ["Sensor", "Pin", "Puerto serie"], "En mBlock los bloques de temporizador están en Sensor."),
+ }),
+ (1, {
+  'tr': ("Programı karta kalıcı olarak göndermek için ne yaparsın?", ["Yeşil bayrağa basarım", "Kodu karta yüklerim", "Kostüm değiştiririm"], "Yüklenen kod, kablo çıkınca bile kart açıldığında çalışır."),
+  'en': ("How do you send a program to the board permanently?", ["Click the green flag", "Upload the code to the board", "Change the costume"], "Uploaded code runs whenever the board turns on, even without the cable."),
+  'de': ("Wie schickst du ein Programm dauerhaft auf das Board?", ["Grüne Flagge klicken", "Den Code auf das Board hochladen", "Kostüm wechseln"], "Hochgeladener Code läuft bei jedem Einschalten, auch ohne Kabel."),
+  'es': ("¿Cómo envías un programa a la placa de forma permanente?", ["Clic en la bandera verde", "Cargo el código en la placa", "Cambio el disfraz"], "El código cargado se ejecuta al encender la placa, incluso sin cable."),
+ }),
+ (2, {
+  'tr': ("LED 1 saniye yansın, 1 saniye sönsün, hep böyle. Hangi blok dışta olmalı?", ["10 defa tekrarla", "2 saniye bekle", "sürekli tekrarla"], "Yanıp sönme hiç durmayacaksa “sürekli tekrarla” kullanılır."),
+  'en': ("The LED should be on 1 second, off 1 second, forever. Which block goes outside?", ["repeat 10", "wait 2 seconds", "forever"], "If blinking never stops, use “forever”."),
+  'de': ("Die LED soll 1 s an, 1 s aus, immer wieder. Welcher Block kommt außen hin?", ["wiederhole 10 mal", "warte 2 Sekunden", "wiederhole fortlaufend"], "Soll das Blinken nie enden, nimm „wiederhole fortlaufend“."),
+  'es': ("El LED debe estar 1 s encendido y 1 s apagado siempre. ¿Qué bloque va fuera?", ["repetir 10", "esperar 2 segundos", "por siempre"], "Si el parpadeo no termina nunca, usa “por siempre”."),
+ }),
+]

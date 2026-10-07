@@ -2329,7 +2329,7 @@ class PythonLessonsData {
           titleEn: 'File Writer!',
           titleDe: 'Datei-Schreiber!',
           titleEs: '¡Escritor de archivos!',
-          content: '✍️ Dosyalara veri yazmada uzmanlaştin!\n\n✓ Yazma modlari (w, a)\n✓ Liste ve sözlük kaydetme\n✓ JSON formatında veri\n\nVerileri kalıcı olarak saklayabilirsin!',
+          content: '✍️ Dosyalara veri yazmada uzmanlaştın!\n\n✓ Yazma modları (w, a)\n✓ Liste ve sözlük kaydetme\n✓ JSON formatında veri\n\nVerileri kalıcı olarak saklayabilirsin!',
           contentEn: '✍️ You mastered writing data to files!\n\n✓ Write modes (w, a)\n✓ Saving lists and dictionaries\n✓ Data in JSON format\n\nYou can store data permanently now!',
           contentDe: '✍️ Du beherrschst das Schreiben von Daten in Dateien!\n\n✓ Schreibmodi (w, a)\n✓ Listen und Dictionaries speichern\n✓ Daten im JSON-Format\n\nJetzt kannst du Daten dauerhaft aufbewahren!',
           contentEs: '✍️ ¡Dominas la escritura de datos en archivos!\n\n✓ Modos de escritura (w, a)\n✓ Guardar listas y diccionarios\n✓ Datos en formato JSON\n\n¡Ya puedes guardar datos de forma permanente!',
