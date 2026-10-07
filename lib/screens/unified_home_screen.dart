@@ -30,11 +30,15 @@ import '../ui/count_up.dart';
 import '../ui/motion.dart';
 import '../ui/press_button.dart';
 import '../courses/models/interactive_lesson_model.dart';
-import '../widgets/code_hero_background.dart';
 import '../utils/lang.dart';
 import '../utils/pro_gate.dart';
 import 'subscription_screen.dart';
 import '../ui/kod_akintisi.dart';
+import '../models/game_model.dart';
+import '../services/embedded_games_service.dart';
+import '../widgets/oyun_kimligi.dart';
+import '../widgets/oyun_sahnesi.dart';
+import 'game_play_screen.dart';
 
 /// Unified Home Screen - Minimal, modern dashboard for all ages
 class UnifiedHomeScreen extends StatefulWidget {
@@ -231,54 +235,53 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                if (!isNewUser) ...[
-                  _buildGenelBakis(userProgress, isDark),
-                  const SizedBox(height: 18),
-                  _buildGununGorevi(userProgress, isDark),
-                  const SizedBox(height: 18),
-                ],
-                if (next == null)
-                  _buildPathFinished(isDark)
-                else if (isNewUser)
-                  _buildFirstRun(next, isDark)
-                else
-                  _buildContinueCard(next, isDark),
-                if (nodes.isNotEmpty) ...[
-                  const SizedBox(height: 18),
-                  _buildPathStrip(nodes, isDark),
-                ],
-                // ETKINLIK KARTI — dersin hemen altinda ve HERKESE
-                // gorunur.
+                // ILK ACILIS (hic ders bitirmemis cocuk): tek bir ders
+                // karti, uc adimlik "Baslarken" listesi ve yolculuk.
                 //
-                // Karakter, market, quiz ve yarisma tablosu uygulamada
-                // vardi ama ulasilamiyordu: kartlar sayfanin en
-                // dibindeydi ve asagidaki `!isNewUser` kosulunun
-                // arkasindaydi. Uygulamayi yeni kuran cocuk hicbirini
-                // GORMUYORDU — maskotunu secebildigini de, jetonunu
-                // nerede harcayacagini da bilmiyordu.
-                const SizedBox(height: 20),
-                _FadeInUp(delay: 40, child: _buildActivityCard(isDark)),
-                const SizedBox(height: 20),
-                _buildSecondaryRow(isDark),
-                // Ekranin alt yarisi bostu. Doldururken kurala sadik
-                // kaliyoruz: buraya sayi/istatistik degil, cocugun BIR
-                // SONRAKI ADIMI hakkinda gercek bilgi giriyor.
-                if (next != null) ...[
-                  const SizedBox(height: 22),
-                  _FadeInUp(
-                      delay: 60, child: _buildLessonPreview(next, isDark)),
-                ],
-                if (isNewUser) ...[
-                  const SizedBox(height: 16),
-                  _FadeInUp(delay: 140, child: _buildCodeTicker(isDark)),
-                  const SizedBox(height: 16),
-                  _FadeInUp(delay: 220, child: _buildRoadmap(profile, isDark)),
-                ],
-                // Ikincil bolum yalnizca ilk ders bitince aciliyor: yeni
-                // cocuga XP ve rozet gostermenin tek etkisi "hepsi bos" hissi.
-                if (!isNewUser) ...[
-                  const SizedBox(height: 28),
-                  _buildMoreSection(isDark, userProgress),
+                // Eskiden ayni ekranda alti ayri blok vardi: ders karti,
+                // kilitli daireler seridi, Etkinlikler karti, uc kisayol,
+                // "bu derste ne ogreneceksin", kendini yazan Python
+                // terminali (Scratch dersinden once!) ve ayni yolu bir kez
+                // daha anlatan bir liste. Hepsi ayni agirlikta oldugu icin
+                // cocuk neye basacagini bilmiyordu (Ekim 2026 geri
+                // bildirimi). Simdi her seyin bir sirasi var.
+                if (isNewUser && next != null) ...[
+                  _FadeInUp(child: _buildIlkGorev(next, isDark)),
+                  const SizedBox(height: 24),
+                  _FadeInUp(delay: 60, child: _buildBaslarken(next, isDark)),
+                  const SizedBox(height: 24),
+                  _FadeInUp(delay: 120, child: _buildYolculuk(profile, isDark)),
+                ] else ...[
+                  if (!isNewUser) ...[
+                    _buildGenelBakis(userProgress, isDark),
+                    const SizedBox(height: 18),
+                    _buildGununGorevi(userProgress, isDark),
+                    const SizedBox(height: 18),
+                  ],
+                  if (next == null)
+                    _buildPathFinished(isDark)
+                  else
+                    _buildContinueCard(next, isDark),
+                  if (nodes.isNotEmpty) ...[
+                    const SizedBox(height: 18),
+                    _buildPathStrip(nodes, isDark),
+                  ],
+                  // ETKINLIK KARTI — ilk acilista "Baslarken" listesinin
+                  // ucuncu adimi; sonrasinda dersin hemen altinda.
+                  const SizedBox(height: 20),
+                  _FadeInUp(delay: 40, child: _buildActivityCard(isDark)),
+                  const SizedBox(height: 20),
+                  _buildSecondaryRow(isDark),
+                  if (next != null) ...[
+                    const SizedBox(height: 22),
+                    _FadeInUp(
+                        delay: 60, child: _buildLessonPreview(next, isDark)),
+                  ],
+                  // Ikincil bolum yalnizca ilk ders bitince aciliyor.
+                  if (!isNewUser) ...[
+                    const SizedBox(height: 28),
+                    _buildMoreSection(isDark, userProgress),
+                  ],
                 ],
                 // Pro karti EN ALTTA.
                 //
@@ -847,74 +850,6 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
   ///
   /// Tek bir sey var: baslama tusu. Istatistik yok, tanitim yok, kart
   /// izgarasi yok. Bos durum "eksiklerin listesi" degil, bir davet.
-  Widget _buildFirstRun(NextStep next, bool isDark) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          colors: [next.course.primaryColor, next.course.secondaryColor],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: next.course.primaryColor.withValues(alpha: 0.30),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      // Duz turuncu bir dikdortgen ucuz duruyordu: gozun tutunacagi
-      // hicbir sey yok. Arkada cok soluk kod simgeleri suzuluyor —
-      // kart artik bir YUZEY, boyali bir kutu degil.
-      child: KodAkintisi(
-        kose: 24,
-        child: Padding(
-        padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
-        child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(next.course.icon, style: const TextStyle(fontSize: 40)),
-          const SizedBox(height: 12),
-          Text(
-            _t('Bugün ilk kodunu yazıyorsun.',
-                'Today you write your first code.', 'Heute schreibst du deinen ersten Code.', 'Hoy escribes tu primer código.'),
-            style: const TextStyle(
-              fontFamily: AppTheme.fontFamily,
-              fontSize: 22,
-              height: 1.25,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '${next.course.nameFor(_lang)} · ${next.lesson.titleFor(_lang)}',
-            style: TextStyle(
-              fontFamily: AppTheme.fontFamily,
-              fontSize: 14,
-              height: 1.4,
-              fontWeight: FontWeight.w500,
-              color: Colors.white.withValues(alpha: 0.90),
-            ),
-          ),
-          const SizedBox(height: 18),
-          PressButton(
-            label: _t('İlk Dersine Başla', 'Start Your First Lesson', 'Erste Lektion starten', 'Empieza tu primera lección'),
-            icon: Icons.play_arrow_rounded,
-            color: Colors.white,
-            foreground: next.course.primaryColor,
-            height: 56,
-            onPressed: () => _openLesson(next),
-          ),
-        ],
-        ),
-        ),
-      ),
-    );
-  }
-
   /// Devam eden cocugun birincil karti.
   Widget _buildContinueCard(NextStep next, bool isDark) {
     final color = next.course.primaryColor;
@@ -1378,162 +1313,526 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
     );
   }
 
-  // ---------------------------------------------------------- kod seridi
+  // ------------------------------------------------------------ ilk acilis
 
-  /// Kendini yazan kucuk terminal.
+  String _sayi(int n) => _t('$n dk', '$n min', '$n Min.', '$n min');
+
+  /// Ilk gorev karti: dersin adi, suresi, XP'si ve "ne ogreneceksin"
+  /// maddeleri TEK kartta, altinda tek buyuk dugme.
   ///
-  /// Acilis ekraninda ayni widget var; ana sayfanin alt yarisinda da onu
-  /// kullanmak iki ekrani ayni marka diline baglayan tek hareketli oge.
-  /// Suslu bir bosluk doldurucu degil: cocuk "kod" denen seyin neye
-  /// benzedigini butona basmadan goruyor.
-  Widget _buildCodeTicker(bool isDark) {
+  /// Sure, XP ve maddeler dersin kendi verisinden (`IntroStep`), uydurma
+  /// degil.
+  Widget _buildIlkGorev(NextStep next, bool isDark) {
+    final renk = next.course.primaryColor;
+    final intro = next.lesson.steps.whereType<IntroStep>().firstOrNull;
+    final maddeler = (intro?.highlightsFor(_lang) ?? const <String>[])
+        .where((h) => h.trim().isNotEmpty)
+        .take(3)
+        .toList();
+
+    Widget cip(IconData simge, String yazi) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.22),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(simge, size: 14, color: Colors.white),
+              const SizedBox(width: 4),
+              Text(yazi,
+                  style: const TextStyle(
+                      fontFamily: AppTheme.fontFamily,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white)),
+            ],
+          ),
+        );
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFF10151F),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(28),
+        gradient: LinearGradient(
+          colors: [next.course.primaryColor, next.course.secondaryColor],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: renk.withValues(alpha: 0.32),
+            blurRadius: 26,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
-            child: Row(
-              children: [
-                _dot(const Color(0xFFFF5F57)),
-                const SizedBox(width: 6),
-                _dot(const Color(0xFFFFBD2E)),
-                const SizedBox(width: 6),
-                _dot(const Color(0xFF28C840)),
-                const SizedBox(width: 10),
-                Text(
-                  _t('ilk_dersim.py', 'my_first_lesson.py', 'meine_erste_lektion.py', 'mi_primera_leccion.py'),
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontFamily: 'monospace',
-                    color: Colors.white.withValues(alpha: 0.5),
+      child: KodAkintisi(
+        kose: 28,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Text(next.course.icon,
+                        style: const TextStyle(fontSize: 24)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _t('İLK GÖREVİN', 'YOUR FIRST MISSION',
+                              'DEINE ERSTE MISSION', 'TU PRIMERA MISIÓN'),
+                          style: TextStyle(
+                            fontFamily: AppTheme.fontFamily,
+                            fontSize: 11.5,
+                            letterSpacing: 1.2,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white.withValues(alpha: 0.9),
+                          ),
+                        ),
+                        Text(
+                          next.course.nameFor(_lang),
+                          style: const TextStyle(
+                            fontFamily: AppTheme.fontFamily,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Text(
+                next.lesson.titleFor(_lang),
+                style: const TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 25,
+                  height: 1.15,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: [
+                  cip(Icons.schedule_rounded, _sayi(next.lesson.estimatedMinutes)),
+                  cip(Icons.bolt_rounded, '+${next.lesson.xpReward} XP'),
+                  cip(Icons.format_list_numbered_rounded,
+                      _t('1 / ${next.courseLessonCount} ders',
+                          'Lesson 1 of ${next.courseLessonCount}',
+                          'Lektion 1 von ${next.courseLessonCount}',
+                          'Lección 1 de ${next.courseLessonCount}')),
+                ],
+              ),
+              if (maddeler.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (var i = 0; i < maddeler.length; i++) ...[
+                        if (i > 0) const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Container(
+                              width: 22,
+                              height: 22,
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.check_rounded, size: 15, color: renk),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                maddeler[i],
+                                style: const TextStyle(
+                                  fontFamily: AppTheme.fontFamily,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
-            child: TypingCodeLine(
-              lines: _isEn
-                  ? const [
-                      'print("Hello DevEducation")',
-                      'for i in range(4): robot.forward()',
-                      'if distance < 10: stop()',
-                      'led.on()  # your first robot is ready',
-                    ]
-                  : const [
-                      'print("Merhaba DevEducation")',
-                      'for i in range(4): robot.ileri()',
-                      'if mesafe < 10: dur()',
-                      'led.yak()  # ilk robotun hazır',
-                    ],
-              textStyle: const TextStyle(
-                color: Color(0xFF7CE7B0),
-                fontFamily: 'monospace',
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
+              const SizedBox(height: 18),
+              PressButton(
+                label: _t('İlk Dersine Başla', 'Start Your First Lesson',
+                    'Erste Lektion starten', 'Empieza tu primera lección'),
+                icon: Icons.play_arrow_rounded,
+                color: Colors.white,
+                foreground: renk,
+                height: 58,
+                onPressed: () => _openLesson(next),
               ),
-              cursorColor: const Color(0xFF7CE7B0),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _dot(Color color) => Container(
-        width: 8,
-        height: 8,
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      );
+  /// Ilk acilista isinma oyunu: kursa uyan UCRETSIZ bir oyun.
+  GameModel? _isinmaOyunu(String kursId) {
+    final tur = switch (kursId) {
+      'scratch' => GameType.sequencing,
+      'mblock' => GameType.blockCoding,
+      'arduino' || 'arduino_ide' => GameType.leftRightCoding,
+      'html' || 'css' => GameType.wordMatch,
+      'python' || 'java' || 'csharp' => GameType.quiz,
+      _ => GameType.sequencing,
+    };
+    for (final g in EmbeddedGamesService.getAllEmbeddedGames()) {
+      if (g.type == tur) return g;
+    }
+    return null;
+  }
 
-  // -------------------------------------------------------------- yol haritasi
-
-  /// Yolun nereye gittigi.
-  ///
-  /// Yeni cocuk yalnizca ilk dersi degil, bu isin onunu de gormeli:
-  /// Scratch'ten Arduino'ya, oradan Python'a. Onboarding'de verdigi
-  /// cevaplara gore siralanmis gercek kurslar — sabit bir liste degil.
-  Widget _buildRoadmap(LearnerProfile profile, bool isDark) {
-    final path = LearningPathService.buildPath(profile).take(4).toList();
-    if (path.length < 2) return const SizedBox.shrink();
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark ? Colors.grey.shade800 : const Color(0xFFE8EAEE),
-        ),
+  /// "Baslarken": uc numarali adim. Etkinlikler, oyunlar ve ders ayri ayri
+  /// kartlarda yarisiyordu; burada bir SIRASI var.
+  Widget _buildBaslarken(NextStep next, bool isDark) {
+    final oyun = _isinmaOyunu(next.course.id);
+    int jeton;
+    try {
+      jeton = context.watch<AuthProvider>().userProgress?.jetonBalance ?? 0;
+    } catch (_) {
+      jeton = 0;
+    }
+    final adimlar = <({Widget gorsel, Color renk, String baslik, String alt, VoidCallback onTap})>[
+      (
+        gorsel: Text(next.course.icon, style: const TextStyle(fontSize: 22)),
+        renk: next.course.primaryColor,
+        baslik: _t('İlk dersini bitir', 'Finish your first lesson',
+            'Schließ deine erste Lektion ab', 'Termina tu primera lección'),
+        alt: next.lesson.titleFor(_lang),
+        onTap: () => _openLesson(next),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            _t('Yolun nereye gidiyor?', 'Where your path leads', 'Wohin dein Weg führt', 'A dónde lleva tu ruta'),
-            style: TextStyle(
-              fontFamily: AppTheme.fontFamily,
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: isDark ? Colors.white : const Color(0xFF14161A),
-            ),
+      if (oyun != null)
+        (
+          gorsel: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: OyunSahnesi(tur: oyun.type, lang: _lang),
           ),
-          const SizedBox(height: 14),
-          for (var i = 0; i < path.length; i++) ...[
-            if (i > 0)
-              Container(
-                width: 2,
-                height: 14,
-                margin: const EdgeInsets.only(left: 17),
-                color: isDark ? Colors.grey.shade800 : const Color(0xFFE3E6EB),
+          renk: OyunKimligi.renk(oyun.type),
+          baslik: _t('Isınma oyunu oyna', 'Play a warm-up game',
+              'Spiel ein Aufwärmspiel', 'Juega un juego de calentamiento'),
+          alt: oyun.titleFor(_lang),
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => GamePlayScreen(game: oyun))),
+        ),
+      (
+        gorsel: const Icon(Icons.auto_awesome_rounded, color: Color(0xFF7C4DFF), size: 24),
+        renk: const Color(0xFF7C4DFF),
+        baslik: _t('Çerçeveni seç', 'Pick your frame', 'Wähl deinen Rahmen',
+            'Elige tu marco'),
+        alt: _t('Etkinlikler · $jeton jeton', 'Activities · $jeton coins',
+            'Aktivitäten · $jeton Münzen', 'Actividades · $jeton monedas'),
+        onTap: () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const ActivityHubScreen())),
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _t('Başlarken', 'Getting started', 'Los geht’s', 'Para empezar'),
+          style: TextStyle(
+            fontFamily: AppTheme.fontFamily,
+            fontSize: 19,
+            fontWeight: FontWeight.w800,
+            color: isDark ? Colors.white : const Color(0xFF14161A),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
               ),
-            Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: path[i].primaryColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(11),
-                  ),
-                  child:
-                      Text(path[i].icon, style: const TextStyle(fontSize: 18)),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    path[i].nameFor(_lang),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: AppTheme.fontFamily,
-                      fontSize: 14,
-                      fontWeight: i == 0 ? FontWeight.w800 : FontWeight.w600,
-                      color: i == 0
-                          ? (isDark ? Colors.white : const Color(0xFF14161A))
-                          : (isDark
-                              ? Colors.grey.shade400
-                              : const Color(0xFF6B7280)),
+            ],
+          ),
+          child: Column(
+            children: [
+              for (var i = 0; i < adimlar.length; i++) ...[
+                if (i > 0)
+                  Divider(
+                      height: 1,
+                      indent: 74,
+                      color: isDark ? Colors.grey.shade800 : const Color(0xFFEDEFF3)),
+                InkWell(
+                  borderRadius: BorderRadius.circular(22),
+                  onTap: adimlar[i].onTap,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+                    child: Row(
+                      children: [
+                        Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              alignment: Alignment.center,
+                              clipBehavior: Clip.antiAlias,
+                              decoration: BoxDecoration(
+                                color: adimlar[i].renk.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: SizedBox.expand(
+                                child: Center(child: adimlar[i].gorsel),
+                              ),
+                            ),
+                            Positioned(
+                              left: -6,
+                              top: -6,
+                              child: Container(
+                                width: 20,
+                                height: 20,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: adimlar[i].renk,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 2),
+                                ),
+                                child: Text('${i + 1}',
+                                    style: const TextStyle(
+                                        fontFamily: AppTheme.fontFamily,
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white)),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                adimlar[i].baslik,
+                                style: TextStyle(
+                                  fontFamily: AppTheme.fontFamily,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  color: isDark ? Colors.white : const Color(0xFF14161A),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                adimlar[i].alt,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFamily: AppTheme.fontFamily,
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark ? Colors.grey.shade400 : const Color(0xFF6B7280),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.chevron_right_rounded,
+                            color: adimlar[i].renk.withValues(alpha: 0.8)),
+                      ],
                     ),
                   ),
                 ),
-                if (i == 0)
-                  _miniChip(Icons.play_arrow_rounded, _t('Şimdi', 'Now', 'Jetzt', 'Ahora'),
-                      path[i].primaryColor, isDark),
               ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Yolculuk: onumuzdeki dort kurs, yatay bir yol uzerinde. Kilitli
+  /// gri daireler yerine kursun kendi simgesi ve adi; ilk durakta
+  /// "Buradasin". Onboarding cevaplarina gore siralanmis gercek kurslar.
+  Widget _buildYolculuk(LearnerProfile profile, bool isDark) {
+    final yol = LearningPathService.buildPath(profile).take(4).toList();
+    if (yol.length < 2) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                _t('Yolculuğun', 'Your journey', 'Deine Reise', 'Tu viaje'),
+                style: TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 19,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? Colors.white : const Color(0xFF14161A),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const CourseCatalogScreen())),
+              child: Text(
+                _t('Tüm kurslar', 'All courses', 'Alle Kurse', 'Todos los cursos'),
+                style: const TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF7C4DFF),
+                ),
+              ),
             ),
           ],
-        ],
-      ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.fromLTRB(10, 18, 10, 16),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // duraklari baglayan kesik cizgi
+              Positioned(
+                left: 40,
+                right: 40,
+                top: 27,
+                child: CustomPaint(
+                  painter: _KesikCizgi(
+                      isDark ? Colors.grey.shade700 : const Color(0xFFD9DCE3)),
+                  size: const Size(double.infinity, 3),
+                ),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (var i = 0; i < yol.length; i++)
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Container(
+                            width: i == 0 ? 58 : 50,
+                            height: i == 0 ? 58 : 50,
+                            margin: EdgeInsets.only(top: i == 0 ? 0 : 4),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: i == 0
+                                  ? yol[i].primaryColor
+                                  : (isDark ? const Color(0xFF2A2A3A) : const Color(0xFFF4F5F8)),
+                              border: Border.all(
+                                color: i == 0
+                                    ? Colors.white
+                                    : yol[i].primaryColor.withValues(alpha: 0.35),
+                                width: i == 0 ? 4 : 2,
+                              ),
+                              boxShadow: i == 0
+                                  ? [
+                                      BoxShadow(
+                                        color: yol[i].primaryColor.withValues(alpha: 0.4),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 5),
+                                      ),
+                                    ]
+                                  : null,
+                            ),
+                            child: Opacity(
+                              opacity: i == 0 ? 1 : 0.75,
+                              child: Text(yol[i].icon,
+                                  style: TextStyle(fontSize: i == 0 ? 26 : 21)),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            yol[i].nameFor(_lang),
+                            maxLines: 2,
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: AppTheme.fontFamily,
+                              fontSize: 12,
+                              height: 1.2,
+                              fontWeight: i == 0 ? FontWeight.w800 : FontWeight.w600,
+                              color: i == 0
+                                  ? (isDark ? Colors.white : const Color(0xFF14161A))
+                                  : (isDark ? Colors.grey.shade400 : const Color(0xFF6B7280)),
+                            ),
+                          ),
+                          if (i == 0) ...[
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: yol[i].primaryColor.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                _t('Buradasın', 'You are here', 'Du bist hier', 'Estás aquí'),
+                                style: TextStyle(
+                                  fontFamily: AppTheme.fontFamily,
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: yol[i].primaryColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -2153,4 +2452,24 @@ class _FadeInUp extends StatelessWidget {
       child: child,
     );
   }
+}
+
+/// Yolculuk duraklarini baglayan kesik cizgi.
+class _KesikCizgi extends CustomPainter {
+  _KesikCizgi(this.renk);
+  final Color renk;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = Paint()
+      ..color = renk
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+    for (double x = 0; x < size.width; x += 10) {
+      canvas.drawLine(Offset(x, 1.5), Offset(x + 4, 1.5), p);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_KesikCizgi old) => old.renk != renk;
 }

@@ -24,22 +24,21 @@ void main() {
   test('etkinlik alani ana sayfada ve YENI KULLANICIYA da gorunuyor', () {
     final src = _read(home);
 
-    expect(src.contains('_buildActivityCard'), isTrue,
+    // Donen kullanici: dersin altinda etkinlik karti.
+    expect(src.contains('child: _buildActivityCard(isDark)'), isTrue,
         reason: 'ana sayfada etkinlik kartı yok');
 
-    // Kart, `isNewUser` kosulunun ICINDE olmamali. Kartin cagrildigi
-    // satirdan geriye dogru bakip araya giren bir `if (!isNewUser)`
-    // olup olmadigini kontrol ediyoruz.
-    final callIndex = src.indexOf('child: _buildActivityCard(isDark)');
-    expect(callIndex, greaterThan(-1),
-        reason: 'etkinlik kartı ana sayfada çağrılmıyor');
-
-    final before = src.substring(0, callIndex);
-    final lastGuard = before.lastIndexOf('if (!isNewUser)');
-    final lastClose = before.lastIndexOf('],');
-    expect(lastGuard < lastClose, isTrue,
-        reason: 'etkinlik kartı "isNewUser" koşulunun içinde kalmış — '
-            'uygulamayı yeni kuran çocuk onu göremez');
+    // Ilk acilis (Ekim 2026): etkinlik alani "Baslarken" listesinin bir
+    // adimi. Liste yeni kullanici dalinda cagriliyor ve Etkinlikler'i
+    // aciyor.
+    final dal = src.indexOf('if (isNewUser && next != null) ...[');
+    expect(dal, greaterThan(-1), reason: 'ilk açılış dalı yok');
+    expect(src.indexOf('_buildBaslarken(next, isDark)', dal), greaterThan(dal),
+        reason: 'ilk açılışta "Başlarken" listesi yok');
+    final govde = src.substring(src.indexOf('Widget _buildBaslarken('),
+        src.indexOf('Widget _buildYolculuk('));
+    expect(govde.contains('ActivityHubScreen()'), isTrue,
+        reason: 'yeni kullanıcı etkinlik alanına ulaşamıyor');
   });
 
   test('etkinlik alani kapilari aciyor', () {
