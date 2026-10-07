@@ -1,45 +1,37 @@
-// Ana sayfadaki Pro kartinin kurallari.
+// Pro bilgisi nerede durur (Ekim 2026).
 //
-// Kartta FIYAT YAZMAMALI. Ayni abonelik App Store'da 175 ulkede farkli
-// tutar ve para birimiyle satiliyor (yillik plan ABD'de $39.99, bircok
-// pazarda $34.99); karta sabit bir fiyat yazmak kullanicilarin cogunda
-// yanlis bilgi gostermek ve Apple'in "gercek yerel fiyati goster"
-// kuralini cignemek demek. Fiyatin tek dogru kaynagi StoreKit ve onu
-// paywall ekrani gosteriyor.
+// Ana sayfadaki "Kilitli olan her sey acilsin · Planlari gor" karti
+// kaldirildi: cocugun her gun actigi ekranda satis cagrisi durmamali
+// (Apple 1.3, Google Families). Pro bilgisi Profil > Hesap Islemleri'nde,
+// EBEVEYN KAPISININ arkasinda. Kartta/satirda sabit fiyat da yok: fiyatin
+// tek dogru kaynagi StoreKit ve onu paywall ekrani gosteriyor.
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('ana sayfa Pro kartinda sabit fiyat yok', () {
-    final src =
-        File('lib/screens/unified_home_screen.dart').readAsStringSync();
-    final start = src.indexOf('Widget _buildProCard');
-    expect(start, greaterThan(0), reason: 'Pro karti bulunamadi');
-    final end = src.indexOf('void _openPaywall', start);
-    final card = src.substring(start, end);
+  final ana = File('lib/screens/unified_home_screen.dart').readAsStringSync();
+  final profil = File('lib/screens/auth/profile_screen.dart').readAsStringSync();
 
-    // Yorum satirlarini ve Dart kayit erisimlerini (perk.\$1) ele:
-    // ikisi de fiyat degil.
-    final code = card
-        .split('\n')
-        .where((l) => !l.trimLeft().startsWith('//'))
-        .join('\n')
-        .replaceAll(RegExp(r'\.\$\d'), '');
-
-    // Para birimi + rakam kaliplari.
-    final money = RegExp(
-      r'(\$|€|£|₺)\s?\d+[.,]?\d*|\d+[.,]\d{2}\s?(\$|€|£|₺|USD|EUR|TRY|TL)',
-    );
-    final hits = money.allMatches(code).map((m) => m.group(0)!).toList();
-    expect(hits, isEmpty,
-        reason: 'Kartta sabit fiyat var: ${hits.join(", ")}. '
-            'Fiyat yalnizca StoreKit\'ten gelmeli.');
+  test('ana sayfada Pro satis karti yok', () {
+    expect(ana.contains('_buildProCard'), isFalse);
+    expect(ana.contains('SubscriptionScreen'), isFalse,
+        reason: 'ana sayfa dogrudan odeme ekranina gidiyor');
   });
 
-  test('Pro kullaniciya kart cizilmiyor', () {
-    final src =
-        File('lib/screens/unified_home_screen.dart').readAsStringSync();
-    expect(src.contains('if (!ProGate.watchIsPro(context)) ...['), isTrue,
-        reason: 'Kart Pro kullaniciya da gosteriliyor');
+  test('profilde Pro satiri ebeveyn kapisinin arkasinda', () {
+    final i = profil.indexOf("ValueKey('profil_pro_ebeveyn')");
+    expect(i, greaterThan(0));
+    final blok = profil.substring(i, profil.indexOf('SubscriptionScreen()', i));
+    expect(blok.contains('ParentGate.verify'), isTrue);
+    expect(blok.contains('if (!ok'), isTrue);
+  });
+
+  test('Pro kullaniciya satir cizilmiyor ve fiyat yazmiyor', () {
+    final i = profil.indexOf("ValueKey('profil_pro_ebeveyn')");
+    final once = profil.substring(i - 400, i);
+    expect(once.contains('if (!ProGate.watchIsPro(context))'), isTrue);
+    final blok = profil.substring(i, i + 1600);
+    final money = RegExp(r'(\$|€|£|₺)\s?\d+[.,]?\d*|\d+[.,]\d{2}\s?(\$|€|£|₺|USD|EUR|TRY|TL)');
+    expect(money.hasMatch(blok), isFalse);
   });
 }

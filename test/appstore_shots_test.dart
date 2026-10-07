@@ -272,6 +272,13 @@ Future<void> _loadFonts() async {
         Future.value(file.readAsBytesSync().buffer.asByteData()));
   }
   await loader.load();
+  // Acilis yazisinin yazi tipi.
+  await (FontLoader('Baloo2')
+        ..addFont(Future.value(File('assets/fonts/Baloo2-ExtraBold.ttf')
+            .readAsBytesSync()
+            .buffer
+            .asByteData())))
+      .load();
 
   // Emoji: Nunito'da emoji glifi yok. Gerçek cihazda iOS kendi emoji
   // fontuna düşüyor, ama test motorunda böyle bir yedek yok ve her

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show LicenseRegistry, LicenseEntryWithLineBreaks;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -24,6 +25,12 @@ import 'widgets/hata_ekrani.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Acilis yazisinin yazi tipi (Baloo 2, OFL): lisans metni uygulamanin
+  // Lisanslar ekraninda gorunsun diye kayitli.
+  LicenseRegistry.addLicense(() async* {
+    final metin = await rootBundle.loadString('assets/fonts/Baloo2-OFL.txt');
+    yield LicenseEntryWithLineBreaks(const ['Baloo 2'], metin);
+  });
 
   // WIDGET HATASI ARTIK GRI BIR DUVAR DEGIL.
   //

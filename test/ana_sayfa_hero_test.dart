@@ -64,7 +64,7 @@ void main() {
 
   test('yeni çocuğa sıfırlarla dolu tablo gösterilmiyor', () {
     final bas = src.indexOf('Widget build(BuildContext context)');
-    final govde = src.substring(bas, src.indexOf('Widget _buildProCard', bas));
+    final govde = src.substring(bas, src.indexOf('// ------------------------------------------------------------------ baslik', bas));
     final i = govde.indexOf('_buildGenelBakis(');
     expect(i, greaterThan(0));
     // Ozet ve gunun gorevi `!isNewUser` kosulunun icinde olmali.

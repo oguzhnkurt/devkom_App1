@@ -19,6 +19,8 @@ import '../../utils/pro_gate.dart';
 import '../report/progress_report_screen.dart';
 import '../../widgets/mascot.dart';
 import '../market_screen.dart';
+import '../subscription_screen.dart';
+import '../../widgets/parent_gate.dart';
 import '../../widgets/veli_takip_karti.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -865,6 +867,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
             MaterialPageRoute(builder: (_) => const HesapEkrani()),
           ),
         ),
+        // PRO: ana sayfadan buraya tasindi ve EBEVEYN KAPISININ ARKASINDA.
+        // Satin alma kararini veren ebeveyn; cocugun gordugu ana ekranda
+        // satis cagrisi durmuyor. Pro uyede satir hic yok.
+        if (!ProGate.watchIsPro(context)) ...[
+          Divider(height: 1, color: Colors.grey.shade100, indent: 56),
+          _buildActionRow(
+            key: const ValueKey('profil_pro_ebeveyn'),
+            icon: Icons.workspace_premium_outlined,
+            label: _t4(context, 'Pro üyelik · ebeveynler için',
+                'Pro membership · for parents', 'Pro-Mitgliedschaft · für Eltern',
+                'Membresía Pro · para familias'),
+            color: const Color(0xFF5A34E8),
+            trailingIcon: Icons.lock_outline_rounded,
+            onTap: () async {
+              final lang = Localizations.localeOf(context).languageCode;
+              final ok = await ParentGate.verify(
+                context,
+                lang: lang,
+                reason: AppLang.pick(lang,
+                    tr: 'Üyelik ve satın alma bilgileri ebeveynler içindir. '
+                        'Devam etmek için doğum yılınızı girin.',
+                    en: 'Membership and purchase details are for parents. '
+                        'Enter your birth year to continue.',
+                    de: 'Mitgliedschaft und Käufe sind für Eltern. '
+                        'Gib zum Fortfahren dein Geburtsjahr ein.',
+                    es: 'La membresía y las compras son para adultos. '
+                        'Introduce tu año de nacimiento para continuar.'),
+              );
+              if (!ok || !context.mounted) return;
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const SubscriptionScreen()));
+            },
+          ),
+        ],
         Divider(height: 1, color: Colors.grey.shade100, indent: 56),
         _buildActionRow(
           icon: Icons.settings_outlined,
@@ -890,6 +926,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildActionRow({
+    Key? key,
+    IconData? trailingIcon,
     required IconData icon,
     required String label,
     required Color color,
@@ -897,6 +935,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     bool loading = false,
   }) {
     return InkWell(
+      key: key,
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
@@ -922,6 +961,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Text(label,
                     style: const TextStyle(
                         fontSize: 14, fontWeight: FontWeight.w500))),
+            if (trailingIcon != null) ...[
+              Icon(trailingIcon, color: Colors.grey.shade400, size: 16),
+              const SizedBox(width: 2),
+            ],
             Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 20),
           ],
         ),

@@ -31,8 +31,6 @@ import '../ui/motion.dart';
 import '../ui/press_button.dart';
 import '../courses/models/interactive_lesson_model.dart';
 import '../utils/lang.dart';
-import '../utils/pro_gate.dart';
-import 'subscription_screen.dart';
 import '../ui/kod_akintisi.dart';
 import '../models/game_model.dart';
 import '../services/embedded_games_service.dart';
@@ -264,17 +262,18 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                     _buildMoreSection(isDark, userProgress),
                   ],
                 ],
-                // Pro karti EN ALTTA.
+                // PRO KARTI ANA SAYFADAN KALKTI (Ekim 2026).
                 //
-                // Ustte olsaydi uygulamayi acan cocugun gordugu ilk sey
-                // satis olurdu; asagida olunca once ders, sonra yol,
-                // sonra oyun/gorev geliyor ve teklif akisi kesmiyor.
-                // Pro kullaniciya hic cizilmiyor.
-                if (!ProGate.watchIsPro(context)) ...[
-                  const SizedBox(height: 26),
-                  _FadeInUp(delay: 80, child: _buildProCard(isDark)),
+                // Ana sayfa cocugun her gun actigi yer; orada "Kilitli olan
+                // her sey acilsin · Planlari gor" diye bir satis karti
+                // durmasi, cocuga ebeveynine satin aldirmasi icin yapilan
+                // bir cagri gibi isliyordu. Cocuklara yonelik bir urunde
+                // bu dogru degil (Apple 1.3, Google Families: satin alma
+                // cagrilari cocuga degil ebeveyne). Pro bilgisi artik
+                // Profil > Hesap Islemleri'nde, ebeveyn kapisinin
+                // arkasinda duruyor; kilitli bir icerige dokunuldugunda
+                // cikan bilgi sayfasi da yerinde.
                 ],
-                ],
               ),
             ),
           ],
@@ -283,159 +282,6 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
     );
   }
 
-
-  // ------------------------------------------------------------------- pro
-
-  /// Ana sayfadaki Pro karti.
-  ///
-  /// FIYAT YAZMIYOR — bilerek. Karta "$1.99 / hafta" yazmak iki sekilde
-  /// yanlis olurdu: fiyat App Store'da ulkeye gore degisiyor (ayni
-  /// abonelik 175 ulkede farkli tutar ve para birimi) ve Apple gercek
-  /// yerel fiyatin gosterilmesini istiyor. Fiyatin tek dogru kaynagi
-  /// StoreKit; onu da paywall ekrani `product.price.localizedString`
-  /// ile gosteriyor. Kart yalnizca NE kazandigini soyluyor.
-  Widget _buildProCard(bool isDark) {
-    final perks = [
-      (
-        Icons.workspace_premium_rounded,
-        _t('Tüm kurslar açık', 'Every course unlocked', 'Alle Kurse frei',
-            'Todos los cursos'),
-      ),
-      (
-        Icons.insights_rounded,
-        _t('İlerleme raporu ve sertifikalar', 'Progress report and certificates',
-            'Fortschrittsbericht und Zertifikate',
-            'Informe de progreso y certificados'),
-      ),
-      (
-        Icons.videogame_asset_rounded,
-        _t('Bütün oyunlar ve görevler', 'All games and quests',
-            'Alle Spiele und Aufgaben', 'Todos los juegos y misiones'),
-      ),
-    ];
-
-    return GestureDetector(
-      onTap: _openPaywall,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF5A34E8), Color(0xFF00C4E0)],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF5A34E8).withValues(alpha: 0.28),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.22),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: const Text(
-                    'PRO',
-                    style: TextStyle(
-                      fontFamily: AppTheme.fontFamily,
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                Icon(Icons.arrow_forward_rounded,
-                    color: Colors.white.withValues(alpha: 0.85), size: 20),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Text(
-              _t('Kilitli olan her şey açılsın',
-                  'Unlock everything that is locked',
-                  'Alles freischalten, was gesperrt ist',
-                  'Desbloquea todo lo que está cerrado'),
-              style: const TextStyle(
-                fontFamily: AppTheme.fontFamily,
-                color: Colors.white,
-                fontSize: 19,
-                height: 1.25,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 14),
-            for (final perk in perks)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 9),
-                child: Row(
-                  children: [
-                    Icon(perk.$1,
-                        size: 17,
-                        color: Colors.white.withValues(alpha: 0.92)),
-                    const SizedBox(width: 11),
-                    Expanded(
-                      child: Text(
-                        perk.$2,
-                        style: TextStyle(
-                          fontFamily: AppTheme.fontFamily,
-                          color: Colors.white.withValues(alpha: 0.94),
-                          fontSize: 13.5,
-                          height: 1.3,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 6),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: _openPaywall,
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF5A34E8),
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  _t('Planları gör', 'See the plans', 'Pläne ansehen',
-                      'Ver los planes'),
-                  style: const TextStyle(
-                    fontFamily: AppTheme.fontFamily,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14.5,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _openPaywall() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
-    );
-  }
 
   // ------------------------------------------------------------------ baslik
 
