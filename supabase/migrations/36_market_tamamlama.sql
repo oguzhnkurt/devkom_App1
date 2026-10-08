@@ -16,7 +16,8 @@
 -- Bu göç:
 --   1. Kısıtı yeni kategorilerle (profile_banner, name_badge, profile_tag)
 --      yeniden kuruyor. Eski değerler kısıtta kalıyor: pasif satırlar var.
---   2. 33 ve 34'teki bütün ürünleri ve Ekim 2026 yenilerini ekliyor.
+--   2. item_key'e benzersiz indeks ekliyor (üretimde yoktu).
+--   3. 33 ve 34'teki bütün ürünleri ve Ekim 2026 yenilerini ekliyor.
 --      `on conflict (item_key) do nothing`: tekrar çalıştırmak zararsız.
 --
 -- FİYAT: bir ders 8 jeton. Etiketler 50-300, rozetler 60-500, pahalı
@@ -30,12 +31,41 @@ alter table store_items add constraint store_items_category_check
                       'hat', 'glasses', 'shoes',
                       'profile_banner', 'name_badge', 'profile_tag'));
 
+-- Üretimde item_key üzerinde benzersizlik YOK (yalnızca id birincil anahtar;
+-- 8 Ekim 2026'da pg_indexes ile görüldü). Repodaki 26 numaralı göç onu
+-- varsayıyor, bu yüzden 33/34'teki `on conflict (item_key)` canlıda hata
+-- verip bütün insert'i düşürmüştü. Mevcut anahtarlar zaten farklı;
+-- tekrar varsa bu satır hata verir ve işlem tamamen geri alınır.
+create unique index if not exists store_items_item_key_key
+  on store_items (item_key);
+
 insert into store_items
   (item_key, category, name, description, price_jeton, icon_emoji, color_hex,
    requires_pro, sort_order, is_active)
 values
-  -- 34: çerçeve koleksiyonu
-,
+  -- 33 ve 34: çerçeve koleksiyonu
+  ('frame_flame',   'avatar_frame', 'Alev Çerçevesi',    'Dalgalanan turuncu alevler',   120, '🔥', '#FF6B35', false, 10, true),
+  ('frame_galaxy',  'avatar_frame', 'Galaksi Çerçevesi', 'Dönen mor yıldızlar',          150, '🌌', '#6C3CE0', false, 11, true),
+  ('frame_circuit', 'avatar_frame', 'Devre Çerçevesi',   'Halkada dolaşan sinyal',       120, '🔌', '#00979D', false, 12, true),
+  ('frame_gold',    'avatar_frame', 'Altın Çerçeve',     'Dönen altın parıltısı',        200, '🏅', '#F2A33C', false, 13, true),
+  ('frame_ice',     'avatar_frame', 'Buz Çerçevesi',     'Işıldayan buz kristalleri',    120, '❄️', '#4FC3F7', false, 14, true),
+  ('frame_forest',  'avatar_frame', 'Orman Çerçevesi',   'Rüzgârda sallanan yapraklar',  100, '🌿', '#3BA55C', false, 15, true),
+  ('frame_candy',   'avatar_frame', 'Şeker Çerçevesi',   'Dönen pembe şeker şeritleri',  100, '🍬', '#EC407A', false, 16, true),
+  ('frame_robot',   'avatar_frame', 'Robot Çerçevesi',   'Cıvatalı metal ve tarayıcı',   180, '🤖', '#78909C', false, 17, true),
+
+  -- Yeni koleksiyon
+  ('frame_bronze',  'avatar_frame', 'Bronz Çerçeve',     'İlk madalyan',                  60, '🥉', '#B87333', false, 18, true),
+  ('frame_ocean',   'avatar_frame', 'Okyanus Çerçevesi', 'Salınan deniz yosunları',       90, '🌊', '#0288D1', false, 19, true),
+  ('frame_sakura',  'avatar_frame', 'Kiraz Çiçeği',      'Sallanan pembe yapraklar',     110, '🌸', '#F48FB1', false, 40, true),
+  ('frame_neon',    'avatar_frame', 'Neon Çerçevesi',    'Halkada koşan neon ışık',      130, '💡', '#00E5FF', false, 41, true),
+  ('frame_thunder', 'avatar_frame', 'Şimşek Çerçevesi',  'Çakan sarı enerji',            140, '⚡', '#FFD600', false, 42, true),
+  ('frame_lava',    'avatar_frame', 'Lav Çerçevesi',     'Kızgın kırmızı diller',        160, '🌋', '#D32F2F', false, 43, true),
+  ('frame_rainbow', 'avatar_frame', 'Gökkuşağı',         'Dönen renk şeritleri',         170, '🌈', '#7C4DFF', false, 44, true),
+  ('frame_pixel',   'avatar_frame', 'Piksel Çerçevesi',  '8-bit cıvatalar',              150, '🎮', '#5C6BC0', false, 45, true),
+  ('frame_comet',   'avatar_frame', 'Kuyruklu Yıldız',   'Etrafında koşan kuyruklar',    190, '☄️', '#FF7043', false, 46, true),
+  ('frame_crystal', 'avatar_frame', 'Kristal Çerçeve',   'Keskin ışık kırılmaları',      210, '🔮', '#AB47BC', false, 47, true),
+  ('frame_aurora',  'avatar_frame', 'Kuzey Işıkları',    'Süzülen yeşil-mor ışıklar',    230, '🌠', '#26C6DA', false, 48, true),
+  ('frame_royal',   'avatar_frame', 'Kraliyet Çerçevesi','Mor kadife ve altın',          260, '👑', '#7B1FA2', false, 49, true),
 
   -- Pahalı çerçeveler (Ekim 2026)
   ('frame_cosmic',  'avatar_frame', 'Kozmik Çerçeve',    'Dönen halkalar ve kıvılcımlar', 450, '🪐', '#5E35B1', false, 60, true),
