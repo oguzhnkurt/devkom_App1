@@ -19,7 +19,7 @@ import '../utils/lang.dart';
 ///
 ///  * Ilk acilista [giris] acik: simge yaylanarak gelir, arkasinda isik
 ///    halkalari dalgalanir, "DevEducation" harf harf yerine duser ("Dev"
-///    Devi'nin turuncusunda), sonra uc renkli kod blogu ("Kodla · Oyna ·
+///    tek renk beyaz), sonra mBlock tarzi uc kod blogu ("Kodla · Uret ·
 ///    Kesfet") Scratch bloklari gibi birbirine kenetlenir.
 ///  * Oturum hala yukleniyorsa ayni sahne SON HALIYLE kalir; yukleniyor
 ///    isareti donen bir halka degil, bloklarin uzerinden gecen isik.
@@ -62,15 +62,15 @@ class AcilisTema {
   final bool yaziGolgesi;
 
   /// Secilen tema (Ekim 2026): gece uzayi. "DevEducation" TEK RENK beyaz;
-  /// bloklar mBlock'un camgobegi ailesinde.
+  /// bloklar mBlock'un olay turuncusunda (turkuaz begenilmedi).
   static const uzay = AcilisTema(
     ad: 'Gece Uzayı',
     zemin: [Color(0xFF0A0D1F), Color(0xFF111833), Color(0xFF1A2550)],
     dev: Colors.white,
     yazi: Colors.white,
-    blok: Color(0xFF1BA3B8),
+    blok: Color(0xFFFF8C1A),
     blokYazi: Colors.white,
-    isik: Color(0xFF5CE1E6),
+    isik: Colors.white,
     yildiz: 1.4,
   );
 }
@@ -347,18 +347,12 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
   Widget _bloklar(String lang) {
     String t(String tr, String en, String de, String es) =>
         AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
+    // Kodla · Uret · Kesfet (Ekim 2026). Ilk surumdeki deger kutulari
+    // (Scratch / Robot / YZ) kalabalik bulundu, kaldirildi.
     final satirlar = [
-      (Icons.code_rounded, t('Kodla', 'Code', 'Coden', 'Programa'), 'Scratch'),
-      (
-        Icons.sports_esports_rounded,
-        t('Oyna', 'Play', 'Spielen', 'Juega'),
-        t('Robot', 'Robot', 'Roboter', 'Robot')
-      ),
-      (
-        Icons.explore_rounded,
-        t('Keşfet', 'Explore', 'Entdecken', 'Explora'),
-        t('YZ', 'AI', 'KI', 'IA')
-      ),
+      (Icons.code_rounded, t('Kodla', 'Code', 'Coden', 'Programa')),
+      (Icons.lightbulb_rounded, t('Üret', 'Create', 'Erschaffen', 'Crea')),
+      (Icons.explore_rounded, t('Keşfet', 'Explore', 'Entdecken', 'Explora')),
     ];
     final tema = widget.tema;
     final bekleme = _giris.value >= 1;
@@ -377,7 +371,7 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
                 bekleme ? (1 - ((isik * 3 - i).abs()).clamp(0.0, 1.0)) : 0.0;
             final renk = Color.lerp(tema.blok, Colors.white, parla * 0.25)!;
             final sapka = i == 0;
-            final (simge, komut, deger) = satirlar[i];
+            final (simge, komut) = satirlar[i];
             return Opacity(
               opacity: _aralik(bas, bas + 0.06),
               child: Transform.translate(
@@ -389,7 +383,7 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
                     parla: parla,
                   ),
                   child: SizedBox(
-                    width: 214,
+                    width: 190,
                     height: sapka ? 58 : 46,
                     child: Padding(
                       padding: EdgeInsets.only(top: sapka ? 12 : 0),
@@ -422,27 +416,6 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
                                 ),
-                              ),
-                            ),
-                          ),
-                          const Spacer(),
-                          // Beyaz oval deger kutusu (mBlock girdisi).
-                          Container(
-                            margin: const EdgeInsets.only(right: 10),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: koyu, width: 1),
-                            ),
-                            child: Text(
-                              deger,
-                              style: const TextStyle(
-                                fontFamily: 'Nunito',
-                                color: Color(0xFF1A2550),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
                               ),
                             ),
                           ),

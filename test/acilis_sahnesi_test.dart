@@ -16,8 +16,11 @@ void main() {
     ));
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.bySemanticsLabel('DevEducation'), findsOneWidget);
-    for (final k in ['Kodla', 'Oyna', 'Keşfet', 'Scratch', 'Robot', 'YZ']) {
+    for (final k in ['Kodla', 'Üret', 'Keşfet']) {
       expect(find.text(k), findsOneWidget, reason: k);
+    }
+    for (final yok in ['Scratch', 'Robot', 'YZ', 'Oyna']) {
+      expect(find.text(yok), findsNothing, reason: yok);
     }
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
