@@ -25,21 +25,72 @@ import '../utils/lang.dart';
 ///    isareti donen bir halka degil, bloklarin uzerinden gecen isik.
 ///    Gecis fark edilmez.
 ///
-/// Zemin, iOS acilis ekraninin rengi (#5A34E8) etrafinda kuruldu: yerel
+/// Zemin "gece uzayi" (#111833); iOS ve Android yerel acilis ekrani da ayni
+/// renkte, boylece yerel
 /// acilis ekranindan Flutter'a geciste renk sicramasi olmasin.
 ///
 /// Yazi tipi: "DevEducation" Baloo 2 ExtraBold (yuvarlak, cocuk dostu,
 /// OFL); geri kalan her yer uygulamanin Nunito'su.
 ///
 /// Hareketi azalt aciksa her sey dogrudan son halinde cizilir.
+/// Acilis sahnesinin renk takimi.
+class AcilisTema {
+  const AcilisTema({
+    required this.ad,
+    required this.zemin,
+    required this.dev,
+    required this.yazi,
+    required this.blok,
+    required this.blokYazi,
+    this.isik = Colors.white,
+    this.yildiz = 1.0,
+    this.yaziGolgesi = true,
+  });
+
+  final String ad;
+  final List<Color> zemin;
+  final Color dev;
+  final Color yazi;
+  final Color blok;
+  final Color blokYazi;
+
+  /// Halkalarin rengi.
+  final Color isik;
+
+  /// Takimyildiz parlakligi (0 = yok).
+  final double yildiz;
+  final bool yaziGolgesi;
+
+  /// Secilen tema (Ekim 2026): gece uzayi. "DevEducation" TEK RENK beyaz;
+  /// bloklar mBlock'un camgobegi ailesinde.
+  static const uzay = AcilisTema(
+    ad: 'Gece Uzayı',
+    zemin: [Color(0xFF0A0D1F), Color(0xFF111833), Color(0xFF1A2550)],
+    dev: Colors.white,
+    yazi: Colors.white,
+    blok: Color(0xFF1BA3B8),
+    blokYazi: Colors.white,
+    isik: Color(0xFF5CE1E6),
+    yildiz: 1.4,
+  );
+}
+
 class AcilisSahnesi extends StatefulWidget {
-  const AcilisSahnesi({super.key, this.giris = true});
+  const AcilisSahnesi({
+    super.key,
+    this.giris = true,
+    this.tema = AcilisTema.uzay,
+  });
+
+  final AcilisTema tema;
 
   /// Giris animasyonu oynasin mi? Ikinci gosterimde (oturum yuklenirken)
   /// false: sahne son haliyle durur, yalnizca bekleme isigi akar.
   final bool giris;
 
-  static const Color zemin = Color(0xFF5A34E8);
+  /// Yerel acilis ekraninin rengiyle ayni (iOS storyboard, Android
+  /// launch_background).
+  static const Color zemin = Color(0xFF111833);
 
   @override
   State<AcilisSahnesi> createState() => _AcilisSahnesiState();
@@ -93,12 +144,8 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
     return Material(
       type: MaterialType.transparency,
       child: DeviGokyuzu(
-        renkler: const [
-          Color(0xFF6E48F5),
-          AcilisSahnesi.zemin,
-          Color(0xFF341A9E)
-        ],
-        yogunluk: 1.1,
+        renkler: widget.tema.zemin,
+        yogunluk: widget.tema.yildiz,
         child: AnimatedBuilder(
           animation: Listenable.merge([_giris, _dongu]),
           builder: (context, _) => Center(
@@ -108,7 +155,8 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
                 _simge(),
                 const SizedBox(height: 26),
                 _yazi(),
-                const SizedBox(height: 26),
+                // Bloklar yazidan biraz uzakta: yazi nefes alsin.
+                const SizedBox(height: 64),
                 _bloklar(lang),
               ],
             ),
@@ -143,7 +191,7 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
                   height: boy + v * 90,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(40 + v * 30),
-                    border: Border.all(color: Colors.white, width: 2),
+                    border: Border.all(color: widget.tema.isik, width: 2),
                   ),
                 ),
               );
@@ -223,8 +271,6 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
 
   // -------------------------------------------------------------- yazi
 
-  static const _dev = Color(0xFFFFD54F);
-
   Widget _yazi() {
     const kelime = 'DevEducation';
     // Harfler 0.30 ile 0.75 arasinda sirayla dusuyor.
@@ -244,14 +290,16 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
               fontWeight: FontWeight.w800,
               fontSize: 48,
               height: 1.0,
-              color: i < 3 ? _dev : Colors.white,
-              shadows: const [
-                Shadow(
-                  color: Color(0x55000000),
-                  offset: Offset(0, 4),
-                  blurRadius: 10,
-                ),
-              ],
+              color: i < 3 ? widget.tema.dev : widget.tema.yazi,
+              shadows: widget.tema.yaziGolgesi
+                  ? const [
+                      Shadow(
+                        color: Color(0x55000000),
+                        offset: Offset(0, 4),
+                        blurRadius: 10,
+                      ),
+                    ]
+                  : null,
             ),
           ),
         ),
@@ -279,7 +327,10 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
       child: Semantics(
         label: kelime,
         child: ExcludeSemantics(
-          child: Row(mainAxisSize: MainAxisSize.min, children: harfler),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(mainAxisSize: MainAxisSize.min, children: harfler),
+          ),
         ),
       ),
     );
@@ -287,74 +338,117 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
 
   // ------------------------------------------------------------ bloklar
 
+  /// "Kodla · Oyna · Kesfet": mBlock tarzi, ust uste kenetlenen bloklar.
+  ///
+  /// Her blok mBlock'taki gibi: solda koyu bir simge hucresi (ayrac
+  /// cizgisiyle), ortada komut, sagda beyaz oval bir deger kutusu. Tek
+  /// renk; en ustteki sapkali "olay" blogu. Bloklar sirayla yukaridan dusup
+  /// bir oncekinin altina oturuyor; beklerken isik yukaridan asagi akiyor.
   Widget _bloklar(String lang) {
-    final etiketler = [
-      AppLang.pick(lang, tr: 'Kodla', en: 'Code', de: 'Coden', es: 'Programa'),
-      AppLang.pick(lang, tr: 'Oyna', en: 'Play', de: 'Spielen', es: 'Juega'),
-      AppLang.pick(lang,
-          tr: 'Keşfet', en: 'Explore', de: 'Entdecken', es: 'Explora'),
+    String t(String tr, String en, String de, String es) =>
+        AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
+    final satirlar = [
+      (Icons.code_rounded, t('Kodla', 'Code', 'Coden', 'Programa'), 'Scratch'),
+      (
+        Icons.sports_esports_rounded,
+        t('Oyna', 'Play', 'Spielen', 'Juega'),
+        t('Robot', 'Robot', 'Roboter', 'Robot')
+      ),
+      (
+        Icons.explore_rounded,
+        t('Keşfet', 'Explore', 'Entdecken', 'Explora'),
+        t('YZ', 'AI', 'KI', 'IA')
+      ),
     ];
-    const renkler = [Color(0xFF4C97FF), Color(0xFFFF8C1A), Color(0xFF0FBD8C)];
-    const simgeler = [
-      Icons.code_rounded,
-      Icons.sports_esports_rounded,
-      Icons.explore_rounded
-    ];
-
-    // Bloklar 0.62-0.95 arasinda soldan ve sagdan gelip kenetleniyor.
+    final tema = widget.tema;
     final bekleme = _giris.value >= 1;
-    final isik = _dongu.value; // 0..1: hangi blok parliyor
-    return Row(
+    final isik = _dongu.value;
+    final koyu = Color.lerp(tema.blok, Colors.black, 0.28)!;
+    return Column(
       key: const ValueKey('acilis_bloklar'),
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var i = 0; i < 3; i++)
           () {
-            final bas = 0.62 + i * 0.08;
-            final v = _aralik(bas, bas + 0.22, Curves.easeOutBack);
-            final yon = i == 1 ? 0.0 : (i == 0 ? -1.0 : 1.0);
+            final bas = 0.60 + i * 0.09;
+            final v = _aralik(bas, bas + 0.2, Curves.bounceOut);
             final parla =
                 bekleme ? (1 - ((isik * 3 - i).abs()).clamp(0.0, 1.0)) : 0.0;
+            final renk = Color.lerp(tema.blok, Colors.white, parla * 0.25)!;
+            final sapka = i == 0;
+            final (simge, komut, deger) = satirlar[i];
             return Opacity(
-              opacity: _aralik(bas, bas + 0.1),
+              opacity: _aralik(bas, bas + 0.06),
               child: Transform.translate(
-                offset: Offset(yon * (1 - v) * 60, (1 - v) * (i == 1 ? 30 : 0)),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  padding: const EdgeInsets.fromLTRB(12, 8, 14, 8),
-                  decoration: BoxDecoration(
-                    color: Color.lerp(renkler[i], Colors.white, parla * 0.35),
-                    borderRadius: BorderRadius.horizontal(
-                      left: Radius.circular(i == 0 ? 14 : 6),
-                      right: Radius.circular(i == 2 ? 14 : 6),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color.lerp(renkler[i], Colors.black, 0.35)!,
-                        offset: const Offset(0, 4),
-                      ),
-                      if (parla > 0.05)
-                        BoxShadow(
-                          color: renkler[i].withValues(alpha: 0.7 * parla),
-                          blurRadius: 16,
-                        ),
-                    ],
+                offset: Offset(0, (1 - v) * -46),
+                child: CustomPaint(
+                  painter: _ScratchBlokRessami(
+                    renk: renk,
+                    sapka: sapka,
+                    parla: parla,
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(simgeler[i], color: Colors.white, size: 18),
-                      const SizedBox(width: 5),
-                      Text(
-                        etiketler[i],
-                        style: const TextStyle(
-                          fontFamily: 'Nunito',
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                        ),
+                  child: SizedBox(
+                    width: 214,
+                    height: sapka ? 58 : 46,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: sapka ? 12 : 0),
+                      child: Row(
+                        children: [
+                          // mBlock simge hucresi + ayrac.
+                          Container(
+                            width: 44,
+                            height: double.infinity,
+                            margin: const EdgeInsets.only(left: 1),
+                            decoration: BoxDecoration(
+                              color: koyu.withValues(alpha: 0.35),
+                              border: Border(
+                                right: BorderSide(
+                                    color: koyu.withValues(alpha: 0.7),
+                                    width: 1.2),
+                              ),
+                            ),
+                            child: Icon(simge, color: tema.blokYazi, size: 21),
+                          ),
+                          const SizedBox(width: 10),
+                          Flexible(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                komut,
+                                style: TextStyle(
+                                  fontFamily: 'Nunito',
+                                  color: tema.blokYazi,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          // Beyaz oval deger kutusu (mBlock girdisi).
+                          Container(
+                            margin: const EdgeInsets.only(right: 10),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: koyu, width: 1),
+                            ),
+                            child: Text(
+                              deger,
+                              style: const TextStyle(
+                                fontFamily: 'Nunito',
+                                color: Color(0xFF1A2550),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -363,4 +457,75 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
       ],
     );
   }
+}
+
+/// Scratch komut blogu: ustte centik, altta cikinti; ilki sapkali.
+class _ScratchBlokRessami extends CustomPainter {
+  _ScratchBlokRessami({
+    required this.renk,
+    required this.sapka,
+    required this.parla,
+  });
+
+  final Color renk;
+  final bool sapka;
+  final double parla;
+
+  @override
+  void paint(Canvas canvas, Size s) {
+    const r = 6.0, n1 = 16.0, n2 = 20.0, n3 = 32.0, n4 = 36.0, d = 5.0;
+    final ust = sapka ? 14.0 : 0.0;
+    final w = s.width, h = s.height;
+    final yol = Path();
+    if (sapka) {
+      yol
+        ..moveTo(0, ust + 4)
+        ..cubicTo(14, -6, 70, -6, 86, ust)
+        ..lineTo(w - r, ust)
+        ..quadraticBezierTo(w, ust, w, ust + r);
+    } else {
+      yol
+        ..moveTo(0, r)
+        ..quadraticBezierTo(0, 0, r, 0)
+        ..lineTo(n1, 0)
+        ..lineTo(n2, d)
+        ..lineTo(n3, d)
+        ..lineTo(n4, 0)
+        ..lineTo(w - r, 0)
+        ..quadraticBezierTo(w, 0, w, r);
+    }
+    yol
+      ..lineTo(w, h - r)
+      ..quadraticBezierTo(w, h, w - r, h)
+      ..lineTo(n4, h)
+      ..lineTo(n3, h + d)
+      ..lineTo(n2, h + d)
+      ..lineTo(n1, h)
+      ..lineTo(r, h)
+      ..quadraticBezierTo(0, h, 0, h - r)
+      ..close();
+
+    final koyu = Color.lerp(renk, Colors.black, 0.22)!;
+    canvas.drawShadow(yol, Colors.black, 3, false);
+    if (parla > 0.05) {
+      canvas.drawPath(
+        yol,
+        Paint()
+          ..color = renk.withValues(alpha: 0.6 * parla)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10),
+      );
+    }
+    canvas.drawPath(yol, Paint()..color = renk);
+    canvas.drawPath(
+      yol,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2
+        ..color = koyu,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_ScratchBlokRessami o) =>
+      o.renk != renk || o.parla != parla || o.sapka != sapka;
 }
