@@ -816,7 +816,8 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text(loc.appDescription),
             const SizedBox(height: 16),
-            const Text('© 2025 DevEducation', style: TextStyle(fontSize: 12)),
+            // Telif sahibi şirket (gizlilik politikasındaki unvanla aynı).
+            const Text('© 2026 Devkom Yazılım', style: TextStyle(fontSize: 12)),
           ],
         ),
         actions: [
