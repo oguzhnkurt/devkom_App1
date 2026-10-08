@@ -7,7 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('son halinde yazi ve uc blok var', (tester) async {
+  testWidgets('son halinde yazi, alt yazi ve ucusan bloklar var', (tester) async {
     await tester.pumpWidget(const MaterialApp(
       locale: Locale('tr'),
       supportedLocales: [Locale('tr'), Locale('en')],
@@ -16,10 +16,10 @@ void main() {
     ));
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.bySemanticsLabel('DevEducation'), findsOneWidget);
-    for (final k in ['Kodla', 'Üret', 'Keşfet']) {
-      expect(find.text(k), findsOneWidget, reason: k);
-    }
-    for (final yok in ['Scratch', 'Robot', 'YZ', 'Oyna']) {
+    expect(find.text('Yazılım • Robotik • Yapay Zekâ'), findsOneWidget);
+    expect(find.byKey(const ValueKey('acilis_ucusan_bloklar')), findsOneWidget);
+    // On planda blok yazisi yok (Ekim 2026: cirkin bulundu).
+    for (final yok in ['Kodla', 'Üret', 'Keşfet']) {
       expect(find.text(yok), findsNothing, reason: yok);
     }
     expect(tester.takeException(), isNull);

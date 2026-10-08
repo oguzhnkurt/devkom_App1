@@ -18,11 +18,11 @@ import '../utils/lang.dart';
 /// Simdi tek bir sahne var ve iki yerde de o kullaniliyor:
 ///
 ///  * Ilk acilista [giris] acik: simge yaylanarak gelir, arkasinda isik
-///    halkalari dalgalanir, "DevEducation" harf harf yerine duser ("Dev"
-///    tek renk beyaz), sonra mBlock tarzi uc kod blogu ("Kodla · Uret ·
-///    Kesfet") Scratch bloklari gibi birbirine kenetlenir.
+///    halkalari dalgalanir, "DevEducation" harf harf yerine duser (tek renk
+///    beyaz), altinda "Yazilim • Robotik • Yapay Zeka" belirir. Arka planda
+///    saydam, silik Scratch/mBlock bloklari yavasca suzulur.
 ///  * Oturum hala yukleniyorsa ayni sahne SON HALIYLE kalir; yukleniyor
-///    isareti donen bir halka degil, bloklarin uzerinden gecen isik.
+///    isareti donen bir halka degil, yazinin altinda nabiz atan bir cizgi.
 ///    Gecis fark edilmez.
 ///
 /// Zemin "gece uzayi" (#111833); iOS ve Android yerel acilis ekrani da ayni
@@ -40,8 +40,6 @@ class AcilisTema {
     required this.zemin,
     required this.dev,
     required this.yazi,
-    required this.blok,
-    required this.blokYazi,
     this.isik = Colors.white,
     this.yildiz = 1.0,
     this.yaziGolgesi = true,
@@ -51,8 +49,6 @@ class AcilisTema {
   final List<Color> zemin;
   final Color dev;
   final Color yazi;
-  final Color blok;
-  final Color blokYazi;
 
   /// Halkalarin rengi.
   final Color isik;
@@ -61,15 +57,12 @@ class AcilisTema {
   final double yildiz;
   final bool yaziGolgesi;
 
-  /// Secilen tema (Ekim 2026): gece uzayi. "DevEducation" TEK RENK beyaz;
-  /// bloklar mBlock'un olay turuncusunda (turkuaz begenilmedi).
+  /// Secilen tema (Ekim 2026): gece uzayi, "DevEducation" tek renk beyaz.
   static const uzay = AcilisTema(
     ad: 'Gece Uzayı',
     zemin: [Color(0xFF0A0D1F), Color(0xFF111833), Color(0xFF1A2550)],
     dev: Colors.white,
     yazi: Colors.white,
-    blok: Color(0xFFFF8C1A),
-    blokYazi: Colors.white,
     isik: Colors.white,
     yildiz: 1.4,
   );
@@ -109,6 +102,12 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
     duration: const Duration(milliseconds: 2400),
   );
 
+  /// Arka planda suzulen bloklar icin yavas dongu.
+  late final AnimationController _ucus = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 26),
+  );
+
   bool _ayarlandi = false;
 
   @override
@@ -122,13 +121,17 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
     } else {
       _giris.forward();
     }
-    if (!azHareket) _dongu.repeat();
+    if (!azHareket) {
+      _dongu.repeat();
+      _ucus.repeat();
+    }
   }
 
   @override
   void dispose() {
     _giris.dispose();
     _dongu.dispose();
+    _ucus.dispose();
     super.dispose();
   }
 
@@ -146,21 +149,34 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
       child: DeviGokyuzu(
         renkler: widget.tema.zemin,
         yogunluk: widget.tema.yildiz,
-        child: AnimatedBuilder(
-          animation: Listenable.merge([_giris, _dongu]),
-          builder: (context, _) => Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _simge(),
-                const SizedBox(height: 26),
-                _yazi(),
-                // Bloklar yazidan biraz uzakta: yazi nefes alsin.
-                const SizedBox(height: 64),
-                _bloklar(lang),
-              ],
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Arka planda saydam, silik suzulen kod bloklari.
+            IgnorePointer(
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  key: const ValueKey('acilis_ucusan_bloklar'),
+                  painter: _UcusanBloklar(_ucus, _giris),
+                ),
+              ),
             ),
-          ),
+            AnimatedBuilder(
+              animation: Listenable.merge([_giris, _dongu]),
+              builder: (context, _) => Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _simge(),
+                    const SizedBox(height: 26),
+                    _yazi(),
+                    const SizedBox(height: 14),
+                    _altYazi(lang),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -336,126 +352,131 @@ class _AcilisSahnesiState extends State<AcilisSahnesi>
     );
   }
 
-  // ------------------------------------------------------------ bloklar
+  // ----------------------------------------------------------- alt yazi
 
-  /// "Kodla · Oyna · Kesfet": mBlock tarzi, ust uste kenetlenen bloklar.
-  ///
-  /// Her blok mBlock'taki gibi: solda koyu bir simge hucresi (ayrac
-  /// cizgisiyle), ortada komut, sagda beyaz oval bir deger kutusu. Tek
-  /// renk; en ustteki sapkali "olay" blogu. Bloklar sirayla yukaridan dusup
-  /// bir oncekinin altina oturuyor; beklerken isik yukaridan asagi akiyor.
-  Widget _bloklar(String lang) {
-    String t(String tr, String en, String de, String es) =>
-        AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
-    // Kodla · Uret · Kesfet (Ekim 2026). Ilk surumdeki deger kutulari
-    // (Scratch / Robot / YZ) kalabalik bulundu, kaldirildi.
-    final satirlar = [
-      (Icons.code_rounded, t('Kodla', 'Code', 'Coden', 'Programa')),
-      (Icons.lightbulb_rounded, t('Üret', 'Create', 'Erschaffen', 'Crea')),
-      (Icons.explore_rounded, t('Keşfet', 'Explore', 'Entdecken', 'Explora')),
-    ];
-    final tema = widget.tema;
-    final bekleme = _giris.value >= 1;
-    final isik = _dongu.value;
-    final koyu = Color.lerp(tema.blok, Colors.black, 0.28)!;
-    return Column(
-      key: const ValueKey('acilis_bloklar'),
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (var i = 0; i < 3; i++)
-          () {
-            final bas = 0.60 + i * 0.09;
-            final v = _aralik(bas, bas + 0.2, Curves.bounceOut);
-            final parla =
-                bekleme ? (1 - ((isik * 3 - i).abs()).clamp(0.0, 1.0)) : 0.0;
-            final renk = Color.lerp(tema.blok, Colors.white, parla * 0.25)!;
-            final sapka = i == 0;
-            final (simge, komut) = satirlar[i];
-            return Opacity(
-              opacity: _aralik(bas, bas + 0.06),
-              child: Transform.translate(
-                offset: Offset(0, (1 - v) * -46),
-                child: CustomPaint(
-                  painter: _ScratchBlokRessami(
-                    renk: renk,
-                    sapka: sapka,
-                    parla: parla,
-                  ),
-                  child: SizedBox(
-                    width: 190,
-                    height: sapka ? 58 : 46,
-                    child: Padding(
-                      padding: EdgeInsets.only(top: sapka ? 12 : 0),
-                      child: Row(
-                        children: [
-                          // mBlock simge hucresi + ayrac.
-                          Container(
-                            width: 44,
-                            height: double.infinity,
-                            margin: const EdgeInsets.only(left: 1),
-                            decoration: BoxDecoration(
-                              color: koyu.withValues(alpha: 0.35),
-                              border: Border(
-                                right: BorderSide(
-                                    color: koyu.withValues(alpha: 0.7),
-                                    width: 1.2),
-                              ),
-                            ),
-                            child: Icon(simge, color: tema.blokYazi, size: 21),
-                          ),
-                          const SizedBox(width: 10),
-                          Flexible(
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                komut,
-                                style: TextStyle(
-                                  fontFamily: 'Nunito',
-                                  color: tema.blokYazi,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+  /// "Yazilim • Robotik • Yapay Zeka" — ilk acilis ekranindaki yazi geri
+  /// geldi (Ekim 2026). Harfler yerine oturduktan sonra yumusakca beliriyor;
+  /// altinda ince bir isik cizgisi bekleme isareti olarak nabiz atiyor.
+  Widget _altYazi(String lang) {
+    final o = _aralik(0.72, 0.95);
+    final nabiz =
+        0.35 + 0.65 * (0.5 + 0.5 * math.sin(_dongu.value * math.pi * 2));
+    return Opacity(
+      opacity: o,
+      child: Transform.translate(
+        offset: Offset(0, (1 - o) * 10),
+        child: Column(
+          children: [
+            Text(
+              AppLang.pick(lang,
+                  tr: 'Yazılım • Robotik • Yapay Zekâ',
+                  en: 'Coding • Robotics • AI',
+                  de: 'Programmieren • Robotik • KI',
+                  es: 'Programación • Robótica • IA'),
+              key: const ValueKey('acilis_alt_yazi'),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Nunito',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1.6,
+                color: Colors.white.withValues(alpha: 0.88),
               ),
-            );
-          }(),
-      ],
+            ),
+            const SizedBox(height: 22),
+            Container(
+              width: 46,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.25 + 0.5 * nabiz),
+                borderRadius: BorderRadius.circular(2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.white.withValues(alpha: 0.4 * nabiz),
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
-/// Scratch komut blogu: ustte centik, altta cikinti; ilki sapkali.
-class _ScratchBlokRessami extends CustomPainter {
-  _ScratchBlokRessami({
-    required this.renk,
-    required this.sapka,
-    required this.parla,
-  });
+/// Arka planda saydam, silik suzulen Scratch/mBlock bloklari.
+///
+/// One cikan bir yazi degil, dokudur: opaklik %8-14, yavasca yukari
+/// suzuluyor, hafif donuyor. Giris basinda yavasca beliriyor.
+class _UcusanBloklar extends CustomPainter {
+  _UcusanBloklar(this.t, this.giris)
+      : super(repaint: Listenable.merge([t, giris]));
 
-  final Color renk;
-  final bool sapka;
-  final double parla;
+  final Animation<double> t;
+  final Animation<double> giris;
+
+  static const _renkler = [
+    Color(0xFFFF8C1A),
+    Color(0xFF4C97FF),
+    Color(0xFF9966FF),
+    Color(0xFF0FBD8C),
+    Color(0xFFFFAB19),
+    Color(0xFFFF6680),
+  ];
+
+  static final List<List<double>> _bloklar = () {
+    final r = math.Random(21);
+    // x, y0, hiz, genislik, aci, renk, sapka, opaklik
+    return List.generate(
+        11,
+        (i) => [
+              r.nextDouble(),
+              r.nextDouble(),
+              0.6 + r.nextDouble() * 0.9,
+              70 + r.nextDouble() * 70,
+              (r.nextDouble() - 0.5) * 0.5,
+              (i % _renkler.length).toDouble(),
+              r.nextDouble() < 0.3 ? 1.0 : 0.0,
+              0.08 + r.nextDouble() * 0.06,
+            ]);
+  }();
 
   @override
-  void paint(Canvas canvas, Size s) {
-    const r = 6.0, n1 = 16.0, n2 = 20.0, n3 = 32.0, n4 = 36.0, d = 5.0;
-    final ust = sapka ? 14.0 : 0.0;
-    final w = s.width, h = s.height;
+  void paint(Canvas canvas, Size size) {
+    final belir = giris.value.clamp(0.0, 1.0);
+    if (belir == 0) return;
+    for (final b in _bloklar) {
+      final y = ((b[1] - t.value * b[2]) % 1.0) * (size.height + 160) - 80;
+      final x = b[0] * size.width;
+      final w = b[3];
+      final h = w * 0.32;
+      canvas.save();
+      canvas.translate(x, y);
+      canvas.rotate(b[4] + math.sin(t.value * math.pi * 2 + b[0] * 6) * 0.06);
+      final yol = _blokYolu(w, h, b[6] == 1);
+      final renk = _renkler[b[5].toInt()];
+      canvas.drawPath(
+          yol, Paint()..color = renk.withValues(alpha: b[7] * belir));
+      canvas.drawPath(
+          yol,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1
+            ..color = Colors.white.withValues(alpha: 0.06 * belir));
+      canvas.restore();
+    }
+  }
+
+  static Path _blokYolu(double w, double h, bool sapka) {
+    const r = 5.0, n1 = 12.0, n2 = 15.0, n3 = 25.0, n4 = 28.0, d = 4.0;
     final yol = Path();
     if (sapka) {
       yol
-        ..moveTo(0, ust + 4)
-        ..cubicTo(14, -6, 70, -6, 86, ust)
-        ..lineTo(w - r, ust)
-        ..quadraticBezierTo(w, ust, w, ust + r);
+        ..moveTo(0, 6)
+        ..cubicTo(10, -6, w * 0.35, -6, w * 0.45, 4)
+        ..lineTo(w - r, 4)
+        ..quadraticBezierTo(w, 4, w, 4 + r);
     } else {
       yol
         ..moveTo(0, r)
@@ -477,28 +498,9 @@ class _ScratchBlokRessami extends CustomPainter {
       ..lineTo(r, h)
       ..quadraticBezierTo(0, h, 0, h - r)
       ..close();
-
-    final koyu = Color.lerp(renk, Colors.black, 0.22)!;
-    canvas.drawShadow(yol, Colors.black, 3, false);
-    if (parla > 0.05) {
-      canvas.drawPath(
-        yol,
-        Paint()
-          ..color = renk.withValues(alpha: 0.6 * parla)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10),
-      );
-    }
-    canvas.drawPath(yol, Paint()..color = renk);
-    canvas.drawPath(
-      yol,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2
-        ..color = koyu,
-    );
+    return yol;
   }
 
   @override
-  bool shouldRepaint(_ScratchBlokRessami o) =>
-      o.renk != renk || o.parla != parla || o.sapka != sapka;
+  bool shouldRepaint(_UcusanBloklar o) => false;
 }
