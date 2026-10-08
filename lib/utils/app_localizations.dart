@@ -1469,7 +1469,7 @@ class AppLocalizations {
           'Lernprogramme nach geprüftem Lehrplan, eigens für Altersgruppen entwickelt. Arduino, Python, Scratch und mehr — mit erfahrenen Lehrkräften.',
       'onboarding3_title': 'Fortschritt in Echtzeit',
       'onboarding3_description':
-          'Verfolge den Fortschritt jederzeit mit Berichten, Erfolgsabzeichen und ausführlichen Auswertungen. Volle Übersicht im Elternbereich.',
+          'Verfolge den Fortschritt jederzeit mit Berichten, Erfolgsabzeichen und ausführlichen Auswertungen. Eltern sehen alles bequem im Profil.',
       'user_info_load_error':
           'Benutzerinformationen konnten nicht geladen werden',
       'last_login': 'Letzte Anmeldung',

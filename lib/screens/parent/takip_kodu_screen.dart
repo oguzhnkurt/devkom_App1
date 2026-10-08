@@ -10,8 +10,9 @@ import '../../utils/lang.dart';
 /// Başlık bilerek KODU değil PAYLAŞILAN ŞEYİ anlatıyor: "kodunu paylaş"
 /// bir çocuğa ne verdiğini söylemiyor, "etkinliklerimi paylaş" söylüyor.
 ///
-/// Aynı kod Ebeveyn Alanı'nda da görünüyor; burası ebeveyn kapısının
-/// ÖNÜNDE duruyor, yani kodu çocuk da alıp velisine verebiliyor.
+/// Tek giriş: Profil'deki veli takibi kartının altındaki "Velin için
+/// kodunu göster" satırı (Ekim 2026'da Ayarlar ve Hesap'taki girişler
+/// kaldırıldı). Ebeveyn kapısı yok; kodu çocuk alıp velisine veriyor.
 ///
 /// Bunun bir bedeli var ve ekran o bedeli saklamıyor: kodu alan kişi
 /// çocuğun adını ve neler yaptığını görebiliyor. Bu yüzden ekranda üç

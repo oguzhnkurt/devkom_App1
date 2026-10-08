@@ -221,7 +221,6 @@ void main() {
       for (final f in [
         'lib/screens/parent/cocuk_raporu_screen.dart',
         'lib/services/cocuk_raporu_kaynagi.dart',
-        'lib/screens/parent/parent_area_screen.dart',
       ]) {
         // Yorum satirlari haric (yorumlar eski hatayi anlatiyor).
         final s = File(f)

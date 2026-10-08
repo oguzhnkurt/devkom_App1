@@ -11,9 +11,6 @@ import '../../theme.dart';
 import '../../utils/app_localizations.dart';
 import '../../utils/lang.dart';
 import '../../services/subscription_service.dart';
-import '../../widgets/parent_gate.dart';
-import '../parent/parent_area_screen.dart';
-import '../parent/takip_kodu_screen.dart';
 import '../subscription_screen.dart';
 
 /// Ayarlar.
@@ -48,7 +45,6 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final lang = Localizations.localeOf(context).languageCode;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -234,113 +230,6 @@ class SettingsScreen extends StatelessWidget {
                             },
                           );
                         },
-                      ),
-                    ],
-                  ),
-
-                  // ---- Ebeveyn ---------------------------------------
-                  //
-                  // Ebeveyn kapisinin arkasinda. Apple'in Cocuklar
-                  // kategorisi kurali (1.3) satin alma, dis baglanti ve
-                  // benzeri "dikkat dagitici" seylerin yetiskin
-                  // seviyesinde bir gorevin arkasinda olmasini istiyor;
-                  // ayni kapiyi ilerleme raporu icin de kullaniyoruz
-                  // cunku bu ekran cocuga degil odemeyi yapan kisiye
-                  // yazilmis.
-                  _group(
-                    icon: Icons.family_restroom,
-                    color: AppTheme.primaryBlue,
-                    title: AppLang.pick(lang,
-                        tr: 'Ebeveyn',
-                        en: 'Parents',
-                        de: 'Eltern',
-                        es: 'Familias'),
-                    children: [
-                      ListTile(
-                        leading:
-                            _chip(Icons.insights_rounded, AppTheme.primaryBlue),
-                        title: Text(AppLang.pick(lang,
-                            tr: 'Ebeveyn Alanı',
-                            en: 'Parent Area',
-                            de: 'Elternbereich',
-                            es: 'Área para familias')),
-                        // Takip kodundan burada soz ediyoruz: kodun
-                        // kendisi kapinin arkasinda duruyor ama ozelligin
-                        // VARLIGINI bilmeyen bir ebeveyn o kapiyi hic
-                        // acmiyor.
-                        subtitle: Text(AppLang.pick(lang,
-                            tr: 'İlerleme, haftalık hedef, sertifikalar — '
-                                'kendi telefonunuzdan da takip edin',
-                            en: 'Progress, weekly goal, certificates — '
-                                'follow from your own phone too',
-                            de: 'Fortschritt, Wochenziel, Zertifikate — '
-                                'auch vom eigenen Telefon aus',
-                            es: 'Progreso, meta semanal, certificados — '
-                                'también desde tu propio móvil')),
-                        trailing: const Icon(Icons.chevron_right_rounded),
-                        onTap: () async {
-                          final ok = await ParentGate.verify(
-                            context,
-                            lang: lang,
-                            reason: AppLang.pick(lang,
-                                tr: 'Bu bölümde çocuğunuzun ilerlemesi ve '
-                                    'haftalık hedefi var. Devam etmek için '
-                                    'doğum yılınızı girin.',
-                                en: "This section shows your child's "
-                                    'progress and weekly goal. Enter your '
-                                    'year of birth to continue.',
-                                de: 'Hier siehst du Fortschritt und '
-                                    'Wochenziel deines Kindes. Gib dein '
-                                    'Geburtsjahr ein, um fortzufahren.',
-                                es: 'Aquí verás el progreso y la meta '
-                                    'semanal de tu hijo o hija. Escribe tu '
-                                    'año de nacimiento para continuar.'),
-                          );
-                          if (!ok || !context.mounted) return;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const ParentAreaScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      // Cocuga yazilmis satir, KAPI YOK.
-                      //
-                      // Ayni kod Ebeveyn Alani'nda da var; orasi kapinin
-                      // arkasinda. Burasi onunde, cunku kodu cocugun
-                      // kendisi de velisine verebilmeli. Bedeli var:
-                      // kodu alan kisi cocugun adini ve etkinligini
-                      // goruyor. O yuzden acilan ekranda hem uyari var
-                      // hem de "hepsini kaldir" dugmesi — ozelligi
-                      // cocugun eline veriyorsak kapatmayi da vermeliyiz.
-                      ListTile(
-                        leading: _chip(
-                            Icons.qr_code_2_rounded, AppTheme.accentTeal),
-                        // Baslik KODU degil, PAYLASILAN SEYI anlatiyor.
-                        // "Kodunu paylas" cocuga ne verdigini soylemiyor;
-                        // "etkinliklerimi paylas" soyluyor.
-                        title: Text(AppLang.pick(lang,
-                            tr: 'Etkinliklerimi velimle paylaş',
-                            en: 'Share my activity with a parent',
-                            de: 'Meine Aktivität mit meinen Eltern teilen',
-                            es: 'Compartir mi actividad con mi familia')),
-                        subtitle: Text(AppLang.pick(lang,
-                            tr: 'Neler öğrendiğini kendi telefonundan '
-                                'görebilsinler',
-                            en: 'So they can see what you are learning from '
-                                'their own phone',
-                            de: 'Damit sie auf ihrem Telefon sehen, was du '
-                                'lernst',
-                            es: 'Para que vean lo que aprendes desde su '
-                                'móvil')),
-                        trailing: const Icon(Icons.chevron_right_rounded),
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const TakipKoduScreen(),
-                          ),
-                        ),
                       ),
                     ],
                   ),

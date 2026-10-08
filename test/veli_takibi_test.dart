@@ -96,33 +96,29 @@ void main() {
     });
   });
 
-  group('ayarlar', () {
-    final ayarlar =
-        File('lib/screens/settings/settings_screen.dart').readAsStringSync();
-
-    test('çocuğa yazılmış satır kapının önünde', () {
-      final i = ayarlar.indexOf('TakipKoduScreen');
-      expect(i, isNot(-1));
-      // O satırın onTap'inde ebeveyn kapısı OLMAMALI.
-      final blok = ayarlar.substring((i - 900).clamp(0, i), i);
-      expect(blok.contains('ParentGate.verify'), isFalse,
-          reason: 'kod ekranı kapının arkasına düşmüş');
+  group('tek giris noktasi', () {
+    // Ekim 2026: veli takibi uc yerden aciliyordu (Ayarlar > Ebeveyn
+    // Alani, Ayarlar > "Etkinliklerimi velimle paylas", Hesap > Paylasim).
+    // Artik tek yer Profil'deki veli takibi karti; cocugun kendi kodu da
+    // o kartin altindaki "Velin icin kodunu goster" satirinda.
+    test('Ayarlar ve Hesap ekraninda veli takibi girisi yok', () {
+      for (final f in [
+        'lib/screens/settings/settings_screen.dart',
+        'lib/screens/auth/hesap_ekrani.dart',
+      ]) {
+        final s = File(f).readAsStringSync();
+        expect(s.contains('TakipKoduScreen'), isFalse, reason: f);
+        expect(s.contains('ParentAreaScreen'), isFalse, reason: f);
+        expect(s.contains('velimle paylaş'), isFalse, reason: f);
+      }
+      expect(File('lib/screens/parent/parent_area_screen.dart').existsSync(),
+          isFalse);
     });
 
-    test('Ebeveyn Alanı hâlâ kapının arkasında', () {
-      // Sabit bir karakter penceresine bakmak kırılgan: kapının dört
-      // dilli açıklama metni uzun. Bunun yerine SIRAYA bakıyoruz —
-      // rapor ekranından önce gelen son şey bir kapı olmalı ve arada
-      // başka bir ekran açılmamalı.
-      final rapor = ayarlar.indexOf('ParentAreaScreen()');
-      final kapi = ayarlar.lastIndexOf('ParentGate.verify', rapor);
-      expect(kapi, isNot(-1), reason: 'rapor ekranı kapısız açılıyor');
-
-      final arada = ayarlar.substring(kapi, rapor);
-      expect(arada.contains('Navigator.push'), isTrue,
-          reason: 'kapı ile rapor ekranı aynı akışta değil');
-      expect(arada.contains('TakipKoduScreen'), isFalse,
-          reason: 'kapı ile rapor ekranı arasına başka bir ekran girmiş');
+    test('cocugun kodu Profil kartindan aciliyor', () {
+      final k = File('lib/widgets/veli_takip_karti.dart').readAsStringSync();
+      expect(k.contains("ValueKey('kodumu_goster')"), isTrue);
+      expect(k.contains('TakipKoduScreen()'), isTrue);
     });
   });
 }

@@ -7,7 +7,6 @@ import '../../models/user_progress_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme.dart';
 import '../../utils/lang.dart';
-import '../parent/takip_kodu_screen.dart';
 import 'ad_duzenleyici.dart';
 import 'login_screen.dart';
 
@@ -159,33 +158,6 @@ class _HesapEkraniState extends State<HesapEkrani> {
                       deger: _tarih(user.lastLoginAt!),
                     ),
                   ],
-                ],
-              ),
-              const SizedBox(height: 18),
-              _kart(
-                baslik: _t('Paylaşım', 'Sharing', 'Teilen', 'Compartir'),
-                cocuklar: [
-                  // KOD BURADA YAZMIYOR, EKRANI ACIYOR.
-                  //
-                  // Kodun kendisini bu listede gostermek, omzunun
-                  // uzerinden bakan herkese vermek demekti. Kendi
-                  // ekraninda ise yanINDA "bu kodu sadece annene ya da
-                  // babana ver" uyarisi ve takibi kaldirma dugmesi var.
-                  _satir(
-                    ikon: Icons.family_restroom_rounded,
-                    renk: const Color(0xFF7E57C2),
-                    baslik: _t(
-                        'Etkinliklerimi velimle paylaş',
-                        'Share my activity with a parent',
-                        'Meine Aktivität mit einem Elternteil teilen',
-                        'Compartir mi actividad con un familiar'),
-                    deger: '',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const TakipKoduScreen()),
-                    ),
-                  ),
                 ],
               ),
               const SizedBox(height: 18),

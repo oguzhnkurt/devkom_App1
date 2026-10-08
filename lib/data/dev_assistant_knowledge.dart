@@ -4344,32 +4344,39 @@ const List<KnowledgeEntry> kKnowledgeBase = [
       'what is the parent area',
       'was ist der elternbereich',
       'que es la zona de padres',
+      'velim beni nasil takip eder',
+      'how can my parent follow my progress',
+      'wie sehen meine eltern meinen fortschritt',
+      'como ve mi familia mi progreso',
+      'mi familia',
     ],
     answerTr:
-        'Ailen için Ebeveyn Alanı var: ne kadar ilerlediğini, hangi kursları '
-        'bitirdiğini ve haftalık özetini oradan görebilirler.\n\nGirişte kısa '
-        'bir ebeveyn kapısı var (doğum yılını soran bir soru). Bu, ayarların '
-        'yanlışlıkla değişmesini engellemek için.\n\nSatın alma yapacaksan da '
-        'bunu bir büyüğünle birlikte yapmalısın.',
+        'Velin, neler öğrendiğini kendi telefonundan görebilir.\n\n'
+        'Profil sekmesinde "Velin için kodunu göster" yazısına dokun, '
+        'çıkan kodu annene ya da babana ver. Onlar da kendi '
+        'telefonlarında Profil\'deki kutuya bu kodu yazsın; ilerleme raporun '
+        'hemen açılır.\n\nSatın alma yapacaksan bunu bir büyüğünle birlikte '
+        'yapmalısın.',
     answerEn:
-        'There is a Parent Area for your family: they can see how far you '
-        'have come, which courses you finished and a weekly summary.\n\nThere '
-        'is a short parent gate at the entrance (a question about a birth '
-        'year). It is there so settings do not get changed by accident.\n\nIf '
-        'you want to buy anything, do it together with a grown up.',
+        'Your parent can see what you are learning from their own '
+        'phone.\n\nOn the Profile tab, tap "Are you the student? Show your '
+        'code to a parent" and give the code to your mum or dad. They type '
+        'it into the box on their own Profile tab and your progress report '
+        'opens right away.\n\nIf you want to buy anything, do it together '
+        'with a grown up.',
     answerDe:
-        'Für deine Familie gibt es den Elternbereich: Dort sehen sie, wie '
-        'weit du gekommen bist, welche Kurse du beendet hast und eine '
-        'Wochenübersicht.\n\nAm Eingang gibt es eine kurze Elternsperre (eine '
-        'Frage nach einem Geburtsjahr). Sie sorgt dafür, dass Einstellungen '
-        'nicht aus Versehen geändert werden.\n\nWenn du etwas kaufen willst, '
+        'Deine Eltern können auf ihrem eigenen Telefon sehen, was du '
+        'lernst.\n\nTippe im Profil auf „Bist du Schüler? Zeig deinen Code '
+        'für deine Eltern“ und gib den Code deiner Mama oder deinem Papa. '
+        'Sie geben ihn in ihrem Profil in das Feld ein, und dein '
+        'Lernbericht öffnet sich sofort.\n\nWenn du etwas kaufen willst, '
         'mach das zusammen mit einem Erwachsenen.',
     answerEs:
-        'Hay una Zona de Padres para tu familia: allí pueden ver cuánto has '
-        'avanzado, qué cursos has terminado y un resumen semanal.\n\nEn la '
-        'entrada hay un control parental corto (una pregunta sobre un año de '
-        'nacimiento). Sirve para que los ajustes no se cambien sin '
-        'querer.\n\nSi quieres comprar algo, hazlo junto a una persona '
+        'Tu familia puede ver lo que aprendes desde su propio móvil.\n\n'
+        'En la pestaña Perfil, toca «¿Eres estudiante? Muestra tu código a '
+        'tu familia» y dale el código a tu madre o a tu padre. Lo escriben '
+        'en la casilla de su Perfil y tu informe de progreso se abre al '
+        'instante.\n\nSi quieres comprar algo, hazlo junto a una persona '
         'adulta.',
     relatedIds: ['report', 'pro', 'security'],
   ),

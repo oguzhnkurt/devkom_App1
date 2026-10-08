@@ -46,11 +46,8 @@ void main() {
         reason: 'Yas araligi satiri kaybolmus.');
   });
 
-  test('veli kodu listede yazmiyor, kendi ekranini aciyor', () {
-    // Kodun kendisini satirda gostermek, omzunun uzerinden bakan
-    // herkese vermek demekti. Kendi ekraninda yaninda "sadece annene ya
-    // da babana ver" uyarisi ve takibi kaldirma dugmesi var.
-    expect(hesap.contains('TakipKoduScreen()'), isTrue);
+  test('Hesap ekraninda veli paylasim satiri yok (Profil kartinda)', () {
+    expect(hesap.contains('TakipKoduScreen'), isFalse);
     expect(kodu(hesap).contains('currentCode()'), isFalse,
         reason: 'Kod dogrudan hesap listesinde okunuyor.');
   });
