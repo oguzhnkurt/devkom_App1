@@ -242,90 +242,93 @@ kurala giriyor.
 bağlantısı). Aşağıdaki metin **1.0.11 (build 17)** içindir. 1.0.9'un notları
 git geçmişinde.
 
-İçerik: oyun çevirileri (`bad3b6e`), oyun ekranlarının ortak başlık ve
-zemini, açık zeminli ekranlarda görünmeyen başlık/geri tuşu düzeltmesi,
-herkesin Scratch'ten başlaması, kurs sayfalarının dört dile çevrilmesi.
+İçerik (Ekim 2026, 20 yama): oyun ekranları ve Oyunlar sekmesi, satranç,
+ilk açılış ana sayfası (sürpriz sandık, Keşfet, Devi'nin bilmecesi), veli
+takibi (Profil'den kodla), Devi'nin yapay zekâ dersi ve yeni DevAI ekranı,
+market (rozet, etiket, pahalı çerçeveler — 36 numaralı göçle), Kelime
+Eşleştirme 24 seviye, Komut Dizilimi ve Kod Blokları, Sağım-Solum kaldırıldı,
+yeni açılış ekranı. Not: "Sağım-Solum kaldırıldı" ve "Pro kartı taşındı"
+mağaza notuna yazılmadı; kullanıcıya duyurulacak bir yenilik değil.
 
 ### tr
 
-• Oyun ekranları yenilendi: her oyunun kendi renginde başlık, yumuşak zemin
-ve renkli cevap kartları. Oyunlar sekmesi de renkli kartlarla yenilendi.
+• Devi'nin Yapay Zekâ Dersi: DevAI'ye ilk girişte 1 dakikalık, oyunlu bir ders. Bilgisayara kedi-köpek öğret, yapay zekânın nasıl öğrendiğini keşfet, rozetini kazan.
 
-• Etkinlikler ve Kurslar ekranında görünmeyen geri tuşu ve başlık
-düzeltildi.
+• DevAI yenilendi: yıldızlı yeni ekran, rastgele soru zarı ve yapay zekâ soruları.
 
-• Öğrenme yolu artık herkes için Scratch ile başlıyor.
+• Veli takibi çok kolay: Profil'deki kutuya çocuğunun kodunu yaz, gelişim raporu hemen açılsın. Birden fazla çocuk eklenebilir.
 
-• Satranç: taşa dokununca gidebileceği kareler gösteriliyor. Oyun bitince tahta açık kalıyor, nasıl mat olduğunu görebiliyorsun. Kolay seviye artık gerçekten kolay, orta seviye daha dengeli.
+• Ana sayfa yenilendi: ilk görevin, sürpriz oyun sandığı, Keşfet kartları ve her gün 3 yeni Devi bilmecesi.
 
-• Bilgi Yarışması'nın soruları artık Almanca ve İspanyolca.
+• Kelime Eşleştirme artık 24 seviye: 6 dünya, canlar, süre ve yıldızlar.
 
-• Boru Bulmacası'nın skor satırı dört dilde.
+• Komut Dizilimi ve Kod Blokları daha renkli ve hareketli.
 
-• Arduino Atölyesi'nde başlangıç bloğu Türkçe: "Arduino Uno açılınca".
+• Market'te yeni rozetler, etiketler ve efsane çerçeveler. Rozetini ve etiketini çerçevene tak, profilinde göster.
 
-• Hata düzeltmeleri ve iyileştirmeler.
+• Oyunlar sekmesi canlı kapaklarla yenilendi; satranç daha anlaşılır.
+
+• Yeni açılış ekranı, hata düzeltmeleri ve iyileştirmeler.
 
 ### en
 
-• Refreshed game screens: each game has its own colorful header, a softer
-background and colorful answer cards. The Games tab has new colorful cards too.
+• Devi's AI Lesson: a one-minute, playful lesson the first time you open DevAI. Teach the computer cats and dogs, discover how AI learns and earn your badge.
 
-• Fixed the back button and title that were hard to see on the
-Activities and Courses screens.
+• DevAI has a new look: a starry screen, a surprise-question dice and new AI questions.
 
-• The learning path now starts with Scratch for everyone.
+• Parent tracking made easy: type your child's code in the box on the Profile tab and the progress report opens right away. You can add more than one child.
 
-• Chess: tap a piece to see where it can move. When the game ends the board stays visible, so you can see how the checkmate happened. Easy is now truly easy, and Medium is more balanced.
+• A fresh home screen: your first mission, a surprise game chest, Explore cards and 3 new riddles from Devi every day.
 
-• Course pages (modules and lessons) are now fully in English.
+• Word Match now has 24 levels: 6 worlds, hearts, a timer and stars.
 
-• Knowledge Quiz questions are now in German and Spanish too.
+• Command Sequencing and Code Blocks are more colorful and lively.
 
-• The Pipes Puzzle score bar now speaks all four languages.
+• New badges, labels and legendary frames in the Store. Put your badge and label on your frame and show them on your profile.
 
-• Fixes and improvements.
+• The Games tab has live covers, and chess is easier to follow.
+
+• A new launch screen, fixes and improvements.
 
 ### de
 
-• Neue Spielbildschirme: bunte Kopfzeile in der Farbe des Spiels, ein
-sanfter Hintergrund und farbige Antwortkarten. Auch der Spiele-Tab zeigt neue bunte Karten.
+• Devis KI-Lektion: Beim ersten Öffnen von DevAI eine verspielte Lektion von einer Minute. Bring dem Computer Katzen und Hunde bei, entdecke, wie KI lernt, und hol dir dein Abzeichen.
 
-• Zurück-Taste und Titel auf den Seiten Aktivitäten und Kurse sind wieder
-gut sichtbar.
+• DevAI im neuen Look: ein Sternenhimmel, ein Würfel für Überraschungsfragen und neue KI-Fragen.
 
-• Der Lernpfad beginnt jetzt für alle mit Scratch.
+• Eltern-Begleitung ganz einfach: Gib im Profil den Code deines Kindes ein, und der Lernbericht öffnet sich sofort. Mehrere Kinder sind möglich.
 
-• Schach: Tippe auf eine Figur, um ihre möglichen Züge zu sehen. Nach der Partie bleibt das Brett sichtbar, so siehst du, wie das Matt entstand. Die leichte Stufe ist jetzt wirklich leicht, die mittlere ausgewogener.
+• Neuer Startbildschirm: deine erste Mission, eine Überraschungstruhe, Entdecken-Karten und jeden Tag 3 neue Rätsel von Devi.
 
-• Kursseiten (Module und Lektionen) sind jetzt auf Deutsch.
+• Wörter zuordnen jetzt mit 24 Leveln: 6 Welten, Herzen, Zeit und Sterne.
 
-• Die Fragen im Wissensquiz gibt es jetzt auf Deutsch.
+• Befehlsfolge und Code-Blöcke sind bunter und lebendiger.
 
-• Die Anzeige im Rohr-Rätsel (Level, Punkte, Züge) ist jetzt auf Deutsch.
+• Neue Abzeichen, Etiketten und legendäre Rahmen im Laden. Steck Abzeichen und Etikett an deinen Rahmen und zeig sie im Profil.
 
-• Fehlerbehebungen und Verbesserungen.
+• Lebendige Titelbilder im Spiele-Tab, und Schach ist leichter zu verstehen.
+
+• Ein neuer Startbildschirm, Fehlerbehebungen und Verbesserungen.
 
 ### es
 
-• Pantallas de juego renovadas: cada juego tiene su propia cabecera de
-color, un fondo suave y tarjetas de respuesta de colores. La pestaña Juegos también estrena tarjetas de colores.
+• La lección de IA de Devi: la primera vez que abres DevAI, una lección de un minuto llena de juegos. Enséñale al ordenador gatos y perros, descubre cómo aprende la IA y gana tu insignia.
 
-• Se corrigieron el botón de volver y el título que casi no se veían en
-Actividades y Cursos.
+• DevAI estrena aspecto: una pantalla estrellada, un dado de preguntas sorpresa y nuevas preguntas sobre IA.
 
-• La ruta de aprendizaje ahora empieza con Scratch para todos.
+• Seguimiento familiar muy fácil: escribe el código de tu hijo/a en el Perfil y el informe de progreso se abre al instante. Puedes añadir más de un hijo/a.
 
-• Ajedrez: toca una pieza para ver adónde puede moverse. Al terminar la partida el tablero sigue visible y puedes ver cómo fue el jaque mate. El nivel fácil ahora es fácil de verdad y el intermedio, más equilibrado.
+• Nueva pantalla de inicio: tu primera misión, un cofre de juego sorpresa, tarjetas Explorar y 3 acertijos nuevos de Devi cada día.
 
-• Las páginas de los cursos (módulos y lecciones) ya están en español.
+• Empareja palabras ahora tiene 24 niveles: 6 mundos, corazones, tiempo y estrellas.
 
-• Las preguntas del concurso de conocimiento ya están en español.
+• Secuencia de comandos y Bloques de código son más coloridos y animados.
 
-• El marcador del rompecabezas de tuberías (nivel, puntos, movimientos)
-ya está en español.
+• Nuevas insignias, etiquetas y marcos legendarios en la Tienda. Pon tu insignia y tu etiqueta en tu marco y muéstralas en tu perfil.
 
-• Corrección de errores y mejoras.
+• La pestaña Juegos tiene portadas animadas y el ajedrez se entiende mejor.
+
+• Una nueva pantalla de inicio, correcciones y mejoras.
 
 ## Ekran görüntüleri — iki adım
 
