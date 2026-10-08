@@ -875,9 +875,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildActionRow(
             key: const ValueKey('profil_pro_ebeveyn'),
             icon: Icons.workspace_premium_outlined,
-            label: _t4(context, 'Pro üyelik · ebeveynler için',
-                'Pro membership · for parents', 'Pro-Mitgliedschaft · für Eltern',
-                'Membresía Pro · para familias'),
+            label: _t4(context, 'Pro üyelik', 'Pro membership',
+                'Pro-Mitgliedschaft', 'Membresía Pro'),
             color: const Color(0xFF5A34E8),
             trailingIcon: Icons.lock_outline_rounded,
             onTap: () async {

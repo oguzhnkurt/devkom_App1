@@ -9,4 +9,10 @@ void main() {
     expect(s.contains("'© 2026 Devkom Yazılım'"), isTrue);
     expect(s.contains('© 2025 DevEducation'), isFalse);
   });
+
+  test('Profil Pro satiri sade: "ebeveynler icin" eki yok', () {
+    final p = File('lib/screens/auth/profile_screen.dart').readAsStringSync();
+    expect(p.contains("'Pro üyelik'"), isTrue);
+    expect(p.contains('Pro üyelik · ebeveynler için'), isFalse);
+  });
 }
