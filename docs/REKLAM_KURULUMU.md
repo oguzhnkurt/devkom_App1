@@ -26,7 +26,7 @@ kalıyor. Aşağıdaki adımlar tamamlanınca reklamlar açılıyor.
   izin ekranı gerekmiyor** ve App Privacy'de "takip" beyan edilmiyor.
 - **Ödül dersten az.** Bir ders 8 jeton, reklam 5. Reklam izlemek ders
   yapmaktan kârlı olsaydı uygulamanın amacı tersine dönerdi.
-- **Sıklık sınırı.** Günde en fazla 5 ödüllü video; geçiş reklamları
+- **Sıklık sınırı.** Günde en fazla 15 ödüllü video (Ekim 2026'da 5'ten çıkarıldı); geçiş reklamları
   arasında en az 4 dakika, günde en fazla 6 tane, ve yeni kullanıcı ilk
   3 ders/oyununda hiç reklam görmüyor.
 - **Reklam kutlamanın üstüne binmiyor.** Ders/oyun bitişinde yalnızca

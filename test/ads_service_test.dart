@@ -166,4 +166,8 @@ void main() {
       expect(AdConfig.rewardedJeton, lessThan(8));
     });
   });
+
+  test('gunluk odullu video siniri 15 (satranc gibi tekrar oyunlari icin)', () {
+    expect(AdConfig.rewardedDailyCap, 15);
+  });
 }

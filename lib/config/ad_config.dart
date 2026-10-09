@@ -113,7 +113,13 @@ class AdConfig {
   static const int rewardedJeton = 5;
 
   /// Bir günde izlenebilecek ödüllü video sayısı.
-  static const int rewardedDailyCap = 5;
+  ///
+  /// Ekim 2026: 5'ten 15'e çıkarıldı. Pro oyunda bir video TEK TUR
+  /// açıyor; 5 sınırıyla satranç gibi tekrar oynanan bir oyunda çocuk
+  /// günde 5 turda (jeton videolarıyla ortak sayaç) kilitleniyordu.
+  /// Jeton tarafı yine ders yapmaktan kârlı değil: 15 × 5 = 75 jeton,
+  /// yaklaşık 9 ders.
+  static const int rewardedDailyCap = 15;
 
   /// Geçiş reklamları arasındaki en az süre.
   static const Duration interstitialMinGap = Duration(minutes: 4);
