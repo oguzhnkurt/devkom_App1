@@ -236,6 +236,62 @@ buy anything.
 `çocuklar için kodlama` ve `coding for kids` çıkarıldı — yukarıdaki
 kurala giriyor.
 
+## "What's New in This Version" — 1.0.13
+
+Aşağıdaki metin **1.0.13 (build 19)** içindir. İçerik (9 Ekim 2026): iki
+sekmeli yarışma tablosu (genel XP + satranç) ve ana sayfada "sıralamadaki
+yerin" kartı, günlük video hakkı 5 → 15, Pro üyeye gönüllü jeton videosu,
+veli takibi tek yerde (Profil), Pro satırı doğrudan ödeme ekranı.
+Metinler Play'in 500 karakter sınırına da sığıyor.
+
+### tr
+
+• Yarışma tablosu yenilendi: Genel sekmesinde XP sıralaması, taktığın çerçeve, rozet ve etiketle birlikte. Satranç sekmesinde İmkânsız'ı en hızlı yenen en üstte.
+
+• Ana sayfanın altında sıralamadaki yerini gör.
+
+• Günde 15 video: oyunları ve jetonları daha çok açabilirsin.
+
+• Veli takibi artık tek yerde: Profil.
+
+• Hata düzeltmeleri ve iyileştirmeler.
+
+### en
+
+• New leaderboard: the Overall tab ranks by XP and shows your frame, badge and label. The Chess tab puts the fastest Impossible win on top.
+
+• See your place in the ranking at the bottom of the home screen.
+
+• 15 videos a day: unlock more games and coins.
+
+• Parent tracking now lives in one place: Profile.
+
+• Fixes and improvements.
+
+### de
+
+• Neue Bestenliste: Der Tab „Gesamt“ zeigt die XP-Rangliste mit deinem Rahmen, Abzeichen und Etikett. Im Tab „Schach“ steht der schnellste Sieg auf „Unmöglich“ ganz oben.
+
+• Deinen Platz in der Rangliste siehst du unten auf dem Startbildschirm.
+
+• 15 Videos pro Tag: mehr Spiele und Münzen freischalten.
+
+• Die Eltern-Begleitung ist jetzt an einem Ort: im Profil.
+
+• Fehlerbehebungen und Verbesserungen.
+
+### es
+
+• Nueva clasificación: la pestaña General ordena por XP y muestra tu marco, insignia y etiqueta. En Ajedrez, arriba está quien gana más rápido en Imposible.
+
+• Mira tu puesto en el ranking al final de la pantalla de inicio.
+
+• 15 vídeos al día: desbloquea más juegos y monedas.
+
+• El seguimiento familiar ahora está en un solo sitio: el Perfil.
+
+• Correcciones y mejoras.
+
 ## "What's New in This Version" — 1.0.12
 
 Aşağıdaki metin **1.0.12 (build 18)** içindir. İçerik (9 Ekim 2026): satranç
