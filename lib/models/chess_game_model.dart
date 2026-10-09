@@ -1,10 +1,19 @@
 import '../utils/lang.dart';
 
 /// Difficulty levels for chess AI
+///
+/// DORT SEVIYE (Ekim 2026): Kolay · Orta · Zor · Imkansiz. "Ileri" eskiden
+/// dogrudan Stockfish'in tam gucuydu; cocuk icin "zor" degil "kazanilamaz"
+/// demekti ve Orta ile arasinda koca bir bosluk vardi. Zor artik
+/// kazanilabilir bir rakip; tam guc ayri bir seviye: Imkansiz.
+///
+/// SIRA ONEMLI: skor tablosu seviyeyi `index` olarak sakliyor. Yeni seviye
+/// en sona eklendi; eski kayitlarin anlami degismiyor.
 enum ChessDifficulty {
-  beginner, // Kendi rakibimiz: cogu hamle rastgele, mati cogu zaman gormez
-  intermediate, // Stockfish Skill 3, 300 ms + dortte bir insani hamle
-  advanced, // Stockfish Skill 20, 1.5 sn
+  beginner, // Kolay: kendi rakibimiz, cogu hamle rastgele, mati cogu zaman gormez
+  intermediate, // Orta: Stockfish Skill 3, 300 ms + dortte bir insani hamle
+  advanced, // Zor: Stockfish Skill 6, 600 ms
+  impossible, // Imkansiz: Stockfish Skill 20, 2 sn
 }
 
 /// Game result
@@ -109,7 +118,7 @@ class ChessStatsModel {
   final int losses;
   final int draws;
   final int avgDuration; // in seconds
-  final String maxLevelPlayed; // beginner, intermediate, advanced
+  final String maxLevelPlayed; // beginner, intermediate, advanced, impossible
   final DateTime lastPlayed;
 
   ChessStatsModel({
@@ -157,11 +166,13 @@ extension ChessDifficultyExtension on ChessDifficulty {
   String get displayName {
     switch (this) {
       case ChessDifficulty.beginner:
-        return 'Başlangıç';
+        return 'Kolay';
       case ChessDifficulty.intermediate:
         return 'Orta';
       case ChessDifficulty.advanced:
-        return 'İleri';
+        return 'Zor';
+      case ChessDifficulty.impossible:
+        return 'İmkânsız';
     }
   }
 
@@ -171,24 +182,29 @@ extension ChessDifficultyExtension on ChessDifficulty {
     switch (this) {
       case ChessDifficulty.beginner:
         return AppLang.pick(languageCode,
-            tr: 'Başlangıç', en: 'Beginner', de: 'Anfänger', es: 'Principiante');
+            tr: 'Kolay', en: 'Easy', de: 'Leicht', es: 'Fácil');
       case ChessDifficulty.intermediate:
         return AppLang.pick(languageCode,
-            tr: 'Orta', en: 'Intermediate', de: 'Mittel', es: 'Intermedio');
+            tr: 'Orta', en: 'Medium', de: 'Mittel', es: 'Medio');
       case ChessDifficulty.advanced:
         return AppLang.pick(languageCode,
-            tr: 'İleri', en: 'Advanced', de: 'Fortgeschritten', es: 'Avanzado');
+            tr: 'Zor', en: 'Hard', de: 'Schwer', es: 'Difícil');
+      case ChessDifficulty.impossible:
+        return AppLang.pick(languageCode,
+            tr: 'İmkânsız', en: 'Impossible', de: 'Unmöglich', es: 'Imposible');
     }
   }
 
   String get description {
     switch (this) {
       case ChessDifficulty.beginner:
-        return 'Yeni başlayanlar için';
+        return 'Satranca yeni başlayanlar için';
       case ChessDifficulty.intermediate:
-        return 'Orta seviye oyuncular için';
+        return 'Kuralları bilenler için';
       case ChessDifficulty.advanced:
-        return 'İleri seviye oyuncular için';
+        return 'Plan yapıp hamle hesaplayanlar için';
+      case ChessDifficulty.impossible:
+        return 'Tam güç: yenebilir misin?';
     }
   }
 
@@ -196,16 +212,20 @@ extension ChessDifficultyExtension on ChessDifficulty {
     switch (this) {
       case ChessDifficulty.beginner:
         return AppLang.pick(languageCode,
-            tr: 'Yeni başlayanlar için', en: 'For beginners',
-            de: 'Für Einsteiger', es: 'Para principiantes');
+            tr: 'Satranca yeni başlayanlar için', en: 'For chess beginners',
+            de: 'Für Schach-Einsteiger', es: 'Para quienes empiezan');
       case ChessDifficulty.intermediate:
         return AppLang.pick(languageCode,
-            tr: 'Orta seviye oyuncular için', en: 'For intermediate players',
-            de: 'Für Fortgeschrittene', es: 'Para jugadores intermedios');
+            tr: 'Kuralları bilenler için', en: 'For players who know the rules',
+            de: 'Für alle, die die Regeln kennen', es: 'Para quienes conocen las reglas');
       case ChessDifficulty.advanced:
         return AppLang.pick(languageCode,
-            tr: 'İleri seviye oyuncular için', en: 'For advanced players',
-            de: 'Für Profis', es: 'Para jugadores avanzados');
+            tr: 'Plan yapıp hamle hesaplayanlar için', en: 'For players who plan ahead',
+            de: 'Für alle, die vorausdenken', es: 'Para quienes planifican');
+      case ChessDifficulty.impossible:
+        return AppLang.pick(languageCode,
+            tr: 'Tam güç: yenebilir misin?', en: 'Full strength: can you win?',
+            de: 'Volle Stärke: Schaffst du es?', es: 'Máxima potencia: ¿puedes ganar?');
     }
   }
 
@@ -218,6 +238,8 @@ extension ChessDifficultyExtension on ChessDifficulty {
         return 2;  // Decent tactical play
       case ChessDifficulty.advanced:
         return 3;  // Strong, challenging play
+      case ChessDifficulty.impossible:
+        return 4;  // Full engine strength
     }
   }
 
@@ -227,10 +249,14 @@ extension ChessDifficultyExtension on ChessDifficulty {
       // orta seviye Stockfish 3 + insani hamleler (chess_ai_service.dart).
       case ChessDifficulty.beginner:
         return 400;
+      // Deneme maclari (Ekim 2026): Orta, Elo 1320 ayarli Stockfish'e
+      // 6/10; Zor, Elo 1700'e 8/8; Imkansiz, Zor'a 6/6.
       case ChessDifficulty.intermediate:
-        return 1000;
+        return 1300;
       case ChessDifficulty.advanced:
-        return 2000;
+        return 1900;
+      case ChessDifficulty.impossible:
+        return 2800;
     }
   }
 }

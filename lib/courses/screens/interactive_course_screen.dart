@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/ad_unlock_service.dart';
+import '../../services/next_lesson_service.dart';
 import '../../utils/lang.dart';
 import '../../utils/pro_gate.dart';
 import '../models/course_model.dart';
@@ -233,12 +234,45 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
     );
   }
 
+  /// Bitirilen dersler: sunucu + cihazdaki kalici kayit.
+  ///
+  /// Saglayicisiz agacta (bazi testler) bos kume; ekran cokmesin.
+  Set<String> get _bitenDersler {
+    try {
+      return context.watch<AuthProvider>().tamamlananDersler;
+    } on ProviderNotFoundException {
+      return const <String>{};
+    }
+  }
+
+  bool get _kursAcildi {
+    try {
+      return context
+          .watch<AuthProvider>()
+          .baslananKurslar
+          .contains(widget.course.id);
+    } on ProviderNotFoundException {
+      return false;
+    }
+  }
+
   Widget _buildProgressCard(bool isDark) {
     final totalLessons = _modules.fold<int>(0, (sum, m) => sum + m.lessons.length);
-    const completedLessons = 0; // TODO: Get from user data
+    // GERCEK ILERLEME. Burada `const completedLessons = 0; // TODO`
+    // duruyordu: 3 dersi bitiren cocuk da %0 goruyordu ve alttaki tus
+    // hep "Ogrenmeye Basla" deyip 1. dersi aciyordu.
+    final biten = _bitenDersler;
+    final completedLessons = _modules.fold<int>(
+        0, (t, m) => t + m.lessons.where((l) => biten.contains(l.id)).length);
     final progress = totalLessons > 0 ? completedLessons / totalLessons : 0.0;
     final totalXp = _modules.fold<int>(0, (sum, m) =>
       sum + m.lessons.fold<int>(0, (s, l) => s + l.xpReward));
+    final earnedXp = _modules.fold<int>(0, (sum, m) =>
+      sum + m.lessons
+          .where((l) => biten.contains(l.id))
+          .fold<int>(0, (s, l) => s + l.xpReward));
+    final devam = KursDevam.hesapla(widget.course.id, biten,
+        acildi: _kursAcildi);
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -313,7 +347,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                     _buildStatRow(
                       icon: Icons.star,
                       label: 'XP',
-                      value: '0 / $totalXp',
+                      value: '$earnedXp / $totalXp',
                       color: Colors.amber,
                     ),
                   ],
@@ -327,7 +361,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => _startFirstAvailableLesson(),
+              onPressed: () => _kaldigiDersiAc(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: widget.course.primaryColor,
                 foregroundColor: Colors.white,
@@ -340,14 +374,24 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.play_arrow, size: 24),
+                  Icon(
+                      devam?.durum == KursDurumu.bitti
+                          ? Icons.replay_rounded
+                          : Icons.play_arrow,
+                      size: 24),
                   const SizedBox(width: 8),
-                  Text(
-                    lessonText(lessonLang(context), 'Öğrenmeye Başla',
-                        'Start learning', 'Los geht’s', 'Empezar a aprender'),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  // Etiket kursun durumundan: baslanmamis / kaldigin
+                  // yerden devam / tekrar. Uzun Almanca etiket dar
+                  // ekranda tasmasin diye Flexible + ellipsis.
+                  Flexible(
+                    child: Text(
+                      (devam ?? _yedekDevam).etiket(lessonLang(context)),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -387,6 +431,17 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
       ],
     );
   }
+
+  /// Kurs ders listesi CourseModules.allLessons ile ayni kaynaktan
+  /// geldigi icin [KursDevam.hesapla] burada null donmez; yine de bos
+  /// bir etiket cizilmesin diye ilk dersle bir yedek.
+  KursDevam get _yedekDevam => KursDevam(
+        lesson: _modules.first.lessons.first,
+        index: 0,
+        completedInCourse: 0,
+        lessonCount: _modules.fold<int>(0, (t, m) => t + m.lessons.length),
+        durum: KursDurumu.baslanmadi,
+      );
 
   Widget _buildModuleTabs(bool isDark) {
     return Container(
@@ -642,12 +697,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
     // Ders KİLİTLENMİYOR: yol bir öneri, bir kapı değil. (Apple 5.1.4(a)
     // uygulamanın yaştan bağımsız işe yarar olmasını istiyor; ayrıca
     // sırayı atlamak isteyen çocuğu durdurmak bu uygulamanın işi değil.)
-    final completedIds = context
-            .watch<AuthProvider>()
-            .userProgress
-            ?.completedLessonIds
-            .toSet() ??
-        const <String>{};
+    final completedIds = _bitenDersler;
     final isCompleted = completedIds.contains(lesson.id);
 
     return GestureDetector(
@@ -742,7 +792,12 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Row(
+                        // Wrap: "12 Schritte +40 XP Abzeichen" dar
+                        // ekranda ve buyuk yazi boyutunda tasiyordu
+                        // (RenderFlex overflow); sigmayan alt satira iner.
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          runSpacing: 4,
                           children: [
                             _buildLessonStat(
                               Icons.flash_on,
@@ -906,10 +961,33 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
     );
   }
 
-  Future<void> _startFirstAvailableLesson() async {
-    if (_modules.isNotEmpty && _modules[0].lessons.isNotEmpty) {
-      await _openLesson(_modules[0].lessons.first);
+  /// Ana tus: ilk BITMEMIS dersi acar (1-3 bittiyse 4. ders).
+  ///
+  /// Eskiden her zaman `_modules[0].lessons.first` aciliyordu; ertesi
+  /// gun gelen cocuk bitirdigi dersi bastan yapmak zorunda kaliyordu.
+  /// Hepsi bittiyse tekrar icin ilk ders.
+  ///
+  /// onTap isleyicisi: `watch` degil `read` (bkz. [_openLesson] notu).
+  Future<void> _kaldigiDersiAc() async {
+    Set<String> biten = const <String>{};
+    try {
+      biten = context.read<AuthProvider>().tamamlananDersler;
+    } on ProviderNotFoundException {
+      // Saglayici yoksa ilerleme de yok: ilk ders.
     }
+    final devam = KursDevam.hesapla(widget.course.id, biten);
+    final ders = devam?.lesson ??
+        (_modules.isNotEmpty && _modules[0].lessons.isNotEmpty
+            ? _modules[0].lessons.first
+            : null);
+    if (ders == null) return;
+    // Secili modul sekmesi de o derse kaysin: geri donuldugunde liste
+    // cocugun bulundugu modulu gostersin.
+    final modul = _modules.indexWhere((m) => m.lessons.contains(ders));
+    if (modul >= 0 && modul != _selectedModule) {
+      setState(() => _selectedModule = modul);
+    }
+    await _openLesson(ders);
   }
 }
 

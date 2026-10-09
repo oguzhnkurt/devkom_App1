@@ -36,7 +36,7 @@ import '../models/game_model.dart';
 import '../services/embedded_games_service.dart';
 import '../widgets/oyun_kimligi.dart';
 import '../widgets/oyun_sahnesi.dart';
-import 'game_play_screen.dart';
+import '../utils/pro_gate.dart';
 import '../widgets/surpriz_sandik.dart';
 import '../widgets/devi_bilmece_karti.dart';
 import '../bilmece/devi_bilmeceleri_api.dart';
@@ -160,10 +160,19 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
 
     final userProgress =
         authProvider.userProgress ?? _progressService.getVisitorProgress();
-    final completedIds = userProgress.completedLessonIds.toSet();
+    // Sunucu listesi + cihazdaki kalici kayit (bkz. tamamlananDersler).
+    // Yalnizca sunucu listesi okundugunda, ag yokken ertesi gun ilerleme
+    // sifir gorunuyor ve kart "Ilk Dersine Basla" diyordu.
+    final completedIds = {
+      ...userProgress.completedLessonIds,
+      ...authProvider.tamamlananDersler,
+    };
 
     final profile = user?.learnerProfile ?? const LearnerProfile();
-    final next = NextLessonService.resolve(profile, completedIds);
+    // Once cocugun en son ders actigi kurs: katalogdan Scratch'e basladiysa
+    // kart yolun ilk kursuna degil Scratch'in siradaki dersine goturuyor.
+    final next = NextLessonService.resolve(profile, completedIds,
+        oncelikliKurs: authProvider.sonKurs);
     final nodes = NextLessonService.strip(profile, completedIds);
 
     // "Yeni kullanici" = hic ders bitirmemis. Giris yapmis olmasi onemli
@@ -218,10 +227,13 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                   // "Ogrenecegin kurslar" seridinin yerine).
                   _FadeInUp(
                     delay: 60,
+                    // Sandik reklamli Pro oyunlari da cikarabiliyor;
+                    // `oyunuAc` onlari Oyunlar ekranindaki ayni Pro/reklam
+                    // kapisindan geciriyor.
                     child: SurprizSandik(
                       lang: _lang,
-                      onOyna: (g) => Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => GamePlayScreen(game: g))),
+                      pro: ProGate.watchIsPro(context),
+                      onOyna: (g) => oyunuAc(context, g, lang: _lang),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -756,7 +768,8 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
           ProgressTrack(value: next.courseProgress, color: color),
           const SizedBox(height: 14),
           PressButton(
-            label: _t('Devam Et', 'Continue', 'Weiter', 'Continuar'),
+            label: _t('Kaldığın yerden devam et', 'Continue where you left off',
+                'Weiter, wo du aufgehört hast', 'Continúa donde lo dejaste'),
             icon: Icons.play_arrow_rounded,
             color: color,
             height: 52,
@@ -1317,8 +1330,18 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
               ],
               const SizedBox(height: 18),
               PressButton(
-                label: _t('İlk Dersine Başla', 'Start Your First Lesson',
-                    'Erste Lektion starten', 'Empieza tu primera lección'),
+                // Ders hic bitmemis ama acilmis olabilir (cocuk ilk derse
+                // girip cikti): o zaman "basla" degil "devam et".
+                // (build zaten AuthProvider'i dinliyor; burada listen: false.)
+                label: Provider.of<AuthProvider>(context, listen: false)
+                        .baslananKurslar
+                        .contains(next.course.id)
+                    ? _t('Kaldığın yerden devam et',
+                        'Continue where you left off',
+                        'Weiter, wo du aufgehört hast',
+                        'Continúa donde lo dejaste')
+                    : _t('İlk Dersine Başla', 'Start Your First Lesson',
+                        'Erste Lektion starten', 'Empieza tu primera lección'),
                 icon: Icons.play_arrow_rounded,
                 color: Colors.white,
                 foreground: renk,
@@ -1379,10 +1402,9 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
     );
   }
 
-  /// "Kesfet": yana kaydirilan uc buyuk kart — isinma oyunu, bilgi
-  /// yarismasi, etkinlikler. Iki kart canli oyun kapagiyla, ucuncusu
-  /// Devi ve hediye kutusuyla. Liste satirlari ve kilitli daireler
-  /// yerine (Ekim 2026 geri bildirimi: "Baslarken ve Yolculugun'u
+  /// "Kesfet": yana kaydirilan buyuk kartlar — gunun bilgisi,
+  /// etkinlikler, Devi'ye sor ve oyun onerisi (bu sirayla). Liste
+  /// satirlari ve kilitli daireler yerine (Ekim 2026 geri bildirimi: "Baslarken ve Yolculugun'u
   /// begenmedim").
   Widget _buildKesfet(NextStep next, bool isDark) {
     // KESFET CESITLI (Ekim 2026): her kart baska bir sey — bir oyun
@@ -1401,81 +1423,10 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
     }
 
     final kartlar = <Widget>[
-      if (oyun != null)
-        _kesfetKarti(
-          renk: OyunKimligi.renk(oyun.type),
-          ust: _t('OYUN ÖNERİSİ', 'GAME PICK', 'SPIELTIPP', 'JUEGO RECOMENDADO'),
-          baslik: oyun.titleFor(_lang),
-          dugme: _t('Oyna', 'Play', 'Spielen', 'Jugar'),
-          gorsel: OyunSahnesi(tur: oyun.type, lang: _lang),
-          onTap: () => Navigator.push(context,
-              MaterialPageRoute(builder: (_) => GamePlayScreen(game: oyun))),
-        ),
-      if (soru != null)
-        _kesfetKarti(
-          renk: const Color(0xFF5E35B1),
-          ust: _t("DEVİ'YE SOR", 'ASK DEVI', 'FRAG DEVI', 'PREGUNTA A DEVI'),
-          baslik: _t('Kodlama asistanın', 'Your coding helper', 'Dein Coding-Helfer', 'Tu ayudante de código'),
-          dugme: _t('Sor', 'Ask', 'Fragen', 'Preguntar'),
-          dugmeSimge: Icons.auto_awesome_rounded,
-          gorsel: DecoratedBox(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF9575CD), Color(0xFF5E35B1)],
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 14, 12, 0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Image.asset(Mascot.durgunGorsel,
-                      width: 84,
-                      errorBuilder: (_, __, ___) => const Icon(
-                          Icons.smart_toy_rounded,
-                          size: 64,
-                          color: Colors.white)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Container(
-                        padding: const EdgeInsets.fromLTRB(12, 9, 12, 10),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(16),
-                            topRight: Radius.circular(16),
-                            bottomRight: Radius.circular(16),
-                            bottomLeft: Radius.circular(4),
-                          ),
-                        ),
-                        child: Text(
-                          soru,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontFamily: AppTheme.fontFamily,
-                            fontSize: 13.5,
-                            height: 1.25,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF4527A0),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (_) => DevAiChatScreen(ilkSoru: soru))),
-        ),
+      // SIRA (Ekim 2026, uygulama sahibinin istegi): gunun bilgisi,
+      // etkinlikler, Devi'ye sor, oyun onerisi. Ustte sandik zaten bir oyun
+      // veriyor; Kesfet'in ilk karti oyun olunca ikisi ayni seyi
+      // soyluyordu.
       _kesfetKarti(
         renk: const Color(0xFFF9A825),
         ust: _t('BİLİYOR MUYDUN?', 'DID YOU KNOW?', 'WUSSTEST DU?', '¿SABÍAS QUE...?'),
@@ -1555,6 +1506,82 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
         onTap: () => Navigator.push(context,
             MaterialPageRoute(builder: (_) => const ActivityHubScreen())),
       ),
+      if (soru != null)
+        _kesfetKarti(
+          renk: const Color(0xFF5E35B1),
+          ust: _t("DEVİ'YE SOR", 'ASK DEVI', 'FRAG DEVI', 'PREGUNTA A DEVI'),
+          baslik: _t('Kodlama asistanın', 'Your coding helper', 'Dein Coding-Helfer', 'Tu ayudante de código'),
+          dugme: _t('Sor', 'Ask', 'Fragen', 'Preguntar'),
+          dugmeSimge: Icons.auto_awesome_rounded,
+          gorsel: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF9575CD), Color(0xFF5E35B1)],
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 14, 12, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Image.asset(Mascot.durgunGorsel,
+                      width: 84,
+                      errorBuilder: (_, __, ___) => const Icon(
+                          Icons.smart_toy_rounded,
+                          size: 64,
+                          color: Colors.white)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(12, 9, 12, 10),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(16),
+                            topRight: Radius.circular(16),
+                            bottomRight: Radius.circular(16),
+                            bottomLeft: Radius.circular(4),
+                          ),
+                        ),
+                        child: Text(
+                          soru,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontFamily: AppTheme.fontFamily,
+                            fontSize: 13.5,
+                            height: 1.25,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF4527A0),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => DevAiChatScreen(ilkSoru: soru))),
+        ),
+      if (oyun != null)
+        _kesfetKarti(
+          renk: OyunKimligi.renk(oyun.type),
+          ust: _t('OYUN ÖNERİSİ', 'GAME PICK', 'SPIELTIPP', 'JUEGO RECOMENDADO'),
+          baslik: oyun.titleFor(_lang),
+          dugme: _t('Oyna', 'Play', 'Spielen', 'Jugar'),
+          gorsel: OyunSahnesi(tur: oyun.type, lang: _lang),
+          // Oyunlar ekraniyla ayni kapi: oneri ileride Pro bir oyun
+          // olursa Pro/reklam kilidi atlanmasin.
+          onTap: () => oyunuAc(context, oyun, lang: _lang),
+        ),
     ];
 
     return Column(

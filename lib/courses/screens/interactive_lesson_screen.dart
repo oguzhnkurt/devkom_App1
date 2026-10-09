@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../ui/ekran_olcusu.dart';
 import '../../widgets/playful_background.dart';
@@ -50,6 +51,15 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
   @override
   void initState() {
     super.initState();
+    // Kurs "baslanmis" sayilsin: ders bitirilmeden cikilsa bile kurs
+    // sayfasi ve ana sayfa artik "basla" degil "kaldigin yerden devam
+    // et" diyor. Saglayicisiz agaclarda (bazi testler) sessizce geciyor.
+    try {
+      unawaited(Provider.of<AuthProvider>(context, listen: false)
+          .kursAcildi(widget.course.id));
+    } on ProviderNotFoundException {
+      // Saglayici yoksa kaydedecek yer de yok.
+    }
     _progressController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -108,12 +118,13 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final totalXp = _earnedXp + widget.lesson.xpReward;
 
-    if (authProvider.isAuthenticated) {
-      // XP + 8 jeton + dersin kimligi tek yerde. Eskiden yalnizca XP ve
-      // jeton veriliyordu, ders "bitti" diye hic yazilmiyordu; kurs
-      // ilerlemesi ve veli raporu bu yuzden sifirda kaliyordu.
-      await authProvider.dersTamamlandi(widget.lesson.id, totalXp);
-    }
+    // XP + 8 jeton + dersin kimligi tek yerde. Eskiden yalnizca XP ve
+    // jeton veriliyordu, ders "bitti" diye hic yazilmiyordu; kurs
+    // ilerlemesi ve veli raporu bu yuzden sifirda kaliyordu.
+    //
+    // Oturum kontrolu YOK: ders once cihaza yaziliyor (oturum henuz
+    // acilmamis olsa bile), sunucu kismini dersTamamlandi kendisi atliyor.
+    await authProvider.dersTamamlandi(widget.lesson.id, totalXp);
 
     // Show completion dialog
     if (mounted) {

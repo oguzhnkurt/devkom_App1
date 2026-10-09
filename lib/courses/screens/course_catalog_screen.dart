@@ -263,12 +263,8 @@ class _CourseCatalogScreenState extends State<CourseCatalogScreen> {
   /// ciziliyor.
   Set<String> get _bitmisDersler {
     try {
-      return context
-              .watch<AuthProvider>()
-              .userProgress
-              ?.completedLessonIds
-              .toSet() ??
-          <String>{};
+      // Sunucu + cihazdaki kalici kayit: ag yokken de ilerleme gorunsun.
+      return context.watch<AuthProvider>().tamamlananDersler;
     } on ProviderNotFoundException {
       return <String>{};
     }

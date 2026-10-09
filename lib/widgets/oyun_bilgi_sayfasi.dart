@@ -111,7 +111,7 @@ class OyunBilgiSayfasi extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _etiket(zorlukEtiketi(game.difficulty, lang), renk),
+                      _etiket(oyunZorlukEtiketi(game, lang), renk),
                       _etiket(kategori, renk),
                       _etiket(_t('Pro oyunu', 'Pro game', 'Pro-Spiel', 'Juego Pro'), renk),
                     ],

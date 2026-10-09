@@ -61,10 +61,9 @@ class _LessonScreenState extends State<LessonScreen> {
 
     // Add XP
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    if (authProvider.isAuthenticated) {
-      // XP + 8 jeton + dersin kimligi (bkz. AuthProvider.dersTamamlandi).
-      await authProvider.dersTamamlandi(widget.lesson.id, widget.lesson.xpReward);
-    }
+    // XP + 8 jeton + dersin kimligi (bkz. AuthProvider.dersTamamlandi).
+    // Oturum yoksa da cagriliyor: ders once cihaza yaziliyor.
+    await authProvider.dersTamamlandi(widget.lesson.id, widget.lesson.xpReward);
 
     // Show completion dialog
     if (mounted) {

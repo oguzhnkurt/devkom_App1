@@ -255,10 +255,19 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen> {
   Widget _aramaSonuclari(List<GameModel> games) {
     games.sort(_kolaydanZora);
     return ListView(
-      padding: const EdgeInsets.fromLTRB(0, 18, 0, 28),
+      padding: EdgeInsets.fromLTRB(0, 18, 0, _altBosluk),
       children: [_izgara(games)],
     );
   }
+
+  /// Listenin alt boslugu: 28 piksel nefes payi + cam cubugun yuksekligi.
+  ///
+  /// Bu ekran sekme govdesi olarak `extendBody: true` veren bir
+  /// Scaffold'un icinde: govde cam cubugun ARKASINA uzaniyor ve Flutter
+  /// cubugun yuksekligini `MediaQuery.padding.bottom`'a ekliyor. Sabit 28
+  /// piksel yetmiyordu; en alttaki kart (Satranc) sonuna kadar
+  /// kaydirildiginda bile zorluk yazisi cubugun altinda kaliyordu.
+  double get _altBosluk => 28 + MediaQuery.paddingOf(context).bottom;
 
   /// Kolaydan zora; esitse ucretsiz oyun once, sonra ada gore.
   static int _kolaydanZora(GameModel a, GameModel b) {
@@ -288,7 +297,7 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen> {
     final oneri = _seninIcin(games);
 
     return ListView(
-      padding: const EdgeInsets.only(bottom: 28),
+      padding: EdgeInsets.only(bottom: _altBosluk),
       children: [
         const SizedBox(height: 14),
         // Filtre cipleri (yana kayan tek satir).
@@ -320,7 +329,7 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen> {
               child: _GununGoreviKarti(
                 game: oneri.game,
                 lang: _lang,
-                onTap: () => _openGame(oneri.game, ProGames.isProGame(oneri.game.type)),
+                onTap: () => _openGame(oneri.game),
               ),
             ),
           ),
@@ -442,7 +451,7 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen> {
       lang: _lang,
       genislik: genislik,
       isProLocked: locked,
-      onTap: () => _openGame(game, needsPro),
+      onTap: () => _openGame(game),
     );
   }
 
@@ -480,37 +489,8 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen> {
     return (game: aday[gun % aday.length], kursAdi: kursAdi);
   }
 
-  Future<void> _openGame(GameModel game, bool needsPro) async {
-    if (needsPro) {
-      // Kilitli oyunda iki yol var: Pro almak ya da bir reklam izleyip
-      // TEK TUR oynamak. Tek tur bilerek: cocuk oyunu gercekten gorsun
-      // diye, ama oyun reklamla sinirsiz acilmasin diye.
-      final sonuc = await ProGate.ensureOrAd(
-        context,
-        featureName: game.title,
-        reklamEtiketi: (lang) => AppLang.pick(
-          lang,
-          tr: 'Reklam izle, bir tur oyna',
-          en: 'Watch an ad, play one round',
-          de: 'Werbung ansehen, eine Runde spielen',
-          es: 'Ver un anuncio y jugar una ronda',
-        ),
-        // Oyunun kendi kapagiyla acilan bilgi sayfasi.
-        sayfa: (_, reklamVar) => OyunBilgiSayfasi(
-          game: game,
-          lang: _lang,
-          reklamVar: reklamVar,
-          kategori: _Kategoriler.oyununKategorisi(game.type)?.ad(_lang) ?? '',
-        ),
-      );
-      if (sonuc == ProUnlock.kapali || !mounted) return;
-    }
-    if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => GamePlayScreen(game: game)),
-    );
-  }
+  Future<void> _openGame(GameModel game) =>
+      oyunuAc(context, game, lang: _lang);
 
   Widget _buildEmptyState() {
     return Center(
@@ -644,6 +624,45 @@ class _RoboticsGamesScreenState extends State<RoboticsGamesScreen> {
       ),
     );
   }
+}
+
+/// Bir oyunu acar; Pro oyunda once Pro/reklam kapisindan gecirir.
+///
+/// Tek yerde duruyor cunku oyun yalnizca bu ekrandan acilmiyor: ana
+/// sayfadaki surpriz sandik ve "Kesfet" oyun onerisi de buraya geliyor.
+/// Her giris kendi kapisini yazsaydi biri er gec reklami ya da Pro
+/// kilidini atlardi.
+Future<void> oyunuAc(BuildContext context, GameModel game,
+    {required String lang}) async {
+  if (ProGames.isProGame(game.type)) {
+    // Kilitli oyunda iki yol var: Pro almak ya da bir reklam izleyip
+    // TEK TUR oynamak. Tek tur bilerek: cocuk oyunu gercekten gorsun
+    // diye, ama oyun reklamla sinirsiz acilmasin diye.
+    final sonuc = await ProGate.ensureOrAd(
+      context,
+      featureName: game.title,
+      reklamEtiketi: (dil) => AppLang.pick(
+        dil,
+        tr: 'Reklam izle, bir tur oyna',
+        en: 'Watch an ad, play one round',
+        de: 'Werbung ansehen, eine Runde spielen',
+        es: 'Ver un anuncio y jugar una ronda',
+      ),
+      // Oyunun kendi kapagiyla acilan bilgi sayfasi.
+      sayfa: (_, reklamVar) => OyunBilgiSayfasi(
+        game: game,
+        lang: lang,
+        reklamVar: reklamVar,
+        kategori: _Kategoriler.oyununKategorisi(game.type)?.ad(lang) ?? '',
+      ),
+    );
+    if (sonuc == ProUnlock.kapali || !context.mounted) return;
+  }
+  if (!context.mounted) return;
+  await Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => GamePlayScreen(game: game)),
+  );
 }
 
 /// Başlıktaki yuvarlak avatar: maskot.
@@ -1061,7 +1080,7 @@ class _OyunKarti extends StatelessWidget {
                       borderRadius: BorderRadius.circular(9),
                     ),
                     child: Text(
-                      zorlukEtiketi(game.difficulty, lang),
+                      oyunZorlukEtiketi(game, lang),
                       style: TextStyle(
                         fontFamily: AppTheme.fontFamily,
                         fontSize: 11.5,
@@ -1160,6 +1179,16 @@ class ProGames {
   };
 
   static bool isProGame(GameType type) => !free.contains(type);
+
+  /// Reklamla bile acilmayan, YALNIZCA Pro oyunlar. Bugun bos: kilitli her
+  /// oyun bilgi sayfasinda "reklam izle, bir tur oyna" secenegi sunuyor.
+  /// Bir oyun buraya eklenirse surpriz sandik onu Pro olmayana cikarmaz
+  /// (sandigin sonu acilamayan bir kilit olmasin diye).
+  static const Set<GameType> yalnizPro = {};
+
+  /// Pro olmayan cocuk bu oyunu odullu reklamla bir tur oynayabilir mi?
+  static bool reklamlaAcilabilir(GameType type) =>
+      isProGame(type) && !yalnizPro.contains(type);
 
   /// Pro'nun açtığı oyun sayısı — paywall'da yazan rakam buradan geliyor.
   ///

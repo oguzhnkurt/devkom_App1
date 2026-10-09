@@ -30,7 +30,7 @@ class EmbeddedGamesService {
         isActive: true,
         createdAt: now,
         gameData: {
-          'difficulties': ['beginner', 'intermediate', 'advanced'],
+          'difficulties': ['beginner', 'intermediate', 'advanced', 'impossible'],
           'hasAI': true,
           'description': 'AI ile satranç oynama',
           'imageUrl': 'https://images.unsplash.com/photo-1586165368502-1bad197a6461?w=800',

@@ -74,7 +74,10 @@ void main() {
   });
 
   test('yol ilerlemesi GERCEK veriden geliyor', () {
-    expect(src.contains('completedLessonIds'), isTrue,
+    // `tamamlananDersler`: sunucu listesi + cihazdaki kalici kayit.
+    // Yalnizca sunucu listesi (completedLessonIds) okununca ag yokken
+    // ilerleme sifir gorunuyordu.
+    expect(src.contains('tamamlananDersler'), isTrue,
         reason: 'Ilerleme gercek tamamlanan derslerden okunmuyor.');
     // Uydurma bir "ustalik yuzdesi" yazilmamali: ekranda yalnizca
     // bitirilen/toplam ders sayisi var.

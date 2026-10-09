@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import '../models/game_model.dart';
 import '../screens/robotics_games_screen.dart' show ProGames;
+import '../services/ads_service.dart';
 import '../services/embedded_games_service.dart';
 import '../theme.dart';
 import '../utils/lang.dart';
@@ -19,15 +20,47 @@ import 'oyun_sahnesi.dart';
 /// donup yavaslıyor ve bir oyunda duruyor. "Oyna" o oyunu aciyor,
 /// "Tekrar" yeniden karistiriyor.
 ///
-/// Yalnizca UCRETSIZ oyunlar cikiyor: surprizin sonu bir kilit olursa
-/// odul degil hayal kirikligi olur.
+/// HAVUZ (Ekim 2026): ucretsiz oyunlar + odullu reklamla bir tur
+/// oynanabilen Pro oyunlar. Eskiden yalnizca ucretsizler vardi ve sandik
+/// hep ayni alti oyunu cikariyordu. Reklamli oyun cikarsa "Oyna" onu
+/// Oyunlar ekranindaki ayni kapidan (`oyunuAc` -> bilgi sayfasi -> reklam)
+/// geciriyor; sandik kilidi atlamiyor. Kapakta "Reklamla" rozeti var ki
+/// cocuk videoyu surpriz diye karsilamasin.
+///
+/// Surprizin sonu ACILAMAYAN bir kilit olmamali: reklam hakki yoksa
+/// (gunluk sinir dolu, platform desteklemiyor) ya da oyun yalnizca Pro
+/// ise Pro olmayan cocuga o oyun cikmiyor.
 ///
 /// Hareketi azalt aciksa karistirma animasyonu yok; oyun dogrudan secilir.
 class SurprizSandik extends StatefulWidget {
-  const SurprizSandik({super.key, required this.lang, required this.onOyna});
+  const SurprizSandik({
+    super.key,
+    required this.lang,
+    required this.onOyna,
+    this.pro = false,
+    this.reklamSorgusu,
+  });
 
   final String lang;
   final ValueChanged<GameModel> onOyna;
+
+  /// Cocuk Pro mu? Pro ise butun oyunlar havuzda ve reklam yok.
+  final bool pro;
+
+  /// "Odullu reklam su an izlenebilir mi?" sorusu. Verilmezse
+  /// `AdsService`'e soruluyor; testler reklam servisini baslatmadan
+  /// reklamli havuzu deneyebilsin diye disaridan verilebiliyor.
+  final Future<bool> Function()? reklamSorgusu;
+
+  /// Sandigin cikarabilecegi oyunlar.
+  ///
+  /// [reklamVar]: odullu reklam su an izlenebilir mi. Degilse kilitli
+  /// oyun cikarmak cocugu acilamayan bir kapiya goturmek olur.
+  static List<GameModel> havuz({required bool pro, required bool reklamVar}) =>
+      EmbeddedGamesService.getAllEmbeddedGames().where((g) {
+        if (pro || !ProGames.isProGame(g.type)) return true;
+        return reklamVar && ProGames.reklamlaAcilabilir(g.type);
+      }).toList();
 
   @override
   State<SurprizSandik> createState() => _SurprizSandikState();
@@ -38,9 +71,11 @@ enum _Durum { kapali, karisiyor, acik }
 class _SurprizSandikState extends State<SurprizSandik>
     with SingleTickerProviderStateMixin {
   final _r = math.Random();
-  late final List<GameModel> _oyunlar = EmbeddedGamesService.getAllEmbeddedGames()
-      .where((g) => !ProGames.isProGame(g.type))
-      .toList();
+  /// Reklam hakki ogrenilene kadar yalnizca ucretsizler (ve Pro ise hepsi).
+  late List<GameModel> _oyunlar =
+      SurprizSandik.havuz(pro: widget.pro, reklamVar: false);
+  bool _reklamVar = false;
+  bool _soruluyor = false;
 
   late final AnimationController _salla = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 520));
@@ -54,6 +89,46 @@ class _SurprizSandikState extends State<SurprizSandik>
       AppLang.pick(widget.lang, tr: tr, en: en, de: de, es: es);
 
   @override
+  void initState() {
+    super.initState();
+    _reklamSor();
+  }
+
+  @override
+  void didUpdateWidget(covariant SurprizSandik eski) {
+    super.didUpdateWidget(eski);
+    if (eski.pro != widget.pro) _havuzuYenile();
+  }
+
+  /// Odullu reklam su an izlenebilir mi? Reklam servisi hic baslamamissa
+  /// (test, masaustu) false doner; sandik yalnizca ucretsizlerle calisir.
+  Future<void> _reklamSor() async {
+    bool izlenebilir;
+    try {
+      izlenebilir = await (widget.reklamSorgusu ??
+          AdsService.instance.canWatchRewarded)();
+    } catch (_) {
+      izlenebilir = false;
+    }
+    if (!mounted || izlenebilir == _reklamVar) return;
+    _reklamVar = izlenebilir;
+    _havuzuYenile();
+  }
+
+  /// Havuz yalnizca sandik kapaliyken degisir: karisirken ya da sonuc
+  /// gosterilirken indeksler eski listeye bakiyor.
+  void _havuzuYenile() {
+    if (_durum != _Durum.kapali) return;
+    setState(() {
+      _oyunlar = SurprizSandik.havuz(pro: widget.pro, reklamVar: _reklamVar);
+      _gosterilen = 0;
+    });
+  }
+
+  /// Bu oyun icin reklam izlenecek mi (rozet ve dugme simgesi icin)?
+  bool _reklamli(GameModel g) => !widget.pro && ProGames.isProGame(g.type);
+
+  @override
   void dispose() {
     _zamanlayici?.cancel();
     _salla.dispose();
@@ -61,7 +136,14 @@ class _SurprizSandikState extends State<SurprizSandik>
   }
 
   Future<void> _karistir() async {
-    if (_oyunlar.isEmpty || _durum == _Durum.karisiyor) return;
+    if (_durum == _Durum.karisiyor || _soruluyor) return;
+    // Gunluk reklam hakki sandik acikken dolmus olabilir; her
+    // karistirmadan once havuz tazeleniyor. Bayrak: soru surerken ikinci
+    // dokunus ikinci bir karistirma baslatmasin.
+    _soruluyor = true;
+    await _reklamSor();
+    _soruluyor = false;
+    if (!mounted || _oyunlar.isEmpty || _durum == _Durum.karisiyor) return;
     final hedef = _r.nextInt(_oyunlar.length);
     final azHareket = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     if (azHareket) {
@@ -194,7 +276,41 @@ class _SurprizSandikState extends State<SurprizSandik>
         ),
         child: SizedBox.expand(
           key: ValueKey(_gosterilen),
-          child: OyunSahnesi(tur: g.type, lang: widget.lang),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              OyunSahnesi(tur: g.type, lang: widget.lang),
+              // Oyunlar ekranindaki kartla ayni rozet: bu oyun bir
+              // videoyla aciliyor.
+              if (_reklamli(g))
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(4, 2, 7, 2),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.45),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.play_arrow_rounded, size: 13, color: Colors.white),
+                        Text(
+                          _t('Reklamla', 'With ad', 'Mit Werbung', 'Con anuncio'),
+                          style: const TextStyle(
+                            fontFamily: AppTheme.fontFamily,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -257,7 +373,10 @@ class _SurprizSandikState extends State<SurprizSandik>
             const SizedBox(height: 10),
             Row(
               children: [
-                _hap(Icons.play_arrow_rounded, _t('Oyna', 'Play', 'Spielen', 'Jugar'), koyu,
+                _hap(
+                    _reklamli(g) ? Icons.smart_display_rounded : Icons.play_arrow_rounded,
+                    _t('Oyna', 'Play', 'Spielen', 'Jugar'),
+                    koyu,
                     () => widget.onOyna(g)),
                 const SizedBox(width: 8),
                 GestureDetector(

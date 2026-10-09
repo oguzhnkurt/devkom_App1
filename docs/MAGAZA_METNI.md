@@ -236,6 +236,61 @@ buy anything.
 `çocuklar için kodlama` ve `coding for kids` çıkarıldı — yukarıdaki
 kurala giriyor.
 
+## "What's New in This Version" — 1.0.12
+
+Aşağıdaki metin **1.0.12 (build 18)** içindir. İçerik (9 Ekim 2026): satranç
+dört seviye (Kolay/Orta/Zor/İmkânsız) ve dört tahta teması, Keşfet sırası,
+sürpriz sandıkta reklamla açılan oyunlar, Boru Bulmacası / Koordinat
+Macerası / Bilgi Yarışması yenilendi, kurslarda "Kaldığın yerden devam et".
+
+### tr
+
+• Satranç yenilendi: Kolay, Orta, Zor ve İmkânsız olmak üzere dört seviye. Tahtanı dört tema arasından seç; seçimin hatırlanır.
+
+• Kaldığın yerden devam et: kurslarda bitirdiğin dersler telefonunda saklanır, buton seni ilk bitmemiş derse götürür.
+
+• Boru Bulmacası, Koordinat Macerası ve Bilgi Yarışması baştan tasarlandı: daha renkli, daha anlaşılır, yeni kutlamalarla.
+
+• Sürpriz sandıktan artık reklamla açılan oyunlar da çıkabilir.
+
+• Keşfet kartları yeniden sıralandı, hata düzeltmeleri ve iyileştirmeler.
+
+### en
+
+• Chess is new: four levels, Easy, Medium, Hard and Impossible. Pick from four board themes; your choice is remembered.
+
+• Continue where you left off: finished lessons are saved on your phone and the button takes you to your next unfinished lesson.
+
+• Pipes Puzzle, Coordinate Adventure and the Quiz Show have been redesigned: more colorful, clearer, with new celebrations.
+
+• The surprise chest can now also pick games you unlock by watching an ad.
+
+• Explore cards reordered, plus fixes and improvements.
+
+### de
+
+• Schach ist neu: vier Stufen, Leicht, Mittel, Schwer und Unmöglich. Wähle aus vier Brett-Designs; deine Wahl wird gespeichert.
+
+• Weiter, wo du aufgehört hast: Fertige Lektionen werden auf deinem Handy gespeichert, und der Knopf bringt dich zur nächsten offenen Lektion.
+
+• Rohr-Rätsel, Koordinaten-Abenteuer und das Quiz wurden neu gestaltet: bunter, klarer und mit neuen Feiern.
+
+• Die Überraschungstruhe kann jetzt auch Spiele wählen, die du mit einem Werbevideo freischaltest.
+
+• Entdecken-Karten neu sortiert, Fehlerbehebungen und Verbesserungen.
+
+### es
+
+• El ajedrez se renueva: cuatro niveles, Fácil, Medio, Difícil e Imposible. Elige entre cuatro temas de tablero; tu elección se recuerda.
+
+• Continúa donde lo dejaste: las lecciones terminadas se guardan en tu teléfono y el botón te lleva a la siguiente lección pendiente.
+
+• Tuberías, Aventura de coordenadas y el Concurso de preguntas tienen nuevo diseño: más color, más claridad y nuevas celebraciones.
+
+• El cofre sorpresa ahora también puede elegir juegos que se desbloquean viendo un anuncio.
+
+• Tarjetas Explorar reordenadas, correcciones y mejoras.
+
 ## "What's New in This Version" — 1.0.11
 
 1.0.10 (build 16) 4 Ekim 2026'da incelemeye gitti (Meta SDK, gizlilik

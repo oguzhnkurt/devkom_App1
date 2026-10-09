@@ -153,7 +153,9 @@ void main() {
       // Yildiz yok (cocuk "kazandigim yildiz" sandi), zorluk yaziyla.
       expect(kaynak.contains('class _Yildizlar'), isFalse,
           reason: 'Yildizlar geri gelmis.');
-      expect(kaynak.contains('zorlukEtiketi('), isTrue,
+      // `oyunZorlukEtiketi`: satrancta tek zorluk yerine seviye araligi
+      // (Kolay – Imkansiz) yaziyor, diger oyunlarda Kolay/Orta/Zor.
+      expect(kaynak.contains('oyunZorlukEtiketi('), isTrue,
           reason: 'Kartta Kolay/Orta/Zor yazmiyor.');
       // Tac yok; Pro oyun kapaktaki "Reklamla" etiketi ve bilgi sayfasiyla
       // anlatiliyor.

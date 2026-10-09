@@ -22,6 +22,7 @@ import 'package:provider/provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../services/sound_service.dart';
 import '../../utils/lang.dart';
+import '../../widgets/temali_satranc_tahtasi.dart';
 
 class ChessGameScreen extends StatefulWidget {
   final ChessDifficulty? initialDifficulty;
@@ -54,7 +55,8 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
   GameResult _gameResult = GameResult.ongoing;
   bool _isGameStarted = false;
   bool _isAIThinking = false;
-  BoardColor _selectedBoardColor = BoardColor.brown;
+  /// Tahta temasi; oyuncunun son secimi hatirlaniyor.
+  SatrancTemasi _tema = SatrancTemasi.devMavi;
 
   // Game data
   String? _gameId;
@@ -105,6 +107,9 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     _selectedDifficulty = widget.initialDifficulty;
     _boardController = ChessBoardController();
     _loadUserData();
+    SatrancTemasi.kayitli().then((t) {
+      if (mounted) setState(() => _tema = t);
+    });
 
     if (_selectedDifficulty != null) {
       // ILK KAREDEN SONRA: _startGame() showDialog ve ScaffoldMessenger
@@ -458,11 +463,12 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
   int get _puan {
     const baseScore = 1000;
     final timeBonus = (_elapsedSeconds > 0) ? (3600 ~/ _elapsedSeconds) : 0;
-    final difficultyMultiplier = _selectedDifficulty == ChessDifficulty.advanced
-        ? 3
-        : _selectedDifficulty == ChessDifficulty.intermediate
-            ? 2
-            : 1;
+    final difficultyMultiplier = switch (_selectedDifficulty) {
+      ChessDifficulty.impossible => 4,
+      ChessDifficulty.advanced => 3,
+      ChessDifficulty.intermediate => 2,
+      _ => 1,
+    };
     return (baseScore + timeBonus) * difficultyMultiplier;
   }
 
@@ -892,11 +898,8 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                   ),
             ),
             const SizedBox(height: 40),
-            ...[
-              ChessDifficulty.beginner,
-              ChessDifficulty.intermediate,
-              ChessDifficulty.advanced,
-            ].map((difficulty) => _buildDifficultyCard(difficulty)).toList(),
+            // Dort seviye: Kolay · Orta · Zor · Imkansiz (enum sirasiyla).
+            ...ChessDifficulty.values.map(_buildDifficultyCard),
           ],
         ),
       ),
@@ -917,8 +920,12 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
         icon = Icons.sports;
         break;
       case ChessDifficulty.advanced:
-        cardColor = AppTheme.errorRed;
+        cardColor = AppTheme.warningOrange;
         icon = Icons.military_tech_rounded;
+        break;
+      case ChessDifficulty.impossible:
+        cardColor = AppTheme.errorRed;
+        icon = Icons.local_fire_department_rounded;
         break;
     }
 
@@ -1094,10 +1101,9 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                                       behavior: HitTestBehavior.opaque,
                                       onTapUp: (d) => _kareyeDokunuldu(
                                           _kare(d.localPosition, maxWidth)),
-                                      child: ChessBoard(
+                                      child: TemaliSatrancTahtasi(
                                         controller: _boardController,
-                                        boardColor: _selectedBoardColor,
-                                        boardOrientation: PlayerColor.white,
+                                        tema: _tema,
                                         onMove: _onMove,
                                         enableUserMoves: _cocukOynayabilir,
                                       ),
@@ -1250,15 +1256,13 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                // IKI TAHTA YETER (Ekim 2026): dort secenekten ikisi
-                // (koyu kahverengi, turuncu) birbirine cok benziyordu.
-                _buildThemeOption(
-                    BoardColor.brown,
-                    _tl('Klasik', 'Classic', 'Klassisch', 'Clásico'),
-                    setDialogState),
-                const SizedBox(height: 12),
-                _buildThemeOption(BoardColor.green, _tl('Yeşil', 'Green', 'Grün', 'Verde'),
-                    setDialogState),
+                // DORT TEMA (Ekim 2026): tahta artik resim degil boyama
+                // (bkz. temali_satranc_tahtasi.dart); oyuncu birbirinden
+                // net ayrilan dort renk arasindan seciyor, secim hatirlaniyor.
+                for (final t in SatrancTemasi.values) ...[
+                  _buildThemeOption(t, setDialogState),
+                  if (t != SatrancTemasi.values.last) const SizedBox(height: 12),
+                ],
                 const SizedBox(height: 32),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1271,7 +1275,10 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(true),
+                      onPressed: () {
+                        _tema.kaydet();
+                        Navigator.of(context).pop(true);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.successGreen,
                         padding: const EdgeInsets.symmetric(
@@ -1295,102 +1302,66 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     );
   }
 
-  Widget _buildThemeOption(
-      BoardColor color, String name, StateSetter setDialogState) {
-    final isSelected = _selectedBoardColor == color;
+  Widget _buildThemeOption(SatrancTemasi tema, StateSetter setDialogState) {
+    final isSelected = _tema == tema;
     return InkWell(
+      borderRadius: BorderRadius.circular(14),
       onTap: () {
-        setState(() {
-          _selectedBoardColor = color;
-        });
-        setDialogState(() {
-          _selectedBoardColor = color;
-        });
+        setState(() => _tema = tema);
+        setDialogState(() {});
       },
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
+          color: isSelected ? tema.acik.withValues(alpha: 0.6) : null,
           border: Border.all(
-            color: isSelected ? AppTheme.primaryBlue : Colors.grey,
+            color: isSelected ? tema.vurgu : Colors.grey.shade300,
             width: isSelected ? 3 : 1,
           ),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
           children: [
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: _buildThemePreview(color),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: SizedBox(
+                  width: 56, height: 56, child: _buildThemePreview(tema)),
             ),
             const SizedBox(width: 16),
-            Text(
-              name,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            Expanded(
+              child: Text(
+                tema.adi(_lang),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                ),
               ),
             ),
+            if (isSelected) Icon(Icons.check_circle_rounded, color: tema.vurgu),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildThemePreview(BoardColor color) {
-    // Create a mini chess board preview
-    final lightColor = _getLightSquareColor(color);
-    final darkColor = _getDarkSquareColor(color);
-
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            children: [
-              Expanded(child: Container(color: lightColor)),
-              Expanded(child: Container(color: darkColor)),
-            ],
+  /// 4x4 kucuk tahta onizlemesi.
+  Widget _buildThemePreview(SatrancTemasi tema) {
+    return Column(
+      children: List.generate(
+        4,
+        (r) => Expanded(
+          child: Row(
+            children: List.generate(
+              4,
+              (c) => Expanded(
+                child: Container(
+                    color: (r + c).isEven ? tema.acik : tema.koyu),
+              ),
+            ),
           ),
         ),
-        Expanded(
-          child: Column(
-            children: [
-              Expanded(child: Container(color: darkColor)),
-              Expanded(child: Container(color: lightColor)),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
-  }
-
-  ui.Color _getLightSquareColor(BoardColor color) {
-    switch (color) {
-      case BoardColor.brown:
-        return const ui.Color(0xFFF0D9B5);
-      case BoardColor.darkBrown:
-        return const ui.Color(0xFFB58863);
-      case BoardColor.orange:
-        return const ui.Color(0xFFFFCE9E);
-      case BoardColor.green:
-        return const ui.Color(0xFFEEEED2);
-    }
-  }
-
-  ui.Color _getDarkSquareColor(BoardColor color) {
-    switch (color) {
-      case BoardColor.brown:
-        return const ui.Color(0xFFB58863);
-      case BoardColor.darkBrown:
-        return const ui.Color(0xFF7D4E2A);
-      case BoardColor.orange:
-        return const ui.Color(0xFFD18B47);
-      case BoardColor.green:
-        return const ui.Color(0xFF769656);
-    }
   }
 
   Future<void> _showResetConfirmation() async {

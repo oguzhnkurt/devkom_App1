@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../models/chess_game_model.dart';
 import '../models/game_model.dart';
 import '../theme.dart';
 import '../utils/lang.dart';
@@ -883,6 +884,22 @@ String zorlukEtiketi(int difficulty, String lang) {
     return AppLang.pick(lang, tr: 'Orta', en: 'Medium', de: 'Mittel', es: 'Medio');
   }
   return AppLang.pick(lang, tr: 'Zor', en: 'Hard', de: 'Schwer', es: 'Difícil');
+}
+
+/// Kartta yazan zorluk.
+///
+/// Satrancin tek bir zorlugu yok: cocuk Kolay'dan Imkansiz'a seviyesini
+/// kendisi seciyor. Katalogdaki `difficulty: 3` yalnizca siralama icin
+/// (satranc listenin sonunda); kartta "Zor" yazmasi oyunun hep zor
+/// oldugunu soyluyordu. Ad listesi satrancin kendi seviyelerinden
+/// okunuyor ki seviyeler degisince bu yazi geride kalmasin.
+String oyunZorlukEtiketi(GameModel game, String lang) {
+  if (game.type == GameType.chess) {
+    final ilk = ChessDifficulty.values.first.displayNameFor(lang);
+    final son = ChessDifficulty.values.last.displayNameFor(lang);
+    return '$ilk – $son';
+  }
+  return zorlukEtiketi(game.difficulty, lang);
 }
 
 /// Oyunun bir cumlelik daveti (Gunun Gorevi karti icin). Aciklama metni

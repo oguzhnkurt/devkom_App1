@@ -12,6 +12,7 @@ import '../utils/nickname_generator.dart';
 import '../services/app_auth_exception.dart';
 import '../services/subscription_service.dart';
 import '../services/user_progress_service.dart';
+import '../services/ders_ilerleme_deposu.dart';
 import '../services/local_notification_service.dart';
 import '../main.dart';
 import '../services/ads_service.dart';
@@ -28,6 +29,14 @@ class AuthProvider extends ChangeNotifier {
   String? _errorMessage;
   bool _onboardingCompleted = false;
 
+  /// Cihazda kalici tutulan ders ilerlemesi (bkz. [DersIlerlemeDeposu]).
+  /// Acilista agdan BAGIMSIZ olarak yukleniyor; sunucu yanit vermese de
+  /// cocugun kaldigi yer kaybolmasin.
+  Set<String> _yerelTamamlanan = <String>{};
+  Set<String> _baslananKurslar = <String>{};
+  String? _sonKurs;
+  late final Future<void> _yerelHazir = _yerelIlerlemeyiYukle();
+
   // Getters
   UserModel? get currentUser => _currentUser;
   UserProgress? get userProgress => _userProgress;
@@ -42,6 +51,22 @@ class AuthProvider extends ChangeNotifier {
       supabase.auth.currentUser?.isAnonymous ?? false;
   bool get isOnboardingCompleted => _onboardingCompleted;
 
+  /// Bitirilen derslerin TAMAMI: sunucudan gelen liste + cihazdaki kayit.
+  ///
+  /// Ekranlar `userProgress.completedLessonIds` yerine bunu okumali:
+  /// o liste yalnizca sunucudan geliyor ve ag yokken ya da oturum
+  /// henuz acilmamisken bos kaliyor.
+  Set<String> get tamamlananDersler => {
+        ...?_userProgress?.completedLessonIds,
+        ..._yerelTamamlanan,
+      };
+
+  /// Bir dersi en az bir kez acilmis kurslar.
+  Set<String> get baslananKurslar => Set.unmodifiable(_baslananKurslar);
+
+  /// En son ders acilan kurs (ana sayfadaki "kaldigin yer" icin).
+  String? get sonKurs => _sonKurs;
+
   // Check if user has specific role
   bool hasRole(UserRole role) {
     return _currentUser?.role == role;
@@ -53,9 +78,35 @@ class AuthProvider extends ChangeNotifier {
   }
 
   AuthProvider() {
+    unawaited(_yerelHazir);
     _initializeAuthListener();
     _loadOnboardingState();
     _bootstrap();
+  }
+
+  Future<void> _yerelIlerlemeyiYukle() async {
+    final tamam = await DersIlerlemeDeposu.tamamlananlar();
+    final baslanan = await DersIlerlemeDeposu.baslananKurslar();
+    final son = await DersIlerlemeDeposu.sonKurs();
+    // Yukleme sirasinda yapilan kayitlar (ders bitti, kurs acildi)
+    // ezilmesin diye birlestiriyoruz, uzerine yazmiyoruz.
+    _yerelTamamlanan = {..._yerelTamamlanan, ...tamam};
+    _baslananKurslar = {..._baslananKurslar, ...baslanan};
+    _sonKurs ??= son;
+    notifyListeners();
+  }
+
+  /// Bir kursun dersi acildi. Ders ekrani aciliste cagiriyor; boylece
+  /// hangi yoldan gelinirse gelinsin (ana sayfa, kurs sayfasi, yol
+  /// seridi) kurs "baslanmis" sayiliyor.
+  Future<void> kursAcildi(String courseId) async {
+    final yeniMi = !_baslananKurslar.contains(courseId) || _sonKurs != courseId;
+    _baslananKurslar = {..._baslananKurslar, courseId};
+    _sonKurs = courseId;
+    // Bildirim kayittan SONRA: ders ekrani bunu initState'te cagiriyor ve
+    // ayni karede bildirim "build sirasinda setState" hatasi veriyordu.
+    await DersIlerlemeDeposu.kursAcildi(courseId);
+    if (yeniMi) notifyListeners();
   }
 
   // Load onboarding state from shared preferences
@@ -318,12 +369,42 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       _userProgress = await _progressService.loadUserProgress(_currentUser!.uid);
+      await _ilerlemeleriEsitle();
       debugPrint('User progress loaded: Level ${_userProgress?.level}, XP ${_userProgress?.totalXP}');
     } catch (e) {
       debugPrint('Failed to load user progress: $e');
       // Create initial progress if doesn't exist
       _userProgress = UserProgress.empty(_currentUser!.uid);
     }
+  }
+
+  /// Sunucu ve cihaz listesini iki yonde esitler.
+  ///
+  /// Sunucudakiler cihaza yaziliyor: ertesi gun ag olmasa da kurs
+  /// sayfasi dogru dersi gostersin. Cihazdakiler sunucuya yaziliyor:
+  /// cevrimdisi bitirilen ders kaybolmasin.
+  Future<void> _ilerlemeleriEsitle() async {
+    await _yerelHazir;
+    final sunucu = _userProgress?.completedLessonIds ?? const <String>[];
+    if (sunucu.isNotEmpty) {
+      _yerelTamamlanan = {..._yerelTamamlanan, ...sunucu};
+      await DersIlerlemeDeposu.tamamlananlariEkle(sunucu);
+    }
+    final user = _currentUser;
+    if (user != null && _userProgress != null) {
+      await _progressService.yerelDerslerleBirlestir(
+          user.uid, _yerelTamamlanan);
+      _userProgress = _progressService.currentProgress ?? _userProgress;
+    }
+  }
+
+  /// Cikista cihazdaki ders ilerlemesi de siliniyor; ayni cihazda acilan
+  /// baska bir hesap onceki cocugun kaldigi yeri devralmasin.
+  Future<void> _yerelIlerlemeyiSil() async {
+    _yerelTamamlanan = <String>{};
+    _baslananKurslar = <String>{};
+    _sonKurs = null;
+    await DersIlerlemeDeposu.temizle();
   }
 
   // Setup notifications for authenticated user
@@ -454,6 +535,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> deleteAccount() async {
     try {
       await _authService.deleteAccount();
+      await _yerelIlerlemeyiSil();
       _currentUser = null;
       _userProgress = null;
       _errorMessage = null;
@@ -476,6 +558,7 @@ class AuthProvider extends ChangeNotifier {
 
       await _authService.signOut();
       await Adapty().logout().catchError((e) => debugPrint('⚠️ Adapty logout error: $e'));
+      await _yerelIlerlemeyiSil();
 
       // Clear user data
       _currentUser = null;
@@ -572,9 +655,18 @@ class AuthProvider extends ChangeNotifier {
 
   /// Bir interaktif dersin bittigini kaydeder: XP, 8 jeton ve dersin
   /// kimligi (`completed_lesson_ids`). Bkz. [UserProgressService.dersiKaydet].
+  ///
+  /// Ders ONCE cihaza yaziliyor, sonra sunucuya. Oturum yoksa ya da
+  /// sunucu hata verirse de ders bitmis sayiliyor; kurs sayfasi ertesi
+  /// gun dogru dersten devam ettiriyor.
   Future<bool> dersTamamlandi(String lessonId, int xp) async {
+    final yerelYeni = !tamamlananDersler.contains(lessonId);
+    _yerelTamamlanan = {..._yerelTamamlanan, lessonId};
+    notifyListeners();
+    await DersIlerlemeDeposu.dersTamamlandi(lessonId);
+
     final user = _currentUser;
-    if (user == null) return false;
+    if (user == null) return yerelYeni;
     final yeni = await _progressService.dersiKaydet(user.uid, lessonId, xp);
     _userProgress = _progressService.currentProgress ?? _userProgress;
     notifyListeners();

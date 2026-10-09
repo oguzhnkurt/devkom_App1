@@ -73,10 +73,27 @@ void main() {
     expect(s.contains('onTapUp: (d) => _kareyeDokunuldu('), isTrue);
   });
 
-  test('iki tahta secenegi', () {
+  test('dort tahta temasi, tahta resim degil boyama', () {
+    // Paket tahtayi dort hazir resimden ciziyordu; yeni renk eklenemiyordu.
     final s = File(ekran).readAsStringSync();
-    expect(RegExp(r'_buildThemeOption\(\s*BoardColor\.').allMatches(s).length,
-        2);
+    expect(s.contains('for (final t in SatrancTemasi.values)'), isTrue);
+    expect(s.contains('TemaliSatrancTahtasi('), isTrue);
+    expect(s.contains('ChessBoard('), isFalse,
+        reason: 'Paketin resimli tahtasi yerine temali tahta kullaniliyor.');
+    expect(s.contains('_tema.kaydet()'), isTrue,
+        reason: 'Secilen tema bir dahaki oyunda hatirlanmali.');
+  });
+
+  test('dort seviye: Kolay, Orta, Zor, Imkansiz', () {
+    final s = File(ekran).readAsStringSync();
+    expect(s.contains('ChessDifficulty.values.map(_buildDifficultyCard)'), isTrue);
+    final servis = File('lib/services/chess_ai_service.dart').readAsStringSync();
+    // Zor yenilebilir, tam guc yalnizca Imkansiz'da.
+    expect(RegExp(r'case ChessDifficulty\.advanced:\s*return 6;').hasMatch(servis),
+        isTrue);
+    expect(
+        RegExp(r'case ChessDifficulty\.impossible:\s*return 20;').hasMatch(servis),
+        isTrue);
   });
 
   test('kolay seviye Stockfish kullanmiyor, orta seviye yumusatildi', () {
@@ -86,10 +103,12 @@ void main() {
     expect(s.indexOf('_rakip.kolayHamle(game)', i), greaterThan(i));
     expect(i, lessThan(s.indexOf("_stockfish!.stdin = 'ucinewgame'")),
         reason: 'Kolay seviye motora hic ulasmamali.');
-    // Orta seviye eskiden Skill 10'du.
+    // Orta seviye eskiden Skill 10'du; artik 3.
     final orta = s.substring(s.indexOf('int get stockfishSkillLevel'));
-    expect(orta.contains('return 10;'), isFalse);
+    expect(
+        RegExp(r'case ChessDifficulty\.intermediate:\s*return 3;').hasMatch(orta),
+        isTrue);
     expect(orta.contains('return 20;'), isTrue,
-        reason: 'Zor seviye oldugu gibi kalmali.');
+        reason: 'Tam guc Imkansiz seviyede duruyor.');
   });
 }

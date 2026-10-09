@@ -50,7 +50,9 @@ void main() {
     });
 
     test('ust satir Almanca ve Ispanyolca yaziliyor', () {
-      for (final s in ['Punkte:', 'Puntos:', 'Nivel:', 'Züge:', 'Movimientos:']) {
+      // Ekim 2026: tuval metni "Skor: 12" yerine cipler (etiket ve deger
+      // ayri) geldi; iki nokta artik yok, kelimeler hala dort dilde.
+      for (final s in ["'Punkte'", "'Puntos'", "'Nivel'", "'Züge'", "'Movimientos'"]) {
         expect(kaynak.contains(s), isTrue, reason: s);
       }
     });

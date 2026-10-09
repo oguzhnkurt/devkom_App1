@@ -298,6 +298,32 @@ class UserProgressService extends ChangeNotifier {
     }
   }
 
+  /// Cihazda kayitli olup sunucuda olmayan biten dersleri sunucuya tasir.
+  ///
+  /// Ag yokken bitirilen ders yalnizca cihaza yazilmis olur (bkz.
+  /// `DersIlerlemeDeposu`). Bunlar bellekteki listeye de eklenmezse bir
+  /// sonraki `dersiKaydet` sunucudaki eski listeyi yazip onlari ezer.
+  /// Hata sessizce gecer: cihazdaki kayit zaten duruyor.
+  Future<void> yerelDerslerleBirlestir(
+      String userId, Set<String> yerel) async {
+    final mevcut = _currentProgress;
+    if (mevcut == null) return;
+    final eksik =
+        yerel.where((id) => !mevcut.completedLessonIds.contains(id)).toList();
+    if (eksik.isEmpty) return;
+    final liste = [...mevcut.completedLessonIds, ...eksik];
+    _currentProgress = mevcut.copyWith(completedLessonIds: liste);
+    notifyListeners();
+    try {
+      await _supabase.from(_progressTable).update({
+        'completed_lesson_ids': liste,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('user_id', userId);
+    } catch (e) {
+      debugPrint('Yerel dersler sunucuya yazilamadi: $e');
+    }
+  }
+
   /// Oyun oynandığında
   Future<void> onGamePlayed(String userId, int score, int xpReward) async {
     try {

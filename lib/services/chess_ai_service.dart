@@ -241,7 +241,9 @@ class ChessAIService {
         case ChessDifficulty.intermediate:
           return _rakip.dikkatliHamle(game, gurultu: 120);
         case ChessDifficulty.advanced:
-          return _rakip.dikkatliHamle(game, gurultu: 10);
+          return _rakip.dikkatliHamle(game, gurultu: 30);
+        case ChessDifficulty.impossible:
+          return _rakip.dikkatliHamle(game, gurultu: 0);
       }
     } catch (e) {
       debugPrint('❌ Error in simple AI: $e');
@@ -319,7 +321,12 @@ extension on ChessDifficulty {
       // bir insani hamle.
       case ChessDifficulty.intermediate:
         return 3;
+      // ZOR: eskiden 20'ydi ve "Ileri" adiyla cocugun karsisina tam guc
+      // cikiyordu. 6: deneme maclarinda Orta'yi 8/8 ve Elo 1700 ayarli
+      // Stockfish'i 8/8 yendi; guclu ama yenilebilir bir rakip.
       case ChessDifficulty.advanced:
+        return 6;
+      case ChessDifficulty.impossible:
         return 20; // Maximum strength
     }
   }
@@ -332,7 +339,9 @@ extension on ChessDifficulty {
       case ChessDifficulty.intermediate:
         return 300;
       case ChessDifficulty.advanced:
-        return 1500; // 1.5 seconds
+        return 600;
+      case ChessDifficulty.impossible:
+        return 2000; // 2 seconds
     }
   }
 }

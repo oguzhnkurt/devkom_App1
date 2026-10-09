@@ -2,7 +2,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../providers/auth_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../utils/lang.dart';
 import '../models/course_model.dart';
 import '../data/lessons_data.dart';
 import 'lesson_screen.dart';
@@ -270,8 +272,22 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   }
 
   Widget _buildProgressSection(bool isDark) {
-    // TODO: Get actual progress from user data
-    const completedLessons = 0;
+    // Gercek ilerleme (sunucu + cihazdaki kalici kayit). Saglayicisiz
+    // agacta bos kume.
+    Set<String> biten = const <String>{};
+    try {
+      biten = context.watch<AuthProvider>().tamamlananDersler;
+    } on ProviderNotFoundException {
+      // Ilerlemesiz cizilir.
+    }
+    final completedLessons = lessons.where((l) => biten.contains(l.id)).length;
+    // Tus ilk BITMEMIS dersi aciyor; eskiden her zaman ilk dersi aciyordu.
+    // Hepsi bittiyse tekrar icin ilk ders.
+    final siradaki = lessons.indexWhere((l) => !biten.contains(l.id));
+    final hedefDers = lessons.isEmpty
+        ? null
+        : lessons[siradaki < 0 ? 0 : siradaki];
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
     final totalLessons = lessons.length;
     final progress = totalLessons > 0 ? completedLessons / totalLessons : 0.0;
 
@@ -342,13 +358,13 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
           // Start/Continue button
           ElevatedButton(
             onPressed: () {
-              if (lessons.isNotEmpty) {
+              if (hedefDers != null) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => LessonScreen(
                       course: widget.course,
-                      lesson: lessons.first,
+                      lesson: hedefDers,
                     ),
                   ),
                 );
@@ -362,8 +378,22 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
+            // Dar tus (yaninda ilerleme yazisi var): kisa etiketler.
             child: Text(
-              completedLessons == 0 ? 'Başla' : 'Devam Et',
+              completedLessons == 0
+                  ? AppLang.pick(lang,
+                      tr: 'Başla', en: 'Start', de: 'Starten', es: 'Empezar')
+                  : siradaki < 0
+                      ? AppLang.pick(lang,
+                          tr: 'Tekrar et',
+                          en: 'Review',
+                          de: 'Wiederholen',
+                          es: 'Repasar')
+                      : AppLang.pick(lang,
+                          tr: 'Devam et',
+                          en: 'Continue',
+                          de: 'Weiter',
+                          es: 'Continuar'),
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
