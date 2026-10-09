@@ -177,8 +177,17 @@ class AdsService {
   // ---------------------------------------------------------------- ödüllü
 
   /// Ödüllü video izlenebilir mi? Arayüz düğmeyi buna göre gösteriyor.
-  Future<bool> canWatchRewarded() async {
-    if (_isProMember || !isSupported || !_initialized) return false;
+  ///
+  /// [gonullu]: kullanıcının KENDİ İSTEĞİYLE jeton için izlediği video
+  /// (Market'teki "video izle, jeton kazan"). Pro üye de bunu
+  /// isterse izleyebiliyor (Ekim 2026): Pro'nun sözü "reklamsız
+  /// kullanım", yani karşısına zorla reklam çıkmaması; kendi seçtiği bir
+  /// ödül videosunu ondan esirgemek bu sözün parçası değil. Kilit açan
+  /// ya da araya giren reklamlar Pro'ya hâlâ hiç gösterilmiyor.
+  Future<bool> canWatchRewarded({bool gonullu = false}) async {
+    if ((_isProMember && !gonullu) || !isSupported || !_initialized) {
+      return false;
+    }
     if (_platform.rewardedUnitId == null) return false;
     return await _rewardedCountToday() < AdConfig.rewardedDailyCap;
   }
@@ -232,8 +241,8 @@ class AdsService {
   /// Ödüllü videoyu gösterir. Jetonu **çağıran** ekler — bu servis
   /// veritabanına dokunmuyor, yalnızca "hak edildi mi" sorusunu
   /// cevaplıyor.
-  Future<RewardedAdResult> showRewarded() async {
-    if (_isProMember) {
+  Future<RewardedAdResult> showRewarded({bool gonullu = false}) async {
+    if (_isProMember && !gonullu) {
       return const RewardedAdResult(
           earned: false, reason: RewardedAdFailure.proMember);
     }

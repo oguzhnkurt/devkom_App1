@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../widgets/jeton_videosu.dart';
 import 'package:provider/provider.dart';
 import '../utils/lang.dart';
 import '../providers/settings_provider.dart';
@@ -94,7 +95,7 @@ class _MarketScreenState extends State<MarketScreen> {
   }
 
   Future<void> _refreshAdAvailability() async {
-    final can = await AdsService.instance.canWatchRewarded();
+    final can = await JetonVideosu.izlenebilir();
     if (!mounted) return;
     if (can == _canWatchAd) return;
     setState(() => _canWatchAd = can);
@@ -108,52 +109,15 @@ class _MarketScreenState extends State<MarketScreen> {
   /// nötr bir mesaj gösteriliyor.
   Future<void> _watchAdForJeton() async {
     if (_watchingAd) return;
-    final auth = Provider.of<AuthProvider>(context, listen: false);
-    if (auth.currentUser == null) return;
-
     setState(() => _watchingAd = true);
-    final result = await AdsService.instance.showRewarded();
-    if (!mounted) return;
-
-    if (result.earned) {
-      await auth.addJeton(AdConfig.rewardedJeton, source: 'rewarded_ad');
-      if (!mounted) return;
-      _showSnack(_t(
-        context,
-        '+${AdConfig.rewardedJeton} jeton kazandın!',
-        'You earned ${AdConfig.rewardedJeton} coins!',
-        '+${AdConfig.rewardedJeton} Münzen verdient!',
-        '¡Ganaste ${AdConfig.rewardedJeton} monedas!',
-      ));
-    } else {
-      switch (result.reason) {
-        case RewardedAdFailure.dailyCapReached:
-          _showSnack(_t(context, 'Bugünlük bu kadar. Yarın yeniden dene.',
-              "That's it for today. Try again tomorrow.",
-              'Für heute reicht es. Versuch es morgen wieder.',
-              'Por hoy es suficiente. Inténtalo mañana.'));
-          break;
-        case RewardedAdFailure.dismissedEarly:
-          _showSnack(_t(context, 'Video tamamlanmadı, jeton verilmedi.',
-              'The video was not finished, so no coins this time.',
-              'Das Video wurde nicht zu Ende geschaut, keine Münzen.',
-              'El vídeo no terminó, esta vez no hay monedas.'));
-          break;
-        default:
-          _showSnack(_t(context, 'Şu an gösterilecek video yok.',
-              'No video available right now.',
-              'Gerade ist kein Video verfügbar.',
-              'Ahora mismo no hay ningún vídeo.'));
-      }
-    }
-
+    await JetonVideosu.izle(context);
     if (!mounted) return;
     setState(() => _watchingAd = false);
     await _refreshAdAvailability();
   }
 
-  /// Jeton kazanma şeridi. Pro üyeye hiç gösterilmiyor — paywall'da
-  /// "Reklamsız kullanım" yazıyor.
+  /// Jeton kazanma şeridi. Pro üye de görüyor (Ekim 2026): video
+  /// kendi isteğiyle izleniyor, bkz. `AdsService.canWatchRewarded`.
   /// SERI KALKANI — tuketilebilir, markette kendi seridinde.
   ///
   /// Neden kartlarin arasinda degil: cerceve ya da afis bir kez alinip

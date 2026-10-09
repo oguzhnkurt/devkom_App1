@@ -113,8 +113,11 @@ void main() {
     test('sıralama ekranı rozeti gösteriyor', () {
       final ekran = File('lib/screens/leaderboard/leaderboard_screen.dart')
           .readAsStringSync();
-      expect('entry.nameBadge'.allMatches(ekran).length, greaterThanOrEqualTo(2),
-          reason: 'Hem podyumda hem listede görünmeli');
+      // Ekim 2026: tablo artik takili rozeti (ve cerceve/etiketi) dogrudan
+      // sunucudan aliyor ve AvatarCercevesi ile ciziyor.
+      expect(ekran.contains('rozet: s.rozet'), isTrue);
+      expect(ekran.contains('cerceve: s.cerceve'), isTrue);
+      expect(ekran.contains('etiket: s.etiket'), isTrue);
     });
 
     test('rozet değişince sonraki skora yenisi yazılıyor', () {

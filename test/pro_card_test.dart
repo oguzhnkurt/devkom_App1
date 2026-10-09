@@ -1,10 +1,10 @@
 // Pro bilgisi nerede durur (Ekim 2026).
 //
-// Ana sayfadaki "Kilitli olan her sey acilsin · Planlari gor" karti
-// kaldirildi: cocugun her gun actigi ekranda satis cagrisi durmamali
-// (Apple 1.3, Google Families). Pro bilgisi Profil > Hesap Islemleri'nde,
-// EBEVEYN KAPISININ arkasinda. Kartta/satirda sabit fiyat da yok: fiyatin
-// tek dogru kaynagi StoreKit ve onu paywall ekrani gosteriyor.
+// Ana sayfadaki Pro satis karti kaldirildi: cocugun her gun actigi ekranda
+// satis cagrisi durmamali. Pro bilgisi Profil > Hesap Islemleri'nde.
+// Ebeveyn kapisi (dogum yili) da kalkti: uygulama Kids Category'de degil;
+// satira dokununca dogrudan odeme ekrani aciliyor. Satirda sabit fiyat
+// yok: fiyatin tek dogru kaynagi StoreKit ve onu paywall gosteriyor.
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -18,19 +18,19 @@ void main() {
         reason: 'ana sayfa dogrudan odeme ekranina gidiyor');
   });
 
-  test('profilde Pro satiri ebeveyn kapisinin arkasinda', () {
-    final i = profil.indexOf("ValueKey('profil_pro_ebeveyn')");
+  test('profildeki Pro satiri dogrudan odeme ekranini aciyor', () {
+    final i = profil.indexOf("ValueKey('profil_pro_satiri')");
     expect(i, greaterThan(0));
     final blok = profil.substring(i, profil.indexOf('SubscriptionScreen()', i));
-    expect(blok.contains('ParentGate.verify'), isTrue);
-    expect(blok.contains('if (!ok'), isTrue);
+    expect(blok.contains('ParentGate'), isFalse);
+    expect(profil.contains('ParentGate.verify'), isFalse);
   });
 
   test('Pro kullaniciya satir cizilmiyor ve fiyat yazmiyor', () {
-    final i = profil.indexOf("ValueKey('profil_pro_ebeveyn')");
-    final once = profil.substring(i - 400, i);
+    final i = profil.indexOf("ValueKey('profil_pro_satiri')");
+    final once = profil.substring(i - 700, i);
     expect(once.contains('if (!ProGate.watchIsPro(context))'), isTrue);
-    final blok = profil.substring(i, i + 1600);
+    final blok = profil.substring(i, i + 600);
     final money = RegExp(r'(\$|€|£|₺)\s?\d+[.,]?\d*|\d+[.,]\d{2}\s?(\$|€|£|₺|USD|EUR|TRY|TL)');
     expect(money.hasMatch(blok), isFalse);
   });

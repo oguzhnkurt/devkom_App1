@@ -1,451 +1,392 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../utils/lang.dart';
-import '../../providers/settings_provider.dart';
-import '../../models/leaderboard_model.dart';
+
+import '../../models/chess_game_model.dart';
 import '../../models/game_model.dart';
-import '../../services/embedded_games_service.dart';
-import '../../services/leaderboard_service.dart';
-import '../../theme.dart';
+import '../../services/siralama_servisi.dart';
+import '../../utils/lang.dart';
+import '../../widgets/avatar_cercevesi.dart';
+import '../../widgets/mascot.dart';
 
+/// Yarışma tablosu — iki kulvar (Ekim 2026).
+///
+/// 1. **Genel**: toplam XP. Her satırda çocuğun marketten alıp taktığı
+///    çerçeve, rozet ve etiket görünüyor; jetonu harcamanın bir anlamı
+///    da bu: herkes görüyor.
+/// 2. **Satranç**: en zor seviyeyi en hızlı yenen üstte. Önce
+///    İmkânsız'ı yenenler süreye göre, sonra Zor, sonra Orta, Kolay.
+///
+/// Eskiden oyun oyun skor listesiydi (quiz, koordinat...); çoğu boştu ve
+/// hiçbiri çocuğun "ben kaçıncıyım" sorusuna cevap vermiyordu. Veri iki
+/// SECURITY DEFINER fonksiyondan geliyor (`37_siralama.sql`); dışarı
+/// yalnızca ilk ad + soyadın baş harfi çıkıyor.
+///
+/// Çocuk ilk 50'de değilse kendi satırı listenin altında ayrıca
+/// gösteriliyor: "senin yerin".
 class LeaderboardScreen extends StatefulWidget {
-  final GameType? initialGameType;
-
   const LeaderboardScreen({super.key, this.initialGameType});
+
+  /// Satranç ekranından açılırsa satranç sekmesiyle başlıyor. Başka
+  /// oyunlar artık ayrı tablo tutmuyor; genel sekmeye düşüyor.
+  final GameType? initialGameType;
 
   @override
   State<LeaderboardScreen> createState() => _LeaderboardScreenState();
 }
 
 class _LeaderboardScreenState extends State<LeaderboardScreen> {
-  final LeaderboardService _leaderboardService = LeaderboardService();
+  String get _lang => Localizations.localeOf(context).languageCode;
+  String _t(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
 
-  List<LeaderboardEntry> _topEntries = [];
-  GameType? _selectedGameType;
-  bool _isLoading = true;
+  @override
+  Widget build(BuildContext context) {
+    final ilk = widget.initialGameType == GameType.chess ? 1 : 0;
+    return DefaultTabController(
+      length: 2,
+      initialIndex: ilk,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF5F3FF),
+        appBar: AppBar(
+          title: Text(_t('Yarışma tablosu', 'Leaderboard', 'Bestenliste',
+              'Clasificación')),
+          backgroundColor: const Color(0xFF6C3CE0),
+          foregroundColor: Colors.white,
+          bottom: TabBar(
+            indicatorColor: const Color(0xFFFFC94D),
+            indicatorWeight: 3,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            labelStyle: const TextStyle(fontWeight: FontWeight.w800),
+            tabs: [
+              Tab(
+                  key: const ValueKey('siralama_sekme_genel'),
+                  text: _t('⭐ Genel', '⭐ Overall', '⭐ Gesamt', '⭐ General')),
+              Tab(
+                  key: const ValueKey('siralama_sekme_satranc'),
+                  text: _t('♞ Satranç', '♞ Chess', '♞ Schach', '♞ Ajedrez')),
+            ],
+          ),
+        ),
+        body: const TabBarView(
+          children: [
+            _Kulvar(kulvar: SiralamaKulvari.genel),
+            _Kulvar(kulvar: SiralamaKulvari.satranc),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Kulvar extends StatefulWidget {
+  const _Kulvar({required this.kulvar});
+  final SiralamaKulvari kulvar;
+
+  @override
+  State<_Kulvar> createState() => _KulvarState();
+}
+
+class _KulvarState extends State<_Kulvar>
+    with AutomaticKeepAliveClientMixin {
+  late Future<List<SiralamaSatiri>> _gelecek;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-    _selectedGameType = widget.initialGameType ?? GameType.quiz;
-    _loadLeaderboard();
+    _gelecek = SiralamaServisi.getir(widget.kulvar);
   }
 
-  Future<void> _loadLeaderboard() async {
-    if (_selectedGameType == null) return;
-
-    setState(() => _isLoading = true);
-
-    final entries = await _leaderboardService.getTopEntries(
-      gameType: _selectedGameType!,
-      limit: 10,
-    );
-
-    if (mounted) {
-      setState(() {
-        _topEntries = entries;
-        _isLoading = false;
-      });
-    }
+  Future<void> _yenile() async {
+    final f = SiralamaServisi.getir(widget.kulvar);
+    setState(() => _gelecek = f);
+    await f.catchError((_) => <SiralamaSatiri>[]);
   }
+
+  String get _lang => Localizations.localeOf(context).languageCode;
+  String _t(String tr, String en, String de, String es) =>
+      AppLang.pick(_lang, tr: tr, en: en, de: de, es: es);
+
+  bool get _satranc => widget.kulvar == SiralamaKulvari.satranc;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_t4(context, 'Skor Tabelası', 'Leaderboard', 'Bestenliste',
-            'Clasificación')),
-        backgroundColor: AppTheme.primaryBlue,
-        foregroundColor: AppTheme.white,
-      ),
-      body: Column(
-        children: [
-          // Game type selector
-          _buildGameTypeSelector(),
+    super.build(context);
+    return FutureBuilder<List<SiralamaSatiri>>(
+      future: _gelecek,
+      builder: (context, snap) {
+        if (snap.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snap.hasError) {
+          return _Bos(
+            emoji: '📡',
+            yazi: _t('Sıralama şu an yüklenemedi. Aşağı çekip yenile.',
+                "Couldn't load the ranking. Pull down to retry.",
+                'Rangliste konnte nicht geladen werden. Zum Neuladen ziehen.',
+                'No se pudo cargar. Desliza hacia abajo para reintentar.'),
+            onYenile: _yenile,
+          );
+        }
+        final liste = snap.data ?? const <SiralamaSatiri>[];
+        if (liste.isEmpty) {
+          return _Bos(
+            emoji: _satranc ? '♞' : '⭐',
+            yazi: _satranc
+                ? _t('Henüz kimse satrançta kazanmadı. İlk sen ol!',
+                    'Nobody has won at chess yet. Be the first!',
+                    'Noch hat niemand im Schach gewonnen. Sei der Erste!',
+                    'Nadie ha ganado al ajedrez todavía. ¡Sé el primero!')
+                : _t('Sıralama ders bitirdikçe dolacak.',
+                    'The ranking fills up as lessons are finished.',
+                    'Die Rangliste füllt sich mit jeder Lektion.',
+                    'El ranking se llena al terminar lecciones.'),
+            onYenile: _yenile,
+          );
+        }
 
-          // Leaderboard content
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _topEntries.isEmpty
-                    ? _buildEmptyState()
-                    : _buildLeaderboardContent(),
-          ),
-        ],
-      ),
-    );
-  }
+        final ben = SiralamaServisi.benimSatirim(liste);
+        final ust = liste.where((s) => !(s.ben && s.sira > SiralamaServisi.varsayilanLimit)).toList();
+        final altta = ben != null && ben.sira > SiralamaServisi.varsayilanLimit;
 
-  Widget _buildGameTypeSelector() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      color: AppTheme.lightGray,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: GameType.values.map((type) {
-            final isSelected = _selectedGameType == type;
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: ChoiceChip(
-                label: Text(_getGameTypeLabel(type)),
-                selected: isSelected,
-                onSelected: (selected) {
-                  if (selected) {
-                    setState(() => _selectedGameType = type);
-                    _loadLeaderboard();
-                  }
-                },
-                selectedColor: AppTheme.primaryBlue,
-                labelStyle: TextStyle(
-                  color: isSelected ? AppTheme.white : AppTheme.darkBlue,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-
-  /// Oyun adi KATALOGDAN okunuyor.
-  ///
-  /// Burada 17 oyun adi elle yazilmisti ve hepsi turkceydi: almanca
-  /// secen cocuk tablonun sekmelerinde "Sagim-Solum" goruyordu. Ayrica
-  /// katalogda bir oyunun adi degisince burasi eskiyordu. Tek kaynak
-  /// EmbeddedGamesService.
-  String _getGameTypeLabel(GameType type) {
-    final lang = Provider.of<SettingsProvider>(context, listen: false)
-        .locale
-        .languageCode;
-    for (final g in EmbeddedGamesService.getAllEmbeddedGames()) {
-      if (g.type == type) return g.titleFor(lang);
-    }
-    // Katalogda karsiligi olmayan bir tur: adini oldugu gibi goster,
-    // bos sekme cizmektense.
-    return type.name;
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.emoji_events_outlined, size: 80, color: AppTheme.mediumGray),
-          const SizedBox(height: 16),
-          Text(
-            _t4(context, 'Henüz kimse bu oyunu oynamamış!',
-                'No one has played this game yet!',
-                'Dieses Spiel hat noch niemand gespielt!',
-                '¡Nadie ha jugado todavía a este juego!'),
-            style: TextStyle(
-              fontSize: 18,
-              color: AppTheme.darkGray,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _t4(context, 'İlk sıralamaya giren sen ol!',
-                'Be the first on the board!',
-                'Sei die Erste auf der Liste!',
-                '¡Sé el primero en la clasificación!'),
-            style: TextStyle(
-              fontSize: 14,
-              color: AppTheme.mediumGray,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLeaderboardContent() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // Title
-        Text(
-          _selectedGameType!.leaderboardTitle,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.darkBlue,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 24),
-
-        // Top 3 Podium
-        if (_topEntries.isNotEmpty) _buildPodium(),
-
-        const SizedBox(height: 32),
-
-        // Rest of the list
-        if (_topEntries.length > 3) ...[
-          const Divider(),
-          const SizedBox(height: 16),
-          ..._topEntries
-              .skip(3)
-              .toList()
-              .asMap()
-              .entries
-              .map((entry) => _buildLeaderboardTile(
-                    entry.value,
-                    entry.key + 4, // +4 because we skip first 3
-                  )),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildPodium() {
-    final top3 = _topEntries.take(3).toList();
-
-    // Arrange: 2nd, 1st, 3rd
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        // 2nd place
-        if (top3.length > 1)
-          _buildPodiumPlace(top3[1], 2, AppTheme.mediumGray, 120),
-
-        const SizedBox(width: 16),
-
-        // 1st place
-        _buildPodiumPlace(top3[0], 1, AppTheme.accentYellow, 150),
-
-        const SizedBox(width: 16),
-
-        // 3rd place
-        if (top3.length > 2)
-          _buildPodiumPlace(top3[2], 3, Color(0xFFCD7F32), 100),
-      ],
-    );
-  }
-
-  Widget _buildPodiumPlace(LeaderboardEntry entry, int rank, Color color, double height) {
-    return Column(
-      children: [
-        // Avatar
-        Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color.withValues(alpha: 0.2),
-            border: Border.all(color: color, width: 3),
-          ),
-          child: Center(
-            child: Text(
-              entry.userName[0].toUpperCase(),
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-
-        // Name
-        SizedBox(
-          width: 100,
-          // Rozet adin ONUNDE: marketten alinan tek sey baskalarinin da
-          // gordugu bu isaret.
-          child: Text(
-            entry.nameBadge == null
-                ? entry.userName
-                : '${entry.nameBadge} ${entry.userName}',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.darkBlue,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        const SizedBox(height: 4),
-
-        // Podium
-        Container(
-          width: 100,
-          height: height,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.3),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            border: Border.all(color: color, width: 2),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+        return RefreshIndicator(
+          onRefresh: _yenile,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 28),
             children: [
-              Text(
-                entry.getRankIcon(rank),
-                style: const TextStyle(fontSize: 32),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _getScoreText(entry),
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: color,
+              _aciklama(),
+              const SizedBox(height: 12),
+              if (ben != null) ...[
+                _BenimYerim(satir: ben, satranc: _satranc, lang: _lang),
+                const SizedBox(height: 14),
+              ],
+              for (final s in ust) _Satir(satir: s, satranc: _satranc, lang: _lang),
+              if (altta) ...[
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 6),
+                  child: Center(
+                      child: Text('⋯', style: TextStyle(fontSize: 20, color: Colors.black38))),
                 ),
-              ),
+                _Satir(satir: ben, satranc: _satranc, lang: _lang),
+              ],
             ],
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 
-  Widget _buildLeaderboardTile(LeaderboardEntry entry, int rank) {
+  Widget _aciklama() {
+    final yazi = _satranc
+        ? _t('İmkânsız\'ı en hızlı yenen en üstte. Kimse yenemediyse Zor\'u en hızlı yenen.',
+            'Fastest to beat Impossible is on top, then the fastest Hard wins.',
+            'Wer „Unmöglich“ am schnellsten schlägt, steht oben, danach „Schwer“.',
+            'Arriba quien gana más rápido en Imposible; luego, en Difícil.')
+        : _t('Ders ve oyunlarla kazandığın XP\'ye göre. Markette aldığın çerçeve, rozet ve etiketler burada görünür.',
+            'Ranked by the XP you earn in lessons and games. Frames, badges and labels from the Store show here.',
+            'Nach XP aus Lektionen und Spielen. Rahmen, Abzeichen und Etiketten aus dem Laden siehst du hier.',
+            'Según el XP de lecciones y juegos. Aquí se ven los marcos, insignias y etiquetas de la Tienda.');
+    return Text(yazi,
+        style: const TextStyle(fontSize: 12.5, color: Color(0xFF6B6785), height: 1.35));
+  }
+}
+
+/// Bir sıralama satırının değer metni ("1.250 XP" / "İmkânsız · 4:07").
+String _deger(SiralamaSatiri s, bool satranc, String lang) {
+  if (satranc) {
+    final z = s.zorluk ?? 0;
+    final ad = (z >= 0 && z < ChessDifficulty.values.length)
+        ? ChessDifficulty.values[z].displayNameFor(lang)
+        : '?';
+    return '$ad · ${SiralamaServisi.sureYazisi(s.sure ?? 0)}';
+  }
+  final xp = s.xp ?? 0;
+  final yazi = xp >= 1000
+      ? '${xp ~/ 1000}.${(xp % 1000).toString().padLeft(3, '0')}'
+      : '$xp';
+  return '$yazi XP';
+}
+
+Color _zorlukRengi(int? z) {
+  switch (z) {
+    case 3:
+      return const Color(0xFFD32F2F);
+    case 2:
+      return const Color(0xFFF57C00);
+    case 1:
+      return const Color(0xFF1E88E5);
+    default:
+      return const Color(0xFF43A047);
+  }
+}
+
+class _Satir extends StatelessWidget {
+  const _Satir({required this.satir, required this.satranc, required this.lang});
+  final SiralamaSatiri satir;
+  final bool satranc;
+  final String lang;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = satir;
+    final madalya = switch (s.sira) { 1 => '🥇', 2 => '🥈', 3 => '🥉', _ => null };
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      key: ValueKey('siralama_satir_${s.sira}'),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.fromLTRB(10, 10, 14, s.etiket != null ? 16 : 10),
       decoration: BoxDecoration(
-        color: AppTheme.white,
-        borderRadius: BorderRadius.circular(12),
+        color: s.ben ? const Color(0xFFFFF6D8) : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+            color: s.ben ? const Color(0xFFFFC94D) : const Color(0xFFECE8FF),
+            width: s.ben ? 2 : 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
+              color: const Color(0xFF6C3CE0).withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4)),
         ],
       ),
       child: Row(
         children: [
-          // Rank
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppTheme.lightGray,
-              borderRadius: BorderRadius.circular(8),
-            ),
+          SizedBox(
+            width: 34,
             child: Center(
-              child: Text(
-                '$rank',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.darkBlue,
-                ),
-              ),
+              child: madalya != null
+                  ? Text(madalya, style: const TextStyle(fontSize: 24))
+                  : Text('${s.sira}',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          color: Color(0xFF6B6785))),
             ),
           ),
-          const SizedBox(width: 16),
-
-          // Avatar
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppTheme.primaryBlue.withValues(alpha: 0.2),
-            ),
+          // Etiket kurdelesi avatarin altina, ondan genis asiliyor; yanina
+          // yer birakilmazsa ismin uzerine biniyordu.
+          SizedBox(
+            width: 84,
             child: Center(
-              child: Text(
-                entry.userName[0].toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.primaryBlue,
-                ),
+              child: AvatarCercevesi(
+                boyut: 50,
+                cerceve: s.cerceve,
+                rozet: s.rozet,
+                etiket: s.etiket,
+                child: const Mascot(size: 34, showShadow: false),
               ),
             ),
           ),
           const SizedBox(width: 12),
-
-          // Name
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  entry.nameBadge == null
-                      ? entry.userName
-                      : '${entry.nameBadge} ${entry.userName}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.darkBlue,
-                  ),
+                  s.ben
+                      ? '${s.ad} · ${AppLang.pick(lang, tr: 'sen', en: 'you', de: 'du', es: 'tú')}'
+                      : s.ad,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                      color: Color(0xFF1F1D36)),
                 ),
-                if (entry.difficulty != null)
+                if (!satranc && s.seviye != null)
                   Text(
-                    'Zorluk: ${entry.difficulty}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.mediumGray,
-                    ),
+                    AppLang.pick(lang,
+                        tr: 'Seviye ${s.seviye}',
+                        en: 'Level ${s.seviye}',
+                        de: 'Stufe ${s.seviye}',
+                        es: 'Nivel ${s.seviye}'),
+                    style: const TextStyle(fontSize: 12, color: Color(0xFF8A86A3)),
                   ),
               ],
             ),
           ),
-
-          // Score
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                _getScoreText(entry),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.primaryBlue,
-                ),
-              ),
-              Text(
-                _selectedGameType!.scoreLabel,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.mediumGray,
-                ),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: (satranc ? _zorlukRengi(s.zorluk) : const Color(0xFF6C3CE0))
+                  .withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              _deger(s, satranc, lang),
+              style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12.5,
+                  color: satranc ? _zorlukRengi(s.zorluk) : const Color(0xFF6C3CE0)),
+            ),
           ),
         ],
       ),
     );
   }
+}
 
-  String _getScoreText(LeaderboardEntry entry) {
-    // Special handling for Quiz
-    if (_selectedGameType == GameType.quiz) {
-      final correct = entry.correctCount ?? 0;
-      final total = entry.totalQuestions ?? 0;
-      final timeText = entry.getFormattedTime();
-      return '$correct/$total • $timeText';
-    }
+class _BenimYerim extends StatelessWidget {
+  const _BenimYerim({required this.satir, required this.satranc, required this.lang});
+  final SiralamaSatiri satir;
+  final bool satranc;
+  final String lang;
 
-    final type = _selectedGameType!.leaderboardType;
-    switch (type) {
-      case LeaderboardType.highScore:
-      case LeaderboardType.winRate:
-        return '${entry.score}';
-      case LeaderboardType.fastestTime:
-        return entry.getFormattedTime();
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const ValueKey('siralama_benim_yerim'),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+            colors: [Color(0xFF6C3CE0), Color(0xFF8E5CF7)]),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: [
+          const Text('🏁', style: TextStyle(fontSize: 26)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              AppLang.pick(lang,
+                  tr: 'Senin yerin: ${satir.sira}.',
+                  en: 'Your place: #${satir.sira}',
+                  de: 'Dein Platz: ${satir.sira}.',
+                  es: 'Tu puesto: ${satir.sira}.º'),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w900, fontSize: 18),
+            ),
+          ),
+          Text(_deger(satir, satranc, lang),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w700)),
+        ],
+      ),
+    );
   }
 }
 
-/// Bu ekrandaki kısa arayüz yazıları için dört dilli yardımcı.
-String _t4(BuildContext context, String tr, String en, String de, String es) =>
-    AppLang.pick(
-      Provider.of<SettingsProvider>(context, listen: false)
-          .locale
-          .languageCode,
-      tr: tr,
-      en: en,
-      de: de,
-      es: es,
+class _Bos extends StatelessWidget {
+  const _Bos({required this.emoji, required this.yazi, required this.onYenile});
+  final String emoji;
+  final String yazi;
+  final Future<void> Function() onYenile;
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: onYenile,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(32, 90, 32, 32),
+        children: [
+          Center(child: Text(emoji, style: const TextStyle(fontSize: 54))),
+          const SizedBox(height: 14),
+          Text(yazi,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  fontSize: 15, color: Color(0xFF6B6785), height: 1.4)),
+        ],
+      ),
     );
+  }
+}

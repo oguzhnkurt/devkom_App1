@@ -79,6 +79,15 @@ void main() {
       expect(await AdsService.instance.canWatchRewarded(), isFalse);
     });
 
+    test('Pro uye kendi istegiyle (gonullu) jeton videosu izleyebiliyor',
+        () async {
+      AdsService.instance.setProMember(true);
+      expect(await AdsService.instance.canWatchRewarded(gonullu: true), isTrue);
+      final result = await AdsService.instance.showRewarded(gonullu: true);
+      expect(result.earned, isTrue);
+      expect(fake.rewardedShowCalls, 1);
+    });
+
     test('markDue Pro uyede bekleyen reklam birakmiyor', () {
       AdsService.instance.setProMember(true);
       for (var i = 0; i < 10; i++) {

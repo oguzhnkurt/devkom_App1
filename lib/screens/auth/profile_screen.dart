@@ -20,7 +20,6 @@ import '../report/progress_report_screen.dart';
 import '../../widgets/mascot.dart';
 import '../market_screen.dart';
 import '../subscription_screen.dart';
-import '../../widgets/parent_gate.dart';
 import '../../widgets/veli_takip_karti.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -867,37 +866,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
             MaterialPageRoute(builder: (_) => const HesapEkrani()),
           ),
         ),
-        // PRO: ana sayfadan buraya tasindi ve EBEVEYN KAPISININ ARKASINDA.
-        // Satin alma kararini veren ebeveyn; cocugun gordugu ana ekranda
-        // satis cagrisi durmuyor. Pro uyede satir hic yok.
+        // PRO: ana sayfadan buraya tasindi. Ebeveyn kapisi (dogum yili)
+        // Ekim 2026'da KALKTI: dokununca dogrudan odeme ekrani aciliyor.
+        // Uygulama App Store'da Kids Category'de degil (Education), yani
+        // kapi zorunlu degil; satin almanin kendisi zaten Apple/Google'in
+        // kendi onay ekranindan geciyor. Pro uyede satir hic yok.
         if (!ProGate.watchIsPro(context)) ...[
           Divider(height: 1, color: Colors.grey.shade100, indent: 56),
           _buildActionRow(
-            key: const ValueKey('profil_pro_ebeveyn'),
+            key: const ValueKey('profil_pro_satiri'),
             icon: Icons.workspace_premium_outlined,
             label: _t4(context, 'Pro üyelik', 'Pro membership',
                 'Pro-Mitgliedschaft', 'Membresía Pro'),
             color: const Color(0xFF5A34E8),
-            trailingIcon: Icons.lock_outline_rounded,
-            onTap: () async {
-              final lang = Localizations.localeOf(context).languageCode;
-              final ok = await ParentGate.verify(
-                context,
-                lang: lang,
-                reason: AppLang.pick(lang,
-                    tr: 'Üyelik ve satın alma bilgileri ebeveynler içindir. '
-                        'Devam etmek için doğum yılınızı girin.',
-                    en: 'Membership and purchase details are for parents. '
-                        'Enter your birth year to continue.',
-                    de: 'Mitgliedschaft und Käufe sind für Eltern. '
-                        'Gib zum Fortfahren dein Geburtsjahr ein.',
-                    es: 'La membresía y las compras son para adultos. '
-                        'Introduce tu año de nacimiento para continuar.'),
-              );
-              if (!ok || !context.mounted) return;
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const SubscriptionScreen()));
-            },
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const SubscriptionScreen())),
           ),
         ],
         Divider(height: 1, color: Colors.grey.shade100, indent: 56),

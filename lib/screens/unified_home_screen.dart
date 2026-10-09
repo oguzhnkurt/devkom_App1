@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/siralama_karti.dart';
 import 'package:flutter/services.dart';
 import '../theme.dart';
 import 'package:provider/provider.dart';
@@ -274,6 +275,10 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                     _buildMoreSection(isDark, userProgress),
                   ],
                 ],
+                // SIRALAMA — ana sayfanin en altinda (Ekim 2026): genel XP
+                // ve satrancta cocugun kendi yeri; dokununca tablo aciliyor.
+                const SizedBox(height: 26),
+                SiralamaKarti(lang: _lang),
                 // PRO KARTI ANA SAYFADAN KALKTI (Ekim 2026).
                 //
                 // Ana sayfa cocugun her gun actigi yer; orada "Kilitli olan
@@ -282,8 +287,8 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                 // bir cagri gibi isliyordu. Cocuklara yonelik bir urunde
                 // bu dogru degil (Apple 1.3, Google Families: satin alma
                 // cagrilari cocuga degil ebeveyne). Pro bilgisi artik
-                // Profil > Hesap Islemleri'nde, ebeveyn kapisinin
-                // arkasinda duruyor; kilitli bir icerige dokunuldugunda
+                // Profil > Hesap Islemleri'nde
+                // duruyor; kilitli bir icerige dokunuldugunda
                 // cikan bilgi sayfasi da yerinde.
                 ],
               ),

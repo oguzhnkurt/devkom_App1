@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/settings_provider.dart';
 import '../utils/lang.dart';
+import '../config/ad_config.dart';
 import '../widgets/brand_mark.dart';
+import '../widgets/jeton_videosu.dart';
 import '../widgets/mascot.dart';
 import 'leaderboard/leaderboard_screen.dart';
 import 'market_screen.dart';
@@ -72,16 +74,18 @@ class ActivityHubScreen extends StatelessWidget {
             onTap: () => Navigator.push(
                 context, MaterialPageRoute(builder: (_) => const MarketScreen())),
           ),
+          // Kendi istegiyle video izleyip jeton kazanma — Pro uye dahil.
+          _VideoJetonKarti(lang: lang),
           _Tile(
             emoji: '🏆',
             color: const Color(0xFF6C3CE0),
             title: t('Yarışma tablosu', 'Leaderboard', 'Bestenliste',
                 'Clasificación'),
             subtitle: t(
-                'Arkadaşlarınla sıralamada yarış',
-                'Race your friends up the ranking',
-                'Miss dich mit deinen Freunden',
-                'Compite con tus amigos'),
+                'Genel XP ve satranç sıralaması',
+                'Overall XP and chess rankings',
+                'Gesamt-XP und Schach-Rangliste',
+                'Ranking de XP y de ajedrez'),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const LeaderboardScreen())),
           ),
@@ -247,6 +251,67 @@ class _Tile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+
+/// "Video izle, jeton kazan" karti. Video yoksa (gunluk hak dolduysa ya
+/// da reklam altyapisi yoksa) hic cizilmiyor.
+class _VideoJetonKarti extends StatefulWidget {
+  const _VideoJetonKarti({required this.lang});
+  final String lang;
+
+  @override
+  State<_VideoJetonKarti> createState() => _VideoJetonKartiState();
+}
+
+class _VideoJetonKartiState extends State<_VideoJetonKarti> {
+  bool _var = false;
+  bool _oynuyor = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _yenile();
+  }
+
+  Future<void> _yenile() async {
+    bool v;
+    try {
+      v = await JetonVideosu.izlenebilir();
+    } catch (_) {
+      v = false;
+    }
+    if (mounted && v != _var) setState(() => _var = v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_var) return const SizedBox.shrink();
+    const j = AdConfig.rewardedJeton;
+    return _Tile(
+      emoji: '🎬',
+      color: const Color(0xFFE8A317),
+      title: AppLang.pick(widget.lang,
+          tr: 'Video izle, jeton kazan',
+          en: 'Watch a video, earn coins',
+          de: 'Video ansehen, Münzen verdienen',
+          es: 'Mira un vídeo y gana monedas'),
+      subtitle: AppLang.pick(widget.lang,
+          tr: 'Kısa bir video, +$j jeton',
+          en: 'A short video, +$j coins',
+          de: 'Ein kurzes Video, +$j Münzen',
+          es: 'Un vídeo corto, +$j monedas'),
+      onTap: _oynuyor
+          ? () {}
+          : () async {
+              setState(() => _oynuyor = true);
+              await JetonVideosu.izle(context);
+              if (!mounted) return;
+              setState(() => _oynuyor = false);
+              await _yenile();
+            },
     );
   }
 }
