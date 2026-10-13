@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_progress_model.dart';
 import 'ads_service.dart';
+import 'degerlendirme_servisi.dart';
 
 /// Kullanıcı İlerleme Servisi
 /// XP, Seviye, Streak ve Günlük Hedefler yönetimi
@@ -238,6 +239,7 @@ class UserProgressService extends ChangeNotifier {
       // ekranının üstüne binmesin diye kullanıcı dersten çıkarken
       // AdNavigatorObserver gösteriyor.
       AdsService.instance.markDue();
+      DegerlendirmeServisi.instance.basariKaydet();
 
       notifyListeners();
     } catch (e) {
@@ -353,6 +355,7 @@ class UserProgressService extends ChangeNotifier {
       }
 
       AdsService.instance.markDue();
+      DegerlendirmeServisi.instance.basariKaydet();
 
       notifyListeners();
     } catch (e) {

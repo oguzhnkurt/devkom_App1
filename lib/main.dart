@@ -19,6 +19,7 @@ import 'services/ad_navigator_observer.dart';
 import 'services/ads_service.dart';
 import 'services/meta_install_service.dart';
 import 'services/subscription_service.dart';
+import 'services/degerlendirme_servisi.dart';
 import 'theme.dart';
 import 'utils/app_localizations.dart';
 import 'widgets/hata_ekrani.dart';
@@ -139,6 +140,8 @@ void main() async {
   } catch (e) {
     debugPrint('⚠️ Reklam servisi baslatilamadi: $e');
   }
+  // Degerlendirme kutusu icin ilk acilis tarihi (yalnizca bir kez yazilir).
+  await DegerlendirmeServisi.instance.baslat();
 
   // META UYGULAMA OLAYLARI — kendi try'inda, reklam servisi gibi.
   // Basarisiz olursa uygulama etkilenmez; yalniz Meta reklamlarinin

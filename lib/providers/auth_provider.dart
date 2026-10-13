@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:adapty_flutter/adapty_flutter.dart';
+import '../services/degerlendirme_servisi.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -663,6 +664,7 @@ class AuthProvider extends ChangeNotifier {
     final yerelYeni = !tamamlananDersler.contains(lessonId);
     _yerelTamamlanan = {..._yerelTamamlanan, lessonId};
     notifyListeners();
+    if (yerelYeni) DegerlendirmeServisi.instance.basariKaydet();
     await DersIlerlemeDeposu.dersTamamlandi(lessonId);
 
     final user = _currentUser;
@@ -752,6 +754,42 @@ class AuthProvider extends ChangeNotifier {
       // Beklenmeyen bir sey: teknik metni ASLA ekrana basmiyoruz, yalniz
       // loga yaziyoruz.
       debugPrint('Apple giris beklenmeyen hata: $e');
+      _errorMessage = 'Şu an giriş yapılamadı. Birazdan tekrar dener misin?';
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Bu cihazda Google ile giris var mi? (Android + istemci kimligi tanimli)
+  bool get isGoogleSignInAvailable => _authService.isGoogleSignInAvailable;
+
+  /// Google ile giris. Anonim ilerleme yeni hesaba tasinir.
+  ///
+  /// Kullanici vazgecerse false doner ve hata mesaji set edilmez.
+  Future<bool> signInWithGoogle() async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final user = await _authService.signInWithGoogle();
+      if (user == null) return false;
+
+      _currentUser = user;
+      await _ensureNickname();
+      await _flushPendingProfileEdits();
+      await _loadUserProgress();
+      await _claimPendingProJeton();
+      _identifyAdapty(user.uid);
+      return true;
+    } on AppAuthException catch (e) {
+      debugPrint('Google giris hatasi (teknik): ${e.debugDetail}');
+      _errorMessage = e.message;
+      return false;
+    } catch (e) {
+      debugPrint('Google giris beklenmeyen hata: $e');
       _errorMessage = 'Şu an giriş yapılamadı. Birazdan tekrar dener misin?';
       return false;
     } finally {

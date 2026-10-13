@@ -102,6 +102,8 @@ dependencies:
   http: ^1.2.1
   supabase_flutter: ^2.10.3
   get_it: ^9.1.0
+  google_sign_in: ^7.2.0
+  in_app_review: ^2.0.12
 
 dev_dependencies:
   flutter_test:

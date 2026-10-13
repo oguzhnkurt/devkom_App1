@@ -10,6 +10,7 @@ import '../../providers/settings_provider.dart';
 import '../../theme.dart';
 import '../../utils/app_localizations.dart';
 import '../../utils/lang.dart';
+import '../../services/degerlendirme_servisi.dart';
 import '../../services/subscription_service.dart';
 import '../subscription_screen.dart';
 
@@ -388,6 +389,29 @@ class SettingsScreen extends StatelessWidget {
                     color: Colors.purple,
                     title: loc.about,
                     children: [
+                      ListTile(
+                        key: const ValueKey('ayarlar_degerlendir'),
+                        leading: _chip(Icons.star_rate_rounded,
+                            AppTheme.warningOrange),
+                        title: Text(_t(
+                            context,
+                            'Uygulamayı değerlendir',
+                            'Rate the app',
+                            'App bewerten',
+                            'Valorar la app')),
+                        subtitle: Text(_t(
+                            context,
+                            'Görüşün bize yol gösteriyor',
+                            'Your feedback guides us',
+                            'Dein Feedback hilft uns weiter',
+                            'Tu opinión nos guía')),
+                        trailing: const Icon(Icons.open_in_new, size: 18),
+                        // Magaza sayfasini aciyor; puan kutusunu degil
+                        // (bkz. DegerlendirmeServisi).
+                        onTap: () =>
+                            DegerlendirmeServisi.instance.magazaSayfasiniAc(),
+                      ),
+                      _rowDivider(),
                       _buildAboutTile(context),
                       // Yalnızca hata ayıklama derlemesinde görünür.
                       // Yayin derlemesinde `kDebugMode` false oldugu icin

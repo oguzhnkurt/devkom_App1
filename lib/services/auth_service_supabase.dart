@@ -3,10 +3,12 @@ import 'dart:io' show Platform;
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app_auth_exception.dart';
+import '../config/google_config.dart';
 import '../models/user_model.dart';
 import '../models/homework_model.dart';
 import '../main.dart';
@@ -353,6 +355,167 @@ class AuthServiceSupabase {
     }
   }
 
+  // ==========================================================================
+  // GOOGLE ILE GIRIS (Android)
+  // ==========================================================================
+  //
+  // Neden: Android'de Apple ile giris yok; tek secenek e-posta + sifreydi.
+  // Cocuga e-posta/sifre yazdirmak pratikte calismiyor (bkz. Apple notu).
+  // Android'deki karsiligi Google: tek dokunus, sifre yok, hesap zaten
+  // telefonda acik.
+  //
+  // Akis Apple'in aynisi: anonimken birlestirme anahtari al, Google'dan
+  // id_token al, Supabase'e ver, ilerlemeyi yeni hesaba tasi.
+  //
+  // iOS'ta bilerek kapali: iOS'ta Apple ile giris zaten var ve Google icin
+  // ayrica iOS istemcisi + Info.plist URL semasi gerekiyor.
+
+  static bool _googleHazirlandi = false;
+
+  /// Bu cihazda Google ile giris dugmesi gosterilsin mi?
+  bool get isGoogleSignInAvailable {
+    try {
+      return Platform.isAndroid && GoogleConfig.hazir;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _googleHazirla() async {
+    if (_googleHazirlandi) return;
+    await GoogleSignIn.instance.initialize(
+      serverClientId: GoogleConfig.webClientId,
+    );
+    _googleHazirlandi = true;
+  }
+
+  /// Google ile giris yapar, gerekiyorsa anonim ilerlemeyi yeni hesaba tasir.
+  ///
+  /// Kullanici vazgecerse null doner (hata firlatmaz).
+  Future<UserModel?> signInWithGoogle() async {
+    final previousUser = _supabase.auth.currentUser;
+    final wasAnonymous = previousUser?.isAnonymous ?? false;
+
+    String? mergeToken;
+    if (wasAnonymous) {
+      try {
+        final result = await _supabase.rpc('create_account_merge_token');
+        mergeToken = result as String?;
+      } catch (e) {
+        debugPrint('⚠️ Birlestirme anahtari alinamadi: $e');
+      }
+    }
+
+    try {
+      await _googleHazirla();
+      final hesap = await GoogleSignIn.instance.authenticate();
+      final idToken = hesap.authentication.idToken;
+      if (idToken == null) {
+        throw Exception('Google kimlik doğrulaması eksik döndü.');
+      }
+
+      await _supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+      );
+
+      final user = _supabase.auth.currentUser;
+      if (user == null) throw Exception('Google girişi tamamlanamadı.');
+
+      if (mergeToken != null) {
+        try {
+          final merge = await _supabase
+              .rpc('claim_account_merge_token', params: {'p_token': mergeToken});
+          debugPrint('🔀 Ilerleme tasima sonucu: $merge');
+        } catch (e) {
+          debugPrint('⚠️ Ilerleme tasinamadi: $e');
+        }
+      }
+
+      // Yalnizca ilk ad; soyadi cocuk icin gereksiz ve siralamada da
+      // gorunmesini istemiyoruz.
+      final ilkAd = (hesap.displayName ?? '').trim().split(RegExp(r'\s+')).first;
+      if (ilkAd.isNotEmpty) {
+        final existing = await _supabase
+            .from('users')
+            .select('display_name')
+            .eq('id', user.id)
+            .maybeSingle();
+        final current = (existing?['display_name'] as String?)?.trim() ?? '';
+        if (current.isEmpty) {
+          await _supabase
+              .from('users')
+              .update({'display_name': ilkAd}).eq('id', user.id);
+        }
+      }
+
+      Map<String, dynamic>? userData;
+      for (var i = 0; i < 6; i++) {
+        userData = await _supabase
+            .from('users')
+            .select()
+            .eq('id', user.id)
+            .maybeSingle();
+        if (userData != null) break;
+        await Future.delayed(const Duration(milliseconds: 400));
+      }
+      if (userData == null) return null;
+
+      debugPrint('✅ Google ile giris: ${user.id}');
+      return _userModelFromMap(userData, user.id);
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled ||
+          e.code == GoogleSignInExceptionCode.interrupted) {
+        debugPrint('ℹ️ Google girisinden vazgecildi (${e.code})');
+        return null;
+      }
+      debugPrint('❌ Google giris hatasi: ${e.code} / ${e.description}');
+      throw AppAuthException(googleHataMesaji(e.code),
+          debugDetail: '${e.code}: ${e.description}');
+    } on AuthException catch (e) {
+      debugPrint('❌ Supabase Google giris hatasi: ${e.message}');
+      throw AppAuthException(
+        'Google hesabın doğrulandı ama girişin tamamlanamadı. '
+        'Birazdan tekrar dener misin?',
+        debugDetail: e.message,
+      );
+    } on AppAuthException {
+      rethrow;
+    } catch (e) {
+      debugPrint('❌ Google giris hatasi: $e');
+      throw AppAuthException(
+        'Şu an giriş yapılamadı. İnternet bağlantını kontrol edip '
+        'tekrar dene.',
+        debugDetail: e.toString(),
+      );
+    }
+  }
+
+  /// Google'in hata kodunu cocugun anlayacagi bir cumleye cevirir.
+  @visibleForTesting
+  static String googleHataMesaji(GoogleSignInExceptionCode code) {
+    switch (code) {
+      case GoogleSignInExceptionCode.uiUnavailable:
+        return 'Google hesabı penceresi açılamadı. Telefonda bir Google '
+            'hesabı olduğundan emin olup tekrar dene.';
+      case GoogleSignInExceptionCode.clientConfigurationError:
+      case GoogleSignInExceptionCode.providerConfigurationError:
+        return 'Google ile giriş şu an kullanılamıyor. E-posta ile '
+            'giriş yapabilirsin.';
+      default:
+        return 'Google ile giriş tamamlanamadı. Birazdan tekrar dener misin?';
+    }
+  }
+
+  /// Cikista Google oturumunu da kapat; yoksa bir sonraki giriste hesap
+  /// secici hic sormadan ayni hesabi kullanir.
+  Future<void> googleOturumunuKapat() async {
+    if (!_googleHazirlandi) return;
+    try {
+      await GoogleSignIn.instance.signOut();
+    } catch (_) {}
+  }
+
   /// Anonim oturum acar.
   ///
   /// Uygulama ilk acilista kimlik sormuyor: Supabase anonim bir kullanici
@@ -456,6 +619,7 @@ class AuthServiceSupabase {
   Future<void> signOut() async {
     try {
       debugPrint('👋 Signing out');
+      await googleOturumunuKapat();
       await _supabase.auth.signOut();
       debugPrint('✅ Sign out successful');
     } catch (e) {
@@ -587,6 +751,7 @@ class AuthServiceSupabase {
       }
 
       // Local session is now invalid since the auth user no longer exists.
+      await googleOturumunuKapat();
       await _supabase.auth.signOut();
 
       debugPrint('✅ Account deleted (auth identity + data)');

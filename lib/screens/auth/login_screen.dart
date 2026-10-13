@@ -55,6 +55,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _busy = false;
   bool _appleAvailable = false;
+  late final bool _googleAvailable =
+      context.read<AuthProvider>().isGoogleSignInAvailable;
 
   @override
   void initState() {
@@ -71,11 +73,18 @@ class _LoginScreenState extends State<LoginScreen> {
   ///
   /// Cocuk kullanicilar icin birincil yol: sifre yok, tek dokunus ve
   /// "E-postami Gizle" sayesinde gercek e-postayi hic saklamiyoruz.
-  Future<void> _appleSignIn() async {
+  Future<void> _appleSignIn() =>
+      _tekDokunusGiris(context.read<AuthProvider>().signInWithApple);
+
+  /// Google ile giris (Android). Apple ile ayni akis.
+  Future<void> _googleSignIn() =>
+      _tekDokunusGiris(context.read<AuthProvider>().signInWithGoogle);
+
+  Future<void> _tekDokunusGiris(Future<bool> Function() giris) async {
     if (_busy) return;
     setState(() => _busy = true);
     final authProvider = context.read<AuthProvider>();
-    final ok = await authProvider.signInWithApple();
+    final ok = await giris();
     if (!mounted) return;
     setState(() => _busy = false);
 
@@ -263,16 +272,25 @@ class _LoginScreenState extends State<LoginScreen> {
               style: const TextStyle(fontSize: 14, color: AppTheme.mediumGray),
             ),
             const SizedBox(height: 26),
-            if (_appleAvailable) ...[
-              SizedBox(
-                width: double.infinity,
-                child: SignInWithAppleButton(
-                  onPressed: _busy ? () {} : _appleSignIn,
-                  text: _t('Apple ile devam et', 'Continue with Apple', 'Mit Apple fortfahren', 'Continuar con Apple'),
-                  height: 52,
-                  borderRadius: const BorderRadius.all(Radius.circular(14)),
+            if (_appleAvailable || _googleAvailable) ...[
+              if (_appleAvailable)
+                SizedBox(
+                  width: double.infinity,
+                  child: SignInWithAppleButton(
+                    onPressed: _busy ? () {} : _appleSignIn,
+                    text: _t('Apple ile devam et', 'Continue with Apple', 'Mit Apple fortfahren', 'Continuar con Apple'),
+                    height: 52,
+                    borderRadius: const BorderRadius.all(Radius.circular(14)),
+                  ),
                 ),
-              ),
+              if (_appleAvailable && _googleAvailable) const SizedBox(height: 12),
+              if (_googleAvailable)
+                GoogleIleDevamDugmesi(
+                  key: const ValueKey('google_ile_giris'),
+                  yazi: _t('Google ile devam et', 'Continue with Google',
+                      'Mit Google fortfahren', 'Continuar con Google'),
+                  onPressed: _busy ? null : _googleSignIn,
+                ),
               const SizedBox(height: 18),
               Row(
                 children: [
@@ -432,6 +450,57 @@ class _LoginScreenState extends State<LoginScreen> {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 1.6),
+        ),
+      ),
+    );
+  }
+}
+
+
+/// Google'in marka kurallarina uygun "Google ile devam et" dugmesi:
+/// beyaz zemin, ince gri cerceve, solda renkli "G" logosu, Roboto benzeri
+/// koyu gri yazi. Logo `assets/images/ui/google_g.png` (resmi isaret).
+class GoogleIleDevamDugmesi extends StatelessWidget {
+  const GoogleIleDevamDugmesi({
+    super.key,
+    required this.yazi,
+    required this.onPressed,
+  });
+
+  final String yazi;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFF1F1F1F),
+          side: const BorderSide(color: Color(0xFF747775)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/images/ui/google_g.png', width: 20, height: 20),
+            const SizedBox(width: 12),
+            Flexible(
+              child: Text(
+                yazi,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1F1F1F),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
