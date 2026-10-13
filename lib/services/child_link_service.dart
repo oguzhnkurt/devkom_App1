@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Ebeveyn ile cocuk arasindaki bag.
@@ -31,6 +33,84 @@ class ChildLinkService {
   ChildLinkService._();
 
   static SupabaseClient get _db => Supabase.instance.client;
+
+  // ------------------------------------------------ cihazdaki kayitli liste
+  //
+  // NEDEN (Ekim 2026 geri bildirimi): veli kodu yazip raporu acıyor, geri
+  // donunce kart yeniden "kod yaz" kutusunu gosteriyordu. Bag sunucuda
+  // kurulmustu ama `child_links` okumasi bos donuyordu (baglanti, oturum
+  // ya da okuma izni) ve kart bunu "hic cocuk yok" diye yorumluyordu.
+  // Basariyla baglanan cocuk artik bu cihazda da tutuluyor; sunucu
+  // okumasi bos ya da hatali donse bile liste kaybolmuyor. Liste yalnizca
+  // veli "listeden kaldir" dediginde kisaliyor.
+  static const _yerelAnahtar = 'veli_takip_cocuklar_v1';
+
+  static Future<List<ChildLink>> yerelCocuklar() async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      final ham = p.getString(_yerelAnahtar);
+      if (ham == null || ham.isEmpty) return const [];
+      return [
+        for (final m in (jsonDecode(ham) as List).whereType<Map>())
+          if ((m['id'] as String?)?.isNotEmpty ?? false)
+            ChildLink(childId: m['id'] as String, childName: m['ad'] as String?),
+      ];
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  static Future<void> _yereleYaz(List<ChildLink> liste) async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      await p.setString(
+        _yerelAnahtar,
+        jsonEncode([
+          for (final c in liste) {'id': c.childId, 'ad': c.childName},
+        ]),
+      );
+    } catch (_) {}
+  }
+
+  /// Basariyla baglanan cocugu cihaza kaydeder (varsa adini gunceller).
+  static Future<void> yerelEkle(ChildLink c) async {
+    final liste = [...await yerelCocuklar()];
+    final i = liste.indexWhere((x) => x.childId == c.childId);
+    if (i < 0) {
+      liste.add(c);
+    } else if ((c.childName ?? '').isNotEmpty) {
+      liste[i] = c;
+    }
+    await _yereleYaz(liste);
+  }
+
+  static Future<void> yerelCikar(String childId) async {
+    final liste = [...await yerelCocuklar()]
+      ..removeWhere((x) => x.childId == childId);
+    await _yereleYaz(liste);
+  }
+
+  /// Sunucudaki liste + yalnizca bu cihazda kayitli olanlar.
+  /// Sira: once sunucunun sirasi, sonra cihazdakiler eklenis sirasiyla.
+  /// Ad sunucuda yoksa cihazdaki ad kullanilir.
+  static List<ChildLink> birlestir(
+      List<ChildLink> sunucu, List<ChildLink> yerel) {
+    final yerelAd = {for (final c in yerel) c.childId: c.childName};
+    final out = <ChildLink>[
+      for (final c in sunucu)
+        ChildLink(
+          childId: c.childId,
+          childName: (c.childName ?? '').trim().isNotEmpty
+              ? c.childName
+              : yerelAd[c.childId],
+        ),
+    ];
+    final gorulen = {for (final c in out) c.childId};
+    for (final c in yerel) {
+      if (gorulen.add(c.childId)) out.add(c);
+    }
+    return out;
+  }
 
   /// Kod alfabesi.
   ///
@@ -113,7 +193,9 @@ class ChildLinkService {
         'redeem_child_code',
         params: {'p_code': cleaned},
       );
-      return result as String?;
+      final id = result as String?;
+      if (id != null && id.isNotEmpty) await yerelEkle(ChildLink(childId: id));
+      return id;
     } catch (e) {
       debugPrint('ChildLinkService.redeem: $e');
       return null;
@@ -158,6 +240,15 @@ class ChildLinkService {
   /// ilkini donduruyordu. Siralama baglanma zamanina gore: ilk eklenen
   /// cocuk listede hep ayni yerde kaliyor.
   static Future<List<ChildLink>> linkedChildren() async {
+    final sunucu = await _sunucudakiCocuklar();
+    final yerel = await yerelCocuklar();
+    final liste = birlestir(sunucu, yerel);
+    // Sunucudan gelen adlari cihaza da yaz: bir sonraki acilista hazir olsun.
+    if (sunucu.isNotEmpty) await _yereleYaz(liste);
+    return liste;
+  }
+
+  static Future<List<ChildLink>> _sunucudakiCocuklar() async {
     try {
       final uid = _db.auth.currentUser?.id;
       if (uid == null) return const [];
@@ -250,6 +341,7 @@ class ChildLinkService {
 
   /// Bagi koparir. Iki taraf da yapabilir.
   static Future<void> unlink({String? childId, String? parentId}) async {
+    if (childId != null) await yerelCikar(childId);
     final uid = _db.auth.currentUser?.id;
     if (uid == null) return;
     try {

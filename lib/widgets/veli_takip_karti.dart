@@ -64,7 +64,11 @@ class _VeliTakipKartiState extends State<VeliTakipKarti> {
     super.dispose();
   }
 
-  Future<void> _yenile() async {
+  /// Listeyi yeniler. Sunucu bos/hatali donerse ekranda zaten gorunen
+  /// cocuklar KAYBOLMAZ: aksi halde veli raporu kapatinca kart yeniden
+  /// "kod yaz" kutusuna donuyordu. Bir cocuk yalnizca [kaldirilan]
+  /// verildiginde (rapordaki "listeden kaldir") listeden duser.
+  Future<void> _yenile({String? kaldirilan}) async {
     List<ChildLink> liste;
     try {
       liste = await widget.cocuklariGetir();
@@ -73,7 +77,17 @@ class _VeliTakipKartiState extends State<VeliTakipKarti> {
     }
     if (!mounted) return;
     setState(() {
-      _cocuklar = liste;
+      final eldeki = [
+        for (final c in _cocuklar)
+          if (c.childId != kaldirilan) c,
+      ];
+      _cocuklar = ChildLinkService.birlestir(
+        [
+          for (final c in liste)
+            if (c.childId != kaldirilan) c,
+        ],
+        eldeki,
+      );
       _yuklendi = true;
     });
   }
@@ -157,11 +171,13 @@ class _VeliTakipKartiState extends State<VeliTakipKarti> {
   }
 
   Future<void> _raporuAc(ChildLink cocuk) async {
-    await Navigator.of(context).push(MaterialPageRoute(
+    final kaldirildi = await Navigator.of(context).push<bool>(MaterialPageRoute(
       builder: (_) =>
           CocukRaporuScreen(cocuk: cocuk, yukleyici: widget.raporYukle),
     ));
-    if (mounted) _yenile();
+    if (mounted) {
+      _yenile(kaldirilan: kaldirildi == true ? cocuk.childId : null);
+    }
   }
 
   @override
@@ -253,13 +269,55 @@ class _VeliTakipKartiState extends State<VeliTakipKarti> {
             ),
           ),
           if (cocukVar) ...[
-            const SizedBox(height: 12),
+            Padding(
+              key: const ValueKey('kayitli_ogrenciler'),
+              padding: const EdgeInsets.fromLTRB(18, 14, 16, 6),
+              child: Text(
+                _cocuklar.length == 1
+                    ? _t('KAYITLI ÖĞRENCİN', 'YOUR LINKED STUDENT',
+                        'VERBUNDENES KIND', 'TU ESTUDIANTE VINCULADO')
+                    : _t('KAYITLI ÖĞRENCİLERİN', 'YOUR LINKED STUDENTS',
+                        'VERBUNDENE KINDER', 'TUS ESTUDIANTES VINCULADOS'),
+                style: TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 11.5,
+                  letterSpacing: 0.8,
+                  fontWeight: FontWeight.w900,
+                  color: soluk,
+                ),
+              ),
+            ),
             for (var i = 0; i < _cocuklar.length; i++)
               _cocukSatiri(_cocuklar[i], i, yazi, soluk, koyu),
           ],
-          if (girisGoster)
-            _kodGirisi(koyu, yazi)
-          else
+          if (girisGoster) ...[
+            _kodGirisi(koyu, yazi),
+            if (cocukVar)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton(
+                    key: const ValueKey('kod_girisi_vazgec'),
+                    onPressed: () {
+                      _odak.unfocus();
+                      setState(() {
+                        _girisAcik = false;
+                        _hata = null;
+                        _kod.clear();
+                      });
+                    },
+                    style: TextButton.styleFrom(foregroundColor: soluk),
+                    child: Text(
+                      _t('Vazgeç', 'Cancel', 'Abbrechen', 'Cancelar'),
+                      style: const TextStyle(
+                          fontFamily: AppTheme.fontFamily,
+                          fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ),
+              ),
+          ] else
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 2, 10, 0),
               child: Align(

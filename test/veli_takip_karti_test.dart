@@ -9,6 +9,7 @@ import 'package:devkom_app/widgets/veli_takip_karti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Profildeki veli karti: kodu yaz, bitti.
 
@@ -265,6 +266,80 @@ void main() {
       expect(sql.contains('if not exists'), isTrue);
       expect(sql.contains('for select'), isTrue);
       expect(RegExp(r'for (update|insert|delete|all)').hasMatch(sql), isFalse);
+    });
+  });
+
+  // Ekim 2026: kodu yazip raporu inceleyen veli geri donunce kart yeniden
+  // "kod yaz" gosteriyordu (sunucu okumasi bos donuyordu).
+  testWidgets('raporu kapatinca kod kutusu degil kayitli ogrenci gorunuyor',
+      (tester) async {
+    _uzunEkran(tester);
+    await tester.pumpWidget(_uygulama(VeliTakipKarti(
+      // Sunucu her seferinde BOS donuyor: hata buradaydi.
+      cocuklariGetir: () async => const [],
+      kodKullan: (_) async => 'c9',
+      raporYukle: _sahteRapor,
+    )));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('veli_kod_alani')), 'ABC234');
+    await tester.pumpAndSettle();
+    expect(find.byType(CocukRaporuScreen), findsOneWidget);
+
+    tester.state<NavigatorState>(find.byType(Navigator)).pop();
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('veli_kod_alani')), findsNothing);
+    expect(find.byKey(const ValueKey('kayitli_ogrenciler')), findsOneWidget);
+    expect(find.text('KAYITLI ÖĞRENCİN'), findsOneWidget);
+    expect(find.byKey(const ValueKey('baska_cocuk_ekle')), findsOneWidget);
+
+    // Dokununca dogrudan rapor.
+    await tester.tap(find.byKey(const ValueKey('cocuk_c9')));
+    await tester.pumpAndSettle();
+    expect(find.byType(CocukRaporuScreen), findsOneWidget);
+  });
+
+  testWidgets('ekleme kutusu acilinca vazgecilebiliyor', (tester) async {
+    _uzunEkran(tester);
+    await tester.pumpWidget(_uygulama(VeliTakipKarti(
+      cocuklariGetir: () async => const [ChildLink(childId: 'c1', childName: 'Ada')],
+      kodKullan: (_) async => null,
+      raporYukle: _sahteRapor,
+    )));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('baska_cocuk_ekle')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('veli_kod_alani')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('kod_girisi_vazgec')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('veli_kod_alani')), findsNothing);
+    expect(find.text('Ada'), findsOneWidget);
+  });
+
+  group('cihazdaki kayitli liste', () {
+    setUp(() => SharedPreferences.setMockInitialValues({}));
+
+    test('ekle, adi guncelle, cikar', () async {
+      await ChildLinkService.yerelEkle(const ChildLink(childId: 'a'));
+      await ChildLinkService.yerelEkle(const ChildLink(childId: 'b'));
+      await ChildLinkService.yerelEkle(const ChildLink(childId: 'a', childName: 'Ada'));
+      var l = await ChildLinkService.yerelCocuklar();
+      expect(l.map((c) => c.childId), ['a', 'b']);
+      expect(l.first.childName, 'Ada');
+      await ChildLinkService.yerelCikar('a');
+      l = await ChildLinkService.yerelCocuklar();
+      expect(l.map((c) => c.childId), ['b']);
+    });
+
+    test('birlestir: sunucu bos donse de cihazdakiler kalir; ad tamamlanir', () {
+      const yerel = [ChildLink(childId: 'a', childName: 'Ada'), ChildLink(childId: 'b')];
+      expect(ChildLinkService.birlestir(const [], yerel).map((c) => c.childId),
+          ['a', 'b']);
+      final l = ChildLinkService.birlestir(
+          const [ChildLink(childId: 'b', childName: 'Bora'), ChildLink(childId: 'a')],
+          yerel);
+      expect(l.map((c) => c.childId), ['b', 'a']);
+      expect(l[1].childName, 'Ada');
     });
   });
 }
