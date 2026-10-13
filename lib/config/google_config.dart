@@ -18,7 +18,8 @@ class GoogleConfig {
   /// Google Cloud → APIs & Services → Credentials → OAuth 2.0 Client IDs →
   /// "Web application" turundeki istemcinin kimligi.
   /// Ornek bicim: 1234567890-abc123.apps.googleusercontent.com
-  static const String webClientId = '';
+  static const String webClientId =
+      '995598800817-hsi2cf9b45495f9gu5m85pbsd5aimlie.apps.googleusercontent.com';
 
   static bool get hazir => webClientId.trim().isNotEmpty;
 }
