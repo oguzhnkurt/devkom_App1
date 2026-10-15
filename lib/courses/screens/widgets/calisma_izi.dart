@@ -57,7 +57,7 @@ class CalismaIzi extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sonuc = yurutme ?? const BlokYorumlayici().yurut(bloklar);
+    final sonuc = yurutme ?? BlokYorumlayici(dil: lang).yurut(bloklar);
 
     final baslik = Row(
       children: [
@@ -132,12 +132,15 @@ class CalismaIzi extends StatelessWidget {
   }
 
   Widget _satir(YurutmeAdimi adim) {
-    final blok = adim.blokSirasi >= 0 && adim.blokSirasi < bloklar.length
-        ? bloklar[adim.blokSirasi]
-        : bloklar.firstWhere(
-            (b) => b.id == adim.blokId,
-            orElse: () => bloklar.first,
-          );
+    // Kendi blogunun govdesi kod alaninda olmayabilir (bkz.
+    // BlokYorumlayici.kutuphane): satir calisan asil blogu yaziyor.
+    final blok = adim.blok ??
+        (adim.blokSirasi >= 0 && adim.blokSirasi < bloklar.length
+            ? bloklar[adim.blokSirasi]
+            : bloklar.firstWhere(
+                (b) => b.id == adim.blokId,
+                orElse: () => bloklar.first,
+              ));
     final sb = scratch ? ScratchBlokKatalogu.tanim(blok.id, lang) : null;
     return Padding(
       padding: EdgeInsets.only(left: adim.derinlik * 14.0, bottom: 3),
@@ -177,6 +180,25 @@ class CalismaIzi extends StatelessWidget {
               ),
             ),
           ),
+          if (adim.kosulSonucu != null) ...[
+            const SizedBox(width: 6),
+            Text(
+              // Olculen kosul: cocuk govdenin NEDEN calismadigini
+              // (ya da calistigini) goruyor.
+              adim.kosulSonucu!
+                  ? lessonText(lang, '→ doğru', '→ true', '→ wahr',
+                      '→ verdadero')
+                  : lessonText(lang, '→ yanlış', '→ false', '→ falsch',
+                      '→ falso'),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: adim.kosulSonucu!
+                    ? const Color(0xFF7ED321)
+                    : const Color(0xFFFF8A80),
+              ),
+            ),
+          ],
           if (adim.tekrarNo != null) ...[
             const SizedBox(width: 6),
             Text(
@@ -204,6 +226,7 @@ class CalismaIzi extends StatelessWidget {
       final anlam = blokSozlugu[adim.blokId];
       if (anlam == null || anlam.komut != BlokKomutu.soyle) continue;
       if (anlam.rastgeleAlt != null) break; // sayi: dile bagli degil
+      if (anlam.listeRastgele != null) break; // oge zaten cocugun dilinde
       for (final b in bloklar) {
         if (b.id == adim.blokId) return konusmaMetni(b, lang);
       }
@@ -247,7 +270,15 @@ class CalismaIzi extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        parcalar.isEmpty
+        parcalar.isEmpty && sonuc.yalnizTanim
+            // 11.1: kod alaninda yalnizca kendi blogunun TANIMI var.
+            ? lessonText(
+                lang,
+                'Tanım tek başına çalışmaz: bayrağa basınca hiçbir şey olmadı. Onu bir çağrı bloğu çalıştırır.',
+                'A definition does not run on its own: nothing happened when the flag was clicked. A call block runs it.',
+                'Eine Definition läuft nicht von selbst: Beim Klick auf die Flagge passierte nichts. Ein Aufruf-Block führt sie aus.',
+                'Una definición no se ejecuta sola: al pulsar la bandera no pasó nada. La ejecuta un bloque de llamada.')
+            : parcalar.isEmpty
             // "Sahnede degisen bir sey olmadi" bir HATA gibi
             // okunuyordu — oysa cogu zaman dogru olan buydu: bloklar
             // sirayla calisti ama gorunur bir iz birakmadi. Cumle artik

@@ -22,8 +22,17 @@ class ScratchBlokKatalogu {
   ScratchBlokKatalogu._();
 
   /// Ders verisindeki blok kimligi -> Scratch blogu.
-  static ScratchBlokTanimi? tanim(String id, String lang) =>
-      _bloklar[id]?.call(_dil(lang));
+  ///
+  /// Sonuc (kimlik, dil) basina bir kez kuruluyor: kod alani, palet ve
+  /// sahne ayni blogu her karede yeniden istiyordu.
+  static ScratchBlokTanimi? tanim(String id, String lang) {
+    final l = _dil(lang);
+    final anahtar = '$id|$l';
+    if (_onbellek.containsKey(anahtar)) return _onbellek[anahtar];
+    return _onbellek[anahtar] = _bloklar[id]?.call(l);
+  }
+
+  static final Map<String, ScratchBlokTanimi?> _onbellek = {};
 
   /// Anlatim/siralama/karsilastirma adimlarinda blok gorseli olarak
   /// gecen TURKCE metin -> Scratch blogu.
@@ -390,8 +399,11 @@ class ScratchBlokKatalogu {
             _b(_hareket, _yigin, 'MOTION_CHANGEYBY', l, [const SbGirdi('10')])
           ],
         ),
-    'if_touching': (l) => _eger(
-        l, SbIcBlok(_degiyor(l, etiket('SENSING_TOUCHINGOBJECT_POINTER', l)))),
+    // 4.2'de yakalanan sey oyundaki FARE karakteri (kukla), fare imleci
+    // degil: blok "fare-imleci" diyordu. Etiket bicimi Scratch'in kendi
+    // "%1 e degiyor mu?" kalibi; acilir listede kuklanin adi var.
+    'if_touching': (l) =>
+        _eger(l, SbIcBlok(_degiyor(l, _d(l, 'Fare', 'Mouse', 'Maus', 'Ratón')))),
     'if_touching_cat': (l) =>
         _eger(l, SbIcBlok(_degiyor(l, _d(l, 'Devi', 'Devi', 'Devi', 'Devi')))),
     'if_score_low': (l) => _eger(

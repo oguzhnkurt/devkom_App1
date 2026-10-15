@@ -79,9 +79,18 @@ enum BlokKomutu {
   /// `surekli tekrarla` — C blogu. Bitmez; adim butcesi durdurur.
   surekli,
 
-  /// `eger <...> ise` — C blogu. Kosul simdilik DOGRU sayiliyor
-  /// (bkz. BlokYorumlayici).
+  /// `eger <...> ise` — C blogu. Kosul [BlokAnlami.kosulDegisken] ile
+  /// yazilmissa GERCEKTEN degerlendiriliyor (`puan < 5`); algilama
+  /// kosullari (tus, degme) DOGRU sayiliyor (bkz. BlokYorumlayici).
   eger,
+
+  /// `%1 i tanimla` — kendi blogunun sapkasi. Altindaki yigin kendi
+  /// basina CALISMAZ; yalnizca [cagir] calistirir.
+  tanimla,
+
+  /// Kendi blogunun cagrisi (`kare`, `cokgen 6`). Tanimin govdesini
+  /// [BlokAnlami.sayi] girdisiyle calistirir.
+  cagir,
 
   /// Gorunur bir etkisi olmayan ama akista yeri olan bloklar: haber
   /// salma, ikiz yaratma, ses. Adi soyleniyor, sahne degismiyor.
@@ -99,6 +108,12 @@ class BlokAnlami {
     this.liste,
     this.rastgeleAlt,
     this.rastgeleUst,
+    this.yordam,
+    this.girdi,
+    this.kosulDegisken,
+    this.kosulIslem,
+    this.kosulDeger,
+    this.listeRastgele,
   });
 
   final BlokKomutu komut;
@@ -122,6 +137,28 @@ class BlokAnlami {
   /// yok sayilir ve her calistirmada yeni bir sayi soylenir.
   final num? rastgeleAlt;
   final num? rastgeleUst;
+
+  /// [tanimla] ve [cagir] icin kendi blogunun adi (`kare`, `cokgen`).
+  final String? yordam;
+
+  /// Kendi blogunun GIRDISI (`kenar`).
+  ///
+  /// * [tanimla]: tanimin girdisinin adi.
+  /// * [tekrarla]: tur sayisi bu girdinin degeri ("kenar kere tekrarla").
+  /// * [don]: aci [sayi] / girdi ("360 / kenar derece don").
+  final String? girdi;
+
+  /// [eger] icin degerlendirilebilen kosul: `kosulDegisken kosulIslem
+  /// kosulDeger` (or. `Puan < 5`). Bos ise kosul bir algilama kosulu
+  /// (tus, degme) ve yorumlayici onu DOGRU sayiyor.
+  final String? kosulDegisken;
+
+  /// '<', '>' ya da '='.
+  final String? kosulIslem;
+  final num? kosulDeger;
+
+  /// [soyle] icin: bu listenin rastgele bir ogesi soyleniyor.
+  final String? listeRastgele;
 
   bool get cBlogu =>
       komut == BlokKomutu.tekrarla ||

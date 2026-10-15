@@ -72,7 +72,10 @@ const Map<String, BlokAnlami> blokSozlugu = {
 
   // --- Karsilastirma (9.2) -----------------------------------------
   // Altigen bloklar tek baslarina calismaz; `eger`in icine girerler.
-  'if_score_low': BlokAnlami(BlokKomutu.eger),
+  // Kosul gercekten degerlendiriliyor: puan 5'ten kucuk degilse govde
+  // calismiyor.
+  'if_score_low': BlokAnlami(BlokKomutu.eger,
+      kosulDegisken: 'Puan', kosulIslem: '<', kosulDeger: 5),
   'lt_score_5': BlokAnlami(BlokKomutu.etkisiz),
   'lt_5_score': BlokAnlami(BlokKomutu.etkisiz),
   'say_keep_going': BlokAnlami(BlokKomutu.soyle, metin: 'Devam et!'),
@@ -84,10 +87,11 @@ const Map<String, BlokAnlami> blokSozlugu = {
       BlokAnlami(BlokKomutu.listeyeEkle, liste: 'alışveriş', metin: 'muz'),
   'delete_first':
       BlokAnlami(BlokKomutu.listedenSil, liste: 'alışveriş', sayi: 1),
-  // 10.2: soylenen sey listenin rastgele bir ogesi. Liste o adimda bos
-  // oldugu icin uydurma bir soru yazmiyoruz — blok akista gorunuyor,
-  // sahne degismiyor.
-  'say_random_question': BlokAnlami(BlokKomutu.etkisiz),
+  // 10.2: soylenen sey listenin rastgele bir ogesi. Adimda listeyi
+  // dolduran blok yok; liste bossa yorumlayici dersin anlattigi gibi
+  // bes soruluk ornek bir liste kullaniyor (cocugun dilinde).
+  'say_random_question':
+      BlokAnlami(BlokKomutu.soyle, listeRastgele: 'sorular'),
   'len_questions': BlokAnlami(BlokKomutu.etkisiz),
   'item_1_questions': BlokAnlami(BlokKomutu.etkisiz),
 
@@ -105,22 +109,25 @@ const Map<String, BlokAnlami> blokSozlugu = {
   'turn_60_extra': BlokAnlami(BlokKomutu.don, sayi: 60),
   'turn_90_fixed': BlokAnlami(BlokKomutu.don, sayi: 90),
   // 360/kenar: kenar bir girdi, degeri cagri aninda belli oluyor.
-  // Yorumlayici cagri yapmiyor, bu yuzden aciyi hesaplayamiyor.
-  'turn_360_over_sides': BlokAnlami(BlokKomutu.etkisiz),
+  'turn_360_over_sides':
+      BlokAnlami(BlokKomutu.don, sayi: 360, girdi: 'kenar'),
   'repeat_3': BlokAnlami(BlokKomutu.tekrarla, sayi: 3),
-  // 11.2: "kenar kere tekrarla" — tekrar sayisi bir girdi.
-  'repeat_sides': BlokAnlami(BlokKomutu.etkisiz),
+  // 11.2: "kenar kere tekrarla" — tekrar sayisi bir girdi. Eskiden
+  // etkisiz sayiliyor, C bicimi yuzunden "eger" gibi BIR KEZ calisiyordu.
+  'repeat_sides': BlokAnlami(BlokKomutu.tekrarla, girdi: 'kenar'),
 
   // --- Kendi blogun (11) -------------------------------------------
-  // Tanim bir tarif: kendi basina calismaz. Cagri ise tanimin govdesini
-  // calistirir — yorumlayici henuz yordam cagrisi yapmiyor, o yuzden
-  // ikisi de akista gorunuyor ama sahneyi degistirmiyor.
-  'define_square': BlokAnlami(BlokKomutu.etkisiz),
-  'define_square_2': BlokAnlami(BlokKomutu.etkisiz),
-  'define_polygon': BlokAnlami(BlokKomutu.etkisiz),
-  'call_square': BlokAnlami(BlokKomutu.etkisiz),
-  'call_polygon_6': BlokAnlami(BlokKomutu.etkisiz),
-  'call_polygon_4': BlokAnlami(BlokKomutu.etkisiz),
+  // Tanim bir tarif: kendi basina calismaz (11.1'in sorusu tam olarak
+  // bu). Cagri tanimin govdesini calistirir; kod alaninda tanim yoksa
+  // (11.1'in ikinci adimi gibi) bir onceki adimda kurulan tanim
+  // kullaniliyor (bkz. BlokYorumlayici.kutuphane).
+  'define_square': BlokAnlami(BlokKomutu.tanimla, yordam: 'kare'),
+  'define_square_2': BlokAnlami(BlokKomutu.tanimla, yordam: 'kare'),
+  'define_polygon':
+      BlokAnlami(BlokKomutu.tanimla, yordam: 'cokgen', girdi: 'kenar'),
+  'call_square': BlokAnlami(BlokKomutu.cagir, yordam: 'kare'),
+  'call_polygon_6': BlokAnlami(BlokKomutu.cagir, yordam: 'cokgen', sayi: 6),
+  'call_polygon_4': BlokAnlami(BlokKomutu.cagir, yordam: 'cokgen', sayi: 4),
 
   // --- Akvaryum projesi (mBlock 5. modul) --------------------------
   // Sayilar tool/mblock_projeleri/akvaryum.mblock dosyasindan.

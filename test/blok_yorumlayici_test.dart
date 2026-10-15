@@ -242,7 +242,11 @@ void main() {
     test('hareketsiz kodda yurume sahnesi cizilmiyor', () {
       // "Rastgele sayi sec de" kodunda zemin cizgisi ve yesil duvar
       // alakasiz duruyordu.
-      expect(oynatici.contains('if (_hareketVar) _sahne() else _sadeMaskot()'),
+      expect(
+          oynatici.contains('if (_hareketVar)\n'
+              '            RepaintBoundary(child: _sahne())\n'
+              '          else\n'
+              '            _sadeMaskot(),'),
           isTrue);
     });
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 
 import '../courses/models/interactive_lesson_model.dart';
@@ -109,8 +110,8 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
   static const _yurumeSuresi = Duration(milliseconds: 650);
   final _rastgele = Random();
 
-  late final Yurutme _yurutme =
-      widget.yurutme ?? const BlokYorumlayici().yurut(widget.blocks);
+  late final Yurutme _yurutme = widget.yurutme ??
+      BlokYorumlayici(dil: widget.lang).yurut(widget.blocks);
 
   /// Sahnede oynatilacak adim sayisi.
   late final int _sinir = min(
@@ -300,7 +301,10 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
       });
       widget.onAdim?.call(sira);
       if (!await _bekle(_adimSuresi)) return;
-      final blok = widget.blocks[sira];
+      // Calisan blok kod alanindakiyle cogu zaman ayni; kendi blogunun
+      // govdesi calisirken (kare, cokgen) kod alaninda cagri parliyor,
+      // sahnede ise govdedeki blok etki ediyor.
+      final blok = adim.blok ?? widget.blocks[sira];
       if (BlokYorumlayici.anlamOf(blok).cBlogu) continue;
       if (!await _etkiUygula(blok, adim)) return;
     }
@@ -411,6 +415,12 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
         anlam.rastgeleUst != null) {
       metin = adim.sahne.soyledigi ??
           '${anlam.rastgeleAlt!.toInt() + _rastgele.nextInt((anlam.rastgeleUst! - anlam.rastgeleAlt!).toInt() + 1)}';
+    } else if (anlam != null &&
+        anlam.komut == BlokKomutu.soyle &&
+        anlam.listeRastgele != null &&
+        adim.sahne.soyledigi != null) {
+      // Listenin rastgele ogesi: yorumlayicinin sectigi oge (izde de o).
+      metin = adim.sahne.soyledigi!;
     } else {
       // Metin blogun KENDI yazisindan cikariliyor: "Miyav! de" -> "Miyav!"
       metin = konusmaMetni(blok, widget.lang);
@@ -520,7 +530,9 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
         ? widget.blocks[_sira]
         : null;
 
-    if (widget.sahne) return _sahneGorunumu(calisan);
+    // Sahne kendi katmaninda: kukla her karede sallanirken sayfanin geri
+    // kalani yeniden boyanmiyor.
+    if (widget.sahne) return RepaintBoundary(child: _sahneGorunumu(calisan));
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
@@ -674,7 +686,10 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
           // "1 ile 6 arasinda rastgele bir sayi sec de" gibi bir kodun
           // sahnede isi yok: kukla yurumuyor, ziplamiyor, isik yanmiyor.
           // Hareketi olmayan kodda yalnizca maskot ve konusma balonu var.
-          if (_hareketVar) _sahne() else _sadeMaskot(),
+          if (_hareketVar)
+            RepaintBoundary(child: _sahne())
+          else
+            _sadeMaskot(),
 
           // BITIS SERIDI — yeri bastan ayrilmis: belirdiginde sayfa
           // kaymiyor.
@@ -716,7 +731,17 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
     final String metin;
     final IconData ikon;
     final Color renk;
-    if (_elleDurdu) {
+    if (_yurutme.yalnizTanim && !_elleDurdu) {
+      // 11.1: kod alaninda yalnizca tanim var. "Kodun sonuna geldi"
+      // demek yanlis olurdu: hicbir blok calismadi.
+      metin = _t(
+          'Tanım tek başına çalışmaz; onu bir çağrı bloğu çalıştırır.',
+          'A definition does not run on its own; a call block runs it.',
+          'Eine Definition läuft nicht von selbst; ein Aufruf-Block startet sie.',
+          'Una definición no se ejecuta sola; la ejecuta un bloque de llamada.');
+      ikon = Icons.menu_book_rounded;
+      renk = const Color(0xFF3D5A80);
+    } else if (_elleDurdu) {
       metin = _t(
           'Kodu durdurdun. Yeşil bayrakla yeniden başlat.',
           'You stopped the code. Press the green flag to start again.',
@@ -1196,7 +1221,14 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
       );
 
   /// Kodda sahnede gorunur bir sey yapan blok var mi?
-  bool get _hareketVar => widget.blocks.any((b) {
+  ///
+  /// Kendi blogunun govdesindeki bloklar da sayiliyor: `cokgen 6`
+  /// cagrisi kod alaninda tek bir blok ama sahnede altigen ciziyor.
+  bool get _hareketVar => [
+        ...widget.blocks,
+        for (final a in _yurutme.adimlar)
+          if (a.blok != null) a.blok!,
+      ].any((b) {
         final e = _etkisi(b);
         return e == _Etki.hareket ||
             e == _Etki.ziplama ||
@@ -1255,6 +1287,15 @@ class _Harita {
         : yukseklik - dolgu;
     return Offset(x, y);
   }
+
+  /// Ayni olcuyle mi kurulmus? (Boyacinin yeniden cizip cizmeyecegi.)
+  bool ayni(_Harita o) =>
+      o.sinirlar == sinirlar &&
+      o.genislik == genislik &&
+      o.yukseklik == yukseklik &&
+      o.dolgu == dolgu &&
+      o.ustPay == ustPay &&
+      o.altaYasla == altaYasla;
 
   /// Zemin cizgisinin yuksekligi: en alttaki noktada kuklanin ayaklari.
   double get zemin =>
@@ -1316,6 +1357,14 @@ class _SahneBoyaci extends CustomPainter {
     }
   }
 
+  /// Yalnizca cizilen sey degistiyse. Eskiden her zaman `true`: kukla
+  /// her karede sallanirken kalem cizgileri ve noktali yol da bastan
+  /// ciziliyordu.
   @override
-  bool shouldRepaint(covariant _SahneBoyaci old) => true;
+  bool shouldRepaint(covariant _SahneBoyaci old) =>
+      old.renk != renk ||
+      old.zeminCiz != zeminCiz ||
+      !old.harita.ayni(harita) ||
+      !listEquals(old.cizgiler, cizgiler) ||
+      !listEquals(old.yol, yol);
 }

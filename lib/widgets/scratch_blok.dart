@@ -252,7 +252,23 @@ enum _Bicim { yazi, yuvarlak, altigen, kutu, ikon }
 
 const Color _girdiYazisi = Color(0xFF575E75);
 
-TextPainter _yazi(String s, double olcek, Color renk) => TextPainter(
+/// Yazi yerlesimi onbellegi.
+///
+/// Ayni blok yazisi (ayni metin, olcek, renk) kod alani her yeniden
+/// cizildiginde bastan olculuyordu; kod calisirken bu her adimda tum
+/// bloklar icin tekrarlaniyordu. Sinirli: dolunca bosaltiliyor.
+final Map<String, TextPainter> _yaziOnbellegi = {};
+const int _yaziOnbellekSiniri = 600;
+
+TextPainter _yazi(String s, double olcek, Color renk) {
+  final anahtar = '$s\u0000$olcek\u0000${renk.toARGB32()}';
+  final onceki = _yaziOnbellegi[anahtar];
+  if (onceki != null) return onceki;
+  if (_yaziOnbellegi.length >= _yaziOnbellekSiniri) _yaziOnbellegi.clear();
+  return _yaziOnbellegi[anahtar] = _yaziOlc(s, olcek, renk);
+}
+
+TextPainter _yaziOlc(String s, double olcek, Color renk) => TextPainter(
       text: TextSpan(
         text: s,
         style: TextStyle(
