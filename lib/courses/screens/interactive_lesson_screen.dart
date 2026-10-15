@@ -8,6 +8,7 @@ import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
 import '../../providers/auth_provider.dart';
 import 'widgets/mblock_blok_adimi.dart';
+import 'widgets/proje_atolyesi.dart';
 import 'widgets/step_widgets.dart';
 import 'package:confetti/confetti.dart';
 import '../../theme.dart';
@@ -679,6 +680,19 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
             step.id,
             xpEarned: correct ? step.xpReward : 0,
           ),
+        );
+
+      case StepType.atolye:
+        return ProjeAtolyesiWidget(
+          step: step as ProjeAtolyesiStep,
+          course: widget.course,
+          isDark: isDark,
+          lang: lessonLang(context),
+          // Butun hedefler saglaninca XP (bir kez); "Sonra devam
+          // ederim" ilerletir ama XP vermez.
+          onComplete: (tamam) =>
+              _onStepCompleted(step.id, xpEarned: tamam ? step.xpReward : 0),
+          onDevam: _nextStep,
         );
 
       case StepType.animation:

@@ -15,6 +15,7 @@ import '../tanitim/kurs_acilis_ekrani.dart';
 import '../tanitim/kurs_kapanis_ekrani.dart';
 import '../tanitim/kurs_tanitimi.dart';
 import 'module_quiz_screen.dart';
+import 'projelerim_ekrani.dart';
 import 'widgets/kurs_yol_haritasi.dart';
 import '../../services/sound_service.dart';
 import 'widgets/step_widgets.dart'
@@ -165,6 +166,8 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         slivers: [
           _buildHeader(isDark),
           SliverToBoxAdapter(child: _buildProgressCard(isDark)),
+          if (_atolyeKarti() case final kart?)
+            SliverToBoxAdapter(child: kart),
           if (_modules.length > 1)
             SliverToBoxAdapter(child: _buildYolHaritasi(isDark)),
           SliverToBoxAdapter(child: _buildModuleTabs(isDark)),
@@ -605,6 +608,33 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         ],
       ),
     );
+  }
+
+  /// Scratch: "Projelerim" (kayitli atolye projeleri).
+  Widget? _atolyeKarti() {
+    final lang = lessonLang(context);
+    switch (widget.course.id) {
+      case 'scratch':
+        return KursAtolyeKarti(
+          key: const ValueKey('projelerim_karti'),
+          course: widget.course,
+          ikon: Icons.extension_rounded,
+          baslik: lessonText(lang, 'Projelerim', 'My Projects',
+              'Meine Projekte', 'Mis proyectos'),
+          altBaslik: lessonText(
+              lang,
+              'Atölyede kaydettiğin projeler; aç, çalıştır, değiştir',
+              'Projects you saved in the workshop: open, run, change',
+              'Deine gespeicherten Werkstatt-Projekte: öffnen, starten, ändern',
+              'Tus proyectos guardados del taller: abrir, ejecutar, cambiar'),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => ProjelerimEkrani(course: widget.course)),
+          ),
+        );
+    }
+    return null;
   }
 
   Widget _buildModuleTabs(bool isDark) {

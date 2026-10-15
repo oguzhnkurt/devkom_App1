@@ -98,6 +98,7 @@ const Set<StepType> supportedStepTypes = {
   StepType.codeComplete,
   StepType.typeTheCode,
   StepType.spotTheError,
+  StepType.atolye,
 };
 
 /// Cevap anahtarini ele veren emojiler.

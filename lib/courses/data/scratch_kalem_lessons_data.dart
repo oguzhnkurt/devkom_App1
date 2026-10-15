@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../models/interactive_lesson_model.dart';
+import '../yurutme/atolye_hedefleri.dart';
+import 'scratch_atolyeleri.dart';
 
 /// Scratch kursu — Modül 8: Kalem ve Çizim.
 ///
@@ -354,10 +356,22 @@ class ScratchKalemLessonsData {
           instructionEn: 'Clear the stage and draw one straight line.',
           instructionDe: 'Räume die Bühne und zeichne eine gerade Linie.',
           instructionEs: 'Limpia el escenario y dibuja una línea recta.',
-          goal: 'Bayrak → sil → kalem indir → 150 adım git',
-          goalEn: 'Flag → erase all → pen down → move 150 steps',
-          goalDe: 'Flagge → lösche alles → Stift ein → gehe 150 er Schritt',
-          goalEs: 'Bandera → borrar todo → bajar lápiz → mover 150 pasos',
+          goal: 'Bayrağa basınca ekran temizlensin ve Devi arkasında düz '
+              'bir çizgi bıraksın.',
+          goalEn: 'When the flag is pressed, the stage is cleared and Devi '
+              'leaves a straight line behind.',
+          goalDe: 'Bei der Flagge wird die Bühne geleert und Devi hinterlässt '
+              'eine gerade Linie.',
+          goalEs: 'Al pulsar la bandera se limpia el escenario y Devi deja una '
+              'línea recta detrás.',
+          ipucu: 'Temizlik en başta olur. Kalem yürümeden ÖNCE inmeli; '
+              'kaldırılmış kalem çizmez.',
+          ipucuEn: 'Clearing comes first. The pen must go down BEFORE walking; '
+              'a lifted pen draws nothing.',
+          ipucuDe: 'Löschen kommt zuerst. Der Stift muss VOR dem Gehen runter; '
+              'ein ausgeschalteter Stift zeichnet nichts.',
+          ipucuEs: 'Limpiar va primero. El lápiz debe bajar ANTES de andar; un '
+              'lápiz subido no dibuja.',
           availableBlocks: [
             _bayrak(),
             _sil(),
@@ -554,14 +568,23 @@ class ScratchKalemLessonsData {
           instructionEn: 'Draw a square.',
           instructionDe: 'Zeichne ein Quadrat.',
           instructionEs: 'Dibuja un cuadrado.',
-          goal: 'Bayrak → sil → kalem indir → 4 kere { 100 adım git, 90 '
-              'derece dön }',
-          goalEn: 'Flag → erase all → pen down → repeat 4 { move 100, turn '
-              '90 }',
-          goalDe: 'Flagge → lösche alles → Stift ein → wiederhole 4 mal '
-              '{ gehe 100, drehe 90 }',
-          goalEs: 'Bandera → borrar todo → bajar lápiz → repetir 4 { mover '
-              '100, girar 90 }',
+          goal: 'Dört eşit kenarlı, dört köşesi aynı bir şekil çiz; '
+              'kalem başladığı yere dönsün.',
+          goalEn: 'Draw a shape with four equal sides and four equal corners; '
+              'the pen ends where it started.',
+          goalDe: 'Zeichne eine Form mit vier gleichen Seiten und vier gleichen '
+              'Ecken; der Stift endet, wo er begann.',
+          goalEs: 'Dibuja una figura con cuatro lados iguales y cuatro esquinas '
+              'iguales; el lápiz acaba donde empezó.',
+          ipucu: 'Kenar ve köşe dört kez tekrarlanıyor: ikisi de döngünün '
+              'İÇİNDE. Kalemi döngüden ÖNCE indir.',
+          ipucuEn: 'The side and the corner repeat four times: both go INSIDE '
+              'the loop. Put the pen down BEFORE the loop.',
+          ipucuDe: 'Seite und Ecke wiederholen sich viermal: beide gehören IN '
+              'die Schleife. Schalte den Stift VOR der Schleife ein.',
+          ipucuEs: 'El lado y la esquina se repiten cuatro veces: los dos van '
+              'DENTRO del bucle. Baja el lápiz ANTES del bucle.',
+          yapi: 'green_flag pen_clear pen_down repeat_4 move_100 turn_90 }',
           availableBlocks: [
             _bayrak(),
             _sil(),
@@ -578,6 +601,60 @@ class ScratchKalemLessonsData {
             'repeat_4',
             'move_100',
             'turn_90',
+          ],
+          xpReward: 35,
+        ),
+
+        // SONUCA BAKAN ADIM: ucgen. Sayilar degistirilebiliyor; denetim
+        // sirayi degil cizimi denetliyor (3 kenar, kapali).
+        BlockBuilderStep(
+          id: 's8_2_ucgen',
+          instruction: 'Şimdi bir üçgen çiz. Sayılara dokunup '
+              'değiştirebilirsin.',
+          instructionEn: 'Now draw a triangle. You can tap the numbers to '
+              'change them.',
+          instructionDe: 'Zeichne jetzt ein Dreieck. Tippe auf die Zahlen, um '
+              'sie zu ändern.',
+          instructionEs: 'Ahora dibuja un triángulo. Puedes tocar los números '
+              'para cambiarlos.',
+          goal: 'Kalem üç kenarlı kapalı bir şekil çizsin.',
+          goalEn: 'The pen draws a closed shape with three sides.',
+          goalDe: 'Der Stift zeichnet eine geschlossene Form mit drei Seiten.',
+          goalEs: 'El lápiz dibuja una figura cerrada de tres lados.',
+          ipucu: 'Döngü kenar sayısı kadar dönmeli. Açı için 360 kuralını '
+              'hatırla: 360 ÷ kenar sayısı.',
+          ipucuEn: 'The loop runs once per side. For the angle, remember the '
+              'rule of 360: 360 ÷ number of sides.',
+          ipucuDe: 'Die Schleife läuft einmal pro Seite. Für den Winkel: '
+              '360 ÷ Anzahl der Seiten.',
+          ipucuEs: 'El bucle da una vuelta por lado. Para el ángulo, recuerda: '
+              '360 ÷ número de lados.',
+          availableBlocks: [
+            _bayrak(),
+            _sil(),
+            _kalemIndir(),
+            _tekrarla('4', id: 'repeat_4'),
+            _git('100', id: 'move_100'),
+            _don('90', id: 'turn_90'),
+            _kalemKaldir(),
+          ],
+          correctSequence: [
+            'green_flag',
+            'pen_down',
+            'repeat_4',
+            'move_100',
+            'turn_90',
+          ],
+          yapi: 'green_flag pen_down repeat_4=3 move_100 turn_90=120 }',
+          sayiDuzenlenebilir: const {'repeat_4', 'move_100', 'turn_90'},
+          sonucHedefleri: const [
+            KapaliSekilHedefi(
+              metin: 'Üç kenarlı, kapalı bir şekil',
+              metinEn: 'A closed shape with three sides',
+              metinDe: 'Eine geschlossene Form mit drei Seiten',
+              metinEs: 'Una figura cerrada de tres lados',
+              kenar: 3,
+            ),
           ],
           xpReward: 35,
         ),
@@ -741,6 +818,9 @@ class ScratchKalemLessonsData {
               'círculo: una figura con muchos lados.',
           xpReward: 15,
         ),
+
+        // Modul projesi: yildiz (Proje Atolyesi).
+        ScratchAtolyeleri.yildizCiz,
 
         ExplanationStep(
           id: 's8_2_summary',

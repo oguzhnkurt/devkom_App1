@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/interactive_lesson_model.dart';
+import 'scratch_atolyeleri.dart';
 
 /// Scratch kursu — Modül 9, 10 ve 11.
 ///
@@ -469,14 +470,14 @@ class ScratchIleriLessonsData {
           instructionEn: 'Turn your sprite into a die.',
           instructionDe: 'Mach aus deiner Figur einen Würfel.',
           instructionEs: 'Convierte tu objeto en un dado.',
-          goal: 'Bayrak → "de" bloğu, içinde 1 ile 6 arasında rastgele bir '
-              'sayı. Oval bloğu tek başına bırakma.',
-          goalEn: 'Flag → a "say" block holding pick random 1 to 6. Do not '
-              'leave the oval block on its own.',
-          goalDe: 'Flagge → ein «sage»-Block mit Zufallszahl von 1 bis 6 '
-              'darin. Lass den ovalen Block nicht allein stehen.',
-          goalEs: 'Bandera → un bloque «decir» con número aleatorio entre '
-              '1 y 6 dentro. No dejes solo el bloque ovalado.',
+          goal: 'Bayrağa her basışta Devi 1 ile 6 arasında bir sayı söylesin; tıpkı bir zar gibi her seferinde başka olabilsin.',
+          goalEn: 'Every time the flag is pressed, Devi says a number from 1 to 6; like a die, it can be different each time.',
+          goalDe: 'Bei jedem Druck auf die Flagge sagt Devi eine Zahl von 1 bis 6; wie ein Würfel kann sie jedes Mal anders sein.',
+          goalEs: 'Cada vez que pulsas la bandera, Devi dice un número del 1 al 6; como un dado, puede cambiar cada vez.',
+          ipucu: 'Oval (yuvarlak) blok tek başına kod alanına konmaz: bir sayıyı SÖYLEYEN bloğun içinde olmalı.',
+          ipucuEn: 'An oval block does not go into the code area alone: it must sit inside a block that SAYS something.',
+          ipucuDe: 'Ein ovaler Block steht nicht allein im Codebereich: Er gehört in einen Block, der etwas SAGT.',
+          ipucuEs: 'Un bloque ovalado no va solo al área de código: debe estar dentro de un bloque que DIGA algo.',
           availableBlocks: [
             _bayrak(),
             _de('1 ile 6 arasında rastgele bir sayı seç',
@@ -794,11 +795,14 @@ class ScratchIleriLessonsData {
           instructionEn: 'Warn the player while the score is low.',
           instructionDe: 'Warne, solange die Punktzahl niedrig ist.',
           instructionEs: 'Avisa mientras la puntuación sea baja.',
-          goal: 'Bayrak → eğer (puan < 5) ise → içine "Devam et!" de',
-          goalEn: 'Flag → if (score < 5) then → say "Keep going!" inside',
-          goalDe: 'Flagge → falls (Punkte < 5), dann → darin sage «Weiter!»',
-          goalEs: 'Bandera → si (puntos < 5) entonces → dentro, decir '
-              '«¡Sigue!»',
+          goal: 'Puan 5\'ten azsa Devi "Devam et!" desin; değilse sussun.',
+          goalEn: 'If the score is less than 5, Devi says "Keep going!"; otherwise he stays quiet.',
+          goalDe: 'Wenn die Punkte unter 5 sind, sagt Devi „Weiter so!“; sonst schweigt er.',
+          goalEs: 'Si los puntos son menos de 5, Devi dice "¡Sigue!"; si no, se calla.',
+          ipucu: 'Altıgen blok tek başına bir şey yapmaz; bir "eğer" bloğunun içinde soru sorar. Hangisi "puan < 5" diyor?',
+          ipucuEn: 'A hexagon block does nothing alone; it asks a question inside an "if" block. Which one says "score < 5"?',
+          ipucuDe: 'Ein Sechseck-Block tut allein nichts; er stellt in einem „falls“-Block eine Frage. Welcher sagt „Punkte < 5“?',
+          ipucuEs: 'Un bloque hexagonal no hace nada solo; pregunta dentro de un bloque "si". ¿Cuál dice "puntos < 5"?',
           availableBlocks: [
             _bayrak(),
             _eger(
@@ -1003,6 +1007,9 @@ class ScratchIleriLessonsData {
               'rompería.',
           xpReward: 15,
         ),
+
+        // Modul projesi (Proje Atolyesi).
+        ScratchAtolyeleri.zarOyunu,
 
         ExplanationStep(
           id: 's9_2_summary',
@@ -1260,14 +1267,14 @@ class ScratchIleriLessonsData {
           instructionEn: 'Add two things to the shopping list.',
           instructionDe: 'Füge zwei Dinge zur Einkaufsliste hinzu.',
           instructionEs: 'Añade dos cosas a la lista de la compra.',
-          goal: 'Bayrak → elma ekle → muz ekle. Sıra önemli: elma 1., muz '
-              '2. öğe olur.',
-          goalEn: 'Flag → add apple → add banana. Order matters: apple '
-              'becomes item 1, banana item 2.',
-          goalDe: 'Flagge → Apfel hinzufügen → Banane hinzufügen. Die '
-              'Reihenfolge zählt: Apfel wird Element 1, Banane Element 2.',
-          goalEs: 'Bandera → añadir manzana → añadir plátano. El orden '
-              'importa: manzana es el 1, plátano el 2.',
+          goal: 'Alışveriş listesinin 1. öğesi elma, 2. öğesi muz olsun.',
+          goalEn: 'The shopping list\'s item 1 is apple and item 2 is banana.',
+          goalDe: 'Element 1 der Einkaufsliste ist Apfel, Element 2 ist Banane.',
+          goalEs: 'El elemento 1 de la lista es manzana y el 2 es plátano.',
+          ipucu: 'Listeye ilk eklenen şey 1. sıraya girer. Silen blok burada gerekli mi?',
+          ipucuEn: 'The first thing you add becomes item 1. Do you need the deleting block here?',
+          ipucuDe: 'Was du zuerst hinzufügst, wird Element 1. Brauchst du hier den Lösch-Block?',
+          ipucuEs: 'Lo primero que añades es el elemento 1. ¿Necesitas aquí el bloque de borrar?',
           availableBlocks: [
             _bayrak(),
             _listeyeEkle('elma', 'alışveriş',
@@ -1595,14 +1602,14 @@ class ScratchIleriLessonsData {
           instructionEn: 'Pull a random question out of the bag.',
           instructionDe: 'Zieh eine zufällige Frage aus dem Beutel.',
           instructionEs: 'Saca una pregunta al azar de la bolsa.',
-          goal: 'Bayrak → "de" bloğu, içinde sorular listesinin rastgele '
-              'bir öğesi. Sabit numara yazan bloğu seçme.',
-          goalEn: 'Flag → a "say" block holding a random item of the '
-              'questions list. Do not pick the block with a fixed number.',
-          goalDe: 'Flagge → ein «sage»-Block mit einem zufälligen Element '
-              'der Fragenliste. Nicht den Block mit fester Nummer nehmen.',
-          goalEs: 'Bandera → un bloque «decir» con un elemento al azar de '
-              'la lista de preguntas. No elijas el de número fijo.',
+          goal: 'Bayrağa her basışta Devi soru listesinden rastgele bir soru sorsun; hep aynı soru gelmesin.',
+          goalEn: 'Every time the flag is pressed, Devi asks a random question from the list; not the same one every time.',
+          goalDe: 'Bei jedem Druck auf die Flagge stellt Devi eine zufällige Frage aus der Liste; nicht immer dieselbe.',
+          goalEs: 'Cada vez que pulsas la bandera, Devi hace una pregunta al azar de la lista; no siempre la misma.',
+          ipucu: 'Sabit bir sıra numarası hep aynı soruyu getirir. Rastgeleliği hangi blok getiriyor?',
+          ipucuEn: 'A fixed item number always gives the same question. Which block brings the randomness?',
+          ipucuDe: 'Eine feste Nummer bringt immer dieselbe Frage. Welcher Block bringt den Zufall?',
+          ipucuEs: 'Un número fijo siempre da la misma pregunta. ¿Qué bloque trae el azar?',
           availableBlocks: [
             _bayrak(),
             _de('sorular in 1 ile uzunluğu arasında rastgele öğesi',
@@ -1750,6 +1757,9 @@ class ScratchIleriLessonsData {
               'preguntas han salido y puedes terminar.',
           xpReward: 20,
         ),
+
+        // Modul projesi (Proje Atolyesi).
+        ScratchAtolyeleri.alisverisListesi,
 
         ExplanationStep(
           id: 's10_2_summary',
@@ -1950,15 +1960,14 @@ class ScratchIleriLessonsData {
           instructionEn: 'DEFINE the square block.',
           instructionDe: 'DEFINIERE den Quadrat-Block.',
           instructionEs: 'DEFINE el bloque cuadrado.',
-          goal: 'kare i tanımla → 4 defa tekrarla { 100 adım git, 90 derece '
-              'dön }. Başa bayrak koyma: tanım kendi başlığıyla başlar.',
-          goalEn: 'define square → repeat 4 { move 100, turn 90 }. No flag '
-              'on top: a definition has its own hat.',
-          goalDe: 'Definiere Quadrat → wiederhole 4 mal { gehe 100, drehe '
-              '90 }. Keine Flagge oben: die Definition hat ihren eigenen '
-              'Hut.',
-          goalEs: 'definir cuadrado → repetir 4 { mover 100, girar 90 }. '
-              'Sin bandera arriba: la definición ya tiene su sombrero.',
+          goal: 'Kendi \'kare\' bloğunun tarifini yaz: çağrılınca bir kare çizsin. Tarif kendi başına çalışmaz, o yüzden bayrak yok.',
+          goalEn: 'Write the recipe for your own \'square\' block: when called, it draws a square. A recipe does not run by itself, so there is no flag.',
+          goalDe: 'Schreib das Rezept für deinen eigenen Block „Quadrat“: Wenn er aufgerufen wird, zeichnet er ein Quadrat. Ein Rezept läuft nicht von allein, darum keine Flagge.',
+          goalEs: 'Escribe la receta de tu propio bloque \'cuadrado\': al llamarlo dibuja un cuadrado. Una receta no se ejecuta sola, así que no hay bandera.',
+          ipucu: 'Tarif pembe \'tanımla\' şapkasıyla başlar. Kare için hangi döngüyü hatırlıyorsun?',
+          ipucuEn: 'A recipe starts with the pink \'define\' hat. Which loop do you remember for a square?',
+          ipucuDe: 'Ein Rezept beginnt mit dem rosa Hut „Definiere“. Welche Schleife kennst du schon für ein Quadrat?',
+          ipucuEs: 'Una receta empieza con el sombrero rosa \'definir\'. ¿Qué bucle recuerdas para un cuadrado?',
           availableBlocks: [
             _tanimla('kare',
                 id: 'define_square',
@@ -1985,14 +1994,14 @@ class ScratchIleriLessonsData {
           instructionEn: 'Now CALL the square block — three times.',
           instructionDe: 'Jetzt RUFE den Quadrat-Block auf — dreimal.',
           instructionEs: 'Ahora LLAMA al bloque cuadrado, tres veces.',
-          goal: 'Bayrak → 3 defa tekrarla { kare, 120 derece dön }. Dört '
-              'blokla üç kare çizdin.',
-          goalEn: 'Flag → repeat 3 { square, turn 120 }. Three squares out '
-              'of four blocks.',
-          goalDe: 'Flagge → wiederhole 3 mal { Quadrat, drehe 120 }. Drei '
-              'Quadrate aus vier Blöcken.',
-          goalEs: 'Bandera → repetir 3 { cuadrado, girar 120 }. Tres '
-              'cuadrados con cuatro bloques.',
+          goal: 'Kare bloğunla üç kare çiz; her kareden sonra biraz dön ki ortaya bir çiçek çıksın.',
+          goalEn: 'Use your square block to draw three squares, turning a bit after each one so a flower appears.',
+          goalDe: 'Zeichne mit deinem Quadrat-Block drei Quadrate und dreh dich nach jedem ein Stück, damit eine Blume entsteht.',
+          goalEs: 'Usa tu bloque cuadrado para dibujar tres cuadrados y gira un poco después de cada uno para que salga una flor.',
+          ipucu: 'Kare bloğunu tek tek üç kez koymana gerek yok: bir döngü bunu senin yerine yapar.',
+          ipucuEn: 'You do not need to place the square block three times: a loop can do it for you.',
+          ipucuDe: 'Du musst den Quadrat-Block nicht dreimal hinlegen: Eine Schleife macht das für dich.',
+          ipucuEs: 'No hace falta poner el bloque cuadrado tres veces: un bucle lo hace por ti.',
           availableBlocks: [
             _bayrak(),
             _tekrarla('3', id: 'repeat_3'),
@@ -2405,14 +2414,14 @@ class ScratchIleriLessonsData {
           instructionEn: 'Define the polygon block with an input.',
           instructionDe: 'Definiere den Vieleck-Block mit Eingabe.',
           instructionEs: 'Define el bloque polígono con entrada.',
-          goal: 'çokgen (kenar) i tanımla → kenar defa tekrarla { 100 adım '
-              'git, (360 / kenar) derece dön }',
-          goalEn: 'define polygon (sides) → repeat (sides) { move 100, turn '
-              '(360 / sides) }',
-          goalDe: 'Definiere Vieleck (Seiten) → wiederhole (Seiten) mal '
-              '{ gehe 100, drehe (360 / Seiten) }',
-          goalEs: 'definir polígono (lados) → repetir (lados) { mover 100, '
-              'girar (360 / lados) }',
+          goal: 'Çokgen bloğunun tarifini yaz: kaç kenar istenirse o kadar kenarlı, kapalı bir şekil çizsin.',
+          goalEn: 'Write the recipe for the polygon block: it draws a closed shape with as many sides as you ask for.',
+          goalDe: 'Schreib das Rezept für den Vieleck-Block: Er zeichnet eine geschlossene Form mit so vielen Seiten, wie du willst.',
+          goalEs: 'Escribe la receta del bloque polígono: dibuja una figura cerrada con tantos lados como pidas.',
+          ipucu: 'Sabit sayılar yerine pembe \'kenar\' girdisini kullanan blokları seç: dönüş açısı da kenara bağlı.',
+          ipucuEn: 'Pick the blocks that use the pink \'sides\' input instead of fixed numbers: the turn depends on the sides too.',
+          ipucuDe: 'Nimm die Blöcke mit der rosa Eingabe „Seiten“ statt fester Zahlen: Auch die Drehung hängt von den Seiten ab.',
+          ipucuEs: 'Elige los bloques que usan la entrada rosa \'lados\' en vez de números fijos: el giro también depende de los lados.',
           availableBlocks: [
             _tanimla('çokgen (kenar)',
                 id: 'define_polygon',
@@ -2447,14 +2456,14 @@ class ScratchIleriLessonsData {
           instructionEn: 'Draw a hexagon with that same block.',
           instructionDe: 'Zeichne mit demselben Block ein Sechseck.',
           instructionEs: 'Dibuja un hexágono con ese mismo bloque.',
-          goal: 'Bayrak → çokgen 6. Tek çağrı yetiyor; açıyı blok kendi '
-              'hesaplıyor.',
-          goalEn: 'Flag → polygon 6. One call is enough; the block works '
-              'out the angle itself.',
-          goalDe: 'Flagge → Vieleck 6. Ein Aufruf genügt; den Winkel '
-              'rechnet der Block selbst.',
-          goalEs: 'Bandera → polígono 6. Basta una llamada; el bloque '
-              'calcula el ángulo.',
+          goal: 'Bayrağa basınca bir altıgen çizilsin; bunun için tek bir blok yetiyor.',
+          goalEn: 'When the flag is pressed, a hexagon is drawn; one block is enough for that.',
+          goalDe: 'Bei der Flagge wird ein Sechseck gezeichnet; dafür reicht ein einziger Block.',
+          goalEs: 'Al pulsar la bandera se dibuja un hexágono; basta con un solo bloque.',
+          ipucu: 'Altıgenin kaç kenarı var? Çağırdığın bloğun içindeki sayıya bak.',
+          ipucuEn: 'How many sides does a hexagon have? Look at the number on the block you call.',
+          ipucuDe: 'Wie viele Seiten hat ein Sechseck? Schau auf die Zahl im Block, den du aufrufst.',
+          ipucuEs: '¿Cuántos lados tiene un hexágono? Mira el número del bloque que llamas.',
           availableBlocks: [
             _bayrak(),
             _kendiBlok('çokgen 6',
@@ -2530,6 +2539,9 @@ class ScratchIleriLessonsData {
               'de ocho lados.',
           xpReward: 20,
         ),
+
+        // Modul projesi (Proje Atolyesi).
+        ScratchAtolyeleri.cokgenCicegi,
 
         ExplanationStep(
           id: 's11_2_summary',

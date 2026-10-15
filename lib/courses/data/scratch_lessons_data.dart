@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/interactive_lesson_model.dart';
+import 'scratch_atolye_bloklari.dart';
+import 'scratch_atolyeleri.dart';
 import 'scratch_ileri_lessons_data.dart';
 import 'scratch_kalem_lessons_data.dart';
 
@@ -1195,59 +1197,8 @@ class ScratchLessonsData {
         ),
 
         // Mini project
-        ProjectStep(
-          id: 's2_1_project',
-          title: 'Mini Proje: Işık Anahtarı',
-          titleEn: 'Mini Project: Light Switch',
-          titleDe: 'Miniprojekt: Lichtschalter',
-          titleEs: 'Miniproyecto: interruptor de luz',
-          description: 'Tuşa basınca ışık açılsın, tekrar basınca kapansın!',
-          descriptionEn: 'Pressing the key turns the light on, pressing it again turns it off!',
-          descriptionDe: 'Taste drücken schaltet das Licht an, noch mal drücken schaltet es aus!',
-          descriptionEs: '¡Pulsas la tecla y se enciende la luz, la pulsas otra vez y se apaga!',
-          requirements: [
-            'Boşluk tuşuna basılınca ışık yansın (parlak kılık)',
-            'Tekrar basılınca sönsün (karanlık kılık)',
-          ],
-          requirementsEn: [
-            'When the space key is pressed, the light turns on (bright costume)',
-            'Pressing it again turns it off (dark costume)',
-          ],
-          requirementsDe: [
-            'Wenn die Leertaste gedrückt wird, geht das Licht an (helles Kostüm)',
-            'Beim nächsten Drücken geht es wieder aus (dunkles Kostüm)',
-          ],
-          requirementsEs: [
-            'Al presionar la tecla espacio se enciende la luz (disfraz brillante)',
-            'Al presionarla otra vez se apaga (disfraz oscuro)',
-          ],
-          hints: [
-            'Bir değişken kullan: ışık_açık',
-            '"eğer <ışık_açık = 1> ise" ile karanlık kılığa geç',
-            'Değilse parlak kılığa geç',
-          ],
-          hintsEn: [
-            'Use a variable: light_on',
-            'Use "if <light_on = 1> then" to switch to the dark costume',
-            'Otherwise switch to the bright costume',
-          ],
-          hintsDe: [
-            'Benutze eine Variable: licht_an',
-            'Wechsle mit "falls <licht_an = 1>, dann" zum dunklen Kostüm',
-            'Sonst wechsle zum hellen Kostüm',
-          ],
-          hintsEs: [
-            'Usa una variable: luz_encendida',
-            'Con "si <luz_encendida = 1> entonces" cambia al disfraz oscuro',
-            'Si no, cambia al disfraz brillante',
-          ],
-          starterCode: '',
-          language: 'scratch',
-          validation: ProjectValidation(
-            mustContain: ['eger', 'kostum'],
-          ),
-          xpReward: 30,
-        ),
+        // Uygulama ici Proje Atolyesi (eskiden "bilgisayarinda yap").
+        ScratchAtolyeleri.tuslarlaDevi,
 
         ExplanationStep(
           id: 's2_1_summary',
@@ -1594,7 +1545,7 @@ class ScratchLessonsData {
           titleEn: 'The Game Plan',
           titleDe: 'Der Spielplan',
           titleEs: 'El plan del juego',
-          content: '🎯 Hedef: Devi fareyi yakalasın!\n\n🤖 Devi: Sen kontrol et (ok tuşları)\n🐭 Fare: Rastgele hareket etsin\n⭐ Puan: Her yakalayista +1',
+          content: '🎯 Hedef: Devi fareyi yakalasın!\n\n🤖 Devi: Sen kontrol et (ok tuşları)\n🐭 Fare: Rastgele hareket etsin\n⭐ Puan: Her yakalayışta +1',
           contentEn: '🎯 Goal: Devi catches the mouse!\n\n🤖 Devi: you control it (arrow keys)\n🐭 Mouse: it moves at random\n⭐ Score: +1 for every catch',
           contentDe: '🎯 Ziel: Devi fängt die Maus!\n\n🤖 Devi: Du steuerst ihn (Pfeiltasten)\n🐭 Maus: Sie bewegt sich zufällig\n⭐ Punkte: +1 für jeden Fang',
           contentEs: '🎯 Objetivo: ¡Devi atrapa al ratón!\n\n🤖 Devi: tú lo controlas (flechas)\n🐭 Ratón: se mueve al azar\n⭐ Puntos: +1 por cada captura',
@@ -1761,67 +1712,8 @@ class ScratchLessonsData {
         ),
 
         // Final project
-        ProjectStep(
-          id: 's3_1_project',
-          title: 'Devi ve Fare Oyunu',
-          titleEn: 'Devi and the Mouse Game',
-          titleDe: 'Devi-und-Maus-Spiel',
-          titleEs: 'Juego de Devi y el ratón',
-          description: 'Tam oyunu tamamla!',
-          descriptionEn: 'Finish the whole game!',
-          descriptionDe: 'Mach das ganze Spiel fertig!',
-          descriptionEs: '¡Termina el juego completo!',
-          requirements: [
-            'Devi 4 yönde hareket etsin',
-            'Fare yakalanınca rastgele bir yere kaçsın',
-            'Her yakalamada puan artsın',
-            'Puanı sahnede göster',
-          ],
-          requirementsEn: [
-            'Devi moves in four directions',
-            'When the mouse is caught, it runs to a random spot',
-            'Every catch increases the score',
-            'Show the score on the stage',
-          ],
-          requirementsDe: [
-            'Devi bewegt sich in vier Richtungen',
-            'Wird die Maus gefangen, flieht sie an einen zufälligen Ort',
-            'Jeder Fang erhöht die Punktzahl',
-            'Zeige die Punktzahl auf der Bühne',
-          ],
-          requirementsEs: [
-            'Devi se mueve en cuatro direcciones',
-            'Cuando atrapan al ratón, huye a un lugar al azar',
-            'Cada captura aumenta la puntuación',
-            'Muestra la puntuación en el escenario',
-          ],
-          hints: [
-            'Puan için bir değişken oluştur',
-            'Fare kuklası için ayrı bir kod yaz',
-            '"rastgele bir sayı seç" bloğuyla kaçacağı yeri belirle',
-          ],
-          hintsEn: [
-            'Create a variable for the score',
-            'Write separate code for the mouse sprite',
-            'Use "pick random" to choose where it runs to',
-          ],
-          hintsDe: [
-            'Lege eine Variable für die Punktzahl an',
-            'Schreibe eigenen Code für die Maus-Figur',
-            'Wähle mit "Zufallszahl von ... bis ..." das Fluchtziel',
-          ],
-          hintsEs: [
-            'Crea una variable para la puntuación',
-            'Escribe código aparte para el objeto ratón',
-            'Elige el destino con "número aleatorio entre ... y ..."',
-          ],
-          starterCode: '',
-          language: 'scratch',
-          validation: ProjectValidation(
-            mustContain: ['degisken', 'degdi', 'rastgele'],
-          ),
-          xpReward: 50,
-        ),
+        // Uygulama ici Proje Atolyesi (eskiden "bilgisayarinda yap").
+        ScratchAtolyeleri.yakalaOyunu,
 
         ExplanationStep(
           id: 's3_1_summary',
@@ -1887,6 +1779,47 @@ class ScratchLessonsData {
           ],
         ),
 
+        // DEGISKENE KISA GIRIS. Degiskenler 4. modulde anlatiliyor; bu
+        // ders sureyi bir degiskenle tutuyor. Dersi 4. modulun arkasina
+        // tasimak yerine (ilerleme kayitlari ders kimligine ve sirasina
+        // bagli) burada iki cumlelik bir giris var.
+        ExplanationStep(
+          id: 's3_2_degisken',
+          title: 'Önce: Değişken Nedir?',
+          titleEn: 'First: What Is a Variable?',
+          titleDe: 'Zuerst: Was ist eine Variable?',
+          titleEs: 'Primero: ¿qué es una variable?',
+          content: 'Değişken, adı olan bir kutu: içinde bir sayı tutar. '
+              '"süre değişkenini 5 yap" kutuya 5 koyar; "süre i -1 kadar '
+              'değiştir" içindeki sayıyı bir azaltır.\n\n'
+              'Bu derste süreyi böyle bir kutuda tutacağız. Değişkenleri '
+              '4. modülde ayrıntılı öğreneceksin.',
+          contentEn: 'A variable is a box with a name: it holds a number. '
+              '"set time to 5" puts 5 in the box; "change time by -1" makes '
+              'the number one smaller.\n\n'
+              'In this lesson we keep the time in a box like that. You will '
+              'learn variables in detail in module 4.',
+          contentDe: 'Eine Variable ist eine Kiste mit Namen: Sie hält eine '
+              'Zahl. „setze Zeit auf 5“ legt 5 hinein; „ändere Zeit um -1“ '
+              'macht die Zahl um eins kleiner.\n\n'
+              'In dieser Lektion steht die Zeit in so einer Kiste. Variablen '
+              'lernst du in Modul 4 genauer kennen.',
+          contentEs: 'Una variable es una caja con nombre: guarda un número. '
+              '"dar a tiempo el valor 5" mete un 5 en la caja; "sumar a '
+              'tiempo -1" hace el número uno más pequeño.\n\n'
+              'En esta lección guardamos el tiempo en una caja así. Verás '
+              'las variables a fondo en el módulo 4.',
+          tipEmoji: '📦',
+          tip: 'Sahnede değişkenin değerini görebilirsin: kod çalışırken '
+              'sağ üstte yazar.',
+          tipEn: 'You can see the variable on the stage: while the code runs '
+              'it shows in the top right.',
+          tipDe: 'Du siehst die Variable auf der Bühne: Während der Code '
+              'läuft, steht sie oben rechts.',
+          tipEs: 'Puedes ver la variable en el escenario: mientras el código '
+              'se ejecuta aparece arriba a la derecha.',
+        ),
+
         ExplanationStep(
           id: 's3_2_exp1',
           title: 'Zamanlayıcı Ekleme',
@@ -1922,6 +1855,60 @@ class ScratchLessonsData {
           explanationDe: 'Der "ändere"-Block rechnet zum aktuellen Wert dazu. Mit -1 wird er jedes Mal um eins kleiner.',
           explanationEs: 'El bloque "cambiar" suma al valor actual. Con -1 baja de uno en uno.',
           xpReward: 10,
+        ),
+
+        // GERI SAYIM: ic ice adim. Dongu sureyi 5'ten 0'a indiriyor;
+        // "Süre bitti!" dongunun ICINDE degil, ARDINDA. Eski kod alaninda
+        // bu kurulamazdi (C blogunun govdesi geri kalan her seydi).
+        BlockBuilderStep(
+          id: 's3_2_build1',
+          instruction: 'Geri sayım: süre 5\'ten 0\'a insin, bitince Devi '
+              '"Süre bitti!" desin.',
+          instructionEn: 'Countdown: the time goes from 5 down to 0, then Devi '
+              'says "Time is up!".',
+          instructionDe: 'Countdown: Die Zeit zählt von 5 auf 0, dann sagt Devi '
+              '„Die Zeit ist um!“.',
+          instructionEs: 'Cuenta atrás: el tiempo baja de 5 a 0 y luego Devi '
+              'dice "¡Se acabó el tiempo!".',
+          goal: 'Her saniye süre bir azalsın; süre 0 olunca bir kez "Süre '
+              'bitti!" denilsin.',
+          goalEn: 'Every second the time drops by one; when it reaches 0, '
+              '"Time is up!" is said once.',
+          goalDe: 'Jede Sekunde sinkt die Zeit um eins; bei 0 wird einmal '
+              '„Die Zeit ist um!“ gesagt.',
+          goalEs: 'Cada segundo el tiempo baja uno; al llegar a 0 se dice una '
+              'vez "¡Se acabó el tiempo!".',
+          availableBlocks: [
+            AtolyeBloklari.bayrak,
+            AtolyeBloklari.sure5,
+            AtolyeBloklari.tekrarla('5'),
+            AtolyeBloklari.bekle1,
+            AtolyeBloklari.sureAzalt,
+            AtolyeBloklari.egerSure0,
+            AtolyeBloklari.sureBittiDe,
+            AtolyeBloklari.sureArtir,
+          ],
+          correctSequence: [
+            'green_flag',
+            'set_time_5',
+            'repeat_5',
+            'wait_1s',
+            'change_time_down',
+            'if_time_0',
+            'say_time_up',
+          ],
+          yapi: 'green_flag set_time_5 repeat_5 wait_1s change_time_down } '
+              'if_time_0 say_time_up }',
+          ipucu: 'Süreyi döngüden ÖNCE 5 yap. Beklemek ve azaltmak döngünün '
+              'İÇİNDE; "eğer süre = 0" döngünün ayağının ALTINDA.',
+          ipucuEn: 'Set the time to 5 BEFORE the loop. Waiting and counting '
+              'down go INSIDE the loop; "if time = 0" goes UNDER its foot.',
+          ipucuDe: 'Setz die Zeit VOR der Schleife auf 5. Warten und '
+              'Runterzählen gehören IN die Schleife; „falls Zeit = 0“ kommt '
+              'UNTER ihren Fuß.',
+          ipucuEs: 'Pon el tiempo a 5 ANTES del bucle. Esperar y restar van '
+              'DENTRO del bucle; "si tiempo = 0" va DEBAJO de su pie.',
+          xpReward: 30,
         ),
 
         ExplanationStep(
@@ -2337,67 +2324,8 @@ class ScratchLessonsData {
           xpReward: 10,
         ),
 
-        ProjectStep(
-          id: 's4_2_project',
-          title: 'Mini Proje: Yıldız Toplayıcı',
-          titleEn: 'Mini Project: Star Collector',
-          titleDe: 'Miniprojekt: Sternensammler',
-          titleEs: 'Miniproyecto: recolector de estrellas',
-          description: 'Yıldız topla, puan kazan!',
-          descriptionEn: 'Collect stars, earn points!',
-          descriptionDe: 'Sammle Sterne, verdiene Punkte!',
-          descriptionEs: '¡Recoge estrellas y gana puntos!',
-          requirements: [
-            'Puan değişkeni oluştur',
-            'Her yıldız +10 puan versin',
-            'Puanı sahnede göster',
-            '50 puana ulaşınca "Kazandın!" de',
-          ],
-          requirementsEn: [
-            'Create a score variable',
-            'Each star gives +10 points',
-            'Show the score on the stage',
-            'When the score reaches 50, say "You won!"',
-          ],
-          requirementsDe: [
-            'Lege eine Variable für die Punktzahl an',
-            'Jeder Stern gibt +10 Punkte',
-            'Zeige die Punktzahl auf der Bühne',
-            'Sage bei 50 Punkten "Du hast gewonnen!"',
-          ],
-          requirementsEs: [
-            'Crea una variable de puntuación',
-            'Cada estrella da +10 puntos',
-            'Muestra la puntuación en el escenario',
-            'Al llegar a 50 puntos di "¡Ganaste!"',
-          ],
-          hints: [
-            'Bir yıldız kuklası oluştur',
-            'Yıldıza değince "puan i 10 kadar değiştir" bloğunu kullan',
-            'Puanı kontrol et: eğer <puan > 49> ise',
-          ],
-          hintsEn: [
-            'Create a star sprite',
-            'When it touches the star, use "change score by 10"',
-            'Check the score: if <score > 49> then',
-          ],
-          hintsDe: [
-            'Lege eine Stern-Figur an',
-            'Bei Berührung: "ändere Punkte um 10"',
-            'Prüfe die Punktzahl: falls <Punkte > 49>, dann',
-          ],
-          hintsEs: [
-            'Crea un objeto estrella',
-            'Al tocarla usa "sumar a puntuación 10"',
-            'Comprueba la puntuación: si <puntuación > 49> entonces',
-          ],
-          starterCode: '',
-          language: 'scratch',
-          validation: ProjectValidation(
-            mustContain: ['degisken', 'eger', 'degdi'],
-          ),
-          xpReward: 40,
-        ),
+        // Uygulama ici Proje Atolyesi (eskiden "bilgisayarinda yap").
+        ScratchAtolyeleri.yildizToplayici,
 
         ExplanationStep(
           id: 's4_2_summary',
@@ -2646,67 +2574,8 @@ class ScratchLessonsData {
           xpReward: 25,
         ),
 
-        ProjectStep(
-          id: 's5_1_project',
-          title: 'Mini Proje: Yıldız Yağmuru',
-          titleEn: 'Mini Project: Star Rain',
-          titleDe: 'Miniprojekt: Sternenregen',
-          titleEs: 'Miniproyecto: lluvia de estrellas',
-          description: 'Gökten yıldız yağsın!',
-          descriptionEn: 'Make it rain stars!',
-          descriptionDe: 'Lass es Sterne regnen!',
-          descriptionEs: '¡Haz que lluevan estrellas!',
-          requirements: [
-            'Her 1 saniyede bir yıldızın ikizini yarat',
-            'İkizler üstten başlasın',
-            'Aşağı düşüp alta gelince silinsin',
-            'Devi\'ye değince puan +1',
-          ],
-          requirementsEn: [
-            'Create a clone of the star every second',
-            'Clones start at the top',
-            'They fall down and are deleted at the bottom',
-            'Touching Devi gives +1 point',
-          ],
-          requirementsDe: [
-            'Erzeuge jede Sekunde einen Klon des Sterns',
-            'Die Klone starten oben',
-            'Sie fallen nach unten und werden unten gelöscht',
-            'Berührt ein Klon Devi, gibt es +1 Punkt',
-          ],
-          requirementsEs: [
-            'Crea un clon de la estrella cada segundo',
-            'Los clones empiezan arriba',
-            'Caen y se eliminan al llegar abajo',
-            'Al tocar a Devi dan +1 punto',
-          ],
-          hints: [
-            '"sürekli tekrarla" içinde "1 saniye bekle" ile yarat',
-            '"y konumunu -5 değiştir" ile aşağı indir',
-            'eğer <y konumu < -170> ise "bu ikizi sil"',
-          ],
-          hintsEn: [
-            'Use "wait 1 seconds" inside "forever" to keep creating them',
-            'Use "change y by -5" to move them down',
-            'if <y position < -170> then "delete this clone"',
-          ],
-          hintsDe: [
-            'Erzeuge sie mit "warte 1 Sekunden" in "wiederhole fortlaufend"',
-            'Mit "ändere y um -5" fallen sie nach unten',
-            'falls <y-Position < -170>, dann "lösche diesen Klon"',
-          ],
-          hintsEs: [
-            'Créalos con "esperar 1 segundos" dentro de "por siempre"',
-            'Con "sumar a y -5" bajan',
-            'si <posición en y < -170> entonces "eliminar este clon"',
-          ],
-          starterCode: '',
-          language: 'scratch',
-          validation: ProjectValidation(
-            mustContain: ['ikiz', 'sürekli', 'eğer'],
-          ),
-          xpReward: 50,
-        ),
+        // Uygulama ici Proje Atolyesi (eskiden "bilgisayarinda yap").
+        ScratchAtolyeleri.yildizYagmuru,
 
         ExplanationStep(
           id: 's5_1_summary',
@@ -2949,67 +2818,8 @@ class ScratchLessonsData {
           ],
         ),
 
-        ProjectStep(
-          id: 's6_1_project',
-          title: 'Mini Proje: Dans Partisi',
-          titleEn: 'Mini Project: Dance Party',
-          titleDe: 'Miniprojekt: Tanzparty',
-          titleEs: 'Miniproyecto: fiesta de baile',
-          description: '3 kukla mesajlarla dans etsin!',
-          descriptionEn: 'Make three sprites dance with messages!',
-          descriptionDe: 'Lass drei Figuren mit Nachrichten tanzen!',
-          descriptionEs: '¡Haz bailar a tres objetos con mensajes!',
-          requirements: [
-            'Devi "dans_başladı" haberini salsın',
-            'Fare haberi alınca dönmeye başlasın',
-            'Top haberi alınca zıplasın',
-            'Her kukla farklı bir dans yapsın',
-          ],
-          requirementsEn: [
-            'Devi broadcasts "dance_started"',
-            'When the mouse receives it, it starts spinning',
-            'When the ball receives it, it jumps',
-            'Every sprite dances differently',
-          ],
-          requirementsDe: [
-            'Devi sendet "tanz_gestartet" an alle',
-            'Wenn die Maus es empfängt, dreht sie sich',
-            'Wenn der Ball es empfängt, hüpft er',
-            'Jede Figur tanzt anders',
-          ],
-          requirementsEs: [
-            'Devi envía "baile_empezo"',
-            'Al recibirlo, el ratón empieza a girar',
-            'Al recibirlo, la pelota salta',
-            'Cada objeto baila de forma distinta',
-          ],
-          hints: [
-            'Sahneye 3 kukla ekle',
-            'Devi\'de: yeşil bayrağa tıklandığında "dans_başladı haberini sal"',
-            'Diğer kuklalarda "dans_başladı haberini aldığımda" ile başla',
-          ],
-          hintsEn: [
-            'Add three sprites to the stage',
-            'On Devi: when the green flag is clicked, "broadcast dance_started"',
-            'On the others, start with "when I receive dance_started"',
-          ],
-          hintsDe: [
-            'Füge drei Figuren zur Bühne hinzu',
-            'Bei Devi: Wenn die grüne Flagge angeklickt wird, "sende tanz_gestartet an alle"',
-            'Bei den anderen: beginne mit "Wenn ich tanz_gestartet empfange"',
-          ],
-          hintsEs: [
-            'Añade tres objetos al escenario',
-            'En Devi: al hacer clic en la bandera verde, "enviar baile_empezo"',
-            'En los demás empieza con "al recibir baile_empezo"',
-          ],
-          starterCode: '',
-          language: 'scratch',
-          validation: ProjectValidation(
-            mustContain: ['haber', 'sal', 'aldığımda'],
-          ),
-          xpReward: 40,
-        ),
+        // Uygulama ici Proje Atolyesi (eskiden "bilgisayarinda yap").
+        ScratchAtolyeleri.dansPartisi,
 
         ExplanationStep(
           id: 's6_1_summary',
@@ -3306,63 +3116,8 @@ class ScratchLessonsData {
           xpReward: 25,
         ),
 
-        ProjectStep(
-          id: 's7_1_project',
-          title: 'Mini Proje: Piyano',
-          titleEn: 'Mini Project: Piano',
-          titleDe: 'Miniprojekt: Klavier',
-          titleEs: 'Miniproyecto: piano',
-          description: 'Klavye tuşlarıyla piyano çal!',
-          descriptionEn: 'Play the piano with the keyboard!',
-          descriptionDe: 'Spiel Klavier mit der Tastatur!',
-          descriptionEs: '¡Toca el piano con el teclado!',
-          requirements: [
-            '5 tuş: A, S, D, F, G',
-            'Her tuş farklı bir nota çalsın (60, 62, 64, 65, 67)',
-            'Tuşa basılınca nota çalsın',
-          ],
-          requirementsEn: [
-            'Five keys: A, S, D, F, G',
-            'Each key plays a different note (60, 62, 64, 65, 67)',
-            'The note plays when the key is pressed',
-          ],
-          requirementsDe: [
-            'Fünf Tasten: A, S, D, F, G',
-            'Jede Taste spielt eine andere Note (60, 62, 64, 65, 67)',
-            'Die Note erklingt, wenn die Taste gedrückt wird',
-          ],
-          requirementsEs: [
-            'Cinco teclas: A, S, D, F, G',
-            'Cada tecla toca una nota distinta (60, 62, 64, 65, 67)',
-            'La nota suena al presionar la tecla',
-          ],
-          hints: [
-            'Her tuş için "a tuşuna basılınca" bloğunu kullan',
-            'Nota bloğu Müzik eklentisinde',
-            'Her tuşun notası farklı olsun',
-          ],
-          hintsEn: [
-            'Use "when a key pressed" for each key',
-            'The note block is in the Music extension',
-            'Give every key its own note',
-          ],
-          hintsDe: [
-            'Benutze für jede Taste "Wenn Taste a gedrückt wird"',
-            'Der Notenblock ist in der Erweiterung Musik',
-            'Gib jeder Taste eine eigene Note',
-          ],
-          hintsEs: [
-            'Usa "al presionar tecla a" para cada tecla',
-            'El bloque de nota está en la extensión Música',
-            'Da a cada tecla su propia nota',
-          ],
-          starterCode: '',
-          language: 'scratch',
-          validation: ProjectValidation(
-            mustContain: ['eger', 'basildi', 'notasini cal'],
-          ),
-          xpReward: 40,
-        ),
+        // Uygulama ici Proje Atolyesi (eskiden "bilgisayarinda yap").
+        ScratchAtolyeleri.melodiKutusu,
 
         ExplanationStep(
           id: 's7_1_summary',

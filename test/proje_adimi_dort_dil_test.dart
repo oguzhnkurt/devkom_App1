@@ -64,7 +64,10 @@ void main() {
       }
     }
 
-    expect(adimSayisi, greaterThan(25),
+    // Scratch'in alti "bilgisayarda yap" projesi uygulama ici Proje
+    // Atolyesi'ne dondu (bkz. scratch_atolyeleri.dart); geri kalan
+    // proje adimlari Python/HTML/Arduino kurslarinda.
+    expect(adimSayisi, greaterThan(20),
         reason: 'Proje adimlari bulunamadiysa test bir sey sinamiyor.');
     expect(eksikler, isEmpty, reason: eksikler.join('\n'));
   });
