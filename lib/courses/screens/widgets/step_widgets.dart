@@ -1446,12 +1446,22 @@ class MultipleChoiceStepWidget extends StatefulWidget {
   final bool isDark;
   final Function(bool correct) onComplete;
 
+  /// Cevap verildigi AN (onComplete 500 ms sonra geliyor). Ders ekrani
+  /// bununla alttaki Devi arkadasini hemen tepki verdiriyor.
+  final ValueChanged<bool>? onCevap;
+
+  /// Seceneklerin altindaki kucuk Devi tepkisi. Ders ekrani kendi Devi
+  /// arkadasini gosterdiginde kapatiyor: ekranda iki Devi olmasin.
+  final bool deviTepkisi;
+
   const MultipleChoiceStepWidget({
     super.key,
     required this.step,
     required this.course,
     required this.isDark,
     required this.onComplete,
+    this.onCevap,
+    this.deviTepkisi = true,
   });
 
   @override
@@ -1528,6 +1538,7 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
     } else {
       HapticFeedback.mediumImpact();
     }
+    widget.onCevap?.call(_isCorrect);
 
     // Kucuk bekleme: cocuk dogru/yanlis rengini gorsun. Bu arada adim
     // ekrandan kalktiysa (Onceki) bildirim gitmiyor; hangi adimin
@@ -1542,6 +1553,13 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
   @override
   Widget build(BuildContext context) {
     final lang = lessonLang(context);
+    // UZUN EKRANDA DAHA IRI SECENEKLER: 430x932 gibi ekranlarda soru
+    // blogu ekranin ust ucte birinde bitip altta bos alan birakiyordu.
+    // Ekran boyu 740'in uzerindeyse secenekler (en fazla 8 pt) uzuyor,
+    // aralarindaki bosluk ve yazi biraz buyuyor. Kisa ekranda aynen.
+    final ek = ((MediaQuery.sizeOf(context).height - 740) / 20)
+        .clamp(0.0, 8.0)
+        .toDouble();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1624,7 +1642,7 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 22 + ek),
 
         // Code context if any
         if (widget.step.codeContext != null) ...[
@@ -1680,11 +1698,11 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
             onTap: () => _selectAnswer(index),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
+              margin: EdgeInsets.only(bottom: 12 + ek / 2),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16 + ek),
               decoration: BoxDecoration(
                 color: backgroundColor,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14 + ek / 4),
                 border: Border.all(color: borderColor, width: 2),
               ),
               child: Row(
@@ -1736,7 +1754,7 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
                       style: TextStyle(
                         // Sik yazisi uygulamanin yazi tipinde ve
                         // okunakli: 15/normal soluk kaliyordu.
-                        fontSize: 15.5,
+                        fontSize: 15.5 + ek / 8,
                         height: 1.3,
                         fontWeight:
                             isSelected ? FontWeight.w800 : FontWeight.w600,
@@ -1757,7 +1775,7 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
         }),
 
         // Devi'nin kucuk tepkisi: dogruda sevinc, yanlista "olsun".
-        if (_answered) ...[
+        if (_answered && widget.deviTepkisi) ...[
           const SizedBox(height: 8),
           DeviTepkisi(
             key: ValueKey('devi_tepkisi_$_isCorrect'),
@@ -1770,7 +1788,7 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
 
         // Explanation after answering
         if (_answered) ...[
-          const SizedBox(height: 12),
+          SizedBox(height: widget.deviTepkisi ? 12 : 4),
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             padding: const EdgeInsets.all(16),

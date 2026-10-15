@@ -7,7 +7,9 @@ import 'package:provider/provider.dart';
 import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
 import '../../providers/auth_provider.dart';
+import 'widgets/ders_arkadasi.dart';
 import 'widgets/ders_ilerleme_cubugu.dart';
+import 'widgets/devi_tepkisi.dart';
 import 'widgets/mblock_blok_adimi.dart';
 import 'widgets/mblock_tezgahi.dart' show MBlockWebHavuzu;
 import 'widgets/proje_atolyesi.dart';
@@ -95,6 +97,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
   @override
   void dispose() {
     _celebrationController.dispose();
+    _adimKaydirma?.dispose();
     // mBlock tezgahinin paylasilan WebView'i ders boyunca yasiyor; ders
     // kapaninca bellek geri veriliyor.
     if (_mblockTezgahli) MBlockWebHavuzu.serbestBirak();
@@ -502,6 +505,61 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
     );
   }
 
+  /// Alttaki Devi arkadasi olan adim turleri ve arkadasin konusma turu.
+  ///
+  /// Kendi Devi'si olan (giris, blok kurma, mBlock, atolye) ya da ekrani
+  /// kendisi dolduran (mini oyun, proje) adimlarda arkadas YOK.
+  static const Map<StepType, DersArkadasiTuru> _arkadasTurleri = {
+    StepType.explanation: DersArkadasiTuru.anlatim,
+    StepType.animation: DersArkadasiTuru.anlatim,
+    StepType.multipleChoice: DersArkadasiTuru.soru,
+    StepType.dragAndDrop: DersArkadasiTuru.uygulama,
+    StepType.ordering: DersArkadasiTuru.uygulama,
+    StepType.matching: DersArkadasiTuru.uygulama,
+    StepType.codeComplete: DersArkadasiTuru.uygulama,
+    StepType.typeTheCode: DersArkadasiTuru.uygulama,
+    StepType.spotTheError: DersArkadasiTuru.uygulama,
+  };
+
+  /// Adimlara verilen cevaplar (dogru mu). Devi arkadasi buna tepki
+  /// veriyor; geri gelinince tepki yerinde duruyor.
+  final Map<String, bool> _cevaplar = {};
+
+  /// Her yeni cevapta artiyor: Devi yeniden zipliyor.
+  int _tepkiNo = 0;
+
+  /// Simdiki adimin kaydirma denetleyicisi (arkadasa kaydirmak icin).
+  ScrollController? _adimKaydirma;
+  String? _adimKaydirmaId;
+
+  void _cevapVerildi(String stepId, bool dogru) {
+    if (!mounted) return;
+    setState(() {
+      _cevaplar[stepId] = dogru;
+      _tepkiNo++;
+    });
+    // Cevap ve aciklama ekranin altinda kaldiysa (kucuk ekran) Devi'nin
+    // tepkisi gorunsun diye sona kaydiriliyor; aciklama hemen ustunde.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final k = _adimKaydirma;
+      if (!mounted || k == null || !k.hasClients) return;
+      final p = k.position;
+      if (p.maxScrollExtent <= p.pixels + 1) return;
+      if (Motion.reduced(context)) {
+        k.jumpTo(p.maxScrollExtent);
+      } else {
+        k.animateTo(p.maxScrollExtent,
+            duration: Motion.long2, curve: Motion.emphasized);
+      }
+    });
+  }
+
+  /// Uygulama adimi (surukle-birak, kod...) bitti: XP ve Devi'nin tepkisi.
+  void _uygulamaBitti(String stepId, bool dogru, int xp) {
+    _cevapVerildi(stepId, dogru);
+    _onStepCompleted(stepId, xpEarned: dogru ? xp : 0);
+  }
+
   Widget _buildStepContent(bool isDark) {
     final step = _currentStep;
 
@@ -509,11 +567,63 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
     // ustelik adimlarin kendi ic araliklariyla birlikte, icerigi
     // gereksiz yere ekranin disina itiyordu.
     final dolgu = EkranOlcusu.kisa(context) ? 12.0 : 20.0;
-    return SingleChildScrollView(
+    final arkadasTuru = _arkadasTurleri[step.type];
+    if (arkadasTuru == null) {
+      return SingleChildScrollView(
+        key: ValueKey(step.id),
+        physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(dolgu, dolgu, dolgu, dolgu + 8),
+        child: _buildStepWidget(step, isDark),
+      );
+    }
+
+    // BOS ALANI DEVI DOLDURUYOR.
+    //
+    // Kisa adimlar ekranin ust yarisinda bitiyor, alt yari bos kaliyordu.
+    // Icerik ustte; kalan yeri SliverFillRemaining dolduruyor ve Devi
+    // arkadasi orada, alta yakin duruyor. Icerik uzunsa arkadas icerigin
+    // ALTINDA kaliyor ve kaydirilarak goruluyor — hicbir sey tasmiyor.
+    if (_adimKaydirmaId != step.id) {
+      _adimKaydirma?.dispose();
+      _adimKaydirma = ScrollController();
+      _adimKaydirmaId = step.id;
+    }
+    final lang = lessonLang(context);
+    final cevap = _cevaplar[step.id];
+    final uzun = MediaQuery.sizeOf(context).height >= 800;
+    return CustomScrollView(
       key: ValueKey(step.id),
+      controller: _adimKaydirma,
       physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(dolgu, dolgu, dolgu, dolgu + 8),
-      child: _buildStepWidget(step, isDark),
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(dolgu, dolgu, dolgu, 0),
+          sliver: SliverToBoxAdapter(child: _buildStepWidget(step, isDark)),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(dolgu + 4, 18, dolgu, dolgu + 6),
+            child: Align(
+              alignment: const Alignment(-0.2, 0.55),
+              child: DersArkadasi(
+                tur: arkadasTuru,
+                lang: lang,
+                renk: widget.course.primaryColor,
+                koyu: isDark,
+                tohum: step.id.hashCode,
+                tepki: cevap == null
+                    ? null
+                    : (cevap ? DeviTepkiTuru.dogru : DeviTepkiTuru.yanlis),
+                coktanSecmeli: step.type == StepType.multipleChoice,
+                tepkiNo: _tepkiNo,
+                boyut: uzun ? 88 : 68,
+                sonAdim: _isLastStep,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -542,6 +652,9 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           step: step as MultipleChoiceStep,
           course: widget.course,
           isDark: isDark,
+          // Tepkiyi alttaki Devi arkadasi veriyor (tek Devi).
+          deviTepkisi: false,
+          onCevap: (dogru) => _cevapVerildi(step.id, dogru),
           onComplete: (correct) => _onStepCompleted(
             step.id,
             xpEarned: correct ? step.xpReward : 0,
@@ -553,10 +666,8 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           step: step as DragDropStep,
           course: widget.course,
           isDark: isDark,
-          onComplete: (correct) => _onStepCompleted(
-            step.id,
-            xpEarned: correct ? step.xpReward : 0,
-          ),
+          onComplete: (correct) =>
+              _uygulamaBitti(step.id, correct, step.xpReward),
         );
 
       case StepType.blockBuilder:
@@ -596,10 +707,8 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           step: step as OrderingStep,
           course: widget.course,
           isDark: isDark,
-          onComplete: (correct) => _onStepCompleted(
-            step.id,
-            xpEarned: correct ? step.xpReward : 0,
-          ),
+          onComplete: (correct) =>
+              _uygulamaBitti(step.id, correct, step.xpReward),
         );
 
       case StepType.matching:
@@ -607,10 +716,8 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           step: step as MatchingStep,
           course: widget.course,
           isDark: isDark,
-          onComplete: (correct) => _onStepCompleted(
-            step.id,
-            xpEarned: correct ? step.xpReward : 0,
-          ),
+          onComplete: (correct) =>
+              _uygulamaBitti(step.id, correct, step.xpReward),
         );
 
       case StepType.miniGame:
@@ -645,10 +752,8 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           step: step as CodeCompleteStep,
           course: widget.course,
           isDark: isDark,
-          onComplete: (correct) => _onStepCompleted(
-            step.id,
-            xpEarned: correct ? step.xpReward : 0,
-          ),
+          onComplete: (correct) =>
+              _uygulamaBitti(step.id, correct, step.xpReward),
         );
 
       case StepType.typeTheCode:
@@ -656,10 +761,8 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           step: step as TypeCodeStep,
           course: widget.course,
           isDark: isDark,
-          onComplete: (correct) => _onStepCompleted(
-            step.id,
-            xpEarned: correct ? step.xpReward : 0,
-          ),
+          onComplete: (correct) =>
+              _uygulamaBitti(step.id, correct, step.xpReward),
         );
 
       case StepType.spotTheError:
@@ -667,10 +770,8 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           step: step as SpotErrorStep,
           course: widget.course,
           isDark: isDark,
-          onComplete: (correct) => _onStepCompleted(
-            step.id,
-            xpEarned: correct ? step.xpReward : 0,
-          ),
+          onComplete: (correct) =>
+              _uygulamaBitti(step.id, correct, step.xpReward),
         );
 
       case StepType.atolye:
