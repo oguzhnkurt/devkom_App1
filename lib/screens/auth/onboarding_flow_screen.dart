@@ -10,6 +10,7 @@ import '../../providers/settings_provider.dart';
 import '../../theme.dart';
 import '../../utils/nickname_generator.dart';
 import 'auth_wrapper.dart';
+import 'devi_tanisma.dart';
 import 'intro_art.dart';
 import 'intro_carousel.dart';
 import '../../utils/lang.dart';
@@ -44,9 +45,11 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
               AppLang.resolve(
                   PlatformDispatcher.instance.locale.languageCode)));
 
-  /// Maskota verilen ad. Baslangicta bos: cocuk ad vermezse karakterin
-  /// kendi adi (Puf, Mia, ...) kullaniliyor.
-  final TextEditingController _mascotNameController = TextEditingController();
+  /// Devi kendini tanitti mi?
+  ///
+  /// Tanisma ekrani ([DeviTanisma]) karuselin DISINDA, tam ekran:
+  /// kendi zemini, kendi gezinmesi var ve geri tusuyla ona donulmuyor.
+  bool _tanistik = false;
 
   bool _busy = false;
 
@@ -119,7 +122,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _mascotNameController.dispose();
     super.dispose();
   }
 
@@ -135,13 +137,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
   Widget _mascotArt(MascotMood mood) => Center(
         child: Mascot(mood: mood, size: 128),
       );
-
-  /// Maskotun o anki adi (cocuk ad verdiyse o, vermediyse karakterin adi).
-  String get _mascotName {
-    final yazilan = _mascotNameController.text.trim();
-    if (yazilan.isNotEmpty) return yazilan;
-    return Mascot.ad;
-  }
 
   final GlobalKey<IntroCarouselState> _carouselKey =
       GlobalKey<IntroCarouselState>();
@@ -172,9 +167,8 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
 
     final name = _nameController.text.trim();
     try {
-      // Maskotun adi cihazda tutuluyor (sunucuya gitmesi gereken bir
-      // bilgi degil). Bos birakilmissa karakterin kendi adi kaliyor.
-      await settings.setMascotName(_mascotNameController.text);
+      // Maskotun adi kurulumda SORULMUYOR (Devi olarak kaliyor);
+      // degistirmek isteyen Ayarlar > Maskotunun adi'ni kullaniyor.
       // Oturumun hazir olmasini bekliyoruz. Splash 2.5 saniyede tanitimi
       // aciyor ama oturum (ozellikle kayitli kullanicida refresh_token ile)
       // daha gec hazir olabiliyor; beklemezsek cevaplar hicbir yere
@@ -236,6 +230,16 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
     // renkler de yesilden maviye dogru ilerliyor.
     // Son tustan sonra kisa bir hazirlama ani; bkz. _finish().
     if (_busy) return _hazirlamaEkrani();
+
+    // Once Devi kendini tanitiyor; sonra ilk gorev.
+    if (!_tanistik) {
+      return DeviTanisma(
+        lang: _lang,
+        ad: context.watch<SettingsProvider>().mascotName,
+        leading: _buildLanguageToggle(),
+        onDone: () => setState(() => _tanistik = true),
+      );
+    }
 
     return IntroCarousel(
       key: _carouselKey,
@@ -329,34 +333,13 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
     const indigo = Color(0xFF3949AB);
 
     return [
-      // KARAKTER SECIMI KALDIRILDI.
+      // MASKOTA AD VERME KALDIRILDI.
       //
-      // Akis once "sana kim eslik etsin?" diye soruyor ve bes cizili
-      // karakteri gosteriyordu. Artik tek bir maskot var (Devi, 3B
-      // render) — secilecek bir sey yok, o yuzden soru da yok. Cocugun
-      // ona AD vermesi duruyor: adini kendi koydugu bir karakter,
-      // kendisine verilen bir karakterden baska bir sey.
-      // 1 — Maskota ad ver.
-      //
-      // Adini kendi koydugu bir karakter, kendisine verilen bir
-      // karakterden baska bir sey. "Rastgele" dugmesi bilerek var:
-      // alti yasindaki bir cocuga klavyeyi mecbur kilmak, akisin en
-      // kolay birakildigi yeri yaratmak demek.
-      IntroSlide(
-        eyebrow: _t('ONA BİR AD', 'NAME YOUR BUDDY', 'GIB IHM EINEN NAMEN',
-            'PONLE NOMBRE'),
-        title: _t('Ona ne ad\nkoyalım?', 'What shall we\ncall them?',
-            'Wie sollen wir\nihn nennen?', '¿Cómo lo\nllamamos?'),
-        subtitle: _t(
-          'Beni uyandırdığın için sağ ol! Artık buradayım.',
-          'Thanks for waking me up! I am here now.',
-          'Danke, dass du mich geweckt hast! Jetzt bin ich da.',
-          '¡Gracias por despertarme! Ya estoy aquí.',
-        ),
-        accent: green,
-        art: _mascotArt(MascotMood.idle),
-        body: _mascotNamePageBody(),
-      ),
+      // Akis bir sure "Ona ne ad koyalim?" sorusuyla basliyordu. Kullanici:
+      // "Devi'nin adi degistirilebilir olmasin; yalnizca Ayarlar'a ad
+      // degistirme secenegi koy." Cocuk karakteri tanimadan ona ad vermeye
+      // zorlaniyordu. Artik once Devi kendini tanitiyor ([DeviTanisma]),
+      // ad Devi olarak kaliyor; degistirmek Ayarlar > Maskotunun adi.
 
       // 2 — GOREV. Soru degil, is.
       //
@@ -368,8 +351,8 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
       // urunu gormek istiyor.
       IntroSlide(
         eyebrow: _t('BAŞLAYALIM', 'LET\'S GO', 'LOS GEHT\'S', 'EMPECEMOS'),
-        title: _t('Hadi bir şey\nyapalım', 'Let us make\nsomething',
-            'Machen wir\netwas', 'Vamos a hacer\nalgo'),
+        title: _t('Hadi bir şey\nyapalım!', "Let's make\nsomething!",
+            'Lass uns etwas\nbauen!', '¡Hagamos\nalgo juntos!'),
         accent: green,
         art: _mascotArt(MascotMood.curious),
         body: FirstTask(
@@ -414,18 +397,17 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
 
       // 2 — Soru: isim
       //
-      // Maskot KENDI adiyla soruyor: bir onceki adimda konulan ad
-      // burada karsiligini buluyor. Yoksa ad verme adimi "bir alan
-      // daha doldur"dan ibaret kalirdi.
+      // Devi KENDI adiyla soruyor: tanisma ekraninda kendini tanitti,
+      // simdi sira cocukta.
       IntroSlide(
         eyebrow: _t('TANIŞALIM', 'HELLO', 'HALLO', 'HOLA'),
         title: _t('Sana nasıl\nseslenelim?', 'What should we\ncall you?',
             'Wie sollen wir\ndich nennen?', '¿Cómo te\nllamamos?'),
         subtitle: _t(
-          'Ben $_mascotName. Gerçek adın olmak zorunda değil.',
-          'I am $_mascotName. It does not have to be your real name.',
-          'Ich bin $_mascotName. Es muss nicht dein echter Name sein.',
-          'Soy $_mascotName. No tiene que ser tu nombre real.',
+          'Ben ${Mascot.ad}. Gerçek adın olmak zorunda değil.',
+          "I'm ${Mascot.ad}. It doesn't have to be your real name.",
+          'Ich bin ${Mascot.ad}. Es muss nicht dein echter Name sein.',
+          'Soy ${Mascot.ad}. No tiene que ser tu nombre real.',
         ),
         accent: green,
         art: _mascotArt(MascotMood.happy),
@@ -565,63 +547,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
         canAdvance: () => _goal != null,
       ),
     ];
-  }
-
-  /// Maskota ad verme govdesi.
-  ///
-  /// Cocugun kendi takma adiyla AYNI gorunuyor ama ayri bir denetleyici
-  /// kullaniyor; ikisi ayni olsaydi maskota yazilan ad cocugun adini
-  /// eziyordu.
-  Widget _mascotNamePageBody() {
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextField(
-          controller: _mascotNameController,
-          textInputAction: TextInputAction.done,
-          textCapitalization: TextCapitalization.words,
-          textAlign: TextAlign.center,
-          maxLength: 16,
-          style: const TextStyle(
-            fontFamily: AppTheme.fontFamily,
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            color: AppTheme.darkGray,
-          ),
-          decoration: InputDecoration(
-            // Ipucu olarak karakterin kendi adi duruyor: cocuk hicbir sey
-            // yazmazsa da gecerli bir ad var, bos kalan bir alan yok.
-            hintText: Mascot.ad,
-            counterText: '',
-            filled: true,
-            fillColor: const Color(0xFFF4F6F9),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextButton.icon(
-          onPressed: () => setState(() {
-            _mascotNameController.text = NicknameGenerator.generate(_lang);
-          }),
-          icon: const Icon(Icons.casino_rounded, size: 18),
-          label: Text(_t('Rastgele bir ad', 'A random name',
-              'Ein zufälliger Name', 'Un nombre al azar')),
-          style: TextButton.styleFrom(
-            foregroundColor: const Color(0xFF2E9E5B),
-            textStyle: const TextStyle(
-              fontFamily: AppTheme.fontFamily,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-      ],
-    );
   }
 
   /// Isim sorusunun govdesi.

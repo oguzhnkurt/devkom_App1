@@ -8,11 +8,11 @@
 // _finish() icinde de vardi: takma ad, ogrenci profili ve "onboarding
 // gorundu" isareti try/catch'e dusup hic kaydedilmiyordu.
 //
-// Akis o zamandan beri degisti: artik maskot secimiyle basliyor ve
-// ADI SORULAN IKI SEY var — once maskotun adi, sonra cocugun takma
-// adi. Ikisinin de kendi zar dugmesi var. Bu test akisi bastan sona
-// yuruyup zar dugmesi olan HER sayfada dugmeye basiyor; ikisinden
-// biri sessizce bozulursa test kalir.
+// Akis o zamandan beri degisti: artik Devi'nin kendini tanitmasiyla
+// basliyor ve ADI SORULAN TEK SEY cocugun takma adi. Maskotun adi
+// kurulumda SORULMUYOR (kullanici: "Devi'nin adi degistirilebilir
+// olmasin, yalnizca Ayarlar'da olsun"). Bu test akisi bastan sona
+// yuruyup zar dugmesi olan her sayfada dugmeye basiyor.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -68,6 +68,16 @@ void main() {
     );
     await kareler(tester);
 
+    // Devi kendini tanitiyor: uc sayfa, "Devam" ile.
+    expect(find.byKey(const ValueKey('devi_tanisma')), findsOneWidget);
+    for (var i = 0; i < 6; i++) {
+      final devam = find.byKey(const ValueKey('devi_tanisma_devam'));
+      if (devam.evaluate().isEmpty) break;
+      await tester.tap(devam);
+      await kareler(tester, adet: 3);
+    }
+    expect(find.byKey(const ValueKey('devi_tanisma')), findsNothing);
+
     Finder forward() => find.byWidgetPredicate((w) =>
         w is Icon && w.icon == Icons.arrow_forward_rounded && w.size == 22);
 
@@ -109,7 +119,8 @@ void main() {
         }
         expect(sonra, isNot(once), reason: 'zar dugmesi yeni bir ad onermeli');
         expect(sonra, isNotEmpty);
-        if (acilisDegerleri.length == 2) break;
+        expect(find.text('NAME YOUR BUDDY'), findsNothing);
+        expect(find.text('ONA BİR AD'), findsNothing);
       }
 
       if (forward().evaluate().isEmpty) break;
@@ -117,18 +128,11 @@ void main() {
       await kareler(tester);
     }
 
-    expect(acilisDegerleri.length, 2,
-        reason: 'akista iki zar dugmesi bekleniyordu (maskot adi + takma ad), '
-            'bulunan: ${acilisDegerleri.length}');
-
-    // Maskotun ad alani BILEREK bos aciliyor: altindaki ipucu zaten
-    // karakterin kendi adini gosteriyor, hicbir sey yapmayan cocuk o
-    // adi korumus oluyor. Takma ad alani ise dolu aciliyor, cunku
-    // orada bos birakmak bir secenek degil.
-    expect(acilisDegerleri[0], isEmpty,
-        reason: 'maskot adi alani onerilen bir adla acilmis — ipucu '
-            'olarak duran karakter adiyla celisiyor');
-    expect(acilisDegerleri[1], isNotEmpty,
+    expect(acilisDegerleri.length, 1,
+        reason: 'akista yalnizca takma ad zar dugmesi bekleniyordu '
+            '(maskot adi kurulumda sorulmuyor), bulunan: '
+            '${acilisDegerleri.length}');
+    expect(acilisDegerleri[0], isNotEmpty,
         reason: 'takma ad alani bos aciliyor');
   });
 }

@@ -108,6 +108,9 @@ void main() {
 
     await tester.pumpWidget(app(0));
     await tester.pump(const Duration(milliseconds: 300));
+    // Devi'nin tanisma ekraninda yazi alani yok; akisa geciyoruz.
+    await tester.tap(find.byKey(const ValueKey('devi_tanisma_atla')));
+    await tester.pump(const Duration(milliseconds: 300));
     expect(SchedulerBinding.instance.transientCallbackCount, greaterThan(0),
         reason: 'klavye yokken ekran canli olmali');
 
