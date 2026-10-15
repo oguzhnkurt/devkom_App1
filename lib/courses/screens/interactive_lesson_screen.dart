@@ -358,6 +358,12 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
             Expanded(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
+                // Icerik USTE hizali: varsayilan ortalama, kisa adimlari
+                // ekranin ortasina itip ustte bos bir alan birakiyordu.
+                layoutBuilder: (simdiki, oncekiler) => Stack(
+                  alignment: Alignment.topCenter,
+                  children: [...oncekiler, if (simdiki != null) simdiki],
+                ),
                 child: _buildStepContent(isDark),
               ),
             ),
@@ -373,75 +379,109 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
   }
 
   Widget _buildTopBar(bool isDark) {
+    final lang = lessonLang(context);
+    final n = widget.lesson.steps.length;
+    final renk = widget.course.primaryColor;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.fromLTRB(12, 8, 16, 10),
       child: Row(
         children: [
-          // Close button
+          // Kapat: beyaz, hafif golgeli bir daire (onceden gri zemin
+          // uzerinde gri bir daireydi, desenin icinde kayboluyordu).
           IconButton(
+            tooltip: lessonText(lang, 'Kapat', 'Close', 'Schließen', 'Cerrar'),
             icon: Container(
-              padding: const EdgeInsets.all(8),
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
-                color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+                color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.white,
                 shape: BoxShape.circle,
+                boxShadow: [
+                  if (!isDark)
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.07),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                ],
               ),
               child: Icon(
-                Icons.close,
-                color: isDark ? Colors.white70 : Colors.grey.shade700,
+                Icons.close_rounded,
+                color: isDark ? Colors.white70 : const Color(0xFF4B5068),
                 size: 20,
               ),
             ),
             onPressed: () => _showExitConfirmation(),
           ),
 
-          const SizedBox(width: 12),
+          const SizedBox(width: 6),
 
-          // Lesson title
+          // Ders adi ve adim sayaci.
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.lesson.titleFor(lessonLang(context)),
+                  widget.lesson.titleFor(lang),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 16.5,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? Colors.white : const Color(0xFF1B2140),
                   ),
                 ),
-                Text(
-                  lessonText(
-                      lessonLang(context),
-                      'Adım ${_currentStepIndex + 1} / ${widget.lesson.steps.length}',
-                      'Step ${_currentStepIndex + 1} / ${widget.lesson.steps.length}',
-                      'Schritt ${_currentStepIndex + 1} / ${widget.lesson.steps.length}',
-                      'Paso ${_currentStepIndex + 1} / ${widget.lesson.steps.length}'),
+                const SizedBox(height: 1),
+                Text.rich(
+                  TextSpan(children: [
+                    TextSpan(
+                      text: lessonText(lang, 'Adım ', 'Step ', 'Schritt ',
+                          'Paso '),
+                    ),
+                    TextSpan(
+                      text: '${_currentStepIndex + 1}',
+                      style: TextStyle(
+                        color: isDark ? Colors.white : renk,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    TextSpan(text: ' / $n'),
+                  ]),
                   style: TextStyle(
-                    fontSize: 12,
-                    color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.grey.shade500 : const Color(0xFF7A8098),
                   ),
                 ),
               ],
             ),
           ),
 
-          // XP earned
+          // Kazanilan XP. Yazi onceden sari zemin uzerinde sariydi
+          // (Colors.amber): okunmuyordu. Koyu altin rengi.
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.amber.withValues(alpha: 0.15),
+              color: isDark
+                  ? Colors.amber.withValues(alpha: 0.15)
+                  : const Color(0xFFFFF1C7),
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                  color: const Color(0xFFF5B92E).withValues(alpha: 0.45)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.star, color: Colors.amber, size: 18),
-                const SizedBox(width: 4),
+                const Icon(Icons.star_rounded, color: Color(0xFFF2A91E), size: 18),
+                const SizedBox(width: 3),
                 Text(
                   '+$_earnedXp',
-                  style: const TextStyle(
-                    color: Colors.amber,
-                    fontWeight: FontWeight.bold,
+                  style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    color: isDark ? Colors.amber.shade200 : const Color(0xFF8A5A00),
+                    fontWeight: FontWeight.w800,
                     fontSize: 14,
                   ),
                 ),
@@ -496,26 +536,58 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
   Widget _buildStepSegments(int n) {
     final renk = widget.course.primaryColor;
     final renk2 = widget.course.secondaryColor;
+    final azalt = Motion.reduced(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 18),
       child: SizedBox(
-        height: 6,
+        height: 8,
         child: Row(
           children: [
             for (var i = 0; i < n; i++) ...[
-              if (i > 0) const SizedBox(width: 4),
+              if (i > 0) const SizedBox(width: 5),
               Expanded(
                 child: AnimatedContainer(
                   key: ValueKey('ders_adim_parcasi_$i'),
-                  duration: Motion.reduced(context)
-                      ? Duration.zero
-                      : Motion.medium2,
+                  duration: azalt ? Duration.zero : Motion.medium2,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(3),
-                    color: i <= _currentStepIndex
+                    borderRadius: BorderRadius.circular(8),
+                    color: i < _currentStepIndex
                         ? Color.lerp(renk, renk2, n == 1 ? 0 : i / (n - 1))
-                        : renk.withValues(alpha: 0.18),
+                        : renk.withValues(alpha: 0.16),
+                    boxShadow: [
+                      if (i == _currentStepIndex)
+                        BoxShadow(
+                          color: renk.withValues(alpha: 0.35),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                    ],
                   ),
+                  // SIMDIKI ADIM soldan dolarak geliyor: cocuk hangi
+                  // adimda oldugunu bir bakista goruyor.
+                  child: i == _currentStepIndex
+                      ? LayoutBuilder(
+                          builder: (context, c) =>
+                              TweenAnimationBuilder<double>(
+                            key: ValueKey('dolum_$_currentStepIndex'),
+                            tween: Tween(begin: azalt ? 1 : 0, end: 1),
+                            duration: azalt ? Duration.zero : Motion.long2,
+                            curve: Curves.easeOutCubic,
+                            builder: (context, t, _) => Align(
+                              alignment: Alignment.centerLeft,
+                              child: Container(
+                                width: c.maxWidth * t,
+                                height: c.maxHeight,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Color.lerp(
+                                      renk, renk2, n == 1 ? 0 : i / (n - 1)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      : null,
                 ),
               ),
             ],
@@ -733,15 +805,24 @@ default:
   }
 
   Widget _buildBottomBar(bool isDark) {
+    final lang = lessonLang(context);
+    final hazir = _canProceed() && !_bitiriliyor;
+    final renk = widget.course.primaryColor;
+    const yazi = TextStyle(
+      fontFamily: AppTheme.fontFamily,
+      fontWeight: FontWeight.w800,
+      fontSize: 16,
+    );
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
@@ -749,13 +830,23 @@ default:
         children: [
           // Previous button
           if (!_isFirstStep)
-            TextButton.icon(
+            OutlinedButton.icon(
               onPressed: _previousStep,
-              icon: const Icon(Icons.arrow_back, size: 18),
-              label: Text(lessonText(
-                  lessonLang(context), 'Önceki', 'Back', 'Zurück', 'Atrás')),
-              style: TextButton.styleFrom(
-                foregroundColor: isDark ? Colors.white70 : Colors.grey.shade700,
+              icon: const Icon(Icons.arrow_back_rounded, size: 18),
+              label: Text(lessonText(lang, 'Önceki', 'Back', 'Zurück', 'Atrás')),
+              style: OutlinedButton.styleFrom(
+                foregroundColor:
+                    isDark ? Colors.white70 : const Color(0xFF4B5068),
+                side: BorderSide(
+                    color: isDark
+                        ? Colors.white24
+                        : const Color(0xFFDDE1EC),
+                    width: 1.5),
+                textStyle: yazi,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
               ),
             )
           else
@@ -766,29 +857,41 @@ default:
           // Next/Complete button
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                if (hazir)
+                  BoxShadow(
+                    color: renk.withValues(alpha: 0.35),
+                    blurRadius: 14,
+                    offset: const Offset(0, 6),
+                  ),
+              ],
+            ),
             child: ElevatedButton.icon(
-              onPressed: _canProceed() && !_bitiriliyor ? _nextStep : null,
+              onPressed: hazir ? _nextStep : null,
               icon: Icon(
-                _isLastStep ? Icons.check_circle : Icons.arrow_forward,
+                _isLastStep ? Icons.check_circle_rounded : Icons.arrow_forward_rounded,
                 size: 20,
               ),
               // Eskiden sabit Turkceydi: Ingilizce ekranda "Back" cevriliyor,
               // ana tus "Devam" kaliyordu.
               label: Text(_isLastStep
-                  ? lessonText(lessonLang(context), 'Tamamla', 'Finish',
-                      'Fertig', 'Terminar')
-                  : lessonText(lessonLang(context), 'Devam', 'Continue',
-                      'Weiter', 'Continuar')),
+                  ? lessonText(lang, 'Tamamla', 'Finish', 'Fertig', 'Terminar')
+                  : lessonText(lang, 'Devam', 'Continue', 'Weiter', 'Continuar')),
               style: ElevatedButton.styleFrom(
-                backgroundColor: _canProceed()
-                    ? widget.course.primaryColor
-                    : Colors.grey.shade400,
+                backgroundColor: _canProceed() ? renk : Colors.grey.shade400,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                disabledBackgroundColor:
+                    isDark ? Colors.white12 : const Color(0xFFE3E6EE),
+                disabledForegroundColor:
+                    isDark ? Colors.white38 : const Color(0xFF9AA0B4),
+                textStyle: yazi,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                elevation: _canProceed() ? 4 : 0,
+                elevation: 0,
               ),
             ),
           ),

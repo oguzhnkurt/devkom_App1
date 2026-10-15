@@ -671,7 +671,7 @@ class ScratchLessonsData {
           titleEn: 'Solution: The Loop!',
           titleDe: 'Lösung: die Schleife!',
           titleEs: '¡Solución: el bucle!',
-          content: '"Tekrarla" bloğu aynı isi istediğin kadar tekrarlar.',
+          content: '"Tekrarla" bloğu aynı işi istediğin kadar tekrarlar.',
           contentEn: 'The "repeat" block does the same job as many times as you want.',
           contentDe: 'Der Block "wiederhole" macht dieselbe Arbeit so oft du willst.',
           contentEs: 'El bloque "repetir" hace lo mismo tantas veces como quieras.',

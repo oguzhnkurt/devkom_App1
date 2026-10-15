@@ -24,6 +24,7 @@ import '../../../ui/motion.dart';
 import '../../../ui/appear_in.dart';
 import '../../../ui/press_button.dart';
 import '../../../widgets/mascot.dart';
+import 'anlatim_kodu.dart';
 import 'calisma_izi.dart';
 import 'ic_ice_blok_adimi.dart';
 import 'scratch_tezgahi.dart';
@@ -703,11 +704,49 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
     HapticFeedback.selectionClick();
   }
 
+  /// Adimin turu: baslik ustundeki kucuk renkli etiket.
+  ///
+  /// Turkce baslik ve adim kimligi uzerinden bulunuyor (dil degisince
+  /// etiket degismesin). "Problem: ..." / "Çözüm: ..." basliklarinda
+  /// onek etikete tasiniyor ve baslik kisaliyor.
+  (String, String, bool) _etiket(String lang) {
+    final tr = widget.step.title.toLowerCase();
+    String t(String a, String b, String c, String d) =>
+        lessonText(lang, a, b, c, d);
+    if (tr.startsWith('problem') || tr.startsWith('sorun')) {
+      return ('🧩', t('PROBLEM', 'PROBLEM', 'PROBLEM', 'PROBLEMA'), true);
+    }
+    if (tr.startsWith('çözüm')) {
+      return ('✨', t('ÇÖZÜM', 'SOLUTION', 'LÖSUNG', 'SOLUCIÓN'), true);
+    }
+    if (widget.step.id.endsWith('summary') ||
+        tr.startsWith('tebrikler') ||
+        tr.startsWith('özet')) {
+      return ('🏆', t('ÖZET', 'RECAP', 'RÜCKBLICK', 'RESUMEN'), false);
+    }
+    return ('💡', t('KEŞFET', 'DISCOVER', 'ENTDECKEN', 'DESCUBRE'), false);
+  }
+
+  /// "Problem: Too Much Repeating" -> "Too Much Repeating" (onek zaten
+  /// etikette yaziyor).
+  String _baslik(String baslik, bool onekiAt) {
+    if (!onekiAt) return baslik;
+    final i = baslik.indexOf(':');
+    if (i < 0 || i > 16) return baslik;
+    var kalan = baslik.substring(i + 1).trim();
+    if (kalan.isEmpty) return baslik;
+    kalan = kalan[0].toUpperCase() + kalan.substring(1);
+    return baslik.startsWith('¡') ? '¡$kalan' : kalan;
+  }
+
   @override
   Widget build(BuildContext context) {
     final lang = lessonLang(context);
     final tipText = widget.step.tipFor(lang);
     final paragraflar = _paragraflar(widget.step.contentFor(lang));
+    final renk = widget.course.primaryColor;
+    final koyu = widget.isDark;
+    final (emoji, etiket, onekiAt) = _etiket(lang);
 
     // Ekran okuyucu acikken ya da arac modunda hepsi birden.
     final hepsi = widget.tumunuGoster ||
@@ -723,77 +762,275 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
       _sayaciKur(paragraflar.length);
     }
 
+    final blokGorselleri = widget.step.visuals
+        .where((v) =>
+            v.type == VisualType.scratchBlock || v.type == VisualType.icon)
+        .toList();
+    final kodGorselleri = widget.step.visuals
+        .where((v) => v.type == VisualType.codeSnippet)
+        .toList();
+
     return GestureDetector(
       // Dokunmak ZORUNLU DEGIL: sayac zaten getiriyor. Dokunus yalnizca
       // hizli okuyan cocuk beklemesin diye kalanini hemen aciyor.
       onTap: bitti ? null : () => _hepsiniAc(paragraflar.length),
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            widget.step.titleFor(lang),
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
+      // ANLATIM KARTI.
+      //
+      // Metin onceden dogrudan desenli zeminin ustundeydi: soluk
+      // semboller satirlarin arasindan geciyor, baslik ile govde ayni
+      // yazi tipinde yalnizca kalinlikla ayriliyordu. Simdi icerik
+      // yumusak golgeli beyaz bir kartta; ustte adimin turunu soyleyen
+      // renkli bir etiket, yuvarlak hatli bir baslik (Baloo 2) ve
+      // altinda kursun renginde kisa bir cizgi var.
+      child: Container(
+        key: const ValueKey('anlatim_karti'),
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
+        decoration: BoxDecoration(
+          color: koyu ? const Color(0xFF1A1B26) : Colors.white,
+          borderRadius: BorderRadius.circular(26),
+          border: Border.all(
+              color: koyu
+                  ? Colors.white.withValues(alpha: 0.06)
+                  : renk.withValues(alpha: 0.10)),
+          boxShadow: [
+            BoxShadow(
+              color: renk.withValues(alpha: koyu ? 0.0 : 0.10),
+              blurRadius: 28,
+              offset: const Offset(0, 10),
             ),
-          ),
-          const SizedBox(height: 16),
-
-          for (var i = 0; i < gorunen; i++)
-            AppearIn(
-              // Yeni gelen paragraf asagidan suzulerek giriyor: goz
-              // degisikligi fark etsin, metin aniden zipllamasin.
-              key: ValueKey('p$i-${paragraflar[i].hashCode}'),
-              offset: 14,
-              // Paragraf kursun renginde gelip yerine otururken kendi
-              // rengine donuyor: yeni gelen metin kendini belli ediyor,
-              // okunurken notr renge donduğu icin goz yormuyor.
-              renk: widget.course.primaryColor,
-              child: Padding(
-                padding: EdgeInsets.only(bottom: i == gorunen - 1 ? 0 : 14),
-                child: Text(
-                  paragraflar[i],
-                  style: TextStyle(
-                    // ONCEDEN: 16 punto, w400, grey.shade700. Ders metni
-                    // aciklama kutusu gibi soluk duruyordu; cocuk icin
-                    // ANA metin bu, en okunakli yazi olmali.
-                    fontFamily: AppTheme.fontFamily,
-                    fontSize: 16.5,
-                    height: 1.7,
-                    fontWeight: FontWeight.w600,
-                    color: widget.isDark
-                        ? Colors.grey.shade200
-                        : const Color(0xFF2A2A33),
-                  ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              key: const ValueKey('anlatim_etiketi'),
+              padding: const EdgeInsets.fromLTRB(9, 4, 11, 4),
+              decoration: BoxDecoration(
+                color: renk.withValues(alpha: koyu ? 0.22 : 0.11),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '$emoji  $etiket',
+                style: TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.1,
+                  color: koyu ? Colors.white : _koyulas(renk),
                 ),
               ),
             ),
-
-          if (!bitti) ...[
+            const SizedBox(height: 12),
+            Text(
+              _baslik(widget.step.titleFor(lang), onekiAt),
+              style: TextStyle(
+                fontFamily: 'Baloo2',
+                fontFamilyFallback: const [AppTheme.fontFamily],
+                fontSize: EkranOlcusu.kisa(context) ? 24 : 27,
+                height: 1.18,
+                fontWeight: FontWeight.w800,
+                color: koyu ? Colors.white : const Color(0xFF1B2140),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              width: 38,
+              height: 4,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    colors: [renk, widget.course.secondaryColor]),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
             const SizedBox(height: 16),
-            // Devaminin GELDIGINI soyleyen sade bir isaret: uc nokta
-            // sirayla yaniyor. Yazi yok — cocuktan bir sey istemiyoruz,
-            // yalnizca metnin bitmedigini soyluyoruz.
-            _DevamiGeliyor(renk: widget.course.primaryColor),
-          ],
 
-          if (bitti) ...[
-            const SizedBox(height: 24),
-            if (widget.step.visuals.isNotEmpty)
-              ...widget.step.visuals.asMap().entries.map(
-                  (e) => _buildVisual(e.value, lang, sira: e.key)),
-            if (tipText != null) ...[
-              const SizedBox(height: 24),
-              _buildTipBox(tipText),
+            for (var i = 0; i < gorunen; i++)
+              AppearIn(
+                // Yeni gelen paragraf asagidan suzulerek giriyor: goz
+                // degisikligi fark etsin, metin aniden zipllamasin.
+                key: ValueKey('p$i-${paragraflar[i].hashCode}'),
+                offset: 14,
+                // Paragraf kursun renginde gelip yerine otururken kendi
+                // rengine donuyor: yeni gelen metin kendini belli ediyor,
+                // okunurken notr renge donduğu icin goz yormuyor.
+                renk: renk,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: i == gorunen - 1 ? 0 : 14),
+                  child: _paragraf(paragraflar[i]),
+                ),
+              ),
+
+            if (!bitti) ...[
+              const SizedBox(height: 16),
+              // Devaminin GELDIGINI soyleyen sade bir isaret: uc nokta
+              // sirayla yaniyor. Yazi yok — cocuktan bir sey istemiyoruz,
+              // yalnizca metnin bitmedigini soyluyoruz.
+              _DevamiGeliyor(renk: renk),
+            ],
+
+            if (bitti) ...[
+              if (blokGorselleri.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                _blokAlani([
+                  for (final v in blokGorselleri)
+                    _buildVisual(v, lang,
+                        sira: widget.step.visuals.indexOf(v)),
+                ]),
+              ],
+              for (final v in kodGorselleri) ...[
+                const SizedBox(height: 16),
+                _buildVisual(v, lang),
+              ],
+              if (tipText != null) ...[
+                const SizedBox(height: 20),
+                _buildTipBox(tipText),
+              ],
             ],
           ],
-        ],
+        ),
       ),
     );
   }
 
+  /// Kursun rengi etiket yazisi icin fazla acik olabiliyor (Scratch
+  /// turuncusu, Python sarisi); okunur olsun diye koyulastiriliyor.
+  static Color _koyulas(Color c) {
+    final h = HSLColor.fromColor(c);
+    return h.withLightness((h.lightness * 0.72).clamp(0.18, 0.42)).toColor();
+  }
+
+  /// Govde paragrafi: duz yazi ve (varsa) kod paneli.
+  Widget _paragraf(String metin) {
+    final govde = TextStyle(
+      // ONCEDEN: 16 punto, w400, grey.shade700. Ders metni aciklama
+      // kutusu gibi soluk duruyordu; cocuk icin ANA metin bu. Simdi
+      // biraz daha buyuk ve yumusak koyu bir renkte (saf siyah degil).
+      fontFamily: AppTheme.fontFamily,
+      fontSize: 17,
+      height: 1.55,
+      fontWeight: FontWeight.w600,
+      color: widget.isDark ? Colors.grey.shade200 : const Color(0xFF39405A),
+    );
+    final parcalar = AnlatimKodu.ayir(metin);
+    if (parcalar.length == 1 && !parcalar.first.kod) {
+      return Text(metin, style: govde);
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final p in parcalar)
+          p.kod
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: _kodPaneli(p.metin),
+                )
+              : Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(p.metin, style: govde),
+                ),
+      ],
+    );
+  }
+
+  /// Blok gorselleri icin cerceveli "kod alani": Scratch'in calisma
+  /// alani gibi noktali, acik bir zemin.
+  Widget _blokAlani(List<Widget> cocuklar) {
+    final renk = widget.course.primaryColor;
+    return Container(
+      key: const ValueKey('anlatim_blok_alani'),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: widget.isDark ? const Color(0xFF12131B) : const Color(0xFFF7F8FC),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+            color: widget.isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : renk.withValues(alpha: 0.16)),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(17),
+        child: CustomPaint(
+          painter: _NoktaliZemin(
+              widget.isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFDCE0EC)),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: cocuklar,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Koyu kod paneli: ustte uc nokta ve dil etiketi, altta sabit
+  /// genislikli yazi. Girintiler (Python'da anlamli) korunuyor; uzun
+  /// satirlar kirilmak yerine yatay kaydiriliyor.
+  Widget _kodPaneli(String kod) {
+    final dil = AnlatimKodu.dil(widget.course.id);
+    return Container(
+      key: const ValueKey('anlatim_kod_paneli'),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E2235),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E2235).withValues(alpha: 0.18),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 10, 14, 0),
+            child: Row(
+              children: [
+                for (final c in const [
+                  Color(0xFFFF6B6B),
+                  Color(0xFFFFC145),
+                  Color(0xFF3DDC97),
+                ])
+                  Container(
+                    width: 9,
+                    height: 9,
+                    margin: const EdgeInsets.only(right: 6),
+                    decoration: BoxDecoration(color: c, shape: BoxShape.circle),
+                  ),
+                const Spacer(),
+                if (dil != null)
+                  Text(
+                    dil,
+                    style: const TextStyle(
+                      fontFamily: AppTheme.fontFamily,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.8,
+                      color: Color(0xFF8C93B5),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+            child: Text(
+              kod,
+              style: kodYaziStili(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   /// Görsel öğe.
   ///
   /// `visual.content` ve `visual.label` DOĞRUDAN okunmuyor — çeviriye
@@ -824,6 +1061,23 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
         return _buildScratchBlock(visual, vContent, vLabel);
       case VisualType.codeSnippet:
         return _buildCodeSnippet(vContent);
+      case VisualType.icon:
+        // "...ve 7 tane daha?! 😰" gibi kisa bir not. Onceden HIC
+        // cizilmiyordu (SizedBox); cumle dersin espirisini tasiyor.
+        return Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Text(
+            vContent,
+            style: TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              fontSize: 15.5,
+              fontWeight: FontWeight.w800,
+              color: widget.isDark
+                  ? Colors.grey.shade300
+                  : const Color(0xFF5B6280),
+            ),
+          ),
+        );
       default:
         return const SizedBox();
     }
@@ -991,53 +1245,128 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
     );
   }
 
-  Widget _buildCodeSnippet(String content) {
+  Widget _buildCodeSnippet(String content) => _kodPaneli(content);
+
+  /// IPUCU KUTUSU.
+  ///
+  /// Onceden sari zemin uzerinde turuncu yazi vardi (amber.shade900,
+  /// #FF6F00 / #FFF8E1): kontrast orani ~2,9:1, WCAG'nin 4,5:1 alt
+  /// sinirinin cok altinda — "ipucu" tam da okunmasi gereken sey. Simdi
+  /// koyu kahverengi yazi (~10:1), solda amber bir vurgu cizgisi,
+  /// emoji beyaz bir dairede ve ustte kucuk bir "IPUCU" etiketi.
+  Widget _buildTipBox(String tipText) {
+    final koyu = widget.isDark;
+    final lang = lessonLangRead(context);
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.all(16),
+      key: const ValueKey('anlatim_ipucu'),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E2E),
-        borderRadius: BorderRadius.circular(12),
+        color: koyu ? const Color(0xFF2D2A1A) : const Color(0xFFFFF6DE),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Text(
-        content,
-        style: const TextStyle(
-          fontFamily: 'monospace',
-          color: Color(0xFFD4D4D4),
-          fontSize: 14,
+      clipBehavior: Clip.antiAlias,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(width: 5, color: const Color(0xFFF5A524)),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 14, 14),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: koyu ? const Color(0xFF3A3520) : Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: const Color(0xFFF5A524)
+                                .withValues(alpha: 0.45),
+                            width: 1.5),
+                      ),
+                      child: Text(widget.step.tipEmoji ?? '💡',
+                          style: const TextStyle(fontSize: 20)),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            lessonText(lang, 'İPUCU', 'TIP', 'TIPP', 'PISTA'),
+                            style: TextStyle(
+                              fontFamily: AppTheme.fontFamily,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.2,
+                              color: koyu
+                                  ? Colors.amber.shade300
+                                  : const Color(0xFFA65F00),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            tipText,
+                            style: TextStyle(
+                              fontFamily: AppTheme.fontFamily,
+                              fontSize: 15.5,
+                              height: 1.45,
+                              fontWeight: FontWeight.w700,
+                              color: koyu
+                                  ? Colors.amber.shade100
+                                  : const Color(0xFF4A3510),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
-
-  Widget _buildTipBox(String tipText) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: widget.isDark ? const Color(0xFF2D2A1A) : const Color(0xFFFFF8E1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(widget.step.tipEmoji ?? '💡', style: const TextStyle(fontSize: 24)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              tipText,
-              style: TextStyle(
-                fontSize: 14,
-                height: 1.5,
-                color: widget.isDark ? Colors.amber.shade200 : Colors.amber.shade900,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
+
+/// Blok alaninin noktali zemini (Scratch calisma alani gibi).
+class _NoktaliZemin extends CustomPainter {
+  const _NoktaliZemin(this.renk);
+
+  final Color renk;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = Paint()..color = renk;
+    const ara = 16.0;
+    for (var y = ara / 2; y < size.height; y += ara) {
+      for (var x = ara / 2; x < size.width; x += ara) {
+        canvas.drawCircle(Offset(x, y), 1.1, p);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_NoktaliZemin old) => old.renk != renk;
+}
+
+/// Ders ekranlarindaki kod yazisi: sabit genislikli.
+///
+/// 'monospace' iOS'ta gercek bir aile adi degil (Android'de var); once
+/// iOS'un Menlo'su, sonra Android'in monospace'i deneniyor.
+TextStyle kodYaziStili({double boyut = 14.5, Color renk = const Color(0xFFE4E7F5)}) =>
+    TextStyle(
+      fontFamily: 'Menlo',
+      fontFamilyFallback: const ['Courier New', 'monospace', 'RobotoMono'],
+      fontSize: boyut,
+      height: 1.5,
+      color: renk,
+    );
 
 /// "Devamı geliyor" işareti: sırayla yanan üç nokta.
 ///
