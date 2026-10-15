@@ -236,6 +236,79 @@ buy anything.
 `çocuklar için kodlama` ve `coding for kids` çıkarıldı — yukarıdaki
 kurala giriyor.
 
+## "What's New in This Version" — 1.0.14
+
+Aşağıdaki metin **1.0.14 (build 20)** içindir. İçerik (15 Ekim 2026):
+Android'de Google ile giriş, puanlama isteği, veli takibinde kayıtlı
+öğrenciler korunuyor, satrançta renk seçimi, Scratch blokları gerçek
+Scratch 3 görünümünde, sürükle-bırak bloklar, çalıştırma sahnesi görünür
+ve hareketli, çeviri düzeltmeleri. Metinler Play'in 500 karakter sınırına
+da sığıyor.
+
+### tr
+
+• Android'de Google ile giriş.
+
+• Scratch blokları artık gerçek Scratch 3 gibi görünüyor; blokları sürükleyip bırakabilirsin.
+
+• Çalıştır'a basınca sahne görünüyor ve kedi hareket ediyor.
+
+• Satrançta beyazı ya da siyahı sen seç.
+
+• Veli takibi kayıtlı öğrencileri artık kaybetmiyor.
+
+• Uygulamayı beğendiysen puan verebilirsin.
+
+• Çeviri düzeltmeleri ve iyileştirmeler.
+
+### en
+
+• Sign in with Google on Android.
+
+• Scratch blocks now look like real Scratch 3, and you can drag and drop them.
+
+• Press Run to see the stage and watch your sprite move.
+
+• Chess: choose to play white or black.
+
+• Parent tracking now keeps registered students.
+
+• Enjoying the app? You can now rate it.
+
+• Translation fixes and improvements.
+
+### de
+
+• Anmeldung mit Google auf Android.
+
+• Scratch-Blöcke sehen jetzt aus wie im echten Scratch 3 – und du kannst sie per Drag & Drop ziehen.
+
+• Tippe auf Start: Die Bühne ist zu sehen und die Figur bewegt sich.
+
+• Schach: Spiele mit Weiß oder Schwarz.
+
+• Die Eltern-Begleitung behält jetzt angemeldete Schüler.
+
+• Gefällt dir die App? Du kannst sie jetzt bewerten.
+
+• Übersetzungskorrekturen und Verbesserungen.
+
+### es
+
+• Inicia sesión con Google en Android.
+
+• Los bloques de Scratch ahora son como en Scratch 3 de verdad, y puedes arrastrarlos y soltarlos.
+
+• Pulsa Ejecutar para ver el escenario y cómo se mueve tu personaje.
+
+• Ajedrez: elige jugar con blancas o negras.
+
+• El seguimiento familiar ya no pierde a los alumnos registrados.
+
+• ¿Te gusta la app? Ahora puedes valorarla.
+
+• Correcciones de traducción y mejoras.
+
 ## "What's New in This Version" — 1.0.13
 
 Aşağıdaki metin **1.0.13 (build 19)** içindir. İçerik (9 Ekim 2026): iki

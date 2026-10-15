@@ -18,10 +18,10 @@ class AppVersion {
   const AppVersion._();
 
   /// Kullanıcıya gösterilen sürüm (pubspec'teki `+`'dan önceki kısım).
-  static const String name = '1.0.13';
+  static const String name = '1.0.14';
 
   /// Derleme numarası (pubspec'teki `+`'dan sonraki kısım).
-  static const String build = '19';
+  static const String build = '20';
 
   /// "1.0.6 (10)" — hakkında ekranı için.
   static const String full = '$name ($build)';
