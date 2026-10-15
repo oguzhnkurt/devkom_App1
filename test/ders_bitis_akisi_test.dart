@@ -180,7 +180,9 @@ void main() {
     expect(find.text('1/${_moduller.length} modül'), findsOneWidget);
     expect(find.byKey(const ValueKey('yol_tamam_0')), findsOneWidget);
     expect(find.byKey(const ValueKey('yol_simdiki_1')), findsOneWidget);
-    expect(find.textContaining(_moduller[1].titleFor('tr')), findsWidgets);
+    // "Sirada" karti yok (Siradaki ders dugmesi zaten soyluyor); rozet var.
+    expect(find.byKey(const ValueKey('modul_siradaki')), findsNothing);
+    expect(find.text('MODÜL'), findsOneWidget);
 
     // Isaret yazildi: ikinci kez yok.
     await tester.runAsync(

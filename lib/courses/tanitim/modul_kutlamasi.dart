@@ -117,16 +117,6 @@ class _ModulKutlamaEkraniState extends State<ModulKutlamaEkrani> {
 
   CourseModule get _modul => _moduller[widget.modulNo];
 
-  CourseModule? get _sonrakiModul {
-    // Bitmemis ILK modul (yol haritasindaki "su an" dugumu): cocuk
-    // sirasiz gittiyse siradaki modul bir sonraki indeks olmayabilir.
-    for (var i = 0; i < _moduller.length; i++) {
-      final m = _moduller[i];
-      if (!m.lessons.every((l) => widget.biten.contains(l.id))) return m;
-    }
-    return null;
-  }
-
   @override
   void initState() {
     super.initState();
@@ -156,7 +146,6 @@ class _ModulKutlamaEkraniState extends State<ModulKutlamaEkrani> {
     final no = widget.modulNo + 1;
     final toplam = _moduller.length;
     final bitenModul = KursYolHaritasi.bitenModul(_moduller, widget.biten);
-    final sonraki = _sonrakiModul;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
@@ -222,7 +211,7 @@ class _ModulKutlamaEkraniState extends State<ModulKutlamaEkrani> {
                       AppearIn(
                         delay: const Duration(milliseconds: 80),
                         child: Text(
-                          '${_modul.emoji}  ${_modul.titleFor(lang)}',
+                          _modul.titleFor(lang),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: AppTheme.fontFamily,
@@ -237,13 +226,6 @@ class _ModulKutlamaEkraniState extends State<ModulKutlamaEkrani> {
                         delay: const Duration(milliseconds: 160),
                         child: _ilerlemeKarti(lang, bitenModul, toplam),
                       ),
-                      if (sonraki != null) ...[
-                        const SizedBox(height: 12),
-                        AppearIn(
-                          delay: const Duration(milliseconds: 240),
-                          child: _siradakiKarti(lang, sonraki),
-                        ),
-                      ],
                       SizedBox(height: kisa ? 14 : 20),
                       if (widget.sonrakiDers != null &&
                           widget.onSonrakiDers != null)
@@ -309,10 +291,13 @@ class _ModulKutlamaEkraniState extends State<ModulKutlamaEkrani> {
   /// Kupa (modulun simgesiyle) ve yaninda Devi.
   Widget _kahraman(bool kisa) {
     final boy = kisa ? 120.0 : 150.0;
+    final lang = lessonLang(context);
     final kupa = ModulKupasi(
-      emoji: _modul.emoji,
       no: widget.modulNo + 1,
+      etiket: _t(lang, 'MODÜL', 'MODULE', 'MODUL', 'MÓDULO'),
       boyut: boy,
+      renk: const Color(0xFF4A3FC9),
+      renk2: const Color(0xFF7C6CF2),
     );
     final azalt = Motion.reduced(context);
     return SizedBox(
@@ -412,165 +397,306 @@ class _ModulKutlamaEkraniState extends State<ModulKutlamaEkrani> {
       ),
     );
   }
-
-  Widget _siradakiKarti(String lang, CourseModule m) {
-    final c = widget.course;
-    return _beyazKart(
-      key: const ValueKey('modul_siradaki'),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: c.primaryColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Text(m.emoji, style: const TextStyle(fontSize: 28)),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _t(lang, 'SIRADA', 'UP NEXT', 'ALS NÄCHSTES', 'A CONTINUACIÓN'),
-                  style: TextStyle(
-                    fontFamily: AppTheme.fontFamily,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.2,
-                    color: c.primaryColor,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${m.titleFor(lang)} — ${m.descriptionFor(lang)}',
-                  style: const TextStyle(
-                    fontFamily: AppTheme.fontFamily,
-                    fontSize: 15,
-                    height: 1.3,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF1F2430),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-/// Modulun kupasi: altin madalya, ortasinda modulun simgesi, altinda
-/// kurdele ve modul numarasi. Kendi cizimimiz (CustomPainter + emoji).
-class ModulKupasi extends StatelessWidget {
+/// Modul rozeti: altin cerceveli altigen amblem, ustunde uc yildiz,
+/// ortasinda buyuk modul numarasi, altta "MODUL" kurdelesi. Bir kez
+/// uzerinden parlama geciyor. Tamamen kendi cizimimiz (emoji yok; her
+/// cihazda ayni gorunur).
+class ModulKupasi extends StatefulWidget {
   const ModulKupasi({
     super.key,
-    required this.emoji,
     required this.no,
+    this.etiket = 'MODÜL',
     this.boyut = 140,
+    this.renk = const Color(0xFF5B4BDB),
+    this.renk2 = const Color(0xFF2E86DE),
   });
 
-  final String emoji;
   final int no;
+  final String etiket;
   final double boyut;
+  final Color renk;
+  final Color renk2;
+
+  @override
+  State<ModulKupasi> createState() => _ModulKupasiState();
+}
+
+class _ModulKupasiState extends State<ModulKupasi>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _parilti = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_parilti.isAnimating && _parilti.value == 0) {
+      if (Motion.reduced(context)) {
+        _parilti.value = 1;
+      } else {
+        Future.delayed(const Duration(milliseconds: 650), () {
+          if (mounted) _parilti.forward();
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _parilti.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: boyut,
-      height: boyut,
-      child: CustomPaint(
-        painter: _KupaBoyaci(),
-        child: Align(
-          alignment: const Alignment(0, -0.18),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(emoji, style: TextStyle(fontSize: boyut * 0.24)),
-              Text(
-                '$no',
+    final b = widget.boyut;
+    return RepaintBoundary(
+      child: SizedBox(
+        width: b,
+        height: b,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: _parilti,
+                builder: (context, _) => CustomPaint(
+                  painter: _AmblemBoyaci(
+                    renk: widget.renk,
+                    renk2: widget.renk2,
+                    parilti: _parilti.value,
+                  ),
+                ),
+              ),
+            ),
+            // Numara (altigenin ortasi).
+            Align(
+              alignment: const Alignment(0, -0.06),
+              child: Text(
+                '${widget.no}',
                 style: TextStyle(
                   fontFamily: AppTheme.fontFamily,
-                  fontSize: boyut * 0.12,
+                  fontSize: b * 0.30,
                   fontWeight: FontWeight.w900,
-                  color: const Color(0xFF8A5A00),
+                  color: Colors.white,
+                  height: 1,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withValues(alpha: 0.28),
+                      offset: Offset(0, b * 0.015),
+                      blurRadius: b * 0.02,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Kurdele yazisi.
+            Align(
+              alignment: const Alignment(0, 0.39),
+              child: Text(
+                widget.etiket,
+                style: TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: b * 0.085,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: b * 0.012,
+                  color: Colors.white,
                   height: 1,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _KupaBoyaci extends CustomPainter {
+class _AmblemBoyaci extends CustomPainter {
+  _AmblemBoyaci({
+    required this.renk,
+    required this.renk2,
+    required this.parilti,
+  });
+
+  final Color renk;
+  final Color renk2;
+  final double parilti;
+
+  static const _altin1 = Color(0xFFFFE89A);
+  static const _altin2 = Color(0xFFFFC233);
+  static const _altin3 = Color(0xFFE08A00);
+
+  Path _altigen(Offset m, double r) {
+    final p = Path();
+    for (var i = 0; i < 6; i++) {
+      final a = -math.pi / 2 + i * math.pi / 3;
+      final n = m + Offset(math.cos(a) * r, math.sin(a) * r);
+      i == 0 ? p.moveTo(n.dx, n.dy) : p.lineTo(n.dx, n.dy);
+    }
+    return p..close();
+  }
+
+  Path _yildiz(Offset m, double r) {
+    final p = Path();
+    for (var i = 0; i < 10; i++) {
+      final a = -math.pi / 2 + i * math.pi / 5;
+      final rr = i.isEven ? r : r * 0.46;
+      final n = m + Offset(math.cos(a) * rr, math.sin(a) * rr);
+      i == 0 ? p.moveTo(n.dx, n.dy) : p.lineTo(n.dx, n.dy);
+    }
+    return p..close();
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
-    final merkez = Offset(w / 2, h * 0.42);
-    final r = w * 0.34;
+    final m = Offset(w / 2, h * 0.47);
+    final r = w * 0.36;
 
-    // Kurdeleler (madalyanin arkasinda, asagi dogru).
-    for (final s in [-1.0, 1.0]) {
-      final p = Path()
-        ..moveTo(merkez.dx + s * r * 0.35, merkez.dy + r * 0.6)
-        ..lineTo(merkez.dx + s * r * 0.95, h * 0.98)
-        ..lineTo(merkez.dx + s * r * 0.55, h * 0.88)
-        ..lineTo(merkez.dx + s * r * 0.2, h * 0.98)
-        ..lineTo(merkez.dx - s * r * 0.05, merkez.dy + r * 0.6)
-        ..close();
-      canvas.drawPath(
-          p, Paint()..color = s < 0 ? const Color(0xFFE53935) : const Color(0xFF1E88E5));
-    }
-
-    // Isinlar.
-    final isin = Paint()..color = Colors.white.withValues(alpha: 0.28);
-    for (var i = 0; i < 12; i++) {
-      final a = i * math.pi / 6;
-      final p = Path()
-        ..moveTo(merkez.dx, merkez.dy)
-        ..lineTo(merkez.dx + math.cos(a - 0.12) * r * 1.45,
-            merkez.dy + math.sin(a - 0.12) * r * 1.45)
-        ..lineTo(merkez.dx + math.cos(a + 0.12) * r * 1.45,
-            merkez.dy + math.sin(a + 0.12) * r * 1.45)
-        ..close();
-      canvas.drawPath(p, isin);
-    }
-
-    // Madalya: altin dis halka, acik ic daire.
+    // Arkadaki yumusak hale.
     canvas.drawCircle(
-        merkez + const Offset(0, 4),
-        r,
-        Paint()
-          ..color = Colors.black.withValues(alpha: 0.18)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
-    canvas.drawCircle(
-      merkez,
-      r,
+      m,
+      r * 1.32,
+      Paint()
+        ..shader = RadialGradient(colors: [
+          Colors.white.withValues(alpha: 0.45),
+          Colors.white.withValues(alpha: 0),
+        ]).createShader(Rect.fromCircle(center: m, radius: r * 1.32)),
+    );
+
+    // Golge.
+    canvas.drawPath(
+      _altigen(m + Offset(0, r * 0.07), r),
+      Paint()
+        ..color = Colors.black.withValues(alpha: 0.22)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.08),
+    );
+
+    // Altin cerceve (dis altigen) + ince koyu kenar.
+    final dis = _altigen(m, r);
+    final kutu = Rect.fromCircle(center: m, radius: r);
+    canvas.drawPath(
+      dis,
       Paint()
         ..shader = const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFFFE082), Color(0xFFFFB300), Color(0xFFF57F17)],
-        ).createShader(Rect.fromCircle(center: merkez, radius: r)),
+          colors: [_altin1, _altin2, _altin3],
+          stops: [0, 0.5, 1],
+        ).createShader(kutu),
     );
-    canvas.drawCircle(merkez, r * 0.8, Paint()..color = const Color(0xFFFFF4D1));
-    canvas.drawCircle(
-        merkez,
-        r * 0.8,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2
-          ..color = const Color(0xFFFFC107));
+    canvas.drawPath(
+      dis,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = r * 0.03
+        ..color = _altin3.withValues(alpha: 0.8),
+    );
+
+    // Ic altigen: kursun renkleri, ustte hafif parlak bant.
+    final ic = _altigen(m, r * 0.8);
+    final icKutu = Rect.fromCircle(center: m, radius: r * 0.8);
+    canvas.drawPath(
+      ic,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [renk2, renk],
+        ).createShader(icKutu),
+    );
+    canvas.save();
+    canvas.clipPath(ic);
+    canvas.drawOval(
+      Rect.fromCenter(
+          center: m - Offset(0, r * 0.62), width: r * 2.2, height: r * 1.0),
+      Paint()..color = Colors.white.withValues(alpha: 0.16),
+    );
+    // Gecen parilti (bir kez).
+    if (parilti > 0 && parilti < 1) {
+      final x = m.dx - r * 1.6 + parilti * r * 3.2;
+      final bant = Path()
+        ..moveTo(x - r * 0.18, m.dy - r)
+        ..lineTo(x + r * 0.10, m.dy - r)
+        ..lineTo(x - r * 0.30, m.dy + r)
+        ..lineTo(x - r * 0.58, m.dy + r)
+        ..close();
+      canvas.drawPath(
+          bant, Paint()..color = Colors.white.withValues(alpha: 0.38));
+    }
+    canvas.restore();
+    canvas.drawPath(
+      ic,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = r * 0.025
+        ..color = Colors.white.withValues(alpha: 0.55),
+    );
+
+    // Ustte uc yildiz (ortadaki buyuk).
+    final yildizBoya = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [_altin1, _altin2],
+      ).createShader(Rect.fromLTWH(0, 0, w, h * 0.3));
+    final kenar = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = r * 0.025
+      ..strokeJoin = StrokeJoin.round
+      ..color = _altin3;
+    for (final y in [
+      (Offset(m.dx - r * 0.55, m.dy - r * 0.98), r * 0.15),
+      (Offset(m.dx + r * 0.55, m.dy - r * 0.98), r * 0.15),
+      (Offset(m.dx, m.dy - r * 1.1), r * 0.21),
+    ]) {
+      final p = _yildiz(y.$1, y.$2);
+      canvas.drawPath(p, yildizBoya);
+      canvas.drawPath(p, kenar);
+    }
+
+    // Kurdele: altigenin altini kesen serit, uclari katlanmis.
+    final ky = m.dy + r * 0.62;
+    final kh = r * 0.30;
+    final ust = ky - kh / 2;
+    final alt = ky + kh / 2;
+    const koyu = Color(0xFFB71C1C);
+    const acik = Color(0xFFE53935);
+    for (final s in [-1.0, 1.0]) {
+      final uc = Path()
+        ..moveTo(m.dx + s * r * 0.86, ust + kh * 0.25)
+        ..lineTo(m.dx + s * r * 1.22, ust + kh * 0.25)
+        ..lineTo(m.dx + s * r * 1.10, ky + kh * 0.25)
+        ..lineTo(m.dx + s * r * 1.22, alt + kh * 0.25)
+        ..lineTo(m.dx + s * r * 0.86, alt + kh * 0.25)
+        ..close();
+      canvas.drawPath(uc, Paint()..color = koyu);
+    }
+    final serit = RRect.fromRectAndRadius(
+      Rect.fromLTRB(m.dx - r * 0.95, ust, m.dx + r * 0.95, alt),
+      Radius.circular(kh * 0.18),
+    );
+    canvas.drawRRect(
+      serit.shift(Offset(0, r * 0.03)),
+      Paint()..color = Colors.black.withValues(alpha: 0.18),
+    );
+    canvas.drawRRect(
+      serit,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [acik, koyu],
+        ).createShader(serit.outerRect),
+    );
   }
 
   @override
-  bool shouldRepaint(covariant _KupaBoyaci oldDelegate) => false;
+  bool shouldRepaint(covariant _AmblemBoyaci old) =>
+      old.parilti != parilti || old.renk != renk || old.renk2 != renk2;
 }
