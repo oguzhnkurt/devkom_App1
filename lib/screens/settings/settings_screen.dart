@@ -10,6 +10,7 @@ import '../../providers/settings_provider.dart';
 import '../../theme.dart';
 import '../../utils/app_localizations.dart';
 import '../../utils/lang.dart';
+import '../../widgets/mascot.dart';
 import '../../services/degerlendirme_servisi.dart';
 import '../../services/subscription_service.dart';
 import '../subscription_screen.dart';
@@ -351,6 +352,8 @@ class SettingsScreen extends StatelessWidget {
                     color: AppTheme.accentTeal,
                     title: loc.appExperience,
                     children: [
+                      _MaskotAdiSatiri(settings: settings),
+                      _rowDivider(),
                       ListTile(
                         leading:
                             _chip(Icons.replay_rounded, AppTheme.accentTeal),
@@ -979,6 +982,199 @@ class _ProSimTileState extends State<_ProSimTile> {
           style: TextStyle(inherit: true)),
       value: ProGate.debugHerSeyAcik,
       onChanged: (v) => setState(() => ProGate.debugHerSeyAcik = v),
+    );
+  }
+}
+
+/// Ayarlar > Maskotunun adi.
+///
+/// Kurulumda maskota ad verme adimi KALDIRILDI (kullanici: "Devi'nin
+/// adi degistirilebilir olmasin; yalnizca Ayarlar'a ad degistirme
+/// secenegi koy"). Ad varsayilan olarak Devi; isteyen cocuk burada
+/// degistiriyor, "Devi'ye geri don" ile de eski adina donduruyor.
+class _MaskotAdiSatiri extends StatelessWidget {
+  const _MaskotAdiSatiri({required this.settings});
+
+  final SettingsProvider settings;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      key: const ValueKey('ayarlar_maskot_adi'),
+      leading: Container(
+        width: 40,
+        height: 40,
+        padding: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          color: Mascot.tone.withValues(alpha: 0.14),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Image.asset(Mascot.durgunGorsel,
+            fit: BoxFit.contain,
+            excludeFromSemantics: true,
+            errorBuilder: (_, __, ___) =>
+                const Icon(Icons.smart_toy_rounded, color: Mascot.tone)),
+      ),
+      title: Text(
+          _t(context, 'Maskotunun adı', "Your mascot's name",
+              'Name deines Maskottchens', 'Nombre de tu mascota'),
+          style: const TextStyle(inherit: true)),
+      subtitle: Text(settings.mascotName,
+          key: const ValueKey('ayarlar_maskot_adi_deger'),
+          style: const TextStyle(inherit: true)),
+      trailing: const Icon(Icons.edit_rounded, size: 20),
+      onTap: () => showDialog<void>(
+        context: context,
+        builder: (_) => MaskotAdiPenceresi(settings: settings),
+      ),
+    );
+  }
+}
+
+/// Maskotun adini degistirme penceresi.
+///
+/// En fazla [enUzun] harf, bastaki/sondaki bosluklar kirpiliyor, bos
+/// ad kaydedilmiyor (Kaydet pasif). "Devi'ye geri don" adi siliyor ve
+/// karakter kendi adina donuyor.
+class MaskotAdiPenceresi extends StatefulWidget {
+  const MaskotAdiPenceresi({super.key, required this.settings});
+
+  final SettingsProvider settings;
+
+  static const int enUzun = 14;
+
+  @override
+  State<MaskotAdiPenceresi> createState() => _MaskotAdiPenceresiState();
+}
+
+class _MaskotAdiPenceresiState extends State<MaskotAdiPenceresi> {
+  late final TextEditingController _c =
+      TextEditingController(text: widget.settings.mascotName);
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  bool get _gecerli => _c.text.trim().isNotEmpty;
+
+  Future<void> _kaydet() async {
+    if (!_gecerli) return;
+    final ad = _c.text.trim();
+    // Devi yazildiysa ozel bir ad degil: kayit bos kalsin.
+    await widget.settings.setMascotName(ad == Mascot.ad ? '' : ad);
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  Future<void> _sifirla() async {
+    await widget.settings.setMascotName('');
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      key: const ValueKey('maskot_adi_penceresi'),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+      title: Column(
+        children: [
+          const Mascot(size: 84, showShadow: false),
+          const SizedBox(height: 8),
+          Text(
+            _t(context, 'Maskotunun adı', "Your mascot's name",
+                'Name deines Maskottchens', 'Nombre de tu mascota'),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              fontWeight: FontWeight.w800,
+              fontSize: 20,
+              color: AppTheme.darkBlue,
+            ),
+          ),
+        ],
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              _t(
+                  context,
+                  'Ona istediğin adı verebilirsin.',
+                  'You can give them any name you like.',
+                  'Du kannst ihm jeden Namen geben.',
+                  'Puedes ponerle el nombre que quieras.'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppTheme.mediumGray, height: 1.35),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              key: const ValueKey('maskot_adi_alani'),
+              controller: _c,
+              autofocus: true,
+              maxLength: MaskotAdiPenceresi.enUzun,
+              textAlign: TextAlign.center,
+              textCapitalization: TextCapitalization.words,
+              textInputAction: TextInputAction.done,
+              onChanged: (_) => setState(() {}),
+              onSubmitted: (_) => _kaydet(),
+              style: const TextStyle(
+                fontFamily: AppTheme.fontFamily,
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.darkGray,
+              ),
+              decoration: InputDecoration(
+                hintText: Mascot.ad,
+                filled: true,
+                fillColor: const Color(0xFFF4F6F9),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            if (widget.settings.hasCustomMascotName ||
+                _c.text.trim() != Mascot.ad)
+              TextButton.icon(
+                key: const ValueKey('maskot_adi_sifirla'),
+                onPressed: _sifirla,
+                icon: const Icon(Icons.restart_alt_rounded, size: 18),
+                label: Text(_t(context, "Devi'ye geri dön", 'Back to Devi',
+                    'Zurück zu Devi', 'Volver a Devi')),
+                style: TextButton.styleFrom(
+                  foregroundColor: Mascot.tone.withValues(alpha: 1),
+                  textStyle: const TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+      actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(_t(context, 'Vazgeç', 'Cancel', 'Abbrechen', 'Cancelar')),
+        ),
+        FilledButton(
+          key: const ValueKey('maskot_adi_kaydet'),
+          onPressed: _gecerli ? _kaydet : null,
+          style: FilledButton.styleFrom(
+            backgroundColor: AppTheme.primaryBlue,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14)),
+          ),
+          child: Text(_t(context, 'Kaydet', 'Save', 'Speichern', 'Guardar')),
+        ),
+      ],
     );
   }
 }

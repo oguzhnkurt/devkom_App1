@@ -47,8 +47,8 @@ class SettingsProvider extends ChangeNotifier {
   /// Çocuğun maskota verdiği ad.
   ///
   /// Boşsa karakterin kendi adı (Devi) kullanılıyor. Kurulumda
-  /// çocuğa "ona ne ad koyalım?" diye soruluyor: adını kendi koyduğu bir
-  /// karakter, kendisine verilen bir karakterden başka bir şey.
+  /// SORULMUYOR (Devi önce kendini tanıtıyor); değiştirmenin tek yeri
+  /// Ayarlar > Maskotunun adı.
   String _mascotName = '';
 
   // Getters
