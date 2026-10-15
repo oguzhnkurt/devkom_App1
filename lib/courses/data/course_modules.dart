@@ -1,4 +1,5 @@
 import '../models/interactive_lesson_model.dart';
+import 'modul_tekrar_sorulari.dart';
 import 'scratch_lessons_data.dart';
 import 'python_lessons_data.dart';
 import 'arduino_lessons_data.dart';
@@ -21,6 +22,7 @@ class CourseModule {
     this.descriptionEn,
     this.descriptionDe,
     this.descriptionEs,
+    this.tekrarSorulari = const [],
   });
 
   final String title;
@@ -36,6 +38,11 @@ class CourseModule {
   final String? descriptionEn;
   final String? descriptionDe;
   final String? descriptionEs;
+
+  /// Yalnizca modul sinavinda sorulan tekrar sorulari (bkz.
+  /// ModulTekrarSorulari). Sinav bunlari derslerin icindeki sorularla
+  /// birlikte topluyor.
+  final List<MultipleChoiceStep> tekrarSorulari;
 
   String titleFor(String lang) =>
       pickLang(title, titleEn, lang, titleDe, titleEs);
@@ -114,6 +121,7 @@ class CourseModules {
             descriptionEs: 'Condiciones y movimiento',
             emoji: '🎮',
             lessons: ScratchLessonsData.module2,
+            tekrarSorulari: ModulTekrarSorulari.scratch2,
           ),
           CourseModule(
             title: 'İlk Oyunun',
@@ -126,6 +134,7 @@ class CourseModules {
             descriptionEs: '¡Haz un juego de verdad!',
             emoji: '🚀',
             lessons: ScratchLessonsData.module3,
+            tekrarSorulari: ModulTekrarSorulari.scratch3,
           ),
           CourseModule(
             title: 'Değişkenler & Puan',
@@ -150,6 +159,7 @@ class CourseModules {
             descriptionEs: 'Multiplica tus objetos',
             emoji: '👯',
             lessons: ScratchLessonsData.module5,
+            tekrarSorulari: ModulTekrarSorulari.scratch5,
           ),
           CourseModule(
             title: 'Mesajlar & Yayınlar',
@@ -162,6 +172,7 @@ class CourseModules {
             descriptionEs: 'Objetos que se comunican',
             emoji: '📢',
             lessons: ScratchLessonsData.module6,
+            tekrarSorulari: ModulTekrarSorulari.scratch6,
           ),
           CourseModule(
             title: 'Ses & Müzik',
@@ -174,6 +185,7 @@ class CourseModules {
             descriptionEs: 'Añade sonido a tu juego',
             emoji: '🎵',
             lessons: ScratchLessonsData.module7,
+            tekrarSorulari: ModulTekrarSorulari.scratch7,
           ),
           CourseModule(
             title: 'Kalem ve Çizim',
@@ -186,6 +198,7 @@ class CourseModules {
             descriptionEs: 'Bajar lápiz, figuras con bucles, la regla del 360',
             emoji: '✏️',
             lessons: ScratchLessonsData.module8,
+            tekrarSorulari: ModulTekrarSorulari.scratch8,
           ),
           CourseModule(
             title: 'Operatörler ve Şans',
@@ -198,6 +211,7 @@ class CourseModules {
             descriptionEs: 'Números aleatorios, comparaciones, y / o',
             emoji: '🎲',
             lessons: ScratchLessonsData.module9,
+            tekrarSorulari: ModulTekrarSorulari.scratch9,
           ),
           CourseModule(
             title: 'Listeler',
@@ -210,6 +224,7 @@ class CourseModules {
             descriptionEs: 'Crea una lista, añade elementos, saca uno al azar',
             emoji: '📋',
             lessons: ScratchLessonsData.module10,
+            tekrarSorulari: ModulTekrarSorulari.scratch10,
           ),
           CourseModule(
             title: 'Kendi Bloğun',
@@ -222,6 +237,7 @@ class CourseModules {
             descriptionEs: 'Define un bloque, llámalo, dale una entrada',
             emoji: '🧱',
             lessons: ScratchLessonsData.module11,
+            tekrarSorulari: ModulTekrarSorulari.scratch11,
           ),
         ];
       case 'html':
@@ -606,6 +622,7 @@ class CourseModules {
             descriptionEs: 'El bloque de inicio, la salida digital, el bucle',
             emoji: '💡',
             lessons: MBlockLessonsData.module2,
+            tekrarSorulari: ModulTekrarSorulari.mblock3,
           ),
           CourseModule(
             title: 'Kart Seni Dinliyor',
@@ -630,6 +647,7 @@ class CourseModules {
             descriptionEs: 'Sensor de distancia, servo, sensor de aparcamiento, barrera',
             emoji: '🚧',
             lessons: MBlockLessonsData.module4,
+            tekrarSorulari: ModulTekrarSorulari.mblock5,
           ),
           // Projeler en sonda: derslerde öğrenilen parçaları birleştirip
           // bitmiş bir şey çıkarmak, parçaları öğrendikten sonra anlam

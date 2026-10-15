@@ -47,8 +47,11 @@ class ModuleQuizScreen extends StatefulWidget {
   static List<MultipleChoiceStep> collectQuestions(
     List<InteractiveLesson> lessons, {
     int maxQuestions = 10,
+    List<MultipleChoiceStep> tekrarSorulari = const [],
   }) {
-    final all = <MultipleChoiceStep>[];
+    // Modulun kendi tekrar sorulari (ders icinde gorunmeyenler) da
+    // sinavda; dersi az sorulu modullerde de sinav cikiyor.
+    final all = <MultipleChoiceStep>[...tekrarSorulari];
     for (final lesson in lessons) {
       for (final step in lesson.steps) {
         if (step is MultipleChoiceStep) {

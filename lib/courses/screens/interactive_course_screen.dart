@@ -796,7 +796,9 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
     // her calistiginda (ilerleme degisince, tema degisince) kartin
     // arkasindaki soru seti degisiyordu.
     final questions = _sinavSorulari.putIfAbsent(
-        module, () => ModuleQuizScreen.collectQuestions(module.lessons));
+        module,
+        () => ModuleQuizScreen.collectQuestions(module.lessons,
+            tekrarSorulari: module.tekrarSorulari));
     if (questions.length < 3) {
       return const SizedBox.shrink();
     }
