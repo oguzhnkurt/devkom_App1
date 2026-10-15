@@ -221,6 +221,106 @@ void main() {
       await _kapat(tester);
     });
 
+    // Kucuk ekranda cevaptan sonra sayfa SONUNA kaydiriliyor, soru karti
+    // ekranin ustunden cikiyordu. Artik soru metni ve secilen secenek
+    // ekranda kaliyor; Devi'nin tepkisi de gorunuyor (alttaki arkadas ya
+    // da secenegin altindaki kucuk balon).
+    for (final kod in [false, true]) {
+      for (final secim in ['10 kere', '5 kere', '50 kere', '100 kere']) {
+        testWidgets(
+            '375x667${kod ? ' (kodlu)' : ''}: "$secim" sonrasi soru ve secim '
+            'ekranda, tepki gorunuyor', (tester) async {
+          SharedPreferences.setMockInitialValues({'language_code': 'tr'});
+          final q = kod
+              ? MultipleChoiceStep(
+                  id: 'v2_kodlu',
+                  question: soru.question,
+                  options: soru.options,
+                  correctIndex: soru.correctIndex,
+                  explanation: soru.explanation,
+                  codeContext: 'tekrarla ?\n  10 adım git',
+                )
+              : soru;
+          await _kur(
+              tester,
+              InteractiveLessonScreen(
+                  course: scratch,
+                  lesson: _ders([
+                    q,
+                    ...CourseModules.allLessons('scratch')
+                        .firstWhere((l) => l.id == 'scratch_1_3')
+                        .steps
+                        .where((s) => s.id != soru.id)
+                  ])),
+              boy: const Size(375, 667),
+              auth: AuthProvider());
+          await _bekle(tester, 900);
+          final ekran = tester.getRect(find.byType(CustomScrollView));
+          bool icinde(Rect r) =>
+              r.top >= ekran.top - 0.5 && r.bottom <= ekran.bottom + 0.5;
+          final soruMetni = find.text(q.question);
+          final secilen = find.text(secim);
+          // Cocuk secenegi gorup dokunuyor: gerekiyorsa once ona kaydir.
+          if (!icinde(tester.getRect(secilen))) {
+            await Scrollable.ensureVisible(tester.element(secilen),
+                alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd);
+            await tester.pump(const Duration(milliseconds: 300));
+          }
+          final soruGorunurdu = icinde(tester.getRect(soruMetni));
+          if (!kod) expect(soruGorunurdu, isTrue);
+          await tester.tap(secilen);
+          await _bekle(tester, 1500);
+          expect(tester.takeException(), isNull);
+
+          if (soruGorunurdu) {
+            expect(icinde(tester.getRect(soruMetni)), isTrue,
+                reason: 'soru ekranin disinda: '
+                    '${tester.getRect(soruMetni)} / $ekran');
+            expect(soruMetni.hitTestable(), findsOneWidget);
+          }
+          expect(icinde(tester.getRect(secilen)), isTrue,
+              reason: 'secim ekranin disinda: ${tester.getRect(secilen)} / $ekran');
+          expect(secilen.hitTestable(), findsOneWidget);
+
+          // Tepki: ya alttaki arkadasin balonu ekranda ya da secilen
+          // secenegin icinde kucuk Devi ve sozu (o zaman alttaki Devi
+          // cekiliyor, ekranda tek Devi).
+          final sozu = find.byKey(const ValueKey('secenek_tepkisi'));
+          final arkadas = find.byKey(const ValueKey('ders_arkadasi'),
+              skipOffstage: false);
+          if (sozu.evaluate().isNotEmpty) {
+            final r = tester.getRect(sozu);
+            expect(icinde(r), isTrue, reason: 'tepki gorunmuyor: $r / $ekran');
+            expect(r.top, greaterThanOrEqualTo(tester.getRect(secilen).bottom));
+            expect(find.byKey(const ValueKey('secenek_devi')), findsOneWidget);
+            expect(
+                tester
+                    .widget<AnimatedOpacity>(find
+                        .ancestor(
+                            of: arkadas,
+                            matching: find.byType(AnimatedOpacity,
+                                skipOffstage: false))
+                        .first)
+                    .opacity,
+                0);
+          } else {
+            for (final e in find
+                .descendant(of: arkadas, matching: find.byType(Text))
+                .evaluate()) {
+              final kutu = e.renderObject! as RenderBox;
+              final r = kutu.localToGlobal(Offset.zero) & kutu.size;
+              expect(icinde(r), isTrue,
+                  reason: 'arkadasin balonu gorunmuyor: $r / $ekran');
+            }
+          }
+          expect(
+              find.textContaining(secim == '5 kere' ? 'Doğru!' : 'Yanlış!'),
+              findsOneWidget);
+          await _kapat(tester);
+        });
+      }
+    }
+
     test('sozler dort dilde', () {
       for (final l in ['tr', 'en', 'de', 'es']) {
         final s = DersArkadasi.butunSozler(l).toList();

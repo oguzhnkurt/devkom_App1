@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../ui/ekran_olcusu.dart';
 import '../../widgets/playful_background.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/rendering.dart' show RenderAbstractViewport;
 import 'package:provider/provider.dart';
 import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
@@ -532,26 +533,104 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
   ScrollController? _adimKaydirma;
   String? _adimKaydirmaId;
 
+  /// Alttaki Devi arkadasi, coktan secmeli sorunun metni ve secilen
+  /// secenek: cevaptan sonra ne kadar kaydirilacagi bunlarla olculuyor.
+  ///
+  /// Adim basina ayri anahtar: adim degisirken AnimatedSwitcher eski ve
+  /// yeni adimi bir sure birlikte ciziyor; tek bir GlobalKey iki yerde
+  /// kullanilmis olurdu.
+  final Map<String, GlobalKey> _arkadasAnahtarlari = {};
+  final Map<String, GlobalKey> _soruAnahtarlari = {};
+  final Map<String, GlobalKey> _secimAnahtarlari = {};
+  static GlobalKey _anahtar(Map<String, GlobalKey> m, String id) =>
+      m.putIfAbsent(id, GlobalKey.new);
+
+  /// Bu adimlarda alttaki Devi'nin tepkisi soruyu ekrandan itmeden
+  /// gosterilemedi: tepkiyi secilen secenegin icindeki kucuk Devi veriyor.
+  final Set<String> _satirIciTepki = {};
+
+  /// Alttaki Devi'nin boyu: uzun ekranlarda biraz daha iri.
+  double get _arkadasBoyu =>
+      MediaQuery.sizeOf(context).height >= 800 ? 88 : 68;
+
   void _cevapVerildi(String stepId, bool dogru) {
     if (!mounted) return;
     setState(() {
       _cevaplar[stepId] = dogru;
       _tepkiNo++;
     });
-    // Cevap ve aciklama ekranin altinda kaldiysa (kucuk ekran) Devi'nin
-    // tepkisi gorunsun diye sona kaydiriliyor; aciklama hemen ustunde.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final k = _adimKaydirma;
-      if (!mounted || k == null || !k.hasClients) return;
-      final p = k.position;
-      if (p.maxScrollExtent <= p.pixels + 1) return;
-      if (Motion.reduced(context)) {
-        k.jumpTo(p.maxScrollExtent);
-      } else {
-        k.animateTo(p.maxScrollExtent,
-            duration: Motion.long2, curve: Motion.emphasized);
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _tepkiyiGoster(stepId, ilk: true));
+  }
+
+  /// CEVAPTAN SONRA YALNIZCA GEREKTIGI KADAR KAYDIR.
+  ///
+  /// ONCEDEN: kucuk ekranda (375x667) cevaptan sonra sayfa SONUNA
+  /// kaydiriliyordu ki alttaki Devi'nin tepkisi gorunsun. Soru karti, cogu
+  /// zaman secilen secenek de, ekranin ustunden cikiyordu: cocuk neye
+  /// cevap verdigini goremiyordu.
+  ///
+  /// SIMDI: en fazla soru metninin ustu ekranin ustune gelene kadar
+  /// kaydiriliyor (soru zaten disaridaysa: secilen secenegin ustu). Soru
+  /// ve secilen secenek ekranda kaliyor. Devi'nin tepkisi bu sinir
+  /// icinde gorunuyorsa o kadar kaydiriliyor; gorunmuyorsa tepkiyi
+  /// secilen secenegin ICINDE kucuk bir Devi ve tek satirlik sozu veriyor
+  /// (alttaki Devi cekiliyor, ekranda yine tek Devi). Secenek zaten
+  /// ekranda; gerekirse altina kadar, sinir icinde kaydiriliyor.
+  void _tepkiyiGoster(String stepId, {required bool ilk}) {
+    final k = _adimKaydirma;
+    if (!mounted || k == null || !k.hasClients) return;
+    if (_currentStep.id != stepId) return;
+    final p = k.position;
+
+    double? goster(Map<String, GlobalKey> m, double hiza) {
+      final ro = m[stepId]?.currentContext?.findRenderObject();
+      if (ro == null || !ro.attached) return null;
+      final vp = RenderAbstractViewport.maybeOf(ro);
+      if (vp == null) return null;
+      return vp.getOffsetToReveal(ro, hiza).offset;
+    }
+
+    // Sinir: soru metninin ustu ekranin ustune kadar gelebilir. Cocuk
+    // soruyu zaten kaydirip gecmisse secilen secenegin ustu. Soru yoksa
+    // (anlatim, uygulama) sinir yok.
+    var sinir = p.maxScrollExtent;
+    if (_currentStep.type == StepType.multipleChoice) {
+      final soruUst = goster(_soruAnahtarlari, 0.0);
+      final secimUst = goster(_secimAnahtarlari, 0.0);
+      if (soruUst != null && soruUst >= p.pixels - 0.5) {
+        sinir = soruUst;
+      } else if (secimUst != null) {
+        sinir = secimUst;
       }
-    });
+    }
+    sinir = sinir.clamp(p.minScrollExtent, p.maxScrollExtent).toDouble();
+
+    final satirIci = _satirIciTepki.contains(stepId);
+    final tam = goster(satirIci ? _secimAnahtarlari : _arkadasAnahtarlari, 1.0);
+    if (tam == null) return;
+    // Alttaki arkadasin tepkisi balonunda; balonun altinda yalnizca
+    // Devi'nin ayaklari ve golgesi var. Balon ve Devi'nin ust yarisi
+    // gorunuyorsa tepki okunuyor demektir. Secenekte ise olculen yazi
+    // sutunu; altinda secenegin 16 pt'lik ic boslugu var.
+    final gerek = satirIci ? tam + 16 : tam - _arkadasBoyu * 0.45;
+    if (gerek <= p.pixels + 1) return; // tepki zaten ekranda
+
+    if (ilk && !satirIci && gerek > sinir + 1 &&
+        _currentStep.type == StepType.multipleChoice) {
+      setState(() => _satirIciTepki.add(stepId));
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _tepkiyiGoster(stepId, ilk: false));
+      return;
+    }
+
+    final hedef = gerek.clamp(p.minScrollExtent, sinir).toDouble();
+    if (hedef <= p.pixels + 1) return; // yukari cekme
+    if (Motion.reduced(context)) {
+      k.jumpTo(hedef);
+    } else {
+      k.animateTo(hedef, duration: Motion.long2, curve: Motion.emphasized);
+    }
   }
 
   /// Uygulama adimi (surukle-birak, kod...) bitti: XP ve Devi'nin tepkisi.
@@ -590,7 +669,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
     }
     final lang = lessonLang(context);
     final cevap = _cevaplar[step.id];
-    final uzun = MediaQuery.sizeOf(context).height >= 800;
+    final satirIci = _satirIciTepki.contains(step.id);
     return CustomScrollView(
       key: ValueKey(step.id),
       controller: _adimKaydirma,
@@ -606,19 +685,26 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
             padding: EdgeInsets.fromLTRB(dolgu + 4, 18, dolgu, dolgu + 6),
             child: Align(
               alignment: const Alignment(-0.2, 0.55),
-              child: DersArkadasi(
-                tur: arkadasTuru,
-                lang: lang,
-                renk: widget.course.primaryColor,
-                koyu: isDark,
-                tohum: step.id.hashCode,
-                tepki: cevap == null
-                    ? null
-                    : (cevap ? DeviTepkiTuru.dogru : DeviTepkiTuru.yanlis),
-                coktanSecmeli: step.type == StepType.multipleChoice,
-                tepkiNo: _tepkiNo,
-                boyut: uzun ? 88 : 68,
-                sonAdim: _isLastStep,
+              // Tepki secenegin altina tasindiysa Devi buradan
+              // cekiliyor: ekranda hep TEK Devi.
+              child: AnimatedOpacity(
+                opacity: satirIci ? 0 : 1,
+                duration: Motion.medium2,
+                child: DersArkadasi(
+                  key: _anahtar(_arkadasAnahtarlari, step.id),
+                  tur: arkadasTuru,
+                  lang: lang,
+                  renk: widget.course.primaryColor,
+                  koyu: isDark,
+                  tohum: step.id.hashCode,
+                  tepki: cevap == null
+                      ? null
+                      : (cevap ? DeviTepkiTuru.dogru : DeviTepkiTuru.yanlis),
+                  coktanSecmeli: step.type == StepType.multipleChoice,
+                  tepkiNo: _tepkiNo,
+                  boyut: _arkadasBoyu,
+                  sonAdim: _isLastStep,
+                ),
               ),
             ),
           ),
@@ -652,8 +738,13 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           step: step as MultipleChoiceStep,
           course: widget.course,
           isDark: isDark,
-          // Tepkiyi alttaki Devi arkadasi veriyor (tek Devi).
+          // Tepkiyi alttaki Devi arkadasi veriyor (tek Devi). O, soruyu
+          // ekrandan itmeden gorunemiyorsa secilen secenegin icinde
+          // kucuk bir Devi.
           deviTepkisi: false,
+          secenekTepkisi: _satirIciTepki.contains(step.id),
+          soruAnahtari: _anahtar(_soruAnahtarlari, step.id),
+          secimAnahtari: _anahtar(_secimAnahtarlari, step.id),
           onCevap: (dogru) => _cevapVerildi(step.id, dogru),
           onComplete: (correct) => _onStepCompleted(
             step.id,

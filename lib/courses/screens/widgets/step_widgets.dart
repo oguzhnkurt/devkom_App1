@@ -1454,6 +1454,17 @@ class MultipleChoiceStepWidget extends StatefulWidget {
   /// arkadasini gosterdiginde kapatiyor: ekranda iki Devi olmasin.
   final bool deviTepkisi;
 
+  /// Devi'nin tepkisi SECILEN SECENEGIN ICINDE: harf rozetinin yerine
+  /// kucuk bir Devi, secenek yazisinin altinda tek satirlik sozu. Yer
+  /// neredeyse kaplamiyor. Ders ekrani bunu, alttaki Devi arkadasi soruyu
+  /// ekrandan itmeden gorunemediginde aciyor (kucuk ekran).
+  final bool secenekTepkisi;
+
+  /// Soru metninin ve secilen secenegin anahtarlari. Ders ekrani cevaptan
+  /// sonra kaydirirken ikisini de ekranda tutmak icin bunlarla olcuyor.
+  final GlobalKey? soruAnahtari;
+  final GlobalKey? secimAnahtari;
+
   const MultipleChoiceStepWidget({
     super.key,
     required this.step,
@@ -1462,6 +1473,9 @@ class MultipleChoiceStepWidget extends StatefulWidget {
     required this.onComplete,
     this.onCevap,
     this.deviTepkisi = true,
+    this.secenekTepkisi = false,
+    this.soruAnahtari,
+    this.secimAnahtari,
   });
 
   @override
@@ -1498,6 +1512,61 @@ List<T> karistir<T>(List<T> ogeler, String tohum, List<String> cozum,
 const Set<String> _answerKeyEmojis = {'✅', '❌', '✔️', '✔', '❎', '✖️'};
 
 class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
+  /// Secenegin icindeki kucuk Devi: harf rozetiyle ayni yer (30x30),
+  /// cevapta bir kez zipliyor ("hareketi azalt" acikken durgun).
+  Widget _miniDevi() {
+    Widget devi = Mascot(
+      key: const ValueKey('secenek_devi'),
+      size: 30,
+      mood: _isCorrect ? MascotMood.happy : MascotMood.encouraging,
+      showShadow: false,
+    );
+    if (!Motion.reduced(context)) {
+      devi = TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: 1),
+        duration: const Duration(milliseconds: 650),
+        builder: (context, t, child) => Transform.scale(
+          scale: 0.6 + 0.4 * Curves.elasticOut.transform(t),
+          child: child,
+        ),
+        child: devi,
+      );
+    }
+    return SizedBox(width: 30, height: 30, child: devi);
+  }
+
+  /// Secenegin altindaki tek satirlik Devi sozu (dort dilde, DeviTepkisi
+  /// ile ayni sozler).
+  Widget _secenekSozu(String lang) {
+    final metin = DeviTepkisi.soz(
+        _isCorrect ? DeviTepkiTuru.dogru : DeviTepkiTuru.yanlis,
+        lang,
+        widget.step.id.hashCode);
+    return Semantics(
+      liveRegion: true,
+      label: '${Mascot.ad}: $metin',
+      child: ExcludeSemantics(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 3),
+          child: Text(
+            metin,
+            key: const ValueKey('secenek_tepkisi'),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: _isCorrect
+                  ? const Color(0xFF2E9E45)
+                  : const Color(0xFFE08A00),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   int? _selectedIndex;
   bool _answered = false;
   bool get _isCorrect => _selectedIndex == widget.step.correctIndex;
@@ -1628,6 +1697,7 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
                     const SizedBox(height: 7),
                     Text(
                       widget.step.questionFor(lang),
+                      key: widget.soruAnahtari,
                       style: const TextStyle(
                         fontFamily: AppTheme.fontFamily,
                         fontSize: 18,
@@ -1670,6 +1740,8 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
           final option = widget.step.options[index];
           final isSelected = _selectedIndex == index;
           final isCorrectAnswer = widget.step.correctIndex == index;
+          final tepkiBurada =
+              _answered && isSelected && widget.secenekTepkisi;
 
           Color backgroundColor;
           Color borderColor;
@@ -1709,7 +1781,10 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
                 children: [
                   // Emoji yalnizca ANLAMLI ise gosteriliyor; cevap
                   // anahtari emojileri (✅/❌) hic cizilmiyor.
-                  if (option.emoji != null &&
+                  if (tepkiBurada) ...[
+                    _miniDevi(),
+                    const SizedBox(width: 12),
+                  ] else if (option.emoji != null &&
                       !_answerKeyEmojis.contains(option.emoji)) ...[
                     Text(option.emoji!, style: const TextStyle(fontSize: 24)),
                     const SizedBox(width: 12),
@@ -1749,19 +1824,28 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
                     const SizedBox(width: 12),
                   ],
                   Expanded(
-                    child: Text(
-                      option.textFor(lang),
-                      style: TextStyle(
-                        // Sik yazisi uygulamanin yazi tipinde ve
-                        // okunakli: 15/normal soluk kaliyordu.
-                        fontSize: 15.5 + ek / 8,
-                        height: 1.3,
-                        fontWeight:
-                            isSelected ? FontWeight.w800 : FontWeight.w600,
-                        fontFamily:
-                            option.isCode ? 'monospace' : AppTheme.fontFamily,
-                        color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
-                      ),
+                    child: Column(
+                      // Durumsuz: anahtarin secimle gelmesi bir sey
+                      // sifirlamiyor.
+                      key: isSelected ? widget.secimAnahtari : null,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          option.textFor(lang),
+                          style: TextStyle(
+                            // Sik yazisi uygulamanin yazi tipinde ve
+                            // okunakli: 15/normal soluk kaliyordu.
+                            fontSize: 15.5 + ek / 8,
+                            height: 1.3,
+                            fontWeight:
+                                isSelected ? FontWeight.w800 : FontWeight.w600,
+                            fontFamily:
+                                option.isCode ? 'monospace' : AppTheme.fontFamily,
+                            color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
+                          ),
+                        ),
+                        if (tepkiBurada) _secenekSozu(lang),
+                      ],
                     ),
                   ),
                   if (_answered && isCorrectAnswer)
