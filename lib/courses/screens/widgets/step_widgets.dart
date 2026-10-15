@@ -13,6 +13,8 @@ import 'catch_block_game.dart';
 import 'kod_tezgahi.dart';
 import 'coordinate_tap_game.dart';
 import '../../../widgets/scratch_block_widget.dart';
+import '../../../widgets/scratch_blok.dart';
+import '../../yurutme/scratch_blok_katalogu.dart';
 import '../../../widgets/block_animation_player.dart';
 import '../../../theme.dart';
 import '../../../utils/lang.dart';
@@ -40,6 +42,11 @@ String lessonLangRead(BuildContext context) =>
 /// ayni kural (bkz. pickLang).
 String lessonText(String lang, String tr, String en, [String? de, String? es]) =>
     AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
+
+/// Scratch kursunda bloklar Scratch 3'un kendi gorunumuyle ciziliyor
+/// ([ScratchBlok]). Diger kurslar (Arduino, mBlock'un kart dizme yedegi)
+/// eski cizimde kaliyor: onlarin bloklari Scratch etiketi tasimiyor.
+bool scratchKursu(Course course) => course.id == 'scratch';
 
 // ==========================================
 // INTRO STEP WIDGET
@@ -654,7 +661,8 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
           if (bitti) ...[
             const SizedBox(height: 24),
             if (widget.step.visuals.isNotEmpty)
-              ...widget.step.visuals.map((visual) => _buildVisual(visual, lang)),
+              ...widget.step.visuals.asMap().entries.map(
+                  (e) => _buildVisual(e.value, lang, sira: e.key)),
             if (tipText != null) ...[
               const SizedBox(height: 24),
               _buildTipBox(tipText),
@@ -671,7 +679,7 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
   /// düşen `contentFor(lang)` / `labelFor(lang)` kullanılıyor. Model'e
   /// bu alanlar sonradan eklendi; doğrudan okunursa Ingilizce ekranda
   /// blok görsellerinin üstünde Türkçe yazılar kalıyor.
-  Widget _buildVisual(VisualElement visual, String lang) {
+  Widget _buildVisual(VisualElement visual, String lang, {int sira = 0}) {
     // Çözülmüş metinler AŞAĞIYA GEÇİRİLİYOR.
     //
     // Daha önce burada `contentFor(lang)` çağrılıyor, sonuç bir yerel
@@ -684,12 +692,89 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
     final vLabel = visual.labelFor(lang);
     switch (visual.type) {
       case VisualType.scratchBlock:
+        if (scratchKursu(widget.course)) {
+          final v = widget.step.visuals;
+          final gercek = _gercekScratchGorseli(visual, vLabel, lang,
+              ustuYapisik: sira > 0 && _yapisir(v[sira - 1], visual, lang),
+              altiYapisik:
+                  sira + 1 < v.length && _yapisir(visual, v[sira + 1], lang));
+          if (gercek != null) return gercek;
+        }
         return _buildScratchBlock(visual, vContent, vLabel);
       case VisualType.codeSnippet:
         return _buildCodeSnippet(vContent);
       default:
         return const SizedBox();
     }
+  }
+
+  /// Art arda iki etiketsiz blok gorseli bir PROGRAM: Scratch'teki gibi
+  /// bosluksuz birbirine takili ciziliyor ("Bloklari birlestir").
+  bool _yapisir(VisualElement a, VisualElement b, String lang) {
+    if (a.label != null || b.label != null) return false;
+    final ta = ScratchBlokKatalogu.gorsel(a.content, lang);
+    final tb = ScratchBlokKatalogu.gorsel(b.content, lang);
+    if (ta == null || tb == null || !ta.altiAcik) return false;
+    return const {
+      ScratchSekil.yigin,
+      ScratchSekil.kapak,
+      ScratchSekil.c,
+      ScratchSekil.cKapak,
+    }.contains(tb.sekil);
+  }
+
+  /// Scratch kursunun blok gorseli: Scratch 3'teki blogun aynisi.
+  ///
+  /// Gorselin TURKCE metni anahtar (bkz. [ScratchBlokKatalogu.gorsel]);
+  /// katalogda yoksa null doner ve eski hap cizilir.
+  Widget? _gercekScratchGorseli(
+      VisualElement visual, String? label, String lang,
+      {bool ustuYapisik = false, bool altiYapisik = false}) {
+    final kategori = ScratchBlokKatalogu.kategoriGorseli(visual.content);
+    final blok = ScratchBlokKatalogu.gorsel(visual.content, lang);
+    if (kategori == null && blok == null) return null;
+    return Container(
+      margin: EdgeInsets.only(
+          top: ustuYapisik ? 0 : 6, bottom: altiYapisik ? 0 : 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Flexible(
+            child: kategori != null
+                ? ScratchKategoriDairesi(
+                    kategori: kategori,
+                    lang: lang,
+                    yaziRengi: widget.isDark ? Colors.white70 : null,
+                  )
+                : Padding(
+                    padding: EdgeInsets.only(
+                        bottom: altiYapisik
+                            ? 0
+                            : ScratchBlokOlcer.tirnakPayi(
+                                ScratchBlok.varsayilanOlcek)),
+                    // Yapisik bloklar ayni olcekte kalsin (sigdir
+                    // kapali) ki centikler hizali dursun.
+                    child: ScratchBlok(
+                        tanim: blok!, sigdir: !altiYapisik && !ustuYapisik),
+                  ),
+          ),
+          if (label != null) ...[
+            const SizedBox(width: 12),
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: widget.isDark
+                      ? Colors.grey.shade400
+                      : Colors.grey.shade600,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
   }
 
   Widget _buildScratchBlock(
@@ -1793,6 +1878,26 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
     }
   }
 
+  /// Scratch kursunda blogun Scratch 3 karsiligi; diger kurslarda null
+  /// (eski cizim).
+  ScratchBlokTanimi? _scratchTanimi(ScratchBlock b, String lang) =>
+      scratchKursu(widget.course)
+          ? ScratchBlokKatalogu.tanim(b.id, lang)
+          : null;
+
+  /// Kod alanindaki butun bloklarin Scratch karsiligi varsa onlar; yoksa
+  /// null (kod alani eski cizimle kurulur).
+  List<ScratchBlokTanimi>? _scratchKodu(String lang) {
+    if (!scratchKursu(widget.course)) return null;
+    final out = <ScratchBlokTanimi>[];
+    for (final b in _kodBloklari()) {
+      final t = _scratchTanimi(b, lang);
+      if (t == null) return null;
+      out.add(t);
+    }
+    return out;
+  }
+
   /// Kod alanindaki kimlikleri bloklarin kendisine cevirir.
   List<ScratchBlock> _kodBloklari() => _placedBlocks
       .map((id) => widget.step.availableBlocks.firstWhere((b) => b.id == id))
@@ -1922,6 +2027,8 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
                     ),
                   ),
                 )
+              else if (_scratchKodu(lang) case final kod?)
+                _scratchKodAlani(kod, lang)
               else
                 ..._buildPlacedList(lang),
             ],
@@ -2065,6 +2172,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
               key: ValueKey(_calistirmaNo), // her basista bastan
               blocks: _kodBloklari(),
               lang: lang,
+              scratch: scratchKursu(widget.course),
               size: 46,
               yurutme: _yurutme,
               dogru: _completed,
@@ -2077,7 +2185,10 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
           ),
           const SizedBox(height: 12),
           CalismaIzi(
-              bloklar: _kodBloklari(), lang: lang, yurutme: _yurutme),
+              bloklar: _kodBloklari(),
+              lang: lang,
+              yurutme: _yurutme,
+              scratch: scratchKursu(widget.course)),
         ],
 
         SizedBox(height: ara),
@@ -2091,6 +2202,25 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
           ),
         ),
         const SizedBox(height: 12),
+        // SCRATCH'IN KATEGORI DAIRELERI.
+        //
+        // Scratch editorunde paletin solunda renkli daireler var: cocuk
+        // "mavi = Hareket" bagini oradan kuruyor. Telefonda dikey sutun
+        // yer kapliyor; ayni daireler paletin ustunde yatay sira.
+        // Adimda tek kategori varsa gosterilmiyor (bilgi tasimiyor).
+        if (scratchKursu(widget.course))
+          Builder(builder: (context) {
+            final k = ScratchKategoriSeridi.sirala([
+              for (final b in _palet)
+                if (_scratchTanimi(b, lang) case final t?) t.kategori,
+            ]);
+            if (k.length < 2) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: ScratchKategoriSeridi(
+                  kategoriler: k, lang: lang, koyu: widget.isDark),
+            );
+          }),
         // Kod alanindan buraya geri suruklenen blok kod alanindan cikar
         // (dokunarak cikarmanin surukleme karsiligi).
         DragTarget<_BlokTasima>(
@@ -2124,6 +2254,8 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
                   }
                 },
                 child: GestureDetector(
+                  // Opak: C blogunun bos agzina dokunmak da blogu ekliyor.
+                  behavior: HitTestBehavior.opaque,
                   onTap: () => _addBlock(block),
                   child: gorunum,
                 ),
@@ -2157,10 +2289,166 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
       );
 
   Widget _buildBlockWidget(ScratchBlock block, String lang) {
+    final t = _scratchTanimi(block, lang);
+    if (t != null) {
+      // Tirnak blogun yerlesim sinirinin altina tasiyor; paletteki bir
+      // sonraki satira degmesin diye altta pay.
+      return Padding(
+        padding: EdgeInsets.only(
+            bottom: ScratchBlokOlcer.tirnakPayi(ScratchBlok.varsayilanOlcek)),
+        child: ScratchBlok(tanim: t, kimlik: block.id),
+      );
+    }
     return ScratchBlockWidget(
       block: block,
       lang: lang,
       onTap: null, // Zaten tap handler dışarıda
+    );
+  }
+
+  /// SCRATCH KOD ALANI: bloklar Scratch'teki gibi birbirine takili.
+  ///
+  /// C blogu (tekrarla, eger) ust kol + sol kol + ayak olarak ciziliyor;
+  /// kendisinden sonraki bloklar AGZININ ICINDE duruyor (kod alanindaki
+  /// anlam degismedi: C blogu kendisinden sonrakileri kapsar — yorumlayici
+  /// da boyle calistiriyor). Bloklar arasinda bosluk yok: tirnak bir
+  /// sonraki blogun centigine oturuyor.
+  ///
+  /// Olcek tum yigin icin TEK: en genis satir sigmiyorsa hepsi birlikte
+  /// kuculuyor. Tek tek kuculseydi centikler hizadan cikardi.
+  Widget _scratchKodAlani(List<ScratchBlokTanimi> kod, String lang) {
+    return LayoutBuilder(builder: (context, c) {
+      double genislik(double s) {
+        var m = 0.0;
+        var derinlik = 0;
+        for (final t in kod) {
+          final w = ScratchBlokOlcer.genislik(t, s,
+              parca: t.cMi ? ScratchCParcasi.ust : ScratchCParcasi.tamami,
+              silme: true);
+          m = max(m, derinlik * ScratchBlokOlcer.kolGenisligi(s) + w);
+          if (t.cMi) derinlik++;
+        }
+        return m;
+      }
+
+      var s = ScratchBlok.varsayilanOlcek;
+      final w = genislik(s);
+      if (c.maxWidth.isFinite && w > c.maxWidth) {
+        s = s * c.maxWidth / w * 0.99;
+      }
+      return Padding(
+        padding: EdgeInsets.only(bottom: ScratchBlokOlcer.tirnakPayi(s)),
+        child: _scratchYigini(kod, 0, s, lang),
+      );
+    });
+  }
+
+  Widget _scratchYigini(
+      List<ScratchBlokTanimi> kod, int bas, double s, String lang) {
+    final ogeler = <Widget>[];
+    for (var i = bas; i < kod.length; i++) {
+      final t = kod[i];
+      if (!t.cMi) {
+        ogeler.add(_scratchYerlesik(t, i, s));
+        continue;
+      }
+      final icDolu = i + 1 < kod.length;
+      ogeler
+        ..add(_scratchYerlesik(t, i, s, parca: ScratchCParcasi.ust))
+        ..add(ScratchCSirti(
+          kategori: t.kategori,
+          olcek: s,
+          child: icDolu
+              ? _scratchYigini(kod, i + 1, s, lang)
+              // Dongunun ici bos: eksigi goster, cevabi soyleme.
+              : SizedBox(
+                  height: ScratchBlokOlcer.bosAgiz(s) + 6,
+                  child: Padding(
+                    // Ust kolun ic tirnagindan sonra.
+                    padding: EdgeInsets.only(left: 52 * s, top: 8 * s),
+                    child: Text(
+                      lessonText(
+                          lang,
+                          'Bu döngünün içi boş',
+                          'This loop is empty',
+                          'Diese Schleife ist leer',
+                          'Este bucle está vacío'),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 11.5,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                ),
+        ))
+        ..add(ScratchBlok(
+          tanim: t,
+          olcek: s,
+          sigdir: false,
+          parca: ScratchCParcasi.alt,
+          icDolu: icDolu,
+        ));
+      break; // C blogu kalan her seyi agzina aldi.
+    }
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: ogeler,
+    );
+  }
+
+  /// Kod alanindaki tek bir Scratch blogu: dokununca cikar, basili tutup
+  /// surukleyince tasinir, ustune birakilan blok ONUNE girer.
+  Widget _scratchYerlesik(ScratchBlokTanimi t, int index, double s,
+      {ScratchCParcasi parca = ScratchCParcasi.tamami}) {
+    final block = widget.step.availableBlocks
+        .firstWhere((b) => b.id == _placedBlocks[index]);
+    final calisiyor = _calisanSira == index;
+    final ekleme = _ekleSira == index;
+    final gorunum = ScratchBlok(
+      tanim: t,
+      olcek: s,
+      sigdir: false,
+      silme: true,
+      parca: parca,
+      kimlik: block.id,
+      // Calisan blok Scratch'teki gibi sari haleyle parliyor; birakilacak
+      // yerin onundeki blok beyaz haleyle.
+      vurgu: calisiyor
+          ? ScratchBlok.calisanRengi
+          : ekleme
+              ? Colors.white
+              : null,
+    );
+    final tasinan = ScratchBlok(
+        tanim: t, olcek: s, sigdir: false, parca: ScratchCParcasi.bas);
+    return DragTarget<_BlokTasima>(
+      onWillAcceptWithDetails: (_) {
+        if (_ekleSira != index) setState(() => _ekleSira = index);
+        return true;
+      },
+      onLeave: (_) {
+        if (_ekleSira == index) setState(() => _ekleSira = null);
+      },
+      onAcceptWithDetails: (d) => _birak(d.data, index),
+      builder: (context, adaylar, reddedilen) =>
+          LongPressDraggable<_BlokTasima>(
+        data: _BlokTasima(block, kaynakSira: index),
+        delay: const Duration(milliseconds: 150),
+        hapticFeedbackOnStart: true,
+        feedback: _surukleniyor(tasinan),
+        childWhenDragging: Opacity(opacity: 0.35, child: gorunum),
+        child: Semantics(
+          selected: calisiyor,
+          child: GestureDetector(
+            onTap: () => _removeBlock(index),
+            child: gorunum,
+          ),
+        ),
+      ),
     );
   }
 
@@ -2520,6 +2808,9 @@ class _OrderingStepWidgetState extends State<OrderingStepWidget> {
       tint = const Color(0xFFC62828).withValues(alpha: 0.08);
     }
 
+    final sblok = scratchKursu(widget.course)
+        ? ScratchBlokKatalogu.gorsel(item.content, lang)
+        : null;
     final row = AnimatedContainer(
       duration: Motion.short3,
       curve: Motion.emphasized,
@@ -2558,17 +2849,32 @@ class _OrderingStepWidgetState extends State<OrderingStepWidget> {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              item.contentFor(lang),
-              style: TextStyle(
-                // Kod satirlari tek genislikte yazi ile: girintiler ve
-                // hizalama ancak oyle okunuyor.
-                fontFamily: item.isCode ? 'monospace' : AppTheme.fontFamily,
-                fontSize: item.isCode ? 13.5 : 14.5,
-                fontWeight: FontWeight.w600,
-                color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
-              ),
-            ),
+            // Scratch kursunda siralanan satirlar Scratch bloklari:
+            // cocuk "10 adim git" yazisini degil, mavi blogu siraliyor.
+            child: sblok != null
+                ? Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          bottom: ScratchBlokOlcer.tirnakPayi(
+                              ScratchBlok.varsayilanOlcek)),
+                      child: ScratchBlok(tanim: sblok),
+                    ),
+                  )
+                : Text(
+                    item.contentFor(lang),
+                    style: TextStyle(
+                      // Kod satirlari tek genislikte yazi ile: girintiler ve
+                      // hizalama ancak oyle okunuyor.
+                      fontFamily:
+                          item.isCode ? 'monospace' : AppTheme.fontFamily,
+                      fontSize: item.isCode ? 13.5 : 14.5,
+                      fontWeight: FontWeight.w600,
+                      color: widget.isDark
+                          ? Colors.white
+                          : const Color(0xFF1A1A1A),
+                    ),
+                  ),
           ),
           if (ok != null) ...[
             const SizedBox(width: 8),
@@ -4087,6 +4393,17 @@ class AnimationStepWidget extends StatelessWidget {
     final beforeItems = liste('before');
     final afterItems = liste('after');
 
+    // Scratch kursunda bloklar Scratch'teki gibi: alt alta takili mavi
+    // bloklar ve icinde blok olan turuncu "tekrarla". Eslesme Turkce
+    // listeden (dil degisince blok kaybolmasin).
+    Widget? scratchOge(String ad, int i) {
+      if (!scratchKursu(course)) return null;
+      final tr = (step.animationData[ad] as List<dynamic>?) ?? const [];
+      if (i >= tr.length) return null;
+      final t = ScratchBlokKatalogu.gorsel(tr[i].toString(), lang);
+      return t == null ? null : ScratchBlok(tanim: t);
+    }
+
     return Row(
       children: [
         // Before (Without loop)
@@ -4129,23 +4446,9 @@ class AnimationStepWidget extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                ...beforeItems.map((item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF4C97FF),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      item.toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                )),
+                ...beforeItems.asMap().entries.map((e) =>
+                    scratchOge('before', e.key) ?? _hap(e.value, false)),
+                SizedBox(height: scratchKursu(course) ? 8 : 0),
               ],
             ),
           ),
@@ -4189,24 +4492,9 @@ class AnimationStepWidget extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                ...afterItems.map((item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFAB19),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      item.toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                )),
+                ...afterItems.asMap().entries.map((e) =>
+                    scratchOge('after', e.key) ?? _hap(e.value, true)),
+                SizedBox(height: scratchKursu(course) ? 8 : 0),
               ],
             ),
           ),
@@ -4214,6 +4502,27 @@ class AnimationStepWidget extends StatelessWidget {
       ],
     );
   }
+
+  /// Eski hap gorunumu (Scratch kursu disindaki karsilastirmalar ve
+  /// "..." satiri).
+  Widget _hap(dynamic item, bool dongu) => Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: dongu ? const Color(0xFFFFAB19) : const Color(0xFF4C97FF),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            item.toString(),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: dongu ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ),
+      );
 }
 
 

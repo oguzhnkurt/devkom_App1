@@ -11,6 +11,8 @@ import '../courses/yurutme/konusma_metni.dart';
 import '../ui/motion.dart';
 import '../utils/lang.dart';
 import 'mascot.dart';
+import 'scratch_blok.dart';
+import '../courses/yurutme/scratch_blok_katalogu.dart';
 
 /// Cocugun kurdugu blok dizisini sahnede canlandirir.
 ///
@@ -46,9 +48,14 @@ class BlockAnimationPlayer extends StatefulWidget {
     this.dogru = false,
     this.baslamaGecikmesi = Duration.zero,
     this.renk,
+    this.scratch = false,
   });
 
   final List<ScratchBlock> blocks;
+
+  /// Scratch kursu: "su an calisan blok" cipi Scratch 3 blogu olarak
+  /// ciziliyor (kod alanindakiyle ayni gorunum).
+  final bool scratch;
   final String lang;
   final double size;
   final VoidCallback? onComplete;
@@ -499,7 +506,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
           // Yeri bastan ayrilmis: blok degisince altindaki sahne yerinden
           // oynamiyor.
           SizedBox(
-            height: 32,
+            height: widget.scratch ? 40 : 32,
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
               child: calisan == null
@@ -509,7 +516,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Flexible(
-                          child: Container(
+                          child: _scratchCipi(calisan) ?? Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 14, vertical: 6),
                             decoration: BoxDecoration(
@@ -641,6 +648,22 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
           ),
         ],
       ),
+    );
+  }
+
+  /// Calisan blok, Scratch kursunda Scratch blogu olarak. C bloklari tek
+  /// satir (ust kol) halinde; 40 piksellik yuvaya tirnagiyla sigacak
+  /// olcekte.
+  Widget? _scratchCipi(ScratchBlock b) {
+    if (!widget.scratch) return null;
+    final t = ScratchBlokKatalogu.tanim(b.id, widget.lang);
+    if (t == null) return null;
+    final h1 = ScratchBlokOlcer.yukseklik(t, 1, parca: ScratchCParcasi.bas) +
+        ScratchBlokOlcer.tirnakPayi(1);
+    final s = min(0.62, 40 / h1);
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ScratchBlok(tanim: t, olcek: s, parca: ScratchCParcasi.bas),
     );
   }
 

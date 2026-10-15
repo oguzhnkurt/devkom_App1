@@ -6,6 +6,7 @@ import '../../yurutme/blok_anlami.dart';
 import '../../yurutme/blok_sozlugu.dart';
 import '../../yurutme/blok_yorumlayici.dart';
 import '../../yurutme/konusma_metni.dart';
+import '../../yurutme/scratch_blok_katalogu.dart';
 import 'step_widgets.dart' show lessonText;
 
 /// Kodun ne YAPTIGINI satir satir gosteren iz.
@@ -33,9 +34,14 @@ class CalismaIzi extends StatelessWidget {
     required this.lang,
     this.enFazlaYukseklik = 220,
     this.yurutme,
+    this.scratch = false,
   });
 
   final List<ScratchBlock> bloklar;
+
+  /// Scratch kursu: satirlar Scratch'in resmi blok yazisiyla ve blogun
+  /// kategori rengiyle (kod alanindaki blokla ayni yazi).
+  final bool scratch;
 
   /// Sahneyle ayni yurutme. Verilirse iz onu gosteriyor; boylece sahnede
   /// "4" diyen zarla izdeki zar ayni sayi oluyor (ikisi ayri ayri
@@ -118,11 +124,23 @@ class CalismaIzi extends StatelessWidget {
             (b) => b.id == adim.blokId,
             orElse: () => bloklar.first,
           );
+    final sb = scratch ? ScratchBlokKatalogu.tanim(blok.id, lang) : null;
     return Padding(
       padding: EdgeInsets.only(left: adim.derinlik * 14.0, bottom: 3),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (sb != null)
+            Container(
+              width: 8,
+              height: 8,
+              margin: const EdgeInsets.only(top: 4.5, right: 6),
+              decoration: BoxDecoration(
+                color: sb.kategori.renk
+                    .withValues(alpha: adim.etkisiz ? 0.45 : 1),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
           Text(
             '▸ ',
             style: TextStyle(
@@ -134,7 +152,7 @@ class CalismaIzi extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              blok.labelFor(lang),
+              sb?.duzMetin ?? blok.labelFor(lang),
               style: TextStyle(
                 fontFamily: 'monospace',
                 fontSize: 12,

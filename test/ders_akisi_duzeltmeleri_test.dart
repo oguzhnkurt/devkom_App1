@@ -26,6 +26,7 @@ import 'package:devkom_app/providers/settings_provider.dart';
 import 'package:devkom_app/screens/robotics_games_screen.dart' show ProGames;
 import 'package:devkom_app/ui/answer_feedback.dart';
 import 'package:devkom_app/widgets/block_animation_player.dart';
+import 'package:devkom_app/widgets/scratch_blok.dart';
 
 ScratchBlock _b(String id, String yazi,
         {ScratchBlockShape sekil = ScratchBlockShape.stack}) =>
@@ -85,9 +86,21 @@ Future<void> _blokAdimi(WidgetTester tester, {Size boyut = const Size(390, 844)}
   await tester.pump(const Duration(milliseconds: 200));
 }
 
-/// Paletteki blogu (son eslesen yazi) basili tutup kod alanina surukler.
+/// Scratch kursunda bloklar Scratch blogu olarak ciziliyor; yazi boyali,
+/// Text widget'i yok. Blogu ders kimligiyle buluyoruz.
+const _kimlik = {
+  'yeşil bayrak tıklandığında': 'green_flag',
+  '4 defa tekrarla': 'repeat_4',
+  '10 adım git': 'move_10',
+  'Miyav! de': 'say_meow',
+};
+
+Finder _blok(String yazi) => find.byWidgetPredicate(
+    (w) => w is ScratchBlok && w.kimlik == _kimlik[yazi]);
+
+/// Paletteki blogu (son eslesen) basili tutup kod alanina surukler.
 Future<void> _surukle(WidgetTester tester, String yazi, Finder hedef) async {
-  final kaynak = find.text(yazi).last;
+  final kaynak = _blok(yazi).last;
   await tester.ensureVisible(kaynak);
   await tester.pump();
   final g = await tester.startGesture(tester.getCenter(kaynak));
@@ -109,7 +122,7 @@ List<String> _koddakiYazilar(WidgetTester tester) {
     '10 adım git',
     'Miyav! de'
   ]) {
-    final n = find.text(y).evaluate().length;
+    final n = _blok(y).evaluate().length;
     if (n > 1) out.add(y);
   }
   return out;
@@ -231,7 +244,7 @@ void main() {
       expect(_koddakiYazilar(tester), ['yeşil bayrak tıklandığında']);
 
       // Dokunarak ekleme hala calisiyor.
-      final dokun = find.text('10 adım git').last;
+      final dokun = _blok('10 adım git').last;
       await tester.ensureVisible(dokun);
       await tester.tap(dokun);
       await tester.pump(const Duration(milliseconds: 300));
@@ -239,9 +252,9 @@ void main() {
           ['yeşil bayrak tıklandığında', '10 adım git']);
 
       // Ucuncu blogu ikincinin ONUNE surukle: araya girmeli.
-      await _surukle(tester, '4 defa tekrarla', find.text('10 adım git').first);
-      final dongu = tester.getTopLeft(find.text('4 defa tekrarla').first).dy;
-      final git = tester.getTopLeft(find.text('10 adım git').first).dy;
+      await _surukle(tester, '4 defa tekrarla', _blok('10 adım git').first);
+      final dongu = tester.getTopLeft(_blok('4 defa tekrarla').first).dy;
+      final git = tester.getTopLeft(_blok('10 adım git').first).dy;
       expect(dongu, lessThan(git),
           reason: 'Birakilan blok uzerine birakildigi blogun onune girmeli.');
       expect(tester.takeException(), isNull);
@@ -252,25 +265,25 @@ void main() {
       addTearDown(tester.view.reset);
       await _blokAdimi(tester);
       for (final y in const ['10 adım git', 'yeşil bayrak tıklandığında']) {
-        final f = find.text(y).last;
+        final f = _blok(y).last;
         await tester.ensureVisible(f);
         await tester.tap(f);
         await tester.pump(const Duration(milliseconds: 300));
       }
       // Bayrak ikinci sirada; onu birincinin ustune tasi.
-      final bayrak = find.text('yeşil bayrak tıklandığında').first;
+      final bayrak = _blok('yeşil bayrak tıklandığında').first;
       final g = await tester.startGesture(tester.getCenter(bayrak));
       await tester.pump(const Duration(milliseconds: 250));
       await g.moveBy(const Offset(0, -5));
       await tester.pump();
-      await g.moveTo(tester.getCenter(find.text('10 adım git').first));
+      await g.moveTo(tester.getCenter(_blok('10 adım git').first));
       await tester.pump();
       await g.up();
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(
-          tester.getTopLeft(find.text('yeşil bayrak tıklandığında').first).dy,
-          lessThan(tester.getTopLeft(find.text('10 adım git').first).dy));
+          tester.getTopLeft(_blok('yeşil bayrak tıklandığında').first).dy,
+          lessThan(tester.getTopLeft(_blok('10 adım git').first).dy));
     });
 
     testWidgets('KODU CALISTIR sahneyi ekrana getirir ve blogu parlatir',
@@ -284,7 +297,7 @@ void main() {
         '10 adım git',
         'Miyav! de',
       ]) {
-        final f = find.text(y).last;
+        final f = _blok(y).last;
         await tester.ensureVisible(f);
         await tester.tap(f);
         await tester.pump(const Duration(milliseconds: 300));
@@ -308,13 +321,9 @@ void main() {
       // Animasyon kaydirmadan SONRA basliyor; ilk blok kod alaninda
       // parlatiliyor.
       await tester.pump(const Duration(milliseconds: 100));
-      final parlak = find.byWidgetPredicate((w) {
-        if (w is! AnimatedContainer) return false;
-        final d = w.foregroundDecoration;
-        return d is BoxDecoration &&
-            d.border is Border &&
-            (d.border! as Border).left.color == const Color(0xFFFFE066);
-      });
+      // Scratch'teki gibi: calisan blok sari haleyle parliyor.
+      final parlak = find.byWidgetPredicate(
+          (w) => w is ScratchBlok && w.vurgu == ScratchBlok.calisanRengi);
       expect(parlak, findsOneWidget,
           reason: 'Calisan blok kod alaninda isaretlenmiyor.');
 
@@ -399,7 +408,16 @@ void main() {
             ),
           ),
         )));
-    expect(find.text('move 10 steps'), findsWidgets);
+    // Bloklar Scratch blogu olarak, ders dilinde ve Scratch'in resmi
+    // yazisiyla.
+    expect(
+        find.byWidgetPredicate(
+            (w) => w is ScratchBlok && w.tanim.duzMetin == 'move 10 steps'),
+        findsWidgets);
+    expect(
+        find.byWidgetPredicate(
+            (w) => w is ScratchBlok && w.tanim.duzMetin.contains('adım')),
+        findsNothing);
     expect(find.text('10 adim git'), findsNothing);
   });
 

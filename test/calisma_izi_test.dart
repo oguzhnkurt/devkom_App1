@@ -20,6 +20,7 @@ import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
 import 'package:devkom_app/courses/screens/widgets/calisma_izi.dart';
 import 'package:devkom_app/courses/screens/widgets/step_widgets.dart';
 import 'package:devkom_app/providers/settings_provider.dart';
+import 'package:devkom_app/widgets/scratch_blok.dart';
 
 ScratchBlock _b(String id, String yazi,
         {ScratchBlockShape sekil = ScratchBlockShape.stack}) =>
@@ -89,9 +90,21 @@ Future<void> _ciz(WidgetTester tester, String dil) async {
   await tester.pump(const Duration(milliseconds: 300));
 }
 
+/// Scratch kursunda bloklar yazi degil, Scratch blogu olarak ciziliyor
+/// (yazi boyanarak, Text widget'i yok). Blogu ders kimligiyle buluyoruz.
+const _kimlik = {
+  'yeşil bayrak tıklandığında': 'green_flag',
+  '4 defa tekrarla': 'repeat_4',
+  '10 adım git': 'move_10',
+  'Miyav! de': 'say_meow',
+};
+
+Finder _blok(String yazi) => find.byWidgetPredicate(
+    (w) => w is ScratchBlok && w.kimlik == _kimlik[yazi]);
+
 /// Palet kucuk ekranda kayabiliyor; once gorunur kil sonra dokun.
 Future<void> _koy(WidgetTester tester, String yazi) async {
-  final hedef = find.text(yazi).last;
+  final hedef = _blok(yazi).last;
   await tester.ensureVisible(hedef);
   await tester.pump();
   await tester.tap(hedef);
@@ -157,8 +170,9 @@ void main() {
     await _calistir(tester);
     expect(find.byType(CalismaIzi), findsOneWidget);
 
-    // Kod degisti: eski iz artik yalan soyler.
-    final sil = find.byIcon(Icons.close).first;
+    // Kod degisti: eski iz artik yalan soyler. Kod alanindaki bloga
+    // dokunmak onu cikariyor (blogun sagindaki "x" cizili).
+    final sil = _blok('10 adım git').first;
     await tester.ensureVisible(sil);
     await tester.pump();
     await tester.tap(sil);
