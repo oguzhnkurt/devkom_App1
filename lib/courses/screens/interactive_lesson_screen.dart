@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
 import '../../providers/auth_provider.dart';
+import 'widgets/ders_ilerleme_cubugu.dart';
 import 'widgets/mblock_blok_adimi.dart';
 import 'widgets/mblock_tezgahi.dart' show MBlockWebHavuzu;
 import 'widgets/proje_atolyesi.dart';
@@ -61,13 +62,11 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
   /// kaydetmesin (iki kez XP, iki kutlama penceresi).
   bool _bitiriliyor = false;
 
-  late AnimationController _progressController;
   late AnimationController _celebrationController;
 
   LessonStep get _currentStep => widget.lesson.steps[_currentStepIndex];
   bool get _isLastStep => _currentStepIndex == widget.lesson.steps.length - 1;
   bool get _isFirstStep => _currentStepIndex == 0;
-  double get _progress => (_currentStepIndex + 1) / widget.lesson.steps.length;
 
   @override
   void initState() {
@@ -87,20 +86,14 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
     } on ProviderNotFoundException {
       // Saglayici yoksa kaydedecek yer de yok.
     }
-    _progressController = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
     _celebrationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    _progressController.value = _progress;
   }
 
   @override
   void dispose() {
-    _progressController.dispose();
     _celebrationController.dispose();
     // mBlock tezgahinin paylasilan WebView'i ders boyunca yasiyor; ders
     // kapaninca bellek geri veriliyor.
@@ -140,8 +133,6 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
       _currentStepIndex++;
       _currentStepCompleted = _completedSteps[_currentStep.id] ?? false;
     });
-
-    _progressController.animateTo(_progress);
     HapticFeedback.lightImpact();
   }
 
@@ -152,8 +143,6 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
       _currentStepIndex--;
       _currentStepCompleted = _completedSteps[_currentStep.id] ?? false;
     });
-
-    _progressController.animateTo(_progress);
   }
 
   Future<void> _completeLesson() async {
@@ -352,7 +341,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
             _buildTopBar(isDark),
 
             // Progress indicator
-            _buildProgressBar(),
+            _buildProgressBar(isDark),
 
             // Step content
             Expanded(
@@ -493,106 +482,22 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
     );
   }
 
-  Widget _buildProgressBar() {
-    // ADIM ADIM ILERLEME. Kisa derslerde (en fazla 16 adim) cubuk adim
-    // sayisi kadar parcaya bolunuyor: cocuk "kac adim kaldi"yi sayabiliyor.
-    // Yukseklik ayni (6), yani adim degisince hicbir sey kaymiyor.
+  Widget _buildProgressBar(bool isDark) {
+    // TEK PARCA YOL: parca parca dolan cubugun yerine yumusak bir dolgu,
+    // ucunda Devi ve sonunda kupa (bkz. DersIlerlemeCubugu).
     final n = widget.lesson.steps.length;
-    if (n > 1 && n <= 16) return _buildStepSegments(n);
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      height: 6,
-      decoration: BoxDecoration(
-        color: widget.course.primaryColor.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: AnimatedBuilder(
-        animation: _progressController,
-        builder: (context, child) {
-          return FractionallySizedBox(
-            alignment: Alignment.centerLeft,
-            widthFactor: _progressController.value,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [widget.course.primaryColor, widget.course.secondaryColor],
-                ),
-                borderRadius: BorderRadius.circular(3),
-                boxShadow: [
-                  BoxShadow(
-                    color: widget.course.primaryColor.withValues(alpha: 0.4),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildStepSegments(int n) {
-    final renk = widget.course.primaryColor;
-    final renk2 = widget.course.secondaryColor;
-    final azalt = Motion.reduced(context);
+    final lang = lessonLang(context);
+    final no = _currentStepIndex + 1;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18),
-      child: SizedBox(
-        height: 8,
-        child: Row(
-          children: [
-            for (var i = 0; i < n; i++) ...[
-              if (i > 0) const SizedBox(width: 5),
-              Expanded(
-                child: AnimatedContainer(
-                  key: ValueKey('ders_adim_parcasi_$i'),
-                  duration: azalt ? Duration.zero : Motion.medium2,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: i < _currentStepIndex
-                        ? Color.lerp(renk, renk2, n == 1 ? 0 : i / (n - 1))
-                        : renk.withValues(alpha: 0.16),
-                    boxShadow: [
-                      if (i == _currentStepIndex)
-                        BoxShadow(
-                          color: renk.withValues(alpha: 0.35),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                    ],
-                  ),
-                  // SIMDIKI ADIM soldan dolarak geliyor: cocuk hangi
-                  // adimda oldugunu bir bakista goruyor.
-                  child: i == _currentStepIndex
-                      ? LayoutBuilder(
-                          builder: (context, c) =>
-                              TweenAnimationBuilder<double>(
-                            key: ValueKey('dolum_$_currentStepIndex'),
-                            tween: Tween(begin: azalt ? 1 : 0, end: 1),
-                            duration: azalt ? Duration.zero : Motion.long2,
-                            curve: Curves.easeOutCubic,
-                            builder: (context, t, _) => Align(
-                              alignment: Alignment.centerLeft,
-                              child: Container(
-                                width: c.maxWidth * t,
-                                height: c.maxHeight,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: Color.lerp(
-                                      renk, renk2, n == 1 ? 0 : i / (n - 1)),
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      : null,
-                ),
-              ),
-            ],
-          ],
-        ),
+      padding: const EdgeInsets.fromLTRB(16, 0, 14, 2),
+      child: DersIlerlemeCubugu(
+        adim: _currentStepIndex,
+        toplam: n,
+        renk: widget.course.primaryColor,
+        renk2: widget.course.secondaryColor,
+        koyu: isDark,
+        etiket: lessonText(lang, 'Adım $no/$n', 'Step $no/$n',
+            'Schritt $no/$n', 'Paso $no/$n'),
       ),
     );
   }

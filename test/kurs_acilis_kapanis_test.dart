@@ -519,7 +519,7 @@ void main() {
       await _bekle(tester, 900);
       expect(find.text('Lektion 1'), findsOneWidget);
       expect(find.text('+${dersler.first.xpReward} XP'), findsOneWidget);
-      expect(find.byKey(const ValueKey('ders_adim_parcasi_0')), findsOneWidget);
+      expect(find.byKey(const ValueKey('ders_ilerleme_cubugu')), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });
