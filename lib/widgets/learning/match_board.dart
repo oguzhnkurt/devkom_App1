@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme.dart';
 import '../../ui/motion.dart';
+import '../oyun_basligi.dart';
 
 /// Eslesen ciftlerin renkleri.
 ///
@@ -71,6 +72,7 @@ class MatchBoard extends StatefulWidget {
     this.leftColor = const Color(0xFF7E57C2),
     this.rightColor = const Color(0xFFF57C00),
     this.enableDrag = true,
+    this.cevapKartlari = false,
   });
 
   /// Tahtadaki ciftler. Sol sutun bu sirayla cizilir.
@@ -93,6 +95,11 @@ class MatchBoard extends StatefulWidget {
 
   /// Surukleme kapatilabilir (cok kucuk yaslar icin).
   final bool enableDrag;
+
+  /// Eslesmemis kutular oyunlarin ortak renkli "jole" cevap karti
+  /// ([OyunCevapKarti]) olarak ciziliyor. Dokunma, surukleme ve eslesme
+  /// mantigi ayni; yalnizca gorunum.
+  final bool cevapKartlari;
 
   @override
   State<MatchBoard> createState() => MatchBoardState();
@@ -384,6 +391,13 @@ class MatchBoardState extends State<MatchBoard>
       wrong: wrong,
       shake: _shake,
       onTap: () => isLeft ? _tapLeft(id) : _tapRight(id),
+      // Sag sutun renk sirasinda kaydirilmis: ayni satirdaki iki kart
+      // ayni renkte olmasin.
+      sira: widget.cevapKartlari
+          ? (isLeft
+              ? widget.pairs.indexOf(pair)
+              : widget.rightOrder.indexOf(id) + 3)
+          : null,
     );
 
     if (!isLeft || !widget.enableDrag || matched) {
@@ -426,7 +440,11 @@ class _MatchTile extends StatefulWidget {
     required this.wrong,
     required this.shake,
     required this.onTap,
+    this.sira,
   });
+
+  /// Verilirse eslesmemis kutu [OyunCevapKarti] (bu renk sirasinda).
+  final int? sira;
 
   final String label;
   final Color color;
@@ -566,6 +584,10 @@ class _MatchTileState extends State<_MatchTile> {
       ),
     );
 
+    if (widget.sira != null) {
+      content = _cevapKarti(content, pressed: pressed);
+    }
+
     if (wrong) {
       content = AnimatedBuilder(
         animation: widget.shake,
@@ -601,6 +623,61 @@ class _MatchTileState extends State<_MatchTile> {
           // diziyor ve cocugun dokunmak uzere oldugu kutu yerinden
           // oynuyor — yanlis dokunuslarin klasik kaynagi.
           child: content,
+        ),
+      ),
+    );
+  }
+}
+
+extension on _MatchTileState {
+  /// Oyunlarin ortak cevap karti gorunumu. Secili kart koyu, yanlis kart
+  /// turuncu bir halkayla; eslesen kart eski acik renkli kutuya donuyor
+  /// (ciftin rengi ve numarasi okunuyor). Halka payi her durumda ayni,
+  /// eslesme aninda tahta kaymiyor.
+  Widget _cevapKarti(Widget eslesmis, {required bool pressed}) {
+    const amber = _MatchTileState._amber;
+    if (widget.matched) {
+      return Padding(padding: const EdgeInsets.all(3), child: eslesmis);
+    }
+    final halka = widget.wrong
+        ? amber
+        : widget.selected
+            ? AppTheme.darkGray
+            : Colors.transparent;
+    return AnimatedContainer(
+      duration: Motion.short2,
+      curve: Motion.emphasized,
+      transform: Matrix4.translationValues(0, pressed ? 4 : 0, 0),
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(color: halka, width: 3),
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 66),
+        child: OyunCevapKarti(
+          sira: widget.sira!,
+          // Dokunma ve surukleme tahtanin kendi algilayicilarinda.
+          onTap: null,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+            child: Text(
+              widget.label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: AppTheme.fontFamily,
+                fontSize: widget.label.length > 14 ? 15 : 17,
+                fontWeight: FontWeight.w900,
+                height: 1.2,
+                color: Colors.white,
+                shadows: const [
+                  Shadow(color: Color(0x33000000), offset: Offset(0, 1)),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

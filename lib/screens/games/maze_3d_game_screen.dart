@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 // TODO: Migrate to Supabase
 // import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../models/game_model.dart';
 import '../../theme.dart';
 import '../../providers/settings_provider.dart';
 import '../../services/sound_service.dart';
 import '../../utils/lang.dart';
+import '../../widgets/oyun_basligi.dart';
+import '../../widgets/oyun_kimligi.dart';
 
 /// 3D First-Person Maze Explorer Game
 /// Uses ray-casting technique for pseudo-3D rendering
@@ -189,7 +192,11 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
               _maze[mapY][mapX] = 0;
               _coinsCollected++;
               _score += 10;
-              _showMessage(_tl('🪙 Altın topladın! +10 puan', '🪙 You collected gold! +10 points', '🪙 Du hast Gold gesammelt! +10 Punkte', '🪙 ¡Recogiste oro! +10 puntos'));
+              _showMessage(_tl(
+                  '🪙 Altın topladın! +10 puan',
+                  '🪙 You collected gold! +10 points',
+                  '🪙 Du hast Gold gesammelt! +10 Punkte',
+                  '🪙 ¡Recogiste oro! +10 puntos'));
             }
           }
 
@@ -268,7 +275,8 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
               Icon(Icons.emoji_events_rounded,
                   color: AppTheme.successGreen, size: 32),
               const SizedBox(width: 12),
-              Text(_tl('🎉 Tebrikler!', '🎉 Congratulations!', '🎉 Glückwunsch!', '🎉 ¡Felicidades!')),
+              Text(_tl('🎉 Tebrikler!', '🎉 Congratulations!',
+                  '🎉 Glückwunsch!', '🎉 ¡Felicidades!')),
             ],
           ),
           content: Column(
@@ -276,21 +284,34 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _tl('Labirenti başarıyla tamamladın!', 'You successfully completed the maze!', 'Du hast das Labyrinth geschafft!', '¡Completaste el laberinto!'),
+                _tl(
+                    'Labirenti başarıyla tamamladın!',
+                    'You successfully completed the maze!',
+                    'Du hast das Labyrinth geschafft!',
+                    '¡Completaste el laberinto!'),
                 style:
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-              _buildStatRow(_tl('🏆 Toplam Puan', '🏆 Total Score', '🏆 Gesamtpunkte', '🏆 Puntos totales'),
+              _buildStatRow(
+                  _tl('🏆 Toplam Puan', '🏆 Total Score', '🏆 Gesamtpunkte',
+                      '🏆 Puntos totales'),
                   finalScore.toString()),
               _buildStatRow(_tl('🪙 Altınlar', '🪙 Gold', '🪙 Gold', '🪙 Oro'),
                   '$_coinsCollected / $_totalCoins'),
-              _buildStatRow(_tl('👣 Adım Sayısı', '👣 Step Count', '👣 Anzahl der Schritte', '👣 Número de pasos'),
+              _buildStatRow(
+                  _tl('👣 Adım Sayısı', '👣 Step Count',
+                      '👣 Anzahl der Schritte', '👣 Número de pasos'),
                   _moves.toString()),
-              _buildStatRow(_tl('⏱️ Süre', '⏱️ Time', '⏱️ Zeit', '⏱️ Tiempo'), '${duration}s'),
+              _buildStatRow(_tl('⏱️ Süre', '⏱️ Time', '⏱️ Zeit', '⏱️ Tiempo'),
+                  '${duration}s'),
               _buildStatRow(
                   _tl('⭐ Bonus', '⭐ Bonus', '⭐ Bonus', '⭐ Bonus'),
-                  _tl('+$bonusScore (altın) +$timeBonus (zaman)', '+$bonusScore (gold) +$timeBonus (time)', '+$bonusScore (Gold) +$timeBonus (Zeit)', '+$bonusScore (oro) +$timeBonus (tiempo)')),
+                  _tl(
+                      '+$bonusScore (altın) +$timeBonus (zaman)',
+                      '+$bonusScore (gold) +$timeBonus (time)',
+                      '+$bonusScore (Gold) +$timeBonus (Zeit)',
+                      '+$bonusScore (oro) +$timeBonus (tiempo)')),
             ],
           ),
           actions: [
@@ -299,7 +320,8 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
                 Navigator.pop(context);
                 Navigator.pop(context);
               },
-              child: Text(_tl('Ana Menü', 'Main Menu', 'Hauptmenü', 'Menú principal')),
+              child: Text(
+                  _tl('Ana Menü', 'Main Menu', 'Hauptmenü', 'Menú principal')),
             ),
             ElevatedButton(
               onPressed: () {
@@ -321,7 +343,8 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
                 backgroundColor: AppTheme.successGreen,
                 foregroundColor: Colors.white,
               ),
-              child: Text(_tl('Yeni Oyun', 'New Game', 'Neue Partie', 'Nueva partida')),
+              child: Text(
+                  _tl('Yeni Oyun', 'New Game', 'Neue Partie', 'Nueva partida')),
             ),
           ],
         ),
@@ -351,220 +374,248 @@ class _Maze3DGameScreenState extends State<Maze3DGameScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Oyunlarin ortak kabugu: OyunBasligi + OyunZemini. Eskiden ekran
+    // kenardan kenara gokyuzuydu, geri tusu ve sayaclar 3B gorunumun
+    // ustune yuzuyordu; basligi olmayan tek oyundu.
+    final renk = OyunKimligi.renk(GameType.mazeExplorer);
+    final genislik = MediaQuery.sizeOf(context).width;
+    final dar = genislik < 360;
+    final haritaBoyu = dar ? 92.0 : 120.0;
     return Scaffold(
-      backgroundColor: const Color(0xFF87CEEB), // Sky blue background
-      body: SafeArea(
+      backgroundColor: OyunZemini.ustRenk(renk),
+      appBar: OyunBasligi.oyun(
+        GameType.mazeExplorer,
+        baslik: _tl('3B Labirent', '3D Maze', '3D-Labyrinth', 'Laberinto 3D'),
+      ),
+      body: OyunZemini(
+        renk: renk,
+        child: SafeArea(
           top: false,
-          child: Stack(
+          child: Column(
             children: [
-              // Main game view
-              Column(
-                children: [
-                  // 3D View with outdoor theme
-                  Expanded(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Color(0xFF87CEEB), // Sky blue
-                            Color(0xFF4CAF50), // Grass green at horizon
-                          ],
-                        ),
-                      ),
-                      child: CustomPaint(
-                        size: Size.infinite,
-                        painter: _Maze3DPainter(
-                          playerX: _playerX,
-                          playerY: _playerY,
-                          playerAngle: _playerAngle,
-                          maze: _maze,
-                          mazeSize: _mazeSize,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Controls at bottom
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.5),
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(20)),
-                    ),
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      children: [
-                        // Forward
-                        _buildControlButton(Icons.arrow_upward_rounded,
-                            _moveForward, _tl('İleri', 'Forward', 'Vorwärts', 'Adelante')),
-                        const SizedBox(height: 4),
-                        // Left/Right movement and rotation
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildControlButton(
-                                Icons.rotate_left_rounded, _rotateLeft, '←'),
-                            _buildControlButton(
-                                Icons.arrow_back_rounded, _strafeLeft, '◀'),
-                            _buildControlButton(Icons.arrow_downward_rounded,
-                                _moveBackward, '▼'),
-                            _buildControlButton(
-                                Icons.arrow_forward_rounded, _strafeRight, '▶'),
-                            _buildControlButton(
-                                Icons.rotate_right_rounded, _rotateRight, '→'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              // HUD Overlay - Top stats
-              Positioned(
-                top: 40,
-                left: 16,
-                right: 16,
+              // Sure ve altin sayaclari (baslikta yer kalmiyor).
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Time and coins
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.amber, width: 2),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.access_time_rounded,
-                              color: Colors.white, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${DateTime.now().difference(_startTime!).inSeconds}s',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
+                    _sayac(
+                      key: const ValueKey('maze3d_sure'),
+                      renk: renk,
+                      ikon: Icons.access_time_rounded,
+                      ikonRengi: renk,
+                      metin:
+                          '${DateTime.now().difference(_startTime!).inSeconds}s',
                     ),
-                    // Coins collected
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.amber, width: 2),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '$_coinsCollected/$_totalCoins',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.circle_rounded,
-                              color: Colors.amber, size: 20),
-                        ],
-                      ),
+                    const Spacer(),
+                    _sayac(
+                      key: const ValueKey('maze3d_altin'),
+                      renk: renk,
+                      ikon: Icons.circle_rounded,
+                      ikonRengi: Colors.amber,
+                      metin: '$_coinsCollected/$_totalCoins',
                     ),
                   ],
                 ),
               ),
-
-              // Mini-map overlay
-              Positioned(
-                top: 100,
-                right: 16,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.amber, width: 2),
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.5),
-                        blurRadius: 8,
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: CustomPaint(
-                      painter: _MiniMapPainter(
-                        playerX: _playerX,
-                        playerY: _playerY,
-                        playerAngle: _playerAngle,
-                        maze: _maze,
-                        mazeSize: _mazeSize,
+              // 3B gorunum: yuvarlak koseli bir pencere, kosede mini harita.
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: renk.withValues(alpha: 0.25),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Color(0xFF87CEEB), // Sky blue
+                                    Color(0xFF4CAF50), // Grass green
+                                  ],
+                                ),
+                              ),
+                              child: CustomPaint(
+                                size: Size.infinite,
+                                painter: _Maze3DPainter(
+                                  playerX: _playerX,
+                                  playerY: _playerY,
+                                  playerAngle: _playerAngle,
+                                  maze: _maze,
+                                  mazeSize: _mazeSize,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 10,
+                            right: 10,
+                            child: Container(
+                              key: const ValueKey('maze3d_harita'),
+                              width: haritaBoyu,
+                              height: haritaBoyu,
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: Colors.white, width: 2),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 8,
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: CustomPaint(
+                                  painter: _MiniMapPainter(
+                                    playerX: _playerX,
+                                    playerY: _playerY,
+                                    playerAngle: _playerAngle,
+                                    maze: _maze,
+                                    mazeSize: _mazeSize,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
               ),
-
-              // Back button
-              Positioned(
-                top: 40,
-                left: 16,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back_rounded,
-                      color: Colors.white, size: 28),
-                  onPressed: () => Navigator.pop(context),
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.black.withValues(alpha: 0.6),
-                    padding: const EdgeInsets.all(12),
-                  ),
+              // Kontroller: oyunlarin ortak renkli cevap kartlari. Ayni
+              // isi yapan ciftler ayni renkte: donusler mor, yana
+              // kaymalar mavi, ileri yesil, geri turuncu.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: 140,
+                      child: _buildControlButton(
+                          Icons.arrow_upward_rounded,
+                          _moveForward,
+                          _tl('İleri', 'Forward', 'Vorwärts', 'Adelante'),
+                          sira: 3),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        for (final (i, k) in [
+                          (
+                            Icons.rotate_left_rounded,
+                            _rotateLeft,
+                            _tl('Sola dön', 'Turn left', 'Links drehen',
+                                'Girar a la izquierda')
+                          ),
+                          (
+                            Icons.arrow_back_rounded,
+                            _strafeLeft,
+                            _tl('Sola kay', 'Step left', 'Nach links',
+                                'Paso a la izquierda')
+                          ),
+                          (
+                            Icons.arrow_downward_rounded,
+                            _moveBackward,
+                            _tl('Geri', 'Back', 'Zurück', 'Atrás')
+                          ),
+                          (
+                            Icons.arrow_forward_rounded,
+                            _strafeRight,
+                            _tl('Sağa kay', 'Step right', 'Nach rechts',
+                                'Paso a la derecha')
+                          ),
+                          (
+                            Icons.rotate_right_rounded,
+                            _rotateRight,
+                            _tl('Sağa dön', 'Turn right', 'Rechts drehen',
+                                'Girar a la derecha')
+                          ),
+                        ].indexed)
+                          Expanded(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
+                              child: _buildControlButton(k.$1, k.$2, k.$3,
+                                  sira: const [4, 1, 2, 1, 4][i]),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
-          )),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _sayac({
+    required Key key,
+    required Color renk,
+    required IconData ikon,
+    required Color ikonRengi,
+    required String metin,
+  }) {
+    return Container(
+      key: key,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: renk.withValues(alpha: 0.35), width: 1.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(ikon, color: ikonRengi, size: 18),
+          const SizedBox(width: 6),
+          Text(
+            metin,
+            style: const TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              color: AppTheme.darkGray,
+              fontWeight: FontWeight.w900,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildControlButton(
-      IconData icon, VoidCallback onPressed, String tooltip) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.grey[700]!,
-            Colors.grey[900]!,
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.5),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+      IconData icon, VoidCallback onPressed, String tooltip,
+      {required int sira}) {
+    return Tooltip(
+      message: tooltip,
+      child: Semantics(
+        button: true,
+        label: tooltip,
+        child: SizedBox(
+          height: 52,
+          child: OyunCevapKarti(
+            sira: sira,
+            onTap: onPressed,
+            child: Icon(icon, size: 28),
           ),
-        ],
-      ),
-      child: IconButton(
-        icon: Icon(icon, color: Colors.white),
-        iconSize: 24,
-        onPressed: onPressed,
-        tooltip: tooltip,
-        style: IconButton.styleFrom(
-          padding: const EdgeInsets.all(8),
         ),
       ),
     );

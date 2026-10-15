@@ -17,7 +17,8 @@ import '../../widgets/animated_rank_display.dart';
 import '../../widgets/learning/how_to_play_demo.dart';
 import '../../widgets/learning/match_board.dart';
 import '../../widgets/learning/success_burst.dart';
-import '../../widgets/playful_background.dart';
+import '../../widgets/oyun_basligi.dart';
+import '../../widgets/oyun_kimligi.dart';
 import '../../utils/lang.dart';
 import 'word_match_levels.dart';
 import 'word_match_words.dart';
@@ -415,79 +416,58 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
   @override
   Widget build(BuildContext context) {
     final sv = _seviye;
+    // Oyunlarin ortak kabugu: OyunBasligi + OyunZemini, Oyunlar
+    // sekmesindeki kartla ayni renk ve simge. Dunya rengi (_renk) oyun
+    // icindeki rozet, sayac ve tahta vurgularinda kaliyor.
+    final kimlik = OyunKimligi.renk(GameType.wordMatch);
+    final dar = MediaQuery.sizeOf(context).width < 400;
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: AppTheme.lightGray,
-        surfaceTintColor: Colors.transparent,
-        foregroundColor: AppTheme.darkGray,
-        elevation: 0,
-        titleSpacing: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              _t('Kelime Eşleştirme', 'Word Match', 'Wörter zuordnen', 'Empareja palabras'),
-              style: const TextStyle(
-                fontFamily: AppTheme.fontFamily,
-                fontSize: 19,
-                fontWeight: FontWeight.w800,
-                color: AppTheme.darkGray,
-              ),
-            ),
-            Text(
-              '${KelimeSeviyeleri.dunyaAdi(sv.dunya, _lang)} · '
-              '${_t('Seviye', 'Level', 'Level', 'Nivel')} $_seviyeNo/${KelimeSeviyeleri.toplam}',
-              style: TextStyle(
-                fontFamily: AppTheme.fontFamily,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                color: _renk,
-              ),
-            ),
-          ],
+      backgroundColor: OyunZemini.ustRenk(kimlik),
+      appBar: OyunBasligi(
+        renk: kimlik,
+        // Dar telefonda (320) simge basligin yerini yiyor.
+        simge: dar ? null : OyunKimligi.simge(GameType.wordMatch),
+        baslikWidget: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(_t('Kelime Eşleştirme', 'Word Match', 'Wörter zuordnen',
+              'Empareja palabras')),
         ),
-        actions: [
+        altBaslik: '${KelimeSeviyeleri.dunyaAdi(sv.dunya, _lang)} · '
+            '${_t('Seviye', 'Level', 'Level', 'Nivel')} $_seviyeNo/${KelimeSeviyeleri.toplam}',
+        eylemler: [
           IconButton(
             key: const ValueKey('kelime_harita'),
             tooltip: _t('Seviyeler', 'Levels', 'Level', 'Niveles'),
             icon: const Icon(Icons.map_rounded),
             onPressed: _seviyeHaritasi,
           ),
-          IconButton(
-            tooltip: _t('Nasıl oynanır', 'How to play', 'Wie wird gespielt', 'Cómo se juega'),
-            icon: const Icon(Icons.help_outline_rounded),
-            onPressed: () => _showHowToPlay(force: true),
-          ),
           Padding(
-            padding: const EdgeInsets.only(right: 14),
-            child: Center(
-              child: Text(
-                '$_score',
-                style: const TextStyle(
-                  fontFamily: AppTheme.fontFamily,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF2E7D32),
-                ),
-              ),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              key: const ValueKey('kelime_puan'),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.star_rounded,
+                    size: 18, color: Color(0xFFFFE082)),
+                const SizedBox(width: 3),
+                Text('$_score'),
+              ],
             ),
           ),
         ],
       ),
-      body: PlayfulBackground(
-        baseColor: AppTheme.lightGray,
-        tint: _renk,
+      body: OyunZemini(
+        renk: kimlik,
         child: SafeArea(
           top: false,
           child: _pairs.isEmpty
               ? const Center(child: CircularProgressIndicator())
               : LayoutBuilder(
                   builder: (context, c) => SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
                     child: ConstrainedBox(
-                      constraints: BoxConstraints(minHeight: c.maxHeight - 30),
+                      constraints: BoxConstraints(minHeight: c.maxHeight - 34),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -500,15 +480,36 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                             onCorrect: _onCorrect,
                             onWrong: _onWrong,
                             onCompleted: _onCompleted,
+                            leftColor: _renk,
+                            cevapKartlari: true,
                           ),
-                          const SizedBox(height: 18),
-                          TextButton.icon(
-                            onPressed: _loadWords,
-                            icon: const Icon(Icons.refresh_rounded, size: 18),
-                            label: Text(_t('Yeniden başla', 'Restart', 'Neu starten', 'Reiniciar')),
-                            style: TextButton.styleFrom(
-                              foregroundColor: AppTheme.mediumGray,
-                            ),
+                          const SizedBox(height: 14),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 4,
+                            children: [
+                              TextButton.icon(
+                                onPressed: _loadWords,
+                                icon: const Icon(Icons.refresh_rounded,
+                                    size: 18),
+                                label: Text(_t('Yeniden başla', 'Restart',
+                                    'Neu starten', 'Reiniciar')),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppTheme.mediumGray,
+                                ),
+                              ),
+                              TextButton.icon(
+                                key: const ValueKey('kelime_nasil'),
+                                onPressed: () => _showHowToPlay(force: true),
+                                icon: const Icon(Icons.help_outline_rounded,
+                                    size: 18),
+                                label: Text(_t('Nasıl oynanır', 'How to play',
+                                    'Wie wird gespielt', 'Cómo se juega')),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppTheme.mediumGray,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -548,31 +549,52 @@ class _WordMatchGameScreenState extends State<WordMatchGameScreen> {
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                '${sv.cift} ${_t('çift', 'pairs', 'Paare', 'parejas')}',
-                style: const TextStyle(
-                    fontFamily: AppTheme.fontFamily, fontWeight: FontWeight.w800, color: AppTheme.darkGray),
-              ),
-              const Spacer(),
-              if (sv.can != null)
-                Row(
-                  key: const ValueKey('kelime_canlar'),
-                  children: [
-                    for (var i = 0; i < sv.can!; i++)
-                      AnimatedScale(
-                        duration: const Duration(milliseconds: 300),
-                        scale: i < (_kalanCan ?? 0) ? 1 : 0.8,
-                        child: Text(i < (_kalanCan ?? 0) ? '❤️' : '🤍',
-                            style: const TextStyle(fontSize: 18)),
-                      ),
-                  ],
-                )
-              else
-                Text(
-                  _t('Sınırsız deneme', 'Unlimited tries', 'Unbegrenzt', 'Intentos ilimitados'),
-                  style: const TextStyle(
-                      fontFamily: AppTheme.fontFamily, fontSize: 12, color: AppTheme.mediumGray, fontWeight: FontWeight.w700),
+              // 320 genislikte ve uzun dillerde (es: "10 parejas",
+              // "Intentos ilimitados") satir tasiyordu: iki yan da
+              // esnek, sigmayan kucultuluyor.
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '${sv.cift} ${_t('çift', 'pairs', 'Paare', 'parejas')}',
+                    style: const TextStyle(
+                        fontFamily: AppTheme.fontFamily, fontWeight: FontWeight.w800, color: AppTheme.darkGray),
+                  ),
                 ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: sv.can != null
+                        ? Row(
+                            key: const ValueKey('kelime_canlar'),
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              for (var i = 0; i < sv.can!; i++)
+                                AnimatedScale(
+                                  duration: const Duration(milliseconds: 300),
+                                  scale: i < (_kalanCan ?? 0) ? 1 : 0.8,
+                                  child: Text(i < (_kalanCan ?? 0) ? '❤️' : '🤍',
+                                      style: const TextStyle(fontSize: 18)),
+                                ),
+                            ],
+                          )
+                        : Text(
+                            _t('Sınırsız deneme', 'Unlimited tries', 'Unbegrenzt', 'Intentos ilimitados'),
+                            style: const TextStyle(
+                                fontFamily: AppTheme.fontFamily,
+                                fontSize: 12,
+                                color: AppTheme.mediumGray,
+                                fontWeight: FontWeight.w700),
+                          ),
+                  ),
+                ),
+              ),
             ],
           ),
           if (sure != null) ...[
