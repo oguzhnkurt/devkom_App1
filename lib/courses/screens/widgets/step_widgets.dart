@@ -2029,7 +2029,9 @@ class _DragDropStepWidgetState extends State<DragDropStepWidget> {
         setState(() {
           _placements[details.data.id] = zone.id;
         });
-        HapticFeedback.lightImpact();
+        // Parca oturdu: blok kurma alanlariyla ayni kisa "tok" (titresim
+        // dahil; playBlokTak lightImpact'i da veriyor).
+        SoundService.playBlokTak();
         _checkCompletion();
       },
       builder: (context, candidateData, rejectedData) {
@@ -3690,7 +3692,8 @@ class _OrderingStepWidgetState extends State<OrderingStepWidget> {
                 _correctness = null;
                 _result = null;
               });
-              HapticFeedback.selectionClick();
+              // Satir yeni yerine oturdu: ayni kisa blok sesi + titresim.
+              SoundService.playBlokTak();
             },
             itemBuilder: (context, index) =>
                 _buildRow(context, index, lang, locked),
@@ -6061,7 +6064,8 @@ class _CodeCompleteStepWidgetState extends State<CodeCompleteStepWidget> {
                 onTap: _answered
                     ? null
                     : () {
-                        HapticFeedback.selectionClick();
+                        // Secenek bosluga oturdu: blok sesiyle ayni "tok".
+                        SoundService.playBlokTak();
                         setState(() => _filled[i] = choice);
                       },
                 child: AnimatedContainer(
