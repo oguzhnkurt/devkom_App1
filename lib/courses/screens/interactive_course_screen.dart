@@ -19,6 +19,7 @@ import 'module_quiz_screen.dart';
 import 'projelerim_ekrani.dart';
 import 'widgets/kurs_yol_haritasi.dart';
 import '../../services/sound_service.dart';
+import '../../ui/motion.dart';
 import 'widgets/step_widgets.dart'
     show lessonLang, lessonLangRead, lessonText;
 
@@ -27,14 +28,46 @@ import 'widgets/step_widgets.dart'
 class InteractiveCourseScreen extends StatefulWidget {
   final Course course;
 
-  const InteractiveCourseScreen({super.key, required this.course});
+  /// Acilista secili modul. Verilmezse cocugun SU ANKI modulu (bitmemis
+  /// ilk modul; hepsi bittiyse sonuncusu) — yol haritasindaki Devi
+  /// dugumuyle ayni.
+  final int? initialModule;
+
+  const InteractiveCourseScreen(
+      {super.key, required this.course, this.initialModule});
 
   @override
   State<InteractiveCourseScreen> createState() => _InteractiveCourseScreenState();
 }
 
 class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
-  int _selectedModule = 0;
+  /// Acikca secilen modul (dugume dokunma, "kaldigin yerden devam",
+  /// [InteractiveCourseScreen.initialModule]). Null iken secili modul
+  /// cocugun su anki modulu.
+  ///
+  /// NEDEN NULL: eskiden secim 0'dan basliyordu; cocuk 6. modulde olsa
+  /// da sayfa "MODUL 1"i aciyor, harita ise 6. dugume kayiyordu —
+  /// gosterilen modul ile harita uyusmuyordu. Ilerleme de saglayicidan
+  /// sonradan gelebiliyor; secim bu yuzden her cizimde hesaplaniyor.
+  int? _secim;
+
+  /// Ders listesinin baslik satiri: dugume dokununca sayfa buraya kayiyor.
+  final GlobalKey _modulBasligi = GlobalKey();
+
+  int get _selectedModule {
+    final s = _secim;
+    if (s != null && s >= 0 && s < _modules.length) return s;
+    return _simdikiModul;
+  }
+
+  /// Cocugun su anki modulu: bitmemis ilk modul; hepsi bittiyse sonuncu.
+  int get _simdikiModul {
+    if (_modules.isEmpty) return 0;
+    final i = KursYolHaritasi.durumlar(_modules, _bitenDersler)
+        .indexOf(ModulDurumu.simdiki);
+    return i < 0 ? _modules.length - 1 : i;
+  }
+
   late List<CourseModule> _modules;
 
   /// Modul sinavlarinin sorulari (modul basina bir kez secilir).
@@ -54,6 +87,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
   @override
   void initState() {
     super.initState();
+    _secim = widget.initialModule;
     _loadCourseModules();
     _acilanlariYukle();
   }
@@ -606,7 +640,8 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
             secili: _selectedModule,
             onSec: (i) {
               HapticFeedback.selectionClick();
-              setState(() => _selectedModule = i);
+              setState(() => _secim = i);
+              _modulBasliginaKaydir();
             },
           ),
         ],
@@ -673,7 +708,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
           final isSelected = _selectedModule == index;
 
           return GestureDetector(
-            onTap: () => setState(() => _selectedModule = index),
+            onTap: () => setState(() => _secim = index),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               width: 130,
@@ -740,6 +775,27 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
     );
   }
 
+  /// Dugume dokununca: modulun ders listesinin basligi gorunsun.
+  /// Baslik zaten ekranin ust yarisindaysa sayfa yerinde kaliyor.
+  void _modulBasliginaKaydir() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = _modulBasligi.currentContext;
+      if (!mounted || ctx == null) return;
+      final kutu = ctx.findRenderObject() as RenderBox?;
+      if (kutu == null || !kutu.attached) return;
+      final y = kutu.localToGlobal(Offset.zero).dy;
+      final ekran = MediaQuery.sizeOf(context).height;
+      final ust = MediaQuery.paddingOf(context).top + kToolbarHeight;
+      if (y > ust + 8 && y + kutu.size.height < ekran * 0.6) return;
+      Scrollable.ensureVisible(
+        ctx,
+        alignment: 0.32,
+        duration: Motion.reduced(context) ? Duration.zero : Motion.long2,
+        curve: Motion.emphasized,
+      );
+    });
+  }
+
   Widget _buildModuleContent(bool isDark) {
     final module = _modules[_selectedModule];
 
@@ -750,6 +806,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         children: [
           // Module header
           Row(
+            key: _modulBasligi,
             children: [
               Text(module.emoji, style: const TextStyle(fontSize: 24)),
               const SizedBox(width: 12),
@@ -1235,8 +1292,10 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
     // Secili modul sekmesi de o derse kaysin: geri donuldugunde liste
     // cocugun bulundugu modulu gostersin.
     final modul = _modules.indexWhere((m) => m.lessons.contains(ders));
-    if (modul >= 0 && modul != _selectedModule) {
-      setState(() => _selectedModule = modul);
+    // (Burada _selectedModule OKUNMUYOR: o, build disinda yasak olan
+    // context.watch'a gidiyor.)
+    if (modul >= 0 && modul != _secim) {
+      setState(() => _secim = modul);
     }
     await _openLesson(ders);
   }

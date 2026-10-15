@@ -128,16 +128,40 @@ class _KursYolHaritasiState extends State<KursYolHaritasi>
     super.dispose();
   }
 
-  /// Ilk cizimden sonra su anki dugum ekranin ortasina gelsin.
+  /// Son cizimdeki genislik (secim degisince kaydirmak icin).
+  double _genislik = 0;
+
+  /// Ilk cizimden sonra secili (yoksa su anki) dugum ekranin ortasina
+  /// gelsin.
   void _ortala(int hedef, double genislik) {
+    _genislik = genislik;
     if (_kaydirildi) return;
     _kaydirildi = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_kaydirma.hasClients) return;
-      final p = _kaydirma.position;
-      final x = 16 + hedef * _aralik + _aralik / 2 - genislik / 2;
-      _kaydirma.jumpTo(x.clamp(p.minScrollExtent, p.maxScrollExtent));
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _kaydir(hedef));
+  }
+
+  void _kaydir(int hedef, {bool yumusak = false}) {
+    if (!mounted || !_kaydirma.hasClients) return;
+    final p = _kaydirma.position;
+    final x = (16 + hedef * _aralik + _aralik / 2 - _genislik / 2)
+        .clamp(p.minScrollExtent, p.maxScrollExtent);
+    if (yumusak && !Motion.reduced(context)) {
+      _kaydirma.animateTo(x,
+          duration: Motion.long2, curve: Motion.emphasized);
+    } else {
+      _kaydirma.jumpTo(x);
+    }
+  }
+
+  @override
+  void didUpdateWidget(KursYolHaritasi old) {
+    super.didUpdateWidget(old);
+    // Secim degisti: secili dugum ortaya kaysin.
+    final s = widget.secili;
+    if (s != null && s != old.secili) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _kaydir(s, yumusak: true));
+    }
   }
 
   @override
@@ -153,7 +177,8 @@ class _KursYolHaritasiState extends State<KursYolHaritasi>
       child: SizedBox(
         height: yukseklik,
         child: LayoutBuilder(builder: (context, c) {
-          _ortala(simdiki < 0 ? n - 1 : simdiki, c.maxWidth);
+          _ortala(widget.secili ?? (simdiki < 0 ? n - 1 : simdiki),
+              c.maxWidth);
           return SingleChildScrollView(
             controller: _kaydirma,
             scrollDirection: Axis.horizontal,
@@ -309,6 +334,28 @@ class _KursYolHaritasiState extends State<KursYolHaritasi>
         );
     }
 
+    // SECILI AMA SU ANKI DEGIL: dugumun cevresinde kursun renginde bir
+    // halka ve altinda kucuk bir ok. Su anki dugum (Devi) kendi nabziyla
+    // zaten belli; ikisi farkliyken cocuk hangisinin derslerine
+    // baktigini halkadan goruyor.
+    if (secili && d != ModulDurumu.simdiki && widget.onSec != null) {
+      govde = Container(
+        key: ValueKey('yol_secili_$i'),
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: widget.renk, width: 2.5),
+          boxShadow: [
+            BoxShadow(
+              color: widget.renk.withValues(alpha: 0.28),
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: govde,
+      );
+    }
+
     final etiket = widget.kompakt
         ? Text(
             '${i + 1}',
@@ -330,10 +377,13 @@ class _KursYolHaritasiState extends State<KursYolHaritasi>
               fontFamily: AppTheme.fontFamily,
               fontSize: 11,
               height: 1.15,
-              fontWeight:
-                  d == ModulDurumu.simdiki ? FontWeight.w900 : FontWeight.w700,
-              color: yaziRengi.withValues(
-                  alpha: d == ModulDurumu.sirada ? 0.5 : 0.92),
+              fontWeight: d == ModulDurumu.simdiki || secili
+                  ? FontWeight.w900
+                  : FontWeight.w700,
+              color: secili
+                  ? (widget.koyu ? Colors.white : yaziRengi)
+                  : yaziRengi.withValues(
+                      alpha: d == ModulDurumu.sirada ? 0.5 : 0.92),
               decoration: secili ? TextDecoration.underline : null,
               decorationColor: widget.renk,
               decorationThickness: 2,
@@ -357,7 +407,11 @@ class _KursYolHaritasiState extends State<KursYolHaritasi>
               children: [
                 SizedBox(
                   height: cap + 10,
-                  child: Center(child: govde),
+                  child: OverflowBox(
+                    maxWidth: cap + 20,
+                    maxHeight: cap + 20,
+                    child: Center(child: govde),
+                  ),
                 ),
                 SizedBox(height: etiketH, child: etiket),
               ],
