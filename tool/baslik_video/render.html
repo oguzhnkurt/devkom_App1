@@ -1,0 +1,121 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Baloo;src:url(fonts/Baloo2-ExtraBold.ttf)}
+@font-face{font-family:Nunito;font-weight:800;src:url(fonts/Nunito-800.ttf)}
+@font-face{font-family:Nunito;font-weight:700;src:url(fonts/Nunito-700.ttf)}
+html,body{margin:0;padding:0;overflow:hidden;background:#000}
+#s{position:relative;width:1920px;height:823px;overflow:hidden;
+  background:radial-gradient(120% 140% at 30% 10%,#8B5CF6 0%,#6D3BF0 38%,#4F46E5 62%,#2F7BFF 100%)}
+.abs{position:absolute;left:0;top:0;will-change:transform;transform-origin:0 0}
+.ghost{height:34px;border-radius:9px;background:rgba(255,255,255,.12)}
+.star{width:8px;height:8px;border-radius:50%;background:#fff}
+#mark{font-family:Baloo;font-size:112px;color:#fff;letter-spacing:-1px;line-height:1;white-space:nowrap;
+  text-shadow:0 10px 0 rgba(40,20,120,.35),0 24px 50px rgba(20,10,80,.35)}
+#mark b{font-weight:normal;color:#FFD54F}
+#tag{font-family:Nunito;font-weight:800;font-size:38px;color:rgba(255,255,255,.95);white-space:nowrap;
+  letter-spacing:.5px}
+.blok{font-family:Nunito;font-weight:800;font-size:27px;color:#fff;white-space:nowrap}
+.blok svg{position:absolute;left:0;top:0;overflow:visible}
+.blok span{position:relative;display:block;padding:0 22px;line-height:58px}
+.card{background:#fff;border-radius:26px;box-shadow:0 24px 60px rgba(20,10,80,.35);overflow:hidden}
+#sahne{width:330px;height:250px}
+#sahne .bar{height:44px;background:#F3F4F8;display:flex;align-items:center;gap:10px;padding:0 14px}
+#sahne .bayrak{width:28px;height:28px;border-radius:8px;background:#DCFCE7;color:#16A34A;font-size:18px;display:flex;align-items:center;justify-content:center}
+#sahne .dur{width:24px;height:24px;border-radius:6px;background:#EF4444;transform:rotate(22.5deg);clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)}
+#sahne .zemin{position:absolute;left:0;top:44px;width:330px;height:206px;background:linear-gradient(#E0F2FE,#F0F9FF)}
+#cimen{position:absolute;left:0;bottom:0;width:330px;height:26px;background:#86D46B}
+#satranc{width:250px;height:250px;padding:16px;box-sizing:border-box}
+#tahta{display:grid;grid-template-columns:repeat(8,1fr);width:218px;height:218px;border-radius:8px;overflow:hidden}
+#tahta div{display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
+#uno{width:250px;height:150px;background:#0E7C86;border-radius:22px;box-shadow:0 20px 50px rgba(20,10,80,.35)}
+#led{position:absolute;width:30px;height:30px;border-radius:50%}
+</style></head><body><div id="s"></div>
+<script>
+const P=new URLSearchParams(location.search), LANG=P.get('lang')||'tr';
+const T={tr:{tag:'Kodla, oyna, öğren',b:['tıklandığında','3 defa tekrarla','10 adım git','90 derece dön']},
+ en:{tag:'Code, play, learn',b:['when clicked','repeat 3','move 10 steps','turn 90 degrees']},
+ de:{tag:'Coden, spielen, lernen',b:['Wenn angeklickt','wiederhole 3 mal','gehe 10 Schritte','drehe um 90 Grad']},
+ es:{tag:'Programa, juega, aprende',b:['al hacer clic','repetir 3','mover 10 pasos','girar 90 grados']}}[LANG];
+const DUR=10, FPS=30, W=1920, H=823, TAU=Math.PI*2;
+const s=document.getElementById('s');
+function el(cls,html,parent){const d=document.createElement('div');d.className='abs '+(cls||'');if(html!=null)d.innerHTML=html;(parent||s).appendChild(d);return d}
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const ease=x=>1-Math.pow(1-clamp(x),3);
+const back=x=>{x=clamp(x);const c=1.7;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+// rastgele ama sabit
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+// arka plan: kayan soluk bloklar (dongude tam bir tur)
+const ghosts=[];for(let i=0;i<22;i++){const g=el('ghost');const w=70+rnd()*140;g.style.width=w+'px';
+ ghosts.push({g,x:rnd()*(W+300),y:20+rnd()*(H-60),k:1+Math.floor(rnd()*2),r:(rnd()-.5)*20,o:.5+rnd()*.5})}
+const stars=[];for(let i=0;i<26;i++){const st=el('star');stars.push({st,x:rnd()*W,y:rnd()*H,ph:rnd(),f:1+Math.floor(rnd()*3),sc:.5+rnd()})}
+// marka
+const mark=el('','<div id="mark">Dev<b>Education</b></div>');
+const tag=el('','<div id="tag">'+T.tag+'</div>');
+// bloklar (Scratch 3 bicimi, kendi cizimimiz)
+const RENK=[['#FFBF00','#CC9900'],['#FFAB19','#CF8B17'],['#4C97FF','#3373CC'],['#4C97FF','#3373CC']];
+function blokSvg(w,h,hat,c){const n=`h12 l8 8 h20 l8 -8`;let d;
+ if(hat) d=`M0 ${h} V22 Q0 14 8 12 Q${w*0.2} -10 ${w*0.42} 10 H${w-8} q8 0 8 8 V${h-8} q0 8 -8 8 H52 l-8 8 h-20 l-8 -8 H8 q-8 0 -8 -8z`;
+ else d=`M0 8 q0-8 8-8 h8 l8 8 h20 l8 -8 H${w-8} q8 0 8 8 V${h-8} q0 8 -8 8 H52 l-8 8 h-20 l-8 -8 H8 q-8 0 -8 -8z`;
+ return `<svg width="${w}" height="${h}"><path d="${d}" fill="${c[0]}" stroke="${c[1]}" stroke-width="2"/></svg>`}
+const bloklar=T.b.map((txt,i)=>{const b=el('blok','<span>'+(i==0?'<i style="font-style:normal;color:#22C55E;text-shadow:0 0 0 #fff">⚑</i> ':'')+txt+'</span>');return b});
+// sag: sahne karti + satranc + uno
+const satranc=el('card','<div id="satranc"><div id="tahta"></div></div>');
+const tahta=satranc.querySelector('#tahta');const tas='♜♞♝♛♚♝♞♜';
+for(let r=0;r<8;r++)for(let c=0;c<8;c++){const d=document.createElement('div');d.style.background=(r+c)%2?'#B58863':'#F0D9B5';
+ d.textContent=r==0?tas[c]:r==1?'♟':r==6?'♙':r==7?'♖♘♗♕♔♗♘♖'[c]:'';tahta.appendChild(d)}
+const sahne=el('card','<div id="sahne"><div class="bar"><div class="bayrak">⚑</div><div class="dur"></div></div><div class="zemin"><svg id="iz" width="330" height="206" style="position:absolute;left:0;top:0"></svg><div id="cimen"></div><img id="kd" src="devi.png" style="position:absolute;width:64px"></div></div>');
+const iz=sahne.querySelector('#iz'), kd=sahne.querySelector('#kd');
+const uno=el('','<div id="uno"><div style="position:absolute;left:22px;top:18px;width:150px;height:14px;background:#0B5D64;border-radius:4px"></div><div style="position:absolute;left:30px;top:60px;width:90px;height:44px;background:#1F2226;border-radius:6px"></div><div style="position:absolute;left:150px;top:62px;font:800 26px Nunito;color:#fff">UNO</div><div style="position:absolute;left:22px;bottom:16px;width:150px;height:12px;background:#0B5D64;border-radius:4px"></div></div><div id="led"></div>');
+const led=uno.querySelector('#led');
+// buyuk Devi + kalpler
+const devi=el('','<img src="devi.png" style="width:250px;display:block">');
+const kalpler=[];for(let i=0;i<5;i++){kalpler.push({k:el('','<div style="font-size:30px">❤️</div>'),ph:i/5,x:(rnd()-.5)*90})}
+function put(e,x,y,sc=1,rot=0,op=1){e.style.transform=`translate(${x}px,${y}px) rotate(${rot}deg) scale(${sc})`;e.style.opacity=op}
+let ready=false;
+window.__renderFrame=t=>{
+ const u=t/DUR; // 0..1 dongu
+ ghosts.forEach(o=>{const span=W+300;let x=((o.x-u*span*o.k)%span+span)%span-200;put(o.g,x,o.y,1,o.r,o.o)});
+ stars.forEach(o=>{const a=.25+.6*Math.pow(.5+.5*Math.sin(TAU*(u*o.f+o.ph)),2);put(o.st,o.x,o.y,o.sc,0,a)});
+ // marka hafif nefes
+ const mw=mark.firstChild.offsetWidth, tw=tag.firstChild.offsetWidth;
+ const nef=1+.012*Math.sin(TAU*u);
+ put(mark,W/2-mw*nef/2,300-6*(nef-1)*100,nef);
+ put(tag,W/2-tw/2,438,1);
+ // bloklar: 0.4-2.2 sn sirayla oturuyor, 8.8-9.6 soluyor
+ const BY=262, BH=58, S=1.2;
+ const maxw=Math.max(...bloklar.map((b,i)=>b.lastChild.offsetWidth+(i>1?22:0)));
+ const BX=Math.min(255, W/2-mw/2-45-maxw*S);
+ const cik=clamp((t-8.8)/0.7);
+ bloklar.forEach((b,i)=>{const w=b.firstChild.offsetWidth+(i>1?24:0);
+  if(!b._svg){b.insertAdjacentHTML('afterbegin',blokSvg(Math.max(w,170),BH+(i==0?14:0),i==0,RENK[i]));b._svg=1;
+   if(i==0)b.firstChild.nextSibling.style.marginTop='14px'}
+  const t0=0.4+i*0.45, p=back((t-t0)/0.5);
+  const x=BX+(i>=2&&i<=3?(i==3?0:0):0)+(i==2||i==3?22:0);
+  const y=BY+i*(BH-2)+(i>0?14:0)-(1-p)*140;
+  const glow=t>3&&t<8.6?.5+.5*Math.sin(TAU*(t-3)/1.4):0;
+  b.style.filter=glow?`drop-shadow(0 0 ${10*glow}px rgba(255,255,255,.9))`:'drop-shadow(0 8px 14px rgba(20,10,80,.35))';
+  put(b,x*1,y,S,0,clamp((t-t0)/0.25)*(1-cik))});
+ // sag kartlar
+ const sx=1385, sy=270;
+ put(satranc,sx+200,sy-70+8*Math.sin(TAU*(u+.3)),0.78,9,1);
+ put(sahne,sx,sy+6*Math.sin(TAU*u),1,-3,1);
+ put(uno,sx+150,sy+205+6*Math.sin(TAU*(u+.6)),0.72,-6,1);
+ // LED: 2 sn'de bir yanip soner
+ const on=Math.floor(t*2)%2==0; led.style.left='196px';led.style.top='20px';
+ led.style.background=on?'#FF3B30':'#5B1A16';led.style.boxShadow=on?'0 0 28px 10px rgba(255,80,60,.8)':'none';
+ // sahnede Devi kare ciziyor: 2.4-7.4 sn
+ const P0=[60,40],L=110; const pts=[[0,0],[L,0],[L,L],[0,L],[0,0]];
+ const q=clamp((t-2.4)/5)*4; const k=Math.floor(Math.min(q,3.999)), f=q-k;
+ const cx=P0[0]+pts[k][0]+(pts[k+1][0]-pts[k][0])*f, cy=P0[1]+pts[k][1]+(pts[k+1][1]-pts[k][1])*f;
+ let d=`M${P0[0]} ${P0[1]}`;for(let j=1;j<=k;j++)d+=` L${P0[0]+pts[j][0]} ${P0[1]+pts[j][1]}`;d+=` L${cx} ${cy}`;
+ const izOp=1-clamp((t-8.8)/0.7);
+ iz.innerHTML=t>2.4?`<path d="${d}" stroke="#7C3AED" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="${izOp}"/>`:'';
+ const yurur=t<2.4?0:t<7.4?1:0; const kx=t<7.4?cx:P0[0]+ (t<8.8?0:0), ky=t<7.4?cy:P0[1];
+ put(kd,kx-32,ky-36+(yurur?3*Math.sin(t*18):0),1,0,1);
+ // buyuk Devi: markanin sag ustunde suzuluyor
+ put(devi,W/2-95,505+12*Math.sin(TAU*u*2),0.76,4*Math.sin(TAU*u),1);
+ kalpler.forEach(h=>{const a=((u*2+h.ph)%1);put(h.k,W/2+95+h.x*.6,600-a*90,.45+a*.45,0,Math.sin(Math.PI*a)*.8)});
+};
+Promise.all([document.fonts.load('150px Baloo'),document.fonts.load('800 44px Nunito'),...[...document.images].map(i=>i.decode().catch(()=>{}))]).then(()=>{
+ window.__renderFrame(0);window.__meta={DURATION:DUR,FPS};window.__ready=true});
+</script></body></html>
