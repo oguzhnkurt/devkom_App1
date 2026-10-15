@@ -4,9 +4,11 @@ import 'package:flutter/services.dart';
 import '../../../services/proje_deposu.dart';
 import '../../../services/sound_service.dart';
 import '../../../theme.dart';
+import '../../../ui/motion.dart';
 import '../../../utils/lang.dart';
 import '../../models/course_model.dart';
 import '../../models/interactive_lesson_model.dart';
+import '../../sahne/blok_tezgahi_karti.dart';
 import '../../yurutme/atolye_hedefleri.dart';
 import '../../yurutme/blok_yorumlayici.dart';
 import '../../yurutme/kod_yapisi.dart';
@@ -16,13 +18,17 @@ import 'scratch_tezgahi.dart';
 
 /// Hedef listesi: her hedef bir satir; kod calistiktan sonra saglanan
 /// hedefin dairesi yesil tike donuyor.
-class HedefListesi extends StatelessWidget {
+///
+/// [katlanir]: kucuk ekranda liste "Hedefler 1/3" ozetine iniyor;
+/// dokununca aciliyor (sahne ve tezgah ekrana sigsin diye).
+class HedefListesi extends StatefulWidget {
   const HedefListesi({
     super.key,
     required this.hedefler,
     required this.durumlar,
     required this.lang,
     required this.renk,
+    this.katlanir = false,
   });
 
   final List<AtolyeHedefi> hedefler;
@@ -31,95 +37,158 @@ class HedefListesi extends StatelessWidget {
   final List<bool>? durumlar;
   final String lang;
   final Color renk;
+  final bool katlanir;
+
+  @override
+  State<HedefListesi> createState() => _HedefListesiState();
+}
+
+class _HedefListesiState extends State<HedefListesi> {
+  bool _acik = false;
 
   @override
   Widget build(BuildContext context) {
+    final durumlar = widget.durumlar;
+    final renk = widget.renk;
     final tamam = durumlar?.where((d) => d).length ?? 0;
+    final hepsi = durumlar != null && tamam == widget.hedefler.length;
+    final acik = !widget.katlanir || _acik;
+    final baslik = Row(children: [
+      const Text('🎯', style: TextStyle(fontSize: 18)),
+      const SizedBox(width: 6),
+      Expanded(
+        child: Text(
+          AppLang.pick(widget.lang,
+              tr: 'Hedefler', en: 'Goals', de: 'Ziele', es: 'Objetivos'),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontFamily: AppTheme.fontFamily,
+            fontWeight: FontWeight.w800,
+            fontSize: 15,
+            color: renk,
+          ),
+        ),
+      ),
+      if (hepsi) ...[
+        const Icon(Icons.check_circle_rounded,
+            color: Color(0xFF2FB344), size: 18),
+        const SizedBox(width: 4),
+      ],
+      Text(
+        '$tamam/${widget.hedefler.length}',
+        key: const ValueKey('atolye_hedef_sayaci'),
+        style: TextStyle(
+          fontFamily: AppTheme.fontFamily,
+          fontWeight: FontWeight.w800,
+          color: hepsi ? const Color(0xFF1F7A33) : renk,
+        ),
+      ),
+      if (widget.katlanir) ...[
+        const SizedBox(width: 2),
+        AnimatedRotation(
+          turns: _acik ? 0.5 : 0,
+          duration: Motion.reduced(context) ? Duration.zero : Motion.short4,
+          child: Icon(Icons.expand_more_rounded, color: renk, size: 22),
+        ),
+      ],
+    ]);
     return Container(
       key: const ValueKey('atolye_hedefleri'),
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
       decoration: BoxDecoration(
         color: renk.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: renk.withValues(alpha: 0.25)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            const Text('🎯', style: TextStyle(fontSize: 18)),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                AppLang.pick(lang,
-                    tr: 'Hedefler', en: 'Goals', de: 'Ziele', es: 'Objetivos'),
-                style: TextStyle(
-                  fontFamily: AppTheme.fontFamily,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 15,
-                  color: renk,
-                ),
-              ),
-            ),
-            Text(
-              '$tamam/${hedefler.length}',
-              key: const ValueKey('atolye_hedef_sayaci'),
-              style: TextStyle(
-                fontFamily: AppTheme.fontFamily,
-                fontWeight: FontWeight.w800,
-                color: renk,
-              ),
-            ),
-          ]),
-          const SizedBox(height: 6),
-          for (var i = 0; i < hedefler.length; i++)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    transitionBuilder: (c, a) =>
-                        ScaleTransition(scale: a, child: c),
-                    child: (durumlar != null && durumlar![i])
-                        ? const Icon(Icons.check_circle_rounded,
-                            key: ValueKey('tik'),
-                            color: Color(0xFF2FB344),
-                            size: 22)
-                        : Icon(
-                            durumlar == null
-                                ? Icons.radio_button_unchecked_rounded
-                                : Icons.cancel_outlined,
-                            key: ValueKey('bos_${durumlar == null}'),
-                            color: durumlar == null
-                                ? Colors.grey.shade400
-                                : const Color(0xFFE8A13A),
-                            size: 22),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      hedefler[i].metinFor(lang),
-                      key: ValueKey('atolye_hedef_$i'),
-                      style: TextStyle(
-                        fontFamily: AppTheme.fontFamily,
-                        fontSize: 14,
-                        height: 1.3,
-                        fontWeight: FontWeight.w700,
-                        color: (durumlar != null && durumlar![i])
-                            ? const Color(0xFF1F7A33)
-                            : const Color(0xFF374151),
-                      ),
+      clipBehavior: Clip.antiAlias,
+      child: AnimatedSize(
+        duration: Motion.reduced(context) ? Duration.zero : Motion.medium1,
+        curve: Motion.standard,
+        alignment: Alignment.topCenter,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (widget.katlanir)
+              Semantics(
+                button: true,
+                expanded: _acik,
+                child: InkWell(
+                  key: const ValueKey('atolye_hedef_ozeti'),
+                  onTap: () => setState(() => _acik = !_acik),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 44),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 8, 10, 8),
+                      child: Center(child: baslik),
                     ),
                   ),
-                ],
+                ),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
+                child: baslik,
               ),
-            ),
-        ],
+            if (acik)
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                    14, widget.katlanir ? 0 : 6, 14, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (var i = 0; i < widget.hedefler.length; i++)
+                      _satir(i, durumlar),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
+
+  Widget _satir(int i, List<bool>? durumlar) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AnimatedSwitcher(
+              duration: Motion.reduced(context)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 300),
+              transitionBuilder: (c, a) => ScaleTransition(scale: a, child: c),
+              child: (durumlar != null && durumlar[i])
+                  ? const Icon(Icons.check_circle_rounded,
+                      key: ValueKey('tik'), color: Color(0xFF2FB344), size: 22)
+                  : Icon(
+                      durumlar == null
+                          ? Icons.radio_button_unchecked_rounded
+                          : Icons.cancel_outlined,
+                      key: ValueKey('bos_${durumlar == null}'),
+                      color: durumlar == null
+                          ? Colors.grey.shade400
+                          : const Color(0xFFE8A13A),
+                      size: 22),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                widget.hedefler[i].metinFor(widget.lang),
+                key: ValueKey('atolye_hedef_$i'),
+                style: TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 14,
+                  height: 1.3,
+                  fontWeight: FontWeight.w700,
+                  color: (durumlar != null && durumlar[i])
+                      ? const Color(0xFF1F7A33)
+                      : const Color(0xFF374151),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
 }
 
 /// PROJE ATOLYESI adimi (ve "Projelerim"den acilan serbest atolye).
@@ -339,6 +408,7 @@ class _ProjeAtolyesiWidgetState extends State<ProjeAtolyesiWidget> {
             durumlar: _gosterilen,
             lang: _l,
             renk: _renk,
+            katlanir: BlokTezgahiKarti.kompakt(context),
           ),
         ],
         const SizedBox(height: 12),

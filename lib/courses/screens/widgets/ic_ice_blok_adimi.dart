@@ -6,6 +6,7 @@ import '../../../theme.dart';
 import '../../../utils/lang.dart';
 import '../../models/course_model.dart';
 import '../../models/interactive_lesson_model.dart';
+import '../../sahne/blok_tezgahi_karti.dart';
 import '../../yurutme/atolye_hedefleri.dart';
 import '../../yurutme/blok_yorumlayici.dart';
 import '../../yurutme/kod_yapisi.dart';
@@ -189,6 +190,7 @@ class _IcIceBlokAdimiState extends State<IcIceBlokAdimi> {
             durumlar: _gosterilen,
             lang: _l,
             renk: _renk,
+            katlanir: BlokTezgahiKarti.kompakt(context),
           ),
         ],
         const SizedBox(height: 12),

@@ -823,34 +823,54 @@ class _TusSeridi extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFFF2F5FA),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      child: ValueListenableBuilder<int>(
-        valueListenable: surum,
-        builder: (context, _, __) => Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            for (final t in tuslar)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: _Tus(
-                  key: ValueKey('tus_$t'),
-                  ad: _ad(t),
-                  ikon: switch (t) {
-                    'left' => Icons.arrow_back_rounded,
-                    'right' => Icons.arrow_forward_rounded,
-                    'up' => Icons.arrow_upward_rounded,
-                    'down' => Icons.arrow_downward_rounded,
-                    _ => null,
-                  },
-                  genis: t == 'space',
-                  basili: aktif && motor.basili.contains(t),
-                  onBas: aktif ? () => motor.tusBas(t) : null,
-                  onBirak: aktif ? () => motor.tusBirak(t) : null,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      child: LayoutBuilder(builder: (context, kutu) {
+        // Dar sahnede tuslar daralir ama dokunma alani 44 pt'nin
+        // altina inmez (bosluk tusu kisalir, aralar daralir).
+        final bosluk = tuslar.contains('space');
+        final oklar = tuslar.length - (bosluk ? 1 : 0);
+        var ara = 8.0, ok = 50.0, genis = 108.0;
+        double toplam() =>
+            oklar * ok + (bosluk ? genis : 0) + tuslar.length * ara;
+        if (toplam() > kutu.maxWidth) {
+          ara = 6;
+          ok = 46;
+          genis = 76;
+        }
+        if (toplam() > kutu.maxWidth) {
+          ok = 44;
+          ara = 4;
+          genis = math.max(56.0, kutu.maxWidth - oklar * (ok + ara) - ara);
+        }
+        return ValueListenableBuilder<int>(
+          valueListenable: surum,
+          builder: (context, _, __) => Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              for (final t in tuslar)
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: ara / 2),
+                  child: _Tus(
+                    genislik: t == 'space' ? genis : ok,
+                    key: ValueKey('tus_$t'),
+                    ad: _ad(t),
+                    ikon: switch (t) {
+                      'left' => Icons.arrow_back_rounded,
+                      'right' => Icons.arrow_forward_rounded,
+                      'up' => Icons.arrow_upward_rounded,
+                      'down' => Icons.arrow_downward_rounded,
+                      _ => null,
+                    },
+                    genis: t == 'space',
+                    basili: aktif && motor.basili.contains(t),
+                    onBas: aktif ? () => motor.tusBas(t) : null,
+                    onBirak: aktif ? () => motor.tusBirak(t) : null,
+                  ),
                 ),
-              ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }
@@ -862,10 +882,12 @@ class _Tus extends StatelessWidget {
     required this.ikon,
     required this.genis,
     required this.basili,
+    this.genislik,
     this.onBas,
     this.onBirak,
   });
 
+  final double? genislik;
   final String ad;
   final IconData? ikon;
   final bool genis;
@@ -894,8 +916,8 @@ class _Tus extends StatelessWidget {
           duration: Motion.reduced(context)
               ? Duration.zero
               : const Duration(milliseconds: 80),
-          width: genis ? 108 : 50,
-          height: 42,
+          width: genislik ?? (genis ? 108 : 50),
+          height: 44,
           decoration: BoxDecoration(
             color: renk,
             borderRadius: BorderRadius.circular(10),
