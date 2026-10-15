@@ -51,6 +51,7 @@ class Mascot extends StatefulWidget {
     this.color,
     this.onTap,
     this.showShadow = true,
+    this.blink = false,
   });
 
   final MascotMood mood;
@@ -64,6 +65,21 @@ class Mascot extends StatefulWidget {
   final VoidCallback? onTap;
 
   final bool showShadow;
+
+  /// Göz kırpma. Açıkken Devi ~3 saniyede bir gözlerini kırpıyor
+  /// (arada bir çift kırpma). Render tek kare olduğu için kırpma,
+  /// vizörün üstüne göz kapakları çizilerek yapılıyor: kalp gözler
+  /// kapanıyor, yerlerinde mutlu bir "‿" parlıyor.
+  ///
+  /// Varsayılan KAPALI: her ekranda kırpan bir maskot içerikle dikkat
+  /// için yarışır (bkz. sınıf açıklaması). Yalnızca Devi'nin kendini
+  /// tanıttığı anda açık. "Hareketi azalt" açıksa kırpma yok.
+  final bool blink;
+
+  /// Ekran görüntüsü araçları için: verilirse gözler bu oranda kapalı
+  /// çiziliyor (0 açık, 1 kapalı). Uygulamada hep null.
+  @visibleForTesting
+  static double? debugGozKapali;
 
   /// Karakterin adı. Metinlerde geçtiği için tek yerden okunuyor.
   static const String ad = 'Devi';
@@ -79,6 +95,20 @@ class Mascot extends StatefulWidget {
   /// [MascotMood.cheering] anında.
   static const String kutlamaGorseli = 'assets/maskot/devi_kutlama.webp';
 
+  /// Döngünün o anındaki göz kapanıklığı (0 açık, 1 kapalı).
+  ///
+  /// 7 saniyelik döngüde üç kırpma: 2,9 sn'de tek, 6,4 sn'de çift
+  /// (6,4 ve 6,75). Düzenli bir metronom gibi değil, canlı gibi.
+  static double gozKapanikligi(double t) {
+    double tepe(double bas, double sure) {
+      if (t < bas || t > bas + sure) return 0;
+      return math.sin((t - bas) / sure * math.pi);
+    }
+
+    return math.max(tepe(0.42, 0.026),
+        math.max(tepe(0.915, 0.026), tepe(0.962, 0.024)));
+  }
+
   @override
   State<Mascot> createState() => _MascotState();
 }
@@ -90,6 +120,9 @@ class _MascotState extends State<Mascot> with TickerProviderStateMixin {
   /// Dokunma tepkisi.
   late final AnimationController _poke;
 
+  /// Göz kırpma döngüsü (yalnızca [Mascot.blink] açıkken döner).
+  late final AnimationController _kirp;
+
   @override
   void initState() {
     super.initState();
@@ -97,6 +130,10 @@ class _MascotState extends State<Mascot> with TickerProviderStateMixin {
     _poke = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 420),
+    );
+    _kirp = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 7000),
     );
   }
 
@@ -110,6 +147,7 @@ class _MascotState extends State<Mascot> with TickerProviderStateMixin {
   @override
   void didUpdateWidget(covariant Mascot old) {
     super.didUpdateWidget(old);
+    if (old.blink != widget.blink) _applyMotion();
     if (old.mood != widget.mood) {
       _idle.duration = _idleDuration;
       _applyMotion();
@@ -165,15 +203,25 @@ class _MascotState extends State<Mascot> with TickerProviderStateMixin {
     final typing = MediaQuery.viewInsetsOf(context).bottom > 0;
     if (Motion.reduced(context) || typing) {
       _idle.stop();
+      _kirp.stop();
+      _kirp.value = 0;
       return;
     }
     if (!_idle.isAnimating) _idle.repeat(reverse: true);
+    if (widget.blink) {
+      if (!_kirp.isAnimating) _kirp.repeat();
+    } else if (_kirp.isAnimating) {
+      _kirp.stop();
+      _kirp.value = 0;
+    }
   }
+
 
   @override
   void dispose() {
     _idle.dispose();
     _poke.dispose();
+    _kirp.dispose();
     super.dispose();
   }
 
@@ -256,7 +304,28 @@ class _MascotState extends State<Mascot> with TickerProviderStateMixin {
       ),
     );
 
-    if (!widget.showShadow) return gorsel;
+    // Kutlama animasyonunun kendi karesi var; kapaklar yalnızca duran
+    // render'ın gözlerine oturuyor.
+    final govde = (widget.blink || Mascot.debugGozKapali != null) && !kutlama
+        ? Stack(
+            children: [
+              gorsel,
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: AnimatedBuilder(
+                    animation: _kirp,
+                    builder: (context, _) => CustomPaint(
+                      painter: _GozKapagi(Mascot.debugGozKapali ??
+                          Mascot.gozKapanikligi(_kirp.value)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          )
+        : gorsel;
+
+    if (!widget.showShadow) return govde;
 
     return SizedBox(
       width: widget.size,
@@ -277,7 +346,7 @@ class _MascotState extends State<Mascot> with TickerProviderStateMixin {
               ),
             ),
           ),
-          gorsel,
+          govde,
         ],
       ),
     );
@@ -291,6 +360,88 @@ class _MascotState extends State<Mascot> with TickerProviderStateMixin {
         MascotMood.encouraging => 'cesaret veriyor',
         MascotMood.curious => 'merak ediyor',
       };
+}
+
+/// Devi'nin göz kapakları.
+///
+/// Render'daki kalp gözlerin yeri `devi.png` (512×512) üzerinde
+/// ölçüldü; görsel kare ve `BoxFit.contain` ile çizildiği için konumlar
+/// boyutla orantılı. Kapanırken vizör renginde iki kapak (üstten ve
+/// alttan) kalbi örtüyor; yarıdan sonra yerinde turkuaz, hafif parlayan
+/// mutlu bir "‿" beliriyor — robotun gözleri kapanınca sönen bir ekran
+/// değil, gülümseyen bir yüz.
+class _GozKapagi extends CustomPainter {
+  _GozKapagi(this.kapali);
+
+  /// 0 açık, 1 tamamen kapalı.
+  final double kapali;
+
+  /// (merkez x, merkez y, genişlik, yükseklik, üst renk, alt renk)
+  static const _gozler = [
+    (156.0, 263.0, 44.0, 44.0, Color(0xFF55552A), Color(0xFF34381A)),
+    (240.5, 253.5, 40.0, 42.0, Color(0xFF4E4422), Color(0xFF2E2E0A)),
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (kapali <= 0.001) return;
+    final k = size.shortestSide / 512;
+    final ox = (size.width - 512 * k) / 2;
+    final oy = (size.height - 512 * k) / 2;
+    for (final (cx, cy, w, h, ust, alt) in _gozler) {
+      final merkez = Offset(ox + cx * k, oy + cy * k);
+      final rect = Rect.fromCenter(center: merkez, width: w * k, height: h * k);
+      final yari = rect.height / 2 * kapali;
+      final kapak = Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [ust, alt],
+        ).createShader(rect)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 1.6 * k + 0.4);
+      canvas.save();
+      canvas.clipRRect(RRect.fromRectAndRadius(
+          rect.inflate(1.5 * k), Radius.circular(10 * k)));
+      canvas.drawRect(
+          Rect.fromLTRB(rect.left - 4, rect.top - 4, rect.right + 4,
+              rect.top + yari + 0.5),
+          kapak);
+      canvas.drawRect(
+          Rect.fromLTRB(rect.left - 4, rect.bottom - yari - 0.5,
+              rect.right + 4, rect.bottom + 4),
+          kapak);
+      canvas.restore();
+
+      // Kapalı göz: mutlu bir kavis.
+      final gor = ((kapali - 0.55) / 0.45).clamp(0.0, 1.0);
+      if (gor > 0) {
+        final yol = Path()
+          ..moveTo(merkez.dx - w * 0.34 * k, merkez.dy - 1.5 * k)
+          ..quadraticBezierTo(merkez.dx, merkez.dy + h * 0.30 * k,
+              merkez.dx + w * 0.34 * k, merkez.dy - 1.5 * k);
+        canvas.drawPath(
+          yol,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeCap = StrokeCap.round
+            ..strokeWidth = 7 * k
+            ..color = const Color(0xFF7FF6F0).withValues(alpha: 0.45 * gor)
+            ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3 * k + 0.5),
+        );
+        canvas.drawPath(
+          yol,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeCap = StrokeCap.round
+            ..strokeWidth = 4.2 * k
+            ..color = const Color(0xFFD8FFFC).withValues(alpha: gor),
+        );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_GozKapagi old) => old.kapali != kapali;
 }
 
 /// Devi + konuşma balonu.
