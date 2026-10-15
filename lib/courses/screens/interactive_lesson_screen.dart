@@ -17,6 +17,9 @@ import '../../ui/press_button.dart';
 import '../../widgets/cikis_penceresi.dart';
 import '../../services/sound_service.dart';
 import '../../utils/lang.dart';
+import '../../widgets/mascot.dart';
+import '../data/course_modules.dart';
+import '../tanitim/kurs_kapanis_ekrani.dart';
 
 /// Modern, Interactive Lesson Screen
 /// FreeCodeCamp-inspired step-by-step learning experience
@@ -127,24 +130,46 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
     // acilmamis olsa bile), sunucu kismini dersTamamlandi kendisi atliyor.
     await authProvider.dersTamamlandi(widget.lesson.id, totalXp);
 
+    // KURS BITTI MI? Son ders bittiyse ve kapanis daha once
+    // gosterilmediyse, "Harika!"dan sonra kurs sayfasina degil kapanis
+    // torenine gidiliyor. Kontrol burada (kurs sayfasinda degil), cunku
+    // son ders ana sayfadan ya da yol seridinden de acilabiliyor.
+    final kapanis = await KursKapanisEkrani.gosterilmeli(
+        widget.course.id, authProvider.tamamlananDersler);
+
     // Show completion dialog
     if (mounted) {
-      _showCompletionDialog(totalXp);
+      _showCompletionDialog(totalXp, kapanis: kapanis);
     }
   }
 
-  void _showCompletionDialog(int totalXp) {
+  void _showCompletionDialog(int totalXp, {bool kapanis = false}) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => _LessonCompleteDialog(
+      builder: (dialogContext) => _LessonCompleteDialog(
         course: widget.course,
         lesson: widget.lesson,
         totalXp: totalXp,
         badge: widget.lesson.badge,
+        onDevam: kapanis
+            ? () {
+                Navigator.pop(dialogContext);
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (ctx) => KursKapanisEkrani.kur(ctx, widget.course),
+                ));
+              }
+            : null,
       ),
     );
   }
+
+  /// Dersin kurs icindeki sirasi (1'den). Kursta yoksa null.
+  late final int? _dersNo = () {
+    final i = CourseModules.allLessons(widget.course.id)
+        .indexWhere((l) => l.id == widget.lesson.id);
+    return i < 0 ? null : i + 1;
+  }();
 
   @override
   Widget build(BuildContext context) {
@@ -281,6 +306,11 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
   }
 
   Widget _buildProgressBar() {
+    // ADIM ADIM ILERLEME. Kisa derslerde (en fazla 16 adim) cubuk adim
+    // sayisi kadar parcaya bolunuyor: cocuk "kac adim kaldi"yi sayabiliyor.
+    // Yukseklik ayni (6), yani adim degisince hicbir sey kaymiyor.
+    final n = widget.lesson.steps.length;
+    if (n > 1 && n <= 16) return _buildStepSegments(n);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       height: 6,
@@ -315,6 +345,38 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
     );
   }
 
+  Widget _buildStepSegments(int n) {
+    final renk = widget.course.primaryColor;
+    final renk2 = widget.course.secondaryColor;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SizedBox(
+        height: 6,
+        child: Row(
+          children: [
+            for (var i = 0; i < n; i++) ...[
+              if (i > 0) const SizedBox(width: 4),
+              Expanded(
+                child: AnimatedContainer(
+                  key: ValueKey('ders_adim_parcasi_$i'),
+                  duration: Motion.reduced(context)
+                      ? Duration.zero
+                      : Motion.medium2,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(3),
+                    color: i <= _currentStepIndex
+                        ? Color.lerp(renk, renk2, n == 1 ? 0 : i / (n - 1))
+                        : renk.withValues(alpha: 0.18),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildStepContent(bool isDark) {
     final step = _currentStep;
 
@@ -337,6 +399,8 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           step: step as IntroStep,
           course: widget.course,
           isDark: isDark,
+          lesson: widget.lesson,
+          dersNo: _dersNo,
           onComplete: () => _onStepCompleted(),
         );
 
@@ -590,11 +654,17 @@ class _LessonCompleteDialog extends StatefulWidget {
   final int totalXp;
   final String? badge;
 
+  /// "Harika!" tusu. Verilmezse pencere ve ders ekrani kapanir (kurs
+  /// sayfasina donulur); kurs bittiyse ders ekrani kapanis torenini
+  /// veriyor.
+  final VoidCallback? onDevam;
+
   const _LessonCompleteDialog({
     required this.course,
     required this.lesson,
     required this.totalXp,
     this.badge,
+    this.onDevam,
   });
 
   @override
@@ -678,7 +748,12 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _enter(0, const Text('🎉', style: TextStyle(fontSize: 66))),
+              // Kutlamayi Devi yapiyor (emoji degil): uygulamanin her
+              // yerinde ayni karakter.
+              _enter(
+                  0,
+                  const Mascot(
+                      size: 84, mood: MascotMood.happy, showShadow: false)),
               const SizedBox(height: 14),
               _enter(
                 1,
@@ -811,10 +886,11 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
                 label: lessonText(lang, 'Harika!', 'Awesome!', 'Super!', '¡Genial!'),
                 color: widget.course.primaryColor,
                 height: 52,
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                },
+                onPressed: widget.onDevam ??
+                    () {
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    },
               ),
             ),
           ],
@@ -844,7 +920,7 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
 
   String _getBadgeEmoji(String badgeId) {
     final badges = {
-      'scratch_starter': '🐱',
+      'scratch_starter': '🧩',
       'first_code': '💻',
       'loop_master': '🔄',
       'condition_wizard': '🧙',

@@ -11,6 +11,9 @@ import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
 import '../data/course_modules.dart';
 import 'interactive_lesson_screen.dart';
+import '../tanitim/kurs_acilis_ekrani.dart';
+import '../tanitim/kurs_kapanis_ekrani.dart';
+import '../tanitim/kurs_tanitimi.dart';
 import 'module_quiz_screen.dart';
 import '../../services/sound_service.dart';
 import 'widgets/step_widgets.dart'
@@ -407,6 +410,62 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
               ),
             ),
           ),
+          if (KursTanitimi.acik(widget.course.id))
+            _tanitimBaglantilari(devam?.durum == KursDurumu.bitti),
+        ],
+      ),
+    );
+  }
+
+  /// Ana tusun altindaki kucuk baglantilar: acilisi tekrar izle; kurs
+  /// bittiyse kapanisi (sertifika) tekrar ac. Yalnizca acilis/kapanis
+  /// acik kurslarda (simdilik Scratch).
+  Widget _tanitimBaglantilari(bool bitti) {
+    final lang = lessonLang(context);
+    final renk = widget.course.primaryColor;
+    Widget baglanti(Key k, IconData ikon, String yazi, VoidCallback onTap) =>
+        TextButton.icon(
+          key: k,
+          onPressed: onTap,
+          icon: Icon(ikon, size: 18),
+          label: Text(
+            yazi,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+          ),
+          style: TextButton.styleFrom(
+            foregroundColor: renk,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+          ),
+        );
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 4,
+        children: [
+          baglanti(
+            const ValueKey('tanitimi_tekrar_izle'),
+            Icons.play_circle_outline_rounded,
+            lessonText(lang, 'Tanıtımı tekrar izle', 'Watch the intro again',
+                'Intro noch einmal ansehen', 'Ver la introducción otra vez'),
+            () => KursAcilisEkrani.ac(context, widget.course, tekrar: true),
+          ),
+          if (bitti)
+            baglanti(
+              const ValueKey('kapanisi_tekrar_ac'),
+              Icons.workspace_premium_rounded,
+              lessonText(lang, 'Sertifikan', 'Your certificate',
+                  'Dein Zertifikat', 'Tu certificado'),
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) =>
+                      KursKapanisEkrani.kur(ctx, widget.course, tekrar: true),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -429,12 +488,20 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
             color: Colors.grey.shade600,
           ),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: color,
+        // Kurs bitince "XP: 1260 / 1260" dar ekranda tasiyordu; sigmazsa
+        // kuculuyor.
+        Flexible(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
           ),
         ),
       ],
@@ -985,6 +1052,19 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
       // Saglayici yoksa ilerleme de yok: ilk ders.
     }
     final devam = KursDevam.hesapla(widget.course.id, biten);
+
+    // ACILIS SAHNESI: kursa ilk kez baslayan cocuga, 1. dersten once bir
+    // kez. Kursta tek ders bile bitmisse (guncellemeden once baslamis
+    // cocuk) gosterilmiyor. Atlansa da bitse de ardindan 1. ders aciliyor;
+    // geri tusuyla cikilirsa kurs sayfasinda kaliniyor.
+    if (KursTanitimi.acik(widget.course.id) &&
+        (devam?.completedInCourse ?? 0) == 0 &&
+        !await KursTanitimDeposu.acilisGoruldu(widget.course.id)) {
+      if (!mounted) return;
+      final devamEt = await KursAcilisEkrani.ac(context, widget.course);
+      if (!devamEt || !mounted) return;
+    }
+
     final ders = devam?.lesson ??
         (_modules.isNotEmpty && _modules[0].lessons.isNotEmpty
             ? _modules[0].lessons.first

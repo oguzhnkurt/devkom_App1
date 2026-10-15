@@ -22,6 +22,7 @@ import '../../../ui/answer_feedback.dart';
 import '../../../ui/motion.dart';
 import '../../../ui/appear_in.dart';
 import '../../../ui/press_button.dart';
+import '../../../widgets/mascot.dart';
 import 'calisma_izi.dart';
 import '../../yurutme/blok_yorumlayici.dart';
 
@@ -58,12 +59,21 @@ class IntroStepWidget extends StatefulWidget {
   final bool isDark;
   final VoidCallback onComplete;
 
+  /// Verilirse balonun ustunde dersin kimlik seridi: "Ders 1 · 9 adim ·
+  /// +50 XP · Rozet". Ders ekrani veriyor; olcum testleri vermiyor.
+  final InteractiveLesson? lesson;
+
+  /// Dersin kurs icindeki sirasi (1'den baslar).
+  final int? dersNo;
+
   const IntroStepWidget({
     super.key,
     required this.step,
     required this.course,
     required this.onComplete,
     this.isDark = false,
+    this.lesson,
+    this.dersNo,
   });
 
   @override
@@ -166,11 +176,24 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
                         ),
                       ],
                     ),
+                    // ROBOT EMOJISI YERINE DEVI.
+                    //
+                    // Emoji verilmemis acilis adimi (modelde varsayilan
+                    // robot emojisi) ya da acikca robot isteyen adim
+                    // uygulamanin robot maskotuyla aciliyor. Konuya ait
+                    // emojiler (dilin kendisinin konustugu "Ben Java"
+                    // gibi acilislar) oldugu gibi kaliyor.
                     child: Center(
-                      child: Text(
-                        widget.step.mascotEmoji ?? widget.course.icon,
-                        style: const TextStyle(fontSize: 64),
-                      ),
+                      child: _deviMi(widget.step.mascotEmoji)
+                          ? const Mascot(
+                              size: 112,
+                              mood: MascotMood.happy,
+                              showShadow: false,
+                            )
+                          : Text(
+                              widget.step.mascotEmoji!,
+                              style: const TextStyle(fontSize: 64),
+                            ),
                     ),
                   ),
                 ),
@@ -179,6 +202,19 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
           ),
         ),
         const SizedBox(height: 8),
+
+        if (widget.lesson != null) ...[
+          AppearIn(
+            delay: const Duration(milliseconds: 60),
+            child: _DersKimligi(
+              lesson: widget.lesson!,
+              dersNo: widget.dersNo,
+              accent: accent,
+              isDark: widget.isDark,
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
 
         // --- Konusma balonu
         AppearIn(
@@ -290,6 +326,86 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
             ),
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// Acilis adiminda emoji yerine Devi mi cizilecek?
+bool _deviMi(String? emoji) => emoji == null || emoji == '🤖';
+
+/// Ders acilisindaki kimlik seridi: ders no, adim sayisi, XP, rozet.
+///
+/// Wrap: dar ekranda ve Almancada alt satira iner, tasmaz.
+class _DersKimligi extends StatelessWidget {
+  const _DersKimligi({
+    required this.lesson,
+    required this.dersNo,
+    required this.accent,
+    required this.isDark,
+  });
+
+  final InteractiveLesson lesson;
+  final int? dersNo;
+  final Color accent;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = lessonLang(context);
+    final n = lesson.steps.length;
+    Widget hap(IconData ikon, String yazi, Color renk, {bool dolu = false}) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: dolu
+              ? renk
+              : renk.withValues(alpha: isDark ? 0.22 : 0.12),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(ikon, size: 15, color: dolu ? Colors.white : renk),
+            const SizedBox(width: 5),
+            Text(
+              yazi,
+              style: TextStyle(
+                fontFamily: AppTheme.fontFamily,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w800,
+                color: dolu ? Colors.white : renk,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 8,
+      runSpacing: 6,
+      children: [
+        if (dersNo != null)
+          hap(
+              Icons.menu_book_rounded,
+              lessonText(lang, 'Ders $dersNo', 'Lesson $dersNo',
+                  'Lektion $dersNo', 'Lección $dersNo'),
+              accent,
+              dolu: true),
+        hap(
+            Icons.flag_rounded,
+            lessonText(lang, '$n adım', '$n steps', '$n Schritte',
+                '$n pasos'),
+            accent),
+        hap(Icons.star_rounded, '+${lesson.xpReward} XP',
+            const Color(0xFFE09A00)),
+        if (lesson.badge != null)
+          hap(
+              Icons.workspace_premium_rounded,
+              lessonText(lang, 'Rozet', 'Badge', 'Abzeichen', 'Insignia'),
+              const Color(0xFF8E5BE8)),
       ],
     );
   }

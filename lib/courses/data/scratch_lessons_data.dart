@@ -29,11 +29,13 @@ class ScratchLessonsData {
         // Step 1: Fun intro with mascot
         IntroStep(
           id: 's1_1_intro',
-          mascotEmoji: '🐱',
-          mascotMessage: 'Merhaba! Ben Scratch kedisi! Seninle birlikte harika oyunlar ve animasyonlar yapacağız. Hazır mısın?',
-          mascotMessageEn: 'Hi! I am the Scratch Cat. Together we are going to make great games and animations. Ready?',
-          mascotMessageDe: 'Hallo! Ich bin die Scratch-Katze. Zusammen machen wir tolle Spiele und Animationen. Bereit?',
-          mascotMessageEs: '¡Hola! Soy el Gato de Scratch. Juntos vamos a crear juegos y animaciones geniales. ¿Listo?',
+          // Emoji verilmiyor: acilisi Devi yapiyor (IntroStepWidget,
+          // emoji verilmeyince maskotu ciziyor). Scratch Kedisi Scratch
+          // Foundation'in tescilli karakteri; uygulamada konusturulmuyor.
+          mascotMessage: 'Merhaba, ben Devi! Bu kursta Scratch ile birlikte oyunlar ve animasyonlar yapacağız. İlk dersimizde Scratch\'i tanıyoruz. Hazır mısın?',
+          mascotMessageEn: "Hi, I'm Devi! In this course we'll make games and animations with Scratch. In our first lesson we get to know Scratch. Ready?",
+          mascotMessageDe: 'Hallo, ich bin Devi! In diesem Kurs machen wir mit Scratch Spiele und Animationen. In der ersten Lektion lernen wir Scratch kennen. Bereit?',
+          mascotMessageEs: '¡Hola, soy Devi! En este curso haremos juegos y animaciones con Scratch. En la primera lección conocemos Scratch. ¿Listo?',
           highlights: [
             'Kod yazmadan programla',
             'Oyun ve animasyon yap',
@@ -111,7 +113,7 @@ class ScratchLessonsData {
             ChoiceOption(text: 'Sadece oyun', textEn: 'Only games', textDe: 'Nur Spiele', textEs: 'Solo juegos', emoji: '🎮'),
             ChoiceOption(text: 'Sadece animasyon', textEn: 'Only animations', textDe: 'Nur Animationen', textEs: 'Solo animaciones', emoji: '🎬'),
             ChoiceOption(text: 'Oyun, animasyon, hikâye ve daha fazlası!', textEn: 'Games, animations, stories and more!', textDe: 'Spiele, Animationen, Geschichten und mehr!', textEs: '¡Juegos, animaciones, historias y mucho más!', emoji: '🌟'),
-            ChoiceOption(text: 'Hiçbir şey', textEn: 'Nothing', textDe: 'Nothing', textEs: 'Nothing'),
+            ChoiceOption(text: 'Hiçbir şey', textEn: 'Nothing', textDe: 'Gar nichts', textEs: 'Nada'),
           ],
           correctIndex: 2,
           explanation: 'Doğru! Scratch ile oyun, animasyon, interaktif hikâye, müzik ve çok daha fazlasını yapabilirsin!',
@@ -128,7 +130,7 @@ class ScratchLessonsData {
           titleEn: 'The Stage and the Sprite',
           titleDe: 'Die Bühne und die Figur',
           titleEs: 'El escenario y el objeto',
-          content: 'Scratch\'ta iki önemli kavram var:\n\n🎭 Kukla (Sprite): Karakterin - hareket eden, konusan şey\n🎪 Sahne (Stage): Kuklanın oynadigi alan',
+          content: 'Scratch\'ta iki önemli kavram var:\n\n🎭 Kukla (Sprite): Karakterin - hareket eden, konuşan şey\n🎪 Sahne (Stage): Kuklanın oynadığı alan',
           contentEn: 'There are two important words in Scratch:\n\n🎭 Sprite: your character — the thing that moves and talks\n🎪 Stage: the area where the sprite performs',
           contentDe: 'In Scratch gibt es zwei wichtige Wörter:\n\n🎭 Figur: deine Spielfigur — das, was sich bewegt und spricht\n🎪 Bühne: der Bereich, auf dem die Figur auftritt',
           contentEs: 'En Scratch hay dos palabras importantes:\n\n🎭 Objeto: tu personaje, lo que se mueve y habla\n🎪 Escenario: la zona donde actúa el objeto',
@@ -148,7 +150,7 @@ class ScratchLessonsData {
         // Step 5: Drag & Drop - Match concepts
         DragDropStep(
           id: 's1_1_dd1',
-          instruction: 'Kavramları doğru kutulara suruklе!',
+          instruction: 'Kavramları doğru kutulara sürükle!',
           instructionEn: 'Drag each word into the right box!',
           instructionDe: 'Zieh jedes Wort in das richtige Feld!',
           instructionEs: '¡Arrastra cada palabra a la casilla correcta!',
@@ -182,7 +184,7 @@ class ScratchLessonsData {
           titleEn: 'Kinds of Block',
           titleDe: 'Arten von Blöcken',
           titleEs: 'Tipos de bloques',
-          content: 'Scratch\'ta her renk farklı bir is yapar:',
+          content: 'Scratch\'ta her renk farklı bir iş yapar:',
           contentEn: 'In Scratch every colour does a different job:',
           contentDe: 'In Scratch hat jede Farbe eine andere Aufgabe:',
           contentEs: 'En Scratch cada color hace un trabajo distinto:',
@@ -246,13 +248,13 @@ class ScratchLessonsData {
           questionDe: 'Mit welcher Blockfarbe bringst du eine Figur zum Bewegen?',
           questionEs: '¿Qué color de bloque usas para mover un objeto?',
           options: [
-            ChoiceOption(text: 'Mor', textEn: 'Purple', textDe: 'Purple', textEs: 'Purple', emoji: '🟣'),
-            ChoiceOption(text: 'Mavi', textEn: 'Blue', textDe: 'Blue', textEs: 'Blue', emoji: '🔵'),
-            ChoiceOption(text: 'Sarı', textEn: 'Yellow', textDe: 'Yellow', textEs: 'Yellow', emoji: '🟡'),
-            ChoiceOption(text: 'Yeşil', textEn: 'Green', textDe: 'Green', textEs: 'Green', emoji: '🟢'),
+            ChoiceOption(text: 'Mor', textEn: 'Purple', textDe: 'Lila', textEs: 'Morado', emoji: '🟣'),
+            ChoiceOption(text: 'Mavi', textEn: 'Blue', textDe: 'Blau', textEs: 'Azul', emoji: '🔵'),
+            ChoiceOption(text: 'Sarı', textEn: 'Yellow', textDe: 'Gelb', textEs: 'Amarillo', emoji: '🟡'),
+            ChoiceOption(text: 'Yeşil', textEn: 'Green', textDe: 'Grün', textEs: 'Verde', emoji: '🟢'),
           ],
           correctIndex: 1,
-          explanation: 'Mavi bloklar hareket içindir! Kuklayı yukarı, aşağı, sağa, sola - nereye istersen gotur.',
+          explanation: 'Mavi bloklar hareket içindir! Kuklayı yukarı, aşağı, sağa, sola - nereye istersen götür.',
           explanationEn: 'Blue blocks are for motion. Move your sprite up, down, left, right — anywhere you like.',
           explanationDe: 'Blaue Blöcke sind für Bewegung. Bewege deine Figur nach oben, unten, links, rechts — wohin du willst.',
           explanationEs: 'Los bloques azules son de movimiento. Mueve tu objeto arriba, abajo, a la izquierda, a la derecha, donde quieras.',
@@ -318,11 +320,10 @@ class ScratchLessonsData {
       steps: [
         IntroStep(
           id: 's1_2_intro',
-          mascotEmoji: '🐱',
-          mascotMessage: 'Şimdi beni yürüteceksin! Hazır mısın? Çok heyecanlandım!',
-          mascotMessageEn: 'Now you are going to make me walk! Ready? I am so excited!',
-          mascotMessageDe: 'Jetzt bringst du mich zum Laufen! Bereit? Ich freu mich so!',
-          mascotMessageEs: '¡Ahora vas a hacerme caminar! ¿Listo? ¡Qué emoción!',
+          mascotMessage: 'Şimdi ilk programını yazıp kuklayı yürüteceksin! Hazır mısın? Çok heyecanlandım!',
+          mascotMessageEn: "Now you'll write your first program and make the sprite walk! Ready? I'm so excited!",
+          mascotMessageDe: 'Jetzt schreibst du dein erstes Programm und bringst die Figur zum Laufen! Bereit? Ich freu mich so!',
+          mascotMessageEs: '¡Ahora escribirás tu primer programa y harás caminar al objeto! ¿Listo? ¡Qué emoción!',
         ),
 
         // Explain green flag
@@ -3078,10 +3079,10 @@ class ScratchLessonsData {
           questionDe: 'Welche Farbe haben die Klangblöcke?',
           questionEs: '¿De qué color son los bloques de sonido?',
           options: [
-            ChoiceOption(text: 'Mavi', textEn: 'Blue', textDe: 'Blue', textEs: 'Blue', emoji: '🔵'),
+            ChoiceOption(text: 'Mavi', textEn: 'Blue', textDe: 'Blau', textEs: 'Azul', emoji: '🔵'),
             ChoiceOption(text: 'Pembe', textEn: 'Pink', textDe: 'Pink', textEs: 'Pink', emoji: '🩷'),
-            ChoiceOption(text: 'Mor', textEn: 'Purple', textDe: 'Purple', textEs: 'Purple', emoji: '🟣'),
-            ChoiceOption(text: 'Yeşil', textEn: 'Green', textDe: 'Green', textEs: 'Green', emoji: '🟢'),
+            ChoiceOption(text: 'Mor', textEn: 'Purple', textDe: 'Lila', textEs: 'Morado', emoji: '🟣'),
+            ChoiceOption(text: 'Yeşil', textEn: 'Green', textDe: 'Grün', textEs: 'Verde', emoji: '🟢'),
           ],
           correctIndex: 1,
           explanation: 'Ses blokları PEMBE renktedir!',
