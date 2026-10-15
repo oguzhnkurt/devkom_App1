@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../../../theme.dart';
 import '../../../ui/motion.dart';
+import '../../../services/sound_service.dart';
 import '../../../ui/press_button.dart';
 import '../../../utils/lang.dart';
 import '../../../widgets/block_animation_player.dart';
@@ -114,20 +115,26 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
     _calisanSira.value = null;
   }
 
-  void _degisti(VoidCallback fn) {
+  void _degisti(VoidCallback fn, {bool oturdu = false}) {
     setState(() {
       fn();
       _imlec = _imlec.clamp(0, _kod.length);
       _kapat();
     });
-    HapticFeedback.lightImpact();
+    // Blok yerine oturduysa her yerde ayni kisa "tok" (titresim dahil);
+    // silme ve sayi degistirme yalnizca titresim.
+    if (oturdu) {
+      SoundService.playBlokTak();
+    } else {
+      HapticFeedback.lightImpact();
+    }
     widget.onKodDegisti?.call(kod);
   }
 
   void _ekle(ScratchBlock b, {int? hedef}) {
     _degisti(() {
       _imlec = KodYapisi.ekle(_kod, hedef ?? _imlec, b);
-    });
+    }, oturdu: true);
   }
 
   void _sil(int i) => _degisti(() {
@@ -148,7 +155,7 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
     _degisti(() {
       final yeni = KodYapisi.tasi(_kod, t.kaynak!, hedef, _cMi);
       if (yeni != null) _imlec = yeni + 1;
-    });
+    }, oturdu: true);
   }
 
   Future<void> _sayi(int i) async {

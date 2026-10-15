@@ -735,7 +735,7 @@ class _MerhabaState extends State<_Merhaba>
   }
 
   List<String> get _sozler => [
-        widget.t('Merhaba! Ben Devi 👋', 'Hi! I am Devi 👋',
+        widget.t('Merhaba! Ben Devi 👋', "Hi! I'm Devi 👋",
             'Hallo! Ich bin Devi 👋', '¡Hola! Soy Devi 👋'),
         widget.t('Hihi, gıdıklanıyorum! 😄', 'Hehe, that tickles! 😄',
             'Hihi, das kitzelt! 😄', '¡Jiji, me haces cosquillas! 😄'),

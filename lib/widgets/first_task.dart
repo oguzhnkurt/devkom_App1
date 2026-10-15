@@ -112,11 +112,16 @@ class _FirstTaskState extends State<FirstTask>
       _hovering = false;
       _tries++;
     });
-    // UYGULAMADAKI ILK BASARI.
+    // UYGULAMADAKI ILK BASARI — ama MUZIK DEGIL.
     //
-    // Buraya kadar hicbir ses yoktu: cocuk ilk isini bitiriyor ve
-    // ekrandan tek duydugu sey titresimdi. Bu ses bir kere duyuluyor.
-    SoundService.playIlkBasari();
+    // Burada bir sure uc saniyelik bir big band kutlamasi caliyordu;
+    // kullanici "bloklar birlesince calan muzigi begenmedim, daha basit
+    // bir ses koy" dedi. Simdi her yerde blok oturunca duyulan ayni
+    // kisa "tok" sesi, ardindan iki notalik kucuk bir "tamam".
+    SoundService.playBlokTak();
+    Future.delayed(const Duration(milliseconds: 160), () {
+      if (mounted) SoundService.playBlokTamam();
+    });
     if (!Motion.reduced(context)) _celebrate.forward(from: 0);
     // Kutlamanın görülmesi için kısa bir bekleme; hemen sayfa
     // değiştirmek çocuğun başardığını görmesine izin vermiyor.
@@ -157,18 +162,15 @@ class _FirstTaskState extends State<FirstTask>
           text: _snapped
               ? _t(
                   'İşte bu! Kodlama tam olarak bu — blokları birleştirmek.',
-                  'That is it! Coding is exactly this — snapping blocks together.',
-                  'Genau das ist es! Programmieren ist genau das — Blöcke zusammenstecken.',
+                  "That's it! Coding is exactly this — snapping blocks together.",
+                  'Super! Genau das ist Programmieren — Blöcke zusammenstecken.',
                   '¡Eso es! Programar es exactamente esto: unir bloques.')
-              // Karakterin adı SEÇİME göre değişiyor: çocuk Mia'yı
-              // seçtiyse "Selam, ben Mia" diyor. Adı elle yazmak, adı
-              // olan beş karakterle çelişirdi.
               : _t(
-                  'Selam, ben $mascotName. Şu iki bloğu birleştirir misin?',
-                  'Hi, I am $mascotName. Can you snap these two blocks '
+                  'Selam, ben $mascotName! Şu iki bloğu birleştirir misin?',
+                  "Hi, I'm $mascotName! Can you snap these two blocks "
                       'together?',
-                  'Hallo, ich bin $mascotName. Kannst du diese zwei Blöcke zusammenstecken?',
-                  'Hola, soy $mascotName. ¿Puedes unir estos dos bloques?'),
+                  'Hallo, ich bin $mascotName! Kannst du diese zwei Blöcke zusammenstecken?',
+                  '¡Hola, soy $mascotName! ¿Puedes unir estos dos bloques?'),
         ),
         const SizedBox(height: 28),
         Center(

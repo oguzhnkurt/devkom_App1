@@ -78,7 +78,6 @@ void main() {
     const yeniler = {
       'dogru_cevap': 1.0, // her soruda caliyor: kisa olmali
       'odul': 2.0, // ders sonu
-      'ilk_basari': 3.0, // bir kere duyuluyor
       'jeton': 1.5, // gorev odulu, oyunda puan
       'buyuk_basari': 3.0, // modul sinavi
       'oyun_bitti': 2.0,
@@ -120,7 +119,8 @@ void main() {
           File('lib/services/sound_service.dart').readAsStringSync();
       expect(servis.contains("_play('dogru_cevap')"), isTrue);
       expect(servis.contains("_play('odul')"), isTrue);
-      expect(servis.contains("_play('ilk_basari')"), isTrue);
+      expect(servis.contains("_play('ilk_basari')"), isFalse,
+          reason: 'Blok oturunca muzik caliyordu; kullanici istemedi.');
     });
 
     test('her ses dosyasi servis tarafindan CALINIYOR', () {
@@ -192,17 +192,59 @@ void main() {
     });
 
     test('ilk gorev ve ders sonu sesleri bagli', () {
-      expect(
-          File('lib/widgets/first_task.dart')
-              .readAsStringSync()
-              .contains('SoundService.playIlkBasari()'),
-          isTrue,
+      final ilk = File('lib/widgets/first_task.dart').readAsStringSync();
+      expect(ilk.contains('SoundService.playBlokTak()'), isTrue,
           reason: 'Acilistaki ilk surukle-birak hala sessiz.');
+      expect(ilk.contains('playIlkBasari'), isFalse);
       expect(
           File('lib/courses/screens/interactive_lesson_screen.dart')
               .readAsStringSync()
               .contains('SoundService.playOdul()'),
           isTrue);
+    });
+  });
+
+  group('blok oturma sesi', () {
+    // "Bloklar birlesince calan muzigi begenmedim, daha basit bir ses
+    // koy." Blok oturma ani kisa, yumusak ve HER YERDE ayni olmali;
+    // kutlama muzigi yalnizca ders/modul sonunda.
+    const bloklar = {'blok_tak': 0.15, 'blok_tamam': 0.6};
+
+    test('sesler kisa, mono 44.1 kHz ve yumusak', () {
+      double desibel(double oran) => 20 * math.log(oran) / math.ln10;
+      for (final g in bloklar.entries) {
+        final bytes = File('assets/sounds/${g.key}.wav').readAsBytesSync();
+        final v = bytes.buffer.asByteData();
+        expect(v.getUint16(22, Endian.little), 1);
+        expect(v.getUint32(24, Endian.little), 44100);
+        expect(String.fromCharCodes(bytes.sublist(36, 40)), 'data');
+        final n = v.getUint32(40, Endian.little) ~/ 2;
+        expect(n / 44100, lessThan(g.value), reason: '${g.key} uzun');
+        var tepe = 1;
+        for (var i = 0; i < n; i++) {
+          final o = v.getInt16(44 + i * 2, Endian.little).abs();
+          if (o > tepe) tepe = o;
+        }
+        expect(desibel(tepe / 32768), lessThan(-3.0),
+            reason: '${g.key} fazla yuksek');
+      }
+    });
+
+    test('blok oturan her yer ayni kisa sesi caliyor', () {
+      for (final yol in [
+        'lib/widgets/first_task.dart',
+        'lib/courses/tanitim/kurs_acilis_ekrani.dart',
+        'lib/courses/screens/widgets/step_widgets.dart',
+        'lib/courses/screens/widgets/scratch_tezgahi.dart',
+      ]) {
+        final k = File(yol).readAsStringSync();
+        expect(k.contains('SoundService.playBlokTak()'), isTrue,
+            reason: '$yol blok oturunca kisa sesi calmiyor');
+        expect(k.contains('playIlkBasari') || k.contains('playDrop()'),
+            isFalse,
+            reason: '$yol blok oturunca hala eski sesi caliyor');
+      }
+      expect(File('assets/sounds/ilk_basari.wav').existsSync(), isFalse);
     });
   });
 

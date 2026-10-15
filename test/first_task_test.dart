@@ -15,6 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:devkom_app/services/sound_service.dart';
 import 'package:devkom_app/widgets/first_task.dart';
 
 void main() {
@@ -57,5 +58,32 @@ void main() {
     expect(find.textContaining('rong'), findsNothing);
     expect(find.byIcon(Icons.error), findsNothing);
     expect(find.byIcon(Icons.close), findsNothing);
+  });
+
+  testWidgets('blok oturunca muzik degil kisa tok sesi caliyor',
+      (tester) async {
+    // "Bloklar birlesince calan muzigi begenmedim." Ilk gorev artik
+    // derslerle ayni kisa blok sesini ve kucuk bir "tamam"i caliyor.
+    final calinan = <String>[];
+    SoundService.setEnabled(false);
+    SoundService.debugOnPlay = calinan.add;
+    addTearDown(() {
+      SoundService.debugOnPlay = null;
+      SoundService.setEnabled(true);
+    });
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(body: Center(child: FirstTask(onSolved: (_) {}))),
+    ));
+    await tester.pump(const Duration(milliseconds: 300));
+    final drag = find.byType(Draggable<String>);
+    final target = find.byType(DragTarget<String>);
+    await tester.drag(drag, tester.getCenter(target) - tester.getCenter(drag));
+    await tester.pump(const Duration(milliseconds: 1200));
+
+    expect(calinan.first, 'blok_tak');
+    expect(calinan, contains('blok_tamam'));
+    expect(calinan, isNot(contains('ilk_basari')));
+    expect(calinan, isNot(contains('buyuk_basari')));
+    expect(calinan, isNot(contains('odul')));
   });
 }

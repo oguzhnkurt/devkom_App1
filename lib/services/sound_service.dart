@@ -25,12 +25,15 @@ import 'package:flutter/services.dart';
 ///    yas icin yumusak bir "olmadi" tonu daha dogru.
 ///
 /// 2. GERCEK KAYITLAR (`tap`, `drop`, `dogru_cevap`, `odul`,
-///    `ilk_basari`, `jeton`, `buyuk_basari`, `oyun_bitti`,
+///    `jeton`, `buyuk_basari`, `oyun_bitti`,
 ///    `kilit_acildi`, `oyun_dogru`, `bolum_bitti`): satin alinan
 ///    oyun/uygulama ses paketinden
 ///    kirpildi. Hepsi tek kanal 44.1 kHz, RMS -18..-20 dB araliginda
 ///    normallendi (sentezlenmis ailenin ustune cikmasin diye) ve tepe
 ///    -1.5 dB'de sinirlandi. Uretim notu: `assets/sounds/NASIL_KIRPILDI.md`.
+///
+/// 3. SENTEZLENMIS BLOK SESLERI (`blok_tak`, `blok_tamam`): blok
+///    oturma ani icin kisa ve yumusak; bkz. [playBlokTak].
 ///
 /// Ses ve titresim ayrı ayrı kapatilabilir; ikisi de ayarlardaki
 /// anahtarlara bagli ([configure] ile guncelleniyor).
@@ -98,7 +101,15 @@ class SoundService {
   static bool get soundEnabled => _soundEnabled;
   static bool get vibrationEnabled => _vibrationEnabled;
 
+  /// Testler hangi sesin calindigini buradan dinliyor (dosya adi,
+  /// uzantisiz). Ses kapaliyken de cagriliyor: test ortaminda ses
+  /// eklentisi yok, ama hangi anin hangi sese baglandigi yine de
+  /// denetlenebilmeli.
+  @visibleForTesting
+  static void Function(String file)? debugOnPlay;
+
   static Future<void> _play(String file, {double gain = 1.0}) async {
+    debugOnPlay?.call(file);
     if (!_soundEnabled) return;
     try {
       final player = _pool[_next];
@@ -187,15 +198,35 @@ class SoundService {
     ]);
   }
 
-  /// Uygulamadaki ILK basari: acilistaki ilk surukle-birak gorevi.
+  /// BLOK YERINE OTURDU: kisa, yumusak bir tahta "tok" sesi.
   ///
-  /// Bir kere duyuluyor ve o yuzden digerlerinden farkli: cocugun
-  /// uygulamada yaptigi ilk is bu, ve "oldu" demenin en dogrudan yolu.
-  static Future<void> playIlkBasari() async {
+  /// Onceden acilistaki ilk gorev blok oturunca uc saniyelik bir big
+  /// band kutlamasi caliyordu (`ilk_basari`). Kullanici geri bildirimi
+  /// acik: "bloklar birlesince calan muzigi begenmedim, daha basit bir
+  /// ses koy". Blok birlestirmek uygulamada EN SIK yapilan is; her
+  /// seferinde muzik duymak hem yorucu hem de gercek kutlama anlarini
+  /// (ders/modul bitti) degersizlestiriyor.
+  ///
+  /// `blok_tak.wav` uygulama icin sentezlendi (bkz.
+  /// `assets/sounds/NASIL_KIRPILDI.md`): ~100 ms, hafif asagi kayan bir
+  /// perde, alcak bir govde tonu ve 1-2 ms'lik bir vurus. Kasitli olarak
+  /// alcak (0.7 kisma): "oturdu" demek icin, alkis icin degil.
+  ///
+  /// Her yerde ayni: acilistaki ilk gorev, kurs acilis sahnesi ve
+  /// derslerdeki blok kurma alanlari.
+  static Future<void> playBlokTak() async {
     await Future.wait([
-      _play('ilk_basari'),
-      _haptic(HapticFeedback.mediumImpact),
+      _play('blok_tak', gain: 0.7),
+      _haptic(HapticFeedback.lightImpact),
     ]);
+  }
+
+  /// Ilk gorev tamamlandi: iki notalik kucuk, yumusak bir "tamam".
+  ///
+  /// Muzik degil — 0,5 saniyenin altinda, marimba benzeri iki nota.
+  /// Yalnizca acilistaki ilk gorevde, blok sesinin hemen ardindan.
+  static Future<void> playBlokTamam() async {
+    await _play('blok_tamam', gain: 0.6);
   }
 
   /// Bir parca yerine oturdugunda (surukle-birak).

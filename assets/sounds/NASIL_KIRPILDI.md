@@ -32,7 +32,6 @@ Kaynak: `mobile-game-app-pack` (kullanıcı tarafından satın alındı,
 | `dogru_cevap.wav` | App Confirm | 0,85 sn | Ders sorusu doğru |
 | `odul.wav` | App Win | 1,80 sn | Ders bitti |
 | `buyuk_basari.wav` | Big Band Achievement | 2,90 sn | Modül sınavı bitti |
-| `ilk_basari.wav` | Big Band Celebration | 2,85 sn | Açılıştaki ilk görev |
 | `jeton.wav` | Collect Gold | 1,30 sn | Görev ödülü, oyunda puan |
 | `oyun_bitti.wav` | Cartoon Failure | 1,60 sn | Oyun bitti |
 | `oyun_dogru.wav` | Application Confirm | 0,55 sn | Oyunda doğru cevap |
@@ -65,3 +64,20 @@ kayıtlar transient taşıdığı için aynı RMS'te kulağa daha yüksek
 geliyor. İkisi yan yana çaldığında birinin diğerini bastırmaması
 için kayıtlar bir tık altta tutuldu. `sound_assets_test.dart` bu
 aralığı da denetliyor.
+
+## 3. Blok oturma sesleri — sentezlendi (Ekim 2026)
+
+Açılıştaki ilk görevde blok oturunca `ilk_basari.wav` (Big Band
+Celebration, 2,85 sn) çalıyordu. Kullanıcı: "bloklar birleşince çalan
+müziği beğenmedim, daha basit bir ses koy." Dosya **silindi**; blok
+oturma anı artık her yerde (ilk görev, kurs açılış sahnesi, derslerdeki
+blok kurma alanları) aynı kısa ses:
+
+| Dosya | Süre | Ne |
+|---|---|---|
+| `blok_tak.wav` | 0,10 sn | Yumuşak tahta "tok": 780 Hz'den hafif aşağı kayan sinüs (τ 18 ms), 390 Hz gövde (τ 30 ms), 2,15 kHz parlaklık (τ 6 ms), 1–2 ms yüksek geçirilmiş gürültü vuruşu; 1,5 ms giriş, 30 ms çıkış fade'i |
+| `blok_tamam.wav` | 0,48 sn | Yalnızca ilk görevde: iki notalık yumuşak marimba (Sol5 → Do6), müzik değil |
+
+İkisi de RMS −21 dB, tepe −6 dB'nin altında; kodda ayrıca 0,7 / 0,6
+kısılıyor. Üretim betiği numpy ile ~40 satır (sinüs + üstel zarf), dış
+kaynak yok.

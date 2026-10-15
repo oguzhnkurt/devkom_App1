@@ -17,7 +17,7 @@ class AppConstants {
 
   /// Asistan karsilama mesaji (Ingilizce)
   static const String aiWelcomeMessageEn =
-      'Hi! I am Devi, your coding buddy on DevEducation. I answer questions about '
+      "Hi! I'm Devi, your coding buddy on DevEducation. I answer questions about "
       'Scratch, Python, HTML, Arduino and robotics, plus XP, coins and games. '
       'What would you like to learn?';
 

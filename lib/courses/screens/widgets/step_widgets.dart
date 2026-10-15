@@ -1947,7 +1947,8 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
       }
       _calistirmayiKapat();
     });
-    HapticFeedback.lightImpact();
+    // Blok oturdu: her yerde ayni kisa "tok" (titresim dahil).
+    SoundService.playBlokTak();
     _checkAnswer();
   }
 
@@ -1973,7 +1974,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
       _placedBlocks.insert(yeni.clamp(0, _placedBlocks.length), id);
       _calistirmayiKapat();
     });
-    HapticFeedback.lightImpact();
+    SoundService.playBlokTak();
     _checkAnswer();
   }
 

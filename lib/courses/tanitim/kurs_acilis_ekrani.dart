@@ -145,8 +145,9 @@ class KursAcilisEkraniState extends State<KursAcilisEkrani>
   /// Blok yuvaya kondu (dokunarak ya da surukleyerek).
   void blokuYerlestir() {
     if (_yerlesti || _evre != AcilisEvresi.yerlestir) return;
-    HapticFeedback.mediumImpact();
-    SoundService.playDrop();
+    // Ilk gorevle ve derslerle ayni yumusak "tok": blok oturmasi bir
+    // kutlama degil (kutlama, program calisinca geliyor).
+    SoundService.playBlokTak();
     setState(() {
       _yerlesti = true;
       _evre = AcilisEvresi.calistir;
