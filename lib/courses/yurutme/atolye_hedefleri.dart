@@ -27,6 +27,10 @@ class AtolyeSonucu {
       kod.where((o) => !KodYapisi.isaretMi(o.id)).map((o) => o.id);
 }
 
+/// "cokgen" kendi blogunun yorumlayicidaki adi (ekranda gorunmuyor;
+/// blok_sozlugu.dart ile ayni).
+const String cokgenYordami = 'cokgen';
+
 /// Bir atolye hedefi: cocuga gorunen cumle ve denetimi.
 abstract class AtolyeHedefi {
   const AtolyeHedefi({
@@ -369,6 +373,23 @@ class CalistiHedefi extends AtolyeHedefi {
         s.yurutme.adimlar.map((a) => a.blokId).where(bloklar.contains);
     return (farkli ? calisan.toSet().length : calisan.length) >= enAz;
   }
+}
+
+/// Birden fazla denetimin HEPSI ("eger-degilse kullan VE iki koldan
+/// biri calissin"). Cocuga tek cumle gorunuyor.
+class VeHedefi extends AtolyeHedefi {
+  const VeHedefi({
+    required super.metin,
+    required super.metinEn,
+    required super.metinDe,
+    required super.metinEs,
+    required this.hepsi,
+  });
+
+  final List<AtolyeHedefi> hepsi;
+
+  @override
+  bool saglandi(AtolyeSonucu s) => hepsi.every((h) => h.saglandi(s));
 }
 
 /// Atolyenin kodunu calistirir ve her hedefin durumunu dondurur.

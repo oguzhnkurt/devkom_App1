@@ -25,6 +25,8 @@ import '../../../ui/appear_in.dart';
 import '../../../ui/press_button.dart';
 import '../../../widgets/mascot.dart';
 import 'calisma_izi.dart';
+import 'ic_ice_blok_adimi.dart';
+import 'scratch_tezgahi.dart';
 import '../../sahne/blok_tezgahi_karti.dart';
 import '../../sahne/scratch_sahnesi.dart';
 import '../../yurutme/blok_yorumlayici.dart';
@@ -1877,6 +1879,10 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
   /// yeniden zipliyor ve sozu degisiyor.
   int _denemeNo = 0;
 
+  /// Kac kez YANLIS bir tam dizi denendi: iki yanlistan sonra ipucu,
+  /// dorduncuden sonra cozum (bkz. [IlerleyenIpucu]).
+  int _yanlisSayisi = 0;
+
   /// Kac kez calistirildi. Sahneye anahtar olarak gidiyor: her basista
   /// sahne bastan oynuyor.
   int _calistirmaNo = 0;
@@ -2060,6 +2066,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
     // hicbir sey ogretmiyor.
     setState(() {
       _denemeNo++;
+      if (!correct) _yanlisSayisi++;
       _yanlisDizi = !correct;
       _dogruOnEk = onEk;
       if (correct) {
@@ -2113,6 +2120,19 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
     // Araliklar ekran boyuna gore. iPhone SE'de yonerge + hedef + kod
     // alani + palet birlikte ekrana sigmiyordu.
     final ara = EkranOlcusu.bosluk(context, 24);
+    // IC ICE ADIM (istege bagli): C blogu icindekileri sariyor, sayilar
+    // degisiyor, denetim yapiya ya da sonuca bakiyor. Eski adimlar
+    // (alan bos) asagidaki ekranla aynen calisiyor.
+    if (widget.step.icIce && scratchKursu(widget.course)) {
+      return IcIceBlokAdimi(
+        step: widget.step,
+        course: widget.course,
+        isDark: widget.isDark,
+        lang: lang,
+        onComplete: widget.onComplete,
+        onDevam: widget.onDevam,
+      );
+    }
     // Scratch kursu: acilis sahnesiyle ayni gorunum (Sahne karti +
     // "Bloklar | Kod alani" karti). Diger kurslar asagidaki eski duzende.
     if (scratchKursu(widget.course)) return _scratchDuzeni(lang, ara);
@@ -2599,6 +2619,15 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
           const SizedBox(height: 10),
           _yanlisUyarisi(lang),
         ],
+        if (!_completed && _yanlisSayisi >= IlerleyenIpucu.ipucuEsigi) ...[
+          const SizedBox(height: 10),
+          IlerleyenIpucu(
+            yanlis: _yanlisSayisi,
+            lang: lang,
+            ipucu: widget.step.ipucuFor(lang) ?? _ilkBlokIpucu(lang),
+            cozum: _duzCozum(lang),
+          ),
+        ],
         SizedBox(height: ara),
 
         // Buyuk dugme: yesil bayrakla ayni is (kucuk bayraga basmakta
@@ -2632,6 +2661,31 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         ],
       ],
     );
+  }
+
+  /// Adimin kendi ipucu yoksa: ilk blogu soyle (cevabin tamami degil).
+  String _ilkBlokIpucu(String lang) {
+    final id = widget.step.correctSequence.first;
+    final t = _scratchTanimi(
+        widget.step.availableBlocks.firstWhere((b) => b.id == id), lang);
+    final ad = t?.duzMetin ??
+        widget.step.availableBlocks.firstWhere((b) => b.id == id).labelFor(lang);
+    return lessonText(lang, 'Şu blokla başla: $ad', 'Start with this block: $ad',
+        'Fang mit diesem Block an: $ad', 'Empieza con este bloque: $ad');
+  }
+
+  /// Duz adimin cozumu, kod alanindaki gibi girintili (C blogundan
+  /// sonrakiler icinde).
+  List<String> _duzCozum(String lang) {
+    final out = <String>[];
+    var girinti = 0;
+    for (final id in widget.step.correctSequence) {
+      final b = widget.step.availableBlocks.firstWhere((x) => x.id == id);
+      final ad = _scratchTanimi(b, lang)?.duzMetin ?? b.labelFor(lang);
+      out.add('${'    ' * girinti}$ad');
+      if (b.shape == ScratchBlockShape.cBlock) girinti++;
+    }
+    return out;
   }
 
   /// Kod henuz calismadi: Devi zeminde bekliyor.

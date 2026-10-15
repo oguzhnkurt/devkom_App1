@@ -52,6 +52,8 @@ class BlockAnimationPlayer extends StatefulWidget {
     this.dogru = false,
     this.baslamaGecikmesi = Duration.zero,
     this.renk,
+    this.adimSiniri,
+    this.hiz = 1.0,
     this.scratch = false,
     this.sahne = false,
   });
@@ -90,6 +92,13 @@ class BlockAnimationPlayer extends StatefulWidget {
   /// Sahnenin vurgu rengi (kursun rengi). Verilmezse mavi.
   final Color? renk;
 
+  /// Sahnede oynatilacak en fazla adim (verilmezse [enFazlaAdim]).
+  /// Proje Atolyesi'nde cizimin TAMAMI gorunsun diye buyuk.
+  final int? adimSiniri;
+
+  /// Oynatma hizi (1 = normal). Uzun projeler hizli oynatiliyor.
+  final double hiz;
+
   /// Bitmeyen kodda ("surekli tekrarla") sahnede gosterilen adim: birkac
   /// tur yetiyor, otuz saniyelik bir dongu cocugu adimdan koparir.
   static const int sonsuzdaEnFazlaAdim = 12;
@@ -119,12 +128,14 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
       _yurutme.adimlar.length,
       _yurutme.butceBitti
           ? BlockAnimationPlayer.sonsuzdaEnFazlaAdim
-          : BlockAnimationPlayer.enFazlaAdim);
+          : (widget.adimSiniri ?? BlockAnimationPlayer.enFazlaAdim));
 
   /// Hareket animasyonu: [_onceki]'den [_hedef]'e. Kukla ve kalem cizgisi
   /// AYNI degeri okuyor, yani cizgi kuklanin tam arkasindan uzuyor.
   late final AnimationController _hareketC =
-      AnimationController(vsync: this, duration: _yurumeSuresi);
+      AnimationController(vsync: this, duration: _olc(_yurumeSuresi));
+
+  Duration _olc(Duration d) => d * (1 / widget.hiz);
 
   /// Yururken adim adim sallanma.
   late final AnimationController _adimC = AnimationController(
@@ -301,7 +312,7 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
         _tur = adim.tekrarNo;
       });
       widget.onAdim?.call(sira);
-      if (!await _bekle(_adimSuresi)) return;
+      if (!await _bekle(_olc(_adimSuresi))) return;
       // Calisan blok kod alanindakiyle cogu zaman ayni; kendi blogunun
       // govdesi calisirken (kare, cokgen) kod alaninda cagri parliyor,
       // sahnede ise govdedeki blok etki ediyor.
@@ -377,7 +388,7 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
       if (!_hareketAzalt) unawaited(_adimC.repeat(reverse: true));
       _hareketC.forward(from: 0);
     }
-    final ok = await _bekle(yuruyor ? _yurumeSuresi : _adimSuresi);
+    final ok = await _bekle(_olc(yuruyor ? _yurumeSuresi : _adimSuresi));
     if (!ok) return false;
     _adimC.stop();
     _adimC.value = 0;

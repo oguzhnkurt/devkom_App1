@@ -247,6 +247,10 @@ enum ScratchCParcasi {
   /// Yalnizca alt kol (ayak).
   alt,
 
+  /// Yalnizca "degilse" kolu (ic ice kod alani: eger-degilse blogunun
+  /// iki agzi arasindaki satir). [ScratchBlok.icDolu]: ust agiz dolu mu.
+  orta,
+
   /// C blogu tek satirlik yigin blok gibi (calisma sahnesindeki cip).
   bas,
 }
@@ -942,6 +946,27 @@ class ScratchBlokOlcer {
     return h;
   }
 
+  /// Satirdaki ILK beyaz ovalin (sayi girdisi) blogun sol ustune gore
+  /// yeri. Ic ice kod alani sayiya dokunmayi bununla yakaliyor. C
+  /// blogunda ust kola gore.
+  static Rect? ilkGirdi(ScratchBlokTanimi t, double olcek,
+      {bool silme = false}) {
+    final d = _BlokDuzeni(t, olcek, silme: silme);
+    var x = d.satir.solPay;
+    for (final g in d.satir.ogeler) {
+      if (g is _GirdiOge) {
+        return Rect.fromLTWH(
+            x, d.ustPay + (d.satirH - g.h) / 2, g.w, g.h);
+      }
+      x += g.w + 2 * _gu * olcek;
+    }
+    return null;
+  }
+
+  /// "Degilse" satirinin yuksekligi.
+  static double ortaYuksekligi(ScratchBlokTanimi t, double olcek) =>
+      _BlokDuzeni(t, olcek).ortaH;
+
   /// Alt tirnagin yuksekligi: son blogun altinda bu kadar pay birak.
   static double tirnakPayi(double olcek) => 2 * _gu * olcek;
 
@@ -1044,6 +1069,14 @@ class ScratchBlok extends StatelessWidget {
         return ust;
       case ScratchCParcasi.alt:
         return alt;
+      case ScratchCParcasi.orta:
+        if (tanim.degilse == null) return const SizedBox.shrink();
+        return CustomPaint(
+          size: Size(d.w, d.ortaH),
+          painter: _Boyaci(
+              (c) => d.cizOrta(c, Offset.zero, ustDolu: icDolu),
+              anahtar: 'o${tanim.duzMetin}|$s|$icDolu'),
+        );
       case ScratchCParcasi.bas:
       case ScratchCParcasi.tamami:
         Widget agiz(List<ScratchBlokTanimi> ic) => ScratchCSirti(
