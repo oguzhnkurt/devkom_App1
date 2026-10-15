@@ -220,7 +220,7 @@ class DeviTanismaState extends State<DeviTanisma>
                           // Kucuk ekranda (SE, buyuk yazi) Devi kuculuyor,
                           // balon hep tam okunuyor.
                           final deviBoy =
-                              (c.maxHeight * 0.44).clamp(120.0, 230.0);
+                              (c.maxHeight * 0.52).clamp(120.0, 320.0);
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -338,15 +338,15 @@ class DeviTanismaState extends State<DeviTanisma>
               ),
               if (_sayfa == 0)
                 Positioned(
-                  right: boy * 0.02,
-                  top: boy * 0.08,
+                  left: boy * 0.02,
+                  top: boy * 0.02,
                   child: Opacity(
                     opacity: ((g - 0.3) / 0.2).clamp(0.0, 1.0),
                     child: Transform.rotate(
                       angle: el * 0.35,
-                      alignment: Alignment.bottomLeft,
+                      alignment: Alignment.bottomRight,
                       child: Text('👋',
-                          style: TextStyle(fontSize: boy * 0.2)),
+                          style: TextStyle(fontSize: boy * 0.16)),
                     ),
                   ),
                 ),
@@ -360,6 +360,7 @@ class DeviTanismaState extends State<DeviTanisma>
             : MascotMood.idle,
         size: boy,
         blink: true,
+        showShadow: false,
       ),
     );
   }

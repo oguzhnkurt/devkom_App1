@@ -1076,6 +1076,8 @@ class _MaskotAdiPenceresiState extends State<MaskotAdiPenceresi> {
   Widget build(BuildContext context) {
     return AlertDialog(
       key: const ValueKey('maskot_adi_penceresi'),
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
       title: Column(
@@ -1119,6 +1121,7 @@ class _MaskotAdiPenceresiState extends State<MaskotAdiPenceresi> {
               textAlign: TextAlign.center,
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.done,
+              cursorColor: AppTheme.primaryBlue,
               onChanged: (_) => setState(() {}),
               onSubmitted: (_) => _kaydet(),
               style: const TextStyle(
@@ -1148,7 +1151,7 @@ class _MaskotAdiPenceresiState extends State<MaskotAdiPenceresi> {
                 label: Text(_t(context, "Devi'ye geri dön", 'Back to Devi',
                     'Zurück zu Devi', 'Volver a Devi')),
                 style: TextButton.styleFrom(
-                  foregroundColor: Mascot.tone.withValues(alpha: 1),
+                  foregroundColor: const Color(0xFFB8620A),
                   textStyle: const TextStyle(
                     fontFamily: AppTheme.fontFamily,
                     fontWeight: FontWeight.w800,
@@ -1162,6 +1165,7 @@ class _MaskotAdiPenceresiState extends State<MaskotAdiPenceresi> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
+          style: TextButton.styleFrom(foregroundColor: AppTheme.mediumGray),
           child: Text(_t(context, 'Vazgeç', 'Cancel', 'Abbrechen', 'Cancelar')),
         ),
         FilledButton(

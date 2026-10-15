@@ -378,8 +378,8 @@ class _GozKapagi extends CustomPainter {
 
   /// (merkez x, merkez y, genişlik, yükseklik, üst renk, alt renk)
   static const _gozler = [
-    (156.0, 263.0, 44.0, 44.0, Color(0xFF55552A), Color(0xFF34381A)),
-    (240.5, 253.5, 40.0, 42.0, Color(0xFF4E4422), Color(0xFF2E2E0A)),
+    (156.0, 263.0, 44.0, 44.0, Color(0xFF4A4C26), Color(0xFF30351A)),
+    (240.5, 253.5, 40.0, 42.0, Color(0xFF3A3618), Color(0xFF2A2B0C)),
   ];
 
   @override
@@ -398,10 +398,11 @@ class _GozKapagi extends CustomPainter {
           end: Alignment.bottomCenter,
           colors: [ust, alt],
         ).createShader(rect)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 1.6 * k + 0.4);
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 2.6 * k + 0.6);
       canvas.save();
+      // Oval kirpma: kose izi kalmasin, kapak vizorde erisin.
       canvas.clipRRect(RRect.fromRectAndRadius(
-          rect.inflate(1.5 * k), Radius.circular(10 * k)));
+          rect.inflate(2 * k), Radius.circular(rect.width / 2.2)));
       canvas.drawRect(
           Rect.fromLTRB(rect.left - 4, rect.top - 4, rect.right + 4,
               rect.top + yari + 0.5),
