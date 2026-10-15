@@ -33,7 +33,9 @@ import 'package:devkom_app/courses/screens/widgets/mblock_tezgahi.dart';
 import 'package:devkom_app/courses/screens/widgets/proje_atolyesi.dart';
 import 'package:devkom_app/courses/screens/widgets/scratch_tezgahi.dart';
 import 'package:devkom_app/courses/screens/widgets/step_widgets.dart';
+import 'package:devkom_app/courses/sahne/blok_tezgahi_karti.dart';
 import 'package:devkom_app/courses/sahne/mblock_sahnesi.dart';
+import 'package:devkom_app/courses/sahne/scratch_sahnesi.dart';
 import 'package:devkom_app/courses/yurutme/kod_yapisi.dart';
 import 'package:devkom_app/courses/yurutme/mblock_cozum.dart';
 import 'package:devkom_app/providers/auth_provider.dart';
@@ -69,10 +71,15 @@ Future<void> _fontlar() async {
 }
 
 Future<void> _kur(WidgetTester tester, Widget home,
-    {Size boy = const Size(390, 844), AuthProvider? auth}) async {
+    {Size boy = const Size(390, 844),
+    AuthProvider? auth,
+    Size? ekran,
+    double yazi = 1.0}) async {
   tester.view.physicalSize = Size(boy.width * 3, boy.height * 3);
   tester.view.devicePixelRatio = 3;
+  tester.platformDispatcher.textScaleFactorTestValue = yazi;
   addTearDown(tester.view.reset);
+  addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
   final ayar = SettingsProvider();
   await ayar.setLocale(const Locale('tr'));
   await tester.pumpWidget(MultiProvider(
@@ -95,7 +102,15 @@ Future<void> _kur(WidgetTester tester, Widget home,
         GlobalCupertinoLocalizations.delegate,
       ],
       theme: ThemeData(useMaterial3: true, fontFamily: 'Nunito'),
-      builder: (context, child) => RepaintBoundary(key: _key, child: child),
+      // [ekran]: yerlesim bu ekran boyuna gore; gorunum daha uzun
+      // (tam sayfa karesi).
+      builder: (context, child) => RepaintBoundary(
+          key: _key,
+          child: ekran == null
+              ? child
+              : MediaQuery(
+                  data: MediaQuery.of(context).copyWith(size: ekran),
+                  child: child!)),
       home: home,
     ),
   ));
@@ -464,5 +479,160 @@ void main() {
     await _bekle(tester, 800);
     await _cek(tester, '8_ilerleyen_ipucu');
     await _kapat(tester);
+  });
+
+  group('atolye yerlesim', () {
+    final dizin = Platform.environment['ATOLYE_YERLESIM_DIR'] ??
+        '/mnt/user-data/outputs/atolye_yerlesim';
+
+    Widget sayfa(Widget adim, {String baslik = 'Elma Yağmuru'}) => Scaffold(
+          backgroundColor: const Color(0xFFF6F7FB),
+          appBar: AppBar(
+            title: Text(baslik),
+            backgroundColor: _scratch.primaryColor,
+            foregroundColor: Colors.white,
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+            child: adim,
+          ),
+        );
+
+    Widget elma() => ProjeAtolyesiWidget(
+          step: ScratchAtolyeleri.elmaYagmuru,
+          course: _scratch,
+          isDark: false,
+          lang: 'tr',
+          onComplete: (_) {},
+          kayitli: KayitliProje(
+            id: 'k',
+            ad: 'Elma Yağmuru',
+            kursId: 'scratch',
+            adimId: ScratchAtolyeleri.elmaYagmuru.id,
+            kod: KodYapisi.coz(ScratchAtolyeleri.elmaYagmuru.ornekCozum),
+            tarih: DateTime(2026, 10, 15),
+          ),
+        );
+
+    /// Sayfanin [y] noktasi ekranin tepesine gelsin.
+    Future<void> kaydir(WidgetTester tester, double y) async {
+      final p = tester
+          .state<ScrollableState>(find.byType(Scrollable).first)
+          .position;
+      p.jumpTo(y.clamp(0, p.maxScrollExtent));
+      await _bekle(tester, 300);
+    }
+
+    testWidgets('1 5.1 430x932 tam sayfa', (tester) async {
+      // Yerlesim 430x932'ye gore; kare butun sayfayi gosteriyor.
+      await _kur(tester, sayfa(elma()),
+          boy: const Size(430, 1700), ekran: const Size(430, 932));
+      await _bekle(tester, 400);
+      await _cek(tester, '1_elma_430x932_tam_sayfa', dizin: dizin, oran: 1.5);
+      await _kapat(tester);
+    });
+
+    testWidgets('2 5.1 430x932 ekran: sahne + tezgah', (tester) async {
+      await _kur(tester, sayfa(elma()), boy: const Size(430, 932));
+      await kaydir(tester,
+          tester.getTopLeft(find.byType(ScratchTezgahi)).dy - 56 - 12 + 0);
+      await _cek(tester, '2_elma_430x932_sahne_tezgah', dizin: dizin);
+      await _kapat(tester);
+    });
+
+    testWidgets('3 5.1 375x667 kompakt', (tester) async {
+      await _kur(tester, sayfa(elma()), boy: const Size(375, 667));
+      await _cek(tester, '3a_elma_375x667_ust', dizin: dizin);
+      await kaydir(tester, tester.getTopLeft(find.byType(KategoriliTezgah)).dy -
+          56 - 80);
+      await _cek(tester, '3b_elma_375x667_tezgah', dizin: dizin);
+      await _kapat(tester);
+    });
+
+    testWidgets('4 5.1 360x640 yazi 1.3', (tester) async {
+      await _kur(tester, sayfa(elma()),
+          boy: const Size(360, 640), yazi: 1.3);
+      await _cek(tester, '4a_elma_360x640_yazi13_ust', dizin: dizin);
+      await kaydir(tester, tester.getTopLeft(find.byType(KategoriliTezgah)).dy -
+          56 - 16);
+      await _cek(tester, '4b_elma_360x640_yazi13_bloklar', dizin: dizin);
+      await tester.tap(find.byKey(const ValueKey('tezgah_sekme_kod')));
+      await _bekle(tester, 400);
+      await _cek(tester, '4c_elma_360x640_yazi13_kod', dizin: dizin);
+      await _kapat(tester);
+    });
+
+    testWidgets('5 kategori: Kontrol', (tester) async {
+      await _kur(tester, sayfa(elma()), boy: const Size(390, 844));
+      await kaydir(tester, tester.getTopLeft(find.byType(KategoriliTezgah)).dy -
+          56 - 120);
+      await tester.tap(find.byKey(const ValueKey('palet_kategori_kontrol')));
+      await _bekle(tester, 800);
+      await _cek(tester, '5_elma_kategori_kontrol', dizin: dizin);
+      await _kapat(tester);
+    });
+
+    testWidgets('6 ders blok kurma 375x667', (tester) async {
+      SharedPreferences.setMockInitialValues({'language_code': 'tr'});
+      final adim = _adim<BlockBuilderStep>('scratch', 's9_2_build1');
+      await _kur(
+          tester,
+          Scaffold(
+            backgroundColor: const Color(0xFFF6F7FB),
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 20),
+                child: BlockBuilderStepWidget(
+                    step: adim,
+                    course: _scratch,
+                    isDark: false,
+                    onComplete: (_) {}),
+              ),
+            ),
+          ),
+          boy: const Size(375, 667));
+      Future<void> p(String id) =>
+          _dokun(tester, find.byKey(ValueKey('palet_$id')));
+      await p('green_flag');
+      await p('if_score_low');
+      await kaydir(tester, tester.getTopLeft(find.byType(ScratchSahneKarti)).dy -
+          12);
+      await _cek(tester, '6a_ders_375x667_sahne', dizin: dizin);
+      await kaydir(tester, tester.getTopLeft(find.byType(KategoriliTezgah)).dy -
+          60);
+      await _cek(tester, '6b_ders_375x667_tezgah', dizin: dizin);
+      await _kapat(tester);
+    });
+
+    testWidgets('7 ic ice ders 375x667', (tester) async {
+      SharedPreferences.setMockInitialValues({'language_code': 'tr'});
+      final adim = _adim<BlockBuilderStep>('scratch', 's3_2_build1');
+      await _kur(
+          tester,
+          Scaffold(
+            backgroundColor: const Color(0xFFF6F7FB),
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 20),
+                child: BlockBuilderStepWidget(
+                    step: adim,
+                    course: _scratch,
+                    isDark: false,
+                    onComplete: (_) {}),
+              ),
+            ),
+          ),
+          boy: const Size(375, 667));
+      Future<void> p(String id) =>
+          _dokun(tester, find.byKey(ValueKey('palet_$id')));
+      await p('green_flag');
+      await p('set_time_5');
+      await p('repeat_5');
+      await p('wait_1s');
+      await kaydir(tester, tester.getTopLeft(find.byType(KategoriliTezgah)).dy -
+          60);
+      await _cek(tester, '7_ic_ice_375x667_tezgah', dizin: dizin);
+      await _kapat(tester);
+    });
   });
 }
