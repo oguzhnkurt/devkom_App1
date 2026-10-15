@@ -102,8 +102,44 @@ enum BlokKomutu {
   /// `rastgele konuma git` — sahnede rastgele bir yere gider.
   rastgeleKonum,
 
-  /// Gorunur bir etkisi olmayan ama akista yeri olan bloklar: ikiz
-  /// yaratma, ses. Adi soyleniyor, sahne degismiyor.
+  /// `x konumunu %1 yap` / `y konumunu %1 yap` — MUTLAK konum.
+  xAyarla,
+  yAyarla,
+
+  /// `%3 saniyede x: %1 y: %2 konumuna kay` — [BlokAnlami.sayi] x,
+  /// [BlokAnlami.sayi2] y, [BlokAnlami.saniye] sure. Proje motorunda
+  /// kukla kareler boyunca kayiyor; tek yiginli izde hedefe gidiyor.
+  kaydir,
+
+  /// `goster` / `gizle`. Gizli kukla cizilmiyor ve hicbir seye degmiyor.
+  goster,
+  gizle,
+
+  /// `kenara geldiyse sek` — sahnenin kenarina degen kukla yonunu
+  /// yansitip iceri donuyor.
+  kenardaSek,
+
+  /// `%1 e dogru yonel` — [BlokAnlami.kukla] adli kuklaya (ya da
+  /// `fare-imleci`ne) doner. Yalnizca proje motorunda anlamli.
+  yoneDogru,
+
+  /// Ses ve nota bloklari. Sahnede kuklanin yaninda kisa bir ♪ beliriyor;
+  /// [BlokAnlami.saniye] verilmisse ("0.5 vurus cal") betik o kadar
+  /// bekliyor.
+  ses,
+
+  /// `kendimin ikizini yarat` / `bu ikizi sil` (proje motoru).
+  ikizYarat,
+  ikizSil,
+
+  /// `tumunu durdur` — butun betikler o anda biter.
+  durdurHepsi,
+
+  /// `%1 haberini sal ve bekle` — alicilar bitene kadar bekler.
+  haberSalBekle,
+
+  /// Gorunur bir etkisi olmayan ama akista yeri olan bloklar. Adi
+  /// soyleniyor, sahne degismiyor.
   etkisiz,
 }
 
@@ -126,6 +162,9 @@ class BlokAnlami {
     this.listeRastgele,
     this.haber,
     this.tus,
+    this.algi,
+    this.kukla,
+    this.saniye,
   });
 
   final BlokKomutu komut;
@@ -178,10 +217,30 @@ class BlokAnlami {
   /// Tus sapkasi ([baslat]) icin tusun adi (`space`, `right`...).
   final String? tus;
 
+  /// [eger] icin ALGILAMA kosulu (proje motoru olcuyor):
+  ///
+  /// * `tus:right` — sag ok basili mi?
+  /// * `degiyor:Fare` — Fare adli kuklaya (ya da ikizine) degiyor mu?
+  /// * `degiyor:kenar`, `degiyor:fare-imleci`
+  /// * `renk:zemin` — zemin seridinin rengine degiyor mu?
+  ///
+  /// Tek yiginli izde (ders adimlari) ikinci bir kukla, klavye ya da
+  /// zemin yok: orada bu kosullar eskisi gibi DOGRU sayiliyor.
+  final String? algi;
+
+  /// [yoneDogru] icin hedef kuklanin adi.
+  final String? kukla;
+
+  /// [kaydir] ve [ses] icin sure (saniye).
+  final num? saniye;
+
   /// Sapkanin olayi: bayrak (null), tus, haber ya da kuklaya tiklama.
   /// Yalnizca [baslat] icin anlamli.
   bool get bayrakSapkasi => komut == BlokKomutu.baslat && haber == null &&
-      tus == null && !tiklama;
+      tus == null && !tiklama && !ikizSapkasi;
+
+  /// `ikiz olarak basladigimda` sapkasi.
+  bool get ikizSapkasi => komut == BlokKomutu.baslat && metin == 'ikiz';
 
   /// `bu kuklaya tiklandiginda` sapkasi.
   bool get tiklama => komut == BlokKomutu.baslat && metin == 'tikla';
@@ -200,6 +259,8 @@ class BlokAnlami {
       BlokKomutu.yonAyarla ||
       BlokKomutu.xDegistir ||
       BlokKomutu.yDegistir ||
+      BlokKomutu.xAyarla ||
+      BlokKomutu.yAyarla ||
       BlokKomutu.degiskenAta ||
       BlokKomutu.degiskenArtir ||
       BlokKomutu.bekle =>
@@ -227,6 +288,9 @@ class BlokAnlami {
         listeRastgele: listeRastgele,
         haber: haber,
         tus: tus,
+        algi: algi,
+        kukla: kukla,
+        saniye: saniye,
       );
 
   bool get cBlogu =>

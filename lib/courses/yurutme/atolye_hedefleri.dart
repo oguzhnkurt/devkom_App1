@@ -149,7 +149,7 @@ class KonumHedefi extends AtolyeHedefi {
 
   @override
   bool saglandi(AtolyeSonucu s) => herhangiAn
-      ? s.yurutme.adimlar.any((a) => _uyar(a.sahne))
+      ? s.yurutme.anaAdimlar.any((a) => _uyar(a.sahne))
       : _uyar(s.yurutme.sonSahne);
 }
 
@@ -375,6 +375,39 @@ class CalistiHedefi extends AtolyeHedefi {
   }
 }
 
+/// Ikizler: en az [enAz] ikiz yaratildi ve en az [enAzSilinen] ikiz
+/// kendini sildi (proje motoru sayiyor).
+class KlonHedefi extends AtolyeHedefi {
+  const KlonHedefi({
+    required super.metin,
+    required super.metinEn,
+    required super.metinDe,
+    required super.metinEs,
+    this.enAz = 1,
+    this.enAzSilinen = 0,
+  });
+
+  final int enAz;
+  final int enAzSilinen;
+
+  @override
+  bool saglandi(AtolyeSonucu s) =>
+      s.yurutme.klonSayisi >= enAz && s.yurutme.silinenKlon >= enAzSilinen;
+}
+
+/// Kod `tumunu durdur` ile bitti (oyun kendini bitiriyor).
+class DurduHedefi extends AtolyeHedefi {
+  const DurduHedefi({
+    required super.metin,
+    required super.metinEn,
+    required super.metinDe,
+    required super.metinEs,
+  });
+
+  @override
+  bool saglandi(AtolyeSonucu s) => s.yurutme.durduruldu;
+}
+
 /// Birden fazla denetimin HEPSI ("eger-degilse kullan VE iki koldan
 /// biri calissin"). Cocuga tek cumle gorunuyor.
 class VeHedefi extends AtolyeHedefi {
@@ -396,12 +429,37 @@ class VeHedefi extends AtolyeHedefi {
 class AtolyeDenetimi {
   AtolyeDenetimi._();
 
-  static AtolyeSonucu calistir(List<KodOgesi> kod, List<ScratchBlock> palet,
-      {String dil = 'tr', Random? rastgele, int butce = 700}) {
+  /// Kodu proje motorunda bastan sona calistirir (otomatik oyuncuyla).
+  static AtolyeSonucu calistir(
+    List<KodOgesi> kod,
+    List<ScratchBlock> palet, {
+    String dil = 'tr',
+    Random? rastgele,
+    int butce = 700,
+    KuklaTanimi ana = KuklaTanimi.devi,
+    List<KuklaTanimi> kuklalar = const [],
+    OtomatikOyuncu oyuncu = const OtomatikOyuncu(),
+    double sureSiniri = ProjeMotoru.varsayilanSure,
+  }) {
     final y = BlokYorumlayici(butce: butce, dil: dil, rastgele: rastgele)
-        .yurutProje(KodYapisi.blokla(kod, palet));
+        .yurutProje(KodYapisi.blokla(kod, palet),
+            ana: ana,
+            kuklalar: kuklalar,
+            oyuncu: oyuncu,
+            sureSiniri: sureSiniri);
     return AtolyeSonucu(yurutme: y, kod: kod);
   }
+
+  /// Bir atolyenin kodunu atolyenin kuklalariyla calistirir.
+  static AtolyeSonucu atolyede(ProjeAtolyesiStep a, List<KodOgesi> kod,
+          {String dil = 'tr', Random? rastgele}) =>
+      calistir(kod, a.palet,
+          dil: dil,
+          rastgele: rastgele,
+          ana: a.anaKukla,
+          kuklalar: a.kuklalar,
+          oyuncu: a.oyuncu,
+          sureSiniri: a.sureSiniri);
 
   static List<bool> durumlar(
           List<AtolyeHedefi> hedefler, AtolyeSonucu sonuc) =>

@@ -61,6 +61,23 @@ class AtolyeBloklari {
       'Wenn Taste Pfeil nach rechts gedrückt wird',
       'al presionar tecla flecha derecha',
       sekil: ScratchBlockShape.cap);
+  static final solTus = _y(
+      'when_key_left',
+      ScratchBlockType.events,
+      _olaylar,
+      'sol ok tuşuna basılınca',
+      'when left arrow key pressed',
+      'Wenn Taste Pfeil nach links gedrückt wird',
+      'al presionar tecla flecha izquierda',
+      sekil: ScratchBlockShape.cap);
+  static final dansSalBekle = _y(
+      'broadcast_dance_wait',
+      ScratchBlockType.events,
+      _olaylar,
+      'dans haberini sal ve bekle',
+      'broadcast dance and wait',
+      'sende Tanz an alle und warte',
+      'enviar baile y esperar');
   static final kuklayaTiklama = _y(
       'when_clicked_sprite',
       ScratchBlockType.events,
@@ -107,6 +124,37 @@ class AtolyeBloklari {
   static final tepeyeGit = _y('goto_top', ScratchBlockType.motion, _hareket,
       'x: 0 y: 150 konumuna git', 'go to x: 0 y: 150',
       'gehe zu x: 0 y: 150', 'ir a x: 0 y: 150');
+  static final git100_50 = _y('goto_100_50', ScratchBlockType.motion,
+      _hareket, 'x: 100 y: 50 konumuna git', 'go to x: 100 y: 50',
+      'gehe zu x: 100 y: 50', 'ir a x: 100 y: 50');
+  static final asagiyaGit = _y('goto_bottom', ScratchBlockType.motion,
+      _hareket, 'x: 0 y: -125 konumuna git', 'go to x: 0 y: -125',
+      'gehe zu x: 0 y: -125', 'ir a x: 0 y: -125');
+  static final xSifir = _y('set_x_0', ScratchBlockType.motion, _hareket,
+      'x konumunu 0 yap', 'set x to 0', 'setze x auf 0', 'dar a x el valor 0');
+  static final yTepe = _y('set_y_170', ScratchBlockType.motion, _hareket,
+      'y konumunu 170 yap', 'set y to 170', 'setze y auf 170',
+      'dar a y el valor 170');
+  static final yon90 = _y('point_90', ScratchBlockType.motion, _hareket,
+      '90 yönüne dön', 'point in direction 90',
+      'setze Richtung auf 90 Grad', 'apuntar en dirección 90');
+  static final yon55 = _y('point_55', ScratchBlockType.motion, _hareket,
+      '55 yönüne dön', 'point in direction 55',
+      'setze Richtung auf 55 Grad', 'apuntar en dirección 55');
+  static final fareyeYonel = _y(
+      'point_towards_mouse',
+      ScratchBlockType.motion,
+      _hareket,
+      'Fare e doğru yönel',
+      'point towards Mouse',
+      'drehe dich zu Maus',
+      'apuntar hacia Ratón');
+  static final kenardaSek = _y('edge_bounce', ScratchBlockType.motion,
+      _hareket, 'kenara geldiyse sek', 'if on edge, bounce',
+      'pralle vom Rand ab', 'si toca un borde, rebotar');
+  static final kay = _y('glide_1_0_0', ScratchBlockType.motion, _hareket,
+      '1 saniyede x: 0 y: 0 konumuna kay', 'glide 1 secs to x: 0 y: 0',
+      'gleite in 1 Sek. zu x: 0 y: 0', 'deslizar en 1 segs a x: 0 y: 0');
   static final rastgeleGit = _y('goto_random', ScratchBlockType.motion,
       _hareket, 'rastgele konuma git', 'go to random position',
       'gehe zu Zufallsposition', 'ir a posición aleatoria');
@@ -137,6 +185,10 @@ class AtolyeBloklari {
       'say length of shopping',
       'sage Länge von Einkauf',
       'decir longitud de compra');
+  static final goster = _y('show', ScratchBlockType.looks, _gorunum,
+      'göster', 'show', 'zeige dich', 'mostrar');
+  static final gizle = _y('hide', ScratchBlockType.looks, _gorunum, 'gizle',
+      'hide', 'verstecke dich', 'esconder');
   static final sonrakiKostum = _y('next_costume', ScratchBlockType.looks,
       _gorunum, 'sonraki kostüm', 'next costume',
       'wechsle zum nächsten Kostüm', 'siguiente disfraz');
@@ -157,6 +209,95 @@ class AtolyeBloklari {
   static final bekle1 = _y('wait_1s', ScratchBlockType.control, _kontrol,
       '1 saniye bekle', 'wait 1 seconds', 'warte 1 Sekunden',
       'esperar 1 segundos');
+  static final bekleYarim = _y('wait_05', ScratchBlockType.control,
+      _kontrol, '0.5 saniye bekle', 'wait 0.5 seconds', 'warte 0.5 Sekunden',
+      'esperar 0.5 segundos');
+  static final hepsiniDurdur = _y('stop_all', ScratchBlockType.control,
+      _kontrol, 'tümünü durdur', 'stop all', 'stoppe alles',
+      'detener todos');
+  static final ikizYarat = _y(
+      'create_clone',
+      ScratchBlockType.control,
+      _kontrol,
+      'kendimin ikizini yarat',
+      'create clone of myself',
+      'erzeuge Klon von mir selbst',
+      'crear clon de mí mismo');
+  static final ikizOlarak = _y(
+      'when_clone',
+      ScratchBlockType.control,
+      _kontrol,
+      'ikiz olarak başladığımda',
+      'when I start as a clone',
+      'Wenn ich als Klon entstehe',
+      'al comenzar como clon',
+      sekil: ScratchBlockShape.cap);
+  static final ikiziSil = _y('delete_clone', ScratchBlockType.control,
+      _kontrol, 'bu ikizi sil', 'delete this clone', 'lösche diesen Klon',
+      'borrar este clon');
+  static final egerSag = _y(
+      'if_right',
+      ScratchBlockType.control,
+      _kontrol,
+      'eğer sağ ok tuşu basılı mı? ise',
+      'if key right arrow pressed? then',
+      'falls Taste Pfeil nach rechts gedrückt?, dann',
+      'si ¿tecla flecha derecha presionada? entonces',
+      sekil: ScratchBlockShape.cBlock);
+  static final egerSol = _y(
+      'if_left',
+      ScratchBlockType.control,
+      _kontrol,
+      'eğer sol ok tuşu basılı mı? ise',
+      'if key left arrow pressed? then',
+      'falls Taste Pfeil nach links gedrückt?, dann',
+      'si ¿tecla flecha izquierda presionada? entonces',
+      sekil: ScratchBlockShape.cBlock);
+  static final egerDeviyeDegiyor = _y(
+      'if_touching_cat',
+      ScratchBlockType.control,
+      _kontrol,
+      'eğer Devi e değiyor mu? ise',
+      'if touching Devi? then',
+      'falls wird Devi berührt?, dann',
+      'si ¿tocando Devi? entonces',
+      sekil: ScratchBlockShape.cBlock);
+  static final egerKaseyeDegiyor = _y(
+      'if_touching_bowl',
+      ScratchBlockType.control,
+      _kontrol,
+      'eğer Kase e değiyor mu? ise',
+      'if touching Bowl? then',
+      'falls wird Schüssel berührt?, dann',
+      'si ¿tocando Cuenco? entonces',
+      sekil: ScratchBlockShape.cBlock);
+  static final egerZemineDegiyor = _y(
+      'if_touching_ground',
+      ScratchBlockType.control,
+      _kontrol,
+      'eğer yeşil rengine değiyor mu? ise',
+      'if touching color green? then',
+      'falls wird Farbe grün berührt?, dann',
+      'si ¿tocando el color verde? entonces',
+      sekil: ScratchBlockShape.cBlock);
+  static final egerKenaraDegiyor = _y(
+      'if_touching_edge',
+      ScratchBlockType.control,
+      _kontrol,
+      'eğer kenar a değiyor mu? ise',
+      'if touching edge? then',
+      'falls wird Rand berührt?, dann',
+      'si ¿tocando borde? entonces',
+      sekil: ScratchBlockShape.cBlock);
+  static final egerPuan5 = _y(
+      'if_score_5',
+      ScratchBlockType.control,
+      _kontrol,
+      'eğer puan = 5 ise',
+      'if score = 5 then',
+      'falls Punkte = 5, dann',
+      'si puntos = 5 entonces',
+      sekil: ScratchBlockShape.cBlock);
   static final bekle2 = _y('wait_2', ScratchBlockType.control, _kontrol,
       '2 saniye bekle', 'wait 2 seconds', 'warte 2 Sekunden',
       'esperar 2 segundos');

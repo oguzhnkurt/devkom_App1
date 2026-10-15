@@ -1,3 +1,5 @@
+import 'dart:ui' show Color;
+
 import '../../widgets/scratch_blok.dart';
 import 'scratch_resmi_etiketler.dart';
 
@@ -270,6 +272,17 @@ class ScratchBlokKatalogu {
   static String _zar(String l) => _d(l, 'zar', 'dice', 'Würfel', 'dado');
   static String _sure(String l) => _d(l, 'süre', 'time', 'Zeit', 'tiempo');
   static String _dans(String l) => _d(l, 'dans', 'dance', 'Tanz', 'baile');
+  static String _fare(String l) => _d(l, 'Fare', 'Mouse', 'Maus', 'Ratón');
+  static String _kase(String l) =>
+      _d(l, 'Kase', 'Bowl', 'Schüssel', 'Cuenco');
+
+  /// Proje sahnesinin zemin seridinin rengi (bkz. ProjeMotoru.zeminY).
+  static const Color zeminRengi = Color(0xFF7BC86C);
+
+  static ScratchBlokTanimi _xy(String l, String x, String y) =>
+      _b(_hareket, _yigin, 'MOTION_GOTOXY', l, [SbGirdi(x), SbGirdi(y)]);
+  static ScratchBlokTanimi _yon(String l, String n) =>
+      _b(_hareket, _yigin, 'MOTION_POINTINDIRECTION', l, [SbGirdi(n)]);
 
   /// <[tus] tusuna basilinca> sapkasi.
   static ScratchBlokTanimi _tusSapkasi(String l, String tusAnahtari) => _b(
@@ -363,6 +376,9 @@ class ScratchBlokKatalogu {
         [SbAcilir(_d(l, 'zıpla', 'jump', 'springen', 'saltar'))]),
     'when_key_space': (l) => _tusSapkasi(l, 'EVENT_WHENKEYPRESSED_SPACE'),
     'when_key_right': (l) => _tusSapkasi(l, 'EVENT_WHENKEYPRESSED_RIGHT'),
+    'when_key_left': (l) => _tusSapkasi(l, 'EVENT_WHENKEYPRESSED_LEFT'),
+    'broadcast_dance_wait': (l) => _b(_olaylar, _yigin,
+        'EVENT_BROADCASTANDWAIT', l, [SbAcilir(_dans(l))]),
     'broadcast_dance': (l) =>
         _b(_olaylar, _yigin, 'EVENT_BROADCAST', l, [SbAcilir(_dans(l))]),
     'receive_dance': (l) => _b(_olaylar, ScratchSekil.sapka,
@@ -393,6 +409,16 @@ class ScratchBlokKatalogu {
         [const SbGirdi('100'), const SbGirdi('50')]),
     'goto_top': (l) => _b(_hareket, _yigin, 'MOTION_GOTOXY', l,
         [const SbGirdi('0'), const SbGirdi('150')]),
+    'goto_bottom': (l) => _xy(l, '0', '-125'),
+    'set_x_0': (l) =>
+        _b(_hareket, _yigin, 'MOTION_SETX', l, [const SbGirdi('0')]),
+    'set_y_170': (l) =>
+        _b(_hareket, _yigin, 'MOTION_SETY', l, [const SbGirdi('170')]),
+    'point_90': (l) => _yon(l, '90'),
+    'point_55': (l) => _yon(l, '55'),
+    'point_towards_mouse': (l) => _b(
+        _hareket, _yigin, 'MOTION_POINTTOWARDS', l, [SbAcilir(_fare(l))]),
+    'edge_bounce': (l) => _b(_hareket, _yigin, 'MOTION_IFONEDGEBOUNCE', l),
     'change_y_down': (l) =>
         _b(_hareket, _yigin, 'MOTION_CHANGEYBY', l, [const SbGirdi('-10')]),
     'goto_random': (l) => _b(_hareket, _yigin, 'MOTION_GOTO', l,
@@ -430,6 +456,8 @@ class ScratchBlokKatalogu {
     'say_dice': (l) => _de(l, SbIcBlok(_degiskenOvali(_zar(l)))),
     'say_len_shopping': (l) => _de(l, SbIcBlok(_uzunluk(l, _alisveris(l)))),
     'next_costume': (l) => _b(_gorunum, _yigin, 'LOOKS_NEXTCOSTUME', l),
+    'show': (l) => _b(_gorunum, _yigin, 'LOOKS_SHOW', l),
+    'hide': (l) => _b(_gorunum, _yigin, 'LOOKS_HIDE', l),
     'say_done': (l) =>
         _de(l, SbGirdi(_d(l, 'Bitti!', 'Done!', 'Fertig!', '¡Listo!'))),
     'say_random_die': (l) =>
@@ -466,6 +494,12 @@ class ScratchBlokKatalogu {
         _b(_kontrol, _yigin, 'CONTROL_WAIT', l, [const SbGirdi('2')]),
     'wait_1s': (l) =>
         _b(_kontrol, _yigin, 'CONTROL_WAIT', l, [const SbGirdi('1')]),
+    'wait_05': (l) =>
+        _b(_kontrol, _yigin, 'CONTROL_WAIT', l, [const SbGirdi('0.5')]),
+    'stop_all': (l) => _b(_kontrol, ScratchSekil.kapak, 'CONTROL_STOP', l,
+        [SbAcilir(etiket('CONTROL_STOP_ALL', l))]),
+    'if_score_5': (l) => _egerKarsilastir(l, 'OPERATORS_EQUALS',
+        SbIcBlok(_degiskenOvali(_puanKucuk(l))), const SbGirdi('5')),
     'repeat_2': (l) => _tekrarla(l, const SbGirdi('2')),
     'repeat_5': (l) => _tekrarla(l, const SbGirdi('5')),
     'ifelse_dice_gt_3': (l) => _egerKarsilastir(l, 'OPERATORS_GT',
@@ -499,6 +533,18 @@ class ScratchBlokKatalogu {
     'if_right': (l) =>
         _eger(l, SbIcBlok(_tus(l, 'EVENT_WHENKEYPRESSED_RIGHT'))),
     'if_up': (l) => _eger(l, SbIcBlok(_tus(l, 'EVENT_WHENKEYPRESSED_UP'))),
+    'if_left': (l) =>
+        _eger(l, SbIcBlok(_tus(l, 'EVENT_WHENKEYPRESSED_LEFT'))),
+    'if_touching_bowl': (l) => _eger(l, SbIcBlok(_degiyor(l, _kase(l)))),
+    'if_touching_edge': (l) => _eger(l,
+        SbIcBlok(_degiyor(l, etiket('SENSING_TOUCHINGOBJECT_EDGE', l)))),
+    // Zemin seridinin rengi: proje sahnesinde altta yesil serit.
+    'if_touching_ground': (l) => _eger(
+        l,
+        SbIcBlok(_b(_algilama, ScratchSekil.mantiksal,
+            'SENSING_TOUCHINGCOLOR', l, [
+          SbRenk(zeminRengi, _d(l, 'yeşil', 'green', 'grün', 'verde')),
+        ]))),
     'if_up_change_y': (l) => _eger(
           l,
           SbIcBlok(_tus(l, 'EVENT_WHENKEYPRESSED_UP')),
@@ -510,7 +556,7 @@ class ScratchBlokKatalogu {
     // degil: blok "fare-imleci" diyordu. Etiket bicimi Scratch'in kendi
     // "%1 e degiyor mu?" kalibi; acilir listede kuklanin adi var.
     'if_touching': (l) =>
-        _eger(l, SbIcBlok(_degiyor(l, _d(l, 'Fare', 'Mouse', 'Maus', 'Ratón')))),
+        _eger(l, SbIcBlok(_degiyor(l, _fare(l)))),
     'if_touching_cat': (l) =>
         _eger(l, SbIcBlok(_degiyor(l, _d(l, 'Devi', 'Devi', 'Devi', 'Devi')))),
     'if_score_low': (l) => _eger(

@@ -257,7 +257,13 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
       case BlokKomutu.gitXY:
       case BlokKomutu.don:
       case BlokKomutu.yonAyarla:
+      case BlokKomutu.xAyarla:
+      case BlokKomutu.yAyarla:
+      case BlokKomutu.kaydir:
+      case BlokKomutu.kenardaSek:
         return _Etki.hareket;
+      case BlokKomutu.ses:
+        return _Etki.ses;
       case BlokKomutu.yDegistir:
         return _Etki.ziplama;
       case BlokKomutu.soyle:

@@ -2575,7 +2575,7 @@ class ScratchLessonsData {
         ),
 
         // Uygulama ici Proje Atolyesi (eskiden "bilgisayarinda yap").
-        ScratchAtolyeleri.yildizYagmuru,
+        ScratchAtolyeleri.elmaYagmuru,
 
         ExplanationStep(
           id: 's5_1_summary',

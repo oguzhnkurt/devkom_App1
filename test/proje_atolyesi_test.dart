@@ -16,7 +16,7 @@ import 'package:devkom_app/services/proje_deposu.dart';
 List<bool> _durum(ProjeAtolyesiStep a, String kod, {int tohum = 3}) =>
     AtolyeDenetimi.durumlar(
         a.hedefler,
-        AtolyeDenetimi.calistir(KodYapisi.coz(kod), a.palet,
+        AtolyeDenetimi.atolyede(a, KodYapisi.coz(kod),
             rastgele: Random(tohum)));
 
 void main() {

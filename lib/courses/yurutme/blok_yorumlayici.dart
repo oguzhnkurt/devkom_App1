@@ -1,10 +1,12 @@
 import 'dart:math';
-import 'dart:ui' show Color;
+import 'dart:ui' show Color, Offset;
 
 import '../models/interactive_lesson_model.dart';
 import 'blok_anlami.dart';
 import 'blok_sozlugu.dart';
 import 'kod_yapisi.dart';
+
+part 'proje_motoru.dart';
 
 /// Kuklanin ve degiskenlerin o andaki hali.
 class Sahne {
@@ -15,6 +17,7 @@ class Sahne {
     this.yon = 90,
     this.kalemInik = false,
     this.soyledigi,
+    this.gorunur = true,
     Map<String, num>? degiskenler,
     Map<String, List<String>>? listeler,
   })  : degiskenler = degiskenler ?? {},
@@ -35,6 +38,10 @@ class Sahne {
   bool kalemInik;
 
   String? soyledigi;
+
+  /// `goster` / `gizle`. Gizli kukla sahnede cizilmiyor ve degmiyor.
+  bool gorunur;
+
   final Map<String, num> degiskenler;
 
   /// Liste adi -> icindekiler. Ekle/sil bloklari burayi degistiriyor,
@@ -48,6 +55,7 @@ class Sahne {
         yon: yon,
         kalemInik: kalemInik,
         soyledigi: soyledigi,
+        gorunur: gorunur,
         degiskenler: Map<String, num>.from(degiskenler),
         listeler: {
           for (final e in listeler.entries) e.key: List<String>.from(e.value)
@@ -66,9 +74,13 @@ class YurutmeAdimi {
     this.blokSirasi = -1,
     this.blok,
     this.kosulSonucu,
+    this.klon = false,
   });
 
   final String blokId;
+
+  /// Adimi cocugun kuklasinin bir IKIZI atti (proje motoru).
+  final bool klon;
 
   /// Blogun kod alanindaki sirasi (0'dan). Ayni blok kod alaninda iki kez
   /// bulunabildigi icin (or. iki "1 saniye bekle") kimlik yetmiyor;
@@ -129,6 +141,10 @@ class Yurutme {
     this.cagrilar = const [],
     this.sapkasizBlok = 0,
     this.olayBloklari = const {},
+    this.klonSayisi = 0,
+    this.silinenKlon = 0,
+    this.sure = 0,
+    this.durduruldu = false,
   });
 
   final List<YurutmeAdimi> adimlar;
@@ -167,6 +183,20 @@ class Yurutme {
 
   /// Her olay betiginin calistirdigi bloklar (`tus:space` -> [...]).
   final Map<String, List<String>> olayBloklari;
+
+  /// Cocugun kuklasinin yarattigi ikiz sayisi (toplam) ve kendini silen
+  /// ikiz sayisi (proje motoru).
+  final int klonSayisi;
+  final int silinenKlon;
+
+  /// Yurutmenin surdugu SANAL sure, saniye (proje motoru; 30 kare = 1 s).
+  final double sure;
+
+  /// Kod `tumunu durdur` ile bitti.
+  final bool durduruldu;
+
+  /// Cocugun kuklasinin kendisinin (ikizlerinin degil) adimlari.
+  Iterable<YurutmeAdimi> get anaAdimlar => adimlar.where((a) => !a.klon);
 }
 
 /// Kod alanindaki (ya da kutuphanedeki) tek bir satir.
@@ -450,94 +480,39 @@ class BlokYorumlayici {
         yalnizTanim: ana.isEmpty && b.tanimlar.isNotEmpty);
   }
 
-  /// PROJE ATOLYESI: cok betikli yurutme.
+  /// PROJE ATOLYESI: cok betikli, ESZAMANLI yurutme ([ProjeMotoru]).
   ///
-  /// Her sapka (bayrak, tus, haber, kuklaya tiklama, tanimla) kendi
-  /// betigini baslatir. Sira Scratch'teki gibi:
+  /// Her sapka kendi betigini (is parcacigini) baslatir; betikler Scratch
+  /// gibi kare kare, sirayla ilerler (bkz. proje_motoru.dart). Burada
+  /// motor bastan sona, kimse dokunmadan calistiriliyor: tuslara ve
+  /// kuklaya [oyuncu] (otomatik oyuncu) basiyor. Sonuc belirlenimci:
+  /// ayni [rastgele] tohumu ayni yurutmeyi veriyor. Hedef denetimi ve
+  /// testler bunu kullaniyor; sahne ayni motoru canli oynatiyor.
   ///
-  ///  1. yesil bayrak betikleri (kod alanindaki sirayla),
-  ///  2. sonra cocuk her TUSA ve kuklaya bir kez "basmis" sayilir: tus
-  ///     ve tiklama betikleri birer kez calisir,
-  ///  3. `haberini sal` blogu o haberi alan betikleri O ANDA calistirir
-  ///     ("haberini sal ve bekle" gibi; tek kuklali sahnede sirayi
-  ///     belirli tutmanin yolu).
+  /// [kuklalar]: cocugun kuklasinin yanindaki hazir kodlu kuklalar
+  /// (3.1'deki Fare, 5.1'deki Kase).
   ///
   /// Sapkasi olmayan bloklar CALISMAZ (Scratch'te de oyle); sayisi
   /// [Yurutme.sapkasizBlok]'ta, ekran bunu soyluyor.
-  ///
-  /// BUTCE: her betik butcenin bir payini aliyor; bayrak betigindeki
-  /// `surekli tekrarla` tus betiklerini ac birakmasin.
-  Yurutme yurutProje(List<ScratchBlock> bloklar) {
-    final sahne = Sahne();
-    final adimlar = <YurutmeAdimi>[];
-    final b = _Baglam(butce)..haberler = true;
-
-    final betikler = <_Betik>[];
-    _Betik? acik;
-    _Tanim? tanim;
-    var sapkasiz = 0;
-    var derinlik = 0;
-    for (var i = 0; i < bloklar.length; i++) {
-      final blok = bloklar[i];
-      final a = _anlam(blok);
-      // Yalnizca en distaki sapka yeni betik baslatir.
-      if (derinlik == 0 && a.komut == BlokKomutu.tanimla) {
-        tanim = b.tanimlar[a.yordam ?? '?'] = _Tanim(a.girdi);
-        acik = null;
-        continue;
-      }
-      if (derinlik == 0 && a.komut == BlokKomutu.baslat) {
-        tanim = null;
-        acik = _Betik(a);
-        betikler.add(acik);
-        // Sapkanin kendisi de izde gorunsun (sahnede parlasin).
-        acik.satirlar.add(_Satir(blok, i));
-        continue;
-      }
-      if (blok.id == KodYapisi.sonId) {
-        derinlik = derinlik > 0 ? derinlik - 1 : 0;
-      } else if (a.cBlogu) {
-        derinlik++;
-      }
-      if (tanim != null) {
-        tanim.govde.add(_Satir(blok, i));
-      } else if (acik != null) {
-        acik.satirlar.add(_Satir(blok, i));
-      } else if (!KodYapisi.isaretMi(blok.id)) {
-        sapkasiz++;
-      }
+  Yurutme yurutProje(
+    List<ScratchBlock> bloklar, {
+    KuklaTanimi ana = KuklaTanimi.devi,
+    List<KuklaTanimi> kuklalar = const [],
+    OtomatikOyuncu oyuncu = const OtomatikOyuncu(),
+    double sureSiniri = ProjeMotoru.varsayilanSure,
+  }) {
+    final m = ProjeMotoru(
+      yorumlayici: this,
+      bloklar: bloklar,
+      ana: ana,
+      kuklalar: kuklalar,
+      oyuncu: oyuncu,
+      sureSiniri: sureSiniri,
+    )..baslat();
+    while (!m.bitti) {
+      m.kare();
     }
-    b.alicilar.addAll(betikler.where((t) => t.sapka?.haber != null));
-
-    final calisacak = [
-      ...betikler.where((t) => t.sapka?.bayrakSapkasi ?? false),
-      ...betikler.where((t) => t.sapka?.tus != null),
-      ...betikler.where((t) => t.sapka?.tiklama ?? false),
-    ];
-    var butceBitti = false;
-    for (var k = 0; k < calisacak.length; k++) {
-      final t = calisacak[k];
-      final kalan = butce - adimlar.length;
-      if (kalan <= 0) {
-        butceBitti = true;
-        break;
-      }
-      b.sinir = adimlar.length + max(40, kalan ~/ (calisacak.length - k));
-      b.calisanOlaylar.add(b.aktifOlay = _olayAdi(t.sapka!));
-      final doldu =
-          _calistir(t.agac, 0, sahne, adimlar, null, const {}, b, 0);
-      butceBitti = butceBitti || doldu;
-    }
-    return _sonuc(adimlar, sahne, butceBitti, b,
-        yalnizTanim: betikler.isEmpty && b.tanimlar.isNotEmpty,
-        sapkasiz: sapkasiz);
-  }
-
-  static String _olayAdi(BlokAnlami sapka) {
-    if (sapka.tus != null) return 'tus:${sapka.tus}';
-    if (sapka.haber != null) return 'haber:${sapka.haber}';
-    if (sapka.tiklama) return 'tikla';
-    return 'bayrak';
+    return m.sonuc();
   }
 
   Yurutme _sonuc(List<YurutmeAdimi> adimlar, Sahne sahne, bool butceBitti,
@@ -729,9 +704,7 @@ class BlokYorumlayici {
         derinlik: derinlik,
         sahne: sahne.kopya(),
         tekrarNo: tekrarNo,
-        etkisiz: anlam.komut == BlokKomutu.etkisiz ||
-            anlam.komut == BlokKomutu.baslat ||
-            anlam.komut == BlokKomutu.haberSal,
+        etkisiz: _yalnizMotorda(anlam.komut),
         blokSirasi: satir.sira,
         blok: blok,
       ));
@@ -753,6 +726,51 @@ class BlokYorumlayici {
       }
     }
     return false;
+  }
+
+  /// Tek yiginli izde gorunur bir etkisi olmayan komutlar: sapkalar,
+  /// haberler, ikizler, durdurma. Proje motoru bunlari gercekten
+  /// calistiriyor.
+  static bool _yalnizMotorda(BlokKomutu k) => switch (k) {
+        BlokKomutu.etkisiz ||
+        BlokKomutu.baslat ||
+        BlokKomutu.haberSal ||
+        BlokKomutu.haberSalBekle ||
+        BlokKomutu.ikizYarat ||
+        BlokKomutu.ikizSil ||
+        BlokKomutu.durdurHepsi ||
+        BlokKomutu.yoneDogru =>
+          true,
+        _ => false,
+      };
+
+  /// Sahne 480 x 360: x -240..240, y -180..180.
+  static const double sahneYariGenislik = 240;
+  static const double sahneYariYukseklik = 180;
+
+  /// `kenara geldiyse sek`: [r] yaricapli kukla sahnenin kenarina
+  /// degiyorsa yonu yansitiliyor ve kukla iceri itiliyor (Scratch'in
+  /// kendi yontemi: en yakin kenara gore).
+  static void sek(Sahne s, double r) {
+    const w = sahneYariGenislik, h = sahneYariYukseklik;
+    final sol = s.x - r + w, sag = w - (s.x + r);
+    final alt = s.y - r + h, ust = h - (s.y + r);
+    final enYakin = min(min(sol, sag), min(alt, ust));
+    if (enYakin > 0) return;
+    final aci = s.yon * pi / 180;
+    var dx = sin(aci), dy = cos(aci);
+    if (enYakin == sol) {
+      dx = max(0.2, dx.abs());
+    } else if (enYakin == sag) {
+      dx = min(-0.2, -dx.abs());
+    } else if (enYakin == ust) {
+      dy = min(-0.2, -dy.abs());
+    } else {
+      dy = max(0.2, dy.abs());
+    }
+    s.yon = _yuvarla((atan2(dx, dy) * 180 / pi + 360) % 360);
+    s.x = s.x.clamp(-w + r, w - r).toDouble();
+    s.y = s.y.clamp(-h + r, h - r).toDouble();
   }
 
   /// Trigonometri 100 adim yerine 99.99999 gibi kusuratlar uretiyor;
@@ -867,6 +885,27 @@ class BlokYorumlayici {
         final ad = anlam.degisken ?? '?';
         sahne.degiskenler[ad] =
             (sahne.degiskenler[ad] ?? 0) + (anlam.sayi ?? 0);
+      case BlokKomutu.xAyarla:
+        sahne.x = (anlam.sayi ?? 0).toDouble();
+      case BlokKomutu.yAyarla:
+        sahne.y = (anlam.sayi ?? 0).toDouble();
+      case BlokKomutu.kaydir:
+        // Tek yiginli izde kayma bir adim: kukla hedefte. Proje motoru
+        // kuklayi kareler boyunca kaydiriyor.
+        sahne.x = (anlam.sayi ?? 0).toDouble();
+        sahne.y = (anlam.sayi2 ?? 0).toDouble();
+      case BlokKomutu.goster:
+        sahne.gorunur = true;
+      case BlokKomutu.gizle:
+        sahne.gorunur = false;
+      case BlokKomutu.kenardaSek:
+        sek(sahne, ProjeMotoru.varsayilanYaricap);
+      case BlokKomutu.yoneDogru:
+      case BlokKomutu.ses:
+      case BlokKomutu.ikizYarat:
+      case BlokKomutu.ikizSil:
+      case BlokKomutu.durdurHepsi:
+      case BlokKomutu.haberSalBekle:
       case BlokKomutu.baslat:
       case BlokKomutu.bekle:
       case BlokKomutu.etkisiz:

@@ -172,6 +172,14 @@ final class SbBosKosul extends SbParca {
   const SbBosKosul();
 }
 
+/// Renk yuvasi ("[■] rengine degiyor mu?"): Scratch'teki gibi renkli
+/// oval. [ad] ekran okuyucu ve duz yazi icin ("yeşil").
+final class SbRenk extends SbParca {
+  const SbRenk(this.renk, this.ad);
+  final Color renk;
+  final String ad;
+}
+
 /// Bir Scratch blogunun tam tarifi: kategori, sekil, satirdaki parcalar.
 class ScratchBlokTanimi {
   const ScratchBlokTanimi({
@@ -232,6 +240,7 @@ class ScratchBlokTanimi {
                     ? '(${blok.duzMetin})'
                     : blok.duzMetin,
             SbBosKosul() => '< >',
+            SbRenk(:final ad) => '[$ad]',
           })
       .join(' ');
 }
@@ -404,6 +413,30 @@ class _BosKosulOge extends _Oge {
   @override
   void ciz(Canvas c, Offset o) {
     c.drawPath(_altigen(w, h).shift(o), Paint()..color = renk);
+  }
+}
+
+/// Renk yuvasi: beyaz kenarli renkli oval.
+class _RenkOge extends _Oge {
+  _RenkOge(this.s, this.renk);
+  final double s;
+  final Color renk;
+  @override
+  double get w => 40 * s;
+  @override
+  double get h => 32 * s;
+  @override
+  _Bicim get bicim => _Bicim.yuvarlak;
+  @override
+  void ciz(Canvas c, Offset o) {
+    final r = RRect.fromRectAndRadius(o & Size(w, h), Radius.circular(h / 2));
+    c.drawRRect(r, Paint()..color = renk);
+    c.drawRRect(
+        r,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = math.max(1, 1.5 * s)
+          ..color = Colors.white);
   }
 }
 
@@ -590,6 +623,7 @@ class _BlokDuzeni {
             SbIkon(:final ikon) => _IkonOge(ikon, s),
             SbIcBlok(:final blok) => _IcBlokOge(_BlokDuzeni(blok, s)),
             SbBosKosul() => _BosKosulOge(s, k.renk3),
+            SbRenk(:final renk) => _RenkOge(s, renk),
           },
         if (silme) _SilOge(s),
       ];

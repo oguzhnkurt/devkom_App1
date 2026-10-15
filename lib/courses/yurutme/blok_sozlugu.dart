@@ -13,7 +13,9 @@ import 'blok_anlami.dart';
 const Map<String, BlokAnlami> blokSozlugu = {
   // --- Olaylar -----------------------------------------------------
   'green_flag': BlokAnlami(BlokKomutu.baslat),
-  'when_clone': BlokAnlami(BlokKomutu.baslat),
+  // Ikiz sapkasi: proje motorunda yalnizca yeni ikizde calisiyor; tek
+  // yiginli izde (ders adimlari) diger sapkalar gibi.
+  'when_clone': BlokAnlami(BlokKomutu.baslat, metin: 'ikiz'),
   // Kuklaya tiklama sapkasi: atolyede cocuk kuklaya bir kez "tiklamis"
   // sayiliyor.
   'when_clicked_sprite': BlokAnlami(BlokKomutu.baslat, metin: 'tikla'),
@@ -23,9 +25,11 @@ const Map<String, BlokAnlami> blokSozlugu = {
   'broadcast': BlokAnlami(BlokKomutu.haberSal, haber: 'zıpla'),
   'receive_dance': BlokAnlami(BlokKomutu.baslat, haber: 'dans'),
   'broadcast_dance': BlokAnlami(BlokKomutu.haberSal, haber: 'dans'),
+  'broadcast_dance_wait': BlokAnlami(BlokKomutu.haberSalBekle, haber: 'dans'),
   // Tus sapkalari: atolyede her tusa bir kez basilmis sayiliyor.
   'when_key_space': BlokAnlami(BlokKomutu.baslat, tus: 'space'),
   'when_key_right': BlokAnlami(BlokKomutu.baslat, tus: 'right'),
+  'when_key_left': BlokAnlami(BlokKomutu.baslat, tus: 'left'),
 
   // --- Hareket -----------------------------------------------------
   'move_10': BlokAnlami(BlokKomutu.ilerle, sayi: 10),
@@ -39,7 +43,16 @@ const Map<String, BlokAnlami> blokSozlugu = {
   'goto_random': BlokAnlami(BlokKomutu.rastgeleKonum),
   'goto_top': BlokAnlami(BlokKomutu.gitXY, sayi: 0, sayi2: 150),
   'change_y_down': BlokAnlami(BlokKomutu.yDegistir, sayi: -10),
-
+  'goto_100_50': BlokAnlami(BlokKomutu.gitXY, sayi: 100, sayi2: 50),
+  // Kasenin yeri: zemin seridinin hemen ustu.
+  'goto_bottom': BlokAnlami(BlokKomutu.gitXY, sayi: 0, sayi2: -125),
+  'set_x_0': BlokAnlami(BlokKomutu.xAyarla, sayi: 0),
+  'set_y_170': BlokAnlami(BlokKomutu.yAyarla, sayi: 170),
+  'glide_1_0_0':
+      BlokAnlami(BlokKomutu.kaydir, sayi: 0, sayi2: 0, saniye: 1),
+  'point_90': BlokAnlami(BlokKomutu.yonAyarla, sayi: 90),
+  'point_towards_mouse': BlokAnlami(BlokKomutu.yoneDogru, kukla: 'Fare'),
+  
   // --- Gorunum -----------------------------------------------------
   'say_hello': BlokAnlami(BlokKomutu.soyle, metin: 'Merhaba'),
   'say_meow': BlokAnlami(BlokKomutu.soyle, metin: 'Miyav!'),
@@ -68,12 +81,22 @@ const Map<String, BlokAnlami> blokSozlugu = {
       kosulDegisken: 'Puan', kosulIslem: '=', kosulDeger: 50),
   'if_time_0': BlokAnlami(BlokKomutu.eger,
       kosulDegisken: 'süre', kosulIslem: '=', kosulDeger: 0),
-  'if_space': BlokAnlami(BlokKomutu.eger),
-  'if_right': BlokAnlami(BlokKomutu.eger),
-  'if_up': BlokAnlami(BlokKomutu.eger),
-  'if_touching': BlokAnlami(BlokKomutu.eger),
-  'create_clone': BlokAnlami(BlokKomutu.etkisiz),
-  'delete_clone': BlokAnlami(BlokKomutu.etkisiz),
+  // Algilama kosullari: proje motoru OLCUYOR (tus basili mi, kuklalar
+  // degiyor mu); tek yiginli izde DOGRU sayiliyorlar.
+  'if_space': BlokAnlami(BlokKomutu.eger, algi: 'tus:space'),
+  'if_right': BlokAnlami(BlokKomutu.eger, algi: 'tus:right'),
+  'if_left': BlokAnlami(BlokKomutu.eger, algi: 'tus:left'),
+  'if_up': BlokAnlami(BlokKomutu.eger, algi: 'tus:up'),
+  'if_touching': BlokAnlami(BlokKomutu.eger, algi: 'degiyor:Fare'),
+  'if_touching_cat': BlokAnlami(BlokKomutu.eger, algi: 'degiyor:Devi'),
+  'if_touching_bowl': BlokAnlami(BlokKomutu.eger, algi: 'degiyor:Kase'),
+  'if_touching_edge': BlokAnlami(BlokKomutu.eger, algi: 'degiyor:kenar'),
+  'if_touching_ground': BlokAnlami(BlokKomutu.eger, algi: 'renk:zemin'),
+  'if_score_5': BlokAnlami(BlokKomutu.eger,
+      kosulDegisken: 'Puan', kosulIslem: '=', kosulDeger: 5),
+  'create_clone': BlokAnlami(BlokKomutu.ikizYarat),
+  'delete_clone': BlokAnlami(BlokKomutu.ikizSil),
+  'stop_all': BlokAnlami(BlokKomutu.durdurHepsi),
 
   // --- Degiskenler -------------------------------------------------
   'set_score_0': BlokAnlami(BlokKomutu.degiskenAta, degisken: 'Puan', sayi: 0),
@@ -88,10 +111,13 @@ const Map<String, BlokAnlami> blokSozlugu = {
       BlokAnlami(BlokKomutu.degiskenArtir, degisken: 'süre', sayi: 1),
 
   // --- Ses ---------------------------------------------------------
-  'play_sound': BlokAnlami(BlokKomutu.etkisiz),
-  'play_note_60': BlokAnlami(BlokKomutu.etkisiz),
-  'play_note_62': BlokAnlami(BlokKomutu.etkisiz),
-  'play_note_64': BlokAnlami(BlokKomutu.etkisiz),
+  // Sahnede kuklanin yaninda ♪. Scratch'in varsayilan temposu 60
+  // vurus/dakika: "0.5 vurus cal" 0.5 saniye; betik o kadar bekliyor.
+  'play_sound': BlokAnlami(BlokKomutu.ses),
+  'play_note_60': BlokAnlami(BlokKomutu.ses, saniye: 0.5),
+  'play_note_62': BlokAnlami(BlokKomutu.ses, saniye: 0.5),
+  'play_note_64': BlokAnlami(BlokKomutu.ses, saniye: 0.5),
+  'play_drum': BlokAnlami(BlokKomutu.ses, saniye: 0.25),
 
   // =================================================================
   // 8-11. MODULLER — kalem, sans, listeler, kendi blogun
@@ -175,19 +201,18 @@ const Map<String, BlokAnlami> blokSozlugu = {
   'point_55': BlokAnlami(BlokKomutu.yonAyarla, sayi: 55),
   'move_2_fish': BlokAnlami(BlokKomutu.ilerle, sayi: 2),
   'repeat_10_fish': BlokAnlami(BlokKomutu.tekrarla, sayi: 10),
-  // Sahnenin kenari modellenmedigi icin sekme sahneyi degistirmiyor;
-  // uydurmak yerine "gorunur etkisi yok" diyoruz.
-  'edge_bounce': BlokAnlami(BlokKomutu.etkisiz),
+  // Sahnenin kenari 480 x 360: kenara degen kukla sekiyor.
+  'edge_bounce': BlokAnlami(BlokKomutu.kenardaSek),
   'rot_left_right': BlokAnlami(BlokKomutu.etkisiz),
   'rot_all_around': BlokAnlami(BlokKomutu.etkisiz),
-  'sound_bubbles': BlokAnlami(BlokKomutu.etkisiz),
+  'sound_bubbles': BlokAnlami(BlokKomutu.ses),
   'wait_1_ses': BlokAnlami(BlokKomutu.bekle, sayi: 1),
 
   // --- Dans Partisi projesi ----------------------------------------
   'next_costume': BlokAnlami(BlokKomutu.sonrakiKostum),
   'wait_02': BlokAnlami(BlokKomutu.bekle, sayi: 0.2),
   'wait_05': BlokAnlami(BlokKomutu.bekle, sayi: 0.5),
-  'sound_hiphop': BlokAnlami(BlokKomutu.etkisiz),
+  'sound_hiphop': BlokAnlami(BlokKomutu.ses),
   'backdrop_spotlight': BlokAnlami(BlokKomutu.etkisiz),
 
   // --- Elma Toplama projesi ----------------------------------------
@@ -199,8 +224,8 @@ const Map<String, BlokAnlami> blokSozlugu = {
   'change_y_kase': BlokAnlami(BlokKomutu.yDegistir, sayi: -8),
   'change_y_elma': BlokAnlami(BlokKomutu.yDegistir, sayi: -8),
   'start_as_clone': BlokAnlami(BlokKomutu.etkisiz),
-  'show': BlokAnlami(BlokKomutu.etkisiz),
-  'hide': BlokAnlami(BlokKomutu.etkisiz),
+  'show': BlokAnlami(BlokKomutu.goster),
+  'hide': BlokAnlami(BlokKomutu.gizle),
   'if_touching_kase': BlokAnlami(BlokKomutu.etkisiz),
   // 'change_score' ve 'delete_clone' Scratch kursunda zaten var;
   // puan blogu burada kendi kimligiyle, silme ayni anlamla paylasiliyor.

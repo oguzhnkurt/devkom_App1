@@ -1,5 +1,6 @@
 import '../models/interactive_lesson_model.dart';
 import '../yurutme/atolye_hedefleri.dart';
+import '../yurutme/blok_yorumlayici.dart';
 import 'scratch_atolye_bloklari.dart';
 
 /// Scratch kursunun PROJE ATOLYELERI.
@@ -8,6 +9,11 @@ import 'scratch_atolye_bloklari.dart';
 /// yap, sonra isaretle" diyordu; 8-11. modullerin hic projesi yoktu.
 /// Her atolye uygulamanin kendi yorumlayicisiyla CALISAN bir proje:
 /// hedefler blok sirasina degil sonuca bakiyor (bkz. AtolyeHedefi).
+///
+/// 3.1 ve 5.1 GERCEK OYUNLAR (proje motoru, bkz. proje_motoru.dart):
+/// sahnede hazir kodlu ikinci bir kukla var (kacan Fare, oklarla giden
+/// Kase), betikler ayni anda calisiyor, "degiyor mu?" olculuyor, 5.1'de
+/// elmalar ikiz.
 ///
 /// Her atolyenin [ProjeAtolyesiStep.ornekCozum]u test edildi: o kod
 /// calisinca butun hedefler sagliyor (test/proje_atolyesi_test.dart).
@@ -105,36 +111,69 @@ class ScratchAtolyeleri {
   );
 
   // ------------------------------------------------------------- 3.1
+  /// Kacan fare: hazir kodu var, cocuk degistirmiyor. Capraz gidiyor,
+  /// kenarlardan sekiyor; Devi'ye degince rastgele bir yere kaciyor.
+  static final fare = KuklaTanimi(
+    ad: 'Fare',
+    adEn: 'Mouse',
+    adDe: 'Maus',
+    adEs: 'Ratón',
+    gorunum: KuklaGorunumu.fare,
+    x: 100,
+    y: 50,
+    yaricap: 18,
+    donusStili: DonusStili.solSag,
+    kod: 'green_flag goto_100_50 point_55 forever move_10=3 edge_bounce '
+        'if_touching_cat goto_random } }',
+    palet: [
+      AtolyeBloklari.bayrak,
+      AtolyeBloklari.git100_50,
+      AtolyeBloklari.yon55,
+      AtolyeBloklari.surekli,
+      AtolyeBloklari.git10,
+      AtolyeBloklari.kenardaSek,
+      AtolyeBloklari.egerDeviyeDegiyor,
+      AtolyeBloklari.rastgeleGit,
+    ],
+  );
+
   static final yakalaOyunu = ProjeAtolyesiStep(
     id: 's3_1_atolye',
     title: 'Proje: Yakala!',
     titleEn: 'Project: Catch!',
     titleDe: 'Projekt: Fang!',
     titleEs: 'Proyecto: ¡Atrápalo!',
-    description: 'Devi fareyi beş kez yakalasın. Her yakalayışta fare '
-        'rastgele bir yere kaçsın ve puan bir artsın. Oyun bitince Devi '
-        'puanı söylesin.',
-    descriptionEn: 'Devi catches the mouse five times. Each time, the mouse '
-        'runs to a random spot and the score goes up by one. When the game '
-        'ends, Devi says the score.',
-    descriptionDe: 'Devi fängt die Maus fünfmal. Jedes Mal flieht die Maus an '
-        'einen zufälligen Ort und die Punkte steigen um eins. Am Ende sagt '
-        'Devi die Punktzahl.',
-    descriptionEs: 'Devi atrapa al ratón cinco veces. Cada vez el ratón huye '
-        'a un lugar al azar y los puntos suben uno. Al terminar, Devi dice '
-        'la puntuación.',
+    description: 'Sahnede kaçan bir Fare var. Devi onu kovalasın: sürekli '
+        'Fare\'ye doğru dönüp yürüsün. Her dokunuşta puan bir artsın; puan '
+        '5 olunca Devi puanı söylesin ve oyun dursun.',
+    descriptionEn: 'A Mouse is running around the stage. Devi chases it: '
+        'forever turning towards the Mouse and walking. Every touch adds a '
+        'point; at 5 points Devi says the score and the game stops.',
+    descriptionDe: 'Auf der Bühne läuft eine Maus herum. Devi jagt sie: '
+        'immer wieder zur Maus drehen und laufen. Jede Berührung gibt einen '
+        'Punkt; bei 5 Punkten sagt Devi die Punktzahl und das Spiel stoppt.',
+    descriptionEs: 'Un Ratón corre por el escenario. Devi lo persigue: '
+        'siempre gira hacia el Ratón y camina. Cada toque suma un punto; con '
+        '5 puntos Devi dice la puntuación y el juego se detiene.',
+    anaKukla: const KuklaTanimi(
+        ad: 'Devi', x: -120, y: -40, donusStili: DonusStili.solSag),
+    kuklalar: [fare],
+    sureSiniri: 40,
     palet: [
       AtolyeBloklari.bayrak,
       AtolyeBloklari.puanSifir,
-      AtolyeBloklari.tekrarla('5'),
+      AtolyeBloklari.ortayaGit,
+      AtolyeBloklari.surekli,
+      AtolyeBloklari.fareyeYonel,
+      AtolyeBloklari.git10,
       AtolyeBloklari.egerDokunuyor,
-      AtolyeBloklari.rastgeleGit,
       AtolyeBloklari.puanArtir,
+      AtolyeBloklari.egerPuan5,
       AtolyeBloklari.puaniDe,
-      AtolyeBloklari.merhabaDe,
-      AtolyeBloklari.bekle1,
+      AtolyeBloklari.hepsiniDurdur,
+      AtolyeBloklari.rastgeleGit,
     ],
-    sayiDuzenlenebilir: {'change_score', 'repeat_5'},
+    sayiDuzenlenebilir: {'move_10', 'change_score'},
     hedefler: const [
       CalistiHedefi(
         metin: 'Oyun başlarken puanı sıfırla',
@@ -143,49 +182,79 @@ class ScratchAtolyeleri {
         metinEs: 'Pon los puntos a cero al empezar',
         bloklar: {'set_score_0'},
       ),
-      CalistiHedefi(
-        metin: 'Fare 5 kez rastgele bir yere kaçsın',
-        metinEn: 'The mouse runs to a random spot 5 times',
-        metinDe: 'Die Maus flieht 5-mal an einen zufälligen Ort',
-        metinEs: 'El ratón huye 5 veces a un lugar al azar',
-        bloklar: {'goto_random'},
-        enAz: 5,
+      VeHedefi(
+        metin: 'Devi sürekli Fare\'ye dönüp onu kovalasın',
+        metinEn: 'Devi keeps turning towards the Mouse and chasing it',
+        metinDe: 'Devi dreht sich immer wieder zur Maus und jagt sie',
+        metinEs: 'Devi gira siempre hacia el Ratón y lo persigue',
+        hepsi: [
+          BlokHedefi(
+              metin: '',
+              metinEn: '',
+              metinDe: '',
+              metinEs: '',
+              bloklar: {'forever'}),
+          CalistiHedefi(
+              metin: '',
+              metinEn: '',
+              metinDe: '',
+              metinEs: '',
+              bloklar: {'point_towards_mouse'},
+              enAz: 10),
+        ],
       ),
       DegiskenHedefi(
-        metin: 'Her yakalayışta puan artsın: sonunda puan 5 olsun',
-        metinEn: 'Every catch adds a point: the score ends at 5',
-        metinDe: 'Jeder Fang gibt einen Punkt: am Ende sind es 5 Punkte',
-        metinEs: 'Cada captura suma un punto: al final hay 5 puntos',
+        metin: 'Fare\'yi 5 kez yakala: puan 5 olsun',
+        metinEn: 'Catch the Mouse 5 times: the score reaches 5',
+        metinDe: 'Fang die Maus 5-mal: es werden 5 Punkte',
+        metinEs: 'Atrapa al Ratón 5 veces: llega a 5 puntos',
         ad: 'Puan',
-        islem: '=',
+        islem: '>=',
         deger: 5,
       ),
-      SoylediHedefi(
-        metin: 'Oyun bitince Devi puanı söylesin',
-        metinEn: 'When the game ends, Devi says the score',
-        metinDe: 'Am Spielende sagt Devi die Punktzahl',
-        metinEs: 'Al terminar, Devi dice la puntuación',
-        bloklar: {'say_score'},
+      VeHedefi(
+        metin: 'Puan 5 olunca Devi puanı söylesin ve oyun dursun',
+        metinEn: 'At 5 points Devi says the score and the game stops',
+        metinDe: 'Bei 5 Punkten sagt Devi die Punktzahl und das Spiel stoppt',
+        metinEs: 'Con 5 puntos Devi dice la puntuación y el juego se detiene',
+        hepsi: [
+          SoylediHedefi(
+              metin: '',
+              metinEn: '',
+              metinDe: '',
+              metinEs: '',
+              bloklar: {'say_score'}),
+          DurduHedefi(metin: '', metinEn: '', metinDe: '', metinEs: ''),
+        ],
       ),
     ],
-    ornekCozum: 'green_flag set_score_0 repeat_5 if_touching goto_random '
-        'change_score } } say_score',
-    ipucu: 'Puanı döngüden ÖNCE sıfırla, döngüden SONRA söyle. Kaçmak ve '
-        'puan artırmak döngünün İÇİNDE.',
-    ipucuEn: 'Reset the score BEFORE the loop and say it AFTER the loop. '
-        'Running away and adding a point go INSIDE the loop.',
-    ipucuDe: 'Setze die Punkte VOR der Schleife zurück und sag sie NACH der '
-        'Schleife. Fliehen und Punkt dazuzählen gehören IN die Schleife.',
-    ipucuEs: 'Pon los puntos a cero ANTES del bucle y dilos DESPUÉS. Huir y '
-        'sumar un punto van DENTRO del bucle.',
-    bilgisayarNotu: 'Scratch\'te fareyi ayrı bir kukla yap ve Devi\'yi ok '
-        'tuşlarıyla yönet; puanı sahnede göster.',
-    bilgisayarNotuEn: 'In Scratch, make the mouse a separate sprite and steer '
-        'Devi with the arrow keys; show the score on the stage.',
-    bilgisayarNotuDe: 'Mach in Scratch aus der Maus eine eigene Figur und '
-        'steuere Devi mit den Pfeiltasten; zeig die Punkte auf der Bühne.',
-    bilgisayarNotuEs: 'En Scratch, haz del ratón un objeto aparte y mueve a '
-        'Devi con las flechas; muestra los puntos en el escenario.',
+    ornekCozum: 'green_flag set_score_0 goto_center forever '
+        'point_towards_mouse move_10=6 if_touching change_score } '
+        'if_score_5 say_score stop_all } }',
+    ipucu: 'Kovalamak "sürekli tekrarla"nın İÇİNDE: Fare\'ye doğru yönel, '
+        'birkaç adım git, Fare\'ye değiyorsa puanı artır. Puan 5 olunca puanı '
+        'söyle ve tümünü durdur. Devi Fare\'den hızlı olsun: adım sayısını '
+        'büyüt.',
+    ipucuEn: 'The chase goes INSIDE "forever": point towards the Mouse, move '
+        'a few steps, and if touching the Mouse add a point. At 5 points say '
+        'the score and stop all. Devi must be faster than the Mouse: make the '
+        'steps bigger.',
+    ipucuDe: 'Die Jagd gehört IN „wiederhole fortlaufend“: zur Maus drehen, '
+        'ein paar Schritte gehen, und wenn die Maus berührt wird, einen Punkt '
+        'dazu. Bei 5 Punkten die Punkte sagen und alles stoppen. Devi muss '
+        'schneller sein als die Maus: mach die Schritte größer.',
+    ipucuEs: 'La persecución va DENTRO de "por siempre": apunta hacia el '
+        'Ratón, mueve unos pasos y, si tocas al Ratón, suma un punto. Con 5 '
+        'puntos di la puntuación y detén todo. Devi debe ser más rápido que '
+        'el Ratón: haz los pasos más grandes.',
+    bilgisayarNotu: 'Scratch\'te bir süre sayacı ekle: 30 saniyede Fare\'yi '
+        'kaç kez yakalayabiliyorsun?',
+    bilgisayarNotuEn: 'In Scratch, add a timer: how many times can you catch '
+        'the Mouse in 30 seconds?',
+    bilgisayarNotuDe: 'Füge in Scratch einen Timer hinzu: Wie oft fängst du '
+        'die Maus in 30 Sekunden?',
+    bilgisayarNotuEs: 'En Scratch, añade un temporizador: ¿cuántas veces '
+        'atrapas al Ratón en 30 segundos?',
     xpReward: 50,
   );
 
@@ -262,74 +331,160 @@ class ScratchAtolyeleri {
   );
 
   // ------------------------------------------------------------- 5.1
-  static final yildizYagmuru = ProjeAtolyesiStep(
-    id: 's5_1_atolye',
-    title: 'Proje: Yıldız Yağmuru',
-    titleEn: 'Project: Star Rain',
-    titleDe: 'Projekt: Sternenregen',
-    titleEs: 'Proyecto: Lluvia de estrellas',
-    description: 'Üç yıldız art arda gökten düşsün: her biri en tepeden '
-        'başlasın ve yere kadar insin.',
-    descriptionEn: 'Three stars fall from the sky one after another: each '
-        'starts at the very top and drops all the way down.',
-    descriptionDe: 'Drei Sterne fallen nacheinander vom Himmel: Jeder startet '
-        'ganz oben und fällt bis nach unten.',
-    descriptionEs: 'Tres estrellas caen del cielo una tras otra: cada una '
-        'empieza arriba del todo y baja hasta el suelo.',
+  /// Elmalari tutan kase: hazir kodu var; oklarla sola-saga gidiyor.
+  static final kase = KuklaTanimi(
+    ad: 'Kase',
+    adEn: 'Bowl',
+    adDe: 'Schüssel',
+    adEs: 'Cuenco',
+    gorunum: KuklaGorunumu.kase,
+    x: 0,
+    y: -125,
+    yaricap: 28,
+    renk: 'kase',
+    kod: 'green_flag goto_bottom forever if_right change_x=8 } '
+        'if_left change_x=-8 } }',
     palet: [
       AtolyeBloklari.bayrak,
-      AtolyeBloklari.tepeyeGit,
-      AtolyeBloklari.tekrarla('3'),
+      AtolyeBloklari.asagiyaGit,
+      AtolyeBloklari.surekli,
+      AtolyeBloklari.egerSag,
+      AtolyeBloklari.egerSol,
+      AtolyeBloklari.xDegistir,
+    ],
+  );
+
+  static final elmaYagmuru = ProjeAtolyesiStep(
+    id: 's5_1_atolye',
+    title: 'Proje: Elma Yağmuru',
+    titleEn: 'Project: Apple Rain',
+    titleDe: 'Projekt: Apfelregen',
+    titleEs: 'Proyecto: Lluvia de manzanas',
+    description: 'Gökten elmalar yağsın! Elma kuklası kendinin ikizlerini '
+        'yaratsın; her ikiz tepeden düşsün. Kaseye düşen elma puan '
+        'kazandırsın, yeşil yere düşen kaybolsun. Kaseyi ok tuşlarıyla sen '
+        'yönet.',
+    descriptionEn: 'Apples rain from the sky! The Apple sprite creates clones '
+        'of itself and each clone falls from the top. An apple in the Bowl '
+        'scores a point; one that hits the green ground disappears. You steer '
+        'the Bowl with the arrow keys.',
+    descriptionDe: 'Es regnet Äpfel! Die Apfel-Figur erzeugt Klone von sich '
+        'selbst, und jeder Klon fällt von oben. Ein Apfel in der Schüssel '
+        'gibt einen Punkt; einer, der den grünen Boden berührt, verschwindet. '
+        'Du steuerst die Schüssel mit den Pfeiltasten.',
+    descriptionEs: '¡Llueven manzanas! El objeto Manzana crea clones de sí '
+        'mismo y cada clon cae desde arriba. Una manzana en el Cuenco suma un '
+        'punto; la que toca el suelo verde desaparece. Tú mueves el Cuenco '
+        'con las flechas.',
+    anaKukla: const KuklaTanimi(
+      ad: 'Elma',
+      adEn: 'Apple',
+      adDe: 'Apfel',
+      adEs: 'Manzana',
+      gorunum: KuklaGorunumu.elma,
+      x: 0,
+      y: 170,
+      yaricap: 14,
+    ),
+    kuklalar: [kase],
+    oyuncu: const OtomatikOyuncu(takipEden: 'Kase', hedef: 'Elma'),
+    sureSiniri: 20,
+    palet: [
+      AtolyeBloklari.bayrak,
+      AtolyeBloklari.gizle,
+      AtolyeBloklari.puanSifir,
       AtolyeBloklari.tekrarla('10'),
-      AtolyeBloklari.yAsagi,
-      AtolyeBloklari.rastgeleGit,
+      AtolyeBloklari.ikizYarat,
       AtolyeBloklari.bekle1,
+      AtolyeBloklari.ikizOlarak,
+      AtolyeBloklari.rastgeleGit,
+      AtolyeBloklari.yTepe,
+      AtolyeBloklari.goster,
+      AtolyeBloklari.surekli,
+      AtolyeBloklari.yAsagi,
+      AtolyeBloklari.egerKaseyeDegiyor,
+      AtolyeBloklari.puanArtir,
+      AtolyeBloklari.ikiziSil,
+      AtolyeBloklari.egerZemineDegiyor,
     ],
-    sayiDuzenlenebilir: {'change_y_down', 'repeat_3', 'repeat_10'},
+    sayiDuzenlenebilir: {'repeat_10', 'change_y_down'},
     hedefler: const [
-      KonumHedefi(
-        metin: 'Yıldız gökyüzünün tepesinden başlasın',
-        metinEn: 'The star starts at the top of the sky',
-        metinDe: 'Der Stern startet ganz oben am Himmel',
-        metinEs: 'La estrella empieza arriba del todo',
-        yEnAz: 140,
-        herhangiAn: true,
+      KlonHedefi(
+        metin: 'En az 10 elma ikizi yarat',
+        metinEn: 'Create at least 10 apple clones',
+        metinDe: 'Erzeuge mindestens 10 Apfel-Klone',
+        metinEs: 'Crea al menos 10 clones de manzana',
+        enAz: 10,
       ),
-      KonumHedefi(
-        metin: 'Yıldız yere kadar düşsün (y -80\'in altına)',
-        metinEn: 'The star falls to the ground (y below -80)',
-        metinDe: 'Der Stern fällt bis zum Boden (y unter -80)',
-        metinEs: 'La estrella cae hasta el suelo (y por debajo de -80)',
-        yEnCok: -80,
+      VeHedefi(
+        metin: 'Her ikiz tepeden başlasın ve aşağı düşsün',
+        metinEn: 'Each clone starts at the top and falls down',
+        metinDe: 'Jeder Klon startet oben und fällt nach unten',
+        metinEs: 'Cada clon empieza arriba y cae',
+        hepsi: [
+          OlayHedefi(
+              metin: '',
+              metinEn: '',
+              metinDe: '',
+              metinEs: '',
+              olay: 'ikiz',
+              bloklar: {'set_y_170'}),
+          OlayHedefi(
+              metin: '',
+              metinEn: '',
+              metinDe: '',
+              metinEs: '',
+              olay: 'ikiz',
+              bloklar: {'change_y_down'}),
+        ],
       ),
-      CalistiHedefi(
-        metin: 'Üç yıldız art arda yağsın',
-        metinEn: 'Three stars fall one after another',
-        metinDe: 'Drei Sterne fallen nacheinander',
-        metinEs: 'Caen tres estrellas una tras otra',
-        bloklar: {'goto_top'},
-        enAz: 3,
+      DegiskenHedefi(
+        metin: 'Kaseyle en az 5 elma yakala',
+        metinEn: 'Catch at least 5 apples with the Bowl',
+        metinDe: 'Fang mindestens 5 Äpfel mit der Schüssel',
+        metinEs: 'Atrapa al menos 5 manzanas con el Cuenco',
+        ad: 'Puan',
+        islem: '>=',
+        deger: 5,
+      ),
+      KlonHedefi(
+        metin: 'Yakalanan ya da yere düşen her elma kendini silsin',
+        metinEn: 'Every apple that is caught or hits the ground deletes itself',
+        metinDe: 'Jeder gefangene oder gelandete Apfel löscht sich selbst',
+        metinEs: 'Cada manzana atrapada o que toca el suelo se borra',
+        enAz: 10,
+        enAzSilinen: 10,
       ),
     ],
-    ornekCozum: 'green_flag repeat_3 goto_top repeat_10 change_y_down=-25 '
-        '} }',
-    ipucu: 'Döngünün içine bir döngü koy: dıştaki kaç yıldız düşeceğini, '
-        'içteki bir yıldızın ne kadar düşeceğini söyler.',
-    ipucuEn: 'Put a loop inside a loop: the outer one says how many stars '
-        'fall, the inner one how far each star falls.',
-    ipucuDe: 'Setz eine Schleife in eine Schleife: Die äußere sagt, wie '
-        'viele Sterne fallen, die innere, wie weit ein Stern fällt.',
-    ipucuEs: 'Pon un bucle dentro de otro: el de fuera dice cuántas '
-        'estrellas caen, el de dentro cuánto cae cada una.',
-    bilgisayarNotu: 'Scratch\'te "kendimin ikizini yarat" ile aynı anda '
-        'birçok yıldız yağdır.',
-    bilgisayarNotuEn: 'In Scratch, use "create clone of myself" to make many '
-        'stars fall at once.',
-    bilgisayarNotuDe: 'Nutze in Scratch „erzeuge Klon von mir selbst“, damit '
-        'viele Sterne gleichzeitig fallen.',
-    bilgisayarNotuEs: 'En Scratch, usa "crear clon de mí mismo" para que '
-        'caigan muchas estrellas a la vez.',
-    xpReward: 40,
+    ornekCozum: 'green_flag hide set_score_0 repeat_10 create_clone wait_1s } '
+        'when_clone goto_random set_y_170 show forever change_y_down=-6 '
+        'if_touching_bowl change_score delete_clone } '
+        'if_touching_ground delete_clone } }',
+    ipucu: 'İki betik gerekiyor. Bayrak betiği asıl elmayı gizler ve bir '
+        'döngüyle ikizler yaratır. "İkiz olarak başladığımda" betiği ikizi '
+        'tepeye koyar, gösterir ve sürekli aşağı indirir: kaseye ya da '
+        'yeşile değince ikizi sil.',
+    ipucuEn: 'You need two scripts. The flag script hides the real apple and '
+        'creates clones in a loop. The "when I start as a clone" script puts '
+        'the clone at the top, shows it and keeps moving it down: when it '
+        'touches the Bowl or the green, delete the clone.',
+    ipucuDe: 'Du brauchst zwei Skripte. Das Flaggen-Skript versteckt den '
+        'echten Apfel und erzeugt in einer Schleife Klone. Das Skript „Wenn '
+        'ich als Klon entstehe“ setzt den Klon nach oben, zeigt ihn und lässt '
+        'ihn fallen: Berührt er die Schüssel oder das Grün, lösch den Klon.',
+    ipucuEs: 'Necesitas dos guiones. El de la bandera esconde la manzana real '
+        'y crea clones en un bucle. El de "al comenzar como clon" pone el '
+        'clon arriba, lo muestra y lo hace bajar: si toca el Cuenco o el '
+        'verde, borra el clon.',
+    bilgisayarNotu: 'Scratch\'te oyunu zorlaştır: her yakalayışta elmalar '
+        'biraz daha hızlı düşsün.',
+    bilgisayarNotuEn: 'In Scratch, make it harder: the apples fall a little '
+        'faster after every catch.',
+    bilgisayarNotuDe: 'Mach es in Scratch schwerer: Nach jedem Fang fallen '
+        'die Äpfel etwas schneller.',
+    bilgisayarNotuEs: 'En Scratch, hazlo más difícil: tras cada captura las '
+        'manzanas caen un poco más rápido.',
+    xpReward: 50,
   );
 
   // ------------------------------------------------------------- 6.1
@@ -811,7 +966,7 @@ class ScratchAtolyeleri {
         tuslarlaDevi,
         yakalaOyunu,
         yildizToplayici,
-        yildizYagmuru,
+        elmaYagmuru,
         dansPartisi,
         melodiKutusu,
         yildizCiz,

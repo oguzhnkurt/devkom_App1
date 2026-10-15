@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../yurutme/atolye_hedefleri.dart';
+import '../yurutme/blok_yorumlayici.dart';
 import '../yurutme/mblock_cozum.dart';
 
 /// Modern, FreeCodeCamp-inspired interactive lesson model
@@ -1092,6 +1093,19 @@ class ProjeAtolyesiStep extends LessonStep {
   /// buyutmek icin fikir.
   final String? bilgisayarNotu;
 
+  /// Cocugun programladigi kukla (varsayilan: Devi, sahnenin ortasinda).
+  final KuklaTanimi anaKukla;
+
+  /// Sahnedeki HAZIR KODLU diger kuklalar (3.1'de kacan Fare, 5.1'de
+  /// oklarla giden Kase). Kodlari cocuga gosteriliyor ama degistirilmiyor.
+  final List<KuklaTanimi> kuklalar;
+
+  /// Kimse tuslara basmazsa oynayan otomatik oyuncu.
+  final OtomatikOyuncu oyuncu;
+
+  /// `surekli tekrarla` kac sanal saniye donsun.
+  final double sureSiniri;
+
   final String? titleEn;
   final String? titleDe;
   final String? titleEs;
@@ -1116,6 +1130,10 @@ class ProjeAtolyesiStep extends LessonStep {
     this.baslangic = '',
     this.sayiDuzenlenebilir = const {},
     this.bilgisayarNotu,
+    this.anaKukla = KuklaTanimi.devi,
+    this.kuklalar = const [],
+    this.oyuncu = const OtomatikOyuncu(),
+    this.sureSiniri = ProjeMotoru.varsayilanSure,
     this.titleEn,
     this.titleDe,
     this.titleEs,

@@ -239,9 +239,11 @@ void main() {
           proje: true);
       expect(y.alinanHaberler, {'dans'});
       expect(y.sonSahne.kostum, 5);
-      // Sira: haber -> alici -> Merhaba.
+      // Sira (Scratch gibi): haberi salan betik devam ediyor (Merhaba),
+      // alici AYNI karede ondan sonra basliyor.
       final ids = y.adimlar.map((a) => a.blokId).toList();
-      expect(ids.indexOf('next_costume'), lessThan(ids.indexOf('say_hello')));
+      expect(ids.indexOf('say_hello'), lessThan(ids.indexOf('next_costume')));
+      expect(y.adimlar[ids.indexOf('next_costume')].sahne.kostum, 2);
     });
 
     test('alicisi olmayan haber alinmis sayilmiyor', () {
