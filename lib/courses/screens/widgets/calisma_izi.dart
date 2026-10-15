@@ -56,6 +56,9 @@ class CalismaIzi extends StatelessWidget {
   final String lang;
   final double enFazlaYukseklik;
 
+  /// Izde cizilen en fazla satir.
+  static const int enFazlaSatir = 150;
+
   @override
   Widget build(BuildContext context) {
     final sonuc = yurutme ?? BlokYorumlayici(dil: lang).yurut(bloklar);
@@ -89,7 +92,26 @@ class CalismaIzi extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final adim in sonuc.adimlar) _satir(adim),
+                for (final adim in sonuc.adimlar.take(enFazlaSatir))
+                  _satir(adim),
+                if (sonuc.adimlar.length > enFazlaSatir)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      // Oyunlarda (surekli tekrarla, ikizler) binlerce
+                      // adim olabiliyor; hepsi bir sutunda cizilmiyor.
+                      lessonText(
+                          lang,
+                          '… ve ${sonuc.adimlar.length - enFazlaSatir} adım daha',
+                          '… and ${sonuc.adimlar.length - enFazlaSatir} more steps',
+                          '… und ${sonuc.adimlar.length - enFazlaSatir} weitere Schritte',
+                          '… y ${sonuc.adimlar.length - enFazlaSatir} pasos más'),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF8A94A6),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

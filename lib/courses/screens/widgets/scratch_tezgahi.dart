@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,7 @@ import '../../../widgets/block_animation_player.dart';
 import '../../../widgets/mascot.dart';
 import '../../models/interactive_lesson_model.dart';
 import '../../sahne/blok_tezgahi_karti.dart';
+import '../../sahne/proje_sahnesi.dart';
 import '../../sahne/scratch_sahnesi.dart';
 import '../../yurutme/blok_yorumlayici.dart';
 import '../../yurutme/kod_yapisi.dart';
@@ -44,6 +46,11 @@ class ScratchTezgahi extends StatefulWidget {
     this.dogru = false,
     this.sahneYuksekligi,
     this.izGoster = true,
+    this.ana = KuklaTanimi.devi,
+    this.kuklalar = const [],
+    this.oyuncu = const OtomatikOyuncu(),
+    this.sureSiniri = ProjeMotoru.varsayilanSure,
+    this.hedefTamam,
   });
 
   final List<ScratchBlock> palet;
@@ -65,6 +72,17 @@ class ScratchTezgahi extends StatefulWidget {
   final double? sahneYuksekligi;
   final bool izGoster;
 
+  /// Proje Atolyesi: cocugun kuklasi, hazir kodlu diger kuklalar,
+  /// otomatik oyuncu ve sure siniri (bkz. [ProjeMotoru]).
+  final KuklaTanimi ana;
+  final List<KuklaTanimi> kuklalar;
+  final OtomatikOyuncu oyuncu;
+  final double sureSiniri;
+
+  /// Proje Atolyesi: hedefler tamam mi? Tamamsa sonsuz dongulu oyun
+  /// sure sinirini beklemeden bitiyor.
+  final bool Function(Yurutme yurutme, List<KodOgesi> kod)? hedefTamam;
+
   @override
   State<ScratchTezgahi> createState() => ScratchTezgahiState();
 }
@@ -80,6 +98,14 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
   GlobalKey<BlockAnimationPlayerState> _oynatici = GlobalKey();
   final ValueNotifier<int?> _calisanSira = ValueNotifier<int?>(null);
   final GlobalKey _sahneAnahtari = GlobalKey();
+
+  /// Proje Atolyesi: calisan (ya da son calisan) motor ve bayrak
+  /// oncesindeki onizleme motoru (kuklalar baslangic yerlerinde).
+  ProjeMotoru? _motor;
+  ProjeMotoru? _onizleme;
+  Duration _mesgulKare = ProjeSahnesi.kareSuresi;
+  final GlobalKey<ProjeSahnesiState> _projeSahnesi = GlobalKey();
+  final Random _tohumlar = Random();
 
   List<KodOgesi> get kod => List.unmodifiable(_kod);
   bool get calisiyor => _calisiyor;
@@ -112,7 +138,56 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
     if (_calisiyor) _oynatici.currentState?.durdur();
     _calisiyor = false;
     _yurutme = null;
+    _motor = null;
+    _onizleme = null;
     _calisanSira.value = null;
+  }
+
+  ProjeMotoru _yeniMotor(List<ScratchBlock> bloklar, int tohum) => ProjeMotoru(
+        yorumlayici: BlokYorumlayici(dil: widget.lang, rastgele: Random(tohum)),
+        bloklar: bloklar,
+        ana: widget.ana,
+        kuklalar: widget.kuklalar,
+        oyuncu: widget.oyuncu,
+        sureSiniri: widget.sureSiniri,
+        // Canli sahnede cocuga once kendisi basma firsati.
+        otomatikGecikme: 45,
+      );
+
+  /// Proje Atolyesi: motoru canli sahnede baslatir.
+  void _projeyiCalistir(List<ScratchBlock> bloklar) {
+    final tohum = _tohumlar.nextInt(1 << 30);
+    // Prova: ayni tohumla bastan sona (kimse dokunmadan). Hiz icin:
+    // etkilesimsiz kisa kod (cizim, puan) yavas cekimde, oyunlar gercek
+    // hizda oynatiliyor.
+    final prova = _yeniMotor(bloklar, tohum)..baslat();
+    while (!prova.bitti) {
+      prova.kare();
+    }
+    final ms = prova.etkilesimli
+        ? 33
+        : (3000 / max(1, prova.mesgulKare)).clamp(33, 350).round();
+    setState(() {
+      _calisanBloklar = bloklar;
+      _yurutme = null;
+      _mesgulKare = Duration(milliseconds: ms);
+      _motor = _yeniMotor(bloklar, tohum)..baslat();
+      _calisiyor = true;
+      _calisanSira.value = null;
+    });
+  }
+
+  void _projeBitti() {
+    final m = _motor;
+    if (m == null || !mounted) return;
+    final y = m.sonuc();
+    setState(() {
+      _yurutme = y;
+      _calisiyor = false;
+    });
+    _calisanSira.value = null;
+    widget.onCalisti?.call(y, kod);
+    widget.onOynatmaBitti?.call();
   }
 
   void _degisti(VoidCallback fn, {bool oturdu = false}) {
@@ -171,9 +246,12 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
     if (_kod.isEmpty) return;
     HapticFeedback.lightImpact();
     final bloklar = KodYapisi.blokla(_kod, widget.palet);
-    final y = widget.cokBetik
-        ? BlokYorumlayici(dil: widget.lang, butce: 700).yurutProje(bloklar)
-        : BlokYorumlayici(dil: widget.lang).yurut(bloklar);
+    if (widget.cokBetik) {
+      _projeyiCalistir(bloklar);
+      _sahneyiGoster();
+      return;
+    }
+    final y = BlokYorumlayici(dil: widget.lang).yurut(bloklar);
     setState(() {
       _calisanBloklar = bloklar;
       _yurutme = y;
@@ -182,6 +260,10 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
       _calisanSira.value = null;
     });
     widget.onCalisti?.call(y, kod);
+    _sahneyiGoster();
+  }
+
+  void _sahneyiGoster() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final c = _sahneAnahtari.currentContext;
       if (c == null || !mounted) return;
@@ -196,6 +278,17 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
 
   void durdur() {
     if (!_calisiyor) return;
+    if (widget.cokBetik) {
+      // Sahne motoru durduruyor; bitis _projeBitti'de.
+      final s = _projeSahnesi.currentState;
+      if (s != null) {
+        s.durdur();
+        return;
+      }
+      _motor?.durdur();
+      _projeBitti();
+      return;
+    }
     _oynatici.currentState?.durdur();
     setState(() => _calisiyor = false);
     _calisanSira.value = null;
@@ -219,38 +312,45 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
       children: [
         KeyedSubtree(
           key: _sahneAnahtari,
-          child: SizedBox(
-            height: widget.sahneYuksekligi ?? (kisa ? 210 : 248),
-            child: ScratchSahneKarti(
-              lang: widget.lang,
-              bayrakAnahtari: const ValueKey('sahne_bayragi'),
-              durAnahtari: const ValueKey('sahne_dur'),
-              onBayrak: _kod.isNotEmpty && !_calisiyor ? calistir : null,
-              onDur: _calisiyor ? durdur : null,
-              child: oynuyor
-                  ? BlockAnimationPlayer(
-                      key: _oynatici,
-                      sahne: true,
-                      blocks: _calisanBloklar,
-                      lang: widget.lang,
-                      scratch: true,
-                      size: kukla,
-                      yurutme: _yurutme,
-                      dogru: widget.dogru,
-                      renk: widget.renk,
-                      baslamaGecikmesi: const Duration(milliseconds: 350),
-                      // Proje cizimi yarida kesilmesin; uzun kod hizli.
-                      adimSiniri: widget.cokBetik ? 400 : null,
-                      hiz: (_yurutme!.adimlar.length / 40).clamp(1.0, 4.0),
-                      onComplete: _bitti,
-                      onAdim: (sira) {
-                        if (mounted) _calisanSira.value = sira;
-                      },
-                    )
-                  : _bosSahne(kukla),
-            ),
-          ),
+          child: widget.cokBetik
+              ? _projeSahnesiKarti(kisa)
+              : SizedBox(
+                  height: widget.sahneYuksekligi ?? (kisa ? 210 : 248),
+                  child: ScratchSahneKarti(
+                    lang: widget.lang,
+                    bayrakAnahtari: const ValueKey('sahne_bayragi'),
+                    durAnahtari: const ValueKey('sahne_dur'),
+                    onBayrak: _kod.isNotEmpty && !_calisiyor ? calistir : null,
+                    onDur: _calisiyor ? durdur : null,
+                    child: oynuyor
+                        ? BlockAnimationPlayer(
+                            key: _oynatici,
+                            sahne: true,
+                            blocks: _calisanBloklar,
+                            lang: widget.lang,
+                            scratch: true,
+                            size: kukla,
+                            yurutme: _yurutme,
+                            dogru: widget.dogru,
+                            renk: widget.renk,
+                            baslamaGecikmesi: const Duration(milliseconds: 350),
+                            // Proje cizimi yarida kesilmesin; uzun kod hizli.
+                            adimSiniri: widget.cokBetik ? 400 : null,
+                            hiz:
+                                (_yurutme!.adimlar.length / 40).clamp(1.0, 4.0),
+                            onComplete: _bitti,
+                            onAdim: (sira) {
+                              if (mounted) _calisanSira.value = sira;
+                            },
+                          )
+                        : _bosSahne(kukla),
+                  ),
+                ),
         ),
+        if (widget.cokBetik && widget.kuklalar.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          _kuklaSeridi(),
+        ],
         const SizedBox(height: 12),
         BlokTezgahiKarti(
           lang: widget.lang,
@@ -298,6 +398,164 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
           ),
         ],
       ],
+    );
+  }
+
+  /// Proje Atolyesi sahnesi: Scratch olcusunde (4:3), program tus
+  /// kullaniyorsa altinda sanal tuslar.
+  Widget _projeSahnesiKarti(bool kisa) {
+    final motor = _motor ??
+        (_onizleme ??= _yeniMotor(KodYapisi.blokla(_kod, widget.palet), 0));
+    return LayoutBuilder(builder: (context, kutu) {
+      var tuval = kutu.maxWidth * 0.75;
+      // Kisa ekranda sahne kod alanini ekrandan itmesin.
+      final enFazla = MediaQuery.sizeOf(context).height * (kisa ? 0.36 : 0.42);
+      if (tuval > enFazla) tuval = enFazla;
+      final tuslar = motor.tuslar.isNotEmpty;
+      return SizedBox(
+        height: ScratchSahneKarti.baslikYuksekligi +
+            tuval +
+            (tuslar ? ProjeSahnesi.tusSeridi : 0),
+        child: ScratchSahneKarti(
+          lang: widget.lang,
+          bayrakAnahtari: const ValueKey('sahne_bayragi'),
+          durAnahtari: const ValueKey('sahne_dur'),
+          onBayrak: _kod.isNotEmpty && !_calisiyor ? calistir : null,
+          onDur: _calisiyor ? durdur : null,
+          child: ProjeSahnesi(
+            key: _projeSahnesi,
+            motor: motor,
+            lang: widget.lang,
+            calisiyor: _calisiyor && _motor != null,
+            renk: widget.renk,
+            mesgulKare: _mesgulKare,
+            baslamaGecikmesi: const Duration(milliseconds: 350),
+            dogru: widget.dogru,
+            ipucu: _calisiyor || _motor != null
+                ? null
+                : _kod.isEmpty
+                    ? _t(
+                        'Bloklarla kodunu kur, sonra yeşil bayrağa bas.',
+                        'Build your code with blocks, then press the green flag.',
+                        'Bau deinen Code aus Blöcken und drück dann die grüne Flagge.',
+                        'Arma tu código con bloques y luego pulsa la bandera verde.')
+                    : _t(
+                        'Hazır! Yeşil bayrağa bas ve izle.',
+                        'Ready! Press the green flag and watch.',
+                        'Fertig! Drück die grüne Flagge und schau zu.',
+                        '¡Listo! Pulsa la bandera verde y mira.'),
+            hedefTamam: widget.hedefTamam == null || _motor == null
+                ? null
+                : () => widget.hedefTamam!(_motor!.sonuc(), kod),
+            onAdim: (sira) {
+              if (mounted) _calisanSira.value = sira;
+            },
+            onBitti: _projeBitti,
+          ),
+        ),
+      );
+    });
+  }
+
+  /// Hazir kodlu kuklalar: dokununca kodlari (degistirilemez) aciliyor.
+  Widget _kuklaSeridi() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 6,
+      children: [
+        _kuklaCipi(widget.ana, null),
+        for (final k in widget.kuklalar) _kuklaCipi(k, () => _koduGoster(k)),
+      ],
+    );
+  }
+
+  Widget _kuklaCipi(KuklaTanimi k, VoidCallback? onTap) {
+    final ad = k.adFor(widget.lang);
+    final metin = onTap == null
+        ? _t('$ad · senin kodun', '$ad · your code', '$ad · dein Code',
+            '$ad · tu código')
+        : _t('$ad · hazır kodu', '$ad · ready-made code', '$ad · fertiger Code',
+            '$ad · código listo');
+    return Material(
+      color: onTap == null
+          ? widget.renk.withValues(alpha: 0.12)
+          : const Color(0xFFF1F4F9),
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        key: ValueKey('kukla_cipi_${k.ad}'),
+        borderRadius: BorderRadius.circular(20),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Icon(onTap == null ? Icons.edit_rounded : Icons.visibility_rounded,
+                size: 16,
+                color: onTap == null ? widget.renk : const Color(0xFF64748B)),
+            const SizedBox(width: 6),
+            Text(metin,
+                style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12.5,
+                    color:
+                        onTap == null ? widget.renk : const Color(0xFF475569))),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  void _koduGoster(KuklaTanimi k) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (c) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _t(
+                    '${k.adFor(widget.lang)} kuklasının kodu',
+                    '${k.adFor(widget.lang)}\'s code',
+                    'Code von ${k.adFor(widget.lang)}',
+                    'Código de ${k.adFor(widget.lang)}'),
+                style: const TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 17),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _t(
+                    'Bu kukla hazır gelir; kodunu okuyabilirsin ama değiştiremezsin. Senin kuklanla aynı anda çalışır.',
+                    'This sprite comes ready-made: you can read its code but not change it. It runs at the same time as your sprite.',
+                    'Diese Figur ist fertig: Du kannst ihren Code lesen, aber nicht ändern. Er läuft gleichzeitig mit deiner Figur.',
+                    'Este objeto viene listo: puedes leer su código pero no cambiarlo. Funciona a la vez que tu objeto.'),
+                style: const TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 13,
+                    height: 1.35,
+                    color: Color(0xFF475569)),
+              ),
+              const SizedBox(height: 12),
+              IgnorePointer(
+                child: IcIceKodAlani(
+                  kod: KodYapisi.coz(k.kod),
+                  palet: k.palet,
+                  lang: widget.lang,
+                  imlec: -1,
+                  onImlec: (_) {},
+                  onSil: (_) {},
+                  onBirak: (_, __) {},
+                  saltOkunur: true,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -516,15 +774,13 @@ class IlerleyenIpucu extends StatelessWidget {
               ),
               child: Text(
                 // Bayrak bir simge; duz yazida kelimeyle.
-                cozum
-                    .join('\n')
-                    .replaceAll(
-                        '⚑',
-                        AppLang.pick(lang,
-                            tr: 'yeşil bayrak',
-                            en: 'green flag',
-                            de: 'grüne Flagge',
-                            es: 'bandera verde')),
+                cozum.join('\n').replaceAll(
+                    '⚑',
+                    AppLang.pick(lang,
+                        tr: 'yeşil bayrak',
+                        en: 'green flag',
+                        de: 'grüne Flagge',
+                        es: 'bandera verde')),
                 style: const TextStyle(
                   fontFamily: AppTheme.fontFamily,
                   fontWeight: FontWeight.w700,

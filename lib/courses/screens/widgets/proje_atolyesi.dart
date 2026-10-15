@@ -350,6 +350,15 @@ class _ProjeAtolyesiWidgetState extends State<ProjeAtolyesiWidget> {
           baslangic: _kod,
           duzenlenebilir: _s.sayiDuzenlenebilir,
           cokBetik: true,
+          ana: _s.anaKukla,
+          kuklalar: _s.kuklalar,
+          oyuncu: _s.oyuncu,
+          sureSiniri: _s.sureSiniri,
+          hedefTamam: _s.hedefler.isEmpty
+              ? null
+              : (y, kod) => AtolyeDenetimi.durumlar(
+                      _s.hedefler, AtolyeSonucu(yurutme: y, kod: kod))
+                  .every((d) => d),
           dogru: _tamam,
           onKodDegisti: (k) => _kod = k,
           onCalisti: _calisti,
@@ -432,7 +441,7 @@ class _ProjeAtolyesiWidgetState extends State<ProjeAtolyesiWidget> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '${_t('Bilgisayarda devam et', 'Keep going on a computer', 'Am Computer weitermachen', 'Sigue en el ordenador')}: $not',
+                    '${_t('Bir adım ileri (bilgisayarda)', 'One step further (on a computer)', 'Noch einen Schritt weiter (am Computer)', 'Un paso más (en el ordenador)')}: $not',
                     style: TextStyle(
                       fontFamily: AppTheme.fontFamily,
                       fontSize: 13,

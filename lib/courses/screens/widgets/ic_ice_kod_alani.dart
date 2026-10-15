@@ -50,6 +50,7 @@ class IcIceKodAlani extends StatelessWidget {
     this.calisanSira,
     this.ekleSira,
     this.onEkleSira,
+    this.saltOkunur = false,
   });
 
   final List<KodOgesi> kod;
@@ -66,6 +67,9 @@ class IcIceKodAlani extends StatelessWidget {
   /// Surukleme sirasinda uzerinde durulan hedef (vurgulaniyor).
   final int? ekleSira;
   final ValueChanged<int?>? onEkleSira;
+
+  /// Yalnizca gosterim (hazir kodlu kuklanin kodu): bloklarda "x" yok.
+  final bool saltOkunur;
 
   bool _cMi(String id) =>
       palet.any((b) => b.id == id && b.shape == ScratchBlockShape.cBlock);
@@ -100,7 +104,7 @@ class IcIceKodAlani extends StatelessWidget {
           if (t == null) continue;
           final w = ScratchBlokOlcer.genislik(t, s,
               parca: t.cMi ? ScratchCParcasi.ust : ScratchCParcasi.tamami,
-              silme: true);
+              silme: !saltOkunur);
           m = max(m, girinti[i] * ScratchBlokOlcer.kolGenisligi(s) + w);
         }
         return m;
@@ -287,15 +291,15 @@ class IcIceKodAlani extends StatelessWidget {
       double s, ScratchCParcasi parca) {
     final blok = _blok(i)!;
     final duzenle = onSayi != null && duzenlenebilir.contains(blok.id);
-    final girdi = duzenle ? ScratchBlokOlcer.ilkGirdi(t, s, silme: true) : null;
-    final genislik = ScratchBlokOlcer.genislik(t, s, parca: parca, silme: true);
+    final girdi = duzenle ? ScratchBlokOlcer.ilkGirdi(t, s, silme: !saltOkunur) : null;
+    final genislik = ScratchBlokOlcer.genislik(t, s, parca: parca, silme: !saltOkunur);
     final ekleme = ekleSira == i;
 
     Widget gorunum(bool calisiyor) => ScratchBlok(
           tanim: t,
           olcek: s,
           sigdir: false,
-          silme: true,
+          silme: !saltOkunur,
           parca: parca,
           kimlik: blok.id,
           vurgu: calisiyor

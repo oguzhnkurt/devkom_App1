@@ -78,10 +78,12 @@ class ProjeMotoru {
         ) {
     final anaProgram = _Program.coz(bloklar);
     _sapkasiz = anaProgram.sapkasiz;
-    _ana = SahneKuklasi._(ana, _yeniSahne(ana), anaProgram, ana: true);
+    _ana = SahneKuklasi._(ana, _yeniSahne(ana), anaProgram, _sayac++,
+        ana: true);
     _kuklalar.add(_ana);
     for (final t in kuklalar) {
-      _kuklalar.add(SahneKuklasi._(t, _yeniSahne(t), _Program.coz(t.bloklar)));
+      _kuklalar.add(SahneKuklasi._(
+          t, _yeniSahne(t), _Program.coz(t.bloklar), _sayac++));
     }
     _tuslariTopla();
   }
@@ -137,6 +139,7 @@ class ProjeMotoru {
   final Set<String> _basili = {};
   final List<String> _tuslar = [];
   var _sapkasiz = 0;
+  var _sayac = 0;
   var _kare = 0;
   var _toplamAdim = 0;
   var _bitti = false;
@@ -299,6 +302,13 @@ class ProjeMotoru {
     }
   }
 
+  /// Yurutmeyi BITMIS sayar (cocuk durdurmadi): sahne hedefler
+  /// saglaninca oyunu boyle bitiriyor.
+  void tamamla() {
+    if (_bitti) return;
+    _bitir();
+  }
+
   /// Kirmizi dur.
   void durdur() {
     if (_bitti) return;
@@ -350,6 +360,7 @@ class ProjeMotoru {
         listeler: _listeler,
       ),
       k._program,
+      _sayac++,
       ana: k.ana,
       klon: true,
     );
@@ -886,10 +897,13 @@ class OtomatikOyuncu {
 
 /// Sahnedeki bir kuklanin o anki hali (asil ya da ikiz).
 class SahneKuklasi {
-  SahneKuklasi._(this.tanim, this.sahne, this._program,
+  SahneKuklasi._(this.tanim, this.sahne, this._program, this.no,
       {this.ana = false, this.klon = false});
 
   final KuklaTanimi tanim;
+
+  /// Yurutmedeki kimligi (sahne kuklanin widget'ini bununla tutuyor).
+  final int no;
   final Sahne sahne;
   final _Program _program;
 
