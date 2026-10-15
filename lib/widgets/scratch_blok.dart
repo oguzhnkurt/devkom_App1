@@ -213,7 +213,12 @@ class ScratchBlokTanimi {
             SbYazi(:final metin) => metin,
             SbGirdi(:final deger) => deger,
             SbAcilir(:final deger) => deger,
-            SbIkon(:final ikon) => ikon == ScratchIkon.bayrak ? '⚑' : '↻',
+            SbIkon(:final ikon) => switch (ikon) {
+                ScratchIkon.bayrak => '⚑',
+                ScratchIkon.kalem => '✎',
+                ScratchIkon.muzik => '♫',
+                _ => '↻',
+              },
             SbIcBlok(:final blok) => blok.sekil == ScratchSekil.mantiksal
                 ? '<${blok.duzMetin}>'
                 : blok.sekil == ScratchSekil.raportor
@@ -375,6 +380,27 @@ class _BosKosulOge extends _Oge {
   }
 }
 
+/// Eklenti simgesinin sagindaki dikey ayrac (Scratch'in
+/// field_vertical_separator'u: simge boyunda, kenar renginde).
+class _AyracOge extends _Oge {
+  _AyracOge(this.s, this.renk);
+  final double s;
+  final Color renk;
+  @override
+  double get w => math.max(1, s);
+  @override
+  double get h => 40 * s;
+  @override
+  _Bicim get bicim => _Bicim.ikon;
+  @override
+  void ciz(Canvas c, Offset o) => c.drawLine(
+      o + Offset(w / 2, 0),
+      o + Offset(w / 2, h),
+      Paint()
+        ..color = renk
+        ..strokeWidth = w);
+}
+
 /// Kod alanindaki bloklarin sagindaki kucuk "x" (dokununca cikar).
 class _SilOge extends _Oge {
   _SilOge(this.s);
@@ -499,7 +525,8 @@ class _BlokDuzeni {
       : sekil = sekilZorla ?? t.sekil {
     satir = _Satir(_ogeler(t.satir, silme), sekil, s);
     if (t.degilse != null) {
-      degilseSatiri = _Satir(_ogeler(t.degilse!, false), sekil, s);
+      degilseSatiri =
+          _Satir(_ogeler(t.degilse!, false, ilkSatir: false), sekil, s);
     }
   }
 
@@ -512,7 +539,21 @@ class _BlokDuzeni {
   ScratchKategori get k => t.kategori;
   Color get dolgu => t.prototip ? k.renk2 : k.renk;
 
-  List<_Oge> _ogeler(List<SbParca> p, bool silme) => [
+  /// Eklenti blogu (Kalem, Muzik): satir eklenti simgesi ve dikey
+  /// ayracla basliyor — Scratch 3'teki gibi.
+  ScratchIkon? get _uzantiIkonu => t.prototip
+      ? null
+      : switch (k) {
+          ScratchKategori.kalem => ScratchIkon.kalem,
+          ScratchKategori.muzik => ScratchIkon.muzik,
+          _ => null,
+        };
+
+  List<_Oge> _ogeler(List<SbParca> p, bool silme, {bool ilkSatir = true}) => [
+        if (ilkSatir && _uzantiIkonu != null) ...[
+          _IkonOge(_uzantiIkonu!, s),
+          _AyracOge(s, k.renk3),
+        ],
         for (final e in p)
           switch (e) {
             SbYazi(:final metin) => _YaziOge(metin, s),

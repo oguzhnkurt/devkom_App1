@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+import 'dart:typed_data';
 import 'dart:ui';
 
 /// Scratch blok simgeleri — Scratch'in KENDI SVG yollari.
@@ -8,7 +10,12 @@ import 'dart:ui';
 /// bu yollarin kullandigi komutlari (M L H V C S A Z, buyuk/kucuk)
 /// taniyor. Material'in `Icons.flag` simgesi Scratch'in bayragina hic
 /// benzemiyordu.
-enum ScratchIkon { bayrak, donSag, tekrar, acilirOk }
+///
+/// [kalem] ve [muzik] eklenti simgeleri: Scratch 3'te eklenti bloklari
+/// (Kalem, Muzik) satirin solunda 40x40 bir simge ve onun saginda dikey
+/// bir ayrac cizgisiyle basliyor. Bu iki simge SVG dosyasi degil, Path
+/// ile burada cizildi ([_kalemCiz], [_muzikCiz]).
+enum ScratchIkon { bayrak, donSag, tekrar, acilirOk, kalem, muzik }
 
 class _IkonKatmani {
   const _IkonKatmani(this.renk, this.yol, {this.saydamlik = 1});
@@ -86,6 +93,9 @@ const Map<ScratchIkon, _IkonTanimi> _ikonlar = {
 
 /// Simgenin dogal boyutu (Scratch'te 1x olcekte, piksel).
 Size scratchIkonBoyutu(ScratchIkon ikon) {
+  if (ikon == ScratchIkon.kalem || ikon == ScratchIkon.muzik) {
+    return const Size(_uzantiIkonu, _uzantiIkonu);
+  }
   final t = _ikonlar[ikon]!;
   return Size(t.genislik, t.yukseklik);
 }
@@ -95,10 +105,20 @@ final Map<String, Path> _yolOnbellegi = {};
 /// Simgeyi [konum]a [olcek] ile cizer.
 void scratchIkonCiz(
     Canvas canvas, ScratchIkon ikon, Offset konum, double olcek) {
-  final t = _ikonlar[ikon]!;
   canvas.save();
   canvas.translate(konum.dx, konum.dy);
   canvas.scale(olcek);
+  if (ikon == ScratchIkon.kalem) {
+    _kalemCiz(canvas);
+    canvas.restore();
+    return;
+  }
+  if (ikon == ScratchIkon.muzik) {
+    _muzikCiz(canvas);
+    canvas.restore();
+    return;
+  }
+  final t = _ikonlar[ikon]!;
   for (final k in t.katmanlar) {
     final yol = _yolOnbellegi.putIfAbsent(k.yol, () => svgYolu(k.yol));
     canvas.drawPath(
@@ -109,6 +129,123 @@ void scratchIkonCiz(
     );
   }
   canvas.restore();
+}
+
+// ---------------------------------------------------------------------
+// Eklenti simgeleri (40x40, Scratch'in eklenti blogu simge boyutu)
+// ---------------------------------------------------------------------
+
+const double _uzantiIkonu = 40;
+
+/// Scratch'in eklenti simgelerindeki koyu gri kontur.
+const Color _ikonKontur = Color(0xFF575E75);
+
+Paint _dolgu(Color c) => Paint()
+  ..isAntiAlias = true
+  ..color = c;
+
+Paint _kontur([double w = 1.6]) => Paint()
+  ..isAntiAlias = true
+  ..style = PaintingStyle.stroke
+  ..strokeWidth = w
+  ..strokeJoin = StrokeJoin.round
+  ..strokeCap = StrokeCap.round
+  ..color = _ikonKontur;
+
+/// Kalem eklentisi: capraz duran bir kalem (ucu sol altta), beyaz
+/// govde, mavi bilezik, ahsap uc ve grafit — Scratch'in kalem simgesi
+/// gibi koyu gri konturlu.
+void _kalemCiz(Canvas c) {
+  c.save();
+  // Kalemi yatay ciz, merkez etrafinda -45 derece dondur.
+  c.translate(20, 20);
+  c.rotate(-math.pi / 4);
+  c.translate(-20, -20);
+
+  const ust = 15.5, alt = 24.5, orta = 20.0;
+  // Ahsap uc (koni).
+  final uc = Path()
+    ..moveTo(4, orta)
+    ..lineTo(12, ust)
+    ..lineTo(12, alt)
+    ..close();
+  c.drawPath(uc, _dolgu(const Color(0xFFF7D9A8)));
+  // Grafit.
+  final grafit = Path()
+    ..moveTo(4, orta)
+    ..lineTo(7.2, orta - 2)
+    ..lineTo(7.2, orta + 2)
+    ..close();
+  c.drawPath(grafit, _dolgu(_ikonKontur));
+  // Govde.
+  final govde = RRect.fromLTRBAndCorners(12, ust, 29, alt);
+  c.drawRRect(govde, _dolgu(const Color(0xFFFFFFFF)));
+  // Govdedeki ince serit (kalemin yuzleri).
+  c.drawLine(const Offset(12, orta), const Offset(29, orta),
+      _kontur(0.9)..color = const Color(0xFFD9DCE3));
+  // Mavi bilezik ve silgi ucu.
+  c.drawRect(
+      const Rect.fromLTRB(29, ust, 32, alt), _dolgu(const Color(0xFF4C97FF)));
+  final silgi = RRect.fromLTRBAndCorners(32, ust, 36, alt,
+      topRight: const Radius.circular(2.5),
+      bottomRight: const Radius.circular(2.5));
+  c.drawRRect(silgi, _dolgu(const Color(0xFFFF8C9E)));
+  // Dis kontur.
+  final dis = Path()
+    ..moveTo(4, orta)
+    ..lineTo(12, ust)
+    ..lineTo(33.5, ust)
+    ..arcToPoint(const Offset(36, ust + 2.5),
+        radius: const Radius.circular(2.5))
+    ..lineTo(36, alt - 2.5)
+    ..arcToPoint(const Offset(33.5, alt), radius: const Radius.circular(2.5))
+    ..lineTo(12, alt)
+    ..close();
+  c.drawPath(dis, _kontur());
+  c.drawLine(const Offset(12, ust), const Offset(12, alt), _kontur(1.2));
+  c.drawLine(const Offset(29, ust), const Offset(29, alt), _kontur(1.2));
+  c.restore();
+}
+
+/// Muzik eklentisi: kirisle bagli iki sekizlik nota, beyaz dolgu, koyu
+/// gri kontur.
+void _muzikCiz(Canvas c) {
+  // Nota baslari (hafif egik elipsler).
+  Path bas(double cx, double cy) => _donmus(
+      Path()
+        ..addOval(Rect.fromCenter(center: Offset.zero, width: 10, height: 7.4)),
+      -0.42,
+      cx,
+      cy);
+
+  final sol = bas(12, 30);
+  final sag = bas(28.5, 26.5);
+  // Saplar ve kiris tek parca.
+  final govde = Path()
+    ..moveTo(15.6, 29)
+    ..lineTo(15.6, 10.5)
+    ..lineTo(32.2, 6.5)
+    ..lineTo(32.2, 25.5)
+    ..lineTo(29.8, 25.5)
+    ..lineTo(29.8, 12.6)
+    ..lineTo(18, 15.4)
+    ..lineTo(18, 29)
+    ..close();
+  final hepsi = Path.combine(
+      PathOperation.union, Path.combine(PathOperation.union, sol, sag), govde);
+  c.drawPath(hepsi, _dolgu(const Color(0xFFFFFFFF)));
+  c.drawPath(hepsi, _kontur());
+}
+
+/// [p]yi [aci] kadar dondurup ([cx], [cy])ye tasir.
+Path _donmus(Path p, double aci, double cx, double cy) {
+  final co = math.cos(aci), si = math.sin(aci);
+  return p.transform(Float64List.fromList([
+    co, si, 0, 0, //
+    -si, co, 0, 0, //
+    0, 0, 1, 0, //
+    cx, cy, 0, 1,
+  ]));
 }
 
 /// SVG `d` ozniteligini Flutter [Path]'ine cevirir.

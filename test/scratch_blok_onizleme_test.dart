@@ -28,14 +28,17 @@ import 'package:devkom_app/providers/settings_provider.dart';
 import 'package:devkom_app/services/sound_service.dart';
 import 'package:devkom_app/widgets/scratch_block_widget.dart';
 import 'package:devkom_app/widgets/scratch_blok.dart';
+import 'package:devkom_app/widgets/scratch_blok_ikonlari.dart';
 
 final String? _klasor = Platform.environment['SCRATCH_ONIZLEME'];
 
 Future<void> _yaziTipleri() async {
   final nunito = FontLoader('Nunito');
   for (final w in ['400', '600', '700', '800']) {
-    nunito.addFont(Future.value(
-        File('assets/fonts/Nunito-$w.ttf').readAsBytesSync().buffer.asByteData()));
+    nunito.addFont(Future.value(File('assets/fonts/Nunito-$w.ttf')
+        .readAsBytesSync()
+        .buffer
+        .asByteData()));
   }
   await nunito.load();
   final root = Platform.environment['FLUTTER_ROOT'] ??
@@ -44,8 +47,7 @@ Future<void> _yaziTipleri() async {
       '$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf');
   if (ikon.existsSync()) {
     await (FontLoader('MaterialIcons')
-          ..addFont(
-              Future.value(ikon.readAsBytesSync().buffer.asByteData())))
+          ..addFont(Future.value(ikon.readAsBytesSync().buffer.asByteData())))
         .load();
   }
   final mono = File('tool/fonts/DejaVuSansMono.ttf');
@@ -131,6 +133,63 @@ void main() {
     });
   }
 
+  testWidgets('eklenti bloklari: simge ve dikey ayrac (Kalem, Muzik)',
+      (tester) async {
+    tester.view.physicalSize = const Size(900, 520);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const s = 1.2;
+    final anahtar = GlobalKey();
+    const kimlikler = [
+      'pen_down',
+      'pen_up',
+      'pen_clear',
+      'play_note_60',
+      'play_drum'
+    ];
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: RepaintBoundary(
+          key: anahtar,
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ScratchBlok(tanim: _t('green_flag', 'tr'), olcek: s),
+                for (final id in kimlikler)
+                  ScratchBlok(tanim: _t(id, 'tr'), olcek: s, sigdir: false),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    await _yaz(tester, anahtar, 'eklenti_bloklari', oran: 2);
+
+    // Scratch 3: eklenti blogu 40x40 simgeyle basliyor, blok bu yuzden
+    // normal yigin bloktan (48) uzun: simge + 2x8 dolgu.
+    for (final id in kimlikler) {
+      expect(ScratchBlokOlcer.yukseklik(_t(id, 'tr'), s), 56 * s, reason: id);
+    }
+    // Simge ve ayrac satiri genisletiyor; duz metin degismiyor.
+    final kalem = _t('pen_down', 'tr');
+    final simgesiz = ScratchBlokTanimi(
+        kategori: ScratchKategori.hareket,
+        sekil: kalem.sekil,
+        satir: kalem.satir);
+    expect(
+        ScratchBlokOlcer.genislik(kalem, s) -
+            ScratchBlokOlcer.genislik(simgesiz, s),
+        closeTo((40 + 8 + 1 + 8) * s, 0.5));
+    expect(kalem.duzMetin, isNot(contains('✎')));
+    expect(scratchIkonBoyutu(ScratchIkon.kalem), const Size(40, 40));
+    expect(scratchIkonBoyutu(ScratchIkon.muzik), const Size(40, 40));
+  });
+
   testWidgets('sekiller ve kategori daireleri', (tester) async {
     tester.view.physicalSize = const Size(1000, 760);
     tester.view.devicePixelRatio = 1;
@@ -183,7 +242,9 @@ void main() {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           ScratchBlok(tanim: _t('move_10', 'en'), olcek: s),
-                          ScratchBlok(tanim: _t('if_space', 'en'), olcek: s,
+                          ScratchBlok(
+                              tanim: _t('if_space', 'en'),
+                              olcek: s,
                               parca: ScratchCParcasi.ust),
                           ScratchCSirti(
                             kategori: ScratchKategori.kontrol,
@@ -226,7 +287,8 @@ void main() {
 
   /// Gercek bir blok kurma adimi, telefon boyunda, cozum dizilmis.
   Future<void> adim(WidgetTester tester, String dil, Course kurs,
-      BlockBuilderStep step, String ad, {bool calistir = false}) async {
+      BlockBuilderStep step, String ad,
+      {bool calistir = false}) async {
     final s = await _ayar(dil);
     tester.view.physicalSize = const Size(390 * 2, 1300 * 2);
     tester.view.devicePixelRatio = 2;
@@ -297,14 +359,14 @@ void main() {
 
   for (final dil in const ['tr', 'en']) {
     testWidgets('blok kurma adimi: SONRA ($dil)', (tester) async {
-      await adim(tester, dil, scratch, adimBul('s2_1_build1'),
-          'adim_sonra_$dil');
+      await adim(
+          tester, dil, scratch, adimBul('s2_1_build1'), 'adim_sonra_$dil');
     });
   }
 
   testWidgets('blok kurma adimi: calisirken (tr)', (tester) async {
-    await adim(tester, 'tr', scratch, adimBul('s2_1_build1'),
-        'adim_calisirken_tr',
+    await adim(
+        tester, 'tr', scratch, adimBul('s2_1_build1'), 'adim_calisirken_tr',
         calistir: true);
   });
 
