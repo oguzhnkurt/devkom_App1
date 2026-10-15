@@ -2346,6 +2346,10 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
   /// yeni blok bunun ONUNE giriyor.
   int? _ekleSira;
 
+  /// Kategorili tezgahin palet ogeleri ([_paletOgeleri]).
+  List<PaletOgesi>? _ogeler;
+  String? _ogelerDili;
+
   /// Sahneyi ekrana kaydirmak icin.
   final GlobalKey _sahneAnahtari = GlobalKey();
 
@@ -3032,21 +3036,43 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         ),
         const SizedBox(height: 12),
 
-        // BLOKLAR | KOD ALANI
-        BlokTezgahiKarti(
-          lang: lang,
-          paletPayi: 1,
-          kodPayi: 1,
-          // iPhone SE gibi dar ekranlarda palet ustte, kod altta.
-          dikeyEsik: 330,
-          kodVurgusu: _completed
-              ? const Color(0xFF4CBF56).withValues(alpha: 0.10)
-              : _alanUstunde
-                  ? renk.withValues(alpha: 0.08)
-                  : null,
-          palet: _scratchPaleti(lang),
-          kod: _scratchKodBolumu(lang, kisa),
-        ),
+        // BLOKLAR | KOD ALANI: sinirli yukseklik, kategori sekmeleri,
+        // kod alaniyla ayni olcekte palet. Bloklarin hepsinin Scratch
+        // karsiligi yoksa eski (uzayan) kart.
+        if (_paletOgeleri(lang) case final ogeler?)
+          BlokTezgahiKarti.kategorili(
+            lang: lang,
+            ogeler: ogeler,
+            yukseklik: BlokTezgahiKarti.yukseklikFor(context,
+                ustunde: kisa ? 206 : 240),
+            kodSayisi: _placedBlocks.length,
+            kodSurumu: Object.hashAll(_placedBlocks),
+            calisiyor: _calisiyor,
+            kodVurgusu: _completed
+                ? const Color(0xFF4CBF56).withValues(alpha: 0.10)
+                : _alanUstunde
+                    ? renk.withValues(alpha: 0.08)
+                    : null,
+            paletHedefi: _scratchPaletHedefi,
+            kodHedefi: _scratchKodHedefi,
+            kodIcerigi: (context, olcek, genislik) =>
+                _scratchKodIcerigi(lang, olcek, genislik),
+          )
+        else
+          BlokTezgahiKarti(
+            lang: lang,
+            paletPayi: 1,
+            kodPayi: 1,
+            // iPhone SE gibi dar ekranlarda palet ustte, kod altta.
+            dikeyEsik: 330,
+            kodVurgusu: _completed
+                ? const Color(0xFF4CBF56).withValues(alpha: 0.10)
+                : _alanUstunde
+                    ? renk.withValues(alpha: 0.08)
+                    : null,
+            palet: _scratchPaleti(lang),
+            kod: _scratchKodBolumu(lang, kisa),
+          ),
 
         ..._deviTepkisi(lang),
         if (_yanlisDizi) ...[
@@ -3176,6 +3202,112 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         ],
       );
     });
+  }
+
+  /// Kategorili tezgahin palet ogeleri (onbellekte: kod degisince palet
+  /// yeniden kurulmuyor). Bir blogun Scratch karsiligi yoksa null.
+  List<PaletOgesi>? _paletOgeleri(String lang) {
+    if (_ogelerDili == lang) return _ogeler;
+    _ogelerDili = lang;
+    final out = <PaletOgesi>[];
+    for (final block in _palet) {
+      final t = _scratchTanimi(block, lang);
+      if (t == null) return _ogeler = null;
+      out.add(PaletOgesi(
+        kimlik: block.id,
+        tanim: t,
+        builder: (context, s) {
+          final gorunum =
+              ScratchBlok(tanim: t, olcek: s, sigdir: false, kimlik: block.id);
+          return LongPressDraggable<_BlokTasima>(
+            data: _BlokTasima(block),
+            delay: const Duration(milliseconds: 150),
+            hapticFeedbackOnStart: true,
+            feedback: _surukleniyor(
+                ScratchBlok(tanim: t, olcek: s, sigdir: false)),
+            childWhenDragging: Opacity(opacity: 0.4, child: gorunum),
+            onDragEnd: (_) {
+              if (mounted && (_alanUstunde || _ekleSira != null)) {
+                setState(() {
+                  _alanUstunde = false;
+                  _ekleSira = null;
+                });
+              }
+            },
+            child: GestureDetector(
+              key: ValueKey('palet_${block.id}'),
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _addBlock(block),
+              child: gorunum,
+            ),
+          );
+        },
+      ));
+    }
+    return _ogeler = out;
+  }
+
+  Widget _scratchPaletHedefi(Widget child) => DragTarget<_BlokTasima>(
+        onWillAcceptWithDetails: (d) => d.data.kaynakSira != null,
+        onAcceptWithDetails: (d) {
+          setState(() {
+            _alanUstunde = false;
+            _ekleSira = null;
+          });
+          _removeBlock(d.data.kaynakSira!);
+        },
+        builder: (context, adaylar, reddedilen) => child,
+      );
+
+  Widget _scratchKodHedefi(Widget child) => DragTarget<_BlokTasima>(
+        onWillAcceptWithDetails: (_) {
+          if (!_alanUstunde) setState(() => _alanUstunde = true);
+          return true;
+        },
+        onLeave: (_) => setState(() {
+          _alanUstunde = false;
+          _ekleSira = null;
+        }),
+        onAcceptWithDetails: (d) => _birak(d.data, _ekleSira),
+        builder: (context, adaylar, reddedilen) => child,
+      );
+
+  Widget _scratchKodIcerigi(String lang, double olcek, double genislik) {
+    if (_placedBlocks.isEmpty) {
+      return SizedBox(
+        width: genislik,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Text(
+            lessonText(
+                lang,
+                'Bloklara dokun ya da basılı tutup buraya sürükle',
+                'Tap the blocks, or hold and drag them here',
+                'Tippe auf die Blöcke oder halte sie gedrückt und zieh sie hierher',
+                'Toca los bloques o mantenlos pulsados y arrástralos aquí'),
+            style: TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              color: Colors.grey.shade500,
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+              height: 1.35,
+            ),
+          ),
+        ),
+      );
+    }
+    return switch (_scratchKodu(lang)) {
+      final kod? => _scratchKodAlani(kod, lang,
+          olcek: olcek, genislik: genislik, enKucuk: olcek * 0.8),
+      null => SizedBox(
+          width: genislik,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: _buildPlacedList(lang),
+          ),
+        ),
+    };
   }
 
   /// Palet: Scratch kategorileri ve bloklar. Dokun = en sona ekle; basili
@@ -3334,9 +3466,12 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
   ///
   /// Olcek tum yigin icin TEK: en genis satir sigmiyorsa hepsi birlikte
   /// kuculuyor. Tek tek kuculseydi centikler hizadan cikardi.
-  Widget _scratchKodAlani(List<ScratchBlokTanimi> kod, String lang) {
+  Widget _scratchKodAlani(List<ScratchBlokTanimi> kod, String lang,
+      {double olcek = ScratchBlok.varsayilanOlcek,
+      double? genislik,
+      double enKucuk = 0}) {
     return LayoutBuilder(builder: (context, c) {
-      double genislik(double s) {
+      double olc(double s) {
         var m = 0.0;
         var derinlik = 0;
         for (final t in kod) {
@@ -3349,10 +3484,11 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         return m;
       }
 
-      var s = ScratchBlok.varsayilanOlcek;
-      final w = genislik(s);
-      if (c.maxWidth.isFinite && w > c.maxWidth) {
-        s = s * c.maxWidth / w * 0.99;
+      var s = olcek;
+      final w = olc(s);
+      final sinir = genislik ?? c.maxWidth;
+      if (sinir.isFinite && w > sinir) {
+        s = max(enKucuk, s * sinir / w * 0.99);
       }
       return Padding(
         padding: EdgeInsets.only(bottom: ScratchBlokOlcer.tirnakPayi(s)),

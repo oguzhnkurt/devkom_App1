@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../../theme.dart';
 import '../../../utils/lang.dart';
 import '../../../widgets/scratch_blok.dart';
+import '../../sahne/blok_tezgahi_karti.dart' show PaletOgesi;
 import '../../models/interactive_lesson_model.dart';
 import '../../yurutme/blok_anlami.dart';
 import '../../yurutme/blok_yorumlayici.dart';
@@ -51,6 +52,9 @@ class IcIceKodAlani extends StatelessWidget {
     this.ekleSira,
     this.onEkleSira,
     this.saltOkunur = false,
+    this.olcek = ScratchBlok.varsayilanOlcek,
+    this.sigmaGenisligi,
+    this.enKucukOlcek = 0,
   });
 
   final List<KodOgesi> kod;
@@ -70,6 +74,16 @@ class IcIceKodAlani extends StatelessWidget {
 
   /// Yalnizca gosterim (hazir kodlu kuklanin kodu): bloklarda "x" yok.
   final bool saltOkunur;
+
+  /// En buyuk blok olcegi (tezgahta palet ile ayni).
+  final double olcek;
+
+  /// Sigdirilacak genislik; null ise LayoutBuilder'in genisligi. Kod
+  /// alani yatay kayabiliyorsa sahibi gercek genisligi buradan verir.
+  final double? sigmaGenisligi;
+
+  /// Bundan kucultme: daha genis kod yatay kayar (okunmaz olmasin).
+  final double enKucukOlcek;
 
   bool _cMi(String id) =>
       palet.any((b) => b.id == id && b.shape == ScratchBlockShape.cBlock);
@@ -110,10 +124,11 @@ class IcIceKodAlani extends StatelessWidget {
         return m;
       }
 
-      var s = ScratchBlok.varsayilanOlcek;
+      var s = olcek;
       final w = genislik(s);
-      if (c.maxWidth.isFinite && w > c.maxWidth) {
-        s = s * c.maxWidth / w * 0.99;
+      final sinir = sigmaGenisligi ?? c.maxWidth;
+      if (sinir.isFinite && w > sinir) {
+        s = max(enKucukOlcek, s * sinir / w * 0.99);
       }
       return Padding(
         padding: EdgeInsets.only(bottom: ScratchBlokOlcer.tirnakPayi(s)),
@@ -373,76 +388,49 @@ class IcIceKodAlani extends StatelessWidget {
   }
 }
 
-/// Atolyenin ve ic ice adimin paleti: kategori seridi ve bloklar.
+/// Atolyenin ve ic ice adimin paleti: kategorili tezgahin ogeleri.
 /// Dokun = imlecin yerine ekle; basili tut + surukle = istenen yere.
-class IcIcePalet extends StatelessWidget {
-  const IcIcePalet({
-    super.key,
-    required this.palet,
-    required this.lang,
-    required this.onEkle,
-    required this.onKodDanCikar,
-  });
-
-  final List<ScratchBlock> palet;
-  final String lang;
-  final ValueChanged<ScratchBlock> onEkle;
-  final ValueChanged<int> onKodDanCikar;
-
-  @override
-  Widget build(BuildContext context) {
-    final kategoriler = ScratchKategoriSeridi.sirala([
+/// Paletteki blogun anahtari `palet_<kimlik>`.
+List<PaletOgesi> icIcePaletOgeleri({
+  required List<ScratchBlock> palet,
+  required String lang,
+  required ValueChanged<ScratchBlock> onEkle,
+}) =>
+    [
       for (final b in palet)
-        if (ScratchBlokKatalogu.tanim(b.id, lang) case final t?) t.kategori,
-    ]);
-    return DragTarget<IcIceTasima>(
+        if (ScratchBlokKatalogu.tanim(b.id, lang) case final t?)
+          PaletOgesi(
+            kimlik: b.id,
+            tanim: t,
+            builder: (context, s) => LongPressDraggable<IcIceTasima>(
+              data: IcIceTasima(b),
+              delay: const Duration(milliseconds: 150),
+              hapticFeedbackOnStart: true,
+              feedback: Material(
+                color: Colors.transparent,
+                child: ScratchBlok(tanim: t, olcek: s * 1.08, sigdir: false),
+              ),
+              childWhenDragging: Opacity(
+                  opacity: 0.4,
+                  child: ScratchBlok(tanim: t, olcek: s, sigdir: false)),
+              child: GestureDetector(
+                key: ValueKey('palet_${b.id}'),
+                behavior: HitTestBehavior.opaque,
+                onTap: () => onEkle(b),
+                child: ScratchBlok(
+                    tanim: t, olcek: s, sigdir: false, kimlik: b.id),
+              ),
+            ),
+          ),
+    ];
+
+/// Paletin birakma hedefi: kod alanindan geri suruklenen blok cikar.
+Widget icIcePaletHedefi(Widget child, ValueChanged<int> onKodDanCikar) =>
+    DragTarget<IcIceTasima>(
       onWillAcceptWithDetails: (d) => d.data.kaynak != null,
       onAcceptWithDetails: (d) => onKodDanCikar(d.data.kaynak!),
-      builder: (context, a, r) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (kategoriler.length >= 2)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: ScratchKategoriSeridi(
-                  kategoriler: kategoriler, lang: lang, koyu: false),
-            ),
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: [
-              for (final b in palet)
-                if (ScratchBlokKatalogu.tanim(b.id, lang) case final t?)
-                  LongPressDraggable<IcIceTasima>(
-                    data: IcIceTasima(b),
-                    delay: const Duration(milliseconds: 150),
-                    hapticFeedbackOnStart: true,
-                    feedback: Material(
-                      color: Colors.transparent,
-                      child: ScratchBlok(tanim: t, sigdir: false),
-                    ),
-                    childWhenDragging: Opacity(
-                        opacity: 0.4, child: ScratchBlok(tanim: t)),
-                    child: GestureDetector(
-                      key: ValueKey('palet_${b.id}'),
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => onEkle(b),
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                            bottom: ScratchBlokOlcer.tirnakPayi(
-                                ScratchBlok.varsayilanOlcek)),
-                        child: ScratchBlok(tanim: t, kimlik: b.id),
-                      ),
-                    ),
-                  ),
-            ],
-          ),
-        ],
-      ),
+      builder: (context, a, r) => child,
     );
-  }
-}
 
 /// Ornek cozumun okunur hali (ipucu): her satir bir blok, girintili.
 List<String> cozumSatirlari(

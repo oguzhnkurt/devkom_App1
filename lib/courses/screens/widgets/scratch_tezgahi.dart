@@ -107,8 +107,33 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
   final GlobalKey<ProjeSahnesiState> _projeSahnesi = GlobalKey();
   final Random _tohumlar = Random();
 
+  /// Kod her degistiginde artiyor: tezgah imleci gorunur tutuyor.
+  int _surum = 0;
+
+  /// Palet ogeleri onbellekte: kod degisince palet yeniden kurulmuyor.
+  List<PaletOgesi>? _ogeler;
+  String? _ogelerDili;
+
+  List<PaletOgesi> get _paletOgeleri {
+    if (_ogeler == null || _ogelerDili != widget.lang) {
+      _ogelerDili = widget.lang;
+      _ogeler = icIcePaletOgeleri(
+          palet: widget.palet, lang: widget.lang, onEkle: _paletten);
+    }
+    return _ogeler!;
+  }
+
+  void _paletten(ScratchBlock b) => _ekle(b);
+
   List<KodOgesi> get kod => List.unmodifiable(_kod);
   bool get calisiyor => _calisiyor;
+
+  @override
+  void didUpdateWidget(ScratchTezgahi oldWidget) {
+    final old = oldWidget;
+    super.didUpdateWidget(oldWidget);
+    if (!identical(old.palet, widget.palet)) _ogeler = null;
+  }
 
   @override
   void dispose() {
@@ -129,6 +154,7 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
         ..clear()
         ..addAll(yeni);
       _imlec = _kod.length;
+      _surum++;
       _kapat();
     });
     widget.onKodDegisti?.call(kod);
@@ -194,6 +220,7 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
     setState(() {
       fn();
       _imlec = _imlec.clamp(0, _kod.length);
+      _surum++;
       _kapat();
     });
     // Blok yerine oturduysa her yerde ayni kisa "tok" (titresim dahil);
@@ -302,9 +329,34 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
     }
   }
 
+  /// Sahne kartinin yuksekligi ([genislik]: tezgahin genisligi).
+  double _sahneYuksekligi(BuildContext context, double genislik) {
+    final kisa = BlokTezgahiKarti.kompakt(context);
+    if (!widget.cokBetik) return widget.sahneYuksekligi ?? (kisa ? 210 : 248);
+    var tuval = genislik * 0.75;
+    // Kisa ekranda sahne kod alanini ekrandan itmesin (4:3 kaliyor;
+    // tuval ortalaniyor).
+    final enFazla = MediaQuery.sizeOf(context).height * (kisa ? 0.34 : 0.42);
+    if (tuval > enFazla) tuval = enFazla;
+    final tuslar = (_motor ?? _onizlemeMotoru).tuslar.isNotEmpty;
+    return ScratchSahneKarti.baslikYuksekligi +
+        tuval +
+        (tuslar ? ProjeSahnesi.tusSeridi : 0);
+  }
+
+  ProjeMotoru get _onizlemeMotoru =>
+      _onizleme ??= _yeniMotor(KodYapisi.blokla(_kod, widget.palet), 0);
+
   @override
   Widget build(BuildContext context) {
-    final kisa = MediaQuery.sizeOf(context).height < 700;
+    return LayoutBuilder(builder: (context, kutu) {
+      final sahneBoyu = _sahneYuksekligi(context, kutu.maxWidth);
+      return _govde(context, sahneBoyu);
+    });
+  }
+
+  Widget _govde(BuildContext context, double sahneBoyu) {
+    final kisa = BlokTezgahiKarti.kompakt(context);
     final kukla = kisa ? 56.0 : 72.0;
     final oynuyor = _yurutme != null;
     return Column(
@@ -313,9 +365,9 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
         KeyedSubtree(
           key: _sahneAnahtari,
           child: widget.cokBetik
-              ? _projeSahnesiKarti(kisa)
+              ? _projeSahnesiKarti(sahneBoyu)
               : SizedBox(
-                  height: widget.sahneYuksekligi ?? (kisa ? 210 : 248),
+                  height: sahneBoyu,
                   child: ScratchSahneKarti(
                     lang: widget.lang,
                     bayrakAnahtari: const ValueKey('sahne_bayragi'),
@@ -352,19 +404,18 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
           _kuklaSeridi(),
         ],
         const SizedBox(height: 12),
-        BlokTezgahiKarti(
+        BlokTezgahiKarti.kategorili(
           lang: widget.lang,
-          paletPayi: 1,
-          kodPayi: 1,
-          dikeyEsik: 330,
+          ogeler: _paletOgeleri,
+          yukseklik:
+              BlokTezgahiKarti.yukseklikFor(context, ustunde: sahneBoyu),
+          kodSayisi: _kod.where((o) => !KodYapisi.isaretMi(o.id)).length,
+          kodSurumu: _surum,
+          calisiyor: _calisiyor,
           kodVurgusu: _alanUstunde ? widget.renk.withValues(alpha: 0.08) : null,
-          palet: IcIcePalet(
-            palet: widget.palet,
-            lang: widget.lang,
-            onEkle: (b) => _ekle(b),
-            onKodDanCikar: _sil,
-          ),
-          kod: _kodBolumu(),
+          paletHedefi: (c) => icIcePaletHedefi(c, _sil),
+          kodHedefi: _kodHedefi,
+          kodIcerigi: _kodIcerigi,
         ),
         const SizedBox(height: 14),
         PressButton(
@@ -403,19 +454,11 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
 
   /// Proje Atolyesi sahnesi: Scratch olcusunde (4:3), program tus
   /// kullaniyorsa altinda sanal tuslar.
-  Widget _projeSahnesiKarti(bool kisa) {
-    final motor = _motor ??
-        (_onizleme ??= _yeniMotor(KodYapisi.blokla(_kod, widget.palet), 0));
-    return LayoutBuilder(builder: (context, kutu) {
-      var tuval = kutu.maxWidth * 0.75;
-      // Kisa ekranda sahne kod alanini ekrandan itmesin.
-      final enFazla = MediaQuery.sizeOf(context).height * (kisa ? 0.36 : 0.42);
-      if (tuval > enFazla) tuval = enFazla;
-      final tuslar = motor.tuslar.isNotEmpty;
+  Widget _projeSahnesiKarti(double yukseklik) {
+    final motor = _motor ?? _onizlemeMotoru;
+    return Builder(builder: (context) {
       return SizedBox(
-        height: ScratchSahneKarti.baslikYuksekligi +
-            tuval +
-            (tuslar ? ProjeSahnesi.tusSeridi : 0),
+        height: yukseklik,
         child: ScratchSahneKarti(
           lang: widget.lang,
           bayrakAnahtari: const ValueKey('sahne_bayragi'),
@@ -492,13 +535,18 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
                 size: 16,
                 color: onTap == null ? widget.renk : const Color(0xFF64748B)),
             const SizedBox(width: 6),
-            Text(metin,
-                style: TextStyle(
-                    fontFamily: AppTheme.fontFamily,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12.5,
-                    color:
-                        onTap == null ? widget.renk : const Color(0xFF475569))),
+            Flexible(
+              child: Text(metin,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontFamily: AppTheme.fontFamily,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 12.5,
+                      color: onTap == null
+                          ? widget.renk
+                          : const Color(0xFF475569))),
+            ),
           ]),
         ),
       ),
@@ -579,7 +627,8 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
         ]),
       );
 
-  Widget _kodBolumu() {
+  /// Kod alaninin birakma hedefi (tezgahin kod sutununu dolduruyor).
+  Widget _kodHedefi(Widget child) {
     return DragTarget<IcIceTasima>(
       onWillAcceptWithDetails: (_) {
         if (!_alanUstunde) setState(() => _alanUstunde = true);
@@ -590,46 +639,51 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
         _ekleSira = null;
       }),
       onAcceptWithDetails: (d) => _birak(d.data, _ekleSira ?? _kod.length),
-      builder: (context, a, r) => ConstrainedBox(
-        constraints:
-            const BoxConstraints(minHeight: 124, minWidth: double.infinity),
-        child: _kod.isEmpty
-            ? Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  _t(
-                      'Bloklara dokun ya da basılı tutup buraya sürükle',
-                      'Tap the blocks, or hold and drag them here',
-                      'Tippe auf die Blöcke oder halte sie gedrückt und zieh sie hierher',
-                      'Toca los bloques o mantenlos pulsados y arrástralos aquí'),
-                  style: TextStyle(
-                    fontFamily: AppTheme.fontFamily,
-                    color: Colors.grey.shade500,
-                    fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                    height: 1.35,
-                  ),
-                ),
-              )
-            : Align(
-                alignment: Alignment.topLeft,
-                child: IcIceKodAlani(
-                  kod: _kod,
-                  palet: widget.palet,
-                  lang: widget.lang,
-                  imlec: _imlec,
-                  onImlec: (i) => setState(() => _imlec = i),
-                  onSil: _sil,
-                  onBirak: _birak,
-                  onSayi: widget.duzenlenebilir.isEmpty ? null : _sayi,
-                  duzenlenebilir: widget.duzenlenebilir,
-                  calisanSira: _calisanSira,
-                  ekleSira: _ekleSira,
-                  onEkleSira: (i) => setState(() => _ekleSira = i),
-                ),
-              ),
-      ),
+      builder: (context, a, r) => child,
+    );
+  }
+
+  Widget _kodIcerigi(BuildContext context, double olcek, double genislik) {
+    if (_kod.isEmpty) {
+      return SizedBox(
+        width: genislik,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Text(
+            _t(
+                'Bloklara dokun ya da basılı tutup buraya sürükle',
+                'Tap the blocks, or hold and drag them here',
+                'Tippe auf die Blöcke oder halte sie gedrückt und zieh sie hierher',
+                'Toca los bloques o mantenlos pulsados y arrástralos aquí'),
+            style: TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              color: Colors.grey.shade500,
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+              height: 1.35,
+            ),
+          ),
+        ),
+      );
+    }
+    return IcIceKodAlani(
+      kod: _kod,
+      palet: widget.palet,
+      lang: widget.lang,
+      imlec: _imlec,
+      olcek: olcek,
+      sigmaGenisligi: genislik,
+      // Bundan kucugu okunmuyor: daha genis kod yana kayar.
+      enKucukOlcek: olcek * 0.8,
+      onImlec: (i) => setState(() => _imlec = i),
+      onSil: _sil,
+      onBirak: _birak,
+      onSayi: widget.duzenlenebilir.isEmpty ? null : _sayi,
+      duzenlenebilir: widget.duzenlenebilir,
+      calisanSira: _calisanSira,
+      ekleSira: _ekleSira,
+      onEkleSira: (i) => setState(() => _ekleSira = i),
     );
   }
 
