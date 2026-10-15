@@ -76,7 +76,12 @@ enum ScratchKategori {
   kalem(Color(0xFF0FBD8C), Color(0xFF0DA57A), Color(0xFF0B8E69),
       'pen.categoryName'),
   muzik(Color(0xFF0FBD8C), Color(0xFF0DA57A), Color(0xFF0B8E69),
-      'music.categoryName');
+      'music.categoryName'),
+
+  /// mBlock'un Arduino "Pin" kategorisi (dijital ayarla, PWM, oku).
+  /// Scratch'te boyle bir kategori yok; renk ve ad mBlock'un kendi
+  /// cihaz paketinden (assets/mblock/mblock_bloklari.js ile ayni).
+  mblockPin(Color(0xFF4A90E2), Color(0xFF3F7CC4), Color(0xFF33639E), 'Pin');
 
   const ScratchKategori(this.renk, this.renk2, this.renk3, this.adAnahtari);
 
@@ -88,8 +93,10 @@ enum ScratchKategori {
   final String adAnahtari;
 
   /// Kategori adi, Scratch'in kendi dil dosyasindan.
-  String ad(String lang) => (scratchResmiEtiketler[lang] ??
-      scratchResmiEtiketler['en']!)[adAnahtari]!;
+  String ad(String lang) =>
+      (scratchResmiEtiketler[lang] ?? scratchResmiEtiketler['en']!)[
+          adAnahtari] ??
+      adAnahtari;
 
   /// Paletin solundaki kategori dairesi hangi kategoriyi temsil ediyor
   /// (liste bloklari Degiskenler dairesinde).

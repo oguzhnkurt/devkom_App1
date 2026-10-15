@@ -303,9 +303,11 @@ void main() {
       expect(find.byType(InteractiveLessonScreen), findsOneWidget);
     });
 
-    test('yalnizca Scratch acik; baska kurs ayarsiz', () {
+    test('Scratch ve mBlock acik; baska kurs ayarsiz', () {
       expect(KursTanitimi.acik('scratch'), isTrue);
-      for (final c in CoursesData.allCourses.where((c) => c.id != 'scratch')) {
+      expect(KursTanitimi.acik('mblock'), isTrue);
+      for (final c in CoursesData.allCourses
+          .where((c) => c.id != 'scratch' && c.id != 'mblock')) {
         expect(KursTanitimi.acik(c.id), isFalse, reason: c.id);
       }
     });

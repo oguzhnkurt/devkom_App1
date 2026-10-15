@@ -25,9 +25,13 @@ class ScratchSahneKarti extends StatelessWidget {
     this.nabiz,
     this.bayrakAnahtari,
     this.durAnahtari,
+    this.baslik,
   });
 
   final String lang;
+
+  /// Sag ustteki yazi; verilmezse "Sahne" (mBlock kartinda "Arduino Uno").
+  final String? baslik;
 
   /// Sahnenin govdesi (gokyuzu zemininin ustunde). Genelde
   /// [ScratchSahneZemini] ile.
@@ -80,8 +84,12 @@ class ScratchSahneKarti extends StatelessWidget {
                   SahneDurDugmesi(key: durAnahtari, lang: lang, onTap: onDur),
                   const Spacer(),
                   Text(
-                    AppLang.pick(lang,
-                        tr: 'Sahne', en: 'Stage', de: 'Bühne', es: 'Escenario'),
+                    baslik ??
+                        AppLang.pick(lang,
+                            tr: 'Sahne',
+                            en: 'Stage',
+                            de: 'Bühne',
+                            es: 'Escenario'),
                     style: TextStyle(
                       fontFamily: AppTheme.fontFamily,
                       fontSize: 12.5,

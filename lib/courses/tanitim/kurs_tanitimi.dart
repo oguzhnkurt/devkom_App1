@@ -6,24 +6,40 @@ import '../data/course_modules.dart';
 import '../data/courses_data.dart';
 import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
+import '../yurutme/mblock_blok_adlari.dart';
+import '../yurutme/mblock_cozum.dart';
 import '../yurutme/scratch_blok_katalogu.dart';
+
+/// Acilis sahnesinde blok calisinca ne oluyor.
+enum TanitimSahnesi {
+  /// Scratch: Devi kukla olarak sahnede yuruyor.
+  kukla,
+
+  /// mBlock: sanal Arduino Uno'da bir LED yaniyor.
+  kart,
+}
 
 /// Bir kursun acilis sahnesi ve kapanis toreni icin ayar.
 ///
-/// NEDEN AYAR, NEDEN TEK KURS
-/// --------------------------
+/// NEDEN AYAR
+/// ----------
 /// Acilis (Devi + tek blokluk mini etkinlik) ve kapanis (konfeti, ozet,
 /// sertifika, siradaki kurs) kursa bagli degil: ekranlar yalnizca
-/// buradaki ayari okuyor. Simdilik yalnizca Scratch'te acik, cunku
-/// mini etkinlik gercek bir Scratch blogu kullaniyor ve o bloklarin
-/// cizimi ([ScratchBlok]) yalnizca Scratch kursunda var. Baska bir kurs
-/// eklemek = buraya bir satir + o kursun iki blogu.
+/// buradaki ayari okuyor. Bir kurs eklemek = buraya bir satir + o kursun
+/// iki blogu.
+///
+///  * Scratch: "yesil bayrak tiklandiginda" + "10 adim git"; Devi kukla
+///    olarak sahnede yuruyor.
+///  * mBlock: "when Arduino Uno starts up" + "dijital ayarla pin 13
+///    cikis yuksek"; sanal Uno'nun 13. pinindeki LED yaniyor.
 class KursTanitimi {
   const KursTanitimi({
     required this.courseId,
     required this.sapkaBlokId,
     required this.yerlesecekBlokId,
-    required this.adimSayisi,
+    this.adimSayisi = 0,
+    this.sahne = TanitimSahnesi.kukla,
+    this.ledPini = 13,
   });
 
   final String courseId;
@@ -37,12 +53,26 @@ class KursTanitimi {
   /// Bu blok calisinca kuklanin attigi adim (sahnedeki noktalar).
   final int adimSayisi;
 
+  final TanitimSahnesi sahne;
+
+  /// Kart sahnesinde yanan LED'in pini.
+  final int ledPini;
+
+  bool get kart => sahne == TanitimSahnesi.kart;
+
   static const Map<String, KursTanitimi> _kurslar = {
     'scratch': KursTanitimi(
       courseId: 'scratch',
       sapkaBlokId: 'green_flag',
       yerlesecekBlokId: 'move_10',
       adimSayisi: 10,
+    ),
+    'mblock': KursTanitimi(
+      courseId: 'mblock',
+      sapkaBlokId: 'dev_kart_acilis',
+      yerlesecekBlokId: 'dev_dijital_yaz',
+      sahne: TanitimSahnesi.kart,
+      ledPini: 13,
     ),
   };
 
@@ -51,11 +81,22 @@ class KursTanitimi {
 
   static bool acik(String courseId) => _kurslar.containsKey(courseId);
 
-  ScratchBlokTanimi sapka(String lang) =>
-      ScratchBlokKatalogu.tanim(sapkaBlokId, lang)!;
+  ScratchBlokTanimi sapka(String lang) => kart
+      ? mblockScratchTanimi(sapkaBlokId, const {}, lang)
+      : ScratchBlokKatalogu.tanim(sapkaBlokId, lang)!;
 
-  ScratchBlokTanimi blok(String lang) =>
-      ScratchBlokKatalogu.tanim(yerlesecekBlokId, lang)!;
+  ScratchBlokTanimi blok(String lang) => kart
+      ? mblockScratchTanimi(yerlesecekBlokId,
+          {'PIN': '$ledPini', 'SEVIYE': 'HIGH'}, lang)
+      : ScratchBlokKatalogu.tanim(yerlesecekBlokId, lang)!;
+
+  /// Kart sahnesinde calisan program (tezgahin okuduguyla ayni yapi).
+  List<MBlockBlok> get kartProgrami => [
+        MBlockBlok(tip: sapkaBlokId),
+        MBlockBlok(
+            tip: yerlesecekBlokId,
+            alanlar: {'PIN': '$ledPini', 'SEVIYE': 'HIGH'}),
+      ];
 
   /// Ogrenme yolunda bu kurstan sonra gelen kurs (Scratch -> mBlock).
   ///
@@ -152,8 +193,21 @@ class KursOzeti {
   /// kimligiyle.
   static Set<String> farkliBloklar(Iterable<InteractiveLesson> dersler) {
     final out = <String>{};
+    void mblock(MBlockBeklenen b) {
+      out.add('mblock:${b.tip}');
+      b.icerik.forEach(mblock);
+      b.girdiler.values.forEach(mblock);
+    }
+
     for (final ders in dersler) {
       for (final adim in ders.steps.whereType<BlockBuilderStep>()) {
+        // mBlock adimlari tezgahta kuruluyor: kullanilan bloklar cozumun
+        // agacindan (C kutularinin ici ve yuvalara takilanlar dahil).
+        final tezgah = adim.mblock;
+        if (tezgah != null) {
+          tezgah.cozum.forEach(mblock);
+          continue;
+        }
         for (final id in adim.correctSequence) {
           out.add(_blokTuru(id));
         }
@@ -173,3 +227,38 @@ class KursOzeti {
 /// Bu iki ekranin kisa arayuz yazilari icin dort dilli yardimci.
 String tanitimMetni(String lang, String tr, String en, String de, String es) =>
     AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
+
+/// mBlock blogunu acilis sahnesindeki Scratch cizimiyle ([ScratchBlok])
+/// gosterir: sapka "when Arduino Uno starts up", pin bloklari mBlock'un
+/// Pin mavisinde, acilir listeler kendi degerleriyle.
+ScratchBlokTanimi mblockScratchTanimi(
+    String tip, Map<String, String> alanlar, String lang) {
+  final t = mblockBlokTanimlari[tip]!;
+  final kategori = switch (t.kategori) {
+    'pin' => ScratchKategori.mblockPin,
+    'kontrol' => ScratchKategori.kontrol,
+    _ => ScratchKategori.olaylar,
+  };
+  final sablon = t.etiket[lang] ?? t.etiket['en']!;
+  final parcalar = <SbParca>[];
+  final re = RegExp(r'%(\d)');
+  var i = 0;
+  for (final m in re.allMatches(sablon)) {
+    final once = sablon.substring(i, m.start).trim();
+    if (once.isNotEmpty) parcalar.add(SbYazi(once));
+    final n = int.parse(m.group(1)!);
+    final yuva = n - 1 < t.yuvalar.length ? t.yuvalar[n - 1] : null;
+    final deger = yuva == null
+        ? ''
+        : alanlar[yuva] ?? mblockVarsayilanAlanlar[tip]?[yuva] ?? '';
+    parcalar.add(SbAcilir(mblockDegerAdi(deger, lang)));
+    i = m.end;
+  }
+  final son = sablon.substring(i).trim();
+  if (son.isNotEmpty) parcalar.add(SbYazi(son));
+  return ScratchBlokTanimi(
+    kategori: kategori,
+    sekil: t.sapkaMi ? ScratchSekil.sapka : ScratchSekil.yigin,
+    satir: parcalar,
+  );
+}

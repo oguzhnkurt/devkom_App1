@@ -13,6 +13,8 @@ import '../../widgets/mascot.dart';
 import '../../widgets/scratch_blok.dart';
 import '../sahne/blok_tezgahi_karti.dart';
 import '../sahne/scratch_sahnesi.dart';
+import '../sahne/uno_karti.dart';
+import '../yurutme/mblock_uno.dart';
 import '../models/course_model.dart';
 import '../screens/widgets/step_widgets.dart' show lessonLang;
 import 'kurs_tanitimi.dart';
@@ -98,6 +100,15 @@ class KursAcilisEkraniState extends State<KursAcilisEkrani>
   final _yazi = GlobalKey<DaktiloYaziState>();
   Timer? _hazirZamani;
 
+  /// mBlock: sanal Arduino Uno (LED pin 13). Scratch'te kullanilmiyor.
+  final UnoKarti _uno = UnoKarti();
+
+  bool get _kart => widget.tanitim.kart;
+
+  /// Kart sahnesindeki kart (test icin).
+  @visibleForTesting
+  UnoKarti get unoKarti => _uno;
+
   Color get _renk => widget.course.primaryColor;
   Color get _renk2 => widget.course.secondaryColor;
 
@@ -118,6 +129,7 @@ class KursAcilisEkraniState extends State<KursAcilisEkrani>
     _kosu.dispose();
     _nabiz.dispose();
     _konfeti.dispose();
+    _uno.dispose();
     super.dispose();
   }
 
@@ -147,12 +159,19 @@ class KursAcilisEkraniState extends State<KursAcilisEkrani>
     HapticFeedback.lightImpact();
     _git(AcilisEvresi.kutlama);
     final azalt = Motion.reduced(context);
+    // Kart: kosu bir "yukleniyor" seridi; sonunda program kartta calisir
+    // (ayni yorumlayici, derslerdeki sahneyle ayni).
     if (azalt) {
       _kosu.value = 1;
     } else {
       await _kosu.forward(from: 0);
     }
     if (!mounted) return;
+    if (_kart) {
+      await UnoYorumlayici(kart: _uno, uyku: (_) async {})
+          .calistir([widget.tanitim.kartProgrami]);
+      if (!mounted) return;
+    }
     SoundService.playOdul();
     if (!azalt) _konfeti.play();
     setState(() {});
@@ -182,6 +201,53 @@ class KursAcilisEkraniState extends State<KursAcilisEkrani>
 
   String _balon(String lang) {
     final n = widget.tanitim.adimSayisi;
+    final pin = widget.tanitim.ledPini;
+    if (_kart) {
+      return switch (_evre) {
+        AcilisEvresi.selam => _t(
+            lang,
+            'Merhaba, ben Devi! Bu kursta bloklarla bir Arduino kartını '
+                'programlayacağız. İlk ışığı birlikte yakalım mı?',
+            "Hi, I'm Devi! In this course we'll program an Arduino board "
+                "with blocks. Shall we switch on our first light together?",
+            'Hallo, ich bin Devi! In diesem Kurs programmieren wir eine '
+                'Arduino-Platine mit Blöcken. Schalten wir zusammen das '
+                'erste Licht ein?',
+            '¡Hola, soy Devi! En este curso programaremos una placa '
+                'Arduino con bloques. ¿Encendemos juntos la primera luz?'),
+        AcilisEvresi.yerlestir => _t(
+            lang,
+            'Mavi bloğu sarı bloğun altına sürükle. İstersen ona sadece dokun!',
+            'Drag the blue block under the yellow one. Or just tap it!',
+            'Zieh den blauen Block unter den gelben. Oder tipp ihn einfach an!',
+            'Arrastra el bloque azul debajo del amarillo. ¡O solo tócalo!'),
+        AcilisEvresi.calistir => _t(
+            lang,
+            'Süper, bloklar birleşti! Şimdi yeşil bayrağa bas ve LED\'i izle.',
+            'Great, the blocks snapped together! Now press the green flag '
+                'and watch the LED.',
+            'Super, die Blöcke sind verbunden! Drück jetzt die grüne Flagge '
+                'und schau auf die LED.',
+            '¡Genial, los bloques se unieron! Ahora pulsa la bandera verde '
+                'y mira el LED.'),
+        AcilisEvresi.kutlama => _t(
+            lang,
+            'Yaşasın! Kodun karta gitti: $pin. pindeki LED yandı!',
+            'Hooray! Your code reached the board: the LED on pin $pin is on!',
+            'Juhu! Dein Code ist auf der Platine: Die LED an Pin $pin leuchtet!',
+            '¡Bien! Tu código llegó a la placa: ¡el LED del pin $pin se '
+                'encendió!'),
+        AcilisEvresi.hazir => _t(
+            lang,
+            'Bloklar birleşince kart dinler. Gerisi derslerde, birlikte!',
+            'Snap blocks together and the board listens. The rest is in '
+                'the lessons, together!',
+            'Verbundene Blöcke, und die Platine hört zu. Der Rest kommt in '
+                'den Lektionen, zusammen!',
+            'Une los bloques y la placa te escucha. ¡Lo demás, en las '
+                'lecciones, juntos!'),
+      };
+    }
     return switch (_evre) {
       AcilisEvresi.selam => _t(
           lang,
@@ -399,6 +465,7 @@ class KursAcilisEkraniState extends State<KursAcilisEkrani>
   // --- Sahne ---------------------------------------------------------
 
   Widget _sahne(String lang) {
+    if (_kart) return _kartSahnesi(lang);
     final hazir = _evre == AcilisEvresi.hazir;
     final aktif = _evre == AcilisEvresi.calistir;
     // Kartin kendisi ders adimlarindakiyle ayni (lib/courses/sahne/).
@@ -490,6 +557,83 @@ class KursAcilisEkraniState extends State<KursAcilisEkrani>
           },
         );
       }),
+    );
+  }
+
+  /// mBlock: sahnenin yerinde sanal Arduino Uno. Bayrak (ya da alttaki
+  /// dugme) programi "yukluyor": kisa bir serit dolar, sonra pin 13'teki
+  /// LED yanar.
+  Widget _kartSahnesi(String lang) {
+    final hazir = _evre == AcilisEvresi.hazir;
+    final aktif = _evre == AcilisEvresi.calistir;
+    final parcalar = UnoParcalari(ledler: [widget.tanitim.ledPini]);
+    return ScratchSahneKarti(
+      lang: lang,
+      baslik: 'Arduino Uno',
+      bayrakAnahtari: const ValueKey('acilis_sahne_bayragi'),
+      onBayrak: aktif ? calistir : null,
+      nabiz: _nabiz,
+      child: ColoredBox(
+        color: const Color(0xFFF1F8F8),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: SizedBox(
+                    width: 330,
+                    height: UnoKartiGorunumu.yukseklik(parcalar, 330),
+                    child: UnoKartiGorunumu(
+                      kart: _uno,
+                      parcalar: parcalar,
+                      lang: lang,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // "Yukleniyor" seridi: kosu suresince dolar.
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 8,
+              child: AnimatedBuilder(
+                animation: _kosu,
+                builder: (context, _) {
+                  final v = _kosu.value;
+                  if (v == 0 || v == 1) return const SizedBox(height: 6);
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: LinearProgressIndicator(
+                      value: v,
+                      minHeight: 6,
+                      color: const Color(0xFF00979D),
+                      backgroundColor: const Color(0xFFCFE7E8),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Positioned.fill(
+              child: IgnorePointer(
+                child: AnimatedOpacity(
+                  opacity: hazir ? 1 : 0,
+                  duration:
+                      Motion.reduced(context) ? Duration.zero : Motion.medium4,
+                  child: Align(
+                    alignment: const Alignment(0, -0.8),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: _hazirsinRozeti(lang),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
