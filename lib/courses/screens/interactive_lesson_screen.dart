@@ -956,7 +956,8 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('🔥', style: TextStyle(fontSize: 20)),
+          const Icon(Icons.local_fire_department_rounded,
+              color: Color(0xFFFF6A00), size: 22),
           const SizedBox(width: 6),
           Flexible(
             child: Text(

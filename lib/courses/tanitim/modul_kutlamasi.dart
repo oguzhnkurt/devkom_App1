@@ -249,15 +249,13 @@ class _ModulKutlamaEkraniState extends State<ModulKutlamaEkrani> {
                           widget.onSonrakiDers != null)
                         PressButton(
                           key: const ValueKey('modul_sonraki_ders'),
-                          label: _t(
-                              lang,
-                              'Sıradaki ders: ${widget.sonrakiDers!.titleFor(lang)}',
-                              'Next lesson: ${widget.sonrakiDers!.titleFor(lang)}',
-                              'Nächste Lektion: ${widget.sonrakiDers!.titleFor(lang)}',
-                              'Siguiente lección: ${widget.sonrakiDers!.titleFor(lang)}'),
+                          ustYazi: _t(lang, 'SIRADAKİ DERS', 'NEXT LESSON',
+                              'NÄCHSTE LEKTION', 'SIGUIENTE LECCIÓN'),
+                          label: widget.sonrakiDers!.titleFor(lang),
                           icon: Icons.arrow_forward_rounded,
                           color: Colors.white,
                           foreground: c.primaryColor,
+                          height: 58,
                           onPressed: widget.onSonrakiDers,
                         ),
                       const SizedBox(height: 6),

@@ -387,9 +387,9 @@ class UnoKartBoyaci extends CustomPainter {
         kalin: true, italik: true);
 
     // ON (yesil, hep yanik) ve L (pin 13) ledleri.
-    _kucukLed(canvas, Offset(w * 0.3, h * 0.33), h, const Color(0xFF3CE05B), 1,
+    _kucukLed(canvas, Offset(w * 0.27, h * 0.33), h, const Color(0xFF3CE05B), 1,
         'ON');
-    _kucukLed(canvas, Offset(w * 0.3, h * 0.47), h, const Color(0xFFFFB300),
+    _kucukLed(canvas, Offset(w * 0.27, h * 0.47), h, const Color(0xFFFFB300),
         kart.parlaklik(13), 'L');
   }
 
@@ -409,7 +409,7 @@ class UnoKartBoyaci extends CustomPainter {
         rr,
         Paint()
           ..color = Color.lerp(const Color(0xFF6E7A7B), renk, p.clamp(0, 1))!);
-    _yazi(c, ad, o + Offset(-h * 0.1, 0), h * 0.055);
+    _yazi(c, ad, o + Offset(h * 0.1, 0), h * 0.055);
   }
 
   void _sonsuzluk(Canvas c, Offset m, double r) {

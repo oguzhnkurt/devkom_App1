@@ -19,9 +19,10 @@ enum DeviTepkiTuru {
 /// Devi'nin kucuk tepkisi: soldaki kucuk Devi zipliyor, yaninda kisa bir
 /// balon ("Super!", "Neredeyse! Bir daha dene").
 ///
-/// KUCUK VE ENGELLEMEYEN: hicbir dokunusu yakalamiyor, yerlesimi
-/// itmiyor (sabit yukseklik), kendi kendine kaybolmuyor (cocuk okumadan
-/// gitmesin) ama bir sonraki cevapta yenisiyle degisiyor.
+/// KUCUK VE ENGELLEMEYEN: hicbir dokunusu yakalamiyor, cevaptan sonra
+/// bir kez yer aliyor (en az 56 pt; iki satirlik soz sigiyor), kendi
+/// kendine kaybolmuyor (cocuk okumadan gitmesin) ama bir sonraki cevapta
+/// yenisiyle degisiyor.
 ///
 /// CESITLI: ayni soz arka arkaya gelmesin diye soz [tohum] ile seciliyor
 /// (adimin kimligi + deneme sayisi). Ayni tohum hep ayni sozu veriyor:
@@ -180,8 +181,8 @@ class DeviTepkisi extends StatelessWidget {
         liveRegion: true,
         label: '${Mascot.ad}: $metin',
         child: ExcludeSemantics(
-          child: SizedBox(
-            height: 56,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 56),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [

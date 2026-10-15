@@ -578,9 +578,10 @@ class KursAcilisEkraniState extends State<KursAcilisEkrani>
         child: Stack(
           children: [
             Positioned.fill(
-              child: Center(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(4, 8, 4, 18),
                 child: FittedBox(
-                  fit: BoxFit.scaleDown,
+                  fit: BoxFit.contain,
                   child: SizedBox(
                     width: 330,
                     height: UnoKartiGorunumu.yukseklik(parcalar, 330),

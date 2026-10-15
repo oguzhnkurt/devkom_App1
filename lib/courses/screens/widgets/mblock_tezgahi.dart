@@ -343,7 +343,10 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for (final y in widget.onizleme) ...[
-                MBlockYiginCizimi(bloklar: y, lang: lang, olcek: 0.92),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: MBlockYiginCizimi(bloklar: y, lang: lang, olcek: 0.92),
+                ),
                 const SizedBox(height: 10),
               ],
             ],
