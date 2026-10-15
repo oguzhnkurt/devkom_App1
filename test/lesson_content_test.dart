@@ -135,6 +135,24 @@ void main() {
           reason: 'Cevap ekranda isaretli:\n${leaks.take(20).join('\n')}');
     });
 
+    test('Scratch ve mBlock seceneklerinde ipucu emojisi yok', () {
+      // ✅/❌ disinda da sizan vardi: s3_2_q1'de dogru secenek ("sure -1
+      // degistir") ⏬ tasiyordu, digerleri rakamlar; 7.1'de dogru cevap
+      // 🌟 ile parliyordu. Bu iki kursta secenekler emojisiz.
+      final sizan = <String>[];
+      for (final l in [
+        ...ScratchLessonsData.allLessons,
+        ...MBlockLessonsData.allLessons,
+      ]) {
+        for (final step in l.steps.whereType<MultipleChoiceStep>()) {
+          for (final o in step.options) {
+            if (o.emoji != null) sizan.add('${step.id}: ${o.emoji}');
+          }
+        }
+      }
+      expect(sizan, isEmpty, reason: sizan.take(20).join('\n'));
+    });
+
     test('ayni soruda iki ayni secenek yok', () {
       for (final step in allSteps.whereType<MultipleChoiceStep>()) {
         final texts = step.options.map((o) => o.text.trim()).toList();

@@ -1845,6 +1845,7 @@ class JavaLessonsData {
       order: 11,
       xpReward: 100,
       category: LessonCategory.project,
+      badge: 'java_system_developer',
       steps: [
         IntroStep(
           id: 'j4_2_intro',

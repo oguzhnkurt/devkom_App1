@@ -38,7 +38,10 @@ class CoursesData {
       difficulty: DifficultyLevel.beginner,
       tags: ['görsel', 'oyun', 'animasyon', 'başlangıç'],
       totalLessons: 20,
-      estimatedMinutes: 400,
+      // Derslerin tahmini surelerinin toplami (adim basina ~2 dk; bkz.
+      // InteractiveLesson.estimatedMinutes). 400 yaziyordu: 20 dersin
+      // her biri 20 dk degil.
+      estimatedMinutes: 315,
       sortOrder: 1,
       pathStep: 1,
     ),
@@ -84,7 +87,8 @@ class CoursesData {
       difficulty: DifficultyLevel.beginner,
       tags: ['mblock', 'blok', 'arduino', 'maker', 'robot'],
       totalLessons: 14,
-      estimatedMinutes: 305,
+      // Ders surelerinin toplami (bkz. Scratch'teki not).
+      estimatedMinutes: 200,
       sortOrder: 2,
       pathStep: 2,
       prerequisiteId: 'scratch',

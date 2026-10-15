@@ -1843,6 +1843,7 @@ class CSharpLessonsData {
       order: 11,
       xpReward: 100,
       category: LessonCategory.project,
+      badge: 'csharp_system_developer',
       steps: [
         IntroStep(
           id: 'cs4_2_intro',
