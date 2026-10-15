@@ -660,7 +660,11 @@ class AuthProvider extends ChangeNotifier {
   /// Ders ONCE cihaza yaziliyor, sonra sunucuya. Oturum yoksa ya da
   /// sunucu hata verirse de ders bitmis sayiliyor; kurs sayfasi ertesi
   /// gun dogru dersten devam ettiriyor.
-  Future<bool> dersTamamlandi(String lessonId, int xp) async {
+  ///
+  /// [rozet]: dersin rozeti; kazanilmis rozetlere yazilir. Daha once
+  /// bitmis bir ders tekrar bitirilince XP azaliyor ve jeton verilmiyor
+  /// (bkz. [UserProgressService.dersiKaydet]).
+  Future<bool> dersTamamlandi(String lessonId, int xp, {String? rozet}) async {
     final yerelYeni = !tamamlananDersler.contains(lessonId);
     _yerelTamamlanan = {..._yerelTamamlanan, lessonId};
     notifyListeners();
@@ -669,11 +673,16 @@ class AuthProvider extends ChangeNotifier {
 
     final user = _currentUser;
     if (user == null) return yerelYeni;
-    final yeni = await _progressService.dersiKaydet(user.uid, lessonId, xp);
+    final yeni = await _progressService.dersiKaydet(user.uid, lessonId, xp,
+        rozet: rozet, tekrar: !yerelYeni);
     _userProgress = _progressService.currentProgress ?? _userProgress;
     notifyListeners();
     return yeni;
   }
+
+  /// Rozet daha once kazanilmis mi (sunucudaki ilerlemeye gore).
+  bool rozetVar(String rozetId) =>
+      _userProgress?.earnedBadgeIds.contains(rozetId) ?? false;
 
   /// Jeton ekler ve ilerlemeyi tazeler.
   ///

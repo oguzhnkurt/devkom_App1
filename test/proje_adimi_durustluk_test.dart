@@ -84,6 +84,10 @@ void main() {
     await tester.tap(yaptim);
     await tester.pump();
     expect(sonuc, isTrue);
+
+    // Bir kez: ikinci basis yeniden XP istemesin.
+    expect(tester.widget<ElevatedButton>(yaptim).onPressed, isNull,
+        reason: '"Yaptim" basildiktan sonra kapanmali.');
   });
 
   testWidgets('"Sonra yaparim" her zaman acik ve XP vermiyor',

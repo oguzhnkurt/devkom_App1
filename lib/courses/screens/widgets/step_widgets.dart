@@ -1197,8 +1197,13 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
       HapticFeedback.mediumImpact();
     }
 
+    // Kucuk bekleme: cocuk dogru/yanlis rengini gorsun. Bu arada adim
+    // ekrandan kalktiysa (Onceki) bildirim gitmiyor; hangi adimin
+    // tamamlandigini ders ekrani kendi geri cagrisinda tutuyor.
+    final dogru = _isCorrect;
     Future.delayed(const Duration(milliseconds: 500), () {
-      widget.onComplete(_isCorrect);
+      if (!mounted) return;
+      widget.onComplete(dogru);
     });
   }
 
@@ -1541,6 +1546,7 @@ class _DragDropStepWidgetState extends State<DragDropStepWidget> {
       HapticFeedback.heavyImpact();
       SoundService.playSoruDogru();
       Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
         widget.onComplete(true);
       });
     } else {
@@ -1798,7 +1804,14 @@ class BlockBuilderStepWidget extends StatefulWidget {
   final BlockBuilderStep step;
   final Course course;
   final bool isDark;
+
+  /// Dogru dizilim bulundugu AN bir kez cagriliyor (adim tamamlandi).
   final Function(bool correct) onComplete;
+
+  /// Basari kutusunun altindaki DEVAM: dersi bir sonraki adima gecirir
+  /// (alt cubuktaki "Devam" ile ayni is). Verilmezse yalnizca
+  /// [onComplete] cagriliyor.
+  final VoidCallback? onDevam;
 
   const BlockBuilderStepWidget({
     super.key,
@@ -1806,6 +1819,7 @@ class BlockBuilderStepWidget extends StatefulWidget {
     required this.course,
     required this.isDark,
     required this.onComplete,
+    this.onDevam,
   });
 
   @override
@@ -1831,6 +1845,9 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
   }
   bool _completed = false;
 
+  /// Tamamlanma ders ekranina bildirildi mi (bir kez).
+  bool _bildirildi = false;
+
   /// Dizi TAMAM ama sirasi yanlis. Yalnizca bu durumda uyari gosteriliyor;
   /// yarim dizide cocugu erken uyarmanin anlami yok.
   bool _yanlisDizi = false;
@@ -1852,7 +1869,18 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
 
   /// Sahnede o an calisan blogun kod alanindaki sirasi; kod alaninda
   /// parlatiliyor.
-  int? _calisanSira;
+  ///
+  /// ValueNotifier: sahne her adimda bunu degistiriyor. Eskiden bu bir
+  /// setState idi ve her adimda butun blok kurma ekrani (palet, sahne
+  /// karti, iz) yeniden kuruluyordu; artik yalnizca kod alanindaki
+  /// bloklarin vurgusu dinliyor.
+  final ValueNotifier<int?> _calisanSira = ValueNotifier<int?>(null);
+
+  @override
+  void dispose() {
+    _calisanSira.dispose();
+    super.dispose();
+  }
 
   /// Kod alaninin ustunde bir blok surukleniyor mu? (Alan hafifce
   /// parliyor ki cocuk birakacagi yeri gorsun.)
@@ -1884,7 +1912,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
     _izGoster = false;
     _calisiyor = false;
     _yurutme = null;
-    _calisanSira = null;
+    _calisanSira.value = null;
   }
 
   void _addBlock(ScratchBlock block, {int? sira}) {
@@ -1952,10 +1980,11 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
     setState(() {
       _izGoster = true;
       _calistirmaNo++;
-      _calisanSira = null;
+      _calisanSira.value = null;
       _calisiyor = true;
       _oynatici = GlobalKey();
-      _yurutme = const BlokYorumlayici().yurut(_kodBloklari());
+      _yurutme = BlokYorumlayici(dil: lessonLangRead(context))
+          .yurut(_kodBloklari());
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final c = _sahneAnahtari.currentContext;
@@ -1982,10 +2011,8 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
     if (!_calisiyor) return;
     HapticFeedback.lightImpact();
     _oynatici.currentState?.durdur();
-    setState(() {
-      _calisiyor = false;
-      _calisanSira = null;
-    });
+    setState(() => _calisiyor = false);
+    _calisanSira.value = null;
   }
 
   void _oynatmaBitti() {
@@ -2024,6 +2051,14 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
     });
     if (correct) {
       SoundService.playSoruDogru();
+      // ADIM BURADA TAMAMLANIYOR. Eskiden ancak ic DEVAM tusuna
+      // basilinca tamamlaniyordu: o tus yalnizca XP veriyor, ders
+      // ilerlemiyordu; her basis yeniden XP ekliyordu ve alt cubuktaki
+      // "Devam" ancak ondan sonra aciliyordu.
+      if (!_bildirildi) {
+        _bildirildi = true;
+        widget.onComplete(true);
+      }
     } else {
       SoundService.playWrong();
     }
@@ -2222,7 +2257,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
               renk: widget.course.primaryColor,
               baslamaGecikmesi: const Duration(milliseconds: 450),
               onAdim: (sira) {
-                if (mounted) setState(() => _calisanSira = sira);
+                if (mounted) _calisanSira.value = sira;
               },
             ),
           ),
@@ -2409,9 +2444,16 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         ),
       ),
       const SizedBox(height: 16),
-      // Calistirma tusu yukari tasindi; burada yalnizca DEVAM kaldi.
+      // Calistirma tusu yukari tasindi; burada yalnizca DEVAM kaldi. Alt
+      // cubuktaki "Devam" ile ayni is: dersi sonraki adima gecirir.
       ElevatedButton(
-        onPressed: () => widget.onComplete(true),
+        onPressed: () {
+          if (!_bildirildi) {
+            _bildirildi = true;
+            widget.onComplete(true);
+          }
+          widget.onDevam?.call();
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: widget.course.primaryColor,
           foregroundColor: Colors.white,
@@ -2493,7 +2535,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
                       baslamaGecikmesi: const Duration(milliseconds: 450),
                       onComplete: _oynatmaBitti,
                       onAdim: (sira) {
-                        if (mounted) setState(() => _calisanSira = sira);
+                        if (mounted) _calisanSira.value = sira;
                       },
                     )
                   : _bosSahne(lang, kisa ? 58 : 76),
@@ -2859,23 +2901,23 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
       {ScratchCParcasi parca = ScratchCParcasi.tamami}) {
     final block = widget.step.availableBlocks
         .firstWhere((b) => b.id == _placedBlocks[index]);
-    final calisiyor = _calisanSira == index;
     final ekleme = _ekleSira == index;
-    final gorunum = ScratchBlok(
-      tanim: t,
-      olcek: s,
-      sigdir: false,
-      silme: true,
-      parca: parca,
-      kimlik: block.id,
-      // Calisan blok Scratch'teki gibi sari haleyle parliyor; birakilacak
-      // yerin onundeki blok beyaz haleyle.
-      vurgu: calisiyor
-          ? ScratchBlok.calisanRengi
-          : ekleme
-              ? Colors.white
-              : null,
-    );
+    ScratchBlok blokGorunumu(bool calisiyor) => ScratchBlok(
+          tanim: t,
+          olcek: s,
+          sigdir: false,
+          silme: true,
+          parca: parca,
+          kimlik: block.id,
+          // Calisan blok Scratch'teki gibi sari haleyle parliyor;
+          // birakilacak yerin onundeki blok beyaz haleyle.
+          vurgu: calisiyor
+              ? ScratchBlok.calisanRengi
+              : ekleme
+                  ? Colors.white
+                  : null,
+        );
+    final gorunum = blokGorunumu(false);
     final tasinan = ScratchBlok(
         tanim: t, olcek: s, sigdir: false, parca: ScratchCParcasi.bas);
     return DragTarget<_BlokTasima>(
@@ -2894,12 +2936,18 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         hapticFeedbackOnStart: true,
         feedback: _surukleniyor(tasinan),
         childWhenDragging: Opacity(opacity: 0.35, child: gorunum),
-        child: Semantics(
-          selected: calisiyor,
-          child: GestureDetector(
-            onTap: () => _removeBlock(index),
-            child: gorunum,
-          ),
+        child: ValueListenableBuilder<int?>(
+          valueListenable: _calisanSira,
+          builder: (context, calisan, _) {
+            final calisiyor = calisan == index;
+            return Semantics(
+              selected: calisiyor,
+              child: GestureDetector(
+                onTap: () => _removeBlock(index),
+                child: calisiyor ? blokGorunumu(true) : gorunum,
+              ),
+            );
+          },
         ),
       ),
     );
@@ -3027,25 +3075,34 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
       cHeadOnly: block.shape == ScratchBlockShape.cBlock,
       onTap: () => _removeBlock(index),
     );
-    final calisiyor = _calisanSira == index;
     final ekleme = _ekleSira == index;
     // Vurgular ON PLANDA ciziliyor (foregroundDecoration): blok calisirken
     // ya da onune blok birakilacakken kod alani kaymiyor.
-    final vurgulu = AnimatedContainer(
-      duration: const Duration(milliseconds: 160),
-      // Calisan blok sari, birakilacak yerin onundeki blok beyaz cerceve.
-      foregroundDecoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: calisiyor
-              ? const Color(0xFFFFE066)
-              : ekleme
-                  ? Colors.white
-                  : Colors.transparent,
-          width: 3,
-        ),
-      ),
-      child: gorunum,
+    final vurgulu = ValueListenableBuilder<int?>(
+      valueListenable: _calisanSira,
+      builder: (context, calisan, _) {
+        final calisiyor = calisan == index;
+        return Semantics(
+          selected: calisiyor,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            // Calisan blok sari, birakilacak yerin onundeki blok beyaz
+            // cerceve.
+            foregroundDecoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: calisiyor
+                    ? const Color(0xFFFFE066)
+                    : ekleme
+                        ? Colors.white
+                        : Colors.transparent,
+                width: 3,
+              ),
+            ),
+            child: gorunum,
+          ),
+        );
+      },
     );
     return DragTarget<_BlokTasima>(
       onWillAcceptWithDetails: (_) {
@@ -3063,10 +3120,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         hapticFeedbackOnStart: true,
         feedback: _surukleniyor(gorunum),
         childWhenDragging: Opacity(opacity: 0.35, child: gorunum),
-        child: Semantics(
-          selected: calisiyor,
-          child: vurgulu,
-        ),
+        child: vurgulu,
       ),
     );
   }
@@ -4502,6 +4556,9 @@ class ProjectStepWidget extends StatefulWidget {
 }
 
 class _ProjectStepWidgetState extends State<ProjectStepWidget> {
+  /// "Yaptim"a basildi: tus kapaniyor.
+  bool _gonderildi = false;
+
   /// Tezgahtaki kodun son hali (yalnizca html/css adimlarinda).
   String _kod = '';
 
@@ -4720,7 +4777,13 @@ class _ProjectStepWidgetState extends State<ProjectStepWidget> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: hepsiIsaretli ? () => widget.onComplete(true) : null,
+            // Bir kez: "Yaptim"a ikinci basis yeniden XP vermesin.
+            onPressed: hepsiIsaretli && !_gonderildi
+                ? () {
+                    setState(() => _gonderildi = true);
+                    widget.onComplete(true);
+                  }
+                : null,
             icon: const Icon(Icons.check),
             label: Text(lessonText(
                 lang,

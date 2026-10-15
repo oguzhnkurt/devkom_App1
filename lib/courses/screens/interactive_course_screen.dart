@@ -34,6 +34,9 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
   int _selectedModule = 0;
   late List<CourseModule> _modules;
 
+  /// Modul sinavlarinin sorulari (modul basina bir kez secilir).
+  final Map<CourseModule, List<MultipleChoiceStep>> _sinavSorulari = {};
+
   /// Dersin KURS icindeki sifir tabanli sirasi (moduller duzlestirilmis).
   ///
   /// Pro bir kursta ilk iki ders odullu reklamla aciliyor; hangi dersin
@@ -277,12 +280,16 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
     final completedLessons = _modules.fold<int>(
         0, (t, m) => t + m.lessons.where((l) => biten.contains(l.id)).length);
     final progress = totalLessons > 0 ? completedLessons / totalLessons : 0.0;
+    // XP, ders ekraninin GERCEKTEN verdigiyle ayni olcu: dersin bitis
+    // odulu + adimlarin XP'si ([InteractiveLesson.tamXp]). Eskiden
+    // yalnizca bitis odulu sayiliyordu; kart "120 / 800" derken cocugun
+    // XP'si 300 artmis oluyordu.
     final totalXp = _modules.fold<int>(0, (sum, m) =>
-      sum + m.lessons.fold<int>(0, (s, l) => s + l.xpReward));
+      sum + m.lessons.fold<int>(0, (s, l) => s + l.tamXp));
     final earnedXp = _modules.fold<int>(0, (sum, m) =>
       sum + m.lessons
           .where((l) => biten.contains(l.id))
-          .fold<int>(0, (s, l) => s + l.xpReward));
+          .fold<int>(0, (s, l) => s + l.tamXp));
     final devam = KursDevam.hesapla(widget.course.id, biten,
         acildi: _kursAcildi);
 
@@ -674,7 +681,11 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
   }
 
   Widget _buildModuleQuizCard(CourseModule module, bool isDark) {
-    final questions = ModuleQuizScreen.collectQuestions(module.lessons);
+    // Sorular BIR KEZ seciliyor: collectQuestions karistiriyor ve build
+    // her calistiginda (ilerleme degisince, tema degisince) kartin
+    // arkasindaki soru seti degisiyordu.
+    final questions = _sinavSorulari.putIfAbsent(
+        module, () => ModuleQuizScreen.collectQuestions(module.lessons));
     if (questions.length < 3) {
       return const SizedBox.shrink();
     }

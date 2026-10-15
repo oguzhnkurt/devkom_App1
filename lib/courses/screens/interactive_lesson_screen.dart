@@ -16,9 +16,10 @@ import '../../ui/motion.dart';
 import '../../ui/press_button.dart';
 import '../../widgets/cikis_penceresi.dart';
 import '../../services/sound_service.dart';
-import '../../utils/lang.dart';
 import '../../widgets/mascot.dart';
 import '../data/course_modules.dart';
+import '../data/rozet_katalogu.dart';
+import '../../services/user_progress_service.dart';
 import '../tanitim/kurs_kapanis_ekrani.dart';
 
 /// Modern, Interactive Lesson Screen
@@ -43,6 +44,16 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
   int _earnedXp = 0;
   bool _currentStepCompleted = false;
   final Map<String, bool> _completedSteps = {};
+
+  /// XP'si verilmis adimlar. Bir adim tekrar tamamlaninca (geri gelip
+  /// yeniden cevaplamak, blok kurma adiminin ic DEVAM tusu, "Yaptim"a
+  /// iki kez basmak) XP yeniden eklenmiyordu degil — EKLENIYORDU; ust
+  /// cubuktaki XP ve dersin toplam XP'si boylece sisiyordu.
+  final Set<String> _xpVerilenAdimlar = {};
+
+  /// Ders bitiriliyor: "Tamamla"ya ikinci kez basmak dersi iki kez
+  /// kaydetmesin (iki kez XP, iki kutlama penceresi).
+  bool _bitiriliyor = false;
 
   late AnimationController _progressController;
   late AnimationController _celebrationController;
@@ -82,11 +93,20 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
     super.dispose();
   }
 
-  void _onStepCompleted({int xpEarned = 0}) {
+  /// [stepId] adimi tamamlandi.
+  ///
+  /// Kimlik ACIKCA veriliyor: adimlarin bazilari tamamlanmayi gecikmeyle
+  /// bildiriyor (coktan secmeli 500 ms sonra). O arada cocuk baska bir
+  /// adima gectiyse "su anki adim" baska bir adim oluyordu.
+  ///
+  /// XP her adim icin YALNIZCA ILK tamamlanista veriliyor.
+  void _onStepCompleted(String stepId, {int xpEarned = 0}) {
+    if (!mounted) return;
+    final ilkKez = _xpVerilenAdimlar.add(stepId);
     setState(() {
-      _currentStepCompleted = true;
-      _completedSteps[_currentStep.id] = true;
-      _earnedXp += xpEarned;
+      _completedSteps[stepId] = true;
+      if (stepId == _currentStep.id) _currentStepCompleted = true;
+      if (ilkKez) _earnedXp += xpEarned;
     });
     HapticFeedback.mediumImpact();
   }
@@ -118,9 +138,22 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
   }
 
   Future<void> _completeLesson() async {
+    if (_bitiriliyor) return;
+    setState(() => _bitiriliyor = true);
     // Add XP
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final totalXp = _earnedXp + widget.lesson.xpReward;
+    final tamXp = _earnedXp + widget.lesson.xpReward;
+
+    // TEKRAR: biten bir ders yeniden bitirilince XP'nin dortte biri,
+    // jeton yok (bkz. UserProgressService.dersiKaydet). Pencere de
+    // gercekten verileni gosteriyor.
+    final tekrar = authProvider.tamamlananDersler.contains(widget.lesson.id);
+    final totalXp = tekrar ? UserProgressService.tekrarXp(tamXp) : tamXp;
+
+    // ROZET: yalnizca ILK bitiste ve daha once kazanilmamissa "YENI".
+    final rozet = widget.lesson.badge;
+    final yeniRozet =
+        rozet != null && !tekrar && !authProvider.rozetVar(rozet);
 
     // XP + 8 jeton + dersin kimligi tek yerde. Eskiden yalnizca XP ve
     // jeton veriliyordu, ders "bitti" diye hic yazilmiyordu; kurs
@@ -128,7 +161,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
     //
     // Oturum kontrolu YOK: ders once cihaza yaziliyor (oturum henuz
     // acilmamis olsa bile), sunucu kismini dersTamamlandi kendisi atliyor.
-    await authProvider.dersTamamlandi(widget.lesson.id, totalXp);
+    await authProvider.dersTamamlandi(widget.lesson.id, tamXp, rozet: rozet);
 
     // KURS BITTI MI? Son ders bittiyse ve kapanis daha once
     // gosterilmediyse, "Harika!"dan sonra kurs sayfasina degil kapanis
@@ -139,11 +172,13 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
 
     // Show completion dialog
     if (mounted) {
-      _showCompletionDialog(totalXp, kapanis: kapanis);
+      _showCompletionDialog(totalXp,
+          kapanis: kapanis, yeniRozet: yeniRozet ? rozet : null);
     }
   }
 
-  void _showCompletionDialog(int totalXp, {bool kapanis = false}) {
+  void _showCompletionDialog(int totalXp,
+      {bool kapanis = false, String? yeniRozet}) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -151,7 +186,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
         course: widget.course,
         lesson: widget.lesson,
         totalXp: totalXp,
-        badge: widget.lesson.badge,
+        badge: yeniRozet,
         onDevam: kapanis
             ? () {
                 Navigator.pop(dialogContext);
@@ -401,7 +436,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           isDark: isDark,
           lesson: widget.lesson,
           dersNo: _dersNo,
-          onComplete: () => _onStepCompleted(),
+          onComplete: () => _onStepCompleted(step.id),
         );
 
       case StepType.explanation:
@@ -409,7 +444,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           step: step as ExplanationStep,
           course: widget.course,
           isDark: isDark,
-          onComplete: () => _onStepCompleted(xpEarned: step.xpReward),
+          onComplete: () => _onStepCompleted(step.id, xpEarned: step.xpReward),
         );
 
       case StepType.multipleChoice:
@@ -418,6 +453,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           course: widget.course,
           isDark: isDark,
           onComplete: (correct) => _onStepCompleted(
+            step.id,
             xpEarned: correct ? step.xpReward : 0,
           ),
         );
@@ -428,6 +464,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           course: widget.course,
           isDark: isDark,
           onComplete: (correct) => _onStepCompleted(
+            step.id,
             xpEarned: correct ? step.xpReward : 0,
           ),
         );
@@ -445,6 +482,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
             course: widget.course,
             isDark: isDark,
             onComplete: (correct) => _onStepCompleted(
+              step.id,
               xpEarned: correct ? step.xpReward : 0,
             ),
           );
@@ -454,8 +492,11 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           course: widget.course,
           isDark: isDark,
           onComplete: (correct) => _onStepCompleted(
+            step.id,
             xpEarned: correct ? step.xpReward : 0,
           ),
+          // Ic DEVAM tusu alt cubuktaki "Devam" ile ayni isi yapiyor.
+          onDevam: _nextStep,
         );
 
       case StepType.ordering:
@@ -464,6 +505,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           course: widget.course,
           isDark: isDark,
           onComplete: (correct) => _onStepCompleted(
+            step.id,
             xpEarned: correct ? step.xpReward : 0,
           ),
         );
@@ -474,6 +516,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           course: widget.course,
           isDark: isDark,
           onComplete: (correct) => _onStepCompleted(
+            step.id,
             xpEarned: correct ? step.xpReward : 0,
           ),
         );
@@ -484,6 +527,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           course: widget.course,
           isDark: isDark,
           onComplete: (score) => _onStepCompleted(
+            step.id,
             xpEarned: score >= step.targetScore ? step.xpReward : step.xpReward ~/ 2,
           ),
         );
@@ -497,7 +541,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           // "Sonra yaparim" (ilerler, XP yok). Uygulama projeyi
           // goremiyor; gordugunu iddia etmiyoruz.
           onComplete: (yapti) =>
-              _onStepCompleted(xpEarned: yapti ? step.xpReward : 0),
+              _onStepCompleted(step.id, xpEarned: yapti ? step.xpReward : 0),
         );
 
 
@@ -510,6 +554,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           course: widget.course,
           isDark: isDark,
           onComplete: (correct) => _onStepCompleted(
+            step.id,
             xpEarned: correct ? step.xpReward : 0,
           ),
         );
@@ -520,6 +565,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           course: widget.course,
           isDark: isDark,
           onComplete: (correct) => _onStepCompleted(
+            step.id,
             xpEarned: correct ? step.xpReward : 0,
           ),
         );
@@ -530,6 +576,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           course: widget.course,
           isDark: isDark,
           onComplete: (correct) => _onStepCompleted(
+            step.id,
             xpEarned: correct ? step.xpReward : 0,
           ),
         );
@@ -539,7 +586,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           step: step as AnimationStep,
           course: widget.course,
           isDark: isDark,
-          onComplete: () => _onStepCompleted(xpEarned: step.xpReward),
+          onComplete: () => _onStepCompleted(step.id, xpEarned: step.xpReward),
         );
 default:
         return Center(
@@ -592,7 +639,7 @@ default:
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             child: ElevatedButton.icon(
-              onPressed: _canProceed() ? _nextStep : null,
+              onPressed: _canProceed() && !_bitiriliyor ? _nextStep : null,
               icon: Icon(
                 _isLastStep ? Icons.check_circle : Icons.arrow_forward,
                 size: 20,
@@ -652,6 +699,9 @@ class _LessonCompleteDialog extends StatefulWidget {
   final Course course;
   final InteractiveLesson lesson;
   final int totalXp;
+
+  /// YENI kazanilan rozet; daha once kazanilmissa (ders tekrari) null ve
+  /// "YENI ROZET!" kutusu cikmiyor.
   final String? badge;
 
   /// "Harika!" tusu. Verilmezse pencere ve ders ekrani kapanir (kurs
@@ -859,13 +909,16 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
                           ),
                         ),
                         const SizedBox(height: 8),
+                        // Ad ve simge TEK katalogdan (bkz. RozetKatalogu):
+                        // eskiden yalnizca alti Scratch rozeti biliniyordu,
+                        // gerisi "Rozet" / 🏆 cikiyordu.
                         Text(
-                          _getBadgeEmoji(widget.badge!),
+                          RozetKatalogu.of(widget.badge!).simge,
                           style: const TextStyle(fontSize: 46),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          _getBadgeName(widget.badge!, lang),
+                          RozetKatalogu.of(widget.badge!).adi(lang),
                           style: TextStyle(
                             fontFamily: AppTheme.fontFamily,
                             fontWeight: FontWeight.w700,
@@ -916,60 +969,5 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
         ),
       ],
     );
-  }
-
-  String _getBadgeEmoji(String badgeId) {
-    final badges = {
-      'scratch_starter': '🧩',
-      'first_code': '💻',
-      'loop_master': '🔄',
-      'condition_wizard': '🧙',
-      'coordinate_explorer': '🧭',
-      'game_developer': '🎮',
-    };
-    return badges[badgeId] ?? '🏆';
-  }
-
-  /// Rozet adı — kutlama ekranında çocuğa gösteriliyor.
-  ///
-  /// Rozet adları burada SABİT yazılı olduğu için İngilizce ekranda da
-  /// Türkçe çıkıyordu: ders İngilizce bitiyor, kutlama "Döngü Ustası"
-  /// diyordu.
-  String _getBadgeName(String badgeId, String lang) {
-    const tr = {
-      'scratch_starter': 'Scratch Başlangıç',
-      'first_code': 'İlk Kod',
-      'loop_master': 'Döngü Ustası',
-      'condition_wizard': 'Koşul Büyücüsü',
-      'coordinate_explorer': 'Koordinat Kaptanı',
-      'game_developer': 'Oyun Geliştirici',
-    };
-    const en = {
-      'scratch_starter': 'Scratch Starter',
-      'first_code': 'First Code',
-      'loop_master': 'Loop Master',
-      'condition_wizard': 'Condition Wizard',
-      'coordinate_explorer': 'Coordinate Captain',
-      'game_developer': 'Game Developer',
-    };
-    const de = {
-      'scratch_starter': 'Scratch-Starter',
-      'first_code': 'Erster Code',
-      'loop_master': 'Schleifen-Profi',
-      'condition_wizard': 'Bedingungs-Zauberer',
-      'coordinate_explorer': 'Koordinaten-Kapitän',
-      'game_developer': 'Spieleentwickler',
-    };
-    const es = {
-      'scratch_starter': 'Inicio en Scratch',
-      'first_code': 'Primer código',
-      'loop_master': 'Maestro de bucles',
-      'condition_wizard': 'Mago de condiciones',
-      'coordinate_explorer': 'Capitán de coordenadas',
-      'game_developer': 'Creador de juegos',
-    };
-    final names = AppLang.pickOf(lang, tr: tr, en: en, de: de, es: es);
-    return names[badgeId] ??
-        lessonText(lang, 'Rozet', 'Badge', 'Abzeichen', 'Insignia');
   }
 }

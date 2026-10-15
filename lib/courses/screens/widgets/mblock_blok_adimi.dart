@@ -73,6 +73,7 @@ class _MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
       HapticFeedback.heavyImpact();
       SoundService.playSoruDogru();
       Future.delayed(const Duration(milliseconds: 600), () {
+        if (!mounted) return;
         widget.onComplete(true);
       });
     } else {

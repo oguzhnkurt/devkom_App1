@@ -102,6 +102,10 @@ class InteractiveLesson {
 
   int get totalSteps => steps.length;
   int get estimatedMinutes => (steps.length * 2).clamp(5, 30);
+
+  /// Dersin verebilecegi en fazla XP: bitis odulu + adimlarin XP'si
+  /// (ders ekrani ikisini toplayip veriyor).
+  int get tamXp => steps.fold<int>(xpReward, (t, s) => t + s.xpReward);
 }
 
 enum LessonCategory {

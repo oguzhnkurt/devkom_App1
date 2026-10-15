@@ -76,7 +76,18 @@ class CourseModules {
   ];
 
   /// Verilen kursun modulleri. Tanimsiz kurs icin bos liste doner.
-  static List<CourseModule> forCourse(String courseId) {
+  ///
+  /// Kurs basina BIR KEZ kuruluyor: ders verisinin bir kismi getter ile
+  /// her cagrida yeniden olusturuluyordu ve bu fonksiyon kurs sayfasinin
+  /// her build'inde (ilerleme karti, ders listesi, yol seridi) tekrar
+  /// tekrar cagriliyor. Liste degistirilemez: paylasilan bir onbellek.
+  static List<CourseModule> forCourse(String courseId) =>
+      _onbellek.putIfAbsent(
+          courseId, () => List.unmodifiable(_kur(courseId)));
+
+  static final Map<String, List<CourseModule>> _onbellek = {};
+
+  static List<CourseModule> _kur(String courseId) {
     switch (courseId) {
       case 'scratch':
         return [

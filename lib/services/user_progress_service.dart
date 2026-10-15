@@ -247,6 +247,12 @@ class UserProgressService extends ChangeNotifier {
     }
   }
 
+  /// Bir dersi ilk kez bitirmenin jeton odulu.
+  static const int dersJetonu = 8;
+
+  /// Biten bir dersi TEKRAR bitirmenin XP'si: tam XP'nin dortte biri.
+  static int tekrarXp(int xp) => (xp * 0.25).round();
+
   /// Interaktif dersin bitisini KAYDEDER.
   ///
   /// EKSIK OLAN SEY (Ekim 2026): ders ekranlari bitiste yalnizca XP ve
@@ -262,15 +268,28 @@ class UserProgressService extends ChangeNotifier {
   /// artmiyor; boylece veli raporundaki "yeni ders" sayilari toplam
   /// biten ders sayisiyla celismiyor.
   ///
+  /// TEKRAR ODULU (Ekim 2026): biten bir dersi yeniden oynamak eskiden
+  /// her seferinde TAM XP ve 8 jeton veriyordu; ayni ders tekrar tekrar
+  /// bitirilerek XP ve jeton toplanabiliyordu. Artik tekrar jeton
+  /// vermiyor, XP'nin dortte birini veriyor ([tekrarXp]). [tekrar]:
+  /// cihazdaki kayit dersin daha once bittigini soyluyor (sunucuya hic
+  /// yazilmamis olsa bile).
+  ///
+  /// [rozet] verilirse kazanilmis rozetlere eklenir (zaten varsa
+  /// eklenmez).
+  ///
   /// Ders yeni bitirildiyse true doner.
-  Future<bool> dersiKaydet(String userId, String lessonId, int xpReward) async {
+  Future<bool> dersiKaydet(String userId, String lessonId, int xpReward,
+      {String? rozet, bool tekrar = false}) async {
     try {
       if (_currentProgress == null) await loadUserProgress(userId);
       final onceki = _currentProgress?.completedLessonIds ?? const <String>[];
       final yeni = !onceki.contains(lessonId);
+      final tamOdul = yeni && !tekrar;
 
-      await addXP(userId, xpReward, source: yeni ? 'lesson' : 'lesson_tekrar');
-      await addJeton(userId, 8, source: 'lesson');
+      await addXP(userId, tamOdul ? xpReward : tekrarXp(xpReward),
+          source: yeni ? 'lesson' : 'lesson_tekrar');
+      if (tamOdul) await addJeton(userId, dersJetonu, source: 'lesson');
 
       final liste = List<String>.from(_currentProgress?.completedLessonIds ?? onceki);
       if (!liste.contains(lessonId)) liste.add(lessonId);
@@ -292,6 +311,7 @@ class UserProgressService extends ChangeNotifier {
       if (yeni && liste.length == 1) {
         await _awardBadge(userId, 'first_step');
       }
+      if (rozet != null) await _awardBadge(userId, rozet);
       notifyListeners();
       return yeni;
     } catch (e) {

@@ -2,6 +2,7 @@ import 'dart:math' show pi;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:confetti/confetti.dart';
 import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
@@ -79,6 +80,33 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
 
   static const int passingScore = 60;
   static const int xpReward = 40;
+
+  /// Bu denemede gercekten verilen XP (sonuc ekraninda o yaziyor).
+  int _kazanilanXp = 0;
+
+  /// Gecilen modul sinavlarinin kaydi (cihazda).
+  static const String gecilenlerAnahtari = 'modul_sinavi.gecilenler';
+
+  String get _sinavKimligi => '${widget.course.id}|${widget.moduleTitle}';
+
+  /// Sinav ILK KEZ mi geciliyor? Oyleyse kaydeder ve true doner.
+  ///
+  /// ODUL YALNIZCA ILK GECISTE: eskiden ayni modul sinavi her gecildiginde
+  /// 40 XP ve jeton veriyordu; sinav tekrar tekrar cozulerek odul
+  /// toplanabiliyordu. Hata olursa (depo yok) odul veriliyor: cocuk
+  /// bir kez gectigi sinavin odulunu kaybetmesin.
+  Future<bool> _ilkGecis() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final liste = prefs.getStringList(gecilenlerAnahtari) ?? const [];
+      if (liste.contains(_sinavKimligi)) return false;
+      await prefs.setStringList(
+          gecilenlerAnahtari, [...liste, _sinavKimligi]);
+      return true;
+    } catch (_) {
+      return true;
+    }
+  }
 
   MultipleChoiceStep get _currentQuestion => widget.questions[_currentIndex];
   bool get _isLastQuestion => _currentIndex == widget.questions.length - 1;
@@ -465,14 +493,16 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
       }
     }
 
-    if (_score >= passingScore) {
-      if (authProvider.isAuthenticated) {
-        await authProvider.addXP(xpReward, source: 'quiz');
-        final userId = authProvider.currentUser?.uid;
-        if (userId != null) {
-          await UserProgressService().addJeton(userId, correct * 3, source: 'module_quiz');
-          await authProvider.refreshProgress();
-        }
+    _kazanilanXp = 0;
+    if (_score >= passingScore &&
+        authProvider.isAuthenticated &&
+        await _ilkGecis()) {
+      _kazanilanXp = xpReward;
+      await authProvider.addXP(xpReward, source: 'quiz');
+      final userId = authProvider.currentUser?.uid;
+      if (userId != null) {
+        await UserProgressService().addJeton(userId, correct * 3, source: 'module_quiz');
+        await authProvider.refreshProgress();
       }
     }
 
@@ -752,7 +782,7 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
               children: [
                 _buildStatItem(isDark, Icons.help_outline, '${widget.questions.length}', _t('Soru', 'Questions', 'Fragen', 'Preguntas'), Colors.blue),
                 _buildStatItem(isDark, Icons.check_circle_outline, '$correct', _t('Doğru', 'Correct', 'Richtig', 'Correctas'), Colors.green),
-                _buildStatItem(isDark, Icons.star_outline, passed ? '+$xpReward' : '0', 'XP', Colors.amber),
+                _buildStatItem(isDark, Icons.star_outline, passed ? '+$_kazanilanXp' : '0', 'XP', Colors.amber),
               ],
             ),
           ),
