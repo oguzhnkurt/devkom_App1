@@ -236,78 +236,93 @@ buy anything.
 `çocuklar için kodlama` ve `coding for kids` çıkarıldı — yukarıdaki
 kurala giriyor.
 
-## "What's New in This Version" — 1.0.14
+## "What's New in This Version" — 1.0.14 (güncel, 16 Ekim 2026)
 
-Aşağıdaki metin **1.0.14 (build 20)** içindir. İçerik (15 Ekim 2026):
-Android'de Google ile giriş, puanlama isteği, veli takibinde kayıtlı
-öğrenciler korunuyor, satrançta renk seçimi, Scratch blokları gerçek
-Scratch 3 görünümünde, sürükle-bırak bloklar, çalıştırma sahnesi görünür
-ve hareketli, çeviri düzeltmeleri. Metinler Play'in 500 karakter sınırına
-da sığıyor.
+Play metni Google girişini içerir; App Store metninde o cümle yok. Play metinleri 500 karakterin altında.
 
-### tr
+### Google Play
 
-• Android'de Google ile giriş.
+#### tr (431 karakter)
 
-• Scratch blokları artık gerçek Scratch 3 gibi görünüyor; blokları sürükleyip bırakabilirsin.
+• Yeni: Proje Atölyesi! Kendi oyununu kur, kaydet, tekrar aç.
+• Scratch ve mBlock kurslarında açılış sahnesi, kapanış kutlaması ve paylaşılabilir sertifika.
+• mBlock kodların artık sanal Arduino kartında ve sahnede çalışıyor.
+• Yeni ders ekranları, yol haritası ve modül kutlamaları.
+• Devi seninle tanışıyor; adını Ayarlar'dan değiştirebilirsin.
+• Android'de Google ile giriş. Satrançta beyaz ya da siyah seç.
+• Hata düzeltmeleri.
 
-• Çalıştır'a basınca sahne görünüyor ve kedi hareket ediyor.
+#### en (461 karakter)
 
-• Satrançta beyazı ya da siyahı sen seç.
+• New: Project Workshop! Build your own game, save it and reopen it from My Projects.
+• Scratch and mBlock courses now have an opening scene, a finale and a shareable certificate.
+• Your mBlock code now runs on a virtual Arduino board and on the stage.
+• Redesigned lesson screens, a course path map and module celebrations.
+• Meet Devi! You can rename her in Settings.
+• Sign in with Google on Android. Chess: play white or black.
+• Bug fixes and improvements.
 
-• Veli takibi kayıtlı öğrencileri artık kaybetmiyor.
+#### de (479 karakter)
 
-• Uygulamayı beğendiysen puan verebilirsin.
+• Neu: Projekt-Werkstatt! Baue dein eigenes Spiel, speichere es und öffne es wieder unter Meine Projekte.
+• Scratch- und mBlock-Kurse mit Eröffnungsszene, Abschlussfeier und teilbarer Urkunde.
+• Dein mBlock-Code läuft jetzt auf einem virtuellen Arduino-Board.
+• Neue Lektionsansicht, Kurs-Wegkarte und Modul-Feiern.
+• Lerne Devi kennen! Den Namen kannst du in den Einstellungen ändern.
+• Anmeldung mit Google auf Android. Schach: Spiele mit Weiß oder Schwarz.
+• Fehlerbehebungen.
 
-• Çeviri düzeltmeleri ve iyileştirmeler.
+#### es (458 karakter)
 
-### en
+• Nuevo: ¡Taller de proyectos! Crea tu juego, guárdalo y vuelve a abrirlo.
+• Los cursos de Scratch y mBlock tienen escena de inicio, celebración final y certificado para compartir.
+• Tu código de mBlock ahora se ejecuta en una placa Arduino virtual.
+• Nuevas lecciones, mapa del curso y celebraciones.
+• ¡Conoce a Devi! Puedes cambiar su nombre en Ajustes.
+• Inicia sesión con Google en Android. Ajedrez: juega con blancas o negras.
+• Correcciones y mejoras.
 
-• Sign in with Google on Android.
+### App Store
 
-• Scratch blocks now look like real Scratch 3, and you can drag and drop them.
+#### tr (402 karakter)
 
-• Press Run to see the stage and watch your sprite move.
+• Yeni: Proje Atölyesi! Kendi oyununu kur, kaydet, tekrar aç.
+• Scratch ve mBlock kurslarında açılış sahnesi, kapanış kutlaması ve paylaşılabilir sertifika.
+• mBlock kodların artık sanal Arduino kartında ve sahnede çalışıyor.
+• Yeni ders ekranları, yol haritası ve modül kutlamaları.
+• Devi seninle tanışıyor; adını Ayarlar'dan değiştirebilirsin.
+• Satrançta beyaz ya da siyah seç.
+• Hata düzeltmeleri.
 
-• Chess: choose to play white or black.
+#### en (429 karakter)
 
-• Parent tracking now keeps registered students.
+• New: Project Workshop! Build your own game, save it and reopen it from My Projects.
+• Scratch and mBlock courses now have an opening scene, a finale and a shareable certificate.
+• Your mBlock code now runs on a virtual Arduino board and on the stage.
+• Redesigned lesson screens, a course path map and module celebrations.
+• Meet Devi! You can rename her in Settings.
+• Chess: play white or black.
+• Bug fixes and improvements.
 
-• Enjoying the app? You can now rate it.
+#### de (445 karakter)
 
-• Translation fixes and improvements.
-
-### de
-
-• Anmeldung mit Google auf Android.
-
-• Scratch-Blöcke sehen jetzt aus wie im echten Scratch 3 – und du kannst sie per Drag & Drop ziehen.
-
-• Tippe auf Start: Die Bühne ist zu sehen und die Figur bewegt sich.
-
+• Neu: Projekt-Werkstatt! Baue dein eigenes Spiel, speichere es und öffne es wieder unter Meine Projekte.
+• Scratch- und mBlock-Kurse mit Eröffnungsszene, Abschlussfeier und teilbarer Urkunde.
+• Dein mBlock-Code läuft jetzt auf einem virtuellen Arduino-Board.
+• Neue Lektionsansicht, Kurs-Wegkarte und Modul-Feiern.
+• Lerne Devi kennen! Den Namen kannst du in den Einstellungen ändern.
 • Schach: Spiele mit Weiß oder Schwarz.
+• Fehlerbehebungen.
 
-• Die Eltern-Begleitung behält jetzt angemeldete Schüler.
+#### es (421 karakter)
 
-• Gefällt dir die App? Du kannst sie jetzt bewerten.
-
-• Übersetzungskorrekturen und Verbesserungen.
-
-### es
-
-• Inicia sesión con Google en Android.
-
-• Los bloques de Scratch ahora son como en Scratch 3 de verdad, y puedes arrastrarlos y soltarlos.
-
-• Pulsa Ejecutar para ver el escenario y cómo se mueve tu personaje.
-
-• Ajedrez: elige jugar con blancas o negras.
-
-• El seguimiento familiar ya no pierde a los alumnos registrados.
-
-• ¿Te gusta la app? Ahora puedes valorarla.
-
-• Correcciones de traducción y mejoras.
+• Nuevo: ¡Taller de proyectos! Crea tu juego, guárdalo y vuelve a abrirlo.
+• Los cursos de Scratch y mBlock tienen escena de inicio, celebración final y certificado para compartir.
+• Tu código de mBlock ahora se ejecuta en una placa Arduino virtual.
+• Nuevas lecciones, mapa del curso y celebraciones.
+• ¡Conoce a Devi! Puedes cambiar su nombre en Ajustes.
+• Ajedrez: juega con blancas o negras.
+• Correcciones y mejoras.
 
 ## "What's New in This Version" — 1.0.13
 
