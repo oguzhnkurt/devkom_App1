@@ -1,7 +1,14 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../theme.dart';
 import '../../utils/lang.dart';
+import 'kategorili_tezgah.dart';
+
+export 'kategorili_tezgah.dart'
+    show PaletOgesi, KodIcerigi, TezgahHedefi, KategoriliTezgah,
+        KategoriliTezgahState;
 
 /// "Bloklar | Kod alani" karti — acilis sahnesinde ve butun Scratch blok
 /// kurma adimlarinda ayni.
@@ -21,11 +28,78 @@ class BlokTezgahiKarti extends StatelessWidget {
     this.dikeyEsik = 0,
     this.kodVurgusu,
     this.dolgu = 12,
-  });
+  })  : ogeler = null,
+        kodIcerigi = null,
+        paletHedefi = null,
+        kodHedefi = null,
+        yukseklik = null,
+        kodSayisi = 0,
+        kodSurumu = 0,
+        calisiyor = false,
+        tezgahAnahtari = null;
+
+  /// SINIRLI YUKSEKLIKLI, KATEGORILI tezgah (ders adimlari ve Proje
+  /// Atolyesi): kategori sekmeleri, kod alaniyla ayni olcekte palet,
+  /// palet ve kod alani kendi iclerinde kayiyor. Bkz. [KategoriliTezgah].
+  const BlokTezgahiKarti.kategorili({
+    super.key,
+    required this.lang,
+    required List<PaletOgesi> this.ogeler,
+    required KodIcerigi this.kodIcerigi,
+    this.paletHedefi,
+    this.kodHedefi,
+    this.kodVurgusu,
+    this.yukseklik,
+    this.kodSayisi = 0,
+    this.kodSurumu = 0,
+    this.calisiyor = false,
+    this.tezgahAnahtari,
+  })  : palet = const SizedBox.shrink(),
+        kod = const SizedBox.shrink(),
+        sigdir = false,
+        paletPayi = 1,
+        kodPayi = 1,
+        dikeyEsik = 0,
+        dolgu = 0;
 
   final String lang;
   final Widget palet;
   final Widget kod;
+
+  /// [BlokTezgahiKarti.kategorili] alanlari.
+  final List<PaletOgesi>? ogeler;
+  final KodIcerigi? kodIcerigi;
+  final TezgahHedefi? paletHedefi;
+  final TezgahHedefi? kodHedefi;
+  final double? yukseklik;
+  final int kodSayisi;
+  final int kodSurumu;
+  final bool calisiyor;
+  final GlobalKey<KategoriliTezgahState>? tezgahAnahtari;
+
+  /// Tezgahtaki blok olcegi (palet ve kod alani ayni). Scratch editoru
+  /// 0.675 ile ciziyor; dar telefonda biraz daha kucuk.
+  static double olcekFor(double kartGenisligi) => kartGenisligi < 420
+      ? 0.62
+      : kartGenisligi < 600
+          ? 0.68
+          : 0.75;
+
+  /// Kucuk ekran: yukseklik 700'den ya da genislik 380'den az (iPhone
+  /// SE, 360x640 Android). Hedefler ozete iner, sahne kisalir.
+  static bool kompakt(BuildContext context) {
+    final s = MediaQuery.sizeOf(context);
+    return s.height < 700 || s.width < 380;
+  }
+
+  /// Sinirli tezgahin yuksekligi: sahnenin altinda kalan ekran (en az
+  /// ekranin %45i), 320..560 arasi. [ustunde]: sahne kartinin boyu.
+  static double yukseklikFor(BuildContext context, {double ustunde = 0}) {
+    final mq = MediaQuery.of(context);
+    final ekran = mq.size.height - mq.padding.vertical - kToolbarHeight;
+    final kalan = ekran - ustunde - 24;
+    return math.max(kalan, ekran * 0.45).clamp(320.0, 560.0);
+  }
 
   /// true: icerik kartin yuksekligine olceklenerek sigdiriliyor (sabit
   /// yukseklikli acilis sahnesi). false: kart icerik kadar uzuyor (ders
@@ -48,6 +122,21 @@ class BlokTezgahiKarti extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (ogeler != null) {
+      return KategoriliTezgah(
+        key: tezgahAnahtari,
+        lang: lang,
+        ogeler: ogeler!,
+        kodIcerigi: kodIcerigi!,
+        paletHedefi: paletHedefi,
+        kodHedefi: kodHedefi,
+        kodVurgusu: kodVurgusu,
+        yukseklik: yukseklik,
+        kodSayisi: kodSayisi,
+        kodSurumu: kodSurumu,
+        calisiyor: calisiyor,
+      );
+    }
     Widget bolum(String baslik, Widget icerik) {
       final govde = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
