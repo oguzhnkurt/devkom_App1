@@ -20,6 +20,7 @@ import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
 import 'package:devkom_app/courses/screens/widgets/calisma_izi.dart';
 import 'package:devkom_app/courses/screens/widgets/step_widgets.dart';
 import 'package:devkom_app/providers/settings_provider.dart';
+import 'package:devkom_app/ui/press_button.dart';
 import 'package:devkom_app/widgets/scratch_blok.dart';
 
 ScratchBlock _b(String id, String yazi,
@@ -103,18 +104,26 @@ Finder _blok(String yazi) => find.byWidgetPredicate(
     (w) => w is ScratchBlok && w.kimlik == _kimlik[yazi]);
 
 /// Palet kucuk ekranda kayabiliyor; once gorunur kil sonra dokun.
+/// Scratch duzeninde palet ("Bloklar") kod alaninin solunda / ustunde:
+/// ilk eslesen paletteki blok.
 Future<void> _koy(WidgetTester tester, String yazi) async {
-  final hedef = _blok(yazi).last;
+  final hedef = _blok(yazi).first;
   await tester.ensureVisible(hedef);
   await tester.pump();
   await tester.tap(hedef);
   await tester.pump(const Duration(milliseconds: 300));
 }
 
+/// Buyuk "Yesil bayraga bas" dugmesi (sahnedeki bayrakla ayni is).
+final _tus = find.byKey(const ValueKey('ders_bayrak'));
+
+bool _tusAktif(WidgetTester tester) =>
+    tester.widget<PressButton>(_tus).onPressed != null;
+
 Future<void> _calistir(WidgetTester tester) async {
-  await tester.ensureVisible(find.text('KODU ÇALIŞTIR'));
+  await tester.ensureVisible(_tus);
   await tester.pump();
-  await tester.tap(find.text('KODU ÇALIŞTIR'));
+  await tester.tap(_tus);
   await tester.pump(const Duration(milliseconds: 300));
 }
 
@@ -123,13 +132,15 @@ void main() {
     addTearDown(tester.view.reset);
     await _ciz(tester, 'tr');
 
-    // Hic blok yokken tus yok — calistiracak bir sey de yok.
-    expect(find.text('KODU ÇALIŞTIR'), findsNothing);
+    // Hic blok yokken tus pasif — calistiracak bir sey de yok. (Yeri
+    // bastan ayrilmis: yerlesim kaymiyor.)
+    expect(_tus, findsOneWidget);
+    expect(_tusAktif(tester), isFalse);
 
     // TEK bir blok koy: dizi eksik, yani cevap YANLIS.
     await _koy(tester, '10 adım git');
 
-    expect(find.text('KODU ÇALIŞTIR'), findsOneWidget,
+    expect(_tusAktif(tester), isTrue,
         reason: 'Yanlis kod calistirilamiyor — tus yine odule baglanmis.');
     expect(find.byType(CalismaIzi), findsNothing);
 
@@ -171,8 +182,9 @@ void main() {
     expect(find.byType(CalismaIzi), findsOneWidget);
 
     // Kod degisti: eski iz artik yalan soyler. Kod alanindaki bloga
-    // dokunmak onu cikariyor (blogun sagindaki "x" cizili).
-    final sil = _blok('10 adım git').first;
+    // dokunmak onu cikariyor (blogun sagindaki "x" cizili). Kod alani
+    // paletin sagi / alti: son eslesen.
+    final sil = _blok('10 adım git').last;
     await tester.ensureVisible(sil);
     await tester.pump();
     await tester.tap(sil);

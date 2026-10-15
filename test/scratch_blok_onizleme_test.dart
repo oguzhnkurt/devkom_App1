@@ -319,19 +319,26 @@ void main() {
       ),
     ));
     await tester.pump(const Duration(milliseconds: 300));
-    // Cozumu dokunarak diz (paletteki blok = son eslesen).
+    // Cozumu dokunarak diz. Scratch duzeninde palet kod alaninin
+    // solunda / ustunde (ilk eslesen); eski duzende altinda (son eslesen).
     for (final id in step.correctSequence) {
       final hedef = kurs.id == 'scratch'
-          ? find.byWidgetPredicate((w) => w is ScratchBlok && w.kimlik == id)
-          : find.byWidgetPredicate(
-              (w) => w is ScratchBlockWidget && w.block.id == id);
-      await tester.ensureVisible(hedef.last);
+          ? find
+              .byWidgetPredicate((w) => w is ScratchBlok && w.kimlik == id)
+              .first
+          : find
+              .byWidgetPredicate(
+                  (w) => w is ScratchBlockWidget && w.block.id == id)
+              .last;
+      await tester.ensureVisible(hedef);
       await tester.pump();
-      await tester.tap(hedef.last, warnIfMissed: false);
+      await tester.tap(hedef, warnIfMissed: false);
       await tester.pump(const Duration(milliseconds: 300));
     }
     if (calistir) {
-      final tus = find.byType(ElevatedButton).first;
+      final tus = kurs.id == 'scratch'
+          ? find.byKey(const ValueKey('ders_bayrak'))
+          : find.byType(ElevatedButton).first;
       await tester.ensureVisible(tus);
       await tester.tap(tus);
       await tester.pump(const Duration(milliseconds: 600));

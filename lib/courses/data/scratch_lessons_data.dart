@@ -155,7 +155,7 @@ class ScratchLessonsData {
           instructionDe: 'Zieh jedes Wort in das richtige Feld!',
           instructionEs: '¡Arrastra cada palabra a la casilla correcta!',
           items: [
-            DraggableItem(id: 'cat', content: '🐱 Kedi', contentEn: '🐱 Cat', contentDe: '🐱 Katze', contentEs: '🐱 Gato'),
+            DraggableItem(id: 'devi', content: '🤖 Devi', contentEn: '🤖 Devi', contentDe: '🤖 Devi', contentEs: '🤖 Devi'),
             DraggableItem(id: 'stage', content: '🎪 Arka plan', contentEn: '🎪 Backdrop', contentDe: '🎪 Bühnenbild', contentEs: '🎪 Fondo'),
             DraggableItem(id: 'ball', content: '⚽ Top', contentEn: '⚽ Ball', contentDe: '⚽ Ball', contentEs: '⚽ Pelota'),
             DraggableItem(id: 'space', content: '🌌 Uzay', contentEn: '🌌 Space', contentDe: '🌌 Weltraum', contentEs: '🌌 Espacio'),
@@ -165,7 +165,7 @@ class ScratchLessonsData {
             DropZone(id: 'backdrop', label: 'Arka Plan', labelEn: 'Backdrop', labelDe: 'Backdrop', labelEs: 'Backdrop', hint: 'Sahnenin görünümü', hintEn: 'How the stage looks', hintDe: 'Wie die Bühne aussieht', hintEs: 'Qué aspecto tiene el escenario'),
           ],
           correctMapping: {
-            'cat': 'sprite',
+            'devi': 'sprite',
             'ball': 'sprite',
             'stage': 'backdrop',
             'space': 'backdrop',
@@ -306,11 +306,11 @@ class ScratchLessonsData {
     InteractiveLesson(
       id: 'scratch_1_2',
       courseId: 'scratch',
-      title: 'Kediyi Yürüt!',
+      title: "Devi'yi Yürüt!",
       subtitle: 'İlk programını yaz',
-      titleEn: 'Make the Cat Walk!',
-      titleDe: 'Lass die Katze laufen!',
-      titleEs: '¡Haz que el gato camine!',
+      titleEn: 'Make Devi Walk!',
+      titleDe: 'Lass Devi laufen!',
+      titleEs: '¡Haz caminar a Devi!',
       subtitleEn: 'Write your first program',
       subtitleDe: 'Schreib dein erstes Programm',
       subtitleEs: 'Escribe tu primer programa',
@@ -387,14 +387,14 @@ class ScratchLessonsData {
         // Interactive: Build your first program
         BlockBuilderStep(
           id: 's1_2_build1',
-          instruction: 'Kediyi 10 adım yürütmek için blokları sırala!',
-          instructionEn: 'Put the blocks in order to make the cat walk 10 steps!',
-          instructionDe: 'Bring die Blöcke in die richtige Reihenfolge, damit die Katze 10 Schritte geht!',
-          instructionEs: '¡Ordena los bloques para que el gato camine 10 pasos!',
-          goal: 'Kedi sağa doğru 10 adım yürüsün',
-          goalEn: 'Make the cat walk 10 steps to the right',
-          goalDe: 'Lass die Katze 10 Schritte nach rechts gehen',
-          goalEs: 'Haz que el gato camine 10 pasos a la derecha',
+          instruction: "Devi'yi 10 adım yürütmek için blokları sırala!",
+          instructionEn: 'Put the blocks in order to make Devi walk 10 steps!',
+          instructionDe: 'Bring die Blöcke in die richtige Reihenfolge, damit Devi 10 Schritte geht!',
+          instructionEs: '¡Ordena los bloques para que Devi camine 10 pasos!',
+          goal: 'Devi sağa doğru 10 adım yürüsün',
+          goalEn: 'Make Devi walk 10 steps to the right',
+          goalDe: 'Lass Devi 10 Schritte nach rechts gehen',
+          goalEs: 'Haz que Devi camine 10 pasos a la derecha',
           availableBlocks: [
             ScratchBlock(
               id: 'green_flag',
@@ -447,14 +447,14 @@ class ScratchLessonsData {
         // Make it say something
         ExplanationStep(
           id: 's1_2_exp3',
-          title: 'Kedi Konuşsun!',
-          titleEn: 'Make the Cat Talk!',
-          titleDe: 'Lass die Katze sprechen!',
-          titleEs: '¡Haz que el gato hable!',
-          content: 'Şimdi kediyi konuşturalım. "de" bloğu ile kedi bir konuşma balonu içinde mesaj gösterir.',
-          contentEn: 'Now let us make the cat talk. The "say" block shows a message in a speech bubble.',
-          contentDe: 'Jetzt bringen wir die Katze zum Sprechen. Der "sage"-Block zeigt eine Nachricht in einer Sprechblase.',
-          contentEs: 'Ahora vamos a hacer hablar al gato. El bloque "decir" muestra un mensaje en un bocadillo.',
+          title: 'Devi Konuşsun!',
+          titleEn: 'Make Devi Talk!',
+          titleDe: 'Lass Devi sprechen!',
+          titleEs: '¡Haz que Devi hable!',
+          content: 'Şimdi Devi\'yi konuşturalım. "de" bloğu ile Devi bir konuşma balonu içinde mesaj gösterir.',
+          contentEn: 'Now let us make Devi talk. The "say" block shows a message in a speech bubble.',
+          contentDe: 'Jetzt bringen wir Devi zum Sprechen. Der "sage"-Block zeigt eine Nachricht in einer Sprechblase.',
+          contentEs: 'Ahora vamos a hacer hablar a Devi. El bloque "decir" muestra un mensaje en un bocadillo.',
           visuals: [
             VisualElement(
               type: VisualType.scratchBlock,
@@ -475,14 +475,14 @@ class ScratchLessonsData {
         // Build: Walk and talk
         BlockBuilderStep(
           id: 's1_2_build2',
-          instruction: 'Kedi yürüsün ve "Merhaba" desin',
-          instructionEn: 'Make the cat walk and say "Hello"',
-          instructionDe: 'Lass die Katze laufen und "Hallo" sagen',
-          instructionEs: 'Haz que el gato camine y diga "Hola"',
-          goal: 'Kedi 10 adım gidip sonra "Merhaba" desin',
-          goalEn: 'Make the cat move 10 steps and then say "Hello"',
-          goalDe: 'Lass die Katze 10 Schritte gehen und dann "Hallo" sagen',
-          goalEs: 'Haz que el gato dé 10 pasos y luego diga "Hola"',
+          instruction: 'Devi yürüsün ve "Merhaba" desin',
+          instructionEn: 'Make Devi walk and say "Hello"',
+          instructionDe: 'Lass Devi laufen und "Hallo" sagen',
+          instructionEs: 'Haz que Devi camine y diga "Hola"',
+          goal: 'Devi 10 adım gidip sonra "Merhaba" desin',
+          goalEn: 'Make Devi move 10 steps and then say "Hello"',
+          goalDe: 'Lass Devi 10 Schritte gehen und dann "Hallo" sagen',
+          goalEs: 'Haz que Devi dé 10 pasos y luego diga "Hola"',
           availableBlocks: [
             ScratchBlock(
               id: 'green_flag',
@@ -555,14 +555,14 @@ class ScratchLessonsData {
             OrderItem(id: 'say', content: 'Bitti! söyle', contentEn: 'say "Done!"', contentDe: 'sage "Fertig!"', contentEs: 'decir "¡Listo!"'),
           ],
           correctOrder: ['flag', 'move', 'say'],
-          context: 'Program yukarıdan aşağıya çalışır. Kedi önce yürüsün, '
+          context: 'Program yukarıdan aşağıya çalışır. Devi önce yürüsün, '
               'sonra "Bitti!" desin.',
-          contextEn: 'A program runs top to bottom. First the cat walks, '
+          contextEn: 'A program runs top to bottom. First Devi walks, '
               'then it says "Done!".',
           contextDe: 'Ein Programm läuft von oben nach unten. Erst läuft '
-              'die Katze, dann sagt sie "Fertig!".',
-          contextEs: 'Un programa se ejecuta de arriba abajo. Primero el '
-              'gato camina y luego dice "¡Listo!".',
+              'Devi, dann sagt er "Fertig!".',
+          contextEs: 'Un programa se ejecuta de arriba abajo. Primero '
+              'camina Devi y luego dice "¡Listo!".',
           xpReward: 15,
         ),
 
@@ -573,10 +573,10 @@ class ScratchLessonsData {
           titleEn: 'Great Work!',
           titleDe: 'Gut gemacht!',
           titleEs: '¡Buen trabajo!',
-          content: '🎊 İlk programını yazdın!\n\n✓ Yeşil bayrağı öğrendin\n✓ Blokları birleştirdin\n✓ Kediyi yürütüp konuşturdun\n\nSen artık bir programcısın!',
-          contentEn: '🎊 You wrote your first program!\n\n✓ You learned the green flag\n✓ You snapped blocks together\n✓ You made the cat walk and talk\n\nYou are a programmer now!',
-          contentDe: '🎊 Du hast dein erstes Programm geschrieben!\n\n✓ Du hast die grüne Flagge kennengelernt\n✓ Du hast Blöcke zusammengesteckt\n✓ Du hast die Katze laufen und sprechen lassen\n\nDu bist jetzt Programmierer!',
-          contentEs: '🎊 ¡Escribiste tu primer programa!\n\n✓ Conociste la bandera verde\n✓ Uniste bloques\n✓ Hiciste que el gato caminara y hablara\n\n¡Ya eres programador!',
+          content: '🎊 İlk programını yazdın!\n\n✓ Yeşil bayrağı öğrendin\n✓ Blokları birleştirdin\n✓ Devi\'yi yürütüp konuşturdun\n\nSen artık bir programcısın!',
+          contentEn: '🎊 You wrote your first program!\n\n✓ You learned the green flag\n✓ You snapped blocks together\n✓ You made Devi walk and talk\n\nYou are a programmer now!',
+          contentDe: '🎊 Du hast dein erstes Programm geschrieben!\n\n✓ Du hast die grüne Flagge kennengelernt\n✓ Du hast Blöcke zusammengesteckt\n✓ Du hast Devi laufen und sprechen lassen\n\nDu bist jetzt Programmierer!',
+          contentEs: '🎊 ¡Escribiste tu primer programa!\n\n✓ Conociste la bandera verde\n✓ Uniste bloques\n✓ Hiciste que Devi caminara y hablara\n\n¡Ya eres programador!',
           tipEmoji: '🎖️',
           tip: 'İlk Kod rozetini kazandın!',
           tipEn: 'You earned the First Code badge!',
@@ -618,10 +618,10 @@ class ScratchLessonsData {
           titleEn: 'Problem: Too Much Repeating',
           titleDe: 'Problem: zu viel Wiederholung',
           titleEs: 'Problema: demasiada repetición',
-          content: 'Kediyi 100 adım yürütmek istiyorsun. Tek tek yazmak lazım mı?',
-          contentEn: 'You want the cat to walk 100 steps. Do you have to write it out one by one?',
-          contentDe: 'Die Katze soll 100 Schritte gehen. Musst du das einzeln schreiben?',
-          contentEs: 'Quieres que el gato dé 100 pasos. ¿Tienes que escribirlo uno por uno?',
+          content: 'Devi\'yi 100 adım yürütmek istiyorsun. Tek tek yazmak lazım mı?',
+          contentEn: 'You want Devi to walk 100 steps. Do you have to write it out one by one?',
+          contentDe: 'Devi soll 100 Schritte gehen. Musst du das einzeln schreiben?',
+          contentEs: 'Quieres que Devi dé 100 pasos. ¿Tienes que escribirlo uno por uno?',
           visuals: [
             VisualElement(
               type: VisualType.scratchBlock,
@@ -716,10 +716,10 @@ class ScratchLessonsData {
         // Quiz: How many times?
         MultipleChoiceStep(
           id: 's1_3_q1',
-          question: 'Kedi 50 adım gitmesi için "10 adım git" kaç kere tekrarlanmalı?',
-          questionEn: 'How many times must "move 10 steps" repeat for the cat to go 50 steps?',
-          questionDe: 'Wie oft muss "gehe 10 er Schritt" wiederholt werden, damit die Katze 50 Schritte geht?',
-          questionEs: '¿Cuántas veces hay que repetir "mover 10 pasos" para que el gato dé 50 pasos?',
+          question: 'Devi\'nin 50 adım gitmesi için "10 adım git" kaç kere tekrarlanmalı?',
+          questionEn: 'How many times must "move 10 steps" repeat for Devi to go 50 steps?',
+          questionDe: 'Wie oft muss "gehe 10 er Schritt" wiederholt werden, damit Devi 50 Schritte geht?',
+          questionEs: '¿Cuántas veces hay que repetir "mover 10 pasos" para que Devi dé 50 pasos?',
           options: [
             ChoiceOption(text: '10 kere', textEn: '10 times', textDe: '10 Mal', textEs: '10 veces', emoji: '🔟'),
             ChoiceOption(text: '5 kere', textEn: '5 times', textDe: '5 Mal', textEs: '5 veces', emoji: '5️⃣'),
@@ -737,14 +737,14 @@ class ScratchLessonsData {
         // Build: Loop program
         BlockBuilderStep(
           id: 's1_3_build1',
-          instruction: 'Kedi 4 kere "Miyav!" desin. Döngü kullan!',
-          instructionEn: 'Make the cat say "Meow!" four times. Use a loop!',
-          instructionDe: 'Lass die Katze viermal "Miau!" sagen. Benutze eine Schleife!',
-          instructionEs: 'Haz que el gato diga "¡Miau!" cuatro veces. ¡Usa un bucle!',
-          goal: 'Kedi art arda 4 kere miyavlasın',
-          goalEn: 'Make the cat meow four times in a row',
-          goalDe: 'Lass die Katze viermal hintereinander miauen',
-          goalEs: 'Haz que el gato maúlle cuatro veces seguidas',
+          instruction: 'Devi 4 kere "Miyav!" desin. Döngü kullan!',
+          instructionEn: 'Make Devi say "Meow!" four times. Use a loop!',
+          instructionDe: 'Lass Devi viermal "Miau!" sagen. Benutze eine Schleife!',
+          instructionEs: 'Haz que Devi diga "¡Miau!" cuatro veces. ¡Usa un bucle!',
+          goal: 'Devi art arda 4 kere "Miyav!" desin',
+          goalEn: 'Make Devi say "Meow!" four times in a row',
+          goalDe: 'Lass Devi viermal hintereinander "Miau!" sagen',
+          goalEs: 'Haz que Devi diga "¡Miau!" cuatro veces seguidas',
           availableBlocks: [
             ScratchBlock(
               id: 'green_flag',
@@ -1087,10 +1087,10 @@ class ScratchLessonsData {
         // Build: Key press
         BlockBuilderStep(
           id: 's2_1_build1',
-          instruction: 'Boşluk tuşuna basınca kedi "Zıpladın!" desin',
-          instructionEn: 'When the space key is pressed, make the cat say "You jumped!"',
-          instructionDe: 'Wenn die Leertaste gedrückt wird, lass die Katze "Du bist gesprungen!" sagen',
-          instructionEs: 'Cuando se presione la barra espaciadora, haz que el gato diga "¡Saltaste!"',
+          instruction: 'Boşluk tuşuna basınca Devi "Zıpladın!" desin',
+          instructionEn: 'When the space key is pressed, make Devi say "You jumped!"',
+          instructionDe: 'Wenn die Leertaste gedrückt wird, lass Devi "Du bist gesprungen!" sagen',
+          instructionEs: 'Cuando se presione la barra espaciadora, haz que Devi diga "¡Saltaste!"',
           goal: 'Tuş basımına tepki ver',
           goalEn: 'React to a key press',
           goalDe: 'Auf einen Tastendruck reagieren',
@@ -1328,10 +1328,10 @@ class ScratchLessonsData {
           titleEn: 'Coordinate Hunter',
           titleDe: 'Koordinaten-Jäger',
           titleEs: 'Cazador de coordenadas',
-          instruction: 'Verilen koordinata kediyitasi! Ekrana dokun.',
-          instructionEn: 'Move the cat to the given coordinates. Tap the screen.',
-          instructionDe: 'Bewege die Katze zu den angegebenen Koordinaten. Tipp auf den Bildschirm.',
-          instructionEs: 'Mueve el gato a las coordenadas indicadas. Toca la pantalla.',
+          instruction: 'Devi\'yi verilen koordinata taşı! Ekrana dokun.',
+          instructionEn: 'Move Devi to the given coordinates. Tap the screen.',
+          instructionDe: 'Bewege Devi zu den angegebenen Koordinaten. Tipp auf den Bildschirm.',
+          instructionEs: 'Mueve a Devi a las coordenadas indicadas. Toca la pantalla.',
           gameType: MiniGameType.blockPuzzle,
           gameConfig: {
             'type': 'coordinate_tap',
@@ -1384,14 +1384,14 @@ class ScratchLessonsData {
         // Build: Move to corners
         BlockBuilderStep(
           id: 's2_2_build1',
-          instruction: 'Kediyi sağ üst köşeye taşı (x: 200, y: 150)',
-          instructionEn: 'Move the cat to the top right corner (x: 200, y: 150)',
-          instructionDe: 'Bewege die Katze in die obere rechte Ecke (x: 200, y: 150)',
-          instructionEs: 'Mueve el gato a la esquina superior derecha (x: 200, y: 150)',
-          goal: 'Kedi sağ üst köşede olsun',
-          goalEn: 'Put the cat in the top right corner',
-          goalDe: 'Setz die Katze in die obere rechte Ecke',
-          goalEs: 'Pon el gato en la esquina superior derecha',
+          instruction: 'Devi\'yi sağ üst köşeye taşı (x: 200, y: 150)',
+          instructionEn: 'Move Devi to the top right corner (x: 200, y: 150)',
+          instructionDe: 'Bewege Devi in die obere rechte Ecke (x: 200, y: 150)',
+          instructionEs: 'Mueve a Devi a la esquina superior derecha (x: 200, y: 150)',
+          goal: 'Devi sağ üst köşede olsun',
+          goalEn: 'Put Devi in the top right corner',
+          goalDe: 'Setz Devi in die obere rechte Ecke',
+          goalEs: 'Pon a Devi en la esquina superior derecha',
           availableBlocks: [
             ScratchBlock(
               id: 'green_flag',
@@ -1476,10 +1476,10 @@ class ScratchLessonsData {
         // Build: Arrow controls
         BlockBuilderStep(
           id: 's2_2_build2',
-          instruction: 'Sağ ok tuşuna basınca kedi sağa gitsin',
-          instructionEn: 'When the right arrow key is pressed, make the cat go right',
-          instructionDe: 'Wenn die Pfeil-nach-rechts-Taste gedrückt wird, lass die Katze nach rechts gehen',
-          instructionEs: 'Cuando se presione la flecha derecha, haz que el gato vaya a la derecha',
+          instruction: 'Sağ ok tuşuna basınca Devi sağa gitsin',
+          instructionEn: 'When the right arrow key is pressed, make Devi go right',
+          instructionDe: 'Wenn die Pfeil-nach-rechts-Taste gedrückt wird, lass Devi nach rechts gehen',
+          instructionEs: 'Cuando se presione la flecha derecha, haz que Devi vaya a la derecha',
           goal: 'Ok tuşu kontrolleri',
           goalEn: 'Arrow key controls',
           goalDe: 'Steuerung mit den Pfeiltasten',
@@ -1566,11 +1566,11 @@ class ScratchLessonsData {
     InteractiveLesson(
       id: 'scratch_3_1',
       courseId: 'scratch',
-      title: 'Kedi Fare Oyunu',
+      title: 'Devi ve Fare Oyunu',
       subtitle: 'İlk gerçek oyunun!',
-      titleEn: 'Cat and Mouse Game',
-      titleDe: 'Katz-und-Maus-Spiel',
-      titleEs: 'Juego del gato y el ratón',
+      titleEn: 'Devi and the Mouse Game',
+      titleDe: 'Devi-und-Maus-Spiel',
+      titleEs: 'Juego de Devi y el ratón',
       subtitleEn: 'Your first real game!',
       subtitleDe: 'Dein erstes echtes Spiel!',
       subtitleEs: '¡Tu primer juego de verdad!',
@@ -1582,10 +1582,10 @@ class ScratchLessonsData {
         IntroStep(
           id: 's3_1_intro',
           mascotEmoji: '🎮',
-          mascotMessage: 'OYUN ZAMANI! Bir kedi-fare kovalama oyunu yapacağız. Hazır mısın?!',
-          mascotMessageEn: 'GAME TIME! We are going to make a cat-and-mouse chase. Ready?!',
-          mascotMessageDe: 'SPIELZEIT! Wir bauen eine Katz-und-Maus-Jagd. Bereit?!',
-          mascotMessageEs: '¡HORA DE JUGAR! Vamos a hacer una persecución de gato y ratón. ¿Listo?',
+          mascotMessage: 'OYUN ZAMANI! Devi ile fare kovalamaca oyunu yapacağız. Hazır mısın?!',
+          mascotMessageEn: 'GAME TIME! We are going to make a chase game with Devi and a mouse. Ready?!',
+          mascotMessageDe: 'SPIELZEIT! Wir bauen ein Fangspiel mit Devi und einer Maus. Bereit?!',
+          mascotMessageEs: '¡HORA DE JUGAR! Vamos a hacer una persecución de Devi y un ratón. ¿Listo?',
         ),
 
         ExplanationStep(
@@ -1594,23 +1594,23 @@ class ScratchLessonsData {
           titleEn: 'The Game Plan',
           titleDe: 'Der Spielplan',
           titleEs: 'El plan del juego',
-          content: '🎯 Hedef: Kedi fareyi yakalasin!\n\n🐱 Kedi: Sen kontrol et (ok tuşları)\n🐭 Fare: Rastgele hareket etsin\n⭐ Puan: Her yakalayista +1',
-          contentEn: '🎯 Goal: the cat catches the mouse!\n\n🐱 Cat: you control it (arrow keys)\n🐭 Mouse: it moves at random\n⭐ Score: +1 for every catch',
-          contentDe: '🎯 Ziel: Die Katze fängt die Maus!\n\n🐱 Katze: Du steuerst sie (Pfeiltasten)\n🐭 Maus: Sie bewegt sich zufällig\n⭐ Punkte: +1 für jeden Fang',
-          contentEs: '🎯 Objetivo: ¡el gato atrapa al ratón!\n\n🐱 Gato: tú lo controlas (flechas)\n🐭 Ratón: se mueve al azar\n⭐ Puntos: +1 por cada captura',
+          content: '🎯 Hedef: Devi fareyi yakalasın!\n\n🤖 Devi: Sen kontrol et (ok tuşları)\n🐭 Fare: Rastgele hareket etsin\n⭐ Puan: Her yakalayista +1',
+          contentEn: '🎯 Goal: Devi catches the mouse!\n\n🤖 Devi: you control it (arrow keys)\n🐭 Mouse: it moves at random\n⭐ Score: +1 for every catch',
+          contentDe: '🎯 Ziel: Devi fängt die Maus!\n\n🤖 Devi: Du steuerst ihn (Pfeiltasten)\n🐭 Maus: Sie bewegt sich zufällig\n⭐ Punkte: +1 für jeden Fang',
+          contentEs: '🎯 Objetivo: ¡Devi atrapa al ratón!\n\n🤖 Devi: tú lo controlas (flechas)\n🐭 Ratón: se mueve al azar\n⭐ Puntos: +1 por cada captura',
         ),
 
         // Step by step project build
         ExplanationStep(
           id: 's3_1_exp2',
-          title: 'Adım 1: Kedi Hareketi',
-          titleEn: 'Step 1: Moving the Cat',
-          titleDe: 'Schritt 1: Die Katze bewegen',
-          titleEs: 'Paso 1: mover el gato',
-          content: 'Önce kediyi ok tuşlarıyla kontrol edelim.',
-          contentEn: 'First let us control the cat with the arrow keys.',
-          contentDe: 'Zuerst steuern wir die Katze mit den Pfeiltasten.',
-          contentEs: 'Primero vamos a controlar al gato con las flechas.',
+          title: 'Adım 1: Devi\'nin Hareketi',
+          titleEn: 'Step 1: Moving Devi',
+          titleDe: 'Schritt 1: Devi bewegen',
+          titleEs: 'Paso 1: mover a Devi',
+          content: 'Önce Devi\'yi ok tuşlarıyla kontrol edelim.',
+          contentEn: 'First let us control Devi with the arrow keys.',
+          contentDe: 'Zuerst steuern wir Devi mit den Pfeiltasten.',
+          contentEs: 'Primero vamos a controlar a Devi con las flechas.',
           visuals: [
             VisualElement(
               type: VisualType.scratchBlock,
@@ -1631,16 +1631,16 @@ class ScratchLessonsData {
           ],
         ),
 
-        // Build cat movement
+        // Devi'nin hareketi
         BlockBuilderStep(
           id: 's3_1_build1',
           // ONCEDEN "4 yön" isteniyordu ama havuzda yalnizca yukari
           // ok bloklari vardi: istenen sey kurulamiyordu. Once tek yonu
           // kuruyoruz; diger uc yon ayni kalibin tekrari.
-          instruction: 'Yukarı ok tuşuna basınca kedi yukarı gitsin.',
-          instructionEn: 'When the up arrow key is pressed, make the cat go up.',
-          instructionDe: 'Wenn die Pfeil-nach-oben-Taste gedrückt wird, lass die Katze nach oben gehen.',
-          instructionEs: 'Cuando se presione la flecha arriba, haz que el gato suba.',
+          instruction: 'Yukarı ok tuşuna basınca Devi yukarı gitsin.',
+          instructionEn: 'When the up arrow key is pressed, make Devi go up.',
+          instructionDe: 'Wenn die Pfeil-nach-oben-Taste gedrückt wird, lass Devi nach oben gehen.',
+          instructionEs: 'Cuando se presione la flecha arriba, haz que Devi suba.',
           goal: 'Yukarı ok ile yukarı hareket (diğer üç yön de aynı kalıp)',
           goalEn: 'Up arrow moves up (the other three directions follow the same pattern)',
           goalDe: 'Pfeil nach oben bewegt nach oben (die anderen drei Richtungen gehen genauso)',
@@ -1728,17 +1728,17 @@ class ScratchLessonsData {
           titleEn: 'Step 3: Checking for a Catch',
           titleDe: 'Schritt 3: Prüfen, ob gefangen',
           titleEs: 'Paso 3: comprobar si lo atrapa',
-          content: 'Kedi fareye değdi mi kontrol et:',
-          contentEn: 'Check whether the cat is touching the mouse:',
-          contentDe: 'Prüfe, ob die Katze die Maus berührt:',
-          contentEs: 'Comprueba si el gato toca al ratón:',
+          content: 'Devi fareye değdi mi kontrol et:',
+          contentEn: 'Check whether Devi is touching the mouse:',
+          contentDe: 'Prüfe, ob Devi die Maus berührt:',
+          contentEs: 'Comprueba si Devi toca al ratón:',
           visuals: [
             VisualElement(
               type: VisualType.scratchBlock,
-              content: 'eğer <Kedi\'ye değdi mi?> ise',
-              contentEn: 'if <touching Cat?> then',
-              contentDe: 'falls <wird Katze berührt?> dann',
-              contentEs: 'si <¿tocando al Gato?> entonces',
+              content: 'eğer <Devi\'ye değdi mi?> ise',
+              contentEn: 'if <touching Devi?> then',
+              contentDe: 'falls <wird Devi berührt?> dann',
+              contentEs: 'si <¿tocando a Devi?> entonces',
               color: Color(0xFFFFAB19),
             ),
             VisualElement(
@@ -1763,34 +1763,34 @@ class ScratchLessonsData {
         // Final project
         ProjectStep(
           id: 's3_1_project',
-          title: 'Kedi-Fare Oyunu',
-          titleEn: 'Cat and Mouse Game',
-          titleDe: 'Katz-und-Maus-Spiel',
-          titleEs: 'Juego del gato y el ratón',
+          title: 'Devi ve Fare Oyunu',
+          titleEn: 'Devi and the Mouse Game',
+          titleDe: 'Devi-und-Maus-Spiel',
+          titleEs: 'Juego de Devi y el ratón',
           description: 'Tam oyunu tamamla!',
           descriptionEn: 'Finish the whole game!',
           descriptionDe: 'Mach das ganze Spiel fertig!',
           descriptionEs: '¡Termina el juego completo!',
           requirements: [
-            'Kedi 4 yönde hareket etsin',
+            'Devi 4 yönde hareket etsin',
             'Fare yakalanınca rastgele bir yere kaçsın',
             'Her yakalamada puan artsın',
             'Puanı sahnede göster',
           ],
           requirementsEn: [
-            'The cat moves in four directions',
+            'Devi moves in four directions',
             'When the mouse is caught, it runs to a random spot',
             'Every catch increases the score',
             'Show the score on the stage',
           ],
           requirementsDe: [
-            'Die Katze bewegt sich in vier Richtungen',
+            'Devi bewegt sich in vier Richtungen',
             'Wird die Maus gefangen, flieht sie an einen zufälligen Ort',
             'Jeder Fang erhöht die Punktzahl',
             'Zeige die Punktzahl auf der Bühne',
           ],
           requirementsEs: [
-            'El gato se mueve en cuatro direcciones',
+            'Devi se mueve en cuatro direcciones',
             'Cuando atrapan al ratón, huye a un lugar al azar',
             'Cada captura aumenta la puntuación',
             'Muestra la puntuación en el escenario',
@@ -2221,10 +2221,10 @@ class ScratchLessonsData {
           instructionEn: 'Add 1 to the score when you catch the mouse',
           instructionDe: 'Erhöhe die Punkte um 1, wenn du die Maus fängst',
           instructionEs: 'Suma 1 punto cuando atrapes al ratón',
-          goal: 'Kedi fareye değince puan artsın',
-          goalEn: 'Increase the score when the cat touches the mouse',
-          goalDe: 'Erhöhe die Punkte, wenn die Katze die Maus berührt',
-          goalEs: 'Aumenta los puntos cuando el gato toca al ratón',
+          goal: 'Devi fareye değince puan artsın',
+          goalEn: 'Increase the score when Devi touches the mouse',
+          goalDe: 'Erhöhe die Punkte, wenn Devi die Maus berührt',
+          goalEs: 'Aumenta los puntos cuando Devi toca al ratón',
           availableBlocks: [
             ScratchBlock(
               id: 'green_flag',
@@ -2635,25 +2635,25 @@ class ScratchLessonsData {
             'Her 1 saniyede bir yıldızın ikizini yarat',
             'İkizler üstten başlasın',
             'Aşağı düşüp alta gelince silinsin',
-            'Kediye değince puan +1',
+            'Devi\'ye değince puan +1',
           ],
           requirementsEn: [
             'Create a clone of the star every second',
             'Clones start at the top',
             'They fall down and are deleted at the bottom',
-            'Touching the cat gives +1 point',
+            'Touching Devi gives +1 point',
           ],
           requirementsDe: [
             'Erzeuge jede Sekunde einen Klon des Sterns',
             'Die Klone starten oben',
             'Sie fallen nach unten und werden unten gelöscht',
-            'Berührt ein Klon die Katze, gibt es +1 Punkt',
+            'Berührt ein Klon Devi, gibt es +1 Punkt',
           ],
           requirementsEs: [
             'Crea un clon de la estrella cada segundo',
             'Los clones empiezan arriba',
             'Caen y se eliminan al llegar abajo',
-            'Al tocar al gato dan +1 punto',
+            'Al tocar a Devi dan +1 punto',
           ],
           hints: [
             '"sürekli tekrarla" içinde "1 saniye bekle" ile yarat',
@@ -2822,17 +2822,17 @@ class ScratchLessonsData {
 
         BlockBuilderStep(
           id: 's6_1_build1',
-          instruction: 'Kedi "zıpla" mesajını yayınladı. Şimdi FARENİN '
+          instruction: 'Devi "zıpla" mesajını yayınladı. Şimdi FARENİN '
               'kodunu kur: mesajı alınca zıplasın.',
-          instructionEn: 'The cat has broadcast "jump". Now build the MOUSE\'s code: it jumps when it receives the message.',
-          instructionDe: 'Die Katze hat "springen" gesendet. Baue nun den Code der MAUS: Sie springt, wenn sie die Nachricht empfängt.',
-          instructionEs: 'El gato ha enviado "saltar". Ahora crea el código del RATÓN: salta cuando recibe el mensaje.',
+          instructionEn: 'Devi has broadcast "jump". Now build the MOUSE\'s code: it jumps when it receives the message.',
+          instructionDe: 'Devi hat "springen" gesendet. Baue nun den Code der MAUS: Sie springt, wenn sie die Nachricht empfängt.',
+          instructionEs: 'Devi ha enviado "saltar". Ahora crea el código del RATÓN: salta cuando recibe el mensaje.',
           goal: 'Mesaj alan kuklanın kodu',
           goalEn: 'The code of the sprite that receives the message',
           goalDe: 'Der Code der Figur, die die Nachricht empfängt',
           goalEs: 'El código del objeto que recibe el mensaje',
           availableBlocks: [
-            // Kedi için (mesaj gönderen)
+            // Devi için (mesaj gönderen)
             ScratchBlock(
               id: 'green_flag',
               blockType: ScratchBlockType.events,
@@ -2892,7 +2892,7 @@ class ScratchLessonsData {
             ),
           ],
           // ONCEDEN dizilim ['green_flag','broadcast','receive_jump','change_y']
-          // idi: kedinin ve farenin scriptleri tek bir yigin gibi
+          // idi: Devi'nin ve farenin scriptleri tek bir yigin gibi
           // birlestirilmisti ve "mesaji alindiginda" sapka blogu ortaya
           // konuyordu. Gercek Scratch'te sapka blok yalnizca en uste
           // gelir ve her kuklanin kendi yigini olur; bu adim cocuga
@@ -2935,47 +2935,47 @@ class ScratchLessonsData {
           descriptionDe: 'Lass drei Figuren mit Nachrichten tanzen!',
           descriptionEs: '¡Haz bailar a tres objetos con mensajes!',
           requirements: [
-            'Kedi "dans_başladı" haberini salsın',
+            'Devi "dans_başladı" haberini salsın',
             'Fare haberi alınca dönmeye başlasın',
             'Top haberi alınca zıplasın',
             'Her kukla farklı bir dans yapsın',
           ],
           requirementsEn: [
-            'The cat broadcasts "dance_started"',
+            'Devi broadcasts "dance_started"',
             'When the mouse receives it, it starts spinning',
             'When the ball receives it, it jumps',
             'Every sprite dances differently',
           ],
           requirementsDe: [
-            'Die Katze sendet "tanz_gestartet" an alle',
+            'Devi sendet "tanz_gestartet" an alle',
             'Wenn die Maus es empfängt, dreht sie sich',
             'Wenn der Ball es empfängt, hüpft er',
             'Jede Figur tanzt anders',
           ],
           requirementsEs: [
-            'El gato envía "baile_empezo"',
+            'Devi envía "baile_empezo"',
             'Al recibirlo, el ratón empieza a girar',
             'Al recibirlo, la pelota salta',
             'Cada objeto baila de forma distinta',
           ],
           hints: [
             'Sahneye 3 kukla ekle',
-            'Kedide: yeşil bayrağa tıklandığında "dans_başladı haberini sal"',
+            'Devi\'de: yeşil bayrağa tıklandığında "dans_başladı haberini sal"',
             'Diğer kuklalarda "dans_başladı haberini aldığımda" ile başla',
           ],
           hintsEn: [
             'Add three sprites to the stage',
-            'On the cat: when the green flag is clicked, "broadcast dance_started"',
+            'On Devi: when the green flag is clicked, "broadcast dance_started"',
             'On the others, start with "when I receive dance_started"',
           ],
           hintsDe: [
             'Füge drei Figuren zur Bühne hinzu',
-            'Bei der Katze: Wenn die grüne Flagge angeklickt wird, "sende tanz_gestartet an alle"',
+            'Bei Devi: Wenn die grüne Flagge angeklickt wird, "sende tanz_gestartet an alle"',
             'Bei den anderen: beginne mit "Wenn ich tanz_gestartet empfange"',
           ],
           hintsEs: [
             'Añade tres objetos al escenario',
-            'En el gato: al hacer clic en la bandera verde, "enviar baile_empezo"',
+            'En Devi: al hacer clic en la bandera verde, "enviar baile_empezo"',
             'En los demás empieza con "al recibir baile_empezo"',
           ],
           starterCode: '',
@@ -3106,10 +3106,10 @@ class ScratchLessonsData {
 
         BlockBuilderStep(
           id: 's7_1_build1',
-          instruction: 'Kediye tıklandığında "Meow" sesi çalsın!',
-          instructionEn: 'When the cat is clicked, play the "Meow" sound!',
-          instructionDe: 'Wenn die Katze angeklickt wird, spiel den Klang "Miau"!',
-          instructionEs: '¡Cuando hagas clic en el gato, reproduce el sonido "Miau"!',
+          instruction: 'Devi\'ye tıklandığında "Meow" sesi çalsın!',
+          instructionEn: 'When Devi is clicked, play the "Meow" sound!',
+          instructionDe: 'Wenn Devi angeklickt wird, spiel den Klang "Miau"!',
+          instructionEs: '¡Cuando hagas clic en Devi, reproduce el sonido "Miau"!',
           goal: 'Tıklandığında ses çal',
           goalEn: 'Play a sound when clicked',
           goalDe: 'Spiel einen Klang beim Anklicken',
@@ -3431,7 +3431,7 @@ class ScratchBadges {
       descriptionEn: 'You took your first step into Scratch!',
       descriptionDe: 'Du hast deinen ersten Schritt in Scratch gemacht!',
       descriptionEs: '¡Diste tu primer paso en Scratch!',
-      emoji: '🐱',
+      emoji: '🤖',
       rarity: BadgeRarity.common,
       category: BadgeCategory.lesson,
     ),

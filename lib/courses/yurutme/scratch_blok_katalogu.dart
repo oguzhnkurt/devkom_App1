@@ -12,7 +12,7 @@ import 'scratch_resmi_etiketler.dart';
 /// dosyalarindan geliyor ([scratchResmiEtiketler], kaynagi
 /// `tool/bloklar/`): `%1 defa tekrarla` sablonundaki `%1` beyaz ovale,
 /// `%1 e tıklandığında`daki `%1` yesil bayraga donusuyor. Elle yazilan
-/// tek sey cocugun programina ait DEGERLER: degisken adi ("Puan"), kedinin
+/// tek sey cocugun programina ait DEGERLER: degisken adi ("Puan"), Devi'nin
 /// soyledigi cumle ("Miyav!"), liste ogesi ("elma"). Bunlar ders
 /// verisindeki cevirilerle ayni.
 ///
@@ -75,7 +75,7 @@ class ScratchBlokKatalogu {
     '1 saniyede x: 0 y: 0 konumuna git': 'glide_1_0_0',
     "eğer <yukarı ok> ise y'yi 10 değiştir": 'if_up_change_y',
     'rastgele konuma git': 'goto_random',
-    "eğer <Kedi'ye değdi mi?> ise": 'if_touching_cat',
+    "eğer <Devi'ye değdi mi?> ise": 'if_touching_cat',
     'Puan i 1 kadar değiştir': 'change_score',
     'Puan değişkenini 0 yap': 'set_score_0',
     'kendim in ikizini yarat': 'create_clone',
@@ -393,7 +393,7 @@ class ScratchBlokKatalogu {
     'if_touching': (l) => _eger(
         l, SbIcBlok(_degiyor(l, etiket('SENSING_TOUCHINGOBJECT_POINTER', l)))),
     'if_touching_cat': (l) =>
-        _eger(l, SbIcBlok(_degiyor(l, _d(l, 'Kedi', 'Cat', 'Katze', 'Gato')))),
+        _eger(l, SbIcBlok(_degiyor(l, _d(l, 'Devi', 'Devi', 'Devi', 'Devi')))),
     'if_score_low': (l) => _eger(
         l,
         SbIcBlok(_b(_islemler, ScratchSekil.mantiksal, 'OPERATORS_LT', l, [

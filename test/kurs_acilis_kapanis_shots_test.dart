@@ -21,6 +21,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:devkom_app/courses/data/course_modules.dart';
 import 'package:devkom_app/courses/data/courses_data.dart';
+import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
+import 'package:devkom_app/courses/screens/widgets/step_widgets.dart';
+import 'package:devkom_app/widgets/scratch_blok.dart';
 import 'package:devkom_app/courses/screens/interactive_lesson_screen.dart';
 import 'package:devkom_app/courses/tanitim/kurs_acilis_ekrani.dart';
 import 'package:devkom_app/courses/tanitim/kurs_kapanis_ekrani.dart';
@@ -259,5 +262,56 @@ void main() {
       File('$_dizin/13_paylasim_tiktok_9x16.png').writeAsBytesSync(
           await SertifikaCizici.paylasimPng(v, PaylasimBicimi.tiktok));
     });
+  });
+
+  // Scratch ders adimi: acilis sahnesiyle ayni gorunum.
+  testWidgets('ders adimi: bos, calisiyor, basarili', (tester) async {
+    final adim = CourseModules.allLessons('scratch')
+        .expand((l) => l.steps)
+        .whereType<BlockBuilderStep>()
+        .firstWhere((s) => s.id == 's1_2_build2');
+    await _kur(
+      tester,
+      Scaffold(
+        backgroundColor: const Color(0xFFF6F7FB),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+            child: BlockBuilderStepWidget(
+              step: adim,
+              course: scratch,
+              isDark: false,
+              onComplete: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+    await _bekle(tester, 300);
+    await _cek(tester, '14_ders_adimi_bos');
+
+    for (final id in adim.correctSequence) {
+      final f = find
+          .byWidgetPredicate((w) => w is ScratchBlok && w.kimlik == id)
+          .first;
+      await tester.ensureVisible(f);
+      await tester.tap(f);
+      await _bekle(tester, 300);
+    }
+    final tus = find.byKey(const ValueKey('ders_bayrak'));
+    await tester.ensureVisible(tus);
+    await tester.tap(tus);
+    // Gecikme + bayrak + yuruyus; "Merhaba" balonu acikken.
+    await _bekle(tester, 2750);
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, 400));
+    await _bekle(tester, 400);
+    await _cek(tester, '15_ders_adimi_calisiyor');
+
+    await _bekle(tester, 6000);
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -160));
+    await _bekle(tester, 400);
+    await _cek(tester, '16_ders_adimi_basarili');
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 2));
   });
 }

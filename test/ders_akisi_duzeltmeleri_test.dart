@@ -98,9 +98,10 @@ const _kimlik = {
 Finder _blok(String yazi) => find.byWidgetPredicate(
     (w) => w is ScratchBlok && w.kimlik == _kimlik[yazi]);
 
-/// Paletteki blogu (son eslesen) basili tutup kod alanina surukler.
+/// Paletteki blogu (ilk eslesen: palet kod alaninin solunda / ustunde)
+/// basili tutup kod alanina surukler.
 Future<void> _surukle(WidgetTester tester, String yazi, Finder hedef) async {
-  final kaynak = _blok(yazi).last;
+  final kaynak = _blok(yazi).first;
   await tester.ensureVisible(kaynak);
   await tester.pump();
   final g = await tester.startGesture(tester.getCenter(kaynak));
@@ -114,7 +115,7 @@ Future<void> _surukle(WidgetTester tester, String yazi, Finder hedef) async {
 }
 
 List<String> _koddakiYazilar(WidgetTester tester) {
-  // Kod alani paletin USTUNDE: ayni yazinin ilk eslesmesi kod alaninda.
+  // Yazi iki kez varsa blok kod alaninda da var.
   final out = <String>[];
   for (final y in const [
     'yeşil bayrak tıklandığında',
@@ -236,15 +237,14 @@ void main() {
         (tester) async {
       addTearDown(tester.view.reset);
       await _blokAdimi(tester);
-      expect(find.text('Aşağıdaki bloklara dokun ya da basılı tutup buraya sürükle'),
-          findsOneWidget);
+      const ipucu = 'Bloklara dokun ya da basılı tutup buraya sürükle';
+      expect(find.text(ipucu), findsOneWidget);
 
-      await _surukle(tester, 'yeşil bayrak tıklandığında',
-          find.text('Aşağıdaki bloklara dokun ya da basılı tutup buraya sürükle'));
+      await _surukle(tester, 'yeşil bayrak tıklandığında', find.text(ipucu));
       expect(_koddakiYazilar(tester), ['yeşil bayrak tıklandığında']);
 
       // Dokunarak ekleme hala calisiyor.
-      final dokun = _blok('10 adım git').last;
+      final dokun = _blok('10 adım git').first;
       await tester.ensureVisible(dokun);
       await tester.tap(dokun);
       await tester.pump(const Duration(milliseconds: 300));
@@ -252,9 +252,9 @@ void main() {
           ['yeşil bayrak tıklandığında', '10 adım git']);
 
       // Ucuncu blogu ikincinin ONUNE surukle: araya girmeli.
-      await _surukle(tester, '4 defa tekrarla', _blok('10 adım git').first);
-      final dongu = tester.getTopLeft(_blok('4 defa tekrarla').first).dy;
-      final git = tester.getTopLeft(_blok('10 adım git').first).dy;
+      await _surukle(tester, '4 defa tekrarla', _blok('10 adım git').last);
+      final dongu = tester.getTopLeft(_blok('4 defa tekrarla').last).dy;
+      final git = tester.getTopLeft(_blok('10 adım git').last).dy;
       expect(dongu, lessThan(git),
           reason: 'Birakilan blok uzerine birakildigi blogun onune girmeli.');
       expect(tester.takeException(), isNull);
@@ -265,28 +265,28 @@ void main() {
       addTearDown(tester.view.reset);
       await _blokAdimi(tester);
       for (final y in const ['10 adım git', 'yeşil bayrak tıklandığında']) {
-        final f = _blok(y).last;
+        final f = _blok(y).first;
         await tester.ensureVisible(f);
         await tester.tap(f);
         await tester.pump(const Duration(milliseconds: 300));
       }
       // Bayrak ikinci sirada; onu birincinin ustune tasi.
-      final bayrak = _blok('yeşil bayrak tıklandığında').first;
+      final bayrak = _blok('yeşil bayrak tıklandığında').last;
       final g = await tester.startGesture(tester.getCenter(bayrak));
       await tester.pump(const Duration(milliseconds: 250));
       await g.moveBy(const Offset(0, -5));
       await tester.pump();
-      await g.moveTo(tester.getCenter(_blok('10 adım git').first));
+      await g.moveTo(tester.getCenter(_blok('10 adım git').last));
       await tester.pump();
       await g.up();
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(
-          tester.getTopLeft(_blok('yeşil bayrak tıklandığında').first).dy,
-          lessThan(tester.getTopLeft(_blok('10 adım git').first).dy));
+          tester.getTopLeft(_blok('yeşil bayrak tıklandığında').last).dy,
+          lessThan(tester.getTopLeft(_blok('10 adım git').last).dy));
     });
 
-    testWidgets('KODU CALISTIR sahneyi ekrana getirir ve blogu parlatir',
+    testWidgets('yesil bayrak sahneyi ekrana getirir ve blogu parlatir',
         (tester) async {
       addTearDown(tester.view.reset);
       // Kucuk ekran: sahne ancak kaydirilinca gorunur.
@@ -297,12 +297,12 @@ void main() {
         '10 adım git',
         'Miyav! de',
       ]) {
-        final f = _blok(y).last;
+        final f = _blok(y).first;
         await tester.ensureVisible(f);
         await tester.tap(f);
         await tester.pump(const Duration(milliseconds: 300));
       }
-      final tus = find.text('KODU ÇALIŞTIR');
+      final tus = find.byKey(const ValueKey('ders_bayrak'));
       await tester.ensureVisible(tus);
       await tester.pump();
       await tester.tap(tus);

@@ -24,6 +24,8 @@ import '../../../ui/appear_in.dart';
 import '../../../ui/press_button.dart';
 import '../../../widgets/mascot.dart';
 import 'calisma_izi.dart';
+import '../../sahne/blok_tezgahi_karti.dart';
+import '../../sahne/scratch_sahnesi.dart';
 import '../../yurutme/blok_yorumlayici.dart';
 
 /// Current app language code ('tr' | 'en') for lesson content.
@@ -1870,9 +1872,17 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
   /// cevap beklemeden her an acilabiliyor.
   bool _izGoster = false;
 
+  /// Sahnede kod su an calisiyor mu (yesil bayrak pasif, dur aktif).
+  bool _calisiyor = false;
+
+  /// Bu calistirmanin oynaticisi (kirmizi dur icin). Her calistirmada
+  /// yeni anahtar: sahne bastan oynuyor.
+  GlobalKey<BlockAnimationPlayerState> _oynatici = GlobalKey();
+
   /// Kod degisti: eski calistirma artik bu kodun sonucu degil.
   void _calistirmayiKapat() {
     _izGoster = false;
+    _calisiyor = false;
     _yurutme = null;
     _calisanSira = null;
   }
@@ -1937,24 +1947,49 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
   /// animasyon coktan bitmis oluyordu. Simdi sahne ekrana kaydiriliyor
   /// ve animasyon kaydirma bittikten sonra basliyor.
   void _calistir() {
+    if (_placedBlocks.isEmpty) return;
+    HapticFeedback.lightImpact();
     setState(() {
       _izGoster = true;
       _calistirmaNo++;
       _calisanSira = null;
+      _calisiyor = true;
+      _oynatici = GlobalKey();
       _yurutme = const BlokYorumlayici().yurut(_kodBloklari());
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final c = _sahneAnahtari.currentContext;
       if (c == null || !mounted) return;
-      Scrollable.ensureVisible(
-        c,
-        duration: Motion.reduced(context)
-            ? Duration.zero
-            : const Duration(milliseconds: 420),
-        curve: Curves.easeOutCubic,
-        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
-      );
+      final sure = Motion.reduced(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 420);
+      // Scratch kursunda sahne kod alaninin USTUNDE: alttaki buyuk
+      // dugmeye basan cocuk icin sahne yukarida kalmis olabilir.
+      await Scrollable.ensureVisible(c,
+          duration: sure,
+          curve: Curves.easeOutCubic,
+          alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtStart);
+      if (!mounted || !c.mounted) return;
+      await Scrollable.ensureVisible(c,
+          duration: sure,
+          curve: Curves.easeOutCubic,
+          alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd);
     });
+  }
+
+  /// Kirmizi dur: kod o anda durur; kukla oldugu yerde kalir.
+  void _durdur() {
+    if (!_calisiyor) return;
+    HapticFeedback.lightImpact();
+    _oynatici.currentState?.durdur();
+    setState(() {
+      _calisiyor = false;
+      _calisanSira = null;
+    });
+  }
+
+  void _oynatmaBitti() {
+    if (mounted && _calisiyor) setState(() => _calisiyor = false);
   }
 
   void _checkAnswer() {
@@ -2022,10 +2057,12 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
   @override
   Widget build(BuildContext context) {
     final lang = lessonLang(context);
-    final goalLabel = lessonText(lang, 'Hedef', 'Goal', 'Ziel', 'Objetivo');
     // Araliklar ekran boyuna gore. iPhone SE'de yonerge + hedef + kod
     // alani + palet birlikte ekrana sigmiyordu.
     final ara = EkranOlcusu.bosluk(context, 24);
+    // Scratch kursu: acilis sahnesiyle ayni gorunum (Sahne karti +
+    // "Bloklar | Kod alani" karti). Diger kurslar asagidaki eski duzende.
+    if (scratchKursu(widget.course)) return _scratchDuzeni(lang, ara);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2040,38 +2077,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         ),
         const SizedBox(height: 8),
 
-        // HEDEF — kursun renginde.
-        //
-        // Sabit mavi yaziyordu: Python dersinde de, CSS dersinde de,
-        // Scratch dersinde de ayni mavi. Kursun kendi rengi zaten
-        // elimizde.
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: widget.course.primaryColor.withValues(alpha: 0.10),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            children: [
-              const Text('🎯', style: TextStyle(fontSize: 20)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  '$goalLabel: ${widget.step.goalFor(lang)}',
-                  style: TextStyle(
-                    fontFamily: AppTheme.fontFamily,
-                    fontSize: 14.5,
-                    height: 1.35,
-                    fontWeight: FontWeight.w700,
-                    color: widget.isDark
-                        ? Colors.white
-                        : widget.course.primaryColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        _hedefKutusu(lang),
         SizedBox(height: ara),
 
         // Code area
@@ -2161,43 +2167,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         // "burada bir sey yanlis" diyor ki cocuk tekrar baksin.
         if (_yanlisDizi) ...[
           const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.orange.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.orange.withValues(alpha: 0.35)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.refresh_rounded,
-                    color: Colors.orange, size: 22),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    // NEREYE bakacagini soyluyor, CEVABI soylemiyor.
-                    _dogruOnEk == 0
-                        ? lessonText(
-                            lang,
-                            'Daha ilk bloktan sıra bozuluyor. En baştan bir daha düşün.',
-                            'The order goes wrong at the very first block. Think again from the start.',
-                            'Schon der erste Block steht falsch. Denk noch mal von vorne.',
-                            'El orden falla desde el primer bloque. Piénsalo otra vez desde el principio.')
-                        : lessonText(
-                            lang,
-                            'İlk $_dogruOnEk blok yerinde. ${_dogruOnEk + 1}. bloğa bir daha bak.',
-                            'The first $_dogruOnEk blocks are in place. Look at block ${_dogruOnEk + 1} again.',
-                            'Die ersten $_dogruOnEk Blöcke sitzen richtig. Schau dir Block ${_dogruOnEk + 1} noch einmal an.',
-                            'Los primeros $_dogruOnEk bloques están bien. Mira otra vez el bloque ${_dogruOnEk + 1}.'),
-                    style: const TextStyle(
-                      color: Colors.orange,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _yanlisUyarisi(lang),
         ],
 
         // CALISTIRMA TUSU ARTIK HER ZAMAN BURADA.
@@ -2229,50 +2199,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         // Success indicator
         if (_completed) ...[
           SizedBox(height: ara),
-
-          // Sahne artik KODU CALISTIR'in hemen altinda, her calistirmada
-          // aciliyor (yukarida). Burada yalnizca basari kutusu ve DEVAM.
-          Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Text('✅', style: TextStyle(fontSize: 24)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      lessonText(lang, 'Mükemmel! Doğru sıralamayı buldun!',
-                          'Perfect! You found the right order!', 'Perfekt! Du hast die richtige Reihenfolge gefunden!', '¡Perfecto! ¡Has encontrado el orden correcto!'),
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          const SizedBox(height: 16),
-          // Calistirma tusu yukari tasindi; burada yalnizca DEVAM kaldi.
-          ElevatedButton(
-            onPressed: () => widget.onComplete(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: widget.course.primaryColor,
-              foregroundColor: Colors.white,
-              minimumSize: const Size.fromHeight(48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: Text(
-              lessonText(lang, 'DEVAM', 'CONTINUE', 'WEITER', 'CONTINUAR'),
-              style:
-                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ),
+          ..._basariVeDevam(lang),
         ],
 
         // SAHNE ve IZ, basari kutusunun ALTINDA: cocuk kodu calistirinca
@@ -2384,6 +2311,416 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
     );
   }
 
+  Widget _hedefKutusu(String lang) {
+    final goalLabel = lessonText(lang, 'Hedef', 'Goal', 'Ziel', 'Objetivo');
+    return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: widget.course.primaryColor.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            const Text('🎯', style: TextStyle(fontSize: 20)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '$goalLabel: ${widget.step.goalFor(lang)}',
+                style: TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 14.5,
+                  height: 1.35,
+                  fontWeight: FontWeight.w700,
+                  color: widget.isDark
+                      ? Colors.white
+                      : widget.course.primaryColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+    );
+  }
+
+  Widget _yanlisUyarisi(String lang) {
+    return Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.orange.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.orange.withValues(alpha: 0.35)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.refresh_rounded,
+                color: Colors.orange, size: 22),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                // NEREYE bakacagini soyluyor, CEVABI soylemiyor.
+                _dogruOnEk == 0
+                    ? lessonText(
+                        lang,
+                        'Daha ilk bloktan sıra bozuluyor. En baştan bir daha düşün.',
+                        'The order goes wrong at the very first block. Think again from the start.',
+                        'Schon der erste Block steht falsch. Denk noch mal von vorne.',
+                        'El orden falla desde el primer bloque. Piénsalo otra vez desde el principio.')
+                    : lessonText(
+                        lang,
+                        'İlk $_dogruOnEk blok yerinde. ${_dogruOnEk + 1}. bloğa bir daha bak.',
+                        'The first $_dogruOnEk blocks are in place. Look at block ${_dogruOnEk + 1} again.',
+                        'Die ersten $_dogruOnEk Blöcke sitzen richtig. Schau dir Block ${_dogruOnEk + 1} noch einmal an.',
+                        'Los primeros $_dogruOnEk bloques están bien. Mira otra vez el bloque ${_dogruOnEk + 1}.'),
+                style: const TextStyle(
+                  color: Colors.orange,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+    );
+  }
+
+  /// Basari kutusu ve DEVAM.
+  List<Widget> _basariVeDevam(String lang) {
+    return [
+      Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.green.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            const Text('✅', style: TextStyle(fontSize: 24)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                lessonText(lang, 'Mükemmel! Doğru sıralamayı buldun!',
+                    'Perfect! You found the right order!', 'Perfekt! Du hast die richtige Reihenfolge gefunden!', '¡Perfecto! ¡Has encontrado el orden correcto!'),
+                style: TextStyle(
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 16),
+      // Calistirma tusu yukari tasindi; burada yalnizca DEVAM kaldi.
+      ElevatedButton(
+        onPressed: () => widget.onComplete(true),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: widget.course.primaryColor,
+          foregroundColor: Colors.white,
+          minimumSize: const Size.fromHeight(48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Text(
+          lessonText(lang, 'DEVAM', 'CONTINUE', 'WEITER', 'CONTINUAR'),
+          style:
+              const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
+    ];
+  }
+
+  // ------------------------------------------------------------------
+  // SCRATCH DUZENI — acilis sahnesiyle ayni gorunum
+  // ------------------------------------------------------------------
+
+  /// Scratch kursundaki blok kurma adimi.
+  ///
+  /// Kursun acilis sahnesinde cocugun gordugu her sey burada da ayni:
+  /// beyaz "Sahne" karti (yesil bayrak kodu calistirir, kirmizi dur
+  /// durdurur), gokyuzu/bulut/zemin, yuruyen Devi, noktali yol, konusma
+  /// balonu; altinda "Bloklar | Kod alani" karti. Kartlar
+  /// lib/courses/sahne/ altinda; acilis sahnesi de onlari kullaniyor.
+  ///
+  /// Erisilebilirlik: bayrak kucuk bir dugme; altta buyuk bir "Yesil
+  /// bayraga bas" dugmesi de var (kod calisirken "Durdur").
+  ///
+  /// Yerlesim kaymasi yok: sahne sabit yukseklikte ve hep yerinde; bos
+  /// iken Devi zeminde bekliyor.
+  Widget _scratchDuzeni(String lang, double ara) {
+    final kisa = EkranOlcusu.kisa(context);
+    final bloklarVar = _placedBlocks.isNotEmpty;
+    final oynuyor = _izGoster && _yurutme != null;
+    final renk = widget.course.primaryColor;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          widget.step.instructionFor(lang),
+          style: TextStyle(
+            fontFamily: AppTheme.fontFamily,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: widget.isDark ? Colors.white : const Color(0xFF1A1A1A),
+          ),
+        ),
+        const SizedBox(height: 8),
+        _hedefKutusu(lang),
+        SizedBox(height: ara * 0.6),
+
+        // SAHNE
+        KeyedSubtree(
+          key: _sahneAnahtari,
+          child: SizedBox(
+            height: kisa ? 206 : 240,
+            child: ScratchSahneKarti(
+              lang: lang,
+              bayrakAnahtari: const ValueKey('sahne_bayragi'),
+              durAnahtari: const ValueKey('sahne_dur'),
+              onBayrak: bloklarVar && !_calisiyor ? _calistir : null,
+              onDur: _calisiyor ? _durdur : null,
+              child: oynuyor
+                  ? BlockAnimationPlayer(
+                      key: _oynatici,
+                      sahne: true,
+                      blocks: _kodBloklari(),
+                      lang: lang,
+                      scratch: true,
+                      size: kisa ? 58 : 76,
+                      yurutme: _yurutme,
+                      dogru: _completed,
+                      renk: renk,
+                      baslamaGecikmesi: const Duration(milliseconds: 450),
+                      onComplete: _oynatmaBitti,
+                      onAdim: (sira) {
+                        if (mounted) setState(() => _calisanSira = sira);
+                      },
+                    )
+                  : _bosSahne(lang, kisa ? 58 : 76),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // BLOKLAR | KOD ALANI
+        BlokTezgahiKarti(
+          lang: lang,
+          paletPayi: 1,
+          kodPayi: 1,
+          // iPhone SE gibi dar ekranlarda palet ustte, kod altta.
+          dikeyEsik: 330,
+          kodVurgusu: _completed
+              ? const Color(0xFF4CBF56).withValues(alpha: 0.10)
+              : _alanUstunde
+                  ? renk.withValues(alpha: 0.08)
+                  : null,
+          palet: _scratchPaleti(lang),
+          kod: _scratchKodBolumu(lang, kisa),
+        ),
+
+        if (_yanlisDizi) ...[
+          const SizedBox(height: 14),
+          _yanlisUyarisi(lang),
+        ],
+        SizedBox(height: ara),
+
+        // Buyuk dugme: yesil bayrakla ayni is (kucuk bayraga basmakta
+        // zorlanan cocuk icin). Kod calisirken "Durdur".
+        PressButton(
+          key: const ValueKey('ders_bayrak'),
+          label: _calisiyor
+              ? lessonText(lang, 'Durdur', 'Stop', 'Stopp', 'Detener')
+              : lessonText(lang, 'Yeşil bayrağa bas', 'Press the green flag',
+                  'Grüne Flagge drücken', 'Pulsa la bandera verde'),
+          icon: _calisiyor ? Icons.stop_rounded : Icons.flag_rounded,
+          color: _calisiyor ? const Color(0xFFEC5959) : const Color(0xFF4CBF56),
+          onPressed: !bloklarVar ? null : (_calisiyor ? _durdur : _calistir),
+        ),
+
+        if (_completed) ...[
+          SizedBox(height: ara),
+          ..._basariVeDevam(lang),
+        ],
+
+        // "Kodun ne yapti" izi: sahnenin satir satir hali; katlanabilir.
+        if (oynuyor) ...[
+          const SizedBox(height: 14),
+          CalismaIzi(
+            bloklar: _kodBloklari(),
+            lang: lang,
+            yurutme: _yurutme,
+            scratch: true,
+            katlanabilir: true,
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// Kod henuz calismadi: Devi zeminde bekliyor.
+  Widget _bosSahne(String lang, double kukla) {
+    return ScratchSahneZemini(builder: (context, boyut, zemin) {
+      return Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            left: boyut.width * 0.08,
+            top: zemin - kukla + 4,
+            child: Mascot(size: kukla, showShadow: false),
+          ),
+          Positioned(
+            left: 8,
+            right: 8,
+            top: 6,
+            child: Center(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  _placedBlocks.isEmpty
+                      ? lessonText(
+                          lang,
+                          'Bloklarla kodunu kur, sonra yeşil bayrağa bas.',
+                          'Build your code with blocks, then press the green flag.',
+                          'Bau deinen Code aus Blöcken und drück dann die grüne Flagge.',
+                          'Arma tu código con bloques y luego pulsa la bandera verde.')
+                      : lessonText(
+                          lang,
+                          'Hazır! Yeşil bayrağa bas ve izle.',
+                          'Ready! Press the green flag and watch.',
+                          'Fertig! Drück die grüne Flagge und schau zu.',
+                          '¡Listo! Pulsa la bandera verde y mira.'),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF4A4F5C),
+                    height: 1.25,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  /// Palet: Scratch kategorileri ve bloklar. Dokun = en sona ekle; basili
+  /// tut + surukle = istenen yere. Kod alanindan buraya birakilan blok
+  /// cikar.
+  Widget _scratchPaleti(String lang) {
+    final kategoriler = ScratchKategoriSeridi.sirala([
+      for (final b in _palet)
+        if (_scratchTanimi(b, lang) case final t?) t.kategori,
+    ]);
+    return DragTarget<_BlokTasima>(
+      onWillAcceptWithDetails: (d) => d.data.kaynakSira != null,
+      onAcceptWithDetails: (d) {
+        setState(() {
+          _alanUstunde = false;
+          _ekleSira = null;
+        });
+        _removeBlock(d.data.kaynakSira!);
+      },
+      builder: (context, adaylar, reddedilen) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (kategoriler.length >= 2)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: ScratchKategoriSeridi(
+                  kategoriler: kategoriler, lang: lang, koyu: false),
+            ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: _palet.map((block) {
+              final gorunum = _buildBlockWidget(block, lang);
+              return LongPressDraggable<_BlokTasima>(
+                data: _BlokTasima(block),
+                delay: const Duration(milliseconds: 150),
+                hapticFeedbackOnStart: true,
+                feedback: _surukleniyor(gorunum),
+                childWhenDragging: Opacity(opacity: 0.4, child: gorunum),
+                onDragEnd: (_) {
+                  if (_alanUstunde || _ekleSira != null) {
+                    setState(() {
+                      _alanUstunde = false;
+                      _ekleSira = null;
+                    });
+                  }
+                },
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => _addBlock(block),
+                  child: gorunum,
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Kod alani: birakma hedefi; bossa ipucu.
+  Widget _scratchKodBolumu(String lang, bool kisa) {
+    return DragTarget<_BlokTasima>(
+      onWillAcceptWithDetails: (_) {
+        if (!_alanUstunde) setState(() => _alanUstunde = true);
+        return true;
+      },
+      onLeave: (_) => setState(() {
+        _alanUstunde = false;
+        _ekleSira = null;
+      }),
+      onAcceptWithDetails: (d) => _birak(d.data, _ekleSira),
+      builder: (context, adaylar, reddedilen) => ConstrainedBox(
+        constraints: BoxConstraints(
+            minHeight: kisa ? 96 : 124, minWidth: double.infinity),
+        child: _placedBlocks.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  lessonText(
+                      lang,
+                      'Bloklara dokun ya da basılı tutup buraya sürükle',
+                      'Tap the blocks, or hold and drag them here',
+                      'Tippe auf die Blöcke oder halte sie gedrückt und zieh sie hierher',
+                      'Toca los bloques o mantenlos pulsados y arrástralos aquí'),
+                  style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    color: Colors.grey.shade500,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    height: 1.35,
+                  ),
+                ),
+              )
+            : Align(
+                alignment: Alignment.topLeft,
+                child: switch (_scratchKodu(lang)) {
+                  final kod? => _scratchKodAlani(kod, lang),
+                  null => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: _buildPlacedList(lang),
+                    ),
+                },
+              ),
+      ),
+    );
+  }
+
   /// Parmagin altinda tasinan blok: hafif buyuk ve golgeli.
   Widget _surukleniyor(Widget gorunum) => Material(
         color: Colors.transparent,
@@ -2491,8 +2828,8 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
                           'Este bucle está vacío'),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
+                      style: const TextStyle(
+                        color: Color(0xFF8A94A6),
                         fontSize: 11.5,
                         fontStyle: FontStyle.italic,
                       ),
@@ -4802,10 +5139,10 @@ class _LoopCalculatorGameState extends State<LoopCalculatorGame> {
                 Text(
                   lessonText(
                   lang,
-                  '🐱 Kediyi yürütmek için:',
-                  '🐱 To make the cat walk:',
-                  '🐱 Damit die Katze läuft:',
-                  '🐱 Para que el gato camine:'),
+                  "🤖 Devi'yi yürütmek için:",
+                  '🤖 To make Devi walk:',
+                  '🤖 Damit Devi läuft:',
+                  '🤖 Para que Devi camine:'),
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 16),

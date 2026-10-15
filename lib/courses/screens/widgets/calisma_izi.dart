@@ -35,7 +35,12 @@ class CalismaIzi extends StatelessWidget {
     this.enFazlaYukseklik = 220,
     this.yurutme,
     this.scratch = false,
+    this.katlanabilir = false,
   });
+
+  /// Baslik dokununca iz kapanip aciliyor (Scratch ders adiminda sahne
+  /// asil gorunum; iz isteyene). Acik baslar.
+  final bool katlanabilir;
 
   final List<ScratchBlock> bloklar;
 
@@ -54,66 +59,75 @@ class CalismaIzi extends StatelessWidget {
   Widget build(BuildContext context) {
     final sonuc = yurutme ?? const BlokYorumlayici().yurut(bloklar);
 
+    final baslik = Row(
+      children: [
+        const Icon(Icons.play_circle_outline,
+            size: 18, color: Color(0xFF9AA4B2)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            lessonText(lang, 'Kodun ne yaptı', 'What your code did',
+                'Was dein Code gemacht hat', 'Lo que hizo tu código'),
+            style: const TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              fontWeight: FontWeight.w800,
+              fontSize: 13,
+              color: Color(0xFF9AA4B2),
+            ),
+          ),
+        ),
+      ],
+    );
+    final govde = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 8),
+        ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: enFazlaYukseklik),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final adim in sonuc.adimlar) _satir(adim),
+              ],
+            ),
+          ),
+        ),
+        if (sonuc.butceBitti) ...[
+          const SizedBox(height: 8),
+          Text(
+            // Sonsuz dongu bir hata degil; cocuk bilerek de yazmis
+            // olabilir. Ekran "bitti" diye yalan soylemiyor.
+            lessonText(
+                lang,
+                '… kod durmuyor. "Sürekli tekrarla" hiç bitmez — burada biz durdurduk.',
+                '… the code does not stop. "forever" never ends — we stopped it here.',
+                '… der Code hört nicht auf. "wiederhole fortlaufend" endet nie — wir haben hier gestoppt.',
+                '… el código no para. "por siempre" nunca termina — lo hemos detenido aquí.'),
+            style: const TextStyle(
+              fontSize: 12,
+              height: 1.4,
+              color: Color(0xFFFFB86C),
+            ),
+          ),
+        ],
+        const SizedBox(height: 10),
+        _sonucSeridi(sonuc),
+      ],
+    );
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E2E),
         borderRadius: BorderRadius.circular(12),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.play_circle_outline,
-                  size: 18, color: Color(0xFF9AA4B2)),
-              const SizedBox(width: 8),
-              Text(
-                lessonText(lang, 'Kodun ne yaptı', 'What your code did',
-                    'Was dein Code gemacht hat', 'Lo que hizo tu código'),
-                style: const TextStyle(
-                  fontFamily: AppTheme.fontFamily,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 13,
-                  color: Color(0xFF9AA4B2),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: enFazlaYukseklik),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final adim in sonuc.adimlar) _satir(adim),
-                ],
-              ),
+      child: katlanabilir
+          ? _Katlanir(baslik: baslik, govde: govde, lang: lang)
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [baslik, govde],
             ),
-          ),
-          if (sonuc.butceBitti) ...[
-            const SizedBox(height: 8),
-            Text(
-              // Sonsuz dongu bir hata degil; cocuk bilerek de yazmis
-              // olabilir. Ekran "bitti" diye yalan soylemiyor.
-              lessonText(
-                  lang,
-                  '… kod durmuyor. "Sürekli tekrarla" hiç bitmez — burada biz durdurduk.',
-                  '… the code does not stop. "forever" never ends — we stopped it here.',
-                  '… der Code hört nicht auf. "wiederhole fortlaufend" endet nie — wir haben hier gestoppt.',
-                  '… el código no para. "por siempre" nunca termina — lo hemos detenido aquí.'),
-              style: const TextStyle(
-                fontSize: 12,
-                height: 1.4,
-                color: Color(0xFFFFB86C),
-              ),
-            ),
-          ],
-          const SizedBox(height: 10),
-          _sonucSeridi(sonuc),
-        ],
-      ),
     );
   }
 
@@ -136,8 +150,8 @@ class CalismaIzi extends StatelessWidget {
               height: 8,
               margin: const EdgeInsets.only(top: 4.5, right: 6),
               decoration: BoxDecoration(
-                color: sb.kategori.renk
-                    .withValues(alpha: adim.etkisiz ? 0.45 : 1),
+                color:
+                    sb.kategori.renk.withValues(alpha: adim.etkisiz ? 0.45 : 1),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -211,16 +225,16 @@ class CalismaIzi extends StatelessWidget {
       parcalar.add('"${_soyledigi(sonuc)}"');
     }
     if (sonuc.sonSahne.kostum != 1) {
-      parcalar.add('${lessonText(lang, 'kostüm', 'costume', 'Kostüm',
-          'disfraz')}: ${sonuc.sonSahne.kostum}');
+      parcalar.add(
+          '${lessonText(lang, 'kostüm', 'costume', 'Kostüm', 'disfraz')}: ${sonuc.sonSahne.kostum}');
     }
     if (sonuc.sonSahne.yon != 90) {
-      parcalar.add('${lessonText(lang, 'yön', 'direction', 'Richtung',
-          'dirección')}: ${sonuc.sonSahne.yon.toInt()}°');
+      parcalar.add(
+          '${lessonText(lang, 'yön', 'direction', 'Richtung', 'dirección')}: ${sonuc.sonSahne.yon.toInt()}°');
     }
     if (sonuc.sonSahne.kalemInik) {
-      parcalar.add(lessonText(lang, 'kalem inik', 'pen down',
-          'Stift unten', 'lápiz abajo'));
+      parcalar.add(lessonText(
+          lang, 'kalem inik', 'pen down', 'Stift unten', 'lápiz abajo'));
     }
     sonuc.sonSahne.listeler.forEach((ad, icerik) {
       parcalar.add('$ad: [${icerik.join(', ')}]');
@@ -251,6 +265,60 @@ class CalismaIzi extends StatelessWidget {
           color: Color(0xFF7ED321),
         ),
       ),
+    );
+  }
+}
+
+/// Basligina dokununca govdesi kapanip acilan iz.
+class _Katlanir extends StatefulWidget {
+  const _Katlanir(
+      {required this.baslik, required this.govde, required this.lang});
+  final Widget baslik;
+  final Widget govde;
+  final String lang;
+
+  @override
+  State<_Katlanir> createState() => _KatlanirState();
+}
+
+class _KatlanirState extends State<_Katlanir> {
+  bool _acik = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          button: true,
+          expanded: _acik,
+          child: InkWell(
+            key: const ValueKey('iz_ac_kapa'),
+            borderRadius: BorderRadius.circular(8),
+            onTap: () => setState(() => _acik = !_acik),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Expanded(child: widget.baslik),
+                  Icon(
+                    _acik
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    color: const Color(0xFF9AA4B2),
+                    semanticLabel: _acik
+                        ? lessonText(widget.lang, 'Gizle', 'Hide', 'Ausblenden',
+                            'Ocultar')
+                        : lessonText(widget.lang, 'Göster', 'Show', 'Anzeigen',
+                            'Mostrar'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (_acik) widget.govde,
+      ],
     );
   }
 }

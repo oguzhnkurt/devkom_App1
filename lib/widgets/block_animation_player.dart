@@ -7,6 +7,8 @@ import '../courses/models/interactive_lesson_model.dart';
 import '../courses/yurutme/blok_anlami.dart';
 import '../courses/yurutme/blok_sozlugu.dart';
 import '../courses/yurutme/blok_yorumlayici.dart';
+import '../courses/sahne/scratch_sahnesi.dart';
+import '../courses/tanitim/tanitim_parcalari.dart' show YesilBayrak;
 import '../courses/yurutme/konusma_metni.dart';
 import '../ui/motion.dart';
 import '../utils/lang.dart';
@@ -49,7 +51,14 @@ class BlockAnimationPlayer extends StatefulWidget {
     this.baslamaGecikmesi = Duration.zero,
     this.renk,
     this.scratch = false,
+    this.sahne = false,
   });
+
+  /// Acilis sahnesindeki gorunum: yalnizca sahnenin GOVDESI (gokyuzu,
+  /// bulutlar, zemin) — baslik, bayrak ve dur [ScratchSahneKarti]'nda.
+  /// Calisan blok ve tur ustte, konusma kuklanin ustunde balon, sonuc
+  /// seridi ustte (sabit yerlerde; sahne boyu degismiyor).
+  final bool sahne;
 
   final List<ScratchBlock> blocks;
 
@@ -88,13 +97,13 @@ class BlockAnimationPlayer extends StatefulWidget {
   static const int enFazlaAdim = 36;
 
   @override
-  State<BlockAnimationPlayer> createState() => _BlockAnimationPlayerState();
+  State<BlockAnimationPlayer> createState() => BlockAnimationPlayerState();
 }
 
 /// Bir blogun sahnedeki karsiligi.
 enum _Etki { hareket, ziplama, konus, bekle, degisken, ses, isik, yapisal }
 
-class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
+class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
     with TickerProviderStateMixin {
   static const _adimSuresi = Duration(milliseconds: 450);
   static const _yurumeSuresi = Duration(milliseconds: 650);
@@ -146,6 +155,40 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
   bool _bitti = false;
   bool _yarida = false; // sahne birkac turdan sonra durdu
   bool _durduruldu = false;
+
+  /// Cocuk kirmizi "dur"a basti.
+  bool _elleDurdu = false;
+
+  /// Kod hala calisiyor mu (bitmedi, durdurulmadi)?
+  bool get calisiyor => !_bitti && !_durduruldu;
+
+  /// Kirmizi dur: oynatma o anda biter, kukla oldugu yerde kalir.
+  void durdur() {
+    if (!calisiyor) return;
+    _durduruldu = true;
+    _zamanlayici?.cancel();
+    if (_bekleyen != null && !_bekleyen!.isCompleted) {
+      _bekleyen!.complete(false);
+    }
+    // Kukla yarim adimda kalmasin: bulundugu yere otursun.
+    final simdi = _konum;
+    _hareketC.stop();
+    _adimC.stop();
+    _adimC.value = 0;
+    setState(() {
+      _onceki = simdi;
+      _hedef = simdi;
+      _hareketC.value = 0;
+      _cizerekGidiyor = false;
+      _konusma = null;
+      _bekliyor = false;
+      _nota = null;
+      _sira = -1;
+      _tur = null;
+      _elleDurdu = true;
+    });
+    widget.onAdim?.call(null);
+  }
 
   @override
   void initState() {
@@ -215,6 +258,9 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
         break;
     }
     if (id == 'goto_random') return _Etki.hareket;
+    // Yesil bayrak sapkasi bir isik DEGIL ('green_' oneki Arduino'nun
+    // trafik isigi kimlikleri icin): sahnede sari lamba yakiyordu.
+    if (id == 'green_flag' || id.startsWith('when_')) return _Etki.yapisal;
     if (id.startsWith('wait')) return _Etki.bekle;
     if (id.contains('note') || id.contains('sound')) return _Etki.ses;
     if (id.contains('led') ||
@@ -264,8 +310,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
       _sira = -1;
       _tur = null;
       _bitti = true;
-      _yarida = _yurutme.butceBitti ||
-          adimlar.length > _sinir;
+      _yarida = _yurutme.butceBitti || adimlar.length > _sinir;
     });
     widget.onAdim?.call(null);
     widget.onComplete?.call();
@@ -385,8 +430,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
 
   Future<bool> _degiskenGuncelle(String id, YurutmeAdimi adim) async {
     setState(() {
-      if (adim.sahne.degiskenler.isNotEmpty &&
-          blokSozlugu.containsKey(id)) {
+      if (adim.sahne.degiskenler.isNotEmpty && blokSozlugu.containsKey(id)) {
         _degiskenler
           ..clear()
           ..addAll(adim.sahne.degiskenler);
@@ -395,8 +439,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
       // Sozlukte olmayan (Arduino) degiskenler: adindan tahmin.
       final ad = _degiskenAdi(id);
       if (id.startsWith('set_')) {
-        _degiskenler[ad] =
-            id.endsWith('_0') ? 0 : _rastgele.nextInt(600) + 200;
+        _degiskenler[ad] = id.endsWith('_0') ? 0 : _rastgele.nextInt(600) + 200;
       } else {
         _degiskenler[ad] = (_degiskenler[ad] ?? 0) + 1;
       }
@@ -477,11 +520,12 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
         ? widget.blocks[_sira]
         : null;
 
+    if (widget.sahne) return _sahneGorunumu(calisan);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
       decoration: BoxDecoration(
-        color: Color.alphaBlend(
-            _renk.withValues(alpha: 0.06), Colors.white),
+        color: Color.alphaBlend(_renk.withValues(alpha: 0.06), Colors.white),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: _renk.withValues(alpha: 0.45), width: 2),
       ),
@@ -516,24 +560,25 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Flexible(
-                          child: _scratchCipi(calisan) ?? Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: calisan.color,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Text(
-                              calisan.labelFor(widget.lang),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                          child: _scratchCipi(calisan) ??
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: calisan.color,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Text(
+                                  calisan.labelFor(widget.lang),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
                         ),
                         if (_tur != null) ...[
                           const SizedBox(width: 6),
@@ -654,24 +699,32 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
   /// Calisan blok, Scratch kursunda Scratch blogu olarak. C bloklari tek
   /// satir (ust kol) halinde; 40 piksellik yuvaya tirnagiyla sigacak
   /// olcekte.
-  Widget? _scratchCipi(ScratchBlock b) {
+  Widget? _scratchCipi(ScratchBlock b, {double yuva = 40}) {
     if (!widget.scratch) return null;
     final t = ScratchBlokKatalogu.tanim(b.id, widget.lang);
     if (t == null) return null;
     final h1 = ScratchBlokOlcer.yukseklik(t, 1, parca: ScratchCParcasi.bas) +
         ScratchBlokOlcer.tirnakPayi(1);
-    final s = min(0.62, 40 / h1);
+    final s = min(0.62, yuva / h1);
     return Align(
-      alignment: Alignment.topCenter,
+      alignment: widget.sahne ? Alignment.centerLeft : Alignment.topCenter,
       child: ScratchBlok(tanim: t, olcek: s, parca: ScratchCParcasi.bas),
     );
   }
 
-  Widget _bitisSeridi() {
+  Widget _bitisSeridi({double yazi = 13.5}) {
     final String metin;
     final IconData ikon;
     final Color renk;
-    if (_yarida) {
+    if (_elleDurdu) {
+      metin = _t(
+          'Kodu durdurdun. Yeşil bayrakla yeniden başlat.',
+          'You stopped the code. Press the green flag to start again.',
+          'Du hast den Code gestoppt. Mit der grünen Flagge startest du neu.',
+          'Detuviste el código. Pulsa la bandera verde para empezar de nuevo.');
+      ikon = Icons.stop_circle_rounded;
+      renk = const Color(0xFFB84848);
+    } else if (_yarida) {
       metin = _t(
           'Bu kod hiç durmuyor; birkaç turdan sonra biz durdurduk.',
           'This code never stops; we paused it after a few turns.',
@@ -680,7 +733,8 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
       ikon = Icons.all_inclusive_rounded;
       renk = const Color(0xFFB26A00);
     } else if (widget.dogru) {
-      metin = _t('Harika! Kodun hedefe ulaştı! 🎉',
+      metin = _t(
+          'Harika! Kodun hedefe ulaştı! 🎉',
           'Great! Your code reached the goal! 🎉',
           'Super! Dein Code hat das Ziel erreicht! 🎉',
           '¡Genial! ¡Tu código llegó a la meta! 🎉');
@@ -689,7 +743,8 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
     } else {
       // Ceza yok: yanlis kod da calisir. Cocuga yalnizca neye
       // bakacagini soyluyoruz.
-      metin = _t('Kodun sonuna geldi. Hedefle karşılaştır!',
+      metin = _t(
+          'Kodun sonuna geldi. Hedefle karşılaştır!',
           'Your code reached the end. Compare it with the goal!',
           'Dein Code ist durchgelaufen. Vergleich ihn mit dem Ziel!',
           'Tu código llegó al final. ¡Compáralo con el objetivo!');
@@ -709,10 +764,273 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
             style: TextStyle(
               color: renk,
               fontWeight: FontWeight.bold,
-              fontSize: 13.5,
+              fontSize: yazi,
+              height: 1.2,
             ),
           ),
         ),
+      ],
+    );
+  }
+
+  /// ACILIS SAHNESIYLE AYNI GORUNUM (Scratch kursu ders adimlari).
+  ///
+  /// Kart ve baslik (bayrak, dur) cagiranin [ScratchSahneKarti]'nda;
+  /// burada yalnizca govde. Her sey sabit yerlerde: ustte 40 pt'lik bant
+  /// (calisirken calisan blok + tur, bitince sonuc seridi), kuklanin
+  /// ustunde konusma balonu, zeminde noktali yol ve kalem cizgisi.
+  Widget _sahneGorunumu(ScratchBlock? calisan) {
+    const ustBant = 40.0;
+    return ScratchSahneZemini(builder: (context, boyut, zemin) {
+      final kukla = widget.size;
+      final dolgu = kukla / 2 + 6;
+      final harita = _Harita(
+        sinirlar: _sinirlar,
+        genislik: boyut.width,
+        // En alttaki noktada kuklanin ayaklari zemin cizgisinde.
+        yukseklik: zemin + dolgu - kukla / 2 + 4,
+        dolgu: dolgu,
+        ustPay: ustBant,
+        altaYasla: true,
+      );
+      final baslangic = harita.ekrana(Offset.zero);
+      final bitis = harita.ekrana(_bitisNoktasi);
+      final bitisFarkli = (bitis - baslangic).distance > 4;
+      final w = boyut.width;
+
+      return AnimatedBuilder(
+        animation: Listenable.merge([_hareketC, _adimC]),
+        builder: (context, _) {
+          final simdi = harita.ekrana(_konum);
+          final sallanma = _adimC.value;
+          final kuklaUst = simdi.dy -
+              kukla / 2 -
+              (_havada ? 22 : 0) -
+              sin(sallanma * pi) * 4;
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: _SahneBoyaci(
+                    harita: harita,
+                    cizgiler: [
+                      ..._cizgiler,
+                      if (_cizerekGidiyor) (_onceki, _konum),
+                    ],
+                    yol: [..._yol, _konum],
+                    renk: _renk,
+                    zeminCiz: false,
+                  ),
+                ),
+              ),
+              // Baslangic: yesil bayrak; bitis: damali bayrak.
+              Positioned(
+                left: baslangic.dx - 7,
+                top: baslangic.dy + kukla / 2 - 20,
+                child: const YesilBayrak(boyut: 15),
+              ),
+              if (bitisFarkli)
+                Positioned(
+                  left: bitis.dx - 8,
+                  top: bitis.dy + kukla / 2 - 22,
+                  child: AnimatedOpacity(
+                    opacity: _bitti ? 1 : 0.55,
+                    duration: const Duration(milliseconds: 300),
+                    child: const Icon(Icons.sports_score_rounded,
+                        size: 18, color: Color(0xFF3D5A80)),
+                  ),
+                ),
+              // Lamba / nota / bekleme: sol ustte, bandin altinda.
+              Positioned(
+                left: 10,
+                top: ustBant + 2,
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  if (_lamba != null)
+                    Container(
+                      width: 22,
+                      height: 22,
+                      margin: const EdgeInsets.only(right: 6),
+                      decoration: BoxDecoration(
+                        color: _lamba,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: _lamba!.withValues(alpha: 0.7),
+                            blurRadius: 14,
+                            spreadRadius: 3,
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (_nota != null)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 6),
+                      child: Icon(Icons.music_note_rounded,
+                          size: 22, color: Color(0xFFCF63CF)),
+                    ),
+                  if (_bekliyor)
+                    const Icon(Icons.hourglass_top_rounded,
+                        size: 20, color: Color(0xFF5CB1D6)),
+                ]),
+              ),
+              // Degiskenler: sag ustte, bandin altinda.
+              if (_degiskenler.isNotEmpty)
+                Positioned(
+                  right: 8,
+                  top: ustBant + 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      for (final e in _degiskenler.entries.take(3))
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFE2C2),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                                color: const Color(0xFFFF8C1A), width: 1.4),
+                          ),
+                          child: Text(
+                            '${e.key}: ${e.value % 1 == 0 ? e.value.toInt() : e.value}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11.5,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              // Kukla (Devi).
+              Positioned(
+                left: simdi.dx - kukla / 2,
+                top: kuklaUst,
+                child: Transform.rotate(
+                  angle: (_yon - 90) * pi / 180 +
+                      (sallanma - 0.5) * 0.12 * (_adimC.isAnimating ? 1 : 0),
+                  child: Transform.flip(
+                    flipX: _ayna,
+                    child: Mascot(
+                      size: kukla,
+                      showShadow: false,
+                      mood: _bitti && widget.dogru
+                          ? MascotMood.happy
+                          : MascotMood.idle,
+                    ),
+                  ),
+                ),
+              ),
+              // Konusma balonu kuklanin ustunde, onunla birlikte gidiyor.
+              Positioned(
+                left: 8,
+                right: 8,
+                bottom: boyut.height - kuklaUst + 2,
+                child: IgnorePointer(
+                  child: Align(
+                    alignment: Alignment(
+                        ((simdi.dx / max(w, 1)) * 2 - 1).clamp(-1.0, 1.0), 1),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: w * 0.7),
+                      child: AnimatedOpacity(
+                        opacity: _konusma != null ? 1 : 0,
+                        duration: _hareketAzalt
+                            ? Duration.zero
+                            : const Duration(milliseconds: 200),
+                        child: SahneBalonu(
+                          key: const ValueKey('sahne_balonu'),
+                          metin: _konusma ?? '',
+                          kenar: _renk.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // UST BANT: calisirken calisan blok (+ tur), bitince sonuc.
+              Positioned(
+                left: 8,
+                right: 8,
+                top: 4,
+                height: ustBant - 4,
+                child: AnimatedSwitcher(
+                  duration: _hareketAzalt
+                      ? Duration.zero
+                      : const Duration(milliseconds: 200),
+                  child: (_bitti || _elleDurdu)
+                      ? Container(
+                          key: const ValueKey('sonuc'),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.92),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          alignment: Alignment.center,
+                          child: _bitisSeridi(yazi: 12.5),
+                        )
+                      : calisan == null
+                          ? const SizedBox.shrink()
+                          : Align(
+                              key: ValueKey('$_sira-$_tur'),
+                              alignment: Alignment.centerLeft,
+                              child: _calisanCipi(calisan),
+                            ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _calisanCipi(ScratchBlock calisan) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: _scratchCipi(calisan, yuva: 32) ??
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                decoration: BoxDecoration(
+                  color: calisan.color,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text(
+                  calisan.labelFor(widget.lang),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12.5,
+                  ),
+                ),
+              ),
+        ),
+        if (_tur != null) ...[
+          const SizedBox(width: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF4D6),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFFFBF00)),
+            ),
+            child: Text(
+              _t('$_tur. tur', 'turn $_tur', '$_tur. Runde', 'vuelta $_tur'),
+              style: const TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF8A6100),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -775,8 +1093,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
                       Positioned(
                         left: baslangic.dx - 9,
                         top: baslangic.dy + widget.size / 2 - 22,
-                        child: const Text('🚩',
-                            style: TextStyle(fontSize: 16)),
+                        child: const Text('🚩', style: TextStyle(fontSize: 16)),
                       ),
                       // Bitis: kodun gidecegi yer.
                       if (bitisFarkli)
@@ -833,7 +1150,8 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
                             sin(adimSallanma * pi) * 4,
                         child: Transform.rotate(
                           angle: (_yon - 90) * pi / 180 +
-                              (adimSallanma - 0.5) * 0.12 *
+                              (adimSallanma - 0.5) *
+                                  0.12 *
                                   (_adimC.isAnimating ? 1 : 0),
                           child: Transform.flip(
                             flipX: _ayna,
@@ -869,9 +1187,8 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
               flipX: _ayna,
               child: Mascot(
                 size: widget.size + 10,
-                mood: _bitti && widget.dogru
-                    ? MascotMood.happy
-                    : MascotMood.idle,
+                mood:
+                    _bitti && widget.dogru ? MascotMood.happy : MascotMood.idle,
               ),
             ),
           ),
@@ -896,6 +1213,8 @@ class _Harita {
     required this.genislik,
     required this.yukseklik,
     required this.dolgu,
+    this.ustPay = 0,
+    this.altaYasla = false,
   });
 
   final Rect sinirlar;
@@ -903,11 +1222,18 @@ class _Harita {
   final double yukseklik;
   final double dolgu;
 
+  /// Ustte kuklanin cikmayacagi bant (sahne gorunumunde cip/serit yeri).
+  final double ustPay;
+
+  /// En alttaki nokta hep zeminde (sahne gorunumu): dikeyde ortalanmiyor.
+  final bool altaYasla;
+
   late final double _icGenislik = max(1, genislik - 2 * dolgu);
-  late final double _icYukseklik = max(1, yukseklik - 2 * dolgu);
+  late final double _icYukseklik = max(1, yukseklik - 2 * dolgu - ustPay);
 
   late final double _olcek = () {
-    final sx = sinirlar.width > 0 ? _icGenislik / sinirlar.width : double.infinity;
+    final sx =
+        sinirlar.width > 0 ? _icGenislik / sinirlar.width : double.infinity;
     final sy =
         sinirlar.height > 0 ? _icYukseklik / sinirlar.height : double.infinity;
     final o = min(sx, sy);
@@ -924,7 +1250,7 @@ class _Harita {
     final double y = sinirlar.height > 0
         ? yukseklik -
             dolgu -
-            (_icYukseklik - sinirlar.height * _olcek) / 2 -
+            (altaYasla ? 0 : (_icYukseklik - sinirlar.height * _olcek) / 2) -
             (dunya.dy - sinirlar.top) * _olcek
         : yukseklik - dolgu;
     return Offset(x, y);
@@ -941,9 +1267,11 @@ class _SahneBoyaci extends CustomPainter {
     required this.cizgiler,
     required this.yol,
     required this.renk,
+    this.zeminCiz = true,
   });
 
   final _Harita harita;
+  final bool zeminCiz;
   final List<(Offset, Offset)> cizgiler;
 
   /// Kuklanin ugradigi noktalar (dunya koordinati), sonuncusu su anki yer.
@@ -952,16 +1280,18 @@ class _SahneBoyaci extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Zemin.
+    // Zemin (sahne gorunumunde zemini ScratchSahneZemini ciziyor).
     final zeminY = min(size.height - 4, harita.zemin);
-    canvas.drawLine(
-      Offset(8, zeminY),
-      Offset(size.width - 8, zeminY),
-      Paint()
-        ..color = const Color(0xFF7CB342).withValues(alpha: 0.55)
-        ..strokeWidth = 3
-        ..strokeCap = StrokeCap.round,
-    );
+    if (zeminCiz) {
+      canvas.drawLine(
+        Offset(8, zeminY),
+        Offset(size.width - 8, zeminY),
+        Paint()
+          ..color = const Color(0xFF7CB342).withValues(alpha: 0.55)
+          ..strokeWidth = 3
+          ..strokeCap = StrokeCap.round,
+      );
+    }
 
     // Yurunen yol: noktali iz.
     final nokta = Paint()..color = renk.withValues(alpha: 0.35);
