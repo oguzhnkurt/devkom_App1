@@ -16,6 +16,7 @@ import '../../utils/lang.dart';
 import '../../services/placement_service.dart';
 import '../../widgets/first_task.dart';
 import '../../widgets/mascot.dart';
+import '../robotics_games_screen.dart' show ProGames;
 
 /// Uygulamanın ilk açılışındaki kurulum akışı.
 ///
@@ -442,10 +443,11 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
           'Practica jugando,\nconsigue insignias',
         ),
         subtitle: _t(
-          'Öğrendiğini 16 mini oyunda dene, rozetleri kap.',
-          'Practise across 16 mini games and collect the badges.',
-          'Übe in 16 Minispielen und sammle die Abzeichen.',
-          'Practica en 16 minijuegos y consigue las insignias.',
+          // Sayi katalogdan okunuyor; elle yazilan "16" gercekte 15'ti.
+          'Öğrendiğini ${ProGames.catalogGameCount} mini oyunda dene, rozetleri kap.',
+          'Practise across ${ProGames.catalogGameCount} mini games and collect the badges.',
+          'Übe in ${ProGames.catalogGameCount} Minispielen und sammle die Abzeichen.',
+          'Practica en ${ProGames.catalogGameCount} minijuegos y consigue las insignias.',
         ),
         accent: orange,
         art: IntroArt.badge(orange),

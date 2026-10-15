@@ -151,7 +151,9 @@ class _CourseCatalogScreenState extends State<CourseCatalogScreen> {
           decoration: InputDecoration(
             hintText: lessonText(lessonLang(context),
                 'Kurs ara... (örneğin: Python, Web)',
-                'Search courses (Python, Web...)'),
+                'Search courses (Python, Web...)',
+                'Kurse suchen (Python, Web...)',
+                'Buscar cursos (Python, Web...)'),
             hintStyle: TextStyle(
               color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
             ),

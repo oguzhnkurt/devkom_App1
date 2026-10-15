@@ -1198,4 +1198,11 @@ class ProGames {
   static int get lockedGameCount => EmbeddedGamesService.getAllEmbeddedGames()
       .where((g) => isProGame(g.type))
       .length;
+
+  /// Oyunlar sekmesinde gorunen oyun sayisi. Tanitimdaki "N mini oyun"
+  /// cumlesi buradan okunuyor: tanitim "16" diyordu, sekmede 15 oyun
+  /// vardi ("Sol-sag kodlama" Ekim 2026'da kaldirilmisti).
+  static int get catalogGameCount => EmbeddedGamesService.getActiveGames()
+      .where((g) => g.type != GameType.chess || g.id == 'embedded_chess')
+      .length;
 }

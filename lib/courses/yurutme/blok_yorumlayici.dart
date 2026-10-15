@@ -61,9 +61,15 @@ class YurutmeAdimi {
     required this.sahne,
     this.tekrarNo,
     this.etkisiz = false,
+    this.blokSirasi = -1,
   });
 
   final String blokId;
+
+  /// Blogun kod alanindaki sirasi (0'dan). Ayni blok kod alaninda iki kez
+  /// bulunabildigi icin (or. iki "1 saniye bekle") kimlik yetmiyor;
+  /// sahne oynaticisi o an calisan blogu kod alaninda bununla isaretliyor.
+  final int blokSirasi;
 
   /// Kac C blogunun icinde? Kod alanindaki girintiyle ayni.
   final int derinlik;
@@ -124,13 +130,47 @@ class BlokYorumlayici {
   /// calistirma gercekten baska bir sayi veriyor.
   final Random? rastgele;
 
-  BlokAnlami _anlam(ScratchBlock blok) =>
-      blokSozlugu[blok.id] ?? const BlokAnlami(BlokKomutu.etkisiz);
+  /// Blogun anlami. Sozlukte yoksa (mBlock/Arduino bloklarinin cogu)
+  /// yapisindan cikariliyor.
+  ///
+  /// C BLOKLARI: kod alani `shape == cBlock` olan her blogun altini
+  /// iceri girintili ciziyor. Sozlukte olmayan bir C blogu (or.
+  /// `if_pressed`, `k_forever`) burada duz blok sayiliyordu; iz kodu
+  /// cocugun gordugu yapidan BASKA bir yapiyla calistiriyordu.
+  static BlokAnlami anlamOf(ScratchBlock blok) {
+    final bilinen = blokSozlugu[blok.id];
+    if (bilinen != null && bilinen.komut != BlokKomutu.etkisiz) {
+      return bilinen;
+    }
+    final id = blok.id;
+    if (blok.shape == ScratchBlockShape.cBlock) {
+      if (id.contains('forever')) return const BlokAnlami(BlokKomutu.surekli);
+      final tekrar = RegExp(r'repeat_(\d+)').firstMatch(id);
+      if (tekrar != null) {
+        return BlokAnlami(BlokKomutu.tekrarla,
+            sayi: int.parse(tekrar.group(1)!));
+      }
+      // Kosul ya da sayisi bilinmeyen dongu: govde bir kez calisiyor.
+      return const BlokAnlami(BlokKomutu.eger);
+    }
+    if (bilinen != null) return bilinen;
+    final git = RegExp(r'^move_(\d+)$').firstMatch(id);
+    if (git != null) {
+      return BlokAnlami(BlokKomutu.ilerle, sayi: int.parse(git.group(1)!));
+    }
+    final don = RegExp(r'^turn_(\d+)$').firstMatch(id);
+    if (don != null) {
+      return BlokAnlami(BlokKomutu.don, sayi: int.parse(don.group(1)!));
+    }
+    return const BlokAnlami(BlokKomutu.etkisiz);
+  }
+
+  BlokAnlami _anlam(ScratchBlock blok) => anlamOf(blok);
 
   Yurutme yurut(List<ScratchBlock> bloklar) {
     final sahne = Sahne();
     final adimlar = <YurutmeAdimi>[];
-    final butceBitti = _calistir(bloklar, 0, sahne, adimlar, null);
+    final butceBitti = _calistir(bloklar, 0, sahne, adimlar, null, 0);
     return Yurutme(
       adimlar: adimlar,
       sonSahne: sahne,
@@ -145,6 +185,7 @@ class BlokYorumlayici {
     Sahne sahne,
     List<YurutmeAdimi> adimlar,
     int? tekrarNo,
+    int bas,
   ) {
     for (var i = 0; i < dilim.length; i++) {
       if (adimlar.length >= butce) return true;
@@ -159,6 +200,7 @@ class BlokYorumlayici {
           derinlik: derinlik,
           sahne: sahne.kopya(),
           tekrarNo: tekrarNo,
+          blokSirasi: bas + i,
         ));
 
         final turSayisi = switch (anlam.komut) {
@@ -176,6 +218,7 @@ class BlokYorumlayici {
             sahne,
             adimlar,
             anlam.komut == BlokKomutu.eger ? tekrarNo : tur,
+            bas + i + 1,
           );
           if (doldu) return true;
           if (govde.isEmpty) break; // bos C blogu sonsuza donmesin
@@ -192,15 +235,27 @@ class BlokYorumlayici {
         tekrarNo: tekrarNo,
         etkisiz: anlam.komut == BlokKomutu.etkisiz ||
             anlam.komut == BlokKomutu.baslat,
+        blokSirasi: bas + i,
       ));
     }
     return false;
   }
 
+  /// Trigonometri 100 adim yerine 99.99999 gibi kusuratlar uretiyor;
+  /// izde "x: 100" yazsin diye virgulden sonra 3 basamaga yuvarliyoruz.
+  static double _yuvarla(double v) => (v * 1000).roundToDouble() / 1000;
+
   void _uygula(BlokAnlami anlam, Sahne sahne) {
     switch (anlam.komut) {
       case BlokKomutu.ilerle:
-        sahne.x += (anlam.sayi ?? 0).toDouble();
+        // Kukla BAKTIGI YONE gidiyor. Eskiden yon hic hesaba katilmiyordu:
+        // kare cizen kod (4 kez: 100 adim git, 90 derece don) izde
+        // "x: 400" diyordu; oysa kukla basladigi yere doner. Scratch'te
+        // 90 saga, 0 yukari bakmak.
+        final aci = sahne.yon * pi / 180;
+        final n = (anlam.sayi ?? 0).toDouble();
+        sahne.x = _yuvarla(sahne.x + n * sin(aci));
+        sahne.y = _yuvarla(sahne.y + n * cos(aci));
       case BlokKomutu.xDegistir:
         sahne.x += (anlam.sayi ?? 0).toDouble();
       case BlokKomutu.yDegistir:

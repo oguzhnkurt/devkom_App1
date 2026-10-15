@@ -196,6 +196,12 @@ class CoursesData {
       slug: 'python',
       description:
           'İlk gerçek programlama dilin. Değişkenler, döngüler, fonksiyonlar.',
+      descriptionEn:
+          'Your first real programming language. Variables, loops, functions.',
+      descriptionDe:
+          'Deine erste echte Programmiersprache. Variablen, Schleifen, Funktionen.',
+      descriptionEs:
+          'Tu primer lenguaje de programación de verdad. Variables, bucles, funciones.',
       icon: '🐍',
       primaryColor: Color(0xFF3776AB),
       secondaryColor: Color(0xFFFFD43B),
@@ -226,6 +232,12 @@ class CoursesData {
       slug: 'arduino-ide',
       description:
           'Bloklardan gerçek C++ koduna geç. Seri port, fonksiyonlar, LCD ekran.',
+      descriptionEn:
+          'Move from blocks to real C++ code. Serial port, functions, LCD screen.',
+      descriptionDe:
+          'Von Blöcken zu echtem C++-Code. Serieller Port, Funktionen, LCD-Display.',
+      descriptionEs:
+          'Pasa de los bloques al código C++ real. Puerto serie, funciones, pantalla LCD.',
       icon: '💻',
       primaryColor: Color(0xFF006064),
       secondaryColor: Color(0xFF0097A7),
@@ -251,6 +263,12 @@ class CoursesData {
       name: 'Java',
       slug: 'java',
       description: 'Kurumsal standart. Her yerde çalışan güvenilir dil.',
+      descriptionEn:
+          'The industry standard. A reliable language that runs everywhere.',
+      descriptionDe:
+          'Der Standard in großen Firmen. Eine zuverlässige Sprache, die überall läuft.',
+      descriptionEs:
+          'El estándar de la industria. Un lenguaje fiable que funciona en todas partes.',
       icon: '☕',
       primaryColor: Color(0xFFED8B00),
       secondaryColor: Color(0xFFFFA726),
@@ -276,6 +294,12 @@ class CoursesData {
       name: 'C#',
       slug: 'csharp',
       description: 'Microsoft\'un gücü. Oyun, web, masaüstü hepsi bir arada.',
+      descriptionEn:
+          'The power of Microsoft. Games, web and desktop all in one.',
+      descriptionDe:
+          'Die Power von Microsoft. Spiele, Web und Desktop in einem.',
+      descriptionEs:
+          'El poder de Microsoft. Juegos, web y escritorio, todo en uno.',
       icon: '💜',
       primaryColor: Color(0xFF68217A),
       secondaryColor: Color(0xFF9B4DCA),

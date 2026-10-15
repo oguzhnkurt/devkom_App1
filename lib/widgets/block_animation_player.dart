@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import '../courses/models/interactive_lesson_model.dart';
 import '../courses/yurutme/blok_anlami.dart';
 import '../courses/yurutme/blok_sozlugu.dart';
+import '../courses/yurutme/blok_yorumlayici.dart';
 import '../courses/yurutme/konusma_metni.dart';
+import '../ui/motion.dart';
 import '../utils/lang.dart';
 import 'mascot.dart';
 
@@ -15,22 +17,23 @@ import 'mascot.dart';
 /// ONCEKI SURUM NEREDEYSE HICBIR SEY GOSTERMIYORDU.
 ///
 /// Oynatici yalnizca `say_`, `move_` ve `repeat_` ile baslayan kimlikleri
-/// taniyordu; geri kalan her blok sessizce ATLANIYORDU. Ders verisindeki
-/// 58 farkli blok kimliginden yalnizca 5'i bu uce giriyor. Yani
-/// "KODU CALISTIR" tusuna basan cocuk, cogu derste kedinin kimildamadigi
-/// bir sahne ve hemen ardindan "Animasyon tamamlandi!" yazisi
-/// goruyordu — kodu calismis gibi yapan, ama hicbir sey yapmayan bir
-/// ekran.
+/// taniyordu; geri kalan her blok sessizce ATLANIYORDU. Yeni oynatici her
+/// blogu sirayla, adi ekranda yazili olarak calistiriyor; gorsel bir etkisi
+/// olmasa bile (yesil bayrak, yayin gonderme, klon) cocuk onun sirasinin
+/// geldigini goruyor.
 ///
-/// Yeni oynatici iki seyi birden yapiyor:
+/// SIRA ARTIK YORUMLAYICIDAN GELIYOR (Ekim 2026).
 ///
-///   1. HER blogu sirayla, adi ekranda yazili olarak calistiriyor. Bir
-///      blogun gorsel bir etkisi olmasa bile (yesil bayrak, yayin
-///      gonderme, klon) cocuk onun sirasinin geldigini goruyor.
-///   2. Tanidigi etkileri sahnede gosteriyor: yurume, ziplama, konusma,
-///      bekleme, degisken degeri, ses ve lamba.
+/// Oynatici dongulerin govdesini kendi tahmin ediyordu: "tekrarla"dan
+/// sonra YALNIZCA BIR blogu donguye aliyordu. Kod alani ise (ve "Kodun ne
+/// yapti" izi) dongunun altindaki HER SEYI govde sayiyor. Yani
+/// `4 kere tekrarla { 10 adim git, Miyav de }` kodunda iz dort miyav
+/// yazarken sahne bir kez miyavliyordu. Simdi sahne de, iz de ayni
+/// [Yurutme]'yu oynatiyor; ayni rastgele sayiyi bile soyluyorlar.
 ///
-/// Boylece ekran artik yalan soylemiyor: gercekten calisan bir sey var.
+/// SAHNE IKI BOYUTLU: kukla baktigi yone gidiyor, kalem inikse arkasinda
+/// cizgi kaliyor (kare dersi artik gercekten kare ciziyor), baslangic
+/// yeri yesil bayrakla, kodun bitirdigi yer damali bayrakla isaretli.
 class BlockAnimationPlayer extends StatefulWidget {
   const BlockAnimationPlayer({
     super.key,
@@ -38,12 +41,44 @@ class BlockAnimationPlayer extends StatefulWidget {
     required this.lang,
     this.size = 60,
     this.onComplete,
+    this.yurutme,
+    this.onAdim,
+    this.dogru = false,
+    this.baslamaGecikmesi = Duration.zero,
+    this.renk,
   });
 
   final List<ScratchBlock> blocks;
   final String lang;
   final double size;
   final VoidCallback? onComplete;
+
+  /// Onceden hesaplanmis yurutme. Calisma iziyle AYNI sonucu gostermek
+  /// icin (rastgele sayi dahil) cagiran bir kez hesaplayip ikisine de
+  /// veriyor. Verilmezse oynatici kendisi hesapliyor.
+  final Yurutme? yurutme;
+
+  /// O an calisan blogun kod alanindaki sirasi; bitince null.
+  /// Kod alani bu blogu parlatarak sahneyle senkron gidiyor.
+  final ValueChanged<int?>? onAdim;
+
+  /// Kod hedefe uygun mu? Oyleyse sonda kucuk bir kutlama var. Degilse
+  /// ceza yok: yalnizca "hedefle karsilastir" diye nazik bir cumle.
+  final bool dogru;
+
+  /// Sahne ekrana kaydirilirken animasyon baslamasin diye bekleme.
+  final Duration baslamaGecikmesi;
+
+  /// Sahnenin vurgu rengi (kursun rengi). Verilmezse mavi.
+  final Color? renk;
+
+  /// Bitmeyen kodda ("surekli tekrarla") sahnede gosterilen adim: birkac
+  /// tur yetiyor, otuz saniyelik bir dongu cocugu adimdan koparir.
+  static const int sonsuzdaEnFazlaAdim = 12;
+
+  /// Sahnede gosterilen en fazla adim. "Surekli tekrarla" bitmez; sahne
+  /// birkac tur gosterip durdugunu SOYLUYOR.
+  static const int enFazlaAdim = 36;
 
   @override
   State<BlockAnimationPlayer> createState() => _BlockAnimationPlayerState();
@@ -52,53 +87,127 @@ class BlockAnimationPlayer extends StatefulWidget {
 /// Bir blogun sahnedeki karsiligi.
 enum _Etki { hareket, ziplama, konus, bekle, degisken, ses, isik, yapisal }
 
-class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
-  static const _adimSuresi = Duration(milliseconds: 500);
+class _BlockAnimationPlayerState extends State<BlockAnimationPlayer>
+    with TickerProviderStateMixin {
+  static const _adimSuresi = Duration(milliseconds: 450);
+  static const _yurumeSuresi = Duration(milliseconds: 650);
   final _rastgele = Random();
 
+  late final Yurutme _yurutme =
+      widget.yurutme ?? const BlokYorumlayici().yurut(widget.blocks);
+
+  /// Sahnede oynatilacak adim sayisi.
+  late final int _sinir = min(
+      _yurutme.adimlar.length,
+      _yurutme.butceBitti
+          ? BlockAnimationPlayer.sonsuzdaEnFazlaAdim
+          : BlockAnimationPlayer.enFazlaAdim);
+
+  /// Hareket animasyonu: [_onceki]'den [_hedef]'e. Kukla ve kalem cizgisi
+  /// AYNI degeri okuyor, yani cizgi kuklanin tam arkasindan uzuyor.
+  late final AnimationController _hareketC =
+      AnimationController(vsync: this, duration: _yurumeSuresi);
+
+  /// Yururken adim adim sallanma.
+  late final AnimationController _adimC = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 260));
+
   int _sira = -1; // o an calisan blogun sirasi
-  double _x = 0; // sahnedeki yatay konum, 0..1
+  int? _tur;
+  Offset _onceki = Offset.zero;
+  Offset _hedef = Offset.zero;
+  double _yon = 90;
+  bool _ayna = false;
+  bool _kalemInik = false;
   bool _havada = false;
+
+  /// Bitmis kalem cizgileri (dunya koordinatinda).
+  final List<(Offset, Offset)> _cizgiler = [];
+
+  /// Kalem inikken su an cizilmekte olan parca var mi?
+  bool _cizerekGidiyor = false;
+
+  /// Kuklanin ugradigi noktalar: sahnede noktali iz olarak ciziliyor
+  /// ("buradan buraya yurudu").
+  final List<Offset> _yol = [Offset.zero];
+
   String? _konusma;
   bool _bekliyor = false;
   String? _nota;
   Color? _lamba;
-  final Map<String, int> _degiskenler = {};
+  final Map<String, num> _degiskenler = {};
   bool _bitti = false;
+  bool _yarida = false; // sahne birkac turdan sonra durdu
   bool _durduruldu = false;
 
   @override
   void initState() {
     super.initState();
-    _calistir();
+    unawaited(_calistir());
   }
 
   @override
   void dispose() {
     _durduruldu = true;
+    // Bekleyen zamanlayici kalmasin: ekran kapaninca (ya da cocuk kodu
+    // degistirince) oynatma o anda biter.
+    _zamanlayici?.cancel();
+    if (_bekleyen != null && !_bekleyen!.isCompleted) {
+      _bekleyen!.complete(false);
+    }
+    _hareketC.dispose();
+    _adimC.dispose();
     super.dispose();
   }
 
   String _t(String tr, String en, String de, String es) =>
       AppLang.pick(widget.lang, tr: tr, en: en, de: de, es: es);
 
-  /// Bir sonraki adima gecmeden once beklerken ekran kapanmis olabilir.
-  Future<bool> _bekle(Duration d) async {
-    await Future.delayed(d);
-    return mounted && !_durduruldu;
+  Color get _renk => widget.renk ?? Colors.blue;
+
+  Timer? _zamanlayici;
+  Completer<bool>? _bekleyen;
+
+  /// Bir sonraki adima gecmeden once bekler. Beklerken ekran kapanirsa
+  /// `false` doner ve zamanlayici iptal edilir (asili zamanlayici yok).
+  Future<bool> _bekle(Duration d) {
+    final c = Completer<bool>();
+    _bekleyen = c;
+    _zamanlayici = Timer(d, () {
+      if (!c.isCompleted) c.complete(mounted && !_durduruldu);
+    });
+    return c.future;
   }
+
+  bool get _hareketAzalt => Motion.reduced(context);
 
   // ---------------------------------------------------------------
   // Blok siniflandirmasi
   // ---------------------------------------------------------------
 
-  _Etki _etkisi(String id) {
-    if (id.startsWith('change_y')) return _Etki.ziplama;
-    if (id.startsWith('change_x') || id.startsWith('move_') ||
-        id.startsWith('goto_')) {
-      return _Etki.hareket;
+  _Etki _etkisi(ScratchBlock blok) {
+    final id = blok.id;
+    final anlam = BlokYorumlayici.anlamOf(blok);
+    switch (anlam.komut) {
+      case BlokKomutu.ilerle:
+      case BlokKomutu.xDegistir:
+      case BlokKomutu.gitXY:
+      case BlokKomutu.don:
+      case BlokKomutu.yonAyarla:
+        return _Etki.hareket;
+      case BlokKomutu.yDegistir:
+        return _Etki.ziplama;
+      case BlokKomutu.soyle:
+        return _Etki.konus;
+      case BlokKomutu.bekle:
+        return _Etki.bekle;
+      case BlokKomutu.degiskenAta:
+      case BlokKomutu.degiskenArtir:
+        return _Etki.degisken;
+      default:
+        break;
     }
-    if (id.startsWith('say_')) return _Etki.konus;
+    if (id == 'goto_random') return _Etki.hareket;
     if (id.startsWith('wait')) return _Etki.bekle;
     if (id.contains('note') || id.contains('sound')) return _Etki.ses;
     if (id.contains('led') ||
@@ -108,23 +217,10 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
         id == 'pwm_set') {
       return _Etki.isik;
     }
-    if (id.startsWith('set_') ||
-        id.startsWith('change_') ||
-        id == 'increment') {
+    if (id.startsWith('set_') || id == 'increment') {
       return _Etki.degisken;
     }
     return _Etki.yapisal;
-  }
-
-  /// Blok bir dongu mu? Kac kez?
-  ///
-  /// `forever` sonsuz; sahnede uc tur gosteriyoruz — sonsuza kadar donen
-  /// bir animasyon cocugu adimin geri kalanindan koparirdi.
-  int? _donguSayisi(String id) {
-    if (id == 'forever') return 3;
-    final m = RegExp(r'repeat_(\d+)').firstMatch(id);
-    if (m != null) return int.tryParse(m.group(1)!) ?? 2;
-    return null;
   }
 
   // ---------------------------------------------------------------
@@ -132,113 +228,142 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
   // ---------------------------------------------------------------
 
   Future<void> _calistir() async {
-    for (var i = 0; i < widget.blocks.length; i++) {
-      final blok = widget.blocks[i];
-      final tekrar = _donguSayisi(blok.id);
-
-      if (tekrar != null) {
-        if (!await _blogaGec(i)) return;
-        final icerdeki = i + 1 < widget.blocks.length ? widget.blocks[i + 1] : null;
-        if (icerdeki == null || _donguSayisi(icerdeki.id) != null) {
-          continue; // bos dongu
-        }
-        for (var t = 0; t < tekrar; t++) {
-          if (!await _blogaGec(i + 1)) return;
-          if (!await _etkiUygula(icerdeki)) return;
-        }
-        i++; // icerdeki blok bir daha tek basina calismasin
-        continue;
-      }
-
-      if (!await _blogaGec(i)) return;
-      if (!await _etkiUygula(blok)) return;
+    if (widget.baslamaGecikmesi > Duration.zero &&
+        !await _bekle(widget.baslamaGecikmesi)) {
+      return;
+    }
+    final adimlar = _yurutme.adimlar;
+    final sinir = _sinir;
+    for (var k = 0; k < sinir; k++) {
+      final adim = adimlar[k];
+      final sira = adim.blokSirasi >= 0
+          ? adim.blokSirasi
+          : widget.blocks.indexWhere((b) => b.id == adim.blokId);
+      if (sira < 0 || sira >= widget.blocks.length) continue;
+      if (!mounted || _durduruldu) return;
+      setState(() {
+        _sira = sira;
+        _tur = adim.tekrarNo;
+      });
+      widget.onAdim?.call(sira);
+      if (!await _bekle(_adimSuresi)) return;
+      final blok = widget.blocks[sira];
+      if (BlokYorumlayici.anlamOf(blok).cBlogu) continue;
+      if (!await _etkiUygula(blok, adim)) return;
     }
 
     if (!mounted || _durduruldu) return;
     setState(() {
       _sira = -1;
+      _tur = null;
       _bitti = true;
+      _yarida = _yurutme.butceBitti ||
+          adimlar.length > _sinir;
     });
+    widget.onAdim?.call(null);
     widget.onComplete?.call();
+    // Kucuk kutlama: dogru kodda Devi bir kez sevincle zipliyor.
+    if (widget.dogru && !_hareketAzalt) {
+      setState(() => _havada = true);
+      if (!await _bekle(const Duration(milliseconds: 260))) return;
+      setState(() => _havada = false);
+    }
   }
 
-  /// Sirayi [i]. bloga alir ve okunacak kadar bekler.
-  Future<bool> _blogaGec(int i) async {
-    if (!mounted || _durduruldu) return false;
-    setState(() => _sira = i);
-    return _bekle(_adimSuresi);
-  }
-
-  Future<bool> _etkiUygula(ScratchBlock blok) async {
-    switch (_etkisi(blok.id)) {
+  Future<bool> _etkiUygula(ScratchBlock blok, YurutmeAdimi adim) async {
+    switch (_etkisi(blok)) {
       case _Etki.hareket:
-        return _hareket(blok.id);
+        return _hareket(blok, adim);
       case _Etki.ziplama:
-        return _zipla();
+        return _hareket(blok, adim, zipla: true);
       case _Etki.konus:
-        return _konus(blok);
+        return _konus(blok, adim);
       case _Etki.bekle:
         return _beklemeGoster();
       case _Etki.degisken:
-        return _degiskenGuncelle(blok.id);
+        return _degiskenGuncelle(blok.id, adim);
       case _Etki.ses:
         return _sesCal();
       case _Etki.isik:
         return _isikYak(blok.id);
       case _Etki.yapisal:
         // Gorsel etkisi yok; adim satiri zaten blogun adini gosterdi.
+        // Kalem ve kostum durumu yine de sahneye yansiyor.
+        setState(() {
+          _kalemInik = adim.sahne.kalemInik;
+          if (adim.sahne.kostum.isEven != _ayna) _ayna = !_ayna;
+        });
         return true;
     }
   }
 
-  Future<bool> _hareket(String id) async {
-    double hedef;
-    if (id == 'goto_corner') {
-      hedef = 1;
-    } else if (id == 'goto_center') {
-      hedef = 0.5;
-    } else if (id == 'goto_random') {
-      hedef = _rastgele.nextDouble();
-    } else {
-      final m = RegExp(r'(\d+)').firstMatch(id);
-      final adim = m == null ? 10 : (int.tryParse(m.group(1)!) ?? 10);
-      hedef = (_x + adim / 40).clamp(0.0, 1.0);
+  Offset get _konum {
+    final t = Curves.easeInOut.transform(_hareketC.value);
+    return Offset.lerp(_onceki, _hedef, t)!;
+  }
+
+  Future<bool> _hareket(ScratchBlock blok, YurutmeAdimi adim,
+      {bool zipla = false}) async {
+    var hedef = Offset(adim.sahne.x, adim.sahne.y);
+    if (blok.id == 'goto_random') {
+      // Yorumlayici rastgele konumu bilmiyor; sahnede rastgele bir yer.
+      final s = _sinirlar;
+      hedef = Offset(
+        s.left + _rastgele.nextDouble() * max(s.width, 100),
+        s.top + _rastgele.nextDouble() * s.height,
+      );
     }
-    setState(() => _x = hedef);
-    return _bekle(const Duration(milliseconds: 700));
+    final simdi = _konum;
+    final yeniYon = adim.sahne.yon;
+    setState(() {
+      _onceki = simdi;
+      _hedef = hedef;
+      _yon = yeniYon;
+      _kalemInik = adim.sahne.kalemInik;
+      _cizerekGidiyor = _kalemInik && hedef != simdi;
+    });
+    final yuruyor = hedef != simdi;
+    if (yuruyor) {
+      if (!_hareketAzalt) unawaited(_adimC.repeat(reverse: true));
+      _hareketC.forward(from: 0);
+    }
+    final ok = await _bekle(yuruyor ? _yurumeSuresi : _adimSuresi);
+    if (!ok) return false;
+    _adimC.stop();
+    _adimC.value = 0;
+    setState(() {
+      if (_cizerekGidiyor) _cizgiler.add((simdi, hedef));
+      _cizerekGidiyor = false;
+      if (hedef != simdi) _yol.add(hedef);
+    });
+    if (zipla && !yuruyor) {
+      // Konumu degismeyen y blogu (ornegin "y'yi 0 yap"): kucuk bir
+      // ziplama ki blogun calistigi gorulsun.
+      setState(() => _havada = true);
+      if (!await _bekle(const Duration(milliseconds: 300))) return false;
+      setState(() => _havada = false);
+    }
+    return true;
   }
 
-  Future<bool> _zipla() async {
-    setState(() => _havada = true);
-    if (!await _bekle(const Duration(milliseconds: 350))) return false;
-    setState(() => _havada = false);
-    return _bekle(const Duration(milliseconds: 350));
-  }
-
-  Future<bool> _konus(ScratchBlock blok) async {
+  Future<bool> _konus(ScratchBlock blok, YurutmeAdimi adim) async {
     // RASTGELE BLOKLAR. "1 ile 6 arasinda rastgele bir sayi sec de"
-    // blogunun etiketini temizlemek, balona o cumlenin kendisini
-    // yazmak demekti — kuklanin bir SAYI soylemesi gerekiyordu ve bu
-    // dersin butun konusu oydu. Anlam artik blok sozlugunden okunuyor
-    // (bkz. blok_sozlugu.dart): sozlukte rastgele araligi varsa her
-    // calistirmada o araliktan yeni bir sayi cikiyor.
+    // blogunun balonuna o cumlenin kendisini degil bir SAYI yazmak
+    // gerekiyor. Sayi yorumlayicinin urettigi sayi: izde yazan sayiyla
+    // ayni (bkz. blok_sozlugu.dart).
     final anlam = blokSozlugu[blok.id];
+    String metin;
     if (anlam != null &&
         anlam.komut == BlokKomutu.soyle &&
         anlam.rastgeleAlt != null &&
         anlam.rastgeleUst != null) {
-      final alt = anlam.rastgeleAlt!.toInt();
-      final ust = anlam.rastgeleUst!.toInt();
-      setState(() => _konusma = '${alt + _rastgele.nextInt(ust - alt + 1)}');
-      if (!await _bekle(const Duration(milliseconds: 1400))) return false;
-      setState(() => _konusma = null);
-      return true;
+      metin = adim.sahne.soyledigi ??
+          '${anlam.rastgeleAlt!.toInt() + _rastgele.nextInt((anlam.rastgeleUst! - anlam.rastgeleAlt!).toInt() + 1)}';
+    } else {
+      // Metin blogun KENDI yazisindan cikariliyor: "Miyav! de" -> "Miyav!"
+      metin = konusmaMetni(blok, widget.lang);
     }
-
-    // Metin blogun KENDI yazisindan cikariliyor: "Miyav! de" -> "Miyav!"
-    // Eskiden kimlige gore sabit Turkce metinler vardi (say_hello ->
-    // 'Merhaba!'), yani Ingilizce derste de Turkce konusuyordu.
-    setState(() => _konusma = konusmaMetni(blok, widget.lang));
+    setState(() => _konusma = metin);
     if (!await _bekle(const Duration(milliseconds: 1200))) return false;
     setState(() => _konusma = null);
     return true;
@@ -246,16 +371,25 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
 
   Future<bool> _beklemeGoster() async {
     setState(() => _bekliyor = true);
-    if (!await _bekle(const Duration(milliseconds: 900))) return false;
+    if (!await _bekle(const Duration(milliseconds: 800))) return false;
     setState(() => _bekliyor = false);
     return true;
   }
 
-  Future<bool> _degiskenGuncelle(String id) async {
-    final ad = _degiskenAdi(id);
+  Future<bool> _degiskenGuncelle(String id, YurutmeAdimi adim) async {
     setState(() {
+      if (adim.sahne.degiskenler.isNotEmpty &&
+          blokSozlugu.containsKey(id)) {
+        _degiskenler
+          ..clear()
+          ..addAll(adim.sahne.degiskenler);
+        return;
+      }
+      // Sozlukte olmayan (Arduino) degiskenler: adindan tahmin.
+      final ad = _degiskenAdi(id);
       if (id.startsWith('set_')) {
-        _degiskenler[ad] = id.endsWith('_0') ? 0 : _rastgele.nextInt(600) + 200;
+        _degiskenler[ad] =
+            id.endsWith('_0') ? 0 : _rastgele.nextInt(600) + 200;
       } else {
         _degiskenler[ad] = (_degiskenler[ad] ?? 0) + 1;
       }
@@ -303,6 +437,30 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
   }
 
   // ---------------------------------------------------------------
+  // Sahne geometrisi
+  // ---------------------------------------------------------------
+
+  /// Kodun gidecegi butun noktalarin cercevesi (dunya koordinati).
+  /// Sahne bunu kutuya sigdiriyor: 10 adim da 200 adim da gorunur.
+  late final Rect _sinirlar = () {
+    var r = Rect.fromLTRB(0, 0, 0, 0);
+    final sinir = _sinir;
+    for (var k = 0; k < sinir; k++) {
+      final s = _yurutme.adimlar[k].sahne;
+      r = r.expandToInclude(Rect.fromLTWH(s.x, s.y, 0, 0));
+    }
+    return r;
+  }();
+
+  /// Kodun sahnede bitirdigi yer (bitis bayragi).
+  Offset get _bitisNoktasi {
+    final sinir = _sinir;
+    if (sinir == 0) return Offset.zero;
+    final s = _yurutme.adimlar[sinir - 1].sahne;
+    return Offset(s.x, s.y);
+  }
+
+  // ---------------------------------------------------------------
   // Cizim
   // ---------------------------------------------------------------
 
@@ -313,60 +471,92 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
         : null;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.shade200, width: 2),
+        color: Color.alphaBlend(
+            _renk.withValues(alpha: 0.06), Colors.white),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _renk.withValues(alpha: 0.45), width: 2),
       ),
       child: Column(
         children: [
           Text(
-            _t('🎬 Kodun çalışıyor!', '🎬 Your code is running!',
-                '🎬 Dein Code läuft!', '🎬 ¡Tu código se está ejecutando!'),
-            style: const TextStyle(
+            _bitti
+                ? _t('🎬 Kodun çalıştı!', '🎬 Your code ran!',
+                    '🎬 Dein Code ist gelaufen!', '🎬 ¡Tu código se ejecutó!')
+                : _t('🎬 Kodun çalışıyor!', '🎬 Your code is running!',
+                    '🎬 Dein Code läuft!', '🎬 ¡Tu código se está ejecutando!'),
+            style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.bold,
-              color: Colors.blue,
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // O AN CALISAN BLOK.
-          //
-          // Gorsel etkisi olmayan bloklarda bile bir sey olmasini saglayan
-          // sey bu satir. Yeri bastan ayrilmis: blok degisince altindaki
-          // sahne yerinden oynamiyor.
-          SizedBox(
-            height: 34,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: calisan == null
-                  ? const SizedBox.shrink()
-                  : Container(
-                      key: ValueKey(_sira),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: calisan.color,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        calisan.labelFor(widget.lang),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
+              color: _renk,
             ),
           ),
           const SizedBox(height: 8),
 
-          // Degisken degerleri
+          // O AN CALISAN BLOK (ve dongudeyse kacinci tur).
+          //
+          // Yeri bastan ayrilmis: blok degisince altindaki sahne yerinden
+          // oynamiyor.
+          SizedBox(
+            height: 32,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: calisan == null
+                  ? const SizedBox.shrink()
+                  : Row(
+                      key: ValueKey('$_sira-$_tur'),
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: calisan.color,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              calisan.labelFor(widget.lang),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (_tur != null) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF4D6),
+                              borderRadius: BorderRadius.circular(10),
+                              border:
+                                  Border.all(color: const Color(0xFFFFBF00)),
+                            ),
+                            child: Text(
+                              _t('$_tur. tur', 'turn $_tur', '$_tur. Runde',
+                                  'vuelta $_tur'),
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF8A6100),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+            ),
+          ),
+          const SizedBox(height: 6),
+
+          // Degisken degerleri — yeri bastan ayrilmis.
           SizedBox(
             height: 26,
             child: _degiskenler.isEmpty
@@ -380,14 +570,15 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
                               decoration: BoxDecoration(
                                 color: Colors.orange.shade100,
                                 borderRadius: BorderRadius.circular(12),
-                                border:
-                                    Border.all(color: Colors.orange, width: 1.5),
+                                border: Border.all(
+                                    color: Colors.orange, width: 1.5),
                               ),
                               child: Text(
-                                '${e.key}: ${e.value}',
+                                '${e.key}: ${e.value % 1 == 0 ? e.value.toInt() : e.value}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
+                                  color: Colors.black87,
                                 ),
                               ),
                             ))
@@ -408,7 +599,7 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.blue, width: 2.5),
+                    border: Border.all(color: _renk, width: 2.5),
                   ),
                   child: Text(
                     _konusma ?? '',
@@ -424,119 +615,354 @@ class _BlockAnimationPlayerState extends State<BlockAnimationPlayer> {
               ),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
 
           // SAHNE YALNIZCA GEREKIYORSA.
           //
           // "1 ile 6 arasinda rastgele bir sayi sec de" gibi bir kodun
-          // sahnede isi yok: kukla yurumuyor, ziplamiyor, isik
-          // yanmiyor. Yine de zemin cizgisi ve yesil duvarla birlikte
-          // bir yurume sahnesi ciziliyordu ve ekran kodla alakasiz
-          // duruyordu. Hareketi olmayan kodda artik yalnizca maskot ve
-          // konusma balonu var.
+          // sahnede isi yok: kukla yurumuyor, ziplamiyor, isik yanmiyor.
+          // Hareketi olmayan kodda yalnizca maskot ve konusma balonu var.
           if (_hareketVar) _sahne() else _sadeMaskot(),
 
-          if (_bitti) ...[
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.check_circle, color: Colors.green, size: 22),
-                const SizedBox(width: 8),
-                Text(
-                  _t('Kodun sonuna geldin!', 'Your code reached the end!',
-                      'Dein Code ist durchgelaufen!',
-                      '¡Tu código llegó al final!'),
-                  style: const TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+          // BITIS SERIDI — yeri bastan ayrilmis: belirdiginde sayfa
+          // kaymiyor.
+          SizedBox(
+            height: 44,
+            child: AnimatedOpacity(
+              opacity: _bitti ? 1 : 0,
+              duration: const Duration(milliseconds: 300),
+              child: AnimatedScale(
+                scale: _bitti ? 1 : 0.85,
+                duration: const Duration(milliseconds: 380),
+                curve: Curves.easeOutBack,
+                child: _bitisSeridi(),
+              ),
             ),
-          ],
+          ),
         ],
       ),
     );
   }
 
-  /// Yurume sahnesi: zemin, duvar, lamba, nota ve maskot.
+  Widget _bitisSeridi() {
+    final String metin;
+    final IconData ikon;
+    final Color renk;
+    if (_yarida) {
+      metin = _t(
+          'Bu kod hiç durmuyor; birkaç turdan sonra biz durdurduk.',
+          'This code never stops; we paused it after a few turns.',
+          'Dieser Code hört nie auf; wir haben nach ein paar Runden gestoppt.',
+          'Este código no para nunca; lo pausamos tras unas vueltas.');
+      ikon = Icons.all_inclusive_rounded;
+      renk = const Color(0xFFB26A00);
+    } else if (widget.dogru) {
+      metin = _t('Harika! Kodun hedefe ulaştı! 🎉',
+          'Great! Your code reached the goal! 🎉',
+          'Super! Dein Code hat das Ziel erreicht! 🎉',
+          '¡Genial! ¡Tu código llegó a la meta! 🎉');
+      ikon = Icons.check_circle;
+      renk = Colors.green.shade700;
+    } else {
+      // Ceza yok: yanlis kod da calisir. Cocuga yalnizca neye
+      // bakacagini soyluyoruz.
+      metin = _t('Kodun sonuna geldi. Hedefle karşılaştır!',
+          'Your code reached the end. Compare it with the goal!',
+          'Dein Code ist durchgelaufen. Vergleich ihn mit dem Ziel!',
+          'Tu código llegó al final. ¡Compáralo con el objetivo!');
+      ikon = Icons.flag_circle_rounded;
+      renk = const Color(0xFF3D5A80);
+    }
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(ikon, color: renk, size: 22),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            metin,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: renk,
+              fontWeight: FontWeight.bold,
+              fontSize: 13.5,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Hareket sahnesi: zemin, baslangic/bitis bayraklari, kalem cizgisi,
+  /// lamba, nota ve maskot.
   Widget _sahne() {
+    const yukseklik = 132.0;
     return LayoutBuilder(
-            builder: (context, kutu) {
-              final genislik = kutu.maxWidth - widget.size;
-              return SizedBox(
-                height: 96,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: 0,
-                      bottom: 8,
-                      child: Container(width: 4, height: 72, color: Colors.green),
-                    ),
-                    if (_lamba != null)
-                      Positioned(
-                        right: 6,
-                        top: 6,
-                        child: Container(
-                          width: 26,
-                          height: 26,
-                          decoration: BoxDecoration(
-                            color: _lamba,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: _lamba!.withValues(alpha: 0.7),
-                                blurRadius: 16,
-                                spreadRadius: 4,
-                              ),
+      builder: (context, kutu) {
+        final harita = _Harita(
+          sinirlar: _sinirlar,
+          genislik: kutu.maxWidth,
+          yukseklik: yukseklik,
+          dolgu: widget.size / 2 + 6,
+        );
+        final baslangic = harita.ekrana(Offset.zero);
+        final bitis = harita.ekrana(_bitisNoktasi);
+        final bitisFarkli = (bitis - baslangic).distance > 4;
+
+        return SizedBox(
+          height: yukseklik,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    const Color(0xFFEAF4FF),
+                    Color.alphaBlend(
+                        _renk.withValues(alpha: 0.08), Colors.white),
+                  ],
+                ),
+              ),
+              child: AnimatedBuilder(
+                animation: Listenable.merge([_hareketC, _adimC]),
+                builder: (context, _) {
+                  final simdi = harita.ekrana(_konum);
+                  final adimSallanma = _adimC.value;
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      // Zemin ve kalem cizgileri.
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: _SahneBoyaci(
+                            harita: harita,
+                            cizgiler: [
+                              ..._cizgiler,
+                              if (_cizerekGidiyor) (_onceki, _konum),
                             ],
+                            yol: [..._yol, _konum],
+                            renk: _renk,
                           ),
                         ),
                       ),
-                    if (_nota != null)
+                      // Baslangic: yesil bayrak.
                       Positioned(
-                        right: 12,
-                        bottom: 40,
-                        child: Text(_nota!,
-                            style: const TextStyle(fontSize: 26)),
+                        left: baslangic.dx - 9,
+                        top: baslangic.dy + widget.size / 2 - 22,
+                        child: const Text('🚩',
+                            style: TextStyle(fontSize: 16)),
                       ),
-                    if (_bekliyor)
-                      const Positioned(
-                        right: 12,
-                        bottom: 8,
-                        child: Text('⏳', style: TextStyle(fontSize: 24)),
+                      // Bitis: kodun gidecegi yer.
+                      if (bitisFarkli)
+                        Positioned(
+                          left: bitis.dx - 9,
+                          top: bitis.dy + widget.size / 2 - 22,
+                          child: AnimatedOpacity(
+                            opacity: _bitti ? 1 : 0.55,
+                            duration: const Duration(milliseconds: 300),
+                            child: const Text('🏁',
+                                style: TextStyle(fontSize: 16)),
+                          ),
+                        ),
+                      if (_lamba != null)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            width: 26,
+                            height: 26,
+                            decoration: BoxDecoration(
+                              color: _lamba,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _lamba!.withValues(alpha: 0.7),
+                                  blurRadius: 16,
+                                  spreadRadius: 4,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      if (_nota != null)
+                        Positioned(
+                          right: 12,
+                          top: 10,
+                          child: Text(_nota!,
+                              style: const TextStyle(fontSize: 26)),
+                        ),
+                      if (_bekliyor)
+                        const Positioned(
+                          right: 12,
+                          bottom: 8,
+                          child: Text('⏳', style: TextStyle(fontSize: 24)),
+                        ),
+                      // Kukla. Yururken adim adim sallaniyor; baktigi yone
+                      // donuyor; "sonraki kostum"da aynalaniyor.
+                      Positioned(
+                        left: simdi.dx - widget.size / 2,
+                        top: simdi.dy -
+                            widget.size / 2 -
+                            (_havada ? 22 : 0) -
+                            sin(adimSallanma * pi) * 4,
+                        child: Transform.rotate(
+                          angle: (_yon - 90) * pi / 180 +
+                              (adimSallanma - 0.5) * 0.12 *
+                                  (_adimC.isAnimating ? 1 : 0),
+                          child: Transform.flip(
+                            flipX: _ayna,
+                            child: Mascot(
+                              size: widget.size,
+                              showShadow: false,
+                              mood: _bitti && widget.dogru
+                                  ? MascotMood.happy
+                                  : MascotMood.idle,
+                            ),
+                          ),
+                        ),
                       ),
-                    AnimatedPositioned(
-                      duration: const Duration(milliseconds: 650),
-                      curve: Curves.easeInOut,
-                      left: (genislik * _x).clamp(0.0, genislik),
-                      bottom: _havada ? 34 : 8,
-                      // Kedi emojisi Scratch'in maskotuydu, bizim
-                      // degil: uygulamanin her yerinde Devi var, burada
-                      // baska bir karakter cikiyordu.
-                      child: Mascot(size: widget.size, showShadow: false),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   /// Hareketsiz kodda sahne yerine sade maskot.
   Widget _sadeMaskot() => SizedBox(
         height: 96,
-        child: Center(child: Mascot(size: widget.size + 10)),
+        child: Center(
+          child: AnimatedSlide(
+            offset: _havada ? const Offset(0, -0.15) : Offset.zero,
+            duration: const Duration(milliseconds: 200),
+            child: Transform.flip(
+              flipX: _ayna,
+              child: Mascot(
+                size: widget.size + 10,
+                mood: _bitti && widget.dogru
+                    ? MascotMood.happy
+                    : MascotMood.idle,
+              ),
+            ),
+          ),
+        ),
       );
 
   /// Kodda sahnede gorunur bir sey yapan blok var mi?
   bool get _hareketVar => widget.blocks.any((b) {
-        final e = _etkisi(b.id);
+        final e = _etkisi(b);
         return e == _Etki.hareket ||
             e == _Etki.ziplama ||
             e == _Etki.isik ||
             e == _Etki.ses;
       });
+}
 
+/// Dunya koordinatini (Scratch adimlari, y yukari) sahne kutusuna
+/// (piksel, y asagi) ceviren esleme. Tek olcek: kare kare kalsin.
+class _Harita {
+  _Harita({
+    required this.sinirlar,
+    required this.genislik,
+    required this.yukseklik,
+    required this.dolgu,
+  });
+
+  final Rect sinirlar;
+  final double genislik;
+  final double yukseklik;
+  final double dolgu;
+
+  late final double _icGenislik = max(1, genislik - 2 * dolgu);
+  late final double _icYukseklik = max(1, yukseklik - 2 * dolgu);
+
+  late final double _olcek = () {
+    final sx = sinirlar.width > 0 ? _icGenislik / sinirlar.width : double.infinity;
+    final sy =
+        sinirlar.height > 0 ? _icYukseklik / sinirlar.height : double.infinity;
+    final o = min(sx, sy);
+    return o.isFinite ? o : 1.0;
+  }();
+
+  Offset ekrana(Offset dunya) {
+    // Yatay hareket yoksa kukla ortada; dikey hareket yoksa zeminde.
+    final double x = sinirlar.width > 0
+        ? dolgu +
+            (_icGenislik - sinirlar.width * _olcek) / 2 +
+            (dunya.dx - sinirlar.left) * _olcek
+        : genislik / 2;
+    final double y = sinirlar.height > 0
+        ? yukseklik -
+            dolgu -
+            (_icYukseklik - sinirlar.height * _olcek) / 2 -
+            (dunya.dy - sinirlar.top) * _olcek
+        : yukseklik - dolgu;
+    return Offset(x, y);
+  }
+
+  /// Zemin cizgisinin yuksekligi: en alttaki noktada kuklanin ayaklari.
+  double get zemin =>
+      ekrana(Offset(sinirlar.left, sinirlar.top)).dy + (dolgu - 6);
+}
+
+class _SahneBoyaci extends CustomPainter {
+  _SahneBoyaci({
+    required this.harita,
+    required this.cizgiler,
+    required this.yol,
+    required this.renk,
+  });
+
+  final _Harita harita;
+  final List<(Offset, Offset)> cizgiler;
+
+  /// Kuklanin ugradigi noktalar (dunya koordinati), sonuncusu su anki yer.
+  final List<Offset> yol;
+  final Color renk;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Zemin.
+    final zeminY = min(size.height - 4, harita.zemin);
+    canvas.drawLine(
+      Offset(8, zeminY),
+      Offset(size.width - 8, zeminY),
+      Paint()
+        ..color = const Color(0xFF7CB342).withValues(alpha: 0.55)
+        ..strokeWidth = 3
+        ..strokeCap = StrokeCap.round,
+    );
+
+    // Yurunen yol: noktali iz.
+    final nokta = Paint()..color = renk.withValues(alpha: 0.35);
+    for (var k = 0; k + 1 < yol.length; k++) {
+      final a = harita.ekrana(yol[k]);
+      final b = harita.ekrana(yol[k + 1]);
+      final uzunluk = (b - a).distance;
+      if (uzunluk < 6) continue;
+      final adet = (uzunluk / 12).floor();
+      for (var i = 0; i <= adet; i++) {
+        canvas.drawCircle(Offset.lerp(a, b, i / max(adet, 1))!, 2.2, nokta);
+      }
+    }
+
+    // Kalem cizgileri.
+    final kalem = Paint()
+      ..color = renk
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+    for (final (p, q) in cizgiler) {
+      canvas.drawLine(harita.ekrana(p), harita.ekrana(q), kalem);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _SahneBoyaci old) => true;
 }

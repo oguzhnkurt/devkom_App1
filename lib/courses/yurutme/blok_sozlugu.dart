@@ -95,6 +95,9 @@ const Map<String, BlokAnlami> blokSozlugu = {
   'pen_down': BlokAnlami(BlokKomutu.kalemIndir),
   'pen_up': BlokAnlami(BlokKomutu.kalemKaldir),
   'pen_clear': BlokAnlami(BlokKomutu.kalemSil),
+  // 8.1'in cizgi kodu: sozlukte yoktu, iz bu blogu "etkisiz" sayip
+  // kalemin cizdigi cizgiyi hic gostermiyordu.
+  'move_150': BlokAnlami(BlokKomutu.ilerle, sayi: 150),
   'move_100': BlokAnlami(BlokKomutu.ilerle, sayi: 100),
   'move_100_poly': BlokAnlami(BlokKomutu.ilerle, sayi: 100),
   'turn_90': BlokAnlami(BlokKomutu.don, sayi: 90),

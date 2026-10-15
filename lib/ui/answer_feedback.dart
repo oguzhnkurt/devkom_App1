@@ -2,6 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/settings_provider.dart';
+import '../utils/lang.dart';
 
 import '../theme.dart';
 import 'motion.dart';
@@ -59,10 +63,22 @@ class AnswerFeedbackBar extends StatelessWidget {
 
   bool get _ok => result == AnswerResult.correct;
 
+  /// Varsayilan basliklar ve tus metni de uygulama dilinde olmali: eskiden
+  /// sabit Turkceydi ve Ingilizce derste "Doğru!" / "Devam" cikiyordu.
+  /// Saglayicisiz agaclarda (bazi testler) Turkceye dusuyor.
+  static String _lang(BuildContext context) {
+    try {
+      return Provider.of<SettingsProvider>(context).locale.languageCode;
+    } on ProviderNotFoundException {
+      return AppLang.tr;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final ink = _ok ? _correctInk : _wrongInk;
     final bg = _ok ? _correctBg : _wrongBg;
+    final lang = _lang(context);
 
     final body = Padding(
       padding: EdgeInsets.fromLTRB(inline ? 16 : 20, 16, inline ? 16 : 20, 12),
@@ -84,7 +100,18 @@ class AnswerFeedbackBar extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          title ?? (_ok ? 'Doğru!' : 'Bu sefer olmadı'),
+                          title ??
+                              (_ok
+                                  ? AppLang.pick(lang,
+                                      tr: 'Doğru!',
+                                      en: 'Correct!',
+                                      de: 'Richtig!',
+                                      es: '¡Correcto!')
+                                  : AppLang.pick(lang,
+                                      tr: 'Bu sefer olmadı',
+                                      en: 'Not this time',
+                                      de: 'Diesmal nicht',
+                                      es: 'Esta vez no')),
                           style: TextStyle(
                             fontFamily: AppTheme.fontFamily,
                             fontSize: 18,
@@ -112,7 +139,18 @@ class AnswerFeedbackBar extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               PressButton(
-                label: continueLabel ?? (_ok ? 'Devam' : 'Anladım'),
+                label: continueLabel ??
+                    (_ok
+                        ? AppLang.pick(lang,
+                            tr: 'Devam',
+                            en: 'Continue',
+                            de: 'Weiter',
+                            es: 'Continuar')
+                        : AppLang.pick(lang,
+                            tr: 'Anladım',
+                            en: 'Got it',
+                            de: 'Verstanden',
+                            es: 'Entendido')),
                 color: ink,
                 onPressed: onContinue,
                 height: 50,

@@ -16,6 +16,7 @@ import '../../ui/motion.dart';
 import '../../ui/press_button.dart';
 import '../../widgets/cikis_penceresi.dart';
 import '../../services/sound_service.dart';
+import '../../utils/lang.dart';
 
 /// Modern, Interactive Lesson Screen
 /// FreeCodeCamp-inspired step-by-step learning experience
@@ -149,7 +150,17 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
+    // DURUM CUBUGU STILI ACIKCA VERILIYOR.
+    //
+    // Bu ekranda AppBar yok; Flutter da ust bolgede bir stil bulamayinca
+    // bir onceki ekraninkini birakiyordu. Kurs sayfasinin basligi kursun
+    // renginde: Python'un koyu mavisinde beyaz yazi secilmisti, ders
+    // ekraninin acik zemininde saat ve pil neredeyse gorunmuyordu
+    // (Scratch'in turuncusunda koyu yazi secildigi icin orada sorun
+    // yoktu). Zemin acik/koyu temaya gore sabit, stil de ona gore.
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      child: Scaffold(
       backgroundColor: isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF8F9FB),
       // Ders ekraninin zemini duz griydi. Artik kursun renginde, cok
       // yavas suzulen kodlama sembolleri var (blok, disli, ok, dugum,
@@ -183,6 +194,7 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           ],
         ),
         ),
+      ),
       ),
     );
   }
@@ -225,9 +237,12 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
                   ),
                 ),
                 Text(
-                  lessonLang(context) == 'en'
-                      ? 'Step ${_currentStepIndex + 1} / ${widget.lesson.steps.length}'
-                      : 'Adım ${_currentStepIndex + 1} / ${widget.lesson.steps.length}',
+                  lessonText(
+                      lessonLang(context),
+                      'Adım ${_currentStepIndex + 1} / ${widget.lesson.steps.length}',
+                      'Step ${_currentStepIndex + 1} / ${widget.lesson.steps.length}',
+                      'Schritt ${_currentStepIndex + 1} / ${widget.lesson.steps.length}',
+                      'Paso ${_currentStepIndex + 1} / ${widget.lesson.steps.length}'),
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
@@ -469,6 +484,8 @@ default:
               lessonLang(context),
               'Bu adım tipi henüz desteklenmiyor: ${step.type}',
               'This step type is not supported yet: ${step.type}',
+              'Dieser Schritttyp wird noch nicht unterstützt: ${step.type}',
+              'Este tipo de paso aún no es compatible: ${step.type}',
             ),
             style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
           ),
@@ -496,7 +513,8 @@ default:
             TextButton.icon(
               onPressed: _previousStep,
               icon: const Icon(Icons.arrow_back, size: 18),
-              label: Text(lessonText(lessonLang(context), 'Önceki', 'Back')),
+              label: Text(lessonText(
+                  lessonLang(context), 'Önceki', 'Back', 'Zurück', 'Atrás')),
               style: TextButton.styleFrom(
                 foregroundColor: isDark ? Colors.white70 : Colors.grey.shade700,
               ),
@@ -515,7 +533,13 @@ default:
                 _isLastStep ? Icons.check_circle : Icons.arrow_forward,
                 size: 20,
               ),
-              label: Text(_isLastStep ? 'Tamamla' : 'Devam'),
+              // Eskiden sabit Turkceydi: Ingilizce ekranda "Back" cevriliyor,
+              // ana tus "Devam" kaliyordu.
+              label: Text(_isLastStep
+                  ? lessonText(lessonLang(context), 'Tamamla', 'Finish',
+                      'Fertig', 'Terminar')
+                  : lessonText(lessonLang(context), 'Devam', 'Continue',
+                      'Weiter', 'Continuar')),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _canProceed()
                     ? widget.course.primaryColor
@@ -644,7 +668,7 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
 
   @override
   Widget build(BuildContext context) {
-    final isEn = lessonLang(context) == 'en';
+    final lang = lessonLang(context);
 
     return Stack(
       alignment: Alignment.topCenter,
@@ -666,7 +690,8 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
                     ],
                   ).createShader(bounds),
                   child: Text(
-                    isEn ? 'CONGRATULATIONS!' : 'TEBRİKLER!',
+                    lessonText(lang, 'TEBRİKLER!', 'CONGRATULATIONS!',
+                        'GLÜCKWUNSCH!', '¡ENHORABUENA!'),
                     style: const TextStyle(
                       fontFamily: AppTheme.fontFamily,
                       fontSize: 27,
@@ -680,9 +705,12 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
               _enter(
                 2,
                 Text(
-                  isEn
-                      ? '"${widget.lesson.titleFor('en')}" completed!'
-                      : '"${widget.lesson.title}" tamamlandı!',
+                  lessonText(
+                      lang,
+                      '"${widget.lesson.titleFor(lang)}" tamamlandı!',
+                      '"${widget.lesson.titleFor(lang)}" completed!',
+                      '"${widget.lesson.titleFor(lang)}" geschafft!',
+                      '¡"${widget.lesson.titleFor(lang)}" completada!'),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: AppTheme.fontFamily,
@@ -746,7 +774,8 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
                     child: Column(
                       children: [
                         Text(
-                          isEn ? 'NEW BADGE!' : 'YENİ ROZET!',
+                          lessonText(lang, 'YENİ ROZET!', 'NEW BADGE!',
+                              'NEUES ABZEICHEN!', '¡NUEVA INSIGNIA!'),
                           style: const TextStyle(
                             fontFamily: AppTheme.fontFamily,
                             fontSize: 11.5,
@@ -761,7 +790,7 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          _getBadgeName(widget.badge!, isEn),
+                          _getBadgeName(widget.badge!, lang),
                           style: TextStyle(
                             fontFamily: AppTheme.fontFamily,
                             fontWeight: FontWeight.w700,
@@ -779,7 +808,7 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
             _enter(
               5,
               PressButton(
-                label: isEn ? 'Awesome!' : 'Harika!',
+                label: lessonText(lang, 'Harika!', 'Awesome!', 'Super!', '¡Genial!'),
                 color: widget.course.primaryColor,
                 height: 52,
                 onPressed: () {
@@ -830,7 +859,7 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
   /// Rozet adları burada SABİT yazılı olduğu için İngilizce ekranda da
   /// Türkçe çıkıyordu: ders İngilizce bitiyor, kutlama "Döngü Ustası"
   /// diyordu.
-  String _getBadgeName(String badgeId, bool isEn) {
+  String _getBadgeName(String badgeId, String lang) {
     const tr = {
       'scratch_starter': 'Scratch Başlangıç',
       'first_code': 'İlk Kod',
@@ -847,6 +876,24 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
       'coordinate_explorer': 'Coordinate Captain',
       'game_developer': 'Game Developer',
     };
-    return (isEn ? en[badgeId] : tr[badgeId]) ?? (isEn ? 'Badge' : 'Rozet');
+    const de = {
+      'scratch_starter': 'Scratch-Starter',
+      'first_code': 'Erster Code',
+      'loop_master': 'Schleifen-Profi',
+      'condition_wizard': 'Bedingungs-Zauberer',
+      'coordinate_explorer': 'Koordinaten-Kapitän',
+      'game_developer': 'Spieleentwickler',
+    };
+    const es = {
+      'scratch_starter': 'Inicio en Scratch',
+      'first_code': 'Primer código',
+      'loop_master': 'Maestro de bucles',
+      'condition_wizard': 'Mago de condiciones',
+      'coordinate_explorer': 'Capitán de coordenadas',
+      'game_developer': 'Creador de juegos',
+    };
+    final names = AppLang.pickOf(lang, tr: tr, en: en, de: de, es: es);
+    return names[badgeId] ??
+        lessonText(lang, 'Rozet', 'Badge', 'Abzeichen', 'Insignia');
   }
 }

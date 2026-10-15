@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/ad_unlock_service.dart';
@@ -140,9 +141,12 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         appBar: AppBar(
             title: Text(widget.course.nameFor(lessonLang(context)))),
         body: Center(
-          child: Text(lessonLang(context) == 'en'
-              ? 'Interactive content for this course is not ready yet.'
-              : 'Bu kurs için interaktif içerik henüz hazır değil.'),
+          child: Text(lessonText(
+              lessonLang(context),
+              'Bu kurs için interaktif içerik henüz hazır değil.',
+              'Interactive content for this course is not ready yet.',
+              'Die interaktiven Inhalte für diesen Kurs sind noch nicht fertig.',
+              'El contenido interactivo de este curso aún no está listo.')),
         ),
       );
     }
@@ -168,6 +172,11 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
       floating: false,
       pinned: true,
       backgroundColor: widget.course.primaryColor,
+      // Serit kursun renginde ve yazisi BEYAZ. AppBar stili zeminin
+      // parlakligindan tahmin ediyordu: Scratch turuncusunda koyu,
+      // Python mavisinde acik ikon cikiyordu. Yazi hep beyaz oldugu icin
+      // durum cubugu da hep acik.
+      systemOverlayStyle: SystemUiOverlayStyle.light,
       leading: IconButton(
         icon: Container(
           padding: const EdgeInsets.all(8),

@@ -38,7 +38,7 @@ class ScratchKalemLessonsData {
         shape: ScratchBlockShape.cap,
         label: 'tıklandığında',
         labelEn: 'when green flag clicked',
-        labelDe: 'Wenn die grüne Flagge angeklickt',
+        labelDe: 'Wenn die grüne Flagge angeklickt wird',
         labelEs: 'al hacer clic en la bandera verde',
         color: olaylarRengi,
       );
@@ -103,10 +103,10 @@ class ScratchKalemLessonsData {
         id: id,
         blockType: ScratchBlockType.control,
         shape: ScratchBlockShape.cBlock,
-        label: '$kere kere tekrarla',
+        label: '$kere defa tekrarla',
         labelEn: 'repeat $kere',
         labelDe: 'wiederhole $kere mal',
-        labelEs: 'repetir $kere veces',
+        labelEs: 'repetir $kere',
         color: kontrolRengi,
       );
 
@@ -484,7 +484,7 @@ class ScratchKalemLessonsData {
               '   100 adım git → 90 derece dön\n\n'
               'Sekiz blok. Oysa aynı ikili dört kez tekrarlanıyor. '
               'Döngüye koyunca üç blok kalıyor:\n\n'
-              '   4 kere tekrarla\n'
+              '   4 defa tekrarla\n'
               '     100 adım git\n'
               '     ↻ 90 derece dön',
           contentEn:
@@ -535,10 +535,10 @@ class ScratchKalemLessonsData {
           visuals: [
             VisualElement(
               type: VisualType.scratchBlock,
-              content: '4 kere tekrarla',
+              content: '4 defa tekrarla',
               contentEn: 'repeat 4',
               contentDe: 'wiederhole 4 mal',
-              contentEs: 'repetir 4 veces',
+              contentEs: 'repetir 4',
               color: kontrolRengi,
               label: 'Kontrol · C bloğu',
               labelEn: 'Control · C block',

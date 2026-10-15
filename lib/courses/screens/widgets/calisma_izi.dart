@@ -32,16 +32,21 @@ class CalismaIzi extends StatelessWidget {
     required this.bloklar,
     required this.lang,
     this.enFazlaYukseklik = 220,
+    this.yurutme,
   });
 
   final List<ScratchBlock> bloklar;
+
+  /// Sahneyle ayni yurutme. Verilirse iz onu gosteriyor; boylece sahnede
+  /// "4" diyen zarla izdeki zar ayni sayi oluyor (ikisi ayri ayri
+  /// calistirildiginda rastgele blok iki farkli sayi soyluyordu).
+  final Yurutme? yurutme;
   final String lang;
   final double enFazlaYukseklik;
 
   @override
   Widget build(BuildContext context) {
-    const yorumlayici = BlokYorumlayici();
-    final sonuc = yorumlayici.yurut(bloklar);
+    final sonuc = yurutme ?? const BlokYorumlayici().yurut(bloklar);
 
     return Container(
       decoration: BoxDecoration(
@@ -107,10 +112,12 @@ class CalismaIzi extends StatelessWidget {
   }
 
   Widget _satir(YurutmeAdimi adim) {
-    final blok = bloklar.firstWhere(
-      (b) => b.id == adim.blokId,
-      orElse: () => bloklar.first,
-    );
+    final blok = adim.blokSirasi >= 0 && adim.blokSirasi < bloklar.length
+        ? bloklar[adim.blokSirasi]
+        : bloklar.firstWhere(
+            (b) => b.id == adim.blokId,
+            orElse: () => bloklar.first,
+          );
     return Padding(
       padding: EdgeInsets.only(left: adim.derinlik * 14.0, bottom: 3),
       child: Row(

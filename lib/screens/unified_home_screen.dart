@@ -2111,7 +2111,12 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          height: 120,
+          // SABIT YUKSEKLIK DEGIL, EN AZ YUKSEKLIK. 120 pt sabitken ic alan
+          // 86 pt kaliyordu (16 dolgu + 1 kenarlik, iki yandan); simge
+          // (44) + baslik + alt yazi bunu 1 pt asiyordu ve iPhone 17 Pro
+          // Max'te "RenderFlex overflowed by 1.00 pixels" uyarisi
+          // dusuyordu. Buyuk yazi boyutunda tasma daha da buyuyordu.
+          constraints: const BoxConstraints(minHeight: 120),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
@@ -2129,7 +2134,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),

@@ -37,7 +37,7 @@ class ScratchIleriLessonsData {
         shape: ScratchBlockShape.cap,
         label: 'tıklandığında',
         labelEn: 'when green flag clicked',
-        labelDe: 'Wenn die grüne Flagge angeklickt',
+        labelDe: 'Wenn die grüne Flagge angeklickt wird',
         labelEs: 'al hacer clic en la bandera verde',
         color: olaylarRengi,
       );
@@ -232,10 +232,10 @@ class ScratchIleriLessonsData {
         id: id,
         blockType: ScratchBlockType.control,
         shape: ScratchBlockShape.cBlock,
-        label: '$kere kere tekrarla',
+        label: '$kere defa tekrarla',
         labelEn: 'repeat ${en ?? kere}',
         labelDe: 'wiederhole ${de ?? en ?? kere} mal',
-        labelEs: 'repetir ${es ?? en ?? kere} veces',
+        labelEs: 'repetir ${es ?? en ?? kere}',
         color: kontrolRengi,
       );
 
@@ -1950,7 +1950,7 @@ class ScratchIleriLessonsData {
           instructionEn: 'DEFINE the square block.',
           instructionDe: 'DEFINIERE den Quadrat-Block.',
           instructionEs: 'DEFINE el bloque cuadrado.',
-          goal: 'kare i tanımla → 4 kere tekrarla { 100 adım git, 90 derece '
+          goal: 'kare i tanımla → 4 defa tekrarla { 100 adım git, 90 derece '
               'dön }. Başa bayrak koyma: tanım kendi başlığıyla başlar.',
           goalEn: 'define square → repeat 4 { move 100, turn 90 }. No flag '
               'on top: a definition has its own hat.',
@@ -1985,7 +1985,7 @@ class ScratchIleriLessonsData {
           instructionEn: 'Now CALL the square block — three times.',
           instructionDe: 'Jetzt RUFE den Quadrat-Block auf — dreimal.',
           instructionEs: 'Ahora LLAMA al bloque cuadrado, tres veces.',
-          goal: 'Bayrak → 3 kere tekrarla { kare, 120 derece dön }. Dört '
+          goal: 'Bayrak → 3 defa tekrarla { kare, 120 derece dön }. Dört '
               'blokla üç kare çizdin.',
           goalEn: 'Flag → repeat 3 { square, turn 120 }. Three squares out '
               'of four blocks.',
@@ -2335,7 +2335,7 @@ class ScratchIleriLessonsData {
               'Bu kural şimdi çok işine yarıyor, çünkü kenar sayısı artık '
               'bir girdi. Tanımın içi şöyle oluyor:\n\n'
               '   çokgen (kenar) i tanımla\n'
-              '     kenar kere tekrarla\n'
+              '     kenar defa tekrarla\n'
               '       100 adım git\n'
               '       ↻ (360 / kenar) derece dön\n\n'
               'Tek tanım, bütün şekiller:\n\n'
@@ -2405,7 +2405,7 @@ class ScratchIleriLessonsData {
           instructionEn: 'Define the polygon block with an input.',
           instructionDe: 'Definiere den Vieleck-Block mit Eingabe.',
           instructionEs: 'Define el bloque polígono con entrada.',
-          goal: 'çokgen (kenar) i tanımla → kenar kere tekrarla { 100 adım '
+          goal: 'çokgen (kenar) i tanımla → kenar defa tekrarla { 100 adım '
               'git, (360 / kenar) derece dön }',
           goalEn: 'define polygon (sides) → repeat (sides) { move 100, turn '
               '(360 / sides) }',

@@ -94,7 +94,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   List<(IconData, String, String)> get _highlights => [
         (
           Icons.sports_esports_rounded,
-          // SAYI GERÇEK OLMALI. Katalogda 16 oyun var, 7'si ücretsiz →
+          // SAYI GERÇEK OLMALI. Katalogda 15 oyun var, 6'sı ücretsiz →
           // Pro'nun açtığı oyun sayısı 9. Burada "13" yazıyordu; hem
           // tutulmayan bir söz, hem de App Store incelemesinin
           // yanıltıcı bulacağı türden bir rakam.

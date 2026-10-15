@@ -21,6 +21,7 @@ import '../../../ui/motion.dart';
 import '../../../ui/appear_in.dart';
 import '../../../ui/press_button.dart';
 import 'calisma_izi.dart';
+import '../../yurutme/blok_yorumlayici.dart';
 
 /// Current app language code ('tr' | 'en') for lesson content.
 /// Listens so that switching the language rebuilds lesson content in place.
@@ -1638,7 +1639,28 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
   /// farksiz. Bu sayi ise cevabi ELE VERMIYOR — yalnizca "ilk iki blok
   /// yerinde, ucuncuye bir daha bak" demeyi mumkun kiliyor.
   int _dogruOnEk = 0;
-  bool _showAnimation = false;
+
+  /// Kac kez calistirildi. Sahneye anahtar olarak gidiyor: her basista
+  /// sahne bastan oynuyor.
+  int _calistirmaNo = 0;
+
+  /// Bu calistirmanin sonucu. Sahne ve iz AYNI yurutmeyi gosteriyor.
+  Yurutme? _yurutme;
+
+  /// Sahnede o an calisan blogun kod alanindaki sirasi; kod alaninda
+  /// parlatiliyor.
+  int? _calisanSira;
+
+  /// Kod alaninin ustunde bir blok surukleniyor mu? (Alan hafifce
+  /// parliyor ki cocuk birakacagi yeri gorsun.)
+  bool _alanUstunde = false;
+
+  /// Surukleme sirasinda uzerinde durulan kod alani blogu: birakilirsa
+  /// yeni blok bunun ONUNE giriyor.
+  int? _ekleSira;
+
+  /// Sahneyi ekrana kaydirmak icin.
+  final GlobalKey _sahneAnahtari = GlobalKey();
 
   /// Calisma izi ekranda mi.
   ///
@@ -1647,11 +1669,21 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
   /// cevap beklemeden her an acilabiliyor.
   bool _izGoster = false;
 
-  void _addBlock(ScratchBlock block) {
+  /// Kod degisti: eski calistirma artik bu kodun sonucu degil.
+  void _calistirmayiKapat() {
+    _izGoster = false;
+    _yurutme = null;
+    _calisanSira = null;
+  }
+
+  void _addBlock(ScratchBlock block, {int? sira}) {
     setState(() {
-      _placedBlocks.add(block.id);
-      _izGoster = false;
-      _showAnimation = false;
+      if (sira == null || sira >= _placedBlocks.length) {
+        _placedBlocks.add(block.id);
+      } else {
+        _placedBlocks.insert(max(0, sira), block.id);
+      }
+      _calistirmayiKapat();
     });
     HapticFeedback.lightImpact();
     _checkAnswer();
@@ -1662,8 +1694,65 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
       _placedBlocks.removeAt(index);
       _completed = false;
       _yanlisDizi = false;
-      _izGoster = false;
-      _showAnimation = false;
+      _calistirmayiKapat();
+    });
+  }
+
+  /// Kod alanindaki bir blogu baska bir yere tasir. [hedef], blogun
+  /// birakildigi yerdeki blogun sirasi (o blogun ONUNE girer); null ise
+  /// en sona.
+  void _tasi(int kaynak, int? hedef) {
+    if (kaynak < 0 || kaynak >= _placedBlocks.length) return;
+    var yeni = hedef ?? _placedBlocks.length;
+    if (yeni == kaynak || yeni == kaynak + 1) return; // yerinde kaldi
+    setState(() {
+      final id = _placedBlocks.removeAt(kaynak);
+      if (yeni > kaynak) yeni--;
+      _placedBlocks.insert(yeni.clamp(0, _placedBlocks.length), id);
+      _calistirmayiKapat();
+    });
+    HapticFeedback.lightImpact();
+    _checkAnswer();
+  }
+
+  /// Surukleneni birakir: paletten geldiyse ekler, kod alanindan geldiyse
+  /// tasir.
+  void _birak(_BlokTasima t, int? hedef) {
+    setState(() {
+      _alanUstunde = false;
+      _ekleSira = null;
+    });
+    if (t.kaynakSira == null) {
+      _addBlock(t.blok, sira: hedef);
+    } else {
+      _tasi(t.kaynakSira!, hedef);
+    }
+  }
+
+  /// KODU CALISTIR.
+  ///
+  /// Sahne eskiden sayfanin ALTINDA, ekranin disinda aciliyordu: cocuk
+  /// kaydirmadan kuklanin yurudugunu goremiyordu, kaydirdiginda da
+  /// animasyon coktan bitmis oluyordu. Simdi sahne ekrana kaydiriliyor
+  /// ve animasyon kaydirma bittikten sonra basliyor.
+  void _calistir() {
+    setState(() {
+      _izGoster = true;
+      _calistirmaNo++;
+      _calisanSira = null;
+      _yurutme = const BlokYorumlayici().yurut(_kodBloklari());
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final c = _sahneAnahtari.currentContext;
+      if (c == null || !mounted) return;
+      Scrollable.ensureVisible(
+        c,
+        duration: Motion.reduced(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 420),
+        curve: Curves.easeOutCubic,
+        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+      );
     });
   }
 
@@ -1765,15 +1854,43 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         SizedBox(height: ara),
 
         // Code area
-        Container(
+        //
+        // SURUKLE-BIRAK GERCEKTEN CALISIYOR. Alan "Bloklari buraya
+        // surukle" diyordu ama hicbir blok suruklenemiyordu; yalnizca
+        // dokunmak blok ekliyordu. Simdi ikisi de var: dokununca en sona
+        // eklenir, basili tutup surukleyince istenen yere girer. Kod
+        // alanindaki bloklar da basili tutulup yeniden siralanabiliyor.
+        DragTarget<_BlokTasima>(
+          onWillAcceptWithDetails: (_) {
+            if (!_alanUstunde) setState(() => _alanUstunde = true);
+            return true;
+          },
+          onLeave: (_) => setState(() {
+            _alanUstunde = false;
+            _ekleSira = null;
+          }),
+          onAcceptWithDetails: (d) => _birak(d.data, _ekleSira),
+          builder: (context, adaylar, reddedilen) => AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
           padding: EdgeInsets.all(EkranOlcusu.kisa(context) ? 12 : 16),
           constraints: BoxConstraints(minHeight: EkranOlcusu.kisa(context) ? 110 : 150),
+          // Kenarlik kalinligi hep 2: yesil/vurgu/saydam arasinda gecerken
+          // kod alani bir piksel bile kaymiyor.
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E2E),
+            color: _alanUstunde
+                ? Color.alphaBlend(
+                    widget.course.primaryColor.withValues(alpha: 0.18),
+                    const Color(0xFF1E1E2E))
+                : const Color(0xFF1E1E2E),
             borderRadius: BorderRadius.circular(12),
-            border: _completed
-                ? Border.all(color: Colors.green, width: 2)
-                : null,
+            border: Border.all(
+              color: _completed
+                  ? Colors.green
+                  : _alanUstunde
+                      ? widget.course.primaryColor
+                      : Colors.transparent,
+              width: 2,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1791,10 +1908,15 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: Text(
-                      lessonText(lang, 'Blokları buraya sürükle',
-                          'Drag the blocks here', 'Zieh die Blöcke hierher', 'Arrastra los bloques aquí'),
+                      lessonText(
+                          lang,
+                          'Aşağıdaki bloklara dokun ya da basılı tutup buraya sürükle',
+                          'Tap the blocks below, or hold and drag them here',
+                          'Tippe auf die Blöcke unten oder halte sie gedrückt und zieh sie hierher',
+                          'Toca los bloques de abajo o mantenlos pulsados y arrástralos aquí'),
+                      textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.grey.shade600,
+                        color: Colors.grey.shade500,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -1803,6 +1925,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
               else
                 ..._buildPlacedList(lang),
             ],
+          ),
           ),
         ),
         // GERI BILDIRIM ARTIK KOD ALANININ HEMEN ALTINDA.
@@ -1864,12 +1987,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         if (_placedBlocks.isNotEmpty) ...[
           SizedBox(height: ara),
           ElevatedButton.icon(
-            onPressed: () {
-              setState(() {
-                _izGoster = true;
-                _showAnimation = _completed;
-              });
-            },
+            onPressed: _calistir,
             icon: const Icon(Icons.play_arrow),
             label: Text(lessonText(lang, 'KODU ÇALIŞTIR', 'RUN THE CODE',
                 'CODE AUSFÜHREN', 'EJECUTAR EL CÓDIGO')),
@@ -1883,34 +2001,15 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
               ),
             ),
           ),
-          if (_izGoster) ...[
-            const SizedBox(height: 12),
-            CalismaIzi(bloklar: _kodBloklari(), lang: lang),
-          ],
         ],
 
         // Success indicator
         if (_completed) ...[
           SizedBox(height: ara),
 
-          // Kedi animasyonu göster
-          if (_showAnimation)
-            // Oynaticiya artik yalnizca kimlikler degil BLOKLARIN KENDISI
-            // gidiyor: her adimda calisan blogun yazisini gosterebilmesi
-            // ve konusma metnini blogun kendi etiketinden cikarabilmesi
-            // icin. Dili de gecirmek zorunda; eskiden sahnedeki metinler
-            // Turkce sabitti.
-            BlockAnimationPlayer(
-              key: UniqueKey(), // Her seferinde yeni widget oluştur
-              blocks: _placedBlocks
-                  .map((id) => widget.step.availableBlocks
-                      .firstWhere((b) => b.id == id))
-                  .toList(),
-              lang: lang,
-              size: 50,
-            )
-          else
-            Container(
+          // Sahne artik KODU CALISTIR'in hemen altinda, her calistirmada
+          // aciliyor (yukarida). Burada yalnizca basari kutusu ve DEVAM.
+          Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.green.withValues(alpha: 0.15),
@@ -1953,6 +2052,34 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
           ),
         ],
 
+        // SAHNE ve IZ, basari kutusunun ALTINDA: cocuk kodu calistirinca
+        // sahne ekrana kaydiriliyor; DEVAM tusu hemen ustunde kaliyor,
+        // uzun bir izin altinda kaybolmuyor.
+        if (_izGoster && _yurutme != null) ...[
+          const SizedBox(height: 12),
+          // SAHNE ONCE, IZ SONRA. Sahne her calistirmada aciliyor —
+          // yanlis kod da calisir; kutlama yalnizca dogru kodda.
+          KeyedSubtree(
+            key: _sahneAnahtari,
+            child: BlockAnimationPlayer(
+              key: ValueKey(_calistirmaNo), // her basista bastan
+              blocks: _kodBloklari(),
+              lang: lang,
+              size: 46,
+              yurutme: _yurutme,
+              dogru: _completed,
+              renk: widget.course.primaryColor,
+              baslamaGecikmesi: const Duration(milliseconds: 450),
+              onAdim: (sira) {
+                if (mounted) setState(() => _calisanSira = sira);
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+          CalismaIzi(
+              bloklar: _kodBloklari(), lang: lang, yurutme: _yurutme),
+        ],
+
         SizedBox(height: ara),
 
         // Available blocks
@@ -1964,20 +2091,70 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
           ),
         ),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _palet.map((block) {
-            return GestureDetector(
-              onTap: () => _addBlock(block),
-              child: _buildBlockWidget(block, lang),
-            );
-          }).toList(),
+        // Kod alanindan buraya geri suruklenen blok kod alanindan cikar
+        // (dokunarak cikarmanin surukleme karsiligi).
+        DragTarget<_BlokTasima>(
+          onWillAcceptWithDetails: (d) => d.data.kaynakSira != null,
+          onAcceptWithDetails: (d) {
+            setState(() {
+              _alanUstunde = false;
+              _ekleSira = null;
+            });
+            _removeBlock(d.data.kaynakSira!);
+          },
+          builder: (context, adaylar, reddedilen) => Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _palet.map((block) {
+              final gorunum = _buildBlockWidget(block, lang);
+              return LongPressDraggable<_BlokTasima>(
+                data: _BlokTasima(block),
+                // Kisa basili tutma: sayfa hala parmakla kaydirilabiliyor,
+                // surukleme ise kaydirmayla karismiyor.
+                delay: const Duration(milliseconds: 150),
+                hapticFeedbackOnStart: true,
+                feedback: _surukleniyor(gorunum),
+                childWhenDragging: Opacity(opacity: 0.4, child: gorunum),
+                onDragEnd: (_) {
+                  if (_alanUstunde || _ekleSira != null) {
+                    setState(() {
+                      _alanUstunde = false;
+                      _ekleSira = null;
+                    });
+                  }
+                },
+                child: GestureDetector(
+                  onTap: () => _addBlock(block),
+                  child: gorunum,
+                ),
+              );
+            }).toList(),
+          ),
         ),
 
       ],
     );
   }
+
+  /// Parmagin altinda tasinan blok: hafif buyuk ve golgeli.
+  Widget _surukleniyor(Widget gorunum) => Material(
+        color: Colors.transparent,
+        child: Transform.scale(
+          scale: 1.06,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.25),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: gorunum,
+          ),
+        ),
+      );
 
   Widget _buildBlockWidget(ScratchBlock block, String lang) {
     return ScratchBlockWidget(
@@ -2101,7 +2278,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
     // gibi degil ayri ayri kartlar gibi duruyordu. Scratch'te bloklar
     // birbirine DEGER; cocuk "bunlar tek bir program" fikrini bundan
     // aliyor.
-    return ScratchBlockWidget(
+    final gorunum = ScratchBlockWidget(
       block: block,
       lang: lang,
       isPlaced: true,
@@ -2109,7 +2286,56 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
       cHeadOnly: block.shape == ScratchBlockShape.cBlock,
       onTap: () => _removeBlock(index),
     );
+    final calisiyor = _calisanSira == index;
+    final ekleme = _ekleSira == index;
+    // Vurgular ON PLANDA ciziliyor (foregroundDecoration): blok calisirken
+    // ya da onune blok birakilacakken kod alani kaymiyor.
+    final vurgulu = AnimatedContainer(
+      duration: const Duration(milliseconds: 160),
+      // Calisan blok sari, birakilacak yerin onundeki blok beyaz cerceve.
+      foregroundDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: calisiyor
+              ? const Color(0xFFFFE066)
+              : ekleme
+                  ? Colors.white
+                  : Colors.transparent,
+          width: 3,
+        ),
+      ),
+      child: gorunum,
+    );
+    return DragTarget<_BlokTasima>(
+      onWillAcceptWithDetails: (_) {
+        if (_ekleSira != index) setState(() => _ekleSira = index);
+        return true;
+      },
+      onLeave: (_) {
+        if (_ekleSira == index) setState(() => _ekleSira = null);
+      },
+      onAcceptWithDetails: (d) => _birak(d.data, index),
+      builder: (context, adaylar, reddedilen) =>
+          LongPressDraggable<_BlokTasima>(
+        data: _BlokTasima(block, kaynakSira: index),
+        delay: const Duration(milliseconds: 150),
+        hapticFeedbackOnStart: true,
+        feedback: _surukleniyor(gorunum),
+        childWhenDragging: Opacity(opacity: 0.35, child: gorunum),
+        child: Semantics(
+          selected: calisiyor,
+          child: vurgulu,
+        ),
+      ),
+    );
   }
+}
+
+/// Suruklenen blok ve (kod alanindan geliyorsa) eski sirasi.
+class _BlokTasima {
+  const _BlokTasima(this.blok, {this.kaynakSira});
+  final ScratchBlock blok;
+  final int? kaynakSira;
 }
 
 // ==========================================
@@ -3846,8 +4072,19 @@ class AnimationStepWidget extends StatelessWidget {
   }
 
   Widget _buildComparisonAnimation(String lang) {
-    final beforeItems = step.animationData['before'] as List<dynamic>? ?? [];
-    final afterItems = step.animationData['after'] as List<dynamic>? ?? [];
+    // Blok yazilari da dile gore: eskiden yalnizca Turkce liste vardi ve
+    // Ingilizce derste "10 adim git" (aksansiz!) yaziyordu. `before_en`
+    // gibi anahtarlar yoksa Ingilizceye, o da yoksa Turkceye dusuyor.
+    List<dynamic> liste(String ad) {
+      final d = step.animationData;
+      return (d['${ad}_$lang'] ??
+              (lang != 'tr' ? d['${ad}_en'] : null) ??
+              d[ad]) as List<dynamic>? ??
+          const [];
+    }
+
+    final beforeItems = liste('before');
+    final afterItems = liste('after');
 
     return Row(
       children: [

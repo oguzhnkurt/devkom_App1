@@ -1,5 +1,6 @@
 import 'dart:math' show pi;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:confetti/confetti.dart';
 import '../models/course_model.dart';
@@ -116,6 +117,11 @@ class _ModuleQuizScreenState extends State<ModuleQuizScreen> {
       backgroundColor: isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: widget.course.primaryColor,
+        // Serit kursun renginde ve yazisi BEYAZ. AppBar stili zeminin
+        // parlakligindan tahmin ediyordu: Scratch turuncusunda koyu,
+        // Python mavisinde acik ikon cikiyordu. Yazi hep beyaz oldugu icin
+        // durum cubugu da hep acik.
+        systemOverlayStyle: SystemUiOverlayStyle.light,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.white),
           onPressed: () => _showExitDialog(),
