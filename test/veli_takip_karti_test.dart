@@ -239,7 +239,6 @@ void main() {
       // hic yazilmiyordu ve veli raporunda dersler hep sifirdi.
       for (final f in [
         'lib/courses/screens/interactive_lesson_screen.dart',
-        'lib/courses/screens/lesson_screen.dart',
       ]) {
         final s = File(f).readAsStringSync();
         expect(s.contains('dersTamamlandi(widget.lesson.id'), isTrue, reason: f);

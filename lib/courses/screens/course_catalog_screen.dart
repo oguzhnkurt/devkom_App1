@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/course_model.dart';
 import '../data/courses_data.dart';
-import 'course_detail_screen.dart';
 import '../data/course_modules.dart';
 import 'interactive_course_screen.dart';
 import '../../utils/pro_gate.dart';
@@ -460,18 +459,16 @@ class _PathCourseTile extends StatelessWidget {
     // Kilit ders basina tasindi — ilk iki ders odullu reklamla acilabiliyor,
     // ucuncuden itibaren Pro isteniyor (bkz. InteractiveCourseScreen).
 
-    // Hangi kursun interaktif dersleri var? Tek kaynak: CourseModules.
-    // Burada elle yazılan bir liste vardı ve mBlock eklendiğinde
-    // güncellenmedi; kurs katalogda görünüyor, dersleri de yazılmış ama
-    // tıklayınca tanıtım ekranı açılıyordu.
+    // Katalogdaki her kursun interaktif dersleri var (bkz.
+    // course_content_test: katalogdaki her kurs CourseModules'a bagli).
+    // Eskiden bagli olmayan kurs icin eski, yalnizca Turkce tanitim
+    // ekranina (CourseDetailScreen) dusuluyordu; o yol hic kullanilmiyordu
+    // ve kaldirildi.
     if (!context.mounted) return;
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            CourseModules.wiredCourseIds.contains(course.id)
-                ? InteractiveCourseScreen(course: course)
-                : CourseDetailScreen(course: course),
+        builder: (context) => InteractiveCourseScreen(course: course),
       ),
     );
   }
@@ -800,10 +797,7 @@ class _CourseCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                CourseModules.wiredCourseIds.contains(course.id)
-                    ? InteractiveCourseScreen(course: course)
-                    : CourseDetailScreen(course: course),
+            builder: (context) => InteractiveCourseScreen(course: course),
           ),
         );
       },
