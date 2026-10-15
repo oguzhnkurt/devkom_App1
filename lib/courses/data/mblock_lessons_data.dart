@@ -51,17 +51,15 @@ class MBlockLessonsData {
           id: 'm1_1_intro',
           mascotEmoji: '🧩',
           mascotMessage:
-              'mBlock, Scratch\'e çok benzeyen bir program. Ama bir farkı '
-              'var: burada kurduğun bloklar ekrandaki bir kediyi değil, '
-              'masandaki gerçek bir kartı çalıştırıyor. LED yanıyor, '
-              'buzzer ötüyor, motor dönüyor.',
+              'İlk modülde bloklarınla ekrandaki kuklayı yürüttün. Şimdi '
+              'aynı bloklar masandaki gerçek bir kartı çalıştıracak: LED '
+              'yanıyor, buzzer ötüyor, motor dönüyor.',
           mascotMessageEn:
-              'mBlock looks a lot like Scratch. With one difference: the '
-              'blocks you snap together do not move a cat on the screen — '
-              'they run a real board on your desk. An LED lights up, a '
-              'buzzer sounds, a motor turns.',
-          mascotMessageDe: 'mBlock sieht Scratch sehr ähnlich. Mit einem Unterschied: Die Blöcke, die du zusammensteckst, bewegen keine Katze auf dem Bildschirm – sie lassen eine echte Platine auf deinem Tisch laufen. Eine LED leuchtet, ein Summer piept, ein Motor dreht sich.',
-          mascotMessageEs: 'mBlock se parece mucho a Scratch. Con una diferencia: los bloques que encajas no mueven un gato en la pantalla, hacen funcionar una placa real sobre tu mesa. Se enciende un LED, suena un zumbador, gira un motor.',
+              'In the first module your blocks moved a sprite on the '
+              'screen. Now the same blocks drive a real board on your '
+              'desk: an LED lights up, a buzzer sounds, a motor turns.',
+          mascotMessageDe: 'Im ersten Modul haben deine Blöcke eine Figur auf dem Bildschirm bewegt. Jetzt steuern dieselben Blöcke eine echte Platine auf deinem Tisch: Eine LED leuchtet, ein Summer piept, ein Motor dreht sich.',
+          mascotMessageEs: 'En el primer módulo tus bloques movían un objeto en la pantalla. Ahora esos mismos bloques hacen funcionar una placa real sobre tu mesa: se enciende un LED, suena un zumbador, gira un motor.',
           highlights: [
             'Scratch gibi sürükle-bırak',
             'Gerçek karta yükleniyor',
@@ -261,10 +259,10 @@ class MBlockLessonsData {
           contentDe: '🧩 Jetzt weißt du, was auf dem Bildschirm ist.\n\n✓ mBlock ist wie Scratch, steuert aber eine echte Platine\n✓ Reiter Gerät ist die Hardware, Reiter Figur der Bildschirm\n✓ Upload-Modus ist dauerhaft, Live-Modus braucht das Kabel\n\nNächste Lektion: Was liegt wo in der Blockpalette?',
           contentEs: '🧩 Ya sabes qué hay en la pantalla.\n\n✓ mBlock es como Scratch pero maneja una placa real\n✓ La pestaña Dispositivo es el hardware, la pestaña Objeto es la pantalla\n✓ El modo de subida es permanente, el modo en vivo necesita el cable\n\nSiguiente lección: ¿dónde está cada cosa en la paleta de bloques?',
           tipEmoji: '🏆',
-          tip: 'mBlock\'a Merhaba rozetini kazandın!',
-          tipEn: 'You earned the Hello mBlock badge!',
-          tipDe: 'Du hast das Abzeichen «Hallo mBlock» verdient!',
-          tipEs: '¡Has ganado la insignia Hola mBlock!',
+          tip: 'Kart Kâşifi rozetini kazandın!',
+          tipEn: 'You earned the Board Explorer badge!',
+          tipDe: 'Du hast das Abzeichen «Platinen-Entdecker» verdient!',
+          tipEs: '¡Has ganado la insignia Explorador de Placas!',
         ),
       ],
     ),
@@ -283,6 +281,7 @@ class MBlockLessonsData {
       subtitleEs: 'Nueve categorías, nueve colores',
       order: 5,
       xpReward: 45,
+      badge: 'mblock_palette',
       steps: [
         IntroStep(
           id: 'm1_2_intro',
@@ -401,26 +400,30 @@ class MBlockLessonsData {
           instructionDe: 'Ordne jeder Kategorie ihre Farbe zu.',
           instructionEs: 'Relaciona cada categoría con su color.',
           pairs: [
+            // Sag sutun Almanca ve Ispanyolcada Ingilizce kalmisti. Sari
+            // (Olaylar #FFBF00) ile turuncu (Kontrol #FFAB19) ekranda
+            // neredeyse ayni renk; Olaylar yerine Sensor (#4CBFE6,
+            // acik mavi; anlatimdaki adiyla) geldi.
             MatchPair(id: 'p1', left: 'Pin', right: 'Mavi',
                 leftEn: 'Pin',
                 leftDe: 'Pin',
-                leftEs: 'Pin', rightEn: 'Blue', rightDe: 'Blue', rightEs: 'Blue'),
+                leftEs: 'Pin', rightEn: 'Blue', rightDe: 'Blau', rightEs: 'Azul'),
             MatchPair(id: 'p2', left: 'seri port', right: 'Yeşil',
                 leftEn: 'serial port',
                 leftDe: 'serielle Schnittstelle',
-                leftEs: 'puerto serie', rightEn: 'Green', rightDe: 'Green', rightEs: 'Green'),
+                leftEs: 'puerto serie', rightEn: 'Green', rightDe: 'Grün', rightEs: 'Verde'),
             MatchPair(id: 'p3', left: 'Veri', right: 'Mor',
                 leftEn: 'Data',
                 leftDe: 'Daten',
-                leftEs: 'Datos', rightEn: 'Purple', rightDe: 'Purple', rightEs: 'Purple'),
-            MatchPair(id: 'p4', left: 'Olaylar', right: 'Sarı',
-                leftEn: 'Events',
-                leftDe: 'Ereignisse',
-                leftEs: 'Eventos', rightEn: 'Yellow', rightDe: 'Yellow', rightEs: 'Yellow'),
+                leftEs: 'Datos', rightEn: 'Purple', rightDe: 'Lila', rightEs: 'Morado'),
+            MatchPair(id: 'p4', left: 'Sensör', right: 'Açık mavi',
+                leftEn: 'Sensor',
+                leftDe: 'Sensor',
+                leftEs: 'Sensor', rightEn: 'Light blue', rightDe: 'Hellblau', rightEs: 'Azul claro'),
             MatchPair(id: 'p5', left: 'Kontrol', right: 'Turuncu',
                 leftEn: 'Control',
                 leftDe: 'Steuerung',
-                leftEs: 'Control', rightEn: 'Orange', rightDe: 'Orange', rightEs: 'Orange'),
+                leftEs: 'Control', rightEn: 'Orange', rightDe: 'Orange', rightEs: 'Naranja'),
           ],
           xpReward: 25,
         ),
@@ -568,6 +571,7 @@ class MBlockLessonsData {
       subtitleEs: 'El bloque de inicio y la salida digital',
       order: 6,
       xpReward: 50,
+      badge: 'mblock_first_light',
       steps: [
         IntroStep(
           id: 'm2_1_intro',
@@ -794,6 +798,7 @@ class MBlockLessonsData {
       subtitleEs: 'Bloques en C y la espera',
       order: 7,
       xpReward: 50,
+      badge: 'mblock_blink',
       steps: [
         IntroStep(
           id: 'm2_2_intro',
@@ -1196,7 +1201,10 @@ class MBlockLessonsData {
             ],
             cozum: [
               MBlockBeklenen('dev_kart_acilis'),
-              MBlockBeklenen('dev_surekli', icerik: [
+              // Iki "eger" kardes; hangisinin once geldigi sonucu
+              // degistirmiyor (biri dogruysa oteki yanlis).
+              MBlockBeklenen('dev_surekli', kardesKosullarSerbest: true,
+                  icerik: [
                 MBlockBeklenen('dev_eger', girdiler: {
                   'KOSUL': MBlockBeklenen('dev_dijital_oku',
                       alanlar: {'PIN': '2'}),
@@ -1791,30 +1799,31 @@ class MBlockLessonsData {
     InteractiveLesson(
       id: 'mblock_4_2',
       courseId: 'mblock',
-      title: 'Final Proje: Otomatik Bariyer',
+      title: 'Büyük Proje: Otomatik Bariyer',
       subtitle: 'Sensör + servo + buzzer bir arada',
-      titleEn: 'Final Project: Automatic Barrier',
-      titleDe: 'Abschlussprojekt: automatische Schranke',
-      titleEs: 'Proyecto final: barrera automática',
+      titleEn: 'Big Project: Automatic Barrier',
+      titleDe: 'Großes Projekt: automatische Schranke',
+      titleEs: 'Gran proyecto: barrera automática',
       subtitleEn: 'Sensor, servo and buzzer together',
       subtitleDe: 'Sensor, Servo und Summer zusammen',
       subtitleEs: 'Sensor, servo y zumbador juntos',
       order: 11,
       xpReward: 80,
+      badge: 'mblock_maker',
       steps: [
         IntroStep(
           id: 'm4_2_intro',
           mascotEmoji: '🚧',
           mascotMessage:
-              'Son proje: otoparkların girişindeki bariyer. Araba '
+              'Büyük proje: otoparkların girişindeki bariyer. Araba '
               'yaklaşınca kolu kaldıracak, geçtikten sonra indirecek. '
               'Öğrendiğin her şey burada bir arada.',
           mascotMessageEn:
-              'The final project: the barrier at a car park entrance. It '
+              'The big project: the barrier at a car park entrance. It '
               'lifts when a car comes close and lowers after it passes. '
               'Everything you learned, together.',
-          mascotMessageDe: 'Das Abschlussprojekt: die Schranke an der Einfahrt eines Parkplatzes. Sie hebt sich, wenn ein Auto näher kommt, und senkt sich, wenn es durch ist. Alles, was du gelernt hast, zusammen.',
-          mascotMessageEs: 'El proyecto final: la barrera de la entrada de un aparcamiento. Se levanta cuando se acerca un coche y baja cuando ha pasado. Todo lo que has aprendido, junto.',
+          mascotMessageDe: 'Das große Projekt: die Schranke an der Einfahrt eines Parkplatzes. Sie hebt sich, wenn ein Auto näher kommt, und senkt sich, wenn es durch ist. Alles, was du gelernt hast, zusammen.',
+          mascotMessageEs: 'El gran proyecto: la barrera de la entrada de un aparcamiento. Se levanta cuando se acerca un coche y baja cuando ha pasado. Todo lo que has aprendido, junto.',
           highlights: [
             'Servo motoru kontrol et',
             'Sensörle karar ver',
@@ -1989,26 +1998,28 @@ class MBlockLessonsData {
 
         ExplanationStep(
           id: 'm4_2_summary',
-          title: 'mBlock Kursunu Bitirdin!',
-          titleEn: 'You Finished the mBlock Course!',
-          titleDe: 'Du hast den mBlock-Kurs geschafft!',
-          titleEs: '¡Has terminado el curso de mBlock!',
+          title: 'Donanım Kısmını Bitirdin!',
+          titleEn: 'You Finished the Hardware Part!',
+          titleDe: 'Du hast den Hardware-Teil geschafft!',
+          titleEs: '¡Has terminado la parte de hardware!',
           content: '🚧 Gerçek bir cihaz yaptın.\n\n'
               '✓ mBlock editörünü ve iki modunu tanıyorsun\n'
               '✓ Dokuz kategoriyi ve renklerini biliyorsun\n'
               '✓ Şekillerden bloğun nereye takılacağını anlıyorsun\n'
               '✓ Dijital, analog, PWM, servo ve sensör kullandın\n'
               '✓ Seri portla hata aramayı öğrendin\n\n'
-              'Bundan sonrası senin fikirlerine kalmış.',
+              'Sırada projeler var: akvaryum, dans partisi ve elma '
+              'toplama oyunu.',
           contentEn: '🚧 You built a real device.\n\n'
               '✓ You know the mBlock editor and its two modes\n'
               '✓ You know the nine categories and their colours\n'
               '✓ You can tell from a shape where a block fits\n'
               '✓ You used digital, analog, PWM, servo and a sensor\n'
               '✓ You learned to debug with the serial port\n\n'
-              'What comes next is up to your ideas.',
-          contentDe: '🚧 Du hast ein echtes Gerät gebaut.\n\n✓ Du kennst den mBlock-Editor und seine zwei Modi\n✓ Du kennst die neun Kategorien und ihre Farben\n✓ Du siehst an der Form, wohin ein Block passt\n✓ Du hast digital, analog, PWM, Servo und einen Sensor benutzt\n✓ Du hast gelernt, mit der seriellen Schnittstelle Fehler zu suchen\n\nWas als Nächstes kommt, entscheiden deine Ideen.',
-          contentEs: '🚧 Has construido un aparato de verdad.\n\n✓ Conoces el editor de mBlock y sus dos modos\n✓ Conoces las nueve categorías y sus colores\n✓ Sabes por la forma dónde encaja un bloque\n✓ Has usado digital, analógico, PWM, servo y un sensor\n✓ Has aprendido a depurar con el puerto serie\n\nLo que venga ahora depende de tus ideas.',
+              'Next come the projects: an aquarium, a dance party and an '
+              'apple-catching game.',
+          contentDe: '🚧 Du hast ein echtes Gerät gebaut.\n\n✓ Du kennst den mBlock-Editor und seine zwei Modi\n✓ Du kennst die neun Kategorien und ihre Farben\n✓ Du siehst an der Form, wohin ein Block passt\n✓ Du hast digital, analog, PWM, Servo und einen Sensor benutzt\n✓ Du hast gelernt, mit der seriellen Schnittstelle Fehler zu suchen\n\nAls Nächstes kommen die Projekte: ein Aquarium, eine Tanzparty und ein Apfelfang-Spiel.',
+          contentEs: '🚧 Has construido un aparato de verdad.\n\n✓ Conoces el editor de mBlock y sus dos modos\n✓ Conoces las nueve categorías y sus colores\n✓ Sabes por la forma dónde encaja un bloque\n✓ Has usado digital, analógico, PWM, servo y un sensor\n✓ Has aprendido a depurar con el puerto serie\n\nAhora vienen los proyectos: un acuario, una fiesta de baile y un juego de atrapar manzanas.',
           tipEmoji: '🏆',
           tip: 'mBlock Ustası rozetini kazandın!',
           tipEn: 'You earned the mBlock Maker badge!',

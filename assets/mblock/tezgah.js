@@ -101,6 +101,14 @@
     return t;
   }
 
+  /// Yuvanin baslangic degeri. Dile gore yazilmis olabilir:
+  /// {tr: 'Merhaba!', en: 'Hello!', ...}.
+  function varsayilan(y) {
+    var v = y.varsayilan;
+    if (v && typeof v === 'object') v = v[dil] || v.en || v.tr;
+    return v;
+  }
+
   function golge(y) {
     switch (y.tip) {
       case 'tamsayi':
@@ -114,7 +122,11 @@
           y.varsayilan + '</field></shadow>';
       case 'metin':
         return '<shadow type="text"><field name="TEXT">' +
-          kacir(String(y.varsayilan)) + '</field></shadow>';
+          kacir(String(varsayilan(y))) + '</field></shadow>';
+      case 'renk':
+        // "<renk> rengine degiyor mu?": Scratch'in renk secicisi.
+        return '<shadow type="colour_picker"><field name="COLOUR">' +
+          kacir(String(varsayilan(y))) + '</field></shadow>';
       default:
         return null; // secim ve kosul yuvalarinin golgesi yok
     }

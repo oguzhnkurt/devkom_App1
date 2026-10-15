@@ -352,9 +352,16 @@ void main() {
         'if_touching_kase',
         'change_toplananelma',
         'delete_clone',
+        // Projedeki ikinci kontrol: kacan elma toprak rengine degip
+        // siliniyor (sensing_touchingcolor #663b00).
+        'if_touching_color',
+        'delete_clone',
       ]);
       for (final a in adimlar) {
-        expect(a.availableBlocks.length, greaterThan(a.correctSequence.length),
+        // Ayni blok cozumde iki kez gecebiliyor ("bu ikizi sil"):
+        // celdirici FARKLI bloklara gore sayiliyor.
+        expect(a.availableBlocks.length,
+            greaterThan(a.correctSequence.toSet().length),
             reason: '${a.id}: celdirici yok.');
         expect(a.mblock, isNotNull);
       }

@@ -701,6 +701,25 @@ class MBlockKuklaBlocks {
         color: MBlockPalette.control,
       );
 
+  /// `eğer <(renk) rengine değiyor mu?> ise` — Elma Toplama'da kacan
+  /// elmanin kahverengi topraga degmesi.
+  static ScratchBlock ifTouchingColor(
+          {String renk = 'kahverengi',
+          String renkEn = 'brown',
+          String renkDe = 'braun',
+          String renkEs = 'marrón',
+          String id = 'if_touching_color'}) =>
+      ScratchBlock(
+        id: id,
+        blockType: ScratchBlockType.control,
+        shape: ScratchBlockShape.cBlock,
+        label: 'eğer <$renk rengine değiyor mu?> ise',
+        labelEn: 'if <touching color $renkEn?> then',
+        labelDe: 'falls <wird Farbe $renkDe berührt?>, dann',
+        labelEs: 'si <¿tocando el color $renkEs?> entonces',
+        color: MBlockPalette.control,
+      );
+
   static ScratchBlock changeVariable(String ad, String miktar,
           {String? en, String? de, String? es, String? id}) =>
       ScratchBlock(

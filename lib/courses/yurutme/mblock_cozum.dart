@@ -102,11 +102,21 @@ class MBlockBeklenen {
     this.alanlar = const {},
     this.icerik = const [],
     this.girdiler = const {},
+    this.kardesKosullarSerbest = false,
   });
 
   final String tip;
   final Map<String, String> alanlar;
   final List<MBlockBeklenen> icerik;
+
+  /// [icerik]teki YAN YANA "eger" bloklarinin sirasi serbest.
+  ///
+  /// `surekli { eger basili {yak}  eger basili degil {sondur} }` ile
+  /// iki "eger"i ters sirada kuran cocuk ayni programi yazmis olur;
+  /// denetleyici ise sirayi birebir istiyordu. Yalnizca ardisik "eger"
+  /// gruplari icinde serbest: "eger"den once/sonra gelen bloklarin
+  /// sirasi yine denetleniyor.
+  final bool kardesKosullarSerbest;
 
   /// Yuvaya takilmasi beklenen bloklar. [alanlar] gibi bir ALT KUME:
   /// yalnizca yazilan yuvalar denetlenir.
@@ -143,7 +153,9 @@ class MBlockTezgahAyari {
 /// KURAL
 ///  * Tahtada tam bir yigin olmali. Iki ayri yigin "yarim birakilmis"
 ///    demek; tezgah bunu dogru saymiyor.
-///  * Blok sirasi ve C kutularinin ici birebir ayni olmali.
+///  * Blok sirasi ve C kutularinin ici birebir ayni olmali (bir C
+///    kutusu [MBlockBeklenen.kardesKosullarSerbest] diyorsa icindeki
+///    yan yana "eger"lerin sirasi serbest).
 ///  * Alanlardan yalnizca dersin yazdiklari denetlenir.
 bool mblockCozumDogruMu(
   List<List<MBlockBlok>> yiginlar,
@@ -174,7 +186,50 @@ bool _blokUyuyor(MBlockBlok k, MBlockBeklenen b) {
     if (takili == null) return false;
     if (!_blokUyuyor(takili, e.value)) return false;
   }
-  return _diziUyuyor(k.icerik, b.icerik);
+  return b.kardesKosullarSerbest
+      ? _diziUyuyorKosullarSerbest(k.icerik, b.icerik)
+      : _diziUyuyor(k.icerik, b.icerik);
+}
+
+/// Sirasi serbest sayilan kosul bloklari.
+const Set<String> _kosulBloklari = {'dev_eger', 'dev_eger_degilse'};
+
+/// [_diziUyuyor] gibi; ama beklenen dizideki ardisik kosul bloklari
+/// (bir grup) kurulan dizide AYNI YERDE herhangi bir sirada olabilir.
+bool _diziUyuyorKosullarSerbest(
+    List<MBlockBlok> kurulan, List<MBlockBeklenen> beklenen) {
+  if (kurulan.length != beklenen.length) return false;
+  var i = 0;
+  while (i < beklenen.length) {
+    if (!_kosulBloklari.contains(beklenen[i].tip)) {
+      if (!_blokUyuyor(kurulan[i], beklenen[i])) return false;
+      i++;
+      continue;
+    }
+    var j = i;
+    while (j < beklenen.length && _kosulBloklari.contains(beklenen[j].tip)) {
+      j++;
+    }
+    if (!_eslesmeVar(kurulan.sublist(i, j), beklenen.sublist(i, j))) {
+      return false;
+    }
+    i = j;
+  }
+  return true;
+}
+
+/// Iki grup birebir eslesebiliyor mu (sira serbest)? Gruplar kucuk
+/// (iki uc blok), geri izleme yeterli.
+bool _eslesmeVar(List<MBlockBlok> kurulan, List<MBlockBeklenen> beklenen) {
+  if (beklenen.isEmpty) return kurulan.isEmpty;
+  final b = beklenen.first;
+  for (var k = 0; k < kurulan.length; k++) {
+    if (_blokUyuyor(kurulan[k], b) &&
+        _eslesmeVar([...kurulan]..removeAt(k), beklenen.sublist(1))) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /// "1" ile "1.0" ayni sayidir.

@@ -226,7 +226,10 @@
     },
     {
       id: 'dev_de', kategori: 'gorunum', sekil: 'duz',
-      yuvalar: [yuva('METIN', 'metin', 'Merhaba!')],
+      // Kutudaki ilk yazi cocugun dilinde (tezgah.js golge()).
+      yuvalar: [yuva('METIN', 'metin', {
+        tr: 'Merhaba!', en: 'Hello!', de: 'Hallo!', es: '¡Hola!'
+      })],
       tr: '%1 de', en: 'say %1', de: 'sage %1', es: 'decir %1'
     },
     {
@@ -299,6 +302,16 @@
       })],
       tr: '%1 e değiyor mu?', en: 'touching %1?',
       de: 'wird %1 berührt?', es: '¿tocando %1?'
+    },
+    {
+      // Elma Toplama: kacirilan elma alttaki kahverengi topraga degince
+      // siliniyor (tool/mblock_projeleri/elma_toplama.mblock:
+      // sensing_touchingcolor #663b00). Renk denetlenmiyor; damlalikla
+      // secilen her renk kabul.
+      id: 'dev_renge_dokunuyor', kategori: 'algilama', sekil: 'altigen',
+      yuvalar: [yuva('RENK', 'renk', '#663b00')],
+      tr: '%1 rengine değiyor mu?', en: 'touching color %1?',
+      de: 'wird Farbe %1 berührt?', es: '¿tocando el color %1?'
     },
     {
       id: 'dev_ikiz_basla', kategori: 'kontrol', sekil: 'sapka', yuvalar: [],

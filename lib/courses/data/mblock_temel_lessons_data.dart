@@ -274,28 +274,24 @@ class MBlockTemelLessonsData {
           options: [
             ChoiceOption(
               text: 'Şapka blok',
-              emoji: '🎩',
               textEn: 'A hat block',
               textDe: 'Ein Hutblock',
               textEs: 'Un bloque de sombrero',
             ),
             ChoiceOption(
               text: 'Oval blok',
-              emoji: '🥚',
               textEn: 'An oval block',
               textDe: 'Ein ovaler Block',
               textEs: 'Un bloque ovalado',
             ),
             ChoiceOption(
               text: 'Altıgen blok',
-              emoji: '⬡',
               textEn: 'A hexagon block',
               textDe: 'Ein Sechseckblock',
               textEs: 'Un bloque hexagonal',
             ),
             ChoiceOption(
               text: 'C bloğu',
-              emoji: '🔁',
               textEn: 'A C block',
               textDe: 'Ein C-Block',
               textEs: 'Un bloque C',
@@ -674,7 +670,11 @@ class MBlockTemelLessonsData {
             bloklar: ['dev_bayrak', 'dev_de', 'dev_git', 'dev_don'],
             cozum: [
               MBlockBeklenen('dev_bayrak'),
-              MBlockBeklenen('dev_de', alanlar: {'METIN': 'Merhaba!'}),
+              // Yalnizca blok TURU denetleniyor: kutudaki yazi cocugun
+              // dilinde ("Hello!", "Hallo!"...) ya da kendi sozu olabilir.
+              // Eskiden 'Merhaba!' isteniyordu; Ingilizce ekranda
+              // hedefteki "Hello!"yu yazan cocuk yanlis aliyordu.
+              MBlockBeklenen('dev_de'),
               MBlockBeklenen('dev_git', alanlar: {'ADIM': '50'}),
             ],
           ),

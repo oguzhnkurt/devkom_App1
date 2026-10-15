@@ -1731,14 +1731,18 @@ class MBlockProjeLessonsData {
               'Schüssel zu landen.',
           instructionEs: 'Enseña al clon a caer y a entrar en el cuenco.',
           goal: 'İkiz olarak başladığımda → göster → sürekli { y -8 '
-              'değiştir, eğer Kase e değiyorsa { puan +1, bu ikizi sil } }',
+              'değiştir, eğer Kase e değiyorsa { puan +1, bu ikizi sil }, '
+              'eğer kahverengi renge değiyorsa { bu ikizi sil } }',
           goalEn: 'When I start as a clone → show → forever { change y by '
-              '-8, if touching Bowl { score +1, delete this clone } }',
+              '-8, if touching Bowl { score +1, delete this clone }, if '
+              'touching colour brown { delete this clone } }',
           goalDe: 'Wenn ich als Klon entstehe → zeige dich → fortlaufend { '
               'ändere y um -8, falls Schüssel berührt { Punkte +1, lösche '
-              'diesen Klon } }',
+              'diesen Klon }, falls Farbe braun berührt { lösche diesen '
+              'Klon } }',
           goalEs: 'Al comenzar como clon → mostrar → por siempre { sumar '
-              'a y -8, si toca Cuenco { puntos +1, eliminar este clon } }',
+              'a y -8, si toca Cuenco { puntos +1, eliminar este clon }, '
+              'si toca el color marrón { eliminar este clon } }',
           availableBlocks: [
             MBlockKuklaBlocks.whenIStartAsClone(),
             MBlockKuklaBlocks.show(),
@@ -1752,6 +1756,7 @@ class MBlockProjeLessonsData {
                 en: 'score', de: 'punkte', es: 'puntos',
                 id: 'change_toplananelma'),
             MBlockKuklaBlocks.deleteThisClone(),
+            MBlockKuklaBlocks.ifTouchingColor(),
           ],
           correctSequence: [
             'start_as_clone',
@@ -1760,6 +1765,8 @@ class MBlockProjeLessonsData {
             'change_y_elma',
             'if_touching_kase',
             'change_toplananelma',
+            'delete_clone',
+            'if_touching_color',
             'delete_clone',
           ],
           mblock: MBlockTezgahAyari(
@@ -1771,13 +1778,20 @@ class MBlockProjeLessonsData {
               'dev_y_degistir',
               'dev_eger',
               'dev_dokunuyor',
+              'dev_renge_dokunuyor',
               'dev_degisken_degistir',
               'dev_ikizi_sil',
             ],
+            // Anlatimdaki (ve elma_toplama.mblock'taki) IKI kontrol:
+            // kaseye degen elma puan getirip silinir, kacan elma
+            // kahverengi topraga degip silinir. Ikinci kontrol eksikti:
+            // kacan elmalar hic silinmiyor, birikip yagmuru
+            // durduruyordu. Iki "eger"in sirasi serbest.
             cozum: [
               MBlockBeklenen('dev_ikiz_basla'),
               MBlockBeklenen('dev_goster'),
-              MBlockBeklenen('dev_surekli', icerik: [
+              MBlockBeklenen('dev_surekli', kardesKosullarSerbest: true,
+                  icerik: [
                 MBlockBeklenen('dev_y_degistir', alanlar: {'DY': '-8'}),
                 MBlockBeklenen('dev_eger', girdiler: {
                   'KOSUL': MBlockBeklenen('dev_dokunuyor',
@@ -1785,6 +1799,11 @@ class MBlockProjeLessonsData {
                 }, icerik: [
                   MBlockBeklenen('dev_degisken_degistir',
                       alanlar: {'AD': 'toplananelma', 'DEGER': '1'}),
+                  MBlockBeklenen('dev_ikizi_sil'),
+                ]),
+                MBlockBeklenen('dev_eger', girdiler: {
+                  'KOSUL': MBlockBeklenen('dev_renge_dokunuyor'),
+                }, icerik: [
                   MBlockBeklenen('dev_ikizi_sil'),
                 ]),
               ]),
