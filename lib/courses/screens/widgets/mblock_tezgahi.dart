@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../theme.dart';
+import '../../sahne/mblock_yigin_cizimi.dart';
 import '../../yurutme/mblock_cozum.dart';
 import 'step_widgets.dart' show lessonLang, lessonLangRead, lessonText;
 
@@ -37,7 +38,19 @@ class MBlockTezgahi extends StatefulWidget {
     required this.ayar,
     required this.onDurum,
     this.yukseklik,
+    this.onHata,
+    this.onizleme = const [],
   });
+
+  /// TEST/ONIZLEME: true iken WebView hic kurulmuyor; tezgahin yerinde
+  /// [onizleme] programi salt okunur ciziliyor. Widget testleri ve ekran
+  /// goruntusu araci tezgahi boyle besliyor (bkz. MBlockBlokAdimiState.
+  /// durumVer). Uygulamada hep false.
+  @visibleForTesting
+  static bool webviewsiz = false;
+
+  /// [webviewsiz] iken cizilen program.
+  final List<List<MBlockBlok>> onizleme;
 
   final MBlockTezgahAyari ayar;
 
@@ -46,6 +59,11 @@ class MBlockTezgahi extends StatefulWidget {
 
   /// Verilmezse ekran yuksekligine gore hesaplaniyor.
   final double? yukseklik;
+
+  /// Tezgah acilamadi: WebView kurulamadi, sayfa hata bildirdi ya da
+  /// sabir suresi doldu. Ders adimi bunu duyunca yedek tezgaha
+  /// (dokunarak dizme) geciyor; cocuk bekleyen bir carkla kalmiyor.
+  final VoidCallback? onHata;
 
   /// Blok olcegi — ekran GENISLIGINE gore.
   ///
@@ -117,7 +135,31 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
   @override
   void initState() {
     super.initState();
+    if (MBlockTezgahi.webviewsiz) {
+      _hazir = true;
+      return;
+    }
     _kur();
+  }
+
+  /// Hata bir kez bildiriliyor (ust uste gelen kaynak hatalari icin
+  /// ders adimi birden cok kez yedege gecmesin).
+  bool _hataBildirildi = false;
+
+  void _hataVer(String neden) {
+    if (!mounted) return;
+    setState(() => _hata = neden);
+    _bildir();
+  }
+
+  void _bildir() {
+    if (_hataBildirildi || widget.onHata == null) return;
+    _hataBildirildi = true;
+    // Kurulum initState icinden de patlayabiliyor: bildirim build
+    // bittikten sonra.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.onHata?.call();
+    });
   }
 
   void _kur() {
@@ -165,7 +207,7 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
               if (e.url != null && e.url!.contains('/media/')) return;
               debugPrint('⚠️ mBlock tezgahi kaynak hatasi: '
                   '${e.url} — ${e.description}');
-              if (mounted) setState(() => _hata = e.description);
+              _hataVer(e.description);
             },
           ),
         );
@@ -179,10 +221,11 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
             'hazir demedi. Yukaridaki "tezgahi durumu" satirina bak: '
             'scratchBlocks/katalog/tezgah "undefined" ise betikler '
             'calismamis, "object" ise sayfa yavas acilmis demektir.');
-        setState(() => _hata = 'zaman asimi');
+        _hataVer('zaman asimi');
       });
     } catch (_) {
       _web = null;
+      _bildir();
     }
   }
 
@@ -224,7 +267,7 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
     } catch (e) {
       // `MBlockTezgah` tanimsizsa betikler hic yuklenmemis demektir.
       debugPrint('⚠️ mBlock tezgahi kurulamadi: $e');
-      if (mounted) setState(() => _hata = '$e');
+      _hataVer('$e');
     }
   }
 
@@ -246,7 +289,7 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
     }
     if (metin.contains('"tur":"hata"')) {
       debugPrint('⚠️ mBlock tezgahi hata bildirdi: $metin');
-      if (mounted) setState(() => _hata = metin);
+      _hataVer(metin);
       return;
     }
     final yiginlar = MBlockBlok.mesajdanYiginlar(metin);
@@ -283,6 +326,31 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
   Widget build(BuildContext context) {
     final lang = lessonLang(context);
     final c = _web;
+
+    if (MBlockTezgahi.webviewsiz) {
+      return Container(
+        key: const ValueKey('mblock_tezgah_onizleme'),
+        height: widget.yukseklik ??
+            MBlockTezgahi.yukseklikIcin(MediaQuery.sizeOf(context).height),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF9F9F9),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final y in widget.onizleme) ...[
+                MBlockYiginCizimi(bloklar: y, lang: lang, olcek: 0.92),
+                const SizedBox(height: 10),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
 
     return Container(
       height: widget.yukseklik ??

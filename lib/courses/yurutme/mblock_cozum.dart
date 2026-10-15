@@ -245,3 +245,175 @@ bool _degerEsit(String a, String b) {
   if (x != null && y != null) return x == y;
   return a.trim().toLowerCase() == b.trim().toLowerCase();
 }
+
+// ---------------------------------------------------------------------
+// Ipucu: ilk fark
+// ---------------------------------------------------------------------
+
+/// Cocugun programi ile cozum arasindaki ILK farkin turu.
+enum MBlockFarkTuru {
+  /// Tahtada hic blok yok.
+  bosTahta,
+
+  /// Birden fazla yigin: bir parca kopuk duruyor.
+  cokYigin,
+
+  /// O sirada bir blok olmali ama yok.
+  eksikBlok,
+
+  /// O sirada fazladan bir blok var.
+  fazlaBlok,
+
+  /// O sirada baska bir blok olmali.
+  farkliBlok,
+
+  /// Blok dogru, bir kutudaki deger (pin, sayi) farkli.
+  deger,
+
+  /// Blok dogru, yuvasina takilan blok eksik ya da farkli.
+  girdi,
+}
+
+/// Ilk farkin yeri ve ne oldugu. [sira] cocugun okudugu sirayla (blok,
+/// C kutusunun ici, alttaki blok) 1'den sayilir.
+class MBlockFark {
+  const MBlockFark(this.tur,
+      {this.sira = 0, this.beklenenTip, this.kurulanTip, this.yuva});
+
+  final MBlockFarkTuru tur;
+  final int sira;
+  final String? beklenenTip;
+  final String? kurulanTip;
+  final String? yuva;
+
+  @override
+  String toString() => 'MBlockFark($tur, $sira, $beklenenTip, $kurulanTip, $yuva)';
+}
+
+/// Cocugun programinin cozumden ILK ayrildigi yer; program dogruysa null.
+///
+/// Ipucu cevabi ele vermesin diye yalnizca YERI ve orada beklenen blogun
+/// TURUNU soyluyor; kutulardaki degerleri soylemiyor.
+MBlockFark? mblockIlkFark(
+  List<List<MBlockBlok>> yiginlar,
+  List<MBlockBeklenen> beklenen,
+) {
+  if (mblockCozumDogruMu(yiginlar, beklenen)) return null;
+  if (yiginlar.isEmpty || yiginlar.every((y) => y.isEmpty)) {
+    return const MBlockFark(MBlockFarkTuru.bosTahta);
+  }
+  if (yiginlar.length != 1) return const MBlockFark(MBlockFarkTuru.cokYigin);
+  final sayac = [0];
+  return _diziFark(yiginlar.first, beklenen, sayac) ??
+      const MBlockFark(MBlockFarkTuru.cokYigin);
+}
+
+MBlockFark? _diziFark(
+    List<MBlockBlok> k, List<MBlockBeklenen> b, List<int> sayac) {
+  final n = k.length > b.length ? k.length : b.length;
+  for (var i = 0; i < n; i++) {
+    if (i >= k.length) {
+      return MBlockFark(MBlockFarkTuru.eksikBlok,
+          sira: sayac[0] + 1, beklenenTip: b[i].tip);
+    }
+    sayac[0]++;
+    if (i >= b.length) {
+      return MBlockFark(MBlockFarkTuru.fazlaBlok,
+          sira: sayac[0], kurulanTip: k[i].tip);
+    }
+    final f = _blokFark(k[i], b[i], sayac[0], sayac);
+    if (f != null) return f;
+  }
+  return null;
+}
+
+int _blokSay(List<MBlockBlok> l) =>
+    l.fold(0, (t, b) => t + 1 + _blokSay(b.icerik));
+
+MBlockFark? _blokFark(
+    MBlockBlok k, MBlockBeklenen b, int sira, List<int> sayac) {
+  if (k.tip != b.tip) {
+    return MBlockFark(MBlockFarkTuru.farkliBlok,
+        sira: sira, beklenenTip: b.tip, kurulanTip: k.tip);
+  }
+  for (final e in b.alanlar.entries) {
+    final d = k.alanlar[e.key];
+    if (d == null || !_degerEsit(d, e.value)) {
+      return MBlockFark(MBlockFarkTuru.deger,
+          sira: sira, beklenenTip: b.tip, yuva: e.key);
+    }
+  }
+  for (final e in b.girdiler.entries) {
+    final t = k.girdiler[e.key];
+    if (t == null || !_blokUyuyor(t, e.value)) {
+      return MBlockFark(MBlockFarkTuru.girdi,
+          sira: sira, beklenenTip: e.value.tip, kurulanTip: t?.tip, yuva: e.key);
+    }
+  }
+  if (b.kardesKosullarSerbest &&
+      _diziUyuyorKosullarSerbest(k.icerik, b.icerik)) {
+    sayac[0] += _blokSay(k.icerik);
+    return null;
+  }
+  return _diziFark(k.icerik, b.icerik, sayac);
+}
+
+// ---------------------------------------------------------------------
+// Cozumden calistirilabilir program
+// ---------------------------------------------------------------------
+
+/// Bloklarin varsayilan degerleri (JS katalogundaki `varsayilan`lar).
+/// Cozum yalnizca denetledigi alanlari yaziyor; cozumu CALISTIRMAK icin
+/// gerisi buradan.
+const Map<String, Map<String, String>> mblockVarsayilanAlanlar = {
+  'dev_tekrarla': {'KERE': '10'},
+  'dev_bekle': {'SANIYE': '1'},
+  'dev_dijital_yaz': {'PIN': '9', 'SEVIYE': 'HIGH'},
+  'dev_pwm_yaz': {'PIN': '5', 'GUC': '128'},
+  'dev_dijital_oku': {'PIN': '2'},
+  'dev_analog_oku': {'PIN': '0'},
+  'dev_servo': {'PIN': '9', 'ACI': '90'},
+  'dev_seri_yaz': {'METIN': 'merhaba'},
+  'dev_mesafe': {'TRIG': '13', 'ECHO': '12'},
+  'dev_harita': {'DEGER': '0', 'A': '0', 'B': '1023', 'C': '0', 'D': '255'},
+  'dev_degisken_yap': {'AD': 'parlaklik', 'DEGER': '0'},
+  'dev_git': {'ADIM': '10'},
+  'dev_don': {'ACI': '15'},
+  'dev_boyut': {'MIKTAR': '10'},
+  'dev_yonune_don': {'YON': '90'},
+  'dev_ses_bitene': {'SES': 'Bubbles'},
+  'dev_x_yap': {'X': '0'},
+  'dev_y_yap': {'Y': '0'},
+  'dev_y_degistir': {'DY': '10'},
+  'dev_dokunuyor': {'NESNE': 'Kase'},
+  'dev_renge_dokunuyor': {'RENK': '#663b00'},
+  'dev_degisken_degistir': {'AD': 'toplananelma', 'DEGER': '1'},
+};
+
+/// Cozumun kendisi, calistirilabilir bir program olarak (cozumu goster,
+/// tezgah acilmadiginda sahne). Cozumun yazmadigi alanlar varsayilan;
+/// "de" blogunun sozu cocugun dilinde.
+List<MBlockBlok> mblockCozumProgrami(
+    List<MBlockBeklenen> cozum, String lang) {
+  MBlockBlok cevir(MBlockBeklenen b) => MBlockBlok(
+        tip: b.tip,
+        alanlar: {
+          ...?mblockVarsayilanAlanlar[b.tip],
+          if (b.tip == 'dev_de')
+            'METIN': switch (lang) {
+              'en' => 'Hello!',
+              'de' => 'Hallo!',
+              'es' => '¡Hola!',
+              _ => 'Merhaba!',
+            },
+          ...b.alanlar,
+        },
+        icerik: [for (final i in b.icerik) cevir(i)],
+        girdiler: {for (final e in b.girdiler.entries) e.key: cevir(e.value)},
+      );
+  return [for (final b in cozum) cevir(b)];
+}
+
+/// Cozum bir KART programi mi (Arduino Uno), yoksa kukla programi mi?
+bool mblockKartProgramiMi(List<MBlockBeklenen> cozum) =>
+    cozum.isNotEmpty && cozum.first.tip == 'dev_kart_acilis';

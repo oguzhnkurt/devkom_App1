@@ -192,6 +192,9 @@ class BlokYorumlayici {
   /// `if_pressed`, `k_forever`) burada duz blok sayiliyordu; iz kodu
   /// cocugun gordugu yapidan BASKA bir yapiyla calistiriyordu.
   static BlokAnlami anlamOf(ScratchBlock blok) {
+    // mBlock kukla programlari (bkz. mblock_kukla.dart): anlam kimligin
+    // ICINDE yazili, sozlukte aranmiyor.
+    if (blok.id.startsWith(mblockOneki)) return mblockAnlami(blok.id);
     final bilinen = blokSozlugu[blok.id];
     if (bilinen != null && bilinen.komut != BlokKomutu.etkisiz) {
       return bilinen;
@@ -220,6 +223,26 @@ class BlokYorumlayici {
   }
 
   BlokAnlami _anlam(ScratchBlock blok) => anlamOf(blok);
+
+  /// mBlock tezgahindan cevrilen bloklarin kimlik oneki.
+  static const String mblockOneki = 'mbk|';
+
+  /// mBlock kukla blogunun kimligi: anlami kimligin icinde
+  /// (`mbk|ilerle|50||3`). Ders verisindeki kimliklerin aksine bu
+  /// bloklarin degerleri cocugun yazdigi sayilar; sozluge sigmazlar.
+  static String mblockKimligi(BlokKomutu komut,
+          {num? sayi, String? degisken, required int sira}) =>
+      '$mblockOneki${komut.name}|${sayi ?? ''}|${degisken ?? ''}|$sira';
+
+  /// [mblockKimligi]'nin tersi.
+  static BlokAnlami mblockAnlami(String id) {
+    final p = id.substring(mblockOneki.length).split('|');
+    final komut = BlokKomutu.values.firstWhere((k) => k.name == p[0],
+        orElse: () => BlokKomutu.etkisiz);
+    final sayi = p.length > 1 ? num.tryParse(p[1]) : null;
+    final degisken = p.length > 2 && p[2].isNotEmpty ? p[2] : null;
+    return BlokAnlami(komut, sayi: sayi, degisken: degisken);
+  }
 
   static ScratchBlock _kb(String id, String tr, String en, String de,
           String es,

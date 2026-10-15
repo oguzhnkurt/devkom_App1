@@ -583,6 +583,8 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
               step.id,
               xpEarned: correct ? step.xpReward : 0,
             ),
+            // Tezgah acilmazsa yedek ekranin ic DEVAM tusu.
+            onDevam: _nextStep,
           );
         }
         return BlockBuilderStepWidget(
