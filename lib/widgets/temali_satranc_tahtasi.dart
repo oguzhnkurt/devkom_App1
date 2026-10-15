@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:chess/chess.dart' as chess_lib;
 import 'package:flutter/material.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart' as fcb;
@@ -75,6 +77,89 @@ enum SatrancTemasi {
   }
 }
 
+/// Cocugun hangi renkle oynayacagi (oyun basinda soruluyor).
+///
+/// RENK SECIMI (Ekim 2026): cocuk eskiden HEP beyaz oynuyordu. Artik
+/// Beyaz, Siyah ya da Rastgele seciyor; son secim hatirlaniyor. Hangi
+/// renk secilirse secilsin cocugun taslari tahtanin ALTINDA (siyahta
+/// tahta 180 derece donuyor).
+enum SatrancRenkSecimi {
+  beyaz,
+  siyah,
+  rastgele;
+
+  String adi(String dil) {
+    switch (this) {
+      case SatrancRenkSecimi.beyaz:
+        return AppLang.pick(dil,
+            tr: 'Beyaz', en: 'White', de: 'Weiß', es: 'Blancas');
+      case SatrancRenkSecimi.siyah:
+        return AppLang.pick(dil,
+            tr: 'Siyah', en: 'Black', de: 'Schwarz', es: 'Negras');
+      case SatrancRenkSecimi.rastgele:
+        return AppLang.pick(dil,
+            tr: 'Rastgele', en: 'Random', de: 'Zufall', es: 'Al azar');
+    }
+  }
+
+  /// Secimi gercek bir renge cevirir ("Rastgele" burada zar atiyor).
+  chess_lib.Color coz([Random? r]) {
+    switch (this) {
+      case SatrancRenkSecimi.beyaz:
+        return chess_lib.Color.WHITE;
+      case SatrancRenkSecimi.siyah:
+        return chess_lib.Color.BLACK;
+      case SatrancRenkSecimi.rastgele:
+        return (r ?? Random()).nextBool()
+            ? chess_lib.Color.WHITE
+            : chess_lib.Color.BLACK;
+    }
+  }
+
+  static const _anahtar = 'satranc_oyuncu_rengi';
+
+  /// Son secilen renk (ilk acilista Beyaz).
+  static Future<SatrancRenkSecimi> kayitli() async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      final ad = p.getString(_anahtar);
+      return SatrancRenkSecimi.values.firstWhere((t) => t.name == ad,
+          orElse: () => SatrancRenkSecimi.beyaz);
+    } catch (_) {
+      return SatrancRenkSecimi.beyaz;
+    }
+  }
+
+  Future<void> kaydet() async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      await p.setString(_anahtar, name);
+    } catch (_) {
+      // Kaydedilemezse bir dahaki oyunda varsayilan (Beyaz) gelir.
+    }
+  }
+}
+
+/// Tahtadaki (sutun, satir) hucresinin karesi. (0,0) sol ust kose.
+///
+/// [beyazAltta] false ise tahta cocugun gozunden siyah tarafa donuk:
+/// sol ust h1, sag alt a8.
+String konumdanKare(int sutun, int satir, {bool beyazAltta = true}) {
+  return beyazAltta
+      ? '${'abcdefgh'[sutun]}${8 - satir}'
+      : '${'abcdefgh'[7 - sutun]}${satir + 1}';
+}
+
+/// [konumdanKare]'nin tersi: "e2" -> (4, 6) beyaz altta, (3, 1) siyah
+/// altta.
+({int sutun, int satir}) kareKonumu(String kare, {bool beyazAltta = true}) {
+  final dosya = kare.toLowerCase().codeUnitAt(0) - 97;
+  final sira = int.parse(kare[1]) - 1;
+  return beyazAltta
+      ? (sutun: dosya, satir: 7 - sira)
+      : (sutun: 7 - dosya, satir: sira);
+}
+
 /// Kareleri temaya gore boyayan satranc tahtasi.
 ///
 /// Davranis `fcb.ChessBoard` ile birebir ayni (surukle-birak, terfi
@@ -87,12 +172,17 @@ class TemaliSatrancTahtasi extends StatelessWidget {
     required this.tema,
     this.enableUserMoves = true,
     this.onMove,
+    this.beyazAltta = true,
   });
 
   final fcb.ChessBoardController controller;
   final SatrancTemasi tema;
   final bool enableUserMoves;
   final VoidCallback? onMove;
+
+  /// false: tahta siyah taraftan gorunuyor (cocuk siyah oynuyor).
+  /// Kare renkleri donmede degismiyor: sol alt hep koyu kare.
+  final bool beyazAltta;
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +208,8 @@ class TemaliSatrancTahtasi extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final row = index ~/ 8;
                     final column = index % 8;
-                    final kare = '${fcb.files[column]}${8 - row}';
+                    final kare =
+                        konumdanKare(column, row, beyazAltta: beyazAltta);
                     return _kareHucresi(context, game, kare, hucre);
                   },
                 ),

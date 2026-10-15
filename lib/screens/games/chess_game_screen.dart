@@ -33,8 +33,20 @@ class ChessGameScreen extends StatefulWidget {
   @visibleForTesting
   final String? baslangicFen;
 
+  /// Testler icin: renk secimini bu renkle baslatir (kayitli secimin
+  /// yerine). Uygulama son secimi SharedPreferences'tan okuyor.
+  @visibleForTesting
+  final SatrancRenkSecimi? baslangicRengi;
+
+  /// Bilgisayarin ILK hamlesinden once bekleme (cocuk siyahsa). Tahta
+  /// cizilmeden hamle gelmesin, cocuk ilk hamleyi gorsun diye.
+  static const Duration ilkHamleBeklemesi = Duration(milliseconds: 900);
+
   const ChessGameScreen(
-      {super.key, this.initialDifficulty, this.baslangicFen});
+      {super.key,
+      this.initialDifficulty,
+      this.baslangicFen,
+      this.baslangicRengi});
 
   @override
   State<ChessGameScreen> createState() => _ChessGameScreenState();
@@ -57,6 +69,15 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
   bool _isAIThinking = false;
   /// Tahta temasi; oyuncunun son secimi hatirlaniyor.
   SatrancTemasi _tema = SatrancTemasi.devMavi;
+
+  /// Oyun basinda sorulan renk tercihi (Beyaz / Siyah / Rastgele).
+  SatrancRenkSecimi _renkSecimi = SatrancRenkSecimi.beyaz;
+
+  /// Cocugun bu oyundaki GERCEK rengi ("Rastgele" cozulmus hali).
+  /// Taslari her zaman tahtanin altinda.
+  chess_lib.Color _oyuncuRengi = chess_lib.Color.WHITE;
+
+  bool get _beyazAltta => _oyuncuRengi == chess_lib.Color.WHITE;
 
   // Game data
   String? _gameId;
@@ -110,6 +131,13 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     SatrancTemasi.kayitli().then((t) {
       if (mounted) setState(() => _tema = t);
     });
+    if (widget.baslangicRengi != null) {
+      _renkSecimi = widget.baslangicRengi!;
+    } else {
+      SatrancRenkSecimi.kayitli().then((r) {
+        if (mounted) setState(() => _renkSecimi = r);
+      });
+    }
 
     if (_selectedDifficulty != null) {
       // ILK KAREDEN SONRA: _startGame() showDialog ve ScaffoldMessenger
@@ -191,6 +219,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
         _boardController = ChessBoardController.fromFEN(widget.baslangicFen!);
       }
       setState(() {
+        _oyuncuRengi = _renkSecimi.coz();
         _isGameStarted = true;
         _gameId = const Uuid().v4();
         _startTime = DateTime.now();
@@ -225,7 +254,25 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
 
       if (widget.baslangicFen != null) {
         _checkGameState();
-        if (_gameResult != GameResult.ongoing) await _endGame();
+        if (_gameResult != GameResult.ongoing) {
+          await _endGame();
+          return;
+        }
+      }
+
+      // COCUK SIYAHSA ILK HAMLE BILGISAYARIN. Tahta once cizilsin, cocuk
+      // bir an baksin; sonra bilgisayar oynasin. Bu arada "Yeni Oyun"a
+      // basilirsa (oyun kimligi degisir) hamle yapilmiyor.
+      if (_boardController.game.turn != _oyuncuRengi) {
+        final oyun = _gameId;
+        await Future.delayed(ChessGameScreen.ilkHamleBeklemesi);
+        if (mounted &&
+            _gameId == oyun &&
+            _gameResult == GameResult.ongoing &&
+            !_isAIThinking &&
+            _boardController.game.turn != _oyuncuRengi) {
+          await _makeAIMove();
+        }
       }
     } catch (e) {
       debugPrint('❌ Failed to start game: $e');
@@ -249,12 +296,13 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
 
   /// Cocuk su an hamle yapabilir mi?
   ///
-  /// Uc kosul: oyun suruyor, bilgisayar dusunmuyor ve sira BEYAZDA
-  /// (cocuk her zaman beyaz oynuyor, tahta da ona gore cevrili).
+  /// Uc kosul: oyun suruyor, bilgisayar dusunmuyor ve sira COCUGUN
+  /// RENGINDE. (Eskiden "sira beyazda" idi: cocuk hep beyaz oynuyordu.
+  /// Artik siyah da secebiliyor; tahta da ona gore donuyor.)
   bool get _cocukOynayabilir =>
       _gameResult == GameResult.ongoing &&
       !_isAIThinking &&
-      _boardController.game.turn == chess_lib.Color.WHITE;
+      _boardController.game.turn == _oyuncuRengi;
 
   Future<void> _onMove() async {
     if (_gameResult != GameResult.ongoing || _isAIThinking) return;
@@ -296,14 +344,21 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
 
   Future<void> _makeAIMove() async {
     setState(() => _isAIThinking = true);
+    // Bilgisayar dusunurken "Yeni Oyun"a basilirsa kontrolcu degisiyor;
+    // eski oyunun hamlesi yeni tahtaya oynanmasin.
+    final kontrolcu = _boardController;
+    final oyun = _gameId;
 
     try {
       final aiMove = await _aiService.getBestMove(
-        game: _boardController.game,
+        game: kontrolcu.game,
         difficulty: _selectedDifficulty!,
       );
 
-      if (aiMove != null && mounted) {
+      if (aiMove != null &&
+          mounted &&
+          identical(kontrolcu, _boardController) &&
+          oyun == _gameId) {
         _boardController.game.move(aiMove);
         _moveHistory.add(aiMove);
         debugPrint('🤖 AI move: $aiMove');
@@ -352,20 +407,13 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
   }
 
   void _checkGameState() {
-    if (_boardController.game.in_checkmate) {
-      // White (player) is always on bottom, so if it's white's turn and checkmate, player lost
-      setState(() {
-        _gameResult = _boardController.game.turn == chess_lib.Color.WHITE
-            ? GameResult.loss
-            : GameResult.win;
-      });
-      debugPrint('🏁 Checkmate! Result: ${_gameResult.name}');
-    } else if (_boardController.game.in_stalemate ||
-        _boardController.game.in_draw ||
-        _boardController.game.in_threefold_repetition) {
-      setState(() => _gameResult = GameResult.draw);
-      debugPrint('🏁 Draw!');
-    }
+    // Sonuc cocugun rengine gore (bkz. satrancSonucu): eskiden "mat olan
+    // beyazsa cocuk kaybetti" sabitti; siyah oynayan cocuk mat edince
+    // "Mat oldun" gorurdu.
+    final sonuc = satrancSonucu(_boardController.game, _oyuncuRengi);
+    if (sonuc == GameResult.ongoing) return;
+    setState(() => _gameResult = sonuc);
+    debugPrint('🏁 Game over! Result: ${_gameResult.name}');
   }
 
   Future<void> _endGame() async {
@@ -403,6 +451,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
         timestamp: DateTime.now(),
         startTime: _startTime,
         endTime: _endTime,
+        playerColor: _beyazAltta ? 'white' : 'black',
       );
 
       await _firestoreService.saveGame(gameModel.toMap());
@@ -685,12 +734,12 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
 
   // ------------------------------------------------ dokunarak oynama
 
-  /// Tahtadaki bir noktanin karesi (beyaz altta).
+  /// Tahtadaki bir noktanin karesi (cocugun rengi altta).
   String _kare(Offset p, double kenar) {
     final s = kenar / 8;
     final sutun = (p.dx / s).floor().clamp(0, 7);
     final satir = (p.dy / s).floor().clamp(0, 7);
-    return '${'abcdefgh'[sutun]}${8 - satir}';
+    return konumdanKare(sutun, satir, beyazAltta: _beyazAltta);
   }
 
   void _secimiTemizle() {
@@ -710,7 +759,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     // Secili tasin hedefine basildi: hamleyi dokunma bitince yapiyoruz.
     if (_secili != null && _hedefler.contains(kare)) return;
     final tas = _boardController.game.get(kare);
-    if (tas != null && tas.color == chess_lib.Color.WHITE) {
+    if (tas != null && tas.color == _oyuncuRengi) {
       final hamleler =
           _boardController.game.generate_moves({'square': kare});
       setState(() {
@@ -736,7 +785,8 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     _secimiTemizle();
     // Piyon son siraya: dokunarak oynayan cocuga terfi sorulmuyor,
     // vezir oluyor (sureklemede paketin kendi secim penceresi acilir).
-    if (tas?.type == chess_lib.PieceType.PAWN && kare[1] == '8') {
+    final sonSira = _beyazAltta ? '8' : '1';
+    if (tas?.type == chess_lib.PieceType.PAWN && kare[1] == sonSira) {
       _boardController.makeMoveWithPromotion(
           from: nereden, to: kare, pieceToPromoteTo: 'q');
     } else {
@@ -769,9 +819,8 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
   Widget _buildIpucuKatmani(double kenar) {
     final s = kenar / 8;
     Rect yer(String kare) {
-      final x = kare.codeUnitAt(0) - 97;
-      final y = 8 - int.parse(kare[1]);
-      return Rect.fromLTWH(x * s, y * s, s, s);
+      final k = kareKonumu(kare, beyazAltta: _beyazAltta);
+      return Rect.fromLTWH(k.sutun * s, k.satir * s, s, s);
     }
 
     final sah = _tehditAltindakiSah();
@@ -1106,6 +1155,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                                         tema: _tema,
                                         onMove: _onMove,
                                         enableUserMoves: _cocukOynayabilir,
+                                        beyazAltta: _beyazAltta,
                                       ),
                                     ),
                                   ),
@@ -1124,7 +1174,8 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                               height: maxWidth,
                               child: Column(
                                 children: List.generate(8, (i) {
-                                  final rank = 8 - i;
+                                  // Siyah oynarken tahta donuk: 1 ustte.
+                                  final rank = _beyazAltta ? 8 - i : i + 1;
                                   return SizedBox(
                                     height: squareSize,
                                     child: Center(
@@ -1148,7 +1199,10 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                           width: maxWidth,
                           height: 20,
                           child: Row(
-                            children: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+                            children: (_beyazAltta
+                                    ? 'abcdefgh'
+                                    : 'hgfedcba')
+                                .split('')
                                 .map((file) {
                               return SizedBox(
                                 width: squareSize,
@@ -1243,7 +1297,9 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
       barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => Dialog(
-          child: Container(
+          // Kaydirilabilir: dort tema + renk secimi kucuk telefonda
+          // ekrana sigmayabiliyor.
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -1263,7 +1319,48 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                   _buildThemeOption(t, setDialogState),
                   if (t != SatrancTemasi.values.last) const SizedBox(height: 12),
                 ],
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
+                // RENK SECIMI: cocuk hangi taslarla oynayacak.
+                Text(
+                  _tl('Hangi renkle oynamak istersin?',
+                      'Which colour do you want to play?',
+                      'Mit welcher Farbe willst du spielen?',
+                      '¿Con qué color quieres jugar?'),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    for (final r in SatrancRenkSecimi.values) ...[
+                      Expanded(child: _buildRenkSecenegi(r, setDialogState)),
+                      if (r != SatrancRenkSecimi.values.last)
+                        const SizedBox(width: 8),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _renkSecimi == SatrancRenkSecimi.beyaz
+                      ? _tl('Beyaz ilk hamleyi yapar.',
+                          'White makes the first move.',
+                          'Weiß macht den ersten Zug.',
+                          'Las blancas mueven primero.')
+                      : _renkSecimi == SatrancRenkSecimi.siyah
+                          ? _tl('İlk hamleyi bilgisayar yapar.',
+                              'The computer moves first.',
+                              'Der Computer zieht zuerst.',
+                              'El ordenador mueve primero.')
+                          : _tl('Rengini zar belirler!',
+                              'A dice roll picks your colour!',
+                              'Der Würfel entscheidet!',
+                              '¡Un dado elige tu color!'),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 13, color: AppTheme.mediumGray),
+                ),
+                const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -1277,6 +1374,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                     ElevatedButton(
                       onPressed: () {
                         _tema.kaydet();
+                        _renkSecimi.kaydet();
                         Navigator.of(context).pop(true);
                       },
                       style: ElevatedButton.styleFrom(
@@ -1338,6 +1436,61 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
               ),
             ),
             if (isSelected) Icon(Icons.check_circle_rounded, color: tema.vurgu),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Renk secenegi: kucuk bir sah ikonu ve adi.
+  Widget _buildRenkSecenegi(SatrancRenkSecimi r, StateSetter setDialogState) {
+    final secili = _renkSecimi == r;
+    final Widget ikon;
+    switch (r) {
+      case SatrancRenkSecimi.beyaz:
+        ikon = const Text('♔',
+            style: TextStyle(fontSize: 30, color: Colors.black87, height: 1));
+        break;
+      case SatrancRenkSecimi.siyah:
+        ikon = const Text('♚',
+            style: TextStyle(fontSize: 30, color: Colors.black87, height: 1));
+        break;
+      case SatrancRenkSecimi.rastgele:
+        ikon = const Icon(Icons.casino_rounded,
+            size: 30, color: AppTheme.primaryBlue);
+        break;
+    }
+    return InkWell(
+      key: ValueKey('satranc_renk_${r.name}'),
+      borderRadius: BorderRadius.circular(14),
+      onTap: () {
+        setState(() => _renkSecimi = r);
+        setDialogState(() {});
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        decoration: BoxDecoration(
+          color: secili ? _tema.acik.withValues(alpha: 0.6) : null,
+          border: Border.all(
+            color: secili ? _tema.vurgu : Colors.grey.shade300,
+            width: secili ? 3 : 1,
+          ),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: 34, child: Center(child: ikon)),
+            const SizedBox(height: 6),
+            Text(
+              r.adi(_lang),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: secili ? FontWeight.bold : FontWeight.w500,
+              ),
+            ),
           ],
         ),
       ),
@@ -1445,16 +1598,11 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
     );
   }
 
-  /// Convert chess algebraic notation to board coordinates
-  /// e.g., "e2" -> (4, 6) for white's perspective
+  /// Convert chess algebraic notation to board coordinates.
+  /// "e2" -> (4, 6) when White is at the bottom, (3, 1) when Black is.
   ({double x, double y}) _algebraicToCoordinates(String algebraic) {
-    final file = algebraic[0].toLowerCase().codeUnitAt(0) - 'a'.codeUnitAt(0);
-    final rank = int.parse(algebraic[1]) - 1;
-
-    // For white's perspective (board orientation is white on bottom)
-    // Files: a=0, b=1, ..., h=7 (left to right)
-    // Ranks: 1=7, 2=6, ..., 8=0 (bottom to top, inverted for display)
-    return (x: file.toDouble(), y: (7 - rank).toDouble());
+    final k = kareKonumu(algebraic, beyazAltta: _beyazAltta);
+    return (x: k.sutun.toDouble(), y: k.satir.toDouble());
   }
 
   /// Convert SAN (Standard Algebraic Notation) to Turkish

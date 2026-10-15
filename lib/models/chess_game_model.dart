@@ -1,3 +1,5 @@
+import 'package:chess/chess.dart' as chess_lib;
+
 import '../utils/lang.dart';
 
 /// Difficulty levels for chess AI
@@ -24,6 +26,22 @@ enum GameResult {
   ongoing,
 }
 
+/// Oyunun cocuk acisindan sonucu.
+///
+/// Eskiden "mat olan taraf beyazsa cocuk kaybetti" sabit kuraliydi
+/// (cocuk hep beyaz oynuyordu). Cocuk siyah da oynayabildigi icin sonuc
+/// artik [oyuncu] rengine gore: mat olan taraf (sirasi gelen) cocuksa
+/// kayip, rakipse galibiyet.
+GameResult satrancSonucu(chess_lib.Chess oyun, chess_lib.Color oyuncu) {
+  if (oyun.in_checkmate) {
+    return oyun.turn == oyuncu ? GameResult.loss : GameResult.win;
+  }
+  if (oyun.in_stalemate || oyun.in_draw || oyun.in_threefold_repetition) {
+    return GameResult.draw;
+  }
+  return GameResult.ongoing;
+}
+
 /// Chess game model for Firestore
 class ChessGameModel {
   final String gameId;
@@ -39,6 +57,9 @@ class ChessGameModel {
   final DateTime? startTime;
   final DateTime? endTime;
 
+  /// Cocugun rengi: 'white' ya da 'black' (eski kayitlarda yok = white).
+  final String playerColor;
+
   ChessGameModel({
     required this.gameId,
     required this.playerId,
@@ -52,6 +73,7 @@ class ChessGameModel {
     required this.timestamp,
     this.startTime,
     this.endTime,
+    this.playerColor = 'white',
   });
 
   /// Convert to map
@@ -69,6 +91,7 @@ class ChessGameModel {
       'timestamp': timestamp.toIso8601String(),
       'startTime': startTime?.toIso8601String(),
       'endTime': endTime?.toIso8601String(),
+      'playerColor': playerColor,
     };
   }
 
@@ -89,6 +112,7 @@ class ChessGameModel {
     DateTime? timestamp,
     DateTime? startTime,
     DateTime? endTime,
+    String? playerColor,
   }) {
     return ChessGameModel(
       gameId: gameId ?? this.gameId,
@@ -103,6 +127,7 @@ class ChessGameModel {
       timestamp: timestamp ?? this.timestamp,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
+      playerColor: playerColor ?? this.playerColor,
     );
   }
 }

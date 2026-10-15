@@ -23,7 +23,9 @@ void main() {
     final govde = s.substring(i, i + 260);
     expect(govde.contains('GameResult.ongoing'), isTrue);
     expect(govde.contains('!_isAIThinking'), isTrue);
-    expect(govde.contains('chess_lib.Color.WHITE'), isTrue);
+    // Sira cocugun renginde (cocuk beyaz ya da siyah oynayabiliyor).
+    expect(govde.contains('_boardController.game.turn == _oyuncuRengi'),
+        isTrue);
   });
 
   test('Stockfish ekran kapaninca durduruluyor', () {
