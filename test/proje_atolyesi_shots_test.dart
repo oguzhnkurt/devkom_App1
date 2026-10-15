@@ -116,15 +116,21 @@ Future<void> _bekle(WidgetTester tester, int ms) async {
   }
 }
 
-Future<void> _cek(WidgetTester tester, String ad, {double oran = 2}) async {
+Future<void> _cek(WidgetTester tester, String ad,
+    {double oran = 2, String? dizin}) async {
+  final d = dizin ?? _dizin;
   await tester.runAsync(() async {
     final b = _key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
     final img = await b.toImage(pixelRatio: oran);
     final bytes = await img.toByteData(format: ui.ImageByteFormat.png);
-    Directory(_dizin).createSync(recursive: true);
-    File('$_dizin/$ad.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+    Directory(d).createSync(recursive: true);
+    File('$d/$ad.png').writeAsBytesSync(bytes!.buffer.asUint8List());
   });
 }
+
+/// Proje motoru (es zamanli betikler, ikizler, sanal tuslar) kareleri.
+final _v2 = Platform.environment['YORUMLAYICI_V2_DIR'] ??
+    '/mnt/user-data/outputs/yorumlayici_v2';
 
 Future<void> _kapat(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox.shrink());
@@ -337,6 +343,101 @@ void main() {
       sahne.durdur();
       await _kapat(tester);
     });
+  });
+
+  /// Atolyeyi acar, calistirir, [ms] sonra sahneyi ustte gosterip ceker.
+  Future<void> oyun(WidgetTester tester, ProjeAtolyesiStep a, String ad,
+      {required int ms, String lang = 'tr', Future<void> Function()? once}) async {
+    await _kur(
+        tester,
+        _adimSayfasi(ProjeAtolyesiWidget(
+          step: a,
+          course: _scratch,
+          isDark: false,
+          lang: lang,
+          onComplete: (_) {},
+          kayitli: KayitliProje(
+            id: 'k',
+            ad: a.titleFor(lang).replaceFirst(RegExp(r'^.*?: '), ''),
+            kursId: 'scratch',
+            adimId: a.id,
+            kod: KodYapisi.coz(a.ornekCozum),
+            tarih: DateTime(2026, 10, 15),
+          ),
+        )),
+        boy: const Size(390, 844));
+    await _goster(tester, find.byType(ScratchTezgahi), ust: 70);
+    final st = tester.state<ScratchTezgahiState>(find.byType(ScratchTezgahi));
+    st.calistir();
+    await _bekle(tester, ms);
+    if (once != null) await once();
+    await _cek(tester, ad, dizin: _v2);
+    st.durdur();
+    await _kapat(tester);
+  }
+
+  testWidgets('v2 1 elma yagmuru: ikizler, puan, oklar', (tester) async {
+    await oyun(tester, ScratchAtolyeleri.elmaYagmuru, '1_elma_yagmuru_oyunda',
+        ms: 4500);
+  });
+
+  testWidgets('v2 2 yakala: Devi fareyi kovaliyor', (tester) async {
+    await oyun(tester, ScratchAtolyeleri.yakalaOyunu, '2_yakala_kovalamaca',
+        ms: 2600);
+  });
+
+  testWidgets('v2 3 elma yagmuru: cocuk sol oka basiyor (en)', (tester) async {
+    TestGesture? g;
+    await oyun(tester, ScratchAtolyeleri.elmaYagmuru, '3_elma_yagmuru_elle_en',
+        lang: 'en', ms: 3000, once: () async {
+      g = await tester.startGesture(
+          tester.getCenter(find.byKey(const ValueKey('tus_left'))));
+      await _bekle(tester, 500);
+    });
+    await g?.up();
+  });
+
+  testWidgets('v2 4 yakala: hedefler tamam', (tester) async {
+    await _kur(
+        tester,
+        _adimSayfasi(ProjeAtolyesiWidget(
+          step: ScratchAtolyeleri.yakalaOyunu,
+          course: _scratch,
+          isDark: false,
+          lang: 'tr',
+          onComplete: (_) {},
+          kayitli: KayitliProje(
+            id: 'k',
+            ad: 'Yakala!',
+            kursId: 'scratch',
+            adimId: ScratchAtolyeleri.yakalaOyunu.id,
+            kod: KodYapisi.coz(ScratchAtolyeleri.yakalaOyunu.ornekCozum),
+            tarih: DateTime(2026, 10, 15),
+          ),
+        )),
+        boy: const Size(390, 1100));
+    final st = tester.state<ScratchTezgahiState>(find.byType(ScratchTezgahi));
+    st.calistir();
+    await _bekle(tester, 42000);
+    await _cek(tester, '4_yakala_hedefler', dizin: _v2);
+    await _kapat(tester);
+  });
+
+  testWidgets('v2 5 fare kuklasinin hazir kodu', (tester) async {
+    await _kur(
+        tester,
+        _adimSayfasi(ProjeAtolyesiWidget(
+          step: ScratchAtolyeleri.yakalaOyunu,
+          course: _scratch,
+          isDark: false,
+          lang: 'tr',
+          onComplete: (_) {},
+        )),
+        boy: const Size(390, 844));
+    await _dokun(tester, find.byKey(const ValueKey('kukla_cipi_Fare')));
+    await _bekle(tester, 800);
+    await _cek(tester, '5_fare_hazir_kodu', dizin: _v2);
+    await _kapat(tester);
   });
 
   testWidgets('8 ilerleyen ipucu', (tester) async {
