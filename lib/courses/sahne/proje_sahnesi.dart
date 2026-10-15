@@ -86,7 +86,7 @@ class ProjeSahnesi extends StatefulWidget {
 
 class ProjeSahnesiState extends State<ProjeSahnesi>
     with SingleTickerProviderStateMixin {
-  late final Ticker _ticker = createTicker(_tik);
+  late final Ticker _ticker;
 
   /// Her karede bir artiyor; boyaci ve kuklalar bunu dinliyor.
   final ValueNotifier<int> _surum = ValueNotifier(0);
@@ -105,6 +105,9 @@ class ProjeSahnesiState extends State<ProjeSahnesi>
   @override
   void initState() {
     super.initState();
+    // Ticker burada kuruluyor: tembel kurulursa ilk kez dispose'ta
+    // olusturulup "deactivated widget" hatasi veriyor (Flutter 3.44).
+    _ticker = createTicker(_tik);
     if (widget.calisiyor) _basla();
   }
 
