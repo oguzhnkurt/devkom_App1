@@ -1,3 +1,4 @@
+import '../../yurutme/degisken_adlari.dart';
 import 'package:flutter/material.dart';
 
 import '../../../theme.dart';
@@ -227,6 +228,7 @@ class CalismaIzi extends StatelessWidget {
       if (anlam == null || anlam.komut != BlokKomutu.soyle) continue;
       if (anlam.rastgeleAlt != null) break; // sayi: dile bagli degil
       if (anlam.listeRastgele != null) break; // oge zaten cocugun dilinde
+      if (anlam.metin == null) break; // degiskenin/listenin degeri
       for (final b in bloklar) {
         if (b.id == adim.blokId) return konusmaMetni(b, lang);
       }
@@ -238,7 +240,8 @@ class CalismaIzi extends StatelessWidget {
   Widget _sonucSeridi(Yurutme sonuc) {
     final parcalar = <String>[];
     sonuc.sonSahne.degiskenler.forEach((ad, deger) {
-      parcalar.add('$ad: ${deger % 1 == 0 ? deger.toInt() : deger}');
+      parcalar.add(
+          '${yorumlayiciAdi(ad, lang)}: ${deger % 1 == 0 ? deger.toInt() : deger}');
     });
     if (sonuc.sonSahne.x != 0 || sonuc.sonSahne.y != 0) {
       parcalar.add('x: ${sonuc.sonSahne.x.toInt()}');
@@ -260,7 +263,8 @@ class CalismaIzi extends StatelessWidget {
           lang, 'kalem inik', 'pen down', 'Stift unten', 'lápiz abajo'));
     }
     sonuc.sonSahne.listeler.forEach((ad, icerik) {
-      parcalar.add('$ad: [${icerik.join(', ')}]');
+      parcalar.add('${yorumlayiciAdi(ad, lang)}: '
+          '[${icerik.map((o) => yorumlayiciAdi(o, lang)).join(', ')}]');
     });
 
     return Container(

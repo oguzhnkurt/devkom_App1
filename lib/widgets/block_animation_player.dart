@@ -1,3 +1,4 @@
+import '../courses/yurutme/degisken_adlari.dart';
 import 'dart:async';
 import 'dart:math';
 
@@ -360,15 +361,8 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
 
   Future<bool> _hareket(ScratchBlock blok, YurutmeAdimi adim,
       {bool zipla = false}) async {
-    var hedef = Offset(adim.sahne.x, adim.sahne.y);
-    if (blok.id == 'goto_random') {
-      // Yorumlayici rastgele konumu bilmiyor; sahnede rastgele bir yer.
-      final s = _sinirlar;
-      hedef = Offset(
-        s.left + _rastgele.nextDouble() * max(s.width, 100),
-        s.top + _rastgele.nextDouble() * s.height,
-      );
-    }
+    // Rastgele konum da yorumlayicidan: sahne ve iz ayni yeri gosteriyor.
+    final hedef = Offset(adim.sahne.x, adim.sahne.y);
     final simdi = _konum;
     final yeniYon = adim.sahne.yon;
     setState(() {
@@ -420,6 +414,13 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
         anlam.listeRastgele != null &&
         adim.sahne.soyledigi != null) {
       // Listenin rastgele ogesi: yorumlayicinin sectigi oge (izde de o).
+      metin = adim.sahne.soyledigi!;
+    } else if (BlokYorumlayici.anlamOf(blok) case final a
+        when a.komut == BlokKomutu.soyle &&
+            a.metin == null &&
+            adim.sahne.soyledigi != null) {
+      // Degiskenin ya da listenin degeri ("zar", "alisveris in
+      // uzunlugu"): yorumlayicinin hesapladigi deger.
       metin = adim.sahne.soyledigi!;
     } else {
       // Metin blogun KENDI yazisindan cikariliyor: "Miyav! de" -> "Miyav!"
@@ -638,7 +639,7 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
                                     color: Colors.orange, width: 1.5),
                               ),
                               child: Text(
-                                '${e.key}: ${e.value % 1 == 0 ? e.value.toInt() : e.value}',
+                                '${yorumlayiciAdi(e.key, widget.lang)}: ${e.value % 1 == 0 ? e.value.toInt() : e.value}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
@@ -919,7 +920,7 @@ class BlockAnimationPlayerState extends State<BlockAnimationPlayer>
                                 color: const Color(0xFFFF8C1A), width: 1.4),
                           ),
                           child: Text(
-                            '${e.key}: ${e.value % 1 == 0 ? e.value.toInt() : e.value}',
+                            '${yorumlayiciAdi(e.key, widget.lang)}: ${e.value % 1 == 0 ? e.value.toInt() : e.value}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 11.5,

@@ -92,8 +92,18 @@ enum BlokKomutu {
   /// [BlokAnlami.sayi] girdisiyle calistirir.
   cagir,
 
-  /// Gorunur bir etkisi olmayan ama akista yeri olan bloklar: haber
-  /// salma, ikiz yaratma, ses. Adi soyleniyor, sahne degismiyor.
+  /// `%1 haberini sal` — [BlokAnlami.haber]i alan betikleri calistirir.
+  ///
+  /// Eski (tek yiginli) yurutmede etkisi yok; Proje Atolyesi'nin cok
+  /// betikli yurutmesinde ([BlokYorumlayici.yurutProje]) haberi alan
+  /// betikler o anda calisiyor.
+  haberSal,
+
+  /// `rastgele konuma git` — sahnede rastgele bir yere gider.
+  rastgeleKonum,
+
+  /// Gorunur bir etkisi olmayan ama akista yeri olan bloklar: ikiz
+  /// yaratma, ses. Adi soyleniyor, sahne degismiyor.
   etkisiz,
 }
 
@@ -114,6 +124,8 @@ class BlokAnlami {
     this.kosulIslem,
     this.kosulDeger,
     this.listeRastgele,
+    this.haber,
+    this.tus,
   });
 
   final BlokKomutu komut;
@@ -159,6 +171,63 @@ class BlokAnlami {
 
   /// [soyle] icin: bu listenin rastgele bir ogesi soyleniyor.
   final String? listeRastgele;
+
+  /// [haberSal] ve haber sapkasi ([baslat]) icin haberin adi.
+  final String? haber;
+
+  /// Tus sapkasi ([baslat]) icin tusun adi (`space`, `right`...).
+  final String? tus;
+
+  /// Sapkanin olayi: bayrak (null), tus, haber ya da kuklaya tiklama.
+  /// Yalnizca [baslat] icin anlamli.
+  bool get bayrakSapkasi => komut == BlokKomutu.baslat && haber == null &&
+      tus == null && !tiklama;
+
+  /// `bu kuklaya tiklandiginda` sapkasi.
+  bool get tiklama => komut == BlokKomutu.baslat && metin == 'tikla';
+
+  /// Bu blogun sayisini cocuk degistirebilir mi (sayi tus takimi)?
+  ///
+  /// Yalnizca TEK sayili ve sayisi gercekten blogun anlami olan bloklar:
+  /// `10 adim git`, `90 derece don`, `4 defa tekrarla`, `y'yi 10
+  /// degistir`, `Puan i 1 kadar degistir`... Rastgele araligi, girdili
+  /// (kenar) ya da iki sayili (x, y) bloklar degil.
+  bool get sayiDuzenlenebilir {
+    if (girdi != null || rastgeleAlt != null || sayi2 != null) return false;
+    return switch (komut) {
+      BlokKomutu.ilerle ||
+      BlokKomutu.don ||
+      BlokKomutu.yonAyarla ||
+      BlokKomutu.xDegistir ||
+      BlokKomutu.yDegistir ||
+      BlokKomutu.degiskenAta ||
+      BlokKomutu.degiskenArtir ||
+      BlokKomutu.bekle =>
+        true,
+      BlokKomutu.tekrarla || BlokKomutu.cagir => sayi != null,
+      _ => false,
+    };
+  }
+
+  /// Ayni anlam, baska bir sayiyla (cocugun yazdigi sayi).
+  BlokAnlami sayiIle(num yeni) => BlokAnlami(
+        komut,
+        sayi: yeni,
+        sayi2: sayi2,
+        metin: metin,
+        degisken: degisken,
+        liste: liste,
+        rastgeleAlt: rastgeleAlt,
+        rastgeleUst: rastgeleUst,
+        yordam: yordam,
+        girdi: girdi,
+        kosulDegisken: kosulDegisken,
+        kosulIslem: kosulIslem,
+        kosulDeger: kosulDeger,
+        listeRastgele: listeRastgele,
+        haber: haber,
+        tus: tus,
+      );
 
   bool get cBlogu =>
       komut == BlokKomutu.tekrarla ||

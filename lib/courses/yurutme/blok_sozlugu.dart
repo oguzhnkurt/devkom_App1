@@ -14,9 +14,18 @@ const Map<String, BlokAnlami> blokSozlugu = {
   // --- Olaylar -----------------------------------------------------
   'green_flag': BlokAnlami(BlokKomutu.baslat),
   'when_clone': BlokAnlami(BlokKomutu.baslat),
-  'when_clicked_sprite': BlokAnlami(BlokKomutu.baslat),
-  'receive_jump': BlokAnlami(BlokKomutu.baslat),
-  'broadcast': BlokAnlami(BlokKomutu.etkisiz),
+  // Kuklaya tiklama sapkasi: atolyede cocuk kuklaya bir kez "tiklamis"
+  // sayiliyor.
+  'when_clicked_sprite': BlokAnlami(BlokKomutu.baslat, metin: 'tikla'),
+  // Haber sapkasi ve haber salma. Tek yiginli blok adimlarinda haber
+  // salmanin etkisi yok; Proje Atolyesi'nde alicilar O ANDA calisiyor.
+  'receive_jump': BlokAnlami(BlokKomutu.baslat, haber: 'zıpla'),
+  'broadcast': BlokAnlami(BlokKomutu.haberSal, haber: 'zıpla'),
+  'receive_dance': BlokAnlami(BlokKomutu.baslat, haber: 'dans'),
+  'broadcast_dance': BlokAnlami(BlokKomutu.haberSal, haber: 'dans'),
+  // Tus sapkalari: atolyede her tusa bir kez basilmis sayiliyor.
+  'when_key_space': BlokAnlami(BlokKomutu.baslat, tus: 'space'),
+  'when_key_right': BlokAnlami(BlokKomutu.baslat, tus: 'right'),
 
   // --- Hareket -----------------------------------------------------
   'move_10': BlokAnlami(BlokKomutu.ilerle, sayi: 10),
@@ -25,17 +34,40 @@ const Map<String, BlokAnlami> blokSozlugu = {
   'change_y_up': BlokAnlami(BlokKomutu.yDegistir, sayi: 10),
   'goto_corner': BlokAnlami(BlokKomutu.gitXY, sayi: 200, sayi2: 150),
   'goto_center': BlokAnlami(BlokKomutu.gitXY, sayi: 0, sayi2: 0),
-  'goto_random': BlokAnlami(BlokKomutu.etkisiz),
+  // Sahnede rastgele bir yer (yorumlayici seciyor; sahne ve iz ayni
+  // yeri gosteriyor).
+  'goto_random': BlokAnlami(BlokKomutu.rastgeleKonum),
+  'goto_top': BlokAnlami(BlokKomutu.gitXY, sayi: 0, sayi2: 150),
+  'change_y_down': BlokAnlami(BlokKomutu.yDegistir, sayi: -10),
 
   // --- Gorunum -----------------------------------------------------
   'say_hello': BlokAnlami(BlokKomutu.soyle, metin: 'Merhaba'),
   'say_meow': BlokAnlami(BlokKomutu.soyle, metin: 'Miyav!'),
   'say_jump': BlokAnlami(BlokKomutu.soyle, metin: 'Zıpladın!'),
+  'say_win': BlokAnlami(BlokKomutu.soyle, metin: 'Kazandın!'),
+  'say_try_again': BlokAnlami(BlokKomutu.soyle, metin: 'Tekrar dene!'),
+  'say_time_up': BlokAnlami(BlokKomutu.soyle, metin: 'Süre bitti!'),
+  // Degiskenin DEGERINI soyleyen bloklar ("Puan", "zar").
+  'say_score': BlokAnlami(BlokKomutu.soyle, degisken: 'Puan'),
+  'say_dice': BlokAnlami(BlokKomutu.soyle, degisken: 'zar'),
+  // Listenin uzunlugunu soyle.
+  'say_len_shopping': BlokAnlami(BlokKomutu.soyle, liste: 'alışveriş'),
 
   // --- Kontrol -----------------------------------------------------
   'repeat_4': BlokAnlami(BlokKomutu.tekrarla, sayi: 4),
   'forever': BlokAnlami(BlokKomutu.surekli),
   'wait_2': BlokAnlami(BlokKomutu.bekle, sayi: 2),
+  'wait_1s': BlokAnlami(BlokKomutu.bekle, sayi: 1),
+  'repeat_2': BlokAnlami(BlokKomutu.tekrarla, sayi: 2),
+  'repeat_5': BlokAnlami(BlokKomutu.tekrarla, sayi: 5),
+  'repeat_10': BlokAnlami(BlokKomutu.tekrarla, sayi: 10),
+  // Eger-degilse: kosul yanlissa ikinci kol calisiyor.
+  'ifelse_dice_gt_3': BlokAnlami(BlokKomutu.eger,
+      kosulDegisken: 'zar', kosulIslem: '>', kosulDeger: 3),
+  'if_score_50': BlokAnlami(BlokKomutu.eger,
+      kosulDegisken: 'Puan', kosulIslem: '=', kosulDeger: 50),
+  'if_time_0': BlokAnlami(BlokKomutu.eger,
+      kosulDegisken: 'süre', kosulIslem: '=', kosulDeger: 0),
   'if_space': BlokAnlami(BlokKomutu.eger),
   'if_right': BlokAnlami(BlokKomutu.eger),
   'if_up': BlokAnlami(BlokKomutu.eger),
@@ -47,6 +79,13 @@ const Map<String, BlokAnlami> blokSozlugu = {
   'set_score_0': BlokAnlami(BlokKomutu.degiskenAta, degisken: 'Puan', sayi: 0),
   'change_score':
       BlokAnlami(BlokKomutu.degiskenArtir, degisken: 'Puan', sayi: 1),
+  'set_dice_random': BlokAnlami(BlokKomutu.degiskenAta,
+      degisken: 'zar', rastgeleAlt: 1, rastgeleUst: 6),
+  'set_time_5': BlokAnlami(BlokKomutu.degiskenAta, degisken: 'süre', sayi: 5),
+  'change_time_down':
+      BlokAnlami(BlokKomutu.degiskenArtir, degisken: 'süre', sayi: -1),
+  'change_time_up':
+      BlokAnlami(BlokKomutu.degiskenArtir, degisken: 'süre', sayi: 1),
 
   // --- Ses ---------------------------------------------------------
   'play_sound': BlokAnlami(BlokKomutu.etkisiz),
@@ -85,6 +124,8 @@ const Map<String, BlokAnlami> blokSozlugu = {
       BlokAnlami(BlokKomutu.listeyeEkle, liste: 'alışveriş', metin: 'elma'),
   'add_banana':
       BlokAnlami(BlokKomutu.listeyeEkle, liste: 'alışveriş', metin: 'muz'),
+  'add_milk':
+      BlokAnlami(BlokKomutu.listeyeEkle, liste: 'alışveriş', metin: 'süt'),
   'delete_first':
       BlokAnlami(BlokKomutu.listedenSil, liste: 'alışveriş', sayi: 1),
   // 10.2: soylenen sey listenin rastgele bir ogesi. Adimda listeyi

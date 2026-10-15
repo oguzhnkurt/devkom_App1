@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../yurutme/atolye_hedefleri.dart';
 import '../yurutme/mblock_cozum.dart';
 
 /// Modern, FreeCodeCamp-inspired interactive lesson model
@@ -154,6 +155,10 @@ enum StepType {
   // Challenge Steps
   miniGame,        // Play a mini game
   project,         // Build a project
+
+  /// Proje Atolyesi: acik palet, birden fazla betik, sonuca bakan
+  /// hedefler ([ProjeAtolyesiStep]).
+  atolye,
 }
 
 // ==========================================
@@ -511,6 +516,40 @@ class BlockBuilderStep extends LessonStep {
   /// kasitli: ders dosyasi cozumu yazarken derleyici denetliyor.
   final MBlockTezgahAyari? mblock;
 
+  /// IC ICE YAPI (istege bagli).
+  ///
+  /// Eski adimlarda kod alani duz bir liste: bir C blogunun govdesi
+  /// kendisinden SONRAKI her sey. "4 kere {git, don} sonra Merhaba de"
+  /// ya da "eger ... degilse ..." boyle kurulamiyordu.
+  ///
+  /// Bu alan verilirse adim ic ice kurulur: C blogu kendi kapanisiyla
+  /// gelir, bloklar agzin ICINE ya da ayaginin ALTINA konur. Beklenen
+  /// yapi bir belirtec dizisi: blok kimlikleri, `}` (C blogunun sonu)
+  /// ve `|` (eger-degilse blogunun "degilse" kolu). Ornek:
+  ///
+  ///     'green_flag repeat_4 move_10 turn_90 } say_hello'
+  ///
+  /// [correctSequence] yine dolu kalir: belirteclerden isaretler
+  /// cikarilinca ayni sira (test bunu denetliyor).
+  final String? yapi;
+
+  /// Sayisi degistirilebilen bloklar (cocuk sayiya dokunup tus
+  /// takimiyla yaziyor). Bos ise sayilar sabit.
+  final Set<String> sayiDuzenlenebilir;
+
+  /// SONUCA BAKAN DENETIM. Verilirse adim blok sirasina degil, kod
+  /// CALISTIRILINCA sahnede olana bakar: "ucgen ciz" icin 3 kere / 120
+  /// derece de, 120 derece / 3 kere de dogru. [correctSequence] o
+  /// zaman yalnizca bir ornek cozum (ipucu icin).
+  final List<AtolyeHedefi>? sonucHedefleri;
+
+  /// Iki yanlis denemeden sonra gosterilen ipucu (cevabi vermeden).
+  /// Dort yanlis denemeden sonra tam dizilim gosteriliyor.
+  final String? ipucu;
+  final String? ipucuEn;
+  final String? ipucuDe;
+  final String? ipucuEs;
+
   // Bilingual
   final String? instructionEn;
   final String? instructionDe;
@@ -527,6 +566,13 @@ class BlockBuilderStep extends LessonStep {
     required this.correctSequence,
     this.previewAnimation,
     this.mblock,
+    this.yapi,
+    this.sayiDuzenlenebilir = const {},
+    this.sonucHedefleri,
+    this.ipucu,
+    this.ipucuEn,
+    this.ipucuDe,
+    this.ipucuEs,
     this.instructionEn,
     this.instructionDe,
     this.instructionEs,
@@ -538,6 +584,12 @@ class BlockBuilderStep extends LessonStep {
 
   String instructionFor(String lang) => pickLang(instruction, instructionEn, lang, instructionDe, instructionEs);
   String goalFor(String lang) => pickLang(goal, goalEn, lang, goalDe, goalEs);
+  String? ipucuFor(String lang) =>
+      pickLangNullable(ipucu, ipucuEn, lang, ipucuDe, ipucuEs);
+
+  /// Adim ic ice tezgahla mi kuruluyor?
+  bool get icIce =>
+      yapi != null || sonucHedefleri != null || sayiDuzenlenebilir.isNotEmpty;
 }
 
 class ScratchBlock {
@@ -549,6 +601,11 @@ class ScratchBlock {
   final List<BlockInput>? inputs;  // Girdi yuvaları
   final bool hasOutput;  // Çıktı veriri mi (reporter block)
   final String? defaultValue;  // Varsayılan değer
+
+  /// Cocugun sayi tus takimiyla yazdigi sayi (`10 adim git` -> 25).
+  /// Null ise blogun kendi sayisi gecerli. Ders verisinde bos; kod
+  /// alaninda [degerli] ile dolduruluyor.
+  final num? deger;
 
   // Bilingual
   final String? labelEn;
@@ -564,12 +621,29 @@ class ScratchBlock {
     this.inputs,
     this.hasOutput = false,
     this.defaultValue,
+    this.deger,
     this.labelEn,
     this.labelDe,
     this.labelEs,
   });
 
   String labelFor(String lang) => pickLang(label, labelEn, lang, labelDe, labelEs);
+
+  /// Ayni blok, cocugun yazdigi sayiyla.
+  ScratchBlock degerli(num? yeni) => ScratchBlock(
+        id: id,
+        blockType: blockType,
+        shape: shape,
+        label: label,
+        color: color,
+        inputs: inputs,
+        hasOutput: hasOutput,
+        defaultValue: defaultValue,
+        deger: yeni,
+        labelEn: labelEn,
+        labelDe: labelDe,
+        labelEs: labelEs,
+      );
 }
 
 /// Blok input tanımı (yapboz girdileri)
@@ -974,6 +1048,97 @@ class ProjectValidation {
     this.mustNotContain = const [],
     this.expectedOutput,
   });
+}
+
+/// PROJE ATOLYESI.
+///
+/// Eski Scratch proje adimlari "bilgisayarinda yap, sonra isaretle"
+/// diyordu: uygulama projeyi goremiyordu. Atolyede cocuk projeyi
+/// uygulamanin icinde kuruyor ve CALISTIRIYOR:
+///
+///  * palet acik (modulun bloklari, yine de secilmis bir set),
+///  * birden fazla betik olabiliyor (bayrak betigi + tus betigi, haber
+///    salan + haberi alan),
+///  * denetim blok SIRASINA degil SONUCA bakiyor ([hedefler]): "Devi
+///    sag kenarda bitsin", "kapali bir sekil ciz", "puan 5 olsun".
+///
+/// Hedefler kod calistirilinca tek tek yaniyor; hepsi yaninca adim
+/// bir kez XP veriyor. Kaydet ile proje "Projelerim"e giriyor.
+class ProjeAtolyesiStep extends LessonStep {
+  final String title;
+  final String description;
+
+  /// Atolyenin bloklari.
+  final List<ScratchBlock> palet;
+
+  /// Sonuca bakan hedefler (2-4 tane).
+  final List<AtolyeHedefi> hedefler;
+
+  /// Bir ornek cozum (belirtec dizisi, bkz. [BlockBuilderStep.yapi]).
+  /// Testler atolyenin GERCEKTEN cozulebildigini bununla denetliyor;
+  /// dort basarisiz calistirmadan sonra cocuga da gosteriliyor.
+  final String ornekCozum;
+
+  /// Kod alaninda hazir gelen belirtecler (bos olabilir).
+  final String baslangic;
+
+  /// Sayisi degistirilebilen bloklar.
+  final Set<String> sayiDuzenlenebilir;
+
+  /// Iki basarisiz calistirmadan sonra gosterilen ipucu.
+  final String ipucu;
+
+  /// "Bilgisayarda devam et" notu (istege bagli): projeyi Scratch'te
+  /// buyutmek icin fikir.
+  final String? bilgisayarNotu;
+
+  final String? titleEn;
+  final String? titleDe;
+  final String? titleEs;
+  final String? descriptionEn;
+  final String? descriptionDe;
+  final String? descriptionEs;
+  final String? ipucuEn;
+  final String? ipucuDe;
+  final String? ipucuEs;
+  final String? bilgisayarNotuEn;
+  final String? bilgisayarNotuDe;
+  final String? bilgisayarNotuEs;
+
+  const ProjeAtolyesiStep({
+    required super.id,
+    required this.title,
+    required this.description,
+    required this.palet,
+    required this.hedefler,
+    required this.ornekCozum,
+    required this.ipucu,
+    this.baslangic = '',
+    this.sayiDuzenlenebilir = const {},
+    this.bilgisayarNotu,
+    this.titleEn,
+    this.titleDe,
+    this.titleEs,
+    this.descriptionEn,
+    this.descriptionDe,
+    this.descriptionEs,
+    this.ipucuEn,
+    this.ipucuDe,
+    this.ipucuEs,
+    this.bilgisayarNotuEn,
+    this.bilgisayarNotuDe,
+    this.bilgisayarNotuEs,
+    super.xpReward = 50,
+  }) : super(type: StepType.atolye);
+
+  String titleFor(String lang) =>
+      pickLang(title, titleEn, lang, titleDe, titleEs);
+  String descriptionFor(String lang) => pickLang(
+      description, descriptionEn, lang, descriptionDe, descriptionEs);
+  String ipucuFor(String lang) =>
+      pickLang(ipucu, ipucuEn, lang, ipucuDe, ipucuEs);
+  String? bilgisayarNotuFor(String lang) => pickLangNullable(bilgisayarNotu,
+      bilgisayarNotuEn, lang, bilgisayarNotuDe, bilgisayarNotuEs);
 }
 
 // ==========================================

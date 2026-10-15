@@ -34,6 +34,54 @@ class ScratchBlokKatalogu {
 
   static final Map<String, ScratchBlokTanimi?> _onbellek = {};
 
+  /// Blok, cocugun yazdigi sayiyla: satirdaki ILK beyaz oval [deger]
+  /// oluyor (`10 adim git` -> `25 adim git`). [deger] null ise
+  /// [tanim] ile ayni.
+  static ScratchBlokTanimi? tanimDegerli(String id, String lang, num? deger) {
+    final t = tanim(id, lang);
+    if (t == null || deger == null) return t;
+    var degisti = false;
+    final yazi = sayiYazisi(deger);
+    final satir = [
+      for (final p in t.satir)
+        if (!degisti && p is SbGirdi && double.tryParse(p.deger) != null)
+          () {
+            degisti = true;
+            return SbGirdi(yazi);
+          }()
+        else
+          p,
+    ];
+    if (!degisti) return t;
+    return ScratchBlokTanimi(
+      kategori: t.kategori,
+      sekil: t.sekil,
+      satir: satir,
+      degilse: t.degilse,
+      ic: t.ic,
+      ic2: t.ic2,
+      tekrarOku: t.tekrarOku,
+      prototip: t.prototip,
+    );
+  }
+
+  /// Blogun ilk beyaz ovalindeki sayi (yoksa null).
+  static num? ilkSayi(String id) {
+    final t = tanim(id, 'en');
+    if (t == null) return null;
+    for (final p in t.satir) {
+      if (p is SbGirdi) {
+        final n = num.tryParse(p.deger);
+        if (n != null) return n;
+      }
+    }
+    return null;
+  }
+
+  /// Sayinin blokta gorunen hali: tam sayi ise ondaliksiz.
+  static String sayiYazisi(num n) =>
+      n == n.roundToDouble() ? '${n.toInt()}' : '$n';
+
   /// Anlatim/siralama/karsilastirma adimlarinda blok gorseli olarak
   /// gecen TURKCE metin -> Scratch blogu.
   ///
@@ -219,6 +267,30 @@ class ScratchBlokKatalogu {
       satir: [SbYazi(_d(l, 'kenar', 'sides', 'Seiten', 'lados'))]);
 
   static String _puan(String l) => _d(l, 'Puan', 'Score', 'Punkte', 'Puntos');
+  static String _zar(String l) => _d(l, 'zar', 'dice', 'Würfel', 'dado');
+  static String _sure(String l) => _d(l, 'süre', 'time', 'Zeit', 'tiempo');
+  static String _dans(String l) => _d(l, 'dans', 'dance', 'Tanz', 'baile');
+
+  /// <[tus] tusuna basilinca> sapkasi.
+  static ScratchBlokTanimi _tusSapkasi(String l, String tusAnahtari) => _b(
+      _olaylar,
+      ScratchSekil.sapka,
+      'EVENT_WHENKEYPRESSED',
+      l,
+      [SbAcilir(etiket(tusAnahtari, l))]);
+
+  /// `eger <a islem b> ise` (degilse kolu istege bagli).
+  static ScratchBlokTanimi _egerKarsilastir(
+          String l, String islem, SbParca a, SbParca b,
+          {bool degilse = false}) =>
+      ScratchBlokTanimi(
+        kategori: _kontrol,
+        sekil: ScratchSekil.c,
+        satir: _sablon('CONTROL_IF', l, [
+          SbIcBlok(_b(_islemler, ScratchSekil.mantiksal, islem, l, [a, b])),
+        ]),
+        degilse: degilse ? _sablon('CONTROL_ELSE', l) : null,
+      );
   static String _puanKucuk(String l) =>
       _d(l, 'puan', 'score', 'Punkte', 'puntos');
   static String _alisveris(String l) =>
@@ -289,6 +361,12 @@ class ScratchBlokKatalogu {
         ]),
     'broadcast': (l) => _b(_olaylar, _yigin, 'EVENT_BROADCAST', l,
         [SbAcilir(_d(l, 'zıpla', 'jump', 'springen', 'saltar'))]),
+    'when_key_space': (l) => _tusSapkasi(l, 'EVENT_WHENKEYPRESSED_SPACE'),
+    'when_key_right': (l) => _tusSapkasi(l, 'EVENT_WHENKEYPRESSED_RIGHT'),
+    'broadcast_dance': (l) =>
+        _b(_olaylar, _yigin, 'EVENT_BROADCAST', l, [SbAcilir(_dans(l))]),
+    'receive_dance': (l) => _b(_olaylar, ScratchSekil.sapka,
+        'EVENT_WHENBROADCASTRECEIVED', l, [SbAcilir(_dans(l), kutu: true)]),
     'broadcast_game': (l) => _b(_olaylar, _yigin, 'EVENT_BROADCAST', l, [
           SbAcilir(_d(l, 'oyun_basladi', 'game_started', 'spiel_gestartet',
               'juego_iniciado'))
@@ -313,6 +391,10 @@ class ScratchBlokKatalogu {
         [const SbGirdi('0'), const SbGirdi('0')]),
     'goto_100_50': (l) => _b(_hareket, _yigin, 'MOTION_GOTOXY', l,
         [const SbGirdi('100'), const SbGirdi('50')]),
+    'goto_top': (l) => _b(_hareket, _yigin, 'MOTION_GOTOXY', l,
+        [const SbGirdi('0'), const SbGirdi('150')]),
+    'change_y_down': (l) =>
+        _b(_hareket, _yigin, 'MOTION_CHANGEYBY', l, [const SbGirdi('-10')]),
     'goto_random': (l) => _b(_hareket, _yigin, 'MOTION_GOTO', l,
         [SbAcilir(etiket('MOTION_GOTO_RANDOM', l))]),
     'glide_1_0_0': (l) => _b(_hareket, _yigin, 'MOTION_GLIDESECSTOXY', l,
@@ -334,6 +416,20 @@ class ScratchBlokKatalogu {
             '¡Saltaste!'))),
     'say_keep_going': (l) => _de(
         l, SbGirdi(_d(l, 'Devam et!', 'Keep going!', 'Weiter so!', '¡Sigue!'))),
+    'say_win': (l) => _de(l,
+        SbGirdi(_d(l, 'Kazandın!', 'You win!', 'Gewonnen!', '¡Ganaste!'))),
+    'say_try_again': (l) => _de(
+        l,
+        SbGirdi(_d(l, 'Tekrar dene!', 'Try again!', 'Versuch es nochmal!',
+            '¡Inténtalo otra vez!'))),
+    'say_time_up': (l) => _de(
+        l,
+        SbGirdi(_d(l, 'Süre bitti!', 'Time is up!', 'Die Zeit ist um!',
+            '¡Se acabó el tiempo!'))),
+    'say_score': (l) => _de(l, SbIcBlok(_degiskenOvali(_puan(l)))),
+    'say_dice': (l) => _de(l, SbIcBlok(_degiskenOvali(_zar(l)))),
+    'say_len_shopping': (l) => _de(l, SbIcBlok(_uzunluk(l, _alisveris(l)))),
+    'next_costume': (l) => _b(_gorunum, _yigin, 'LOOKS_NEXTCOSTUME', l),
     'say_done': (l) =>
         _de(l, SbGirdi(_d(l, 'Bitti!', 'Done!', 'Fertig!', '¡Listo!'))),
     'say_random_die': (l) =>
@@ -368,6 +464,17 @@ class ScratchBlokKatalogu {
     // --- Kontrol ---------------------------------------------------
     'wait_2': (l) =>
         _b(_kontrol, _yigin, 'CONTROL_WAIT', l, [const SbGirdi('2')]),
+    'wait_1s': (l) =>
+        _b(_kontrol, _yigin, 'CONTROL_WAIT', l, [const SbGirdi('1')]),
+    'repeat_2': (l) => _tekrarla(l, const SbGirdi('2')),
+    'repeat_5': (l) => _tekrarla(l, const SbGirdi('5')),
+    'ifelse_dice_gt_3': (l) => _egerKarsilastir(l, 'OPERATORS_GT',
+        SbIcBlok(_degiskenOvali(_zar(l))), const SbGirdi('3'),
+        degilse: true),
+    'if_score_50': (l) => _egerKarsilastir(l, 'OPERATORS_EQUALS',
+        SbIcBlok(_degiskenOvali(_puanKucuk(l))), const SbGirdi('50')),
+    'if_time_0': (l) => _egerKarsilastir(l, 'OPERATORS_EQUALS',
+        SbIcBlok(_degiskenOvali(_sure(l))), const SbGirdi('0')),
     'repeat_3': (l) => _tekrarla(l, const SbGirdi('3')),
     'repeat_4': (l) => _tekrarla(l, const SbGirdi('4')),
     'repeat_10': (l) => _tekrarla(l, const SbGirdi('10')),
@@ -441,6 +548,18 @@ class ScratchBlokKatalogu {
         [SbAcilir(_puan(l), kutu: true), const SbGirdi('0')]),
     'change_score': (l) => _b(_degisken, _yigin, 'DATA_CHANGEVARIABLEBY', l,
         [SbAcilir(_puan(l), kutu: true), const SbGirdi('1')]),
+    'set_dice_random': (l) => _b(_degisken, _yigin, 'DATA_SETVARIABLETO', l, [
+          SbAcilir(_zar(l), kutu: true),
+          SbIcBlok(_rastgele(l, const SbGirdi('1'), const SbGirdi('6'))),
+        ]),
+    'set_time_5': (l) => _b(_degisken, _yigin, 'DATA_SETVARIABLETO', l,
+        [SbAcilir(_sure(l), kutu: true), const SbGirdi('5')]),
+    'change_time_down': (l) => _b(_degisken, _yigin,
+        'DATA_CHANGEVARIABLEBY', l,
+        [SbAcilir(_sure(l), kutu: true), const SbGirdi('-1')]),
+    'change_time_up': (l) => _b(_degisken, _yigin, 'DATA_CHANGEVARIABLEBY', l,
+        [SbAcilir(_sure(l), kutu: true), const SbGirdi('1')]),
+    'add_milk': (l) => _listeyeEkle(l, _d(l, 'süt', 'milk', 'Milch', 'leche')),
     'add_apple': (l) =>
         _listeyeEkle(l, _d(l, 'elma', 'apple', 'Apfel', 'manzana')),
     'add_banana': (l) =>
