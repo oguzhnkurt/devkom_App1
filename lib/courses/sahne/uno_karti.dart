@@ -381,10 +381,8 @@ class UnoKartBoyaci extends CustomPainter {
     canvas.drawRRect(RRect.fromRectAndRadius(cip, const Radius.circular(2)),
         Paint()..color = const Color(0xFF1F2226));
 
-    // Logo: sonsuzluk isareti ve UNO yazisi.
-    _sonsuzluk(canvas, Offset(w * 0.5, h * 0.36), h * 0.07);
-    _yazi(canvas, 'UNO', Offset(w * 0.72, h * 0.36), h * 0.13,
-        kalin: true, italik: true);
+    // Notr etiket: marka logosu (sonsuzluk isareti) bilerek cizilmiyor.
+    _yazi(canvas, 'UNO', Offset(w * 0.6, h * 0.36), h * 0.11, kalin: true);
 
     // ON (yesil, hep yanik) ve L (pin 13) ledleri.
     _kucukLed(canvas, Offset(w * 0.27, h * 0.33), h, const Color(0xFF3CE05B), 1,
@@ -410,15 +408,6 @@ class UnoKartBoyaci extends CustomPainter {
         Paint()
           ..color = Color.lerp(const Color(0xFF6E7A7B), renk, p.clamp(0, 1))!);
     _yazi(c, ad, o + Offset(h * 0.1, 0), h * 0.055);
-  }
-
-  void _sonsuzluk(Canvas c, Offset m, double r) {
-    final p = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = r * 0.32
-      ..color = Colors.white;
-    c.drawCircle(m - Offset(r * 0.95, 0), r, p);
-    c.drawCircle(m + Offset(r * 0.95, 0), r, p);
   }
 
   void _yazi(Canvas c, String s, Offset merkez, double boy,
