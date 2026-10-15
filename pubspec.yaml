@@ -94,9 +94,15 @@ dependencies:
   # 2026), bkz. docs/META_SDK_KURULUMU.md.
   facebook_app_events: ^0.30.5
 
-  # Sertifika paylasimi (PNG olarak kaydedip paylasiyoruz; ayri bir PDF
-  # paketi eklemeye gerek yok, telefonlarda PNG paylasimi daha kolay).
+  # Sertifika: kaydet / paylas (lib/courses/tanitim/sertifika_paylasimi.dart).
+  # Hepsi ebeveyn kapisinin arkasinda.
+  #  * share_plus: paylasim menusu (PNG ve PDF dosyasi).
+  #  * pdf: A4 yatay sertifika PDF'i (saf Dart, yerel kod yok).
+  #  * gal: galeriye kaydetme (iOS NSPhotoLibraryAddUsageDescription,
+  #    Android <= 10 icin WRITE_EXTERNAL_STORAGE maxSdkVersion=29).
   share_plus: ^10.1.4
+  pdf: ^3.13.1
+  gal: ^2.3.3
 
   # Backend & Database
   http: ^1.2.1

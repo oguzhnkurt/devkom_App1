@@ -1,13 +1,7 @@
-import 'dart:io';
-import 'dart:ui' as ui;
-
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../services/sound_service.dart';
@@ -20,11 +14,13 @@ import '../models/course_model.dart';
 import '../screens/interactive_course_screen.dart';
 import '../screens/widgets/step_widgets.dart' show lessonLang, lessonLangRead;
 import 'kurs_tanitimi.dart';
+import 'sertifika_paylasimi.dart';
 
 /// KURSUN KAPANIS TORENI — son ders bitince bir kez.
 ///
 /// Konfeti, Devi'nin tebrigi, gercek veriden kisa bir ozet (ders, farkli
-/// blok, XP), cocugun adiyla bir sertifika (PNG olarak paylasilabilir),
+/// blok, XP), cocugun adiyla bir sertifika (PDF / galeri / Instagram / TikTok,
+/// hepsi ebeveyn kapisinin arkasinda),
 /// bir rozet ve ogrenme yolundaki siradaki kursun karti.
 ///
 /// Uydurma sayi yok: ozet [KursOzeti] ile ders verisinden ve cocugun
@@ -83,7 +79,6 @@ class KursKapanisEkrani extends StatefulWidget {
 }
 
 class _KursKapanisEkraniState extends State<KursKapanisEkrani> {
-  final GlobalKey _sertifikaAnahtari = GlobalKey();
   late final ConfettiController _konfeti =
       ConfettiController(duration: const Duration(milliseconds: 1200));
   late final KursOzeti _ozet =
@@ -120,57 +115,23 @@ class _KursKapanisEkraniState extends State<KursKapanisEkrani> {
   }
 
   // ------------------------------------------------------------------
-  // Paylasim
+  // Kaydet / paylas — secenekler ve ebeveyn kapisi sertifika_paylasimi.dart
   // ------------------------------------------------------------------
 
-  Future<Uint8List?> _goruntu() async {
-    try {
-      final b = _sertifikaAnahtari.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
-      if (b == null) return null;
-      final img = await b.toImage(pixelRatio: 3);
-      final data = await img.toByteData(format: ui.ImageByteFormat.png);
-      return data?.buffer.asUint8List();
-    } catch (e) {
-      debugPrint('Sertifika görüntüsü alınamadı: $e');
-      return null;
-    }
-  }
+  SertifikaVerisi _veri(String lang) => SertifikaVerisi(
+        course: widget.course,
+        ad: _ad(lang),
+        tarih: _tarih,
+        dersSayisi: _ozet.bitenDers,
+        lang: lang,
+      );
 
-  Future<void> _paylas() async {
+  Future<void> _secenekler() async {
     if (_paylasiliyor) return;
     final lang = lessonLangRead(context);
-    final messenger = ScaffoldMessenger.maybeOf(context);
     setState(() => _paylasiliyor = true);
     try {
-      final bytes = await _goruntu();
-      if (bytes == null) {
-        messenger?.showSnackBar(SnackBar(
-            content: Text(_t(
-                lang,
-                'Sertifika hazırlanamadı, tekrar dene.',
-                'The certificate could not be created. Please try again.',
-                'Das Zertifikat konnte nicht erstellt werden. Versuch es '
-                    'noch einmal.',
-                'No se pudo crear el certificado. Inténtalo de nuevo.'))));
-        return;
-      }
-      final dir = await getTemporaryDirectory();
-      final slug = widget.course.slug.replaceAll(RegExp(r'[^a-z0-9-]'), '');
-      final f = File('${dir.path}/deveducation-sertifika-$slug.png');
-      await f.writeAsBytes(bytes);
-      await Share.shareXFiles([XFile(f.path)],
-          text: _t(
-              lang,
-              '${widget.course.nameFor(lang)} kursunu bitirdim! · DevEducation',
-              'I finished the ${widget.course.nameFor(lang)} course! · '
-                  'DevEducation',
-              'Ich habe den Kurs ${widget.course.nameFor(lang)} geschafft! · '
-                  'DevEducation',
-              '¡Terminé el curso de ${widget.course.nameFor(lang)}! · '
-                  'DevEducation'));
-    } catch (e) {
-      debugPrint('Sertifika paylaşılamadı: $e');
+      await SertifikaPaylasimi.secenekleriAc(context, _veri(lang));
     } finally {
       if (mounted) setState(() => _paylasiliyor = false);
     }
@@ -233,30 +194,21 @@ class _KursKapanisEkraniState extends State<KursKapanisEkrani> {
                         const SizedBox(height: 18),
                         AppearIn(
                           delay: const Duration(milliseconds: 320),
-                          child: RepaintBoundary(
-                            key: _sertifikaAnahtari,
-                            child: KursSertifikasi(
-                              course: c,
-                              ad: _ad(lang),
-                              tarih: _tarih,
-                              dersSayisi: _ozet.bitenDers,
-                              lang: lang,
-                            ),
-                          ),
+                          child: _veri(lang).sertifika(),
                         ),
                         const SizedBox(height: 12),
                         PressButton(
                           key: const ValueKey('kapanis_paylas'),
                           label: _t(
                               lang,
-                              'Sertifikayı paylaş',
-                              'Share the certificate',
-                              'Zertifikat teilen',
-                              'Compartir el certificado'),
+                              'Kaydet ya da paylaş',
+                              'Save or share',
+                              'Speichern oder teilen',
+                              'Guardar o compartir'),
                           icon: Icons.ios_share_rounded,
                           color: c.primaryColor,
                           loading: _paylasiliyor,
-                          onPressed: _paylas,
+                          onPressed: _secenekler,
                         ),
                         if (sonraki != null) ...[
                           const SizedBox(height: 22),
@@ -723,6 +675,7 @@ class KursSertifikasi extends StatelessWidget {
     required this.tarih,
     required this.dersSayisi,
     required this.lang,
+    this.baski = false,
   });
 
   final Course course;
@@ -730,6 +683,9 @@ class KursSertifikasi extends StatelessWidget {
   final DateTime tarih;
   final int dersSayisi;
   final String lang;
+
+  /// PDF / galeri icin: golge ve yuvarlak kose yok (kagit kenarina kadar).
+  final bool baski;
 
   static const _aylar = {
     'tr': [
@@ -819,14 +775,16 @@ class KursSertifikasi extends StatelessWidget {
         return Container(
           decoration: BoxDecoration(
             color: const Color(0xFFFFFCF6),
-            borderRadius: BorderRadius.circular(u * 3),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.10),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
+            borderRadius: baski ? null : BorderRadius.circular(u * 3),
+            boxShadow: baski
+                ? null
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.10),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
           ),
           clipBehavior: Clip.antiAlias,
           child: Stack(

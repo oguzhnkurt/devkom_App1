@@ -25,6 +25,7 @@ import 'package:devkom_app/courses/screens/interactive_lesson_screen.dart';
 import 'package:devkom_app/courses/tanitim/kurs_acilis_ekrani.dart';
 import 'package:devkom_app/courses/tanitim/kurs_kapanis_ekrani.dart';
 import 'package:devkom_app/courses/tanitim/kurs_tanitimi.dart';
+import 'package:devkom_app/courses/tanitim/sertifika_paylasimi.dart';
 import 'package:devkom_app/providers/auth_provider.dart';
 import 'package:devkom_app/providers/settings_provider.dart';
 import 'package:devkom_app/services/sound_service.dart';
@@ -82,7 +83,9 @@ Future<void> _kur(WidgetTester tester, Widget home,
         GlobalCupertinoLocalizations.delegate,
       ],
       theme: ThemeData(useMaterial3: true, fontFamily: 'Nunito'),
-      home: RepaintBoundary(key: _key, child: home),
+      // Alt sayfa ve diyaloglar da kareye girsin: sinir Navigator'in ustunde.
+      builder: (context, child) => RepaintBoundary(key: _key, child: child),
+      home: home,
     ),
   ));
   await tester.pump(const Duration(milliseconds: 100));
@@ -216,5 +219,45 @@ void main() {
         ),
         boy: const Size(400, 290));
     await _cek(tester, '10_sertifika', oran: 3);
+  });
+
+  testWidgets('sertifika secenekleri', (tester) async {
+    await _kur(
+        tester,
+        KursKapanisEkrani(
+            course: scratch,
+            tamamlanan: hepsi,
+            ad: 'Elif',
+            tarih: DateTime(2026, 10, 15),
+            tekrar: true));
+    await _bekle(tester, 700);
+    final d = find.byKey(const ValueKey('kapanis_paylas'));
+    await tester.scrollUntilVisible(d, 150,
+        scrollable: find.byType(Scrollable).first);
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -200));
+    await _bekle(tester, 600);
+    await tester.tap(d);
+    await _bekle(tester, 900);
+    await _cek(tester, '11_sertifika_secenekleri');
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 2));
+  });
+
+  testWidgets('paylasim gorselleri (Instagram 4:5, TikTok 9:16)',
+      (tester) async {
+    final v = SertifikaVerisi(
+      course: scratch,
+      ad: 'Elif',
+      tarih: DateTime(2026, 10, 15),
+      dersSayisi: hepsi.length,
+      lang: 'tr',
+    );
+    await tester.runAsync(() async {
+      Directory(_dizin).createSync(recursive: true);
+      File('$_dizin/12_paylasim_instagram_4x5.png').writeAsBytesSync(
+          await SertifikaCizici.paylasimPng(v, PaylasimBicimi.instagram));
+      File('$_dizin/13_paylasim_tiktok_9x16.png').writeAsBytesSync(
+          await SertifikaCizici.paylasimPng(v, PaylasimBicimi.tiktok));
+    });
   });
 }

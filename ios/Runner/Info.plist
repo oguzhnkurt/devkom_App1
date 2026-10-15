@@ -58,6 +58,8 @@
 	<string>Devkom, proje ve profil fotoğrafı çekmek için kameraya erişim gerektirir.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Devkom, fotoğraf yüklemek için fotoğraf kitaplığına erişim gerektirir.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Devkom, kurs sertifikanı fotoğraf kitaplığına kaydetmek için erişim gerektirir.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Devkom, konuma dayalı özellikler için konum erişimi gerektirir.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
