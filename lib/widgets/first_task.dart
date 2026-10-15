@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import '../utils/lang.dart';
 import 'package:flutter/services.dart';
 
-import '../courses/models/interactive_lesson_model.dart';
 import '../ui/motion.dart';
 import 'mascot.dart';
-import 'scratch_block_widget.dart';
+import '../courses/yurutme/scratch_blok_katalogu.dart';
+import 'scratch_blok.dart';
 import '../services/sound_service.dart';
 
 /// Karşılamanın ilk ekranındaki GERÇEK görev.
@@ -51,31 +51,19 @@ class FirstTask extends StatefulWidget {
 
 /// Karşılama görevindeki iki blok.
 ///
-/// GERÇEK YAPBOZ ŞEKLİ, ELDE ÇİZİLMİŞ KUTU DEĞİL
-/// ----------------------------------------------
-/// Burada önceden `BoxDecoration` ile çizilmiş yuvarlak köşeli iki
-/// dikdörtgen vardı. Çocuğun uygulamada gördüğü İLK şey buydu ve
-/// Scratch'e/mBlock'a hiç benzemiyordu: yapbozun bütün anlamı üstteki
-/// girinti ile alttaki çıkıntı, yani "bunlar birbirine geçer" bilgisi.
-/// Artık dersler boyunca kullanılan aynı çizim ([ScratchBlockWidget])
-/// kullanılıyor — aynı geometri, aynı Scratch renkleri.
-const _hatBlock = ScratchBlock(
-  id: 'green_flag',
-  blockType: ScratchBlockType.events,
-  shape: ScratchBlockShape.cap,
-  label: 'tıklandığında',
-  labelEn: 'when green flag clicked',
-  color: Color(0xFFFFBF00), // Scratch Olaylar sarısı
-);
+/// GERÇEK SCRATCH 3 BLOĞU
+/// ----------------------
+/// Çocuğun uygulamada gördüğü İLK şey bu iki blok. Önce elde çizilmiş
+/// kutulardı, sonra eski düz yapboz çizimi (`ScratchBlockWidget`). Artık
+/// Scratch kursunun kullandığı aynı çizim ([ScratchBlok]) ve aynı katalog
+/// ([ScratchBlokKatalogu]): yeşil bayraklı şapka, beyaz oval "10" girdisi,
+/// Scratch'in resmi etiketleri ve renkleri — çocuk Scratch'i açınca aynı
+/// blokları tanıyor.
+const _hatId = 'green_flag';
+const _moveId = 'move_10';
 
-const _moveBlock = ScratchBlock(
-  id: 'move_10',
-  blockType: ScratchBlockType.motion,
-  shape: ScratchBlockShape.stack,
-  label: '10 adım git',
-  labelEn: 'move 10 steps',
-  color: Color(0xFF4C97FF), // Scratch Hareket mavisi
-);
+/// Karşılama ekranında bloklar biraz büyük: tek hareketlik görev.
+const double _olcek = 1.0;
 
 class _FirstTaskState extends State<FirstTask>
     with SingleTickerProviderStateMixin {
@@ -149,6 +137,15 @@ class _FirstTaskState extends State<FirstTask>
   Widget build(BuildContext context) {
     // Tek maskot: karakter secimi kalkti, ad da sabit.
     const mascotName = Mascot.ad;
+    final hat = ScratchBlokKatalogu.tanim(_hatId, widget.lang)!;
+    final move = ScratchBlokKatalogu.tanim(_moveId, widget.lang)!;
+    Widget moveBlok() => ScratchBlok(
+          tanim: move,
+          olcek: _olcek,
+          kimlik: _moveId,
+        );
+    final moveW = ScratchBlokOlcer.genislik(move, _olcek);
+    final moveH = ScratchBlokOlcer.yukseklik(move, _olcek);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -158,15 +155,20 @@ class _FirstTaskState extends State<FirstTask>
           color: widget.accent,
           size: 64,
           text: _snapped
-              ? _t('İşte bu! Kodlama tam olarak bu — blokları birleştirmek.',
-                  'That is it! Coding is exactly this — snapping blocks together.', 'Genau das ist es! Programmieren ist genau das — Blöcke zusammenstecken.', '¡Eso es! Programar es exactamente esto: unir bloques.')
+              ? _t(
+                  'İşte bu! Kodlama tam olarak bu — blokları birleştirmek.',
+                  'That is it! Coding is exactly this — snapping blocks together.',
+                  'Genau das ist es! Programmieren ist genau das — Blöcke zusammenstecken.',
+                  '¡Eso es! Programar es exactamente esto: unir bloques.')
               // Karakterin adı SEÇİME göre değişiyor: çocuk Mia'yı
               // seçtiyse "Selam, ben Mia" diyor. Adı elle yazmak, adı
               // olan beş karakterle çelişirdi.
               : _t(
                   'Selam, ben $mascotName. Şu iki bloğu birleştirir misin?',
                   'Hi, I am $mascotName. Can you snap these two blocks '
-                      'together?', 'Hallo, ich bin $mascotName. Kannst du diese zwei Blöcke zusammenstecken?', 'Hola, soy $mascotName. ¿Puedes unir estos dos bloques?'),
+                      'together?',
+                  'Hallo, ich bin $mascotName. Kannst du diese zwei Blöcke zusammenstecken?',
+                  'Hola, soy $mascotName. ¿Puedes unir estos dos bloques?'),
         ),
         const SizedBox(height: 28),
         Center(
@@ -185,71 +187,61 @@ class _FirstTaskState extends State<FirstTask>
                     // yığında bloklar sol kenarlarından hizalanır.
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ScratchBlockWidget(block: _hatBlock, lang: widget.lang),
-                      // Bloklar birbirine GEÇİYOR: üstteki bloğun alt
-                      // çıkıntısı ile alttakinin üst girintisi aynı
-                      // yerde durmalı, aralarında boşluk olmamalı.
-                      Transform.translate(
-                        offset: const Offset(0, -8),
-                        child: DragTarget<String>(
-                          onWillAcceptWithDetails: (_) {
-                            if (!_snapped) setState(() => _hovering = true);
-                            return !_snapped;
-                          },
-                          onLeave: (_) => setState(() => _hovering = false),
-                          onAcceptWithDetails: (_) => _onAccepted(),
-                          builder: (context, candidate, rejected) {
-                            if (_snapped) {
-                              return AnimatedBuilder(
-                                animation: _celebrate,
-                                builder: (context, child) {
-                                  final t = Curves.elasticOut
-                                      .transform(_celebrate.value.clamp(0, 1));
-                                  return Transform.scale(
-                                    scale: 1 + 0.10 * (1 - (1 - t).abs()),
-                                    child: child,
-                                  );
-                                },
-                                child: ScratchBlockWidget(
-                                  block: _moveBlock,
-                                  lang: widget.lang,
-                                ),
-                              );
-                            }
-                            // Yuva, oturacak bloğun TAM ölçüsünde.
-                            //
-                            // Sabit bir genişlik yazmak yerine bloğun
-                            // görünmez bir kopyası ölçüyü veriyor:
-                            // yazı değişince (dil, uzun etiket) yuva
-                            // da kendiliğinden uyuyor. Sabit 176 px
-                            // yazdığımızda yuva bloktan geniş kalıyor
-                            // ve "buraya bu oturur" hissi bozuluyor.
-                            return AnimatedScale(
-                              scale: _hovering ? 1.04 : 1.0,
-                              duration: Motion.short2,
-                              curve: Curves.easeOut,
-                              child: Stack(
-                                children: [
-                                  Opacity(
-                                    opacity: 0,
-                                    child: ScratchBlockWidget(
-                                      block: _moveBlock,
-                                      lang: widget.lang,
-                                    ),
-                                  ),
-                                  Positioned.fill(
-                                    child: ScratchBlockSlot(
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      color: _moveBlock.color,
-                                      highlighted: _hovering,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                      ScratchBlok(tanim: hat, olcek: _olcek, kimlik: _hatId),
+                      // Bloklar birbirine GEÇİYOR: ScratchBlok'un
+                      // yerleşim yüksekliği tırnağı içermiyor, tırnak
+                      // alttaki bloğun çentiğine oturuyor — arada boşluk
+                      // ya da kaydırma gerekmiyor.
+                      DragTarget<String>(
+                        onWillAcceptWithDetails: (_) {
+                          if (!_snapped) setState(() => _hovering = true);
+                          return !_snapped;
+                        },
+                        onLeave: (_) => setState(() => _hovering = false),
+                        onAcceptWithDetails: (_) => _onAccepted(),
+                        builder: (context, candidate, rejected) {
+                          if (_snapped) {
+                            return AnimatedBuilder(
+                              animation: _celebrate,
+                              builder: (context, child) {
+                                final t = Curves.elasticOut
+                                    .transform(_celebrate.value.clamp(0, 1));
+                                return Transform.scale(
+                                  scale: 1 + 0.10 * (1 - (1 - t).abs()),
+                                  child: child,
+                                );
+                              },
+                              child: moveBlok(),
                             );
-                          },
-                        ),
+                          }
+                          // Yuva, oturacak bloğun TAM ölçüsünde.
+                          //
+                          // Sabit bir genişlik yazmak yerine bloğun
+                          // görünmez bir kopyası ölçüyü veriyor:
+                          // yazı değişince (dil, uzun etiket) yuva
+                          // da kendiliğinden uyuyor. Sabit 176 px
+                          // yazdığımızda yuva bloktan geniş kalıyor
+                          // ve "buraya bu oturur" hissi bozuluyor.
+                          return AnimatedScale(
+                            scale: _hovering ? 1.04 : 1.0,
+                            duration: Motion.short2,
+                            curve: Curves.easeOut,
+                            // Scratch'in bırakma önizlemesi gibi: bloğun
+                            // gri, yarı saydam gölgesi.
+                            child: Opacity(
+                              opacity: _hovering ? 0.55 : 0.3,
+                              child: ColorFiltered(
+                                colorFilter: const ColorFilter.matrix([
+                                  0, 0, 0, 0, 110, //
+                                  0, 0, 0, 0, 110, //
+                                  0, 0, 0, 0, 110, //
+                                  0, 0, 0, 1, 0,
+                                ]),
+                                child: moveBlok(),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -265,30 +257,21 @@ class _FirstTaskState extends State<FirstTask>
                         data: 'move',
                         dragAnchorStrategy: pointerDragAnchorStrategy,
                         feedback: Transform.translate(
-                          offset: const Offset(-88, -28),
+                          offset: Offset(-moveW / 2, -moveH / 2),
                           child: Material(
                             color: Colors.transparent,
                             child: Transform.scale(
                               scale: 1.06,
-                              child: ScratchBlockWidget(
-                                block: _moveBlock,
-                                lang: widget.lang,
-                              ),
+                              child: moveBlok(),
                             ),
                           ),
                         ),
                         childWhenDragging: Opacity(
                           opacity: 0.25,
-                          child: ScratchBlockWidget(
-                            block: _moveBlock,
-                            lang: widget.lang,
-                          ),
+                          child: moveBlok(),
                         ),
                         onDraggableCanceled: (_, __) => _onMissed(),
-                        child: ScratchBlockWidget(
-                          block: _moveBlock,
-                          lang: widget.lang,
-                        ),
+                        child: moveBlok(),
                       ),
                     ),
                   ),
