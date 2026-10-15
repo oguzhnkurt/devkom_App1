@@ -10,6 +10,7 @@ import '../../models/interactive_lesson_model.dart';
 import '../../../providers/settings_provider.dart';
 import '../../../services/sound_service.dart';
 import 'catch_block_game.dart';
+import 'devi_tepkisi.dart';
 import 'kod_tezgahi.dart';
 import 'coordinate_tap_game.dart';
 import '../../../widgets/scratch_block_widget.dart';
@@ -1424,9 +1425,21 @@ class _MultipleChoiceStepWidgetState extends State<MultipleChoiceStepWidget> {
           );
         }),
 
+        // Devi'nin kucuk tepkisi: dogruda sevinc, yanlista "olsun".
+        if (_answered) ...[
+          const SizedBox(height: 8),
+          DeviTepkisi(
+            key: ValueKey('devi_tepkisi_$_isCorrect'),
+            tur: _isCorrect ? DeviTepkiTuru.dogru : DeviTepkiTuru.yanlis,
+            lang: lang,
+            tohum: widget.step.id.hashCode,
+            koyu: widget.isDark,
+          ),
+        ],
+
         // Explanation after answering
         if (_answered) ...[
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             padding: const EdgeInsets.all(16),
@@ -1860,6 +1873,10 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
   /// yerinde, ucuncuye bir daha bak" demeyi mumkun kiliyor.
   int _dogruOnEk = 0;
 
+  /// Kac kez TAM bir dizi denendi. Devi'nin tepkisi her denemede
+  /// yeniden zipliyor ve sozu degisiyor.
+  int _denemeNo = 0;
+
   /// Kac kez calistirildi. Sahneye anahtar olarak gidiyor: her basista
   /// sahne bastan oynuyor.
   int _calistirmaNo = 0;
@@ -2042,6 +2059,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
     // deniyordu — uc dort blokla kaba kuvvet birkac saniye suruyor ve
     // hicbir sey ogretmiyor.
     setState(() {
+      _denemeNo++;
       _yanlisDizi = !correct;
       _dogruOnEk = onEk;
       if (correct) {
@@ -2200,8 +2218,9 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
         // olmuyor sanip "kodu yazdim ama devam gelmiyor" diyordu.
         // Yanlis dizilim uyarisi. Cevabi SOYLEMIYOR — yalnizca
         // "burada bir sey yanlis" diyor ki cocuk tekrar baksin.
+        ..._deviTepkisi(lang),
         if (_yanlisDizi) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _yanlisUyarisi(lang),
         ],
 
@@ -2344,6 +2363,21 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
 
       ],
     );
+  }
+
+  /// Devi'nin tepkisi: dogru dizide sevinc, yanlis dizide "bir daha".
+  List<Widget> _deviTepkisi(String lang) {
+    if (!_completed && !_yanlisDizi) return const [];
+    return [
+      const SizedBox(height: 12),
+      DeviTepkisi(
+        key: ValueKey('devi_tepkisi_$_denemeNo'),
+        tur: _completed ? DeviTepkiTuru.dogru : DeviTepkiTuru.tekrarDene,
+        lang: lang,
+        tohum: widget.step.id.hashCode + _denemeNo,
+        koyu: widget.isDark,
+      ),
+    ];
   }
 
   Widget _hedefKutusu(String lang) {
@@ -2560,8 +2594,9 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
           kod: _scratchKodBolumu(lang, kisa),
         ),
 
+        ..._deviTepkisi(lang),
         if (_yanlisDizi) ...[
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           _yanlisUyarisi(lang),
         ],
         SizedBox(height: ara),
