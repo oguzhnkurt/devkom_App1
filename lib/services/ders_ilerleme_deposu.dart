@@ -77,6 +77,7 @@ class DersIlerlemeDeposu {
       await prefs.remove(tamamlananAnahtari);
       await prefs.remove(baslananAnahtari);
       await prefs.remove(sonKursAnahtari);
+      await prefs.remove(DersSerisi.anahtar);
     } catch (e) {
       debugPrint('Ders ilerlemesi temizlenemedi: $e');
     }
@@ -107,6 +108,71 @@ class DersIlerlemeDeposu {
       if (degisti) await prefs.setStringList(anahtar, liste);
     } catch (e) {
       debugPrint('Ders ilerlemesi yazilamadi ($anahtar): $e');
+    }
+  }
+}
+
+/// Ders serisi: ARA VERMEDEN ders bitirilen gun sayisi (cihazda).
+///
+/// NEDEN SUNUCUDAKI `streak_days` DEGIL
+/// ------------------------------------
+/// O sayi uygulamanin ACILDIGI gunleri sayiyor ve ancak acilista
+/// guncelleniyor; ders bitirmekle ilgisi yok. Ders bitis penceresi
+/// "3 gun ust uste" derken cocugun gercekten uc gun ust uste DERS
+/// bitirdigini soylemeli. Bu yuzden gunler burada, ders bitince
+/// yaziliyor (yerel tarih, `yyyy-mm-dd`), seri onlardan hesaplaniyor.
+///
+/// Suclama yok: seri kirilinca pencere hicbir sey demiyor, yeni seri
+/// 1'den basliyor ("Serin basladi!").
+class DersSerisi {
+  DersSerisi._();
+
+  static const String anahtar = 'ders_serisi.gunler';
+
+  /// En fazla bu kadar gun tutuluyor (seri bundan uzun olamaz, liste
+  /// sonsuza buyumesin).
+  static const int enFazlaGun = 120;
+
+  static String gunAnahtari(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-'
+      '${d.month.toString().padLeft(2, '0')}-'
+      '${d.day.toString().padLeft(2, '0')}';
+
+  /// [bugun] dahil geriye dogru ara vermeden kac gun var. Bugun yoksa 0
+  /// (seri dunden devam ediyor olabilir ama bugun ders bitmedi).
+  static int hesapla(Iterable<String> gunler, DateTime bugun) {
+    final set = gunler.toSet();
+    var n = 0;
+    var d = DateTime(bugun.year, bugun.month, bugun.day);
+    while (set.contains(gunAnahtari(d))) {
+      n++;
+      // Saat degisimi gunlerinde 24 saat cikarmak ayni gune dusebiliyor;
+      // takvim gunuyle geri gidiyoruz.
+      d = DateTime(d.year, d.month, d.day - 1);
+    }
+    return n;
+  }
+
+  /// Bugunu isler ve guncel seriyi dondurur. Hata olursa 1 (bugun bir
+  /// ders bitti; en azindan o dogru).
+  static Future<int> bugunuIsle([DateTime? simdi]) async {
+    final bugun = simdi ?? DateTime.now();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final liste = prefs.getStringList(anahtar) ?? <String>[];
+      final k = gunAnahtari(bugun);
+      if (!liste.contains(k)) {
+        liste.add(k);
+        liste.sort();
+        while (liste.length > enFazlaGun) {
+          liste.removeAt(0);
+        }
+        await prefs.setStringList(anahtar, liste);
+      }
+      return hesapla(liste, bugun);
+    } catch (e) {
+      debugPrint('Ders serisi yazilamadi: $e');
+      return 1;
     }
   }
 }

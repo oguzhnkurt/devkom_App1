@@ -25,9 +25,14 @@ class PressButton extends StatefulWidget {
     this.loading = false,
     this.height = 56,
     this.expand = true,
+    this.ustYazi,
   });
 
   final String label;
+
+  /// Etiketin ustunde kucuk bir satir ("SIRADAKI DERS"). Verilirse
+  /// etiket bu satirin altinda; yukseklik degismiyor.
+  final String? ustYazi;
 
   /// null ise buton pasif: rengi soluyor ve basmaya tepki vermiyor.
   final VoidCallback? onPressed;
@@ -128,18 +133,30 @@ class _PressButtonState extends State<PressButton> {
                             const SizedBox(width: 8),
                           ],
                           Flexible(
-                            child: Text(
-                              widget.label,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontFamily: AppTheme.fontFamily,
-                                fontSize: 16.5,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.2,
-                                color: widget.foreground,
-                              ),
-                            ),
+                            child: widget.ustYazi == null
+                                ? _etiket()
+                                : Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        widget.ustYazi!,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontFamily: AppTheme.fontFamily,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 1.1,
+                                          height: 1.1,
+                                          color: widget.foreground
+                                              .withValues(alpha: 0.82),
+                                        ),
+                                      ),
+                                      _etiket(),
+                                    ],
+                                  ),
                           ),
                         ],
                       ),
@@ -153,8 +170,24 @@ class _PressButtonState extends State<PressButton> {
     return Semantics(
       button: true,
       enabled: _enabled,
-      label: widget.label,
+      label: widget.ustYazi == null
+          ? widget.label
+          : '${widget.ustYazi}: ${widget.label}',
       child: ExcludeSemantics(child: button),
     );
   }
+
+  Widget _etiket() => Text(
+        widget.label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontFamily: AppTheme.fontFamily,
+          fontSize: 16.5,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.2,
+          height: widget.ustYazi == null ? null : 1.15,
+          color: widget.foreground,
+        ),
+      );
 }

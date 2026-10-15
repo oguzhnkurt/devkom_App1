@@ -15,6 +15,7 @@ import '../tanitim/kurs_acilis_ekrani.dart';
 import '../tanitim/kurs_kapanis_ekrani.dart';
 import '../tanitim/kurs_tanitimi.dart';
 import 'module_quiz_screen.dart';
+import 'widgets/kurs_yol_haritasi.dart';
 import '../../services/sound_service.dart';
 import 'widgets/step_widgets.dart'
     show lessonLang, lessonLangRead, lessonText;
@@ -164,6 +165,8 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         slivers: [
           _buildHeader(isDark),
           SliverToBoxAdapter(child: _buildProgressCard(isDark)),
+          if (_modules.length > 1)
+            SliverToBoxAdapter(child: _buildYolHaritasi(isDark)),
           SliverToBoxAdapter(child: _buildModuleTabs(isDark)),
           SliverToBoxAdapter(child: _buildModuleContent(isDark)),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -525,6 +528,84 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         lessonCount: _modules.fold<int>(0, (t, m) => t + m.lessons.length),
         durum: KursDurumu.baslanmadi,
       );
+
+  /// KURSUN YOL HARITASI: moduller dugum dugum, bitenler parliyor,
+  /// cocugun oldugu modulde Devi bekliyor. Dugume dokunmak o modulun
+  /// derslerini asagida aciyor (sekmeyle ayni is).
+  Widget _buildYolHaritasi(bool isDark) {
+    final lang = lessonLang(context);
+    final biten = _bitenDersler;
+    final sayi = KursYolHaritasi.bitenModul(_modules, biten);
+    return Container(
+      key: const ValueKey('kurs_yol_haritasi'),
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+      padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: widget.course.primaryColor.withValues(alpha: 0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Row(
+              children: [
+                Icon(Icons.route_rounded,
+                    size: 18, color: widget.course.primaryColor),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    lessonText(lang, 'Yol haritan', 'Your path', 'Dein Weg',
+                        'Tu camino'),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                    ),
+                  ),
+                ),
+                Text(
+                  lessonText(
+                      lang,
+                      '$sayi/${_modules.length} modül',
+                      '$sayi/${_modules.length} modules',
+                      '$sayi/${_modules.length} Module',
+                      '$sayi/${_modules.length} módulos'),
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: widget.course.primaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          KursYolHaritasi(
+            moduller: _modules,
+            biten: biten,
+            renk: widget.course.primaryColor,
+            renk2: widget.course.secondaryColor,
+            lang: lang,
+            koyu: isDark,
+            secili: _selectedModule,
+            onSec: (i) {
+              HapticFeedback.selectionClick();
+              setState(() => _selectedModule = i);
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildModuleTabs(bool isDark) {
     return Container(

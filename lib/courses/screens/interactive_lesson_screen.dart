@@ -20,7 +20,11 @@ import '../../widgets/mascot.dart';
 import '../data/course_modules.dart';
 import '../data/rozet_katalogu.dart';
 import '../../services/user_progress_service.dart';
+import '../../services/ad_unlock_service.dart';
+import '../../services/ders_ilerleme_deposu.dart';
+import '../../utils/pro_gate.dart';
 import '../tanitim/kurs_kapanis_ekrani.dart';
+import '../tanitim/modul_kutlamasi.dart';
 
 /// Modern, Interactive Lesson Screen
 /// FreeCodeCamp-inspired step-by-step learning experience
@@ -163,6 +167,9 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
     // acilmamis olsa bile), sunucu kismini dersTamamlandi kendisi atliyor.
     await authProvider.dersTamamlandi(widget.lesson.id, tamXp, rozet: rozet);
 
+    // SERI: bugun bir ders bitti. Gunler cihazda (bkz. DersSerisi).
+    final seri = await DersSerisi.bugunuIsle();
+
     // KURS BITTI MI? Son ders bittiyse ve kapanis daha once
     // gosterilmediyse, "Harika!"dan sonra kurs sayfasina degil kapanis
     // torenine gidiliyor. Kontrol burada (kurs sayfasinda degil), cunku
@@ -170,15 +177,86 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
     final kapanis = await KursKapanisEkrani.gosterilmeli(
         widget.course.id, authProvider.tamamlananDersler);
 
+    // MODUL BITTI MI? Kurs bitmediyse ve bu dersle modulun butun dersleri
+    // tamamlandiysa (ilk kez), pencereden sonra modul kutlamasi.
+    final modulNo = kapanis
+        ? null
+        : await ModulKutlamaEkrani.gosterilmeli(widget.course.id,
+            widget.lesson.id, authProvider.tamamlananDersler);
+
+    final sonraki = await _sonrakiDers();
+
     // Show completion dialog
     if (mounted) {
       _showCompletionDialog(totalXp,
-          kapanis: kapanis, yeniRozet: yeniRozet ? rozet : null);
+          kapanis: kapanis,
+          yeniRozet: yeniRozet ? rozet : null,
+          seri: seri,
+          sonraki: sonraki,
+          modulNo: modulNo);
     }
   }
 
+  /// Kursta bu dersten sonra gelen ders; kurs bittiyse ya da o ders
+  /// kilitliyse (Pro kurs, Pro degil, reklamla acilmamis) null.
+  ///
+  /// KILIT ATLANMIYOR: "Siradaki ders" dugmesi dersi dogrudan aciyor;
+  /// kilitli bir derse kapidan gecmeden girilmesin diye kilitliyse dugme
+  /// hic cikmiyor (cocuk listeden acar, kapi orada).
+  Future<InteractiveLesson?> _sonrakiDers() async {
+    final dersler = CourseModules.allLessons(widget.course.id);
+    final i = dersler.indexWhere((l) => l.id == widget.lesson.id);
+    if (i < 0 || i + 1 >= dersler.length) return null;
+    final sonraki = dersler[i + 1];
+    if (!widget.course.isPremium) return sonraki;
+    try {
+      if (ProGate.isPro(context)) return sonraki;
+    } on ProviderNotFoundException {
+      return null;
+    }
+    final acik =
+        await AdUnlockService.instance.acikMi(widget.course.id, sonraki.id);
+    return acik ? sonraki : null;
+  }
+
   void _showCompletionDialog(int totalXp,
-      {bool kapanis = false, String? yeniRozet}) {
+      {bool kapanis = false,
+      String? yeniRozet,
+      int seri = 0,
+      InteractiveLesson? sonraki,
+      int? modulNo}) {
+    final nav = Navigator.of(context);
+    final biten = () {
+      try {
+        return Provider.of<AuthProvider>(context, listen: false)
+            .tamamlananDersler;
+      } on ProviderNotFoundException {
+        return <String>{};
+      }
+    }();
+
+    Route<void> dersRotasi(InteractiveLesson l) => MaterialPageRoute(
+          builder: (_) =>
+              InteractiveLessonScreen(course: widget.course, lesson: l),
+        );
+
+    // Modul bittiyse iki dugme de once kutlamaya gidiyor; kutlamanin
+    // kendi "Siradaki ders" ve "Listeye don" dugmeleri var.
+    void kutlamayaGec(BuildContext dialogContext) {
+      Navigator.pop(dialogContext);
+      nav.pushReplacement(MaterialPageRoute(
+        settings: const RouteSettings(name: 'modul_kutlamasi'),
+        builder: (_) => ModulKutlamaEkrani(
+          course: widget.course,
+          modulNo: modulNo!,
+          biten: biten,
+          sonrakiDers: sonraki,
+          onSonrakiDers:
+              sonraki == null ? null : () => nav.pushReplacement(dersRotasi(sonraki)),
+        ),
+      ));
+    }
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -187,10 +265,30 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
         lesson: widget.lesson,
         totalXp: totalXp,
         badge: yeniRozet,
+        seri: seri,
+        sonrakiDers: kapanis ? null : sonraki,
+        onSonraki: kapanis || sonraki == null
+            ? null
+            : () {
+                if (modulNo != null) {
+                  kutlamayaGec(dialogContext);
+                  return;
+                }
+                Navigator.pop(dialogContext);
+                nav.pushReplacement(dersRotasi(sonraki));
+              },
+        onListe: () {
+          if (modulNo != null) {
+            kutlamayaGec(dialogContext);
+            return;
+          }
+          Navigator.pop(dialogContext);
+          nav.pop();
+        },
         onDevam: kapanis
             ? () {
                 Navigator.pop(dialogContext);
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                nav.pushReplacement(MaterialPageRoute(
                   builder: (ctx) => KursKapanisEkrani.kur(ctx, widget.course),
                 ));
               }
@@ -704,9 +802,19 @@ class _LessonCompleteDialog extends StatefulWidget {
   /// "YENI ROZET!" kutusu cikmiyor.
   final String? badge;
 
-  /// "Harika!" tusu. Verilmezse pencere ve ders ekrani kapanir (kurs
-  /// sayfasina donulur); kurs bittiyse ders ekrani kapanis torenini
-  /// veriyor.
+  /// Ust uste ders bitirilen gun sayisi (bkz. DersSerisi). 0 ise
+  /// gosterilmiyor.
+  final int seri;
+
+  /// Siradaki ders; varsa ana dugme "Siradaki ders: ..." ve dersi
+  /// dogrudan aciyor.
+  final InteractiveLesson? sonrakiDers;
+  final VoidCallback? onSonraki;
+
+  /// "Listeye don": pencere ve ders ekrani kapanir (kurs sayfasi).
+  final VoidCallback? onListe;
+
+  /// Kurs bitti: tek dugme ("Harika!") kapanis torenine gidiyor.
   final VoidCallback? onDevam;
 
   const _LessonCompleteDialog({
@@ -714,6 +822,10 @@ class _LessonCompleteDialog extends StatefulWidget {
     required this.lesson,
     required this.totalXp,
     this.badge,
+    this.seri = 0,
+    this.sonrakiDers,
+    this.onSonraki,
+    this.onListe,
     this.onDevam,
   });
 
@@ -786,6 +898,141 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
     );
   }
 
+  Widget _xpRozeti() {
+    return Container(
+      key: const ValueKey('ders_xp'),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.amber.shade400, Colors.orange.shade400],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.amber.withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.star_rounded, color: Colors.white, size: 24),
+          const SizedBox(width: 6),
+          // Sayarak yukselen XP: kazanc bir olay haline geliyor. Sayi
+          // GERCEKTEN verilen XP (tekrarda dortte biri).
+          CountUpText(
+            value: widget.totalXp,
+            prefix: '+',
+            suffix: ' XP',
+            fontSize: 22,
+            color: Colors.white,
+            duration: Motion.extraLong2,
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// "🔥 3 gun ust uste" — seri 1 ise "Serin basladi!".
+  Widget _seriRozeti(String lang) {
+    final n = widget.seri;
+    final yazi = n >= 2
+        ? lessonText(lang, '$n gün üst üste', '$n days in a row',
+            '$n Tage in Folge', '$n días seguidos')
+        : lessonText(lang, 'Serin başladı!', 'Streak started!',
+            'Serie gestartet!', '¡Racha iniciada!');
+    return Container(
+      key: const ValueKey('ders_serisi'),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFEDE0),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFF7A1A), width: 1.6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('🔥', style: TextStyle(fontSize: 20)),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              yazi,
+              style: const TextStyle(
+                fontFamily: AppTheme.fontFamily,
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFFD9530B),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Ana dugme ("Siradaki ders: ..." ya da "Harika!") ve altinda
+  /// "Listeye don".
+  Widget _dugmeler(String lang) {
+    final renk = widget.course.primaryColor;
+    if (widget.onDevam != null) {
+      return PressButton(
+        key: const ValueKey('ders_harika'),
+        label: lessonText(lang, 'Harika!', 'Awesome!', 'Super!', '¡Genial!'),
+        color: renk,
+        height: 52,
+        onPressed: widget.onDevam,
+      );
+    }
+    final sonraki = widget.sonrakiDers;
+    final liste = widget.onListe ??
+        () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        };
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (sonraki != null && widget.onSonraki != null)
+          PressButton(
+            key: const ValueKey('ders_sonraki'),
+            ustYazi: lessonText(lang, 'SIRADAKİ DERS', 'NEXT LESSON',
+                'NÄCHSTE LEKTION', 'SIGUIENTE LECCIÓN'),
+            label: sonraki.titleFor(lang),
+            icon: Icons.arrow_forward_rounded,
+            color: renk,
+            height: 58,
+            onPressed: widget.onSonraki,
+          )
+        else
+          PressButton(
+            key: const ValueKey('ders_harika'),
+            label:
+                lessonText(lang, 'Harika!', 'Awesome!', 'Super!', '¡Genial!'),
+            color: renk,
+            height: 52,
+            onPressed: liste,
+          ),
+        if (sonraki != null && widget.onSonraki != null)
+          TextButton(
+            key: const ValueKey('ders_listeye_don'),
+            onPressed: liste,
+            style: TextButton.styleFrom(foregroundColor: Colors.grey.shade700),
+            child: Text(
+              lessonText(lang, 'Listeye dön', 'Back to the list',
+                  'Zurück zur Liste', 'Volver a la lista'),
+              style: const TextStyle(
+                fontFamily: AppTheme.fontFamily,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final lang = lessonLang(context);
@@ -794,6 +1041,7 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
       alignment: Alignment.topCenter,
       children: [
         AlertDialog(
+          scrollable: true,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -847,39 +1095,15 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
               const SizedBox(height: 22),
               _enter(
                 3,
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.amber.shade400, Colors.orange.shade400],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.amber.withValues(alpha: 0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.star_rounded,
-                          color: Colors.white, size: 26),
-                      const SizedBox(width: 8),
-                      // Sayarak yukselen XP: kazanc bir olay haline geliyor.
-                      CountUpText(
-                        value: widget.totalXp,
-                        prefix: '+',
-                        suffix: ' XP',
-                        fontSize: 24,
-                        color: Colors.white,
-                        duration: Motion.extraLong2,
-                      ),
-                    ],
-                  ),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    _xpRozeti(),
+                    if (widget.seri > 0) _seriRozeti(lang),
+                  ],
                 ),
               ),
               if (widget.badge != null) ...[
@@ -932,20 +1156,9 @@ class _LessonCompleteDialogState extends State<_LessonCompleteDialog>
               ],
             ],
           ),
+          actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
           actions: [
-            _enter(
-              5,
-              PressButton(
-                label: lessonText(lang, 'Harika!', 'Awesome!', 'Super!', '¡Genial!'),
-                color: widget.course.primaryColor,
-                height: 52,
-                onPressed: widget.onDevam ??
-                    () {
-                      Navigator.pop(context);
-                      Navigator.pop(context);
-                    },
-              ),
-            ),
+            _enter(5, _dugmeler(lang)),
           ],
         ),
         // Konfeti pencerenin ustunden dokuluyor; dokunuslari engellemesin
