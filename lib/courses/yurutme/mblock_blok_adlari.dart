@@ -222,6 +222,17 @@ const Map<String, MBlockBlokTanimi> mblockBlokTanimlari = {
       'es': 'no %1',
     },
   ),
+  'dev_kucuktur': MBlockBlokTanimi(
+    kategori: 'islemler',
+    sekil: 'altigen',
+    yuvalar: ['A', 'B'],
+    etiket: {
+      'tr': '%1 < %2',
+      'en': '%1 < %2',
+      'de': '%1 < %2',
+      'es': '%1 < %2',
+    },
+  ),
   'dev_degisken_yap': MBlockBlokTanimi(
     kategori: 'degisken',
     sekil: 'duz',

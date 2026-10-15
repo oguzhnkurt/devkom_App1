@@ -8,6 +8,7 @@ import '../../../theme.dart';
 import '../../sahne/mblock_yigin_cizimi.dart';
 import '../../yurutme/mblock_cozum.dart';
 import 'step_widgets.dart' show lessonLang, lessonLangRead, lessonText;
+import 'tezgah_havuzu.dart';
 
 /// mBlock tezgahi — gercek surukle-birak blok editoru.
 ///
@@ -98,13 +99,88 @@ class MBlockTezgahi extends StatefulWidget {
       jsonEncode({
         'dil': dil,
         'bloklar': ayar.bloklar,
-        'baslangic': ayar.baslangicXml,
+        'baslangic': ayar.baslangicXmlFor(dil),
         'saltOkunur': false,
         'olcek': olcek,
       });
 
   @override
   State<MBlockTezgahi> createState() => MBlockTezgahiState();
+}
+
+/// Ders boyunca TEK WebView: sayfa (ve 2,1 MB'lik scratch-blocks) bir
+/// kez yukleniyor; her blok kurma adimi ayni sayfaya yalnizca yeni ayari
+/// gonderiyor (`MBlockTezgah.kur`). Bkz. [TezgahHavuzu].
+class MBlockWebHavuzu {
+  MBlockWebHavuzu._();
+
+  static final TezgahHavuzu<WebViewController> havuz =
+      TezgahHavuzu<WebViewController>(_uret);
+
+  /// Su an denetciyi kullanan tezgah: sayfanin mesajlari ona gidiyor.
+  static MBlockTezgahiState? aktif;
+
+  /// Ders acilisinda (tanitim adimi) sayfayi onceden yukler: ilk blok
+  /// kurma adimina gelindiginde tezgah hazir.
+  static void isit() {
+    if (MBlockTezgahi.webviewsiz) return;
+    try {
+      havuz.isit();
+    } catch (_) {
+      // Platform gerceklemesi yok (birim testi): isitma yok, zarar da yok.
+    }
+  }
+
+  /// Dersten cikista WebView'i birakir (bellek). Kullanan varsa dokunmaz.
+  static void serbestBirak() {
+    if (havuz.bos) havuz.sifirla();
+  }
+
+  static WebViewController _uret() {
+    final c = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0xFFF9F9F9))
+      ..addJavaScriptChannel('TezgahKanali',
+          onMessageReceived: (m) => aktif?._mesaj(m))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          // SAYFANIN KENDI YUKLENMESI DE BIR GEZINME ISTEGIDIR.
+          //
+          // Burasi once kosulsuz `prevent` donuyordu ve tezgah iOS'ta
+          // HIC acilmadi: `loadFlutterAsset` bir file:// gezinmesi
+          // baslatiyor, delege onu da engelliyordu.
+          //
+          // Kural: yalnizca KENDI paketimizdeki tezgah sayfasi.
+          // Baska her sey — cocugun ya da bir hatanin uretebilecegi
+          // her baglanti — engelleniyor.
+          onNavigationRequest: (istek) {
+            final adres = istek.url;
+            final bizim = adres.contains('assets/mblock/') ||
+                adres.startsWith('about:');
+            if (!bizim) {
+              debugPrint('⛔ mBlock tezgahi gezinmeyi engelledi: $adres');
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
+          onPageFinished: (url) {
+            debugPrint('🔎 mBlock tezgahi sayfasi yuklendi: $url');
+            havuz.sayfaYuklendi = true;
+            aktif?._sayfaHazir();
+          },
+          onWebResourceError: (e) {
+            // Ses dosyalari kasten pakete alinmadi; onlarin hatasi
+            // tezgahi bozmuyor.
+            if (e.url != null && e.url!.contains('/media/')) return;
+            debugPrint('⚠️ mBlock tezgahi kaynak hatasi: '
+                '${e.url} — ${e.description}');
+            aktif?._hataVer(e.description);
+          },
+        ),
+      );
+    c.loadFlutterAsset(MBlockTezgahi.sayfa);
+    return c;
+  }
 }
 
 class MBlockTezgahiState extends State<MBlockTezgahi> {
@@ -115,6 +191,13 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
 
   /// Kurulum sirasinda bir sey patlarsa cocuga ne yazacagiz.
   String? _hata;
+
+  /// WebView bu karede cizilebilir mi? Denetci baska bir adimdan
+  /// devralindiysa bir kare bekleniyor (eski gorunum agactan ciksin).
+  bool _gosterilebilir = false;
+
+  /// Denetci baska bir tezgaha gecti (bu adim cikis animasyonunda).
+  bool _devredildi = false;
 
   /// Sabir sayaci.
   ///
@@ -162,57 +245,25 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
     });
   }
 
+  /// Havuzdaki denetciyi devralir; sayfa zaten yukluyse hemen kurar.
   void _kur() {
     // WebViewController, platform gerceklemesi kayitli degilse (birim
     // testinde oldugu gibi) firlatiyor. Tezgah acilmasa bile ders
     // devam edebilmeli.
     try {
-      final c = WebViewController()
-        ..setJavaScriptMode(JavaScriptMode.unrestricted)
-        ..setBackgroundColor(const Color(0xFFF9F9F9))
-        ..addJavaScriptChannel('TezgahKanali', onMessageReceived: _mesaj)
-        ..setNavigationDelegate(
-          NavigationDelegate(
-            // SAYFANIN KENDI YUKLENMESI DE BIR GEZINME ISTEGIDIR.
-            //
-            // Burasi once kosulsuz `prevent` donuyordu ve tezgah iOS'ta
-            // HIC acilmadi: `loadFlutterAsset` bir file:// gezinmesi
-            // baslatiyor, delege onu da engelliyordu. Sayfa hic
-            // yuklenmedigi icin ne bir hata dusuyordu ne de sayfadan
-            // mesaj geliyordu — ekranda yalnizca sabir sayaci
-            // konusuyordu. (kod_tezgahi.dart'ta ayni kalip sorunsuz,
-            // cunku orada sayfa `loadHtmlString` ile geliyor ve bu bir
-            // gezinme istegi uretmiyor.)
-            //
-            // Kural: yalnizca KENDI paketimizdeki tezgah sayfasi.
-            // Baska her sey — cocugun ya da bir hatanin uretebilecegi
-            // her baglanti — engelleniyor.
-            onNavigationRequest: (istek) {
-              final adres = istek.url;
-              final bizim = adres.contains('assets/mblock/') ||
-                  adres.startsWith('about:');
-              if (!bizim) {
-                debugPrint('⛔ mBlock tezgahi gezinmeyi engelledi: $adres');
-                return NavigationDecision.prevent;
-              }
-              return NavigationDecision.navigate;
-            },
-            onPageFinished: (url) {
-              debugPrint('🔎 mBlock tezgahi sayfasi yuklendi: $url');
-              _sayfaHazir();
-            },
-            onWebResourceError: (e) {
-              // Ses dosyalari kasten pakete alinmadi; onlarin hatasi
-              // tezgahi bozmuyor.
-              if (e.url != null && e.url!.contains('/media/')) return;
-              debugPrint('⚠️ mBlock tezgahi kaynak hatasi: '
-                  '${e.url} — ${e.description}');
-              _hataVer(e.description);
-            },
-          ),
-        );
+      final havuz = MBlockWebHavuzu.havuz;
+      final c = havuz.al(this, birakildi: _devret);
+      MBlockWebHavuzu.aktif = this;
       _web = c;
-      c.loadFlutterAsset(MBlockTezgahi.sayfa);
+      _devredildi = false;
+      _gosterilebilir = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _devredildi) return;
+        setState(() => _gosterilebilir = true);
+        // Ayni sayfa onceki adimdan yuklu: yalnizca yeni ayar.
+        if (havuz.sayfaYuklendi) _sayfaHazir();
+      });
+      _sabir?.cancel();
       _sabir = Timer(_sabirSuresi, () {
         if (!mounted || _hazir) return;
         // Konsola yazdiriyoruz: cocuga teknik metin gostermiyoruz ama
@@ -229,9 +280,23 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
     }
   }
 
+  /// Denetci baska bir adima gecti: WebView'i agactan cikar.
+  void _devret() {
+    _sabir?.cancel();
+    if (identical(MBlockWebHavuzu.aktif, this)) MBlockWebHavuzu.aktif = null;
+    if (!mounted) return;
+    setState(() {
+      _devredildi = true;
+      _gosterilebilir = false;
+    });
+  }
+
   Future<void> _sayfaHazir() async {
     final c = _web;
-    if (c == null) return;
+    // WebView henuz ekranda degilse (devralinan denetci bir kare
+    // bekliyor) kurulum o karede yapiliyor: gorunmeyen sayfanin
+    // genisligi 0 ve tezgah dar ekran sanip yanlis olcekleniyordu.
+    if (c == null || _devredildi || !_gosterilebilir) return;
     // lessonLang() `context.watch` kullaniyor ve yalnizca build
     // icinde cagrilabilir; burasi sayfa yuklenince calisan bir geri
     // cagri. lessonLangRead() ayni degeri abone olmadan veriyor.
@@ -292,6 +357,9 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
       _hataVer(metin);
       return;
     }
+    // Onceki adimin tahtasindan gec gelen durum mesaji bu adima
+    // karismasin: bu adimin kurulumu "hazir" deyince dinliyoruz.
+    if (!_hazir) return;
     final yiginlar = MBlockBlok.mesajdanYiginlar(metin);
     if (yiginlar.isEmpty && !metin.contains('"tur":"durum"')) return;
     widget.onDurum(yiginlar);
@@ -300,6 +368,8 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
   @override
   void dispose() {
     _sabir?.cancel();
+    MBlockWebHavuzu.havuz.birak(this);
+    if (identical(MBlockWebHavuzu.aktif, this)) MBlockWebHavuzu.aktif = null;
     super.dispose();
   }
 
@@ -314,6 +384,9 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
     });
     _sabir?.cancel();
     _web = null;
+    _hataBildirildi = false;
+    // Bozuk sayfa havuzda kalmasin: yeni denetci, sayfa bastan.
+    MBlockWebHavuzu.havuz.sifirla();
     _kur();
   }
 
@@ -377,7 +450,8 @@ class MBlockTezgahiState extends State<MBlockTezgahi> {
             )
           : Stack(
               children: [
-                WebViewWidget(controller: c),
+                if (_gosterilebilir && !_devredildi)
+                  WebViewWidget(controller: c),
                 if (!_hazir && _hata == null)
                   const ColoredBox(
                     color: Color(0xFFF9F9F9),

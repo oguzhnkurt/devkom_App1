@@ -193,6 +193,13 @@
       yuvalar: [yuva('KOSUL', 'kosul')],
       tr: '%1 değil', en: 'not %1', de: 'nicht %1', es: 'no %1'
     },
+    {
+      // Scratch'in (ve mBlock'un) Islemler kategorisindeki "%1 < %2"
+      // altigeni. Park alarmi ve bariyer: <(mesafe) < 30>.
+      id: 'dev_kucuktur', kategori: 'islemler', sekil: 'altigen',
+      yuvalar: [yuva('A', 'sayi', 0), yuva('B', 'sayi', 30)],
+      tr: '%1 < %2', en: '%1 < %2', de: '%1 < %2', es: '%1 < %2'
+    },
 
     // ------------------------------------------------------ Degiskenler
     {

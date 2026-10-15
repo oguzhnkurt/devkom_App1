@@ -8,6 +8,7 @@ import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
 import '../../providers/auth_provider.dart';
 import 'widgets/mblock_blok_adimi.dart';
+import 'widgets/mblock_tezgahi.dart' show MBlockWebHavuzu;
 import 'widgets/proje_atolyesi.dart';
 import 'widgets/step_widgets.dart';
 import 'package:confetti/confetti.dart';
@@ -71,6 +72,12 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
   @override
   void initState() {
     super.initState();
+    // mBlock: tezgah sayfasi (2,1 MB scratch-blocks) tanitim adiminda
+    // arka planda yukleniyor; ilk blok kurma adiminda hazir bekliyor.
+    if (_mblockTezgahli) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => MBlockWebHavuzu.isit());
+    }
     // Kurs "baslanmis" sayilsin: ders bitirilmeden cikilsa bile kurs
     // sayfasi ve ana sayfa artik "basla" degil "kaldigin yerden devam
     // et" diyor. Saglayicisiz agaclarda (bazi testler) sessizce geciyor.
@@ -95,8 +102,15 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
   void dispose() {
     _progressController.dispose();
     _celebrationController.dispose();
+    // mBlock tezgahinin paylasilan WebView'i ders boyunca yasiyor; ders
+    // kapaninca bellek geri veriliyor.
+    if (_mblockTezgahli) MBlockWebHavuzu.serbestBirak();
     super.dispose();
   }
+
+  /// Derste gercek mBlock tezgahi kullanan bir adim var mi?
+  late final bool _mblockTezgahli = widget.lesson.steps
+      .any((s) => s is BlockBuilderStep && s.mblock != null);
 
   /// [stepId] adimi tamamlandi.
   ///

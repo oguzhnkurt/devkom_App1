@@ -18,6 +18,8 @@
   var K = global.MBlockKatalog;
   var ws = null;
   var dil = 'tr';
+  var boyutDinleniyor = false;
+  var tanimliDil = null;
 
   function bildir(tur, veri) {
     try {
@@ -492,7 +494,12 @@
           ? JSON.parse(ayarJson) : (ayarJson || {});
         dil = ayar.dil || 'tr';
 
-        S.defineBlocksWithJsonArray(K.BLOKLAR.map(tanim));
+        // Blok tanimlari dile bagli (etiketler); ayni dilde ikinci kez
+        // tanimlamaya gerek yok.
+        if (tanimliDil !== dil) {
+          S.defineBlocksWithJsonArray(K.BLOKLAR.map(tanim));
+          tanimliDil = dil;
+        }
 
         // Telefonun genisligi: altinda kalan her seyi "dar" sayiyoruz.
         var dar = (global.innerWidth || 400) < 380;
@@ -544,12 +551,19 @@
         if (kapat) kapat.onclick = paletiKapat;
         // Ekran donunce ya da klavye acilip kapaninca tezgah yeni
         // olcuye uymali; yoksa bloklar kirpilmis kaliyor.
-        global.addEventListener('resize', function () {
-          if (!ws) return;
-          S.svgResize(ws);
-          if (paletAcik) ayiraciYerlestir();
-          sekmeyiGuncelle();
-        });
+        //
+        // BIR KEZ: sayfa artik adimlar arasinda paylasiliyor ve `kur`
+        // her adimda yeniden cagriliyor. Dinleyici her seferinde
+        // eklenince bir derste on tane birikiyordu.
+        if (!boyutDinleniyor) {
+          boyutDinleniyor = true;
+          global.addEventListener('resize', function () {
+            if (!ws) return;
+            S.svgResize(ws);
+            if (paletAcik) ayiraciYerlestir();
+            sekmeyiGuncelle();
+          });
+        }
 
         bildir('hazir', { blokSayisi: K.BLOKLAR.length, dil: dil });
         durumuBildir();

@@ -1086,6 +1086,64 @@ class MBlockTemelLessonsData {
           xpReward: 35,
         ),
 
+        // HATA AVCISI (kukla): Devi kare cizerek yurumeli ama donme
+        // blogu dongunun DISINDA kalmis. Devi dumduz yuruyor, sonunda bir
+        // kez donuyor.
+        BlockBuilderStep(
+          id: 'm0_3_hata',
+          instruction: 'Devi kare çizerek yürümeli ama dümdüz gidiyor. '
+              'Hatayı bul ve düzelt.',
+          instructionEn: 'Devi should walk in a square, but he goes in a '
+              'straight line. Find the bug and fix it.',
+          instructionDe: 'Devi soll im Quadrat laufen, geht aber geradeaus. '
+              'Finde den Fehler und reparier ihn.',
+          instructionEs: 'Devi debería caminar en cuadrado, pero va en línea '
+              'recta. Encuentra el error y arréglalo.',
+          goal: 'Devi dört kez yürüsün ve her yürüyüşten sonra 90 derece '
+              'dönsün; başladığı yere geri gelsin.',
+          goalEn: 'Devi walks four times and turns 90 degrees after each '
+              'walk, ending where he started.',
+          goalDe: 'Devi läuft viermal und dreht sich nach jedem Stück um 90 '
+              'Grad; er endet, wo er angefangen hat.',
+          goalEs: 'Devi camina cuatro veces y gira 90 grados después de cada '
+              'tramo; termina donde empezó.',
+          availableBlocks: [
+            MBlockKuklaBlocks.greenFlag(),
+            MBlockKuklaBlocks.repeat('4', id: 'repeat_4_kare'),
+            MBlockKuklaBlocks.move('50', id: 'move_50_kare'),
+            MBlockKuklaBlocks.turn('90', id: 'turn_90_kare'),
+          ],
+          correctSequence: [
+            'green_flag',
+            'repeat_4_kare',
+            'move_50_kare',
+            'turn_90_kare',
+          ],
+          mblock: MBlockTezgahAyari(
+            hataAvcisi: true,
+            bloklar: ['dev_bayrak', 'dev_tekrarla', 'dev_git', 'dev_don'],
+            baslangic: [
+              MBlockBeklenen('dev_bayrak'),
+              MBlockBeklenen('dev_tekrarla',
+                  alanlar: {'KERE': '4'},
+                  icerik: [
+                    MBlockBeklenen('dev_git', alanlar: {'ADIM': '50'}),
+                  ]),
+              MBlockBeklenen('dev_don', alanlar: {'ACI': '90'}),
+            ],
+            cozum: [
+              MBlockBeklenen('dev_bayrak'),
+              MBlockBeklenen('dev_tekrarla', alanlar: {
+                'KERE': '4'
+              }, icerik: [
+                MBlockBeklenen('dev_git'),
+                MBlockBeklenen('dev_don', alanlar: {'ACI': '90'}),
+              ]),
+            ],
+          ),
+          xpReward: 30,
+        ),
+
         MultipleChoiceStep(
           id: 'm0_3_q1',
           question:

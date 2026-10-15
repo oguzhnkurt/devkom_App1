@@ -101,6 +101,29 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
 
   late final bool _kart = mblockKartProgramiMi(widget.ayar.cozum);
 
+  /// Hata Avcisi: tahtadaki hazir (hatali) program bir kez yuklendi mi.
+  bool _baslangicYuklendi = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // HATA AVCISI: hazir program tezgahta (WebView) baslangicXml ile
+    // geliyor; burada da ayni program tutuluyor ki cocuk tezgah
+    // "durum" bildirmeden once de "Calistir"a basabilsin (ve WebView'siz
+    // onizlemede program gorunsun).
+    final hazir = widget.ayar.baslangic;
+    if (!_baslangicYuklendi && hazir != null && _yiginlar.isEmpty) {
+      _baslangicYuklendi = true;
+      _yiginlar = [mblockCozumProgrami(hazir, lessonLangRead(context))];
+    }
+  }
+
+  /// Hata Avcisi: programi DENETLEMEDEN calistir (once hatayi gor).
+  void yalnizCalistir() {
+    HapticFeedback.lightImpact();
+    _sahneyiCalistir(_yiginlar);
+  }
+
   /// Kac blok var (dugmenin acik olup olmayacagini belirliyor).
   int get _blokSayisi => _yiginlar.fold(0, (t, y) => t + _say(y));
 
@@ -204,6 +227,10 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (widget.ayar.hataAvcisi) ...[
+          _hataAvcisiSeridi(lang),
+          const SizedBox(height: 10),
+        ],
         Text(
           widget.step.instructionFor(lang),
           style: TextStyle(
@@ -283,6 +310,29 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
         ] else if (_bitti)
           _basariKutusu(lang)
         else ...[
+          if (widget.ayar.hataAvcisi) ...[
+            OutlinedButton.icon(
+              key: const ValueKey('mblock_hatali_calistir'),
+              onPressed: _blokSayisi == 0 ? null : yalnizCalistir,
+              icon: const Icon(Icons.bug_report_rounded, size: 20),
+              label: Text(
+                lessonText(lang, 'Programı çalıştır, hatayı gör',
+                    'Run the program, spot the bug',
+                    'Programm starten, Fehler finden',
+                    'Ejecuta el programa y encuentra el error'),
+                style: const TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFFD9480F),
+                side: const BorderSide(color: Color(0xFFD9480F), width: 1.6),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
           Row(
             children: [
               Expanded(
@@ -353,6 +403,52 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
       ],
     );
   }
+
+  /// "Hata Avcisi" seridi: bu adimda program HAZIR ve hatali.
+  Widget _hataAvcisiSeridi(String lang) => Container(
+        key: const ValueKey('mblock_hata_avcisi'),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF0E6),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFFFB38A)),
+        ),
+        child: Row(
+          children: [
+            const Text('🐞', style: TextStyle(fontSize: 22)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text.rich(
+                TextSpan(children: [
+                  TextSpan(
+                    text: lessonText(lang, 'HATA AVCISI  ', 'BUG HUNTER  ',
+                        'FEHLERJAGD  ', 'CAZAERRORES  '),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                        color: Color(0xFFD9480F)),
+                  ),
+                  TextSpan(
+                    text: lessonText(
+                        lang,
+                        'Bu program hazır ama bir hatası var. Önce çalıştır ve ne olduğunu izle, sonra düzelt.',
+                        'This program is ready but has a bug. Run it first and watch what happens, then fix it.',
+                        'Dieses Programm ist fertig, hat aber einen Fehler. Starte es zuerst und schau, was passiert; dann reparier es.',
+                        'Este programa está listo pero tiene un error. Ejecútalo primero y mira qué pasa; luego arréglalo.'),
+                  ),
+                ]),
+                style: const TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 13,
+                  height: 1.35,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF7A2E0B),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
 
   Widget _hedef(String lang) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

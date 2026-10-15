@@ -14,6 +14,7 @@ import 'interactive_lesson_screen.dart';
 import '../tanitim/kurs_acilis_ekrani.dart';
 import '../tanitim/kurs_kapanis_ekrani.dart';
 import '../tanitim/kurs_tanitimi.dart';
+import 'mblock_atolye_ekrani.dart';
 import 'module_quiz_screen.dart';
 import 'projelerim_ekrani.dart';
 import 'widgets/kurs_yol_haritasi.dart';
@@ -610,7 +611,8 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
     );
   }
 
-  /// Scratch: "Projelerim" (kayitli atolye projeleri).
+  /// Scratch: "Projelerim" (kayitli atolye projeleri). mBlock: serbest
+  /// atolye (butun bloklar, sanal Uno ve sahne).
   Widget? _atolyeKarti() {
     final lang = lessonLang(context);
     switch (widget.course.id) {
@@ -631,6 +633,24 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
             context,
             MaterialPageRoute(
                 builder: (_) => ProjelerimEkrani(course: widget.course)),
+          ),
+        );
+      case 'mblock':
+        return KursAtolyeKarti(
+          key: const ValueKey('mblock_atolye_karti'),
+          course: widget.course,
+          ikon: Icons.construction_rounded,
+          baslik: lessonText(lang, 'Atölye', 'Workshop', 'Werkstatt', 'Taller'),
+          altBaslik: lessonText(
+              lang,
+              'Kursun bütün blokları; sanal Uno\'da ve sahnede serbestçe dene',
+              'Every block of the course; try freely on the virtual Uno and stage',
+              'Alle Blöcke des Kurses; probier frei am virtuellen Uno und auf der Bühne',
+              'Todos los bloques del curso; prueba libre en el Uno virtual y el escenario'),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => MBlockAtolyeEkrani(course: widget.course)),
           ),
         );
     }

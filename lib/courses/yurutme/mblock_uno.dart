@@ -350,6 +350,8 @@ class UnoYorumlayici {
         return kart.dijitalOku(_tam(b, 'PIN', 2));
       case 'dev_degil':
         return !_kosul(b.girdiler['KOSUL']);
+      case 'dev_kucuktur':
+        return _sayi(b, 'A') < _sayi(b, 'B');
       default:
         return false;
     }

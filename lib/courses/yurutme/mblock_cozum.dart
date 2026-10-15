@@ -133,6 +133,8 @@ class MBlockTezgahAyari {
     required this.bloklar,
     required this.cozum,
     this.baslangicXml,
+    this.baslangic,
+    this.hataAvcisi = false,
   });
 
   /// Arac kutusunda gosterilecek katalog kimlikleri.
@@ -144,8 +146,108 @@ class MBlockTezgahAyari {
   /// Dogru program.
   final List<MBlockBeklenen> cozum;
 
-  /// Tahtada hazir duran baslangic programi (varsa).
+  /// Tahtada hazir duran baslangic programi (varsa), Blockly XML'i.
   final String? baslangicXml;
+
+  /// Tahtada hazir duran baslangic programi, cozumle ayni dilde
+  /// yazilmis. Verilirse XML'i [mblockXml] uretiyor; "de" blogunun sozu
+  /// cocugun dilinde geliyor.
+  final List<MBlockBeklenen>? baslangic;
+
+  /// HATA AVCISI: tahtadaki hazir program ([baslangic]) HATALI; cocuk
+  /// once calistirip ne yanlis gittigini goruyor, sonra duzeltiyor.
+  /// Denetim yine [cozum]e bakiyor.
+  final bool hataAvcisi;
+
+  /// Sayfaya gidecek baslangic XML'i ([dil]de).
+  String? baslangicXmlFor(String dil) =>
+      baslangicXml ??
+      (baslangic == null
+          ? null
+          : mblockXml([mblockCozumProgrami(baslangic!, dil)]));
+}
+
+// ---------------------------------------------------------------------
+// Programdan Blockly XML'i
+// ---------------------------------------------------------------------
+
+/// Acilir liste (golge degil, ALAN) olan yuvalar.
+const Map<String, Set<String>> _secimYuvalari = {
+  'dev_dijital_yaz': {'PIN', 'SEVIYE'},
+  'dev_pwm_yaz': {'PIN'},
+  'dev_dijital_oku': {'PIN'},
+  'dev_analog_oku': {'PIN'},
+  'dev_servo': {'PIN'},
+  'dev_degisken_yap': {'AD'},
+  'dev_dokunuyor': {'NESNE'},
+};
+
+/// Metin golgesi olan yuvalar (digerleri sayi).
+const Set<String> _metinYuvalari = {'METIN', 'SES'};
+
+String _xmlKacir(String s) => s
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+
+/// Bir programi tezgahin anladigi Blockly XML'ine cevirir (Hata Avcisi
+/// adimlarinin hazir programi). Yapi tezgahin okudugu yapinin tersi:
+/// alanlar `field`, takili bloklar `value`, C kutusunun ici `ICERIK`,
+/// alttaki blok `next`.
+String mblockXml(List<List<MBlockBlok>> yiginlar) {
+  String blok(MBlockBlok k, {String konum = ''}) {
+    final b = StringBuffer('<block type="${k.tip}"$konum>');
+    final secim = _secimYuvalari[k.tip] ?? const {};
+    for (final e in k.alanlar.entries) {
+      if (k.girdiler.containsKey(e.key)) continue;
+      final v = _xmlKacir(e.value);
+      if (secim.contains(e.key)) {
+        b.write('<field name="${e.key}">$v</field>');
+      } else if (_metinYuvalari.contains(e.key)) {
+        b.write('<value name="${e.key}"><shadow type="text">'
+            '<field name="TEXT">$v</field></shadow></value>');
+      } else if (e.key == 'RENK') {
+        b.write('<value name="${e.key}"><shadow type="colour_picker">'
+            '<field name="COLOUR">$v</field></shadow></value>');
+      } else {
+        b.write('<value name="${e.key}"><shadow type="math_number">'
+            '<field name="NUM">$v</field></shadow></value>');
+      }
+    }
+    for (final e in k.girdiler.entries) {
+      b.write('<value name="${e.key}">${blok(e.value)}</value>');
+    }
+    if (k.icerik.isNotEmpty) {
+      b.write('<statement name="ICERIK">${_dizi(k.icerik, blok)}</statement>');
+    }
+    return b.toString();
+  }
+
+  final out = StringBuffer('<xml>');
+  var y = 30;
+  for (final yigin in yiginlar) {
+    if (yigin.isEmpty) continue;
+    out.write(_dizi(yigin, blok, konum: ' x="40" y="$y"'));
+    y += 220;
+  }
+  out.write('</xml>');
+  return out.toString();
+}
+
+/// Bloklari ic ice `next` ile baglar; [blok] kapanmamis blok aciliyor.
+String _dizi(List<MBlockBlok> l, String Function(MBlockBlok, {String konum}) blok,
+    {String konum = ''}) {
+  final b = StringBuffer();
+  for (var i = 0; i < l.length; i++) {
+    if (i > 0) b.write('<next>');
+    b.write(blok(l[i], konum: i == 0 ? konum : ''));
+  }
+  for (var i = l.length - 1; i >= 0; i--) {
+    b.write('</block>');
+    if (i > 0) b.write('</next>');
+  }
+  return b.toString();
 }
 
 /// Cocugun kurdugu program dersin bekledigiyle ortusuyor mu.

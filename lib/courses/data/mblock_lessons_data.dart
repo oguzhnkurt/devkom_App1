@@ -961,6 +961,75 @@ class MBlockLessonsData {
           xpReward: 35,
         ),
 
+        // HATA AVCISI: tahtada hazir bir yanip sonme programi var ama
+        // sondurdukten sonra BEKLEMIYOR. Sanal Uno'da LED hep yanik
+        // gorunuyor: sonuyor ve bir kare sonra yine yaniyor.
+        BlockBuilderStep(
+          id: 'm2_2_hata',
+          instruction: 'Bu program LED\'i yakıp söndürmeli ama LED hep yanık '
+              'görünüyor. Hatayı bul ve düzelt.',
+          instructionEn: 'This program should blink the LED, but the LED looks '
+              'on all the time. Find the bug and fix it.',
+          instructionDe: 'Dieses Programm soll die LED blinken lassen, aber die '
+              'LED scheint immer an. Finde den Fehler und reparier ihn.',
+          instructionEs: 'Este programa debería hacer parpadear el LED, pero el '
+              'LED parece encendido todo el rato. Encuentra el error y '
+              'arréglalo.',
+          goal: 'LED bir saniye yansın, bir saniye sönsün; sürekli.',
+          goalEn: 'The LED is on for a second and off for a second, forever.',
+          goalDe: 'Die LED ist eine Sekunde an und eine Sekunde aus, immer '
+              'wieder.',
+          goalEs: 'El LED se enciende un segundo y se apaga un segundo, por '
+              'siempre.',
+          availableBlocks: [
+            MBlockBlocks.boardLaunch(),
+            MBlockBlocks.forever(),
+            MBlockBlocks.digitalWrite('9', 'yüksek', id: 'led_on'),
+            MBlockBlocks.wait('1', id: 'wait_on'),
+            MBlockBlocks.digitalWrite('9', 'düşük', id: 'led_off'),
+            MBlockBlocks.wait('1', id: 'wait_off'),
+          ],
+          correctSequence: [
+            'board_launch',
+            'forever',
+            'led_on',
+            'wait_on',
+            'led_off',
+            'wait_off',
+          ],
+          mblock: MBlockTezgahAyari(
+            hataAvcisi: true,
+            bloklar: [
+              'dev_kart_acilis',
+              'dev_surekli',
+              'dev_dijital_yaz',
+              'dev_bekle',
+            ],
+            baslangic: [
+              MBlockBeklenen('dev_kart_acilis'),
+              MBlockBeklenen('dev_surekli', icerik: [
+                MBlockBeklenen('dev_dijital_yaz',
+                    alanlar: {'PIN': '9', 'SEVIYE': 'HIGH'}),
+                MBlockBeklenen('dev_bekle', alanlar: {'SANIYE': '1'}),
+                MBlockBeklenen('dev_dijital_yaz',
+                    alanlar: {'PIN': '9', 'SEVIYE': 'LOW'}),
+              ]),
+            ],
+            cozum: [
+              MBlockBeklenen('dev_kart_acilis'),
+              MBlockBeklenen('dev_surekli', icerik: [
+                MBlockBeklenen('dev_dijital_yaz',
+                    alanlar: {'PIN': '9', 'SEVIYE': 'HIGH'}),
+                MBlockBeklenen('dev_bekle', alanlar: {'SANIYE': '1'}),
+                MBlockBeklenen('dev_dijital_yaz',
+                    alanlar: {'PIN': '9', 'SEVIYE': 'LOW'}),
+                MBlockBeklenen('dev_bekle', alanlar: {'SANIYE': '1'}),
+              ]),
+            ],
+          ),
+          xpReward: 30,
+        ),
+
         MultipleChoiceStep(
           id: 'm2_2_q1',
           question:
@@ -1725,6 +1794,79 @@ class MBlockLessonsData {
           xpReward: 15,
         ),
 
+        // SANAL UNO'DA PARK ALARMI: mesafe 30 cm'den azken buzzer
+        // (pin 8) kesik kesik otuyor. Cocuk Uno kartindaki mesafe
+        // kaydiricisini oynatip deniyor.
+        BlockBuilderStep(
+          id: 'm4_1_build1',
+          instruction: 'Park alarmı: engel yaklaşınca buzzer ötsün.',
+          instructionEn: 'Parking alarm: the buzzer beeps when an obstacle '
+              'comes close.',
+          instructionDe: 'Einparkalarm: Der Summer piept, wenn ein Hindernis '
+              'nahe kommt.',
+          instructionEs: 'Alarma de aparcamiento: el zumbador pita cuando se '
+              'acerca un obstáculo.',
+          goal: 'Mesafe 30 cm\'den azken pin 8\'deki buzzer kesik kesik ötsün; '
+              'uzaktayken sussun. Uno\'daki mesafe kaydırıcısıyla dene.',
+          goalEn: 'While the distance is under 30 cm, the buzzer on pin 8 '
+              'beeps on and off; far away it stays quiet. Try it with the '
+              'distance slider on the Uno.',
+          goalDe: 'Solange der Abstand unter 30 cm ist, piept der Summer an '
+              'Pin 8 immer wieder; weit weg bleibt er still. Probier es mit '
+              'dem Abstandsregler am Uno.',
+          goalEs: 'Mientras la distancia sea menor de 30 cm, el zumbador del '
+              'pin 8 pita a ratos; lejos, se calla. Pruébalo con el '
+              'deslizador de distancia del Uno.',
+          availableBlocks: [
+            MBlockBlocks.boardLaunch(),
+            MBlockBlocks.forever(),
+            MBlockBlocks.ifThen('mesafe < 30',
+                conditionEn: 'distance < 30',
+                conditionDe: 'Abstand < 30',
+                conditionEs: 'distancia < 30',
+                id: 'if_close'),
+            MBlockBlocks.digitalWrite('8', 'yüksek', id: 'buzzer_on'),
+            MBlockBlocks.wait('0.2', id: 'wait_beep'),
+            MBlockBlocks.digitalWrite('8', 'düşük', id: 'buzzer_off'),
+          ],
+          correctSequence: [
+            'board_launch',
+            'forever',
+            'if_close',
+            'buzzer_on',
+            'wait_beep',
+            'buzzer_off',
+          ],
+          mblock: MBlockTezgahAyari(
+            bloklar: [
+              'dev_kart_acilis',
+              'dev_surekli',
+              'dev_eger',
+              'dev_kucuktur',
+              'dev_mesafe',
+              'dev_dijital_yaz',
+              'dev_bekle',
+            ],
+            cozum: [
+              MBlockBeklenen('dev_kart_acilis'),
+              MBlockBeklenen('dev_surekli', icerik: [
+                MBlockBeklenen('dev_eger', girdiler: {
+                  'KOSUL': MBlockBeklenen('dev_kucuktur',
+                      alanlar: {'B': '30'},
+                      girdiler: {'A': MBlockBeklenen('dev_mesafe')}),
+                }, icerik: [
+                  MBlockBeklenen('dev_dijital_yaz',
+                      alanlar: {'PIN': '8', 'SEVIYE': 'HIGH'}),
+                  MBlockBeklenen('dev_bekle'),
+                  MBlockBeklenen('dev_dijital_yaz',
+                      alanlar: {'PIN': '8', 'SEVIYE': 'LOW'}),
+                ]),
+              ]),
+            ],
+          ),
+          xpReward: 40,
+        ),
+
         ProjectStep(
           id: 'm4_1_project',
           title: 'Proje: Park Sensörü',
@@ -1921,6 +2063,89 @@ class MBlockLessonsData {
           explanationDe: 'Ein normaler Servo arbeitet zwischen 0 und 180 Grad. mBlock prüft die Zahl nicht, die du schreibst; es lädt das Programm hoch und der Servo geht so weit er kann.',
           explanationEs: 'Un servo normal trabaja entre 0 y 180 grados. mBlock no comprueba el número que escribes; sube el programa y el servo llega hasta donde puede.',
           xpReward: 15,
+        ),
+
+        // SANAL UNO'DA BARIYER: araba 20 cm'den yakinsa servo 90 derece
+        // (kol kalkik), degilse 0 derece. Iki kardes "eger"in sirasi
+        // serbest.
+        BlockBuilderStep(
+          id: 'm4_2_build1',
+          instruction: 'Otomatik bariyer: araba yaklaşınca kol kalksın, '
+              'uzaklaşınca insin.',
+          instructionEn: 'Automatic barrier: the arm lifts when a car comes '
+              'close and lowers when it moves away.',
+          instructionDe: 'Automatische Schranke: Der Arm hebt sich, wenn ein '
+              'Auto nahe kommt, und senkt sich, wenn es wegfährt.',
+          instructionEs: 'Barrera automática: el brazo sube cuando se acerca '
+              'un coche y baja cuando se aleja.',
+          goal: 'Mesafe 20 cm\'den azsa pin 9\'daki servo 90 dereceye (açık), '
+              'değilse 0 dereceye (kapalı) gitsin.',
+          goalEn: 'If the distance is under 20 cm, the servo on pin 9 goes to '
+              '90 degrees (open); otherwise to 0 degrees (closed).',
+          goalDe: 'Ist der Abstand unter 20 cm, fährt das Servo an Pin 9 auf '
+              '90 Grad (offen), sonst auf 0 Grad (zu).',
+          goalEs: 'Si la distancia es menor de 20 cm, el servo del pin 9 va a '
+              '90 grados (abierto); si no, a 0 grados (cerrado).',
+          availableBlocks: [
+            MBlockBlocks.boardLaunch(),
+            MBlockBlocks.forever(),
+            MBlockBlocks.ifThen('mesafe < 20',
+                conditionEn: 'distance < 20',
+                conditionDe: 'Abstand < 20',
+                conditionEs: 'distancia < 20',
+                id: 'if_car'),
+            MBlockBlocks.servo('9', '90', id: 'servo_open'),
+            MBlockBlocks.ifThen('mesafe < 20 değil',
+                conditionEn: 'not distance < 20',
+                conditionDe: 'nicht Abstand < 20',
+                conditionEs: 'no distancia < 20',
+                id: 'if_no_car'),
+            MBlockBlocks.servo('9', '0', id: 'servo_close'),
+          ],
+          correctSequence: [
+            'board_launch',
+            'forever',
+            'if_car',
+            'servo_open',
+            'if_no_car',
+            'servo_close',
+          ],
+          mblock: MBlockTezgahAyari(
+            bloklar: [
+              'dev_kart_acilis',
+              'dev_surekli',
+              'dev_eger',
+              'dev_kucuktur',
+              'dev_degil',
+              'dev_mesafe',
+              'dev_servo',
+            ],
+            cozum: [
+              MBlockBeklenen('dev_kart_acilis'),
+              MBlockBeklenen('dev_surekli', kardesKosullarSerbest: true,
+                  icerik: [
+                MBlockBeklenen('dev_eger', girdiler: {
+                  'KOSUL': MBlockBeklenen('dev_kucuktur',
+                      alanlar: {'B': '20'},
+                      girdiler: {'A': MBlockBeklenen('dev_mesafe')}),
+                }, icerik: [
+                  MBlockBeklenen('dev_servo',
+                      alanlar: {'PIN': '9', 'ACI': '90'}),
+                ]),
+                MBlockBeklenen('dev_eger', girdiler: {
+                  'KOSUL': MBlockBeklenen('dev_degil', girdiler: {
+                    'KOSUL': MBlockBeklenen('dev_kucuktur',
+                        alanlar: {'B': '20'},
+                        girdiler: {'A': MBlockBeklenen('dev_mesafe')}),
+                  }),
+                }, icerik: [
+                  MBlockBeklenen('dev_servo',
+                      alanlar: {'PIN': '9', 'ACI': '0'}),
+                ]),
+              ]),
+            ],
+          ),
+          xpReward: 45,
         ),
 
         ProjectStep(
