@@ -7,115 +7,134 @@ html,body{margin:0;padding:0;overflow:hidden;background:#000}
 #s{position:relative;width:1920px;height:823px;overflow:hidden;
   background:radial-gradient(120% 140% at 30% 10%,#8B5CF6 0%,#6D3BF0 38%,#4F46E5 62%,#2F7BFF 100%)}
 .abs{position:absolute;left:0;top:0;will-change:transform;transform-origin:0 0}
-.ghost{height:34px;border-radius:9px;background:rgba(255,255,255,.12)}
+.ghost{height:34px;border-radius:9px;background:rgba(255,255,255,.11)}
 .star{width:8px;height:8px;border-radius:50%;background:#fff}
 #mark{font-family:Baloo;font-size:112px;color:#fff;letter-spacing:-1px;line-height:1;white-space:nowrap;
   text-shadow:0 10px 0 rgba(40,20,120,.35),0 24px 50px rgba(20,10,80,.35)}
 #mark b{font-weight:normal;color:#FFD54F}
-#tag{font-family:Nunito;font-weight:800;font-size:38px;color:rgba(255,255,255,.95);white-space:nowrap;
-  letter-spacing:.5px}
-.blok{font-family:Nunito;font-weight:800;font-size:27px;color:#fff;white-space:nowrap}
-.blok svg{position:absolute;left:0;top:0;overflow:visible}
-.blok span{position:relative;display:block;padding:0 22px;line-height:58px}
+#tag{font-family:Nunito;font-weight:800;font-size:38px;color:rgba(255,255,255,.95);white-space:nowrap}
+.blk{position:absolute;font-family:Nunito;font-weight:800;font-size:22px;color:#fff;white-space:nowrap}
+.blk svg.bg{position:absolute;left:0;top:0;overflow:visible}
+.blk .row{position:relative;display:flex;align-items:center;gap:8px;height:48px;padding:0 14px}
+.num{background:#fff;color:#575E75;border-radius:16px;padding:0 12px;height:30px;line-height:30px;font-size:20px}
 .card{background:#fff;border-radius:26px;box-shadow:0 24px 60px rgba(20,10,80,.35);overflow:hidden}
-#sahne{width:330px;height:250px}
+#sahne{width:330px;height:250px;position:relative}
 #sahne .bar{height:44px;background:#F3F4F8;display:flex;align-items:center;gap:10px;padding:0 14px}
-#sahne .bayrak{width:28px;height:28px;border-radius:8px;background:#DCFCE7;color:#16A34A;font-size:18px;display:flex;align-items:center;justify-content:center}
-#sahne .dur{width:24px;height:24px;border-radius:6px;background:#EF4444;transform:rotate(22.5deg);clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)}
+#sahne .bayrak{width:28px;height:28px;border-radius:8px;background:#DCFCE7;display:flex;align-items:center;justify-content:center}
+#sahne .dur{width:24px;height:24px;background:#EF4444;clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)}
 #sahne .zemin{position:absolute;left:0;top:44px;width:330px;height:206px;background:linear-gradient(#E0F2FE,#F0F9FF)}
 #cimen{position:absolute;left:0;bottom:0;width:330px;height:26px;background:#86D46B}
-#satranc{width:250px;height:250px;padding:16px;box-sizing:border-box}
-#tahta{display:grid;grid-template-columns:repeat(8,1fr);width:218px;height:218px;border-radius:8px;overflow:hidden}
+#satranc{width:260px;padding:14px 16px 16px;box-sizing:border-box}
+#satranc .bas{font:800 20px Nunito;color:#1F2430;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+#tahta{display:grid;grid-template-columns:repeat(8,1fr);width:228px;height:228px;border-radius:10px;overflow:hidden}
 #tahta div{display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
-#uno{width:250px;height:150px;background:#0E7C86;border-radius:22px;box-shadow:0 20px 50px rgba(20,10,80,.35)}
-#led{position:absolute;width:30px;height:30px;border-radius:50%}
 </style></head><body><div id="s"></div>
 <script>
 const P=new URLSearchParams(location.search), LANG=P.get('lang')||'tr';
-const T={tr:{tag:'Kodla, oyna, öğren',b:['tıklandığında','3 defa tekrarla','10 adım git','90 derece dön']},
- en:{tag:'Code, play, learn',b:['when clicked','repeat 3','move 10 steps','turn 90 degrees']},
- de:{tag:'Coden, spielen, lernen',b:['Wenn angeklickt','wiederhole 3 mal','gehe 10 Schritte','drehe um 90 Grad']},
- es:{tag:'Programa, juega, aprende',b:['al hacer clic','repetir 3','mover 10 pasos','girar 90 grados']}}[LANG];
+const F='<svg width="22" height="22" viewBox="0 0 24 24" style="flex:none"><path d="M5 3v18" stroke="#3D8C40" stroke-width="2.4" stroke-linecap="round"/><path d="M6 4c4-2 6 2 12 0v9c-6 2-8-2-12 0z" fill="#4CBF56" stroke="#3D8C40" stroke-width="1.5"/></svg>';
+const DON='<span style="font-size:22px">↻</span>';
+const T={
+ tr:{tag:'Kodla, oyna, öğren',sat:'Satranç',mod:'MODÜL',
+   hat:[F,'tıklandığında'],rep:[{n:4},'defa tekrarla'],mv:[{n:10},'adım git'],tn:[DON,{n:90},'derece dön']},
+ en:{tag:'Code, play, learn',sat:'Chess',mod:'MODULE',
+   hat:['when',F,'clicked'],rep:['repeat',{n:4}],mv:['move',{n:10},'steps'],tn:['turn',DON,{n:90},'degrees']},
+ de:{tag:'Coden, spielen, lernen',sat:'Schach',mod:'MODUL',
+   hat:['Wenn',F,'angeklickt'],rep:['wiederhole',{n:4},'mal'],mv:['gehe',{n:10},'er-Schritt'],tn:['drehe dich',DON,'um',{n:90},'Grad']},
+ es:{tag:'Programa, juega, aprende',sat:'Ajedrez',mod:'MÓDULO',
+   hat:['al hacer clic en',F],rep:['repetir',{n:4}],mv:['mover',{n:10},'pasos'],tn:['girar',DON,{n:90},'grados']}}[LANG];
 const DUR=10, FPS=30, W=1920, H=823, TAU=Math.PI*2;
 const s=document.getElementById('s');
 function el(cls,html,parent){const d=document.createElement('div');d.className='abs '+(cls||'');if(html!=null)d.innerHTML=html;(parent||s).appendChild(d);return d}
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
-const ease=x=>1-Math.pow(1-clamp(x),3);
 const back=x=>{x=clamp(x);const c=1.7;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
-// rastgele ama sabit
 let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
-// arka plan: kayan soluk bloklar (dongude tam bir tur)
-const ghosts=[];for(let i=0;i<22;i++){const g=el('ghost');const w=70+rnd()*140;g.style.width=w+'px';
- ghosts.push({g,x:rnd()*(W+300),y:20+rnd()*(H-60),k:1+Math.floor(rnd()*2),r:(rnd()-.5)*20,o:.5+rnd()*.5})}
-const stars=[];for(let i=0;i<26;i++){const st=el('star');stars.push({st,x:rnd()*W,y:rnd()*H,ph:rnd(),f:1+Math.floor(rnd()*3),sc:.5+rnd()})}
-// marka
+function put(e,x,y,sc=1,rot=0,op=1){e.style.transform=`translate(${x}px,${y}px) rotate(${rot}deg) scale(${sc})`;e.style.opacity=op}
+// arka plan: yavas salinan soluk bloklar
+const ghosts=[];for(let i=0;i<22;i++){const g=el('ghost');g.style.width=(70+rnd()*140)+'px';
+ ghosts.push({g,x:rnd()*W-60,y:20+rnd()*(H-60),r:(rnd()-.5)*20,o:.5+rnd()*.5,ph:rnd(),a:18+rnd()*22})}
+const stars=[];for(let i=0;i<26;i++){stars.push({st:el('star'),x:rnd()*W,y:rnd()*H,ph:rnd(),sc:.5+rnd()})}
 const mark=el('','<div id="mark">Dev<b>Education</b></div>');
 const tag=el('','<div id="tag">'+T.tag+'</div>');
-// bloklar (Scratch 3 bicimi, kendi cizimimiz)
-const RENK=[['#FFBF00','#CC9900'],['#FFAB19','#CF8B17'],['#4C97FF','#3373CC'],['#4C97FF','#3373CC']];
-function blokSvg(w,h,hat,c){const n=`h12 l8 8 h20 l8 -8`;let d;
- if(hat) d=`M0 ${h} V22 Q0 14 8 12 Q${w*0.2} -10 ${w*0.42} 10 H${w-8} q8 0 8 8 V${h-8} q0 8 -8 8 H52 l-8 8 h-20 l-8 -8 H8 q-8 0 -8 -8z`;
- else d=`M0 8 q0-8 8-8 h8 l8 8 h20 l8 -8 H${w-8} q8 0 8 8 V${h-8} q0 8 -8 8 H52 l-8 8 h-20 l-8 -8 H8 q-8 0 -8 -8z`;
- return `<svg width="${w}" height="${h}"><path d="${d}" fill="${c[0]}" stroke="${c[1]}" stroke-width="2"/></svg>`}
-const bloklar=T.b.map((txt,i)=>{const b=el('blok','<span>'+(i==0?'<i style="font-style:normal;color:#22C55E;text-shadow:0 0 0 #fff">⚑</i> ':'')+txt+'</span>');return b});
-// sag: sahne karti + satranc + uno
-const satranc=el('card','<div id="satranc"><div id="tahta"></div></div>');
-const tahta=satranc.querySelector('#tahta');const tas='♜♞♝♛♚♝♞♜';
-for(let r=0;r<8;r++)for(let c=0;c<8;c++){const d=document.createElement('div');d.style.background=(r+c)%2?'#B58863':'#F0D9B5';
- d.textContent=r==0?tas[c]:r==1?'♟':r==6?'♙':r==7?'♖♘♗♕♔♗♘♖'[c]:'';tahta.appendChild(d)}
-const sahne=el('card','<div id="sahne"><div class="bar"><div class="bayrak">⚑</div><div class="dur"></div></div><div class="zemin"><svg id="iz" width="330" height="206" style="position:absolute;left:0;top:0"></svg><div id="cimen"></div><img id="kd" src="devi.png" style="position:absolute;width:64px"></div></div>');
+// ---- Scratch betigi (kendi cizimimiz, Scratch 3 bicimi) ----
+const satir=parts=>'<div class="row">'+parts.map(p=>typeof p==='object'?`<span class="num">${p.n}</span>`:(p.startsWith('<')?p:`<span>${p}</span>`)).join('')+'</div>';
+const NOTCH='h6 l6 6 h18 l6 -6';
+function komutYol(w,h){return `M0 4 Q0 0 4 0 H10 l6 6 h18 l6 -6 H${w-4} Q${w} 0 ${w} 4 V${h-4} Q${w} ${h} ${w-4} ${h} H40 l-6 6 h-18 l-6 -6 H4 Q0 ${h} 0 ${h-4} Z`}
+function sapkaYol(w,h){const c=18;return `M0 ${c} C 22 -4, 72 -4, 96 ${c-4} H${w-4} Q${w} ${c-4} ${w} ${c} V${c+h-4} Q${w} ${c+h} ${w-4} ${c+h} H40 l-6 6 h-18 l-6 -6 H4 Q0 ${c+h} 0 ${c+h-4} Z`}
+function cYol(w,ih,wb){const a=48,b=28,i=16;return `M0 4 Q0 0 4 0 H10 l6 6 h18 l6 -6 H${w-4} Q${w} 0 ${w} 4 V${a-4} Q${w} ${a} ${w-4} ${a} H${i+40} l-6 6 h-18 l-6 -6 H${i+4} Q${i} ${a} ${i} ${a+4} V${a+ih-4} Q${i} ${a+ih} ${i+4} ${a+ih} H${i+10} l6 6 h18 l6 -6 H${wb-4} Q${wb} ${a+ih} ${wb} ${a+ih+4} V${a+ih+b-4} Q${wb} ${a+ih+b} ${wb-4} ${a+ih+b} H40 l-6 6 h-18 l-6 -6 H4 Q0 ${a+ih+b} 0 ${a+ih+b-4} Z`}
+const betik=el('');
+function blok(parts,renk,kenar){const d=document.createElement('div');d.className='blk';d.innerHTML=satir(parts);betik.appendChild(d);d._r=[renk,kenar];return d}
+const bHat=blok(T.hat,'#FFBF00','#CC9900'), bRep=blok(T.rep,'#FFAB19','#CF8B17'), bMv=blok(T.mv,'#4C97FF','#3373CC'), bTn=blok(T.tn,'#4C97FF','#3373CC');
+let cizildi=false;
+function betikCiz(){
+ const w=b=>Math.max(b.querySelector('.row').offsetWidth,90);
+ bHat.querySelector('.row').style.marginTop='18px';
+ bHat.insertAdjacentHTML('afterbegin',`<svg class="bg" width="1" height="1"><path d="${sapkaYol(Math.max(w(bHat),130),48)}" fill="#FFBF00" stroke="#CC9900" stroke-width="1.5"/></svg>`);
+ [bMv,bTn].forEach(b=>b.insertAdjacentHTML('afterbegin',`<svg class="bg" width="1" height="1"><path d="${komutYol(w(b),48)}" fill="#4C97FF" stroke="#3373CC" stroke-width="1.5"/></svg>`));
+ bRep.insertAdjacentHTML('afterbegin',`<svg class="bg" width="1" height="1"><path d="${cYol(Math.max(w(bRep),120),96,120)}" fill="#FFAB19" stroke="#CF8B17" stroke-width="1.5"/></svg><svg class="bg" width="1" height="1"><text x="92" y="${48+96+21}" font-size="20" fill="#fff">↺</text></svg>`);
+ cizildi=true}
+// ---- sag kartlar ----
+const satranc=el('card',`<div id="satranc"><div class="bas"><span style="font-size:22px">♞</span>${T.sat}</div><div id="tahta"></div></div>`);
+const tahta=satranc.querySelector('#tahta');
+for(let r=0;r<8;r++)for(let c=0;c<8;c++){const d=document.createElement('div');d.style.background=(r+c)%2?'#5B7BFF':'#E6ECFF';
+ d.style.color=r<2?'#1E1B4B':'#FFFFFF';d.style.textShadow=r<2?'none':'0 0 2px #1E1B4B,0 0 2px #1E1B4B';
+ d.textContent=r==0?'♜♞♝♛♚♝♞♜'[c]:r==1?'♟':r==6?'♟':r==7?'♜♞♝♛♚♝♞♜'[c]:'';tahta.appendChild(d)}
+const sahne=el('card',`<div id="sahne"><div class="bar"><div class="bayrak">${F}</div><div class="dur"></div></div><div class="zemin"><svg id="iz" width="330" height="206" style="position:absolute;left:0;top:0"></svg><div id="cimen"></div><img id="kd" src="devi.png" style="position:absolute;width:64px"></div></div>`);
 const iz=sahne.querySelector('#iz'), kd=sahne.querySelector('#kd');
-const uno=el('','<div id="uno"><div style="position:absolute;left:22px;top:18px;width:150px;height:14px;background:#0B5D64;border-radius:4px"></div><div style="position:absolute;left:30px;top:60px;width:90px;height:44px;background:#1F2226;border-radius:6px"></div><div style="position:absolute;left:150px;top:62px;font:800 26px Nunito;color:#fff">UNO</div><div style="position:absolute;left:22px;bottom:16px;width:150px;height:12px;background:#0B5D64;border-radius:4px"></div></div><div id="led"></div>');
-const led=uno.querySelector('#led');
-// buyuk Devi + kalpler
+// modul rozeti (uygulamadaki altigen amblem)
+function altigen(cx,cy,r){let p='';for(let i=0;i<6;i++){const a=-Math.PI/2+i*Math.PI/3;p+=(i?'L':'M')+(cx+Math.cos(a)*r).toFixed(1)+' '+(cy+Math.sin(a)*r).toFixed(1)}return p+'Z'}
+function yildiz(cx,cy,r){let p='';for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r*.46:r;p+=(i?'L':'M')+(cx+Math.cos(a)*rr).toFixed(1)+' '+(cy+Math.sin(a)*rr).toFixed(1)}return p+'Z'}
+const rozet=el('',`<svg width="220" height="220" viewBox="0 0 220 220" style="overflow:visible;filter:drop-shadow(0 18px 24px rgba(20,10,80,.4))">
+<defs><linearGradient id="au" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE89A"/><stop offset=".5" stop-color="#FFC233"/><stop offset="1" stop-color="#E08A00"/></linearGradient>
+<linearGradient id="ic" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7C6CF2"/><stop offset="1" stop-color="#4A3FC9"/></linearGradient>
+<clipPath id="kc"><path d="${altigen(110,118,68)}"/></clipPath></defs>
+<path d="${altigen(110,118,85)}" fill="url(#au)" stroke="#E08A00" stroke-width="3"/>
+<path d="${altigen(110,118,68)}" fill="url(#ic)" stroke="rgba(255,255,255,.55)" stroke-width="2.5"/>
+<g clip-path="url(#kc)"><ellipse cx="110" cy="68" rx="95" ry="40" fill="rgba(255,255,255,.16)"/><path id="parilti" d="M0 0" fill="rgba(255,255,255,.4)"/></g>
+<text x="110" y="132" text-anchor="middle" font-family="Baloo" font-size="64" fill="#fff" style="paint-order:stroke" stroke="rgba(0,0,0,.18)" stroke-width="4">1</text>
+<path d="M18 168 h28 l-8 12 l8 12 h-28z M202 168 h-28 l8 12 l-8 12 h28z" fill="#B71C1C"/>
+<rect x="28" y="158" width="164" height="30" rx="6" fill="#E53935"/>
+<text x="110" y="180" text-anchor="middle" font-family="Nunito" font-weight="800" font-size="17" letter-spacing="2" fill="#fff">${T.mod}</text>
+<path d="${yildiz(70,22,13)}" fill="#FFD54F" stroke="#E08A00" stroke-width="2"/><path d="${yildiz(150,22,13)}" fill="#FFD54F" stroke="#E08A00" stroke-width="2"/><path d="${yildiz(110,10,18)}" fill="#FFD54F" stroke="#E08A00" stroke-width="2"/>
+</svg>`);
+const parilti=rozet.querySelector('#parilti');
 const devi=el('','<img src="devi.png" style="width:250px;display:block">');
 const kalpler=[];for(let i=0;i<5;i++){kalpler.push({k:el('','<div style="font-size:30px">❤️</div>'),ph:i/5,x:(rnd()-.5)*90})}
-function put(e,x,y,sc=1,rot=0,op=1){e.style.transform=`translate(${x}px,${y}px) rotate(${rot}deg) scale(${sc})`;e.style.opacity=op}
-let ready=false;
 window.__renderFrame=t=>{
- const u=t/DUR; // 0..1 dongu
- ghosts.forEach(o=>{const span=W+300;let x=((o.x-u*span*o.k)%span+span)%span-200;put(o.g,x,o.y,1,o.r,o.o)});
- stars.forEach(o=>{const a=.25+.6*Math.pow(.5+.5*Math.sin(TAU*(u*o.f+o.ph)),2);put(o.st,o.x,o.y,o.sc,0,a)});
- // marka hafif nefes
- const mw=mark.firstChild.offsetWidth, tw=tag.firstChild.offsetWidth;
- const nef=1+.012*Math.sin(TAU*u);
- put(mark,W/2-mw*nef/2,300-6*(nef-1)*100,nef);
- put(tag,W/2-tw/2,438,1);
- // bloklar: 0.4-2.2 sn sirayla oturuyor, 8.8-9.6 soluyor
- const BY=262, BH=58, S=1.2;
- const maxw=Math.max(...bloklar.map((b,i)=>b.lastChild.offsetWidth+(i>1?22:0)));
- const BX=Math.min(255, W/2-mw/2-45-maxw*S);
- const cik=clamp((t-8.8)/0.7);
- bloklar.forEach((b,i)=>{const w=b.firstChild.offsetWidth+(i>1?24:0);
-  if(!b._svg){b.insertAdjacentHTML('afterbegin',blokSvg(Math.max(w,170),BH+(i==0?14:0),i==0,RENK[i]));b._svg=1;
-   if(i==0)b.firstChild.nextSibling.style.marginTop='14px'}
-  const t0=0.4+i*0.45, p=back((t-t0)/0.5);
-  const x=BX+(i>=2&&i<=3?(i==3?0:0):0)+(i==2||i==3?22:0);
-  const y=BY+i*(BH-2)+(i>0?14:0)-(1-p)*140;
-  const glow=t>3&&t<8.6?.5+.5*Math.sin(TAU*(t-3)/1.4):0;
-  b.style.filter=glow?`drop-shadow(0 0 ${10*glow}px rgba(255,255,255,.9))`:'drop-shadow(0 8px 14px rgba(20,10,80,.35))';
-  put(b,x*1,y,S,0,clamp((t-t0)/0.25)*(1-cik))});
+ if(!cizildi)betikCiz();
+ const u=t/DUR;
+ ghosts.forEach(o=>put(o.g,o.x+o.a*Math.sin(TAU*(u+o.ph)),o.y+6*Math.cos(TAU*(u+o.ph)),1,o.r,o.o));
+ stars.forEach(o=>{const a=.25+.55*Math.pow(.5+.5*Math.sin(TAU*(u+o.ph)),2);put(o.st,o.x,o.y,o.sc,0,a)});
+ const mw=mark.firstChild.offsetWidth, tw=tag.firstChild.offsetWidth, nef=1+.01*Math.sin(TAU*u);
+ put(mark,W/2-mw*nef/2,300,nef); put(tag,W/2-tw/2,438,1);
+ // betik: bloklar sirayla oturuyor
+ const S=1.42, bw=Math.max(bHat.offsetWidth,bRep.offsetWidth,bMv.offsetWidth+16,bTn.offsetWidth+16);
+ const BX=Math.min(250,W/2-mw/2-50-bw*S), BY=214;
+ put(betik,BX,BY,S,0,1-clamp((t-8.8)/0.7));
+ const yer=[[bHat,0,0,0.3],[bRep,0,66,0.75],[bMv,16,114,1.2],[bTn,16,162,1.65]];
+ yer.forEach(([b,x,y,t0])=>{const p=back((t-t0)/0.5);b.style.transform=`translate(${x}px,${y-(1-p)*120}px)`;b.style.opacity=clamp((t-t0)/0.2)});
+ // calisma: 2.4-7.4 sn, her kenar: %80 yuru, %20 don
+ const q=clamp((t-2.4)/5)*4, k=Math.min(Math.floor(q),3), f=q-k, calisiyor=t>2.4&&t<7.4;
+ const parlak='drop-shadow(0 0 2px #FFF59D) drop-shadow(0 0 7px #FFEB3B)';
+ betik.style.filter=calisiyor?parlak:'drop-shadow(0 8px 14px rgba(20,10,80,.35))';
+ bMv.style.filter=calisiyor&&f<.8?'brightness(1.18)':'none'; bTn.style.filter=calisiyor&&f>=.8?'brightness(1.18)':'none';
  // sag kartlar
- const sx=1385, sy=270;
- put(satranc,sx+200,sy-70+8*Math.sin(TAU*(u+.3)),0.78,9,1);
- put(sahne,sx,sy+6*Math.sin(TAU*u),1,-3,1);
- put(uno,sx+150,sy+205+6*Math.sin(TAU*(u+.6)),0.72,-6,1);
- // LED: 2 sn'de bir yanip soner
- const on=Math.floor(t*2)%2==0; led.style.left='196px';led.style.top='20px';
- led.style.background=on?'#FF3B30':'#5B1A16';led.style.boxShadow=on?'0 0 28px 10px rgba(255,80,60,.8)':'none';
- // sahnede Devi kare ciziyor: 2.4-7.4 sn
- const P0=[60,40],L=110; const pts=[[0,0],[L,0],[L,L],[0,L],[0,0]];
- const q=clamp((t-2.4)/5)*4; const k=Math.floor(Math.min(q,3.999)), f=q-k;
- const cx=P0[0]+pts[k][0]+(pts[k+1][0]-pts[k][0])*f, cy=P0[1]+pts[k][1]+(pts[k+1][1]-pts[k][1])*f;
+ const sx=1385, sy=262;
+ put(satranc,sx+185,sy-118+7*Math.sin(TAU*(u+.3)),0.78,8,1);
+ put(sahne,sx-25,sy+28+5*Math.sin(TAU*u),1,-3,1);
+ put(rozet,sx+205,sy+175+6*Math.sin(TAU*(u+.6)),0.78,6*Math.sin(TAU*(u+.2)),1);
+ const ps=clamp((t-7.6)/0.9); const px=-80+ps*300;
+ parilti.setAttribute('d',ps>0&&ps<1?`M${px} 30 L${px+26} 30 L${px-26} 200 L${px-52} 200Z`:'M0 0');
+ // sahnede Devi kare ciziyor
+ const P0=[70,40],L=110, pts=[[0,0],[L,0],[L,L],[0,L],[0,0]], ff=Math.min(f/.8,1);
+ const cx=P0[0]+pts[k][0]+(pts[k+1][0]-pts[k][0])*(t>=7.4?1:ff), cy=P0[1]+pts[k][1]+(pts[k+1][1]-pts[k][1])*(t>=7.4?1:ff);
  let d=`M${P0[0]} ${P0[1]}`;for(let j=1;j<=k;j++)d+=` L${P0[0]+pts[j][0]} ${P0[1]+pts[j][1]}`;d+=` L${cx} ${cy}`;
- const izOp=1-clamp((t-8.8)/0.7);
- iz.innerHTML=t>2.4?`<path d="${d}" stroke="#7C3AED" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="${izOp}"/>`:'';
- const yurur=t<2.4?0:t<7.4?1:0; const kx=t<7.4?cx:P0[0]+ (t<8.8?0:0), ky=t<7.4?cy:P0[1];
- put(kd,kx-32,ky-36+(yurur?3*Math.sin(t*18):0),1,0,1);
- // buyuk Devi: markanin sag ustunde suzuluyor
+ iz.innerHTML=t>2.4?`<path d="${d}" stroke="#7C3AED" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="${1-clamp((t-8.8)/0.7)}"/>`:'';
+ const yuru=calisiyor&&f<.8, ax=t<2.4||t>=7.4?P0[0]:cx, ay=t<2.4||t>=7.4?P0[1]:cy;
+ const don=calisiyor&&f>=.8?((f-.8)/.2)*90:0;
+ put(kd,ax-32,ay-36+(yuru?3*Math.sin(t*18):0),1,0,1); kd.style.rotate=don+'deg';
  put(devi,W/2-95,505+12*Math.sin(TAU*u*2),0.76,4*Math.sin(TAU*u),1);
  kalpler.forEach(h=>{const a=((u*2+h.ph)%1);put(h.k,W/2+95+h.x*.6,600-a*90,.45+a*.45,0,Math.sin(Math.PI*a)*.8)});
 };
-Promise.all([document.fonts.load('150px Baloo'),document.fonts.load('800 44px Nunito'),...[...document.images].map(i=>i.decode().catch(()=>{}))]).then(()=>{
+Promise.all([document.fonts.load('112px Baloo'),document.fonts.load('800 38px Nunito'),...[...document.images].map(i=>i.decode().catch(()=>{}))]).then(()=>{
  window.__renderFrame(0);window.__meta={DURATION:DUR,FPS};window.__ready=true});
 </script></body></html>
