@@ -642,6 +642,7 @@ class _CocukRaporuScreenState extends State<CocukRaporuScreen> {
           GridView.count(
             crossAxisCount: 3,
             shrinkWrap: true,
+            padding: EdgeInsets.zero,
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,

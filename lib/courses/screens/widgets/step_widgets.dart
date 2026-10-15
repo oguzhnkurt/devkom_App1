@@ -2444,6 +2444,7 @@ class _OrderingStepWidgetState extends State<OrderingStepWidget> {
           trigger: _wrongTick,
           child: ReorderableListView.builder(
             shrinkWrap: true,
+            padding: EdgeInsets.zero,
             physics: const NeverScrollableScrollPhysics(),
             buildDefaultDragHandles: false,
             itemCount: _orderedItems.length,
