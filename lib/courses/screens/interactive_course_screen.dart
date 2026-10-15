@@ -171,7 +171,10 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
             SliverToBoxAdapter(child: kart),
           if (_modules.length > 1)
             SliverToBoxAdapter(child: _buildYolHaritasi(isDark)),
-          SliverToBoxAdapter(child: _buildModuleTabs(isDark)),
+          // Yol haritasi modul secicisi olarak yetiyor; ayri sekme seridi
+          // yalnizca haritanin olmadigi (tek modullu) kurslarda.
+          if (_modules.length <= 1)
+            SliverToBoxAdapter(child: _buildModuleTabs(isDark)),
           SliverToBoxAdapter(child: _buildModuleContent(isDark)),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
@@ -542,7 +545,7 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
     final sayi = KursYolHaritasi.bitenModul(_modules, biten);
     return Container(
       key: const ValueKey('kurs_yol_haritasi'),
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+      margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
       padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
@@ -754,6 +757,21 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      lessonText(
+                          lessonLang(context),
+                          'MODÜL ${_selectedModule + 1}',
+                          'MODULE ${_selectedModule + 1}',
+                          'MODUL ${_selectedModule + 1}',
+                          'MÓDULO ${_selectedModule + 1}'),
+                      key: const ValueKey('modul_basligi_no'),
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.1,
+                        color: widget.course.primaryColor,
+                      ),
+                    ),
                     Text(
                       module.titleFor(lessonLang(context)),
                       style: TextStyle(
