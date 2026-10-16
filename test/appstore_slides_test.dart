@@ -52,10 +52,10 @@ void main() {
   });
 
   test('on slayt, dogru sirada', () {
-    // Slaytlar tek bir cumlenin adimlari: ne ogretiyoruz -> hangi
-    // sirayla -> oyunla pekistirir -> bir dersin ici -> bloklari
-    // surukler -> gercek kodu yazar -> satrancla dusunur ->
-    // ogrendigini sinar. Sira degisirse cumle
+    // Slaytlar tek bir cumlenin adimlari: ne ogretiyoruz -> Scratch'le
+    // oyun yapar -> kendi projesini oynar -> Arduino'da LED yakar ->
+    // mBlock'la kodlar -> gercek kodu yazar -> cizerek dongu ogrenir ->
+    // oyunlarla dusunur -> ogrendigini sinar. Sira degisirse cumle
     // bozulur.
     //
     // ILK UCU EN ONEMLISI: magaza aramasinda yalnizca onlar gorunuyor,
@@ -72,15 +72,16 @@ void main() {
     final sira = [
       "('09_home'",
       "('28_scratch_kurs'",
-      "('29_scratch_calistir'",
-      "('08_path'",
-      "('02_lesson'",
-      // Gercek blok editoru (mBlock tezgahi); ayni
-      // "surukleyip kurar" hikayesi, kart dizme ekraninin yerine.
-      "('27_mblock_tezgah'",
+      // EKIM 2026 (1.0.15): calisan Scratch projesi, Arduino'da yanan
+      // LED ve mBlock bloklariyla Arduino kodu one geldi; Kod Bloklari
+      // cizim seviyeleri oyun slaytlarindan once.
+      "('30_scratch_atolye'",
+      "('31_arduino_led'",
+      "('32_arduino_kod'",
       "('14_html_code'",
-      "('07_matching'",
+      "('33_kod_bloklari'",
       "('12_chess'",
+      "('07_matching'",
       // Son slayt gercek quiz sorusu (eskiden bos quiz giris ekrani).
       "('06_hint'",
     ];

@@ -75,6 +75,10 @@ class ArduinoAtolyeEkrani extends StatefulWidget {
 
 class ArduinoAtolyeEkraniState extends State<ArduinoAtolyeEkrani> {
   final UnoKarti _kart = UnoKarti();
+
+  /// Ekran goruntusu araclari LED'in yandigi ani beklemek icin.
+  @visibleForTesting
+  UnoKarti get kartIcinTest => _kart;
   late final DevreSimulasyonu _sim = DevreSimulasyonu(kart: _kart);
   final GlobalKey<MBlockAtolyeTezgahiState> _tezgah = GlobalKey();
 

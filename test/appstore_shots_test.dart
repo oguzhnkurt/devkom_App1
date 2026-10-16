@@ -74,6 +74,17 @@ import 'package:devkom_app/models/chess_game_model.dart';
 import 'package:devkom_app/screens/quiz/quiz_intro_screen.dart';
 import 'package:devkom_app/widgets/mascot.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:devkom_app/courses/data/kod_bloklari_seviyeleri.dart';
+import 'package:devkom_app/courses/data/scratch_atolyeleri.dart';
+import 'package:devkom_app/courses/data/course_modules.dart';
+import 'package:devkom_app/courses/devre/arduino_projeleri.dart';
+import 'package:devkom_app/courses/devre/devre_duzenleyici.dart';
+import 'package:devkom_app/courses/sahne/mblock_sahnesi.dart';
+import 'package:devkom_app/courses/screens/arduino_atolye_ekrani.dart';
+import 'package:devkom_app/courses/screens/widgets/proje_atolyesi.dart';
+import 'package:devkom_app/courses/yurutme/kod_yapisi.dart';
+import 'package:devkom_app/services/proje_deposu.dart';
+import 'package:devkom_app/widgets/temali_satranc_tahtasi.dart';
 import 'package:devkom_app/core/service_locator.dart';
 import 'package:devkom_app/services/auth_service_supabase.dart';
 
@@ -134,8 +145,10 @@ Future<void> _shoot(
   // ipucunu acmak gibi). Magaza slayti BOS bir ekrani degil,
   // cocugun icinde oldugu ani gostermeli.
   Future<void> Function(WidgetTester)? act,
+  // Ekrandan once cihazda duran ayarlar (cozulmus seviyeler gibi).
+  Map<String, Object> prefs = const {},
 }) async {
-  SharedPreferences.setMockInitialValues({'language_code': lang});
+  SharedPreferences.setMockInitialValues({'language_code': lang, ...prefs});
   final settings = SettingsProvider();
   await settings.setLocale(Locale(lang));
 
@@ -575,7 +588,13 @@ void main() {
     await _shoot(
       tester,
       '12_chess',
-      const ChessGameScreen(initialDifficulty: ChessDifficulty.beginner),
+      // Oyunun ortasi (Italyan acilisi) ve DevEducation mavisi tahta:
+      // bos baslangic dizilisi yerine dusunulecek bir an.
+      const ChessGameScreen(
+        initialDifficulty: ChessDifficulty.beginner,
+        baslangicFen:
+            'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
+      ),
       lang: lang,
       cihaz: cihaz,
       fullScreen: true,
@@ -596,6 +615,11 @@ void main() {
           for (var i = 0; i < 14; i++) {
             await tester.pump(const Duration(milliseconds: 400));
           }
+          // f3 atina dokun: gidebilecegi kareler nokta, e5 piyonu halka.
+          final tahta = tester.getRect(find.byType(TemaliSatrancTahtasi));
+          final k = tahta.width / 8;
+          await tester.tapAt(tahta.topLeft + Offset(5.5 * k, 5.5 * k));
+          await tester.pump(const Duration(milliseconds: 300));
         }
       },
     );
@@ -969,6 +993,186 @@ void main() {
               'dil': lang,
               'olcek': MBlockTezgahi.olcekIcin(cihaz.genislik),
             }));
+        },
+      );
+    });
+
+    // ---- EKIM 2026 MAGAZA SETI ------------------------------------
+    //
+    // 30 Scratch atolyesi: Elma Yagmuru projesi ornek koduyla CALISIYOR
+    // (Kase oklarla gidiyor, elmalar ikiz olarak dusuyor). Kod ve
+    // sahne uygulamanin kendi proje motorundan.
+    testWidgets('30 scratch atolyesi ($lang, ${cihaz.ad})', (tester) async {
+      final a = ScratchAtolyeleri.elmaYagmuru;
+      await _shoot(
+        tester,
+        '30_scratch_atolye',
+        SingleChildScrollView(
+          child: ProjeAtolyesiWidget(
+            step: a,
+            course: CoursesData.byId('scratch')!,
+            isDark: false,
+            lang: lang,
+            onComplete: (_) {},
+            kayitli: KayitliProje(
+              id: 'magaza',
+              ad: a.titleFor(lang),
+              kursId: 'scratch',
+              adimId: a.id,
+              kod: KodYapisi.coz(a.ornekCozum),
+              tarih: DateTime(2026, 10, 17),
+            ),
+          ),
+        ),
+        lang: lang,
+        cihaz: cihaz,
+        act: (t) async {
+          final bayrak = find.byKey(const ValueKey('ders_bayrak'));
+          if (bayrak.evaluate().isEmpty) return;
+          // Sahne ekranin ustune gelsin: slayt hedef listesini degil
+          // oynayan oyunu ve kodu gostersin.
+          await t.scrollUntilVisible(bayrak.first, 400,
+              scrollable: find.byType(Scrollable).first);
+          final sc = t.state<ScrollableState>(find.byType(Scrollable).first);
+          sc.position.jumpTo(sc.position.pixels + 60);
+          await t.pump();
+          await t.tap(bayrak.first, warnIfMissed: false);
+          for (var i = 0; i < 26; i++) {
+            await t.pump(const Duration(milliseconds: 100));
+          }
+        },
+      );
+    });
+
+    // 31 Arduino atolyesi: ilk proje (LED) — devre kurulu, ornek kod
+    // calisiyor, "Devre" sekmesinde LED YANIYOR.
+    testWidgets('31 arduino led ($lang, ${cihaz.ad})', (tester) async {
+      final anahtar = GlobalKey<ArduinoAtolyeEkraniState>();
+      await _shoot(
+        tester,
+        '31_arduino_led',
+        ArduinoAtolyeEkrani(key: anahtar, course: CoursesData.byId('arduino')!),
+        lang: lang,
+        cihaz: cihaz,
+        fullScreen: true,
+        act: (t) async {
+          anahtar.currentState!.projeAc(arduinoProjeleri.first);
+          for (var i = 0; i < 8; i++) {
+            await t.pump(const Duration(milliseconds: 100));
+          }
+          final d = t.state<DevreDuzenleyiciState>(find.byType(DevreDuzenleyici));
+          for (var i = 0; i < 8; i++) {
+            d.hedefiTak();
+            await t.pump(const Duration(milliseconds: 150));
+          }
+          await t.pump(const Duration(milliseconds: 800));
+          final ornek = find.byKey(const ValueKey('arduino_ornek_kod'));
+          await t.ensureVisible(ornek);
+          await t.pump();
+          await t.tap(ornek);
+          await t.pump(const Duration(milliseconds: 600));
+          await t.tap(find.byKey(const ValueKey('arduino_calistir')));
+          await t.pump(const Duration(milliseconds: 200));
+          await t.tap(find.byKey(const ValueKey('arduino_sekme_0')));
+          // LED yanik anini yakala (yan / bekle / son dongusu).
+          final kart = anahtar.currentState!.kartIcinTest;
+          bool yanik() => List.generate(14, kart.parlaklik).any((v) => v > 0);
+          // "Devre tamam" bildirimi slaytin altini kapatmasin.
+          ScaffoldMessenger.of(t.element(find.byType(Scaffold).first))
+              .hideCurrentSnackBar();
+          // Once sonsun, sonra YENI yandigi ana gel: _shoot cekmeden once
+          // 400 ms daha bekliyor, yanik kalma suresi 1 sn.
+          for (var i = 0; i < 60 && yanik(); i++) {
+            await t.pump(const Duration(milliseconds: 50));
+          }
+          for (var i = 0; i < 60 && !yanik(); i++) {
+            await t.pump(const Duration(milliseconds: 50));
+          }
+        },
+      );
+    });
+
+    // 32 mBlock ile Arduino kodu: "Ilk LED Devren" dersinin kod adimi.
+    // Cozum programi tahtada, sahnede Uno + breadboard ve LED yaniyor.
+    // Tezgah WebView: dikdortgeni JSON'a yaziliyor, blok editoru
+    // tool/mblock_tezgah_slayt.py ile gercek sayfadan cizilip
+    // yerlestiriliyor (27 ile ayni yol).
+    testWidgets('32 arduino mblock kod ($lang, ${cihaz.ad})', (tester) async {
+      // WebView test motorunda acilmiyor; acilamayinca adim "dokunarak
+      // diz" yedegine geciyor ve sahne gizleniyor. WebView'siz onizleme
+      // ayni programi Flutter'da ciziyor; ustune arac gercek sayfayi
+      // koyuyor.
+      MBlockTezgahi.webviewsiz = true;
+      addTearDown(() => MBlockTezgahi.webviewsiz = false);
+      final step = CourseModules.allLessons('arduino')
+          .expand((l) => l.steps)
+          .whereType<BlockBuilderStep>()
+          .firstWhere((s) => s.id == 'a1_3_kod');
+      await _shoot(
+        tester,
+        '32_arduino_kod',
+        SingleChildScrollView(
+          child: MBlockBlokAdimi(
+            step: step,
+            ayar: step.mblock!,
+            course: CoursesData.byId('arduino')!,
+            isDark: false,
+            onComplete: (_) {},
+          ),
+        ),
+        lang: lang,
+        cihaz: cihaz,
+        act: (t) async {
+          final s = t.state<MBlockBlokAdimiState>(find.byType(MBlockBlokAdimi));
+          s.durumVer([mblockCozumProgrami(step.mblock!.cozum, lang)]);
+          await t.pump();
+          final sahne = t.state<MBlockSahnesiState>(find.byType(MBlockSahnesi));
+          sahne.calistir();
+          // LED'in yeni yandigi ana gel (yarim saniye yanik).
+          bool yanik() => sahne.unoKarti.parlaklik(13) > 0;
+          for (var i = 0; i < 40 && yanik(); i++) {
+            await t.pump(const Duration(milliseconds: 25));
+          }
+          for (var i = 0; i < 40 && !yanik(); i++) {
+            await t.pump(const Duration(milliseconds: 25));
+          }
+          final tezgah = find.byType(MBlockTezgahi);
+          if (tezgah.evaluate().isEmpty) return;
+          final r = t.getRect(tezgah);
+          File('${cihaz.dizin(lang)}/32_arduino_kod.json')
+            ..createSync(recursive: true)
+            ..writeAsStringSync(jsonEncode({
+              'x': r.left,
+              'y': r.top,
+              'genislik': r.width,
+              'yukseklik': r.height,
+              'oran': cihaz.oran,
+              'dil': lang,
+              'olcek': MBlockTezgahi.olcekIcin(cihaz.genislik),
+              // Arac tahtaya ayni programi ve ayni arac kutusunu koyuyor.
+              'bloklar': step.mblock!.bloklar,
+              'xml': mblockXml([mblockCozumProgrami(step.mblock!.cozum, lang)]),
+            }));
+        },
+      );
+    });
+
+    // 33 Kod Bloklari (Cizim Ustasi): seviye haritasi, dort seviye
+    // cozulmus, siradaki acik.
+    testWidgets('33 kod bloklari haritasi ($lang, ${cihaz.ad})', (tester) async {
+      await _shoot(
+        tester,
+        '33_kod_bloklari',
+        const BlockCodingGameScreen(),
+        lang: lang,
+        cihaz: cihaz,
+        fullScreen: true,
+        settle: const Duration(milliseconds: 900),
+        prefs: {
+          'howto_seen_block_coding': true,
+          BlockCodingGameScreen.cozulenAnahtari: [
+            for (final s in KodBloklariSeviyeleri.hepsi.take(4)) s.id,
+          ],
         },
       );
     });

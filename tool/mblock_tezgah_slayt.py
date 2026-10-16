@@ -35,7 +35,9 @@ KOK = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SAYFA = os.path.join(KOK, 'assets', 'mblock', 'index.html')
 KLASORLER = ['ekranlar', 'ekranlar_tr', 'ekranlar_de', 'ekranlar_es',
              'ipad', 'ipad_tr']
-AD = '27_mblock_tezgah'
+# 27: mBlock kukla dersi (sabit yigin, asagida). 32: Arduino kod adimi —
+# arac kutusu ve program testin yazdigi JSON'dan geliyor.
+ADLAR = ['27_mblock_tezgah', '32_arduino_kod']
 
 # Dersin tezgah ayari (lib/courses/data/mblock_proje_lessons_data.dart,
 # p1_build_balik). Arac kutusu o adimdakiyle birebir ayni.
@@ -70,13 +72,14 @@ async def tezgahi_ciz(olcu, cikti):
             has_touch=True,
         )
         await sayfa.goto('file://' + SAYFA)
-        ayar = {'dil': olcu['dil'], 'bloklar': BLOKLAR,
-                'olcek': olcu['olcek'], 'baslangic': YIGIN}
+        ayar = {'dil': olcu['dil'], 'bloklar': olcu.get('bloklar', BLOKLAR),
+                'olcek': olcu['olcek'], 'baslangic': olcu.get('xml', YIGIN)}
         await sayfa.evaluate('a => MBlockTezgah.kur(JSON.stringify(a))', ayar)
         await sayfa.wait_for_timeout(700)
         # Bu kisa programda palet ACIK kalmali; kapanmissa slayt
         # uygulamadaki ani gostermiyor demektir.
-        if not await sayfa.evaluate('() => MBlockTezgah.paletAcikMi()'):
+        if 'xml' not in olcu and not await sayfa.evaluate(
+                '() => MBlockTezgah.paletAcikMi()'):
             raise SystemExit('palet kapali cikti: slayt yaniltici olurdu')
         await sayfa.screenshot(path=cikti)
         await tarayici.close()
@@ -94,29 +97,30 @@ def main():
     yapildi = 0
     for klasor in KLASORLER:
         dizin = os.path.join(KOK, 'outputs', 'appstore', klasor)
-        olcu_yolu = os.path.join(dizin, AD + '.json')
-        cerceve_yolu = os.path.join(dizin, AD + '.png')
-        if not (os.path.exists(olcu_yolu) and os.path.exists(cerceve_yolu)):
-            continue
-        olcu = json.load(open(olcu_yolu))
-        gecici = os.path.join(dizin, AD + '_tezgah.png')
-        asyncio.run(tezgahi_ciz(olcu, gecici))
+        for ad in ADLAR:
+            olcu_yolu = os.path.join(dizin, ad + '.json')
+            cerceve_yolu = os.path.join(dizin, ad + '.png')
+            if not (os.path.exists(olcu_yolu) and os.path.exists(cerceve_yolu)):
+                continue
+            olcu = json.load(open(olcu_yolu))
+            gecici = os.path.join(dizin, ad + '_tezgah.png')
+            asyncio.run(tezgahi_ciz(olcu, gecici))
 
-        cerceve = Image.open(cerceve_yolu).convert('RGBA')
-        tezgah = Image.open(gecici).convert('RGBA')
-        k = olcu['oran']
-        x, y = round(olcu['x'] * k), round(olcu['y'] * k)
-        # Uygulamadaki tezgah kutusu yuvarlak koseli; kose olmadan
-        # yapistirilirsa slaytta kare bir yama gibi duruyordu.
-        maske = yuvarlak_maske(tezgah.size, round(14 * k))
-        cerceve.paste(tezgah, (x, y), maske)
-        cerceve.convert('RGB').save(cerceve_yolu)
-        os.remove(gecici)
-        print(f'{klasor}: tezgah yerlestirildi ({olcu["dil"]}, '
-              f'{tezgah.size[0]}x{tezgah.size[1]})')
-        yapildi += 1
+            cerceve = Image.open(cerceve_yolu).convert('RGBA')
+            tezgah = Image.open(gecici).convert('RGBA')
+            k = olcu['oran']
+            x, y = round(olcu['x'] * k), round(olcu['y'] * k)
+            # Uygulamadaki tezgah kutusu yuvarlak koseli; kose olmadan
+            # yapistirilirsa slaytta kare bir yama gibi duruyordu.
+            maske = yuvarlak_maske(tezgah.size, round(14 * k))
+            cerceve.paste(tezgah, (x, y), maske)
+            cerceve.convert('RGB').save(cerceve_yolu)
+            os.remove(gecici)
+            print(f'{klasor}/{ad}: tezgah yerlestirildi ({olcu["dil"]}, '
+                  f'{tezgah.size[0]}x{tezgah.size[1]})')
+            yapildi += 1
     if not yapildi:
-        sys.exit('27_mblock_tezgah.json bulunamadi — once ekran '
+        sys.exit('tezgah olcu dosyasi (.json) bulunamadi — once ekran '
                  'goruntusu testini calistir.')
 
 

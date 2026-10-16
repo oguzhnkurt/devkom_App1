@@ -115,7 +115,11 @@ THEME = {
     '02_lesson':         ('sicak', (230, 81, 0),   'sol'),
     '27_mblock_tezgah':  ('mavi',  (41, 98, 255),  'sag'),
     '14_html_code':      ('ates',  (216, 27, 96),  'sol'),
-    '12_chess':          ('orman', (0, 137, 123),  'sag'),
+    '12_chess':          ('deniz', (21, 101, 192), 'sag'),
+    '30_scratch_atolye': ('gok',   (41, 98, 255),  'sag'),
+    '31_arduino_led':    ('orman', (0, 137, 123),  'sol'),
+    '32_arduino_kod':    ('mavi',  (41, 98, 255),  'sag'),
+    '33_kod_bloklari':   ('turuncu', (230, 81, 0), 'sol'),
     '06_hint':           ('gece',  (124, 77, 255), 'sol'),
 }
 
@@ -130,6 +134,7 @@ THEME = {
 # bloklarin yazisi okunmali.
 TELEFON = {
     '27_mblock_tezgah': 0.80,
+    '32_arduino_kod': 0.80,
 }
 TELEFON_VARSAYILAN = 0.74
 
@@ -160,10 +165,21 @@ CROP_ASPECT = {
 #   {slayt: [(sol ekran, kirpma basi), (sag ekran, kirpma basi)]}
 YELPAZE = {
     '12_chess': [('17_pattern', 0.10), ('19_color_coding', 0.02)],
+    # Oyunlar slayti: eslestirmenin yaninda guncellenen iki oyun —
+    # Bilgi Yarismasi ve Kelime Eslestirme.
+    '07_matching': [('21_millionaire', 0.06), ('11_word_match', 0.04)],
 }
 
 # Maskotun balonu. Kisa bir cagri — iddia degil.
 BALON = {
+    '30_scratch_atolye': {'tr': 'Yakaladım!', 'en': 'Got it!',
+                          'de': 'Gefangen!', 'es': '¡Atrapada!'},
+    '31_arduino_led': {'tr': 'Yandı!', 'en': 'It’s on!',
+                       'de': 'Sie leuchtet!', 'es': '¡Se encendió!'},
+    '32_arduino_kod': {'tr': 'Yan, sön!', 'en': 'On, off!',
+                       'de': 'An, aus!', 'es': '¡Enciende, apaga!'},
+    '33_kod_bloklari': {'tr': 'Bir şekil daha!', 'en': 'One more shape!',
+                        'de': 'Noch eine Form!', 'es': '¡Otra figura!'},
     '28_scratch_kurs': {'tr': 'İlk oyunum!', 'en': 'My first game!',
                         'de': 'Mein erstes Spiel!',
                         'es': '¡Mi primer juego!'},
@@ -209,9 +225,6 @@ SLIDES = [
         'es': ('Aprende a [programar]\ny robótica',
                'Empieza de cero · 9 cursos · Scratch, mBlock, Arduino, Python'),
     }),
-    # SCRATCH KURSU: kursun kendi sayfasi, modulleriyle. "Ilk Oyunun"
-    # modulu gercek ("Gercek bir oyun yap!"); alt satirdaki konular
-    # modul adlarindan (Degiskenler & Puan, Klonlar, Liste).
     ('28_scratch_kurs', 0.0, 'alt', False, {
         'tr': ('[Scratch] ile ilk\noyununu yapar',
                'Hareket, puan, klonlar, listeler — modül modül kendi oyununa'),
@@ -222,60 +235,43 @@ SLIDES = [
         'es': ('Su primer juego\ncon [Scratch]',
                'Movimiento, puntos, clones, listas — módulo a módulo, su propio juego'),
     }),
-    # Scratch programi dizilmis ve CALISTIRILMIS: "Kodun ne yapti" izi
-    # gercek yurutmeden (lib/courses/yurutme), uydurma degil.
-    ('29_scratch_calistir', 0.15, 'alt', False, {
-        'tr': ('Kodunu *çalıştırır*,\nne yaptığını görür',
-               'Scratch blokları — her blok adım adım, sonucu ekranda'),
-        'en': ('*Runs* the code,\nsees what it does',
-               'Scratch blocks — block by block, with the result on screen'),
-        'de': ('*Startet* den Code,\nsieht, was er tut',
-               'Scratch-Blöcke — Block für Block, mit dem Ergebnis'),
-        'es': ('*Ejecuta* el código\ny ve qué hace',
-               'Bloques de Scratch — paso a paso, con el resultado en pantalla'),
+    # SCRATCH ATOLYESI (Ekim 2026): Elma Yagmuru projesi ornek koduyla
+    # CALISIYOR — elmalar ikiz olarak dusuyor, kod alani dolu.
+    ('30_scratch_atolye', 0.0, 'alt', False, {
+        'tr': ('Kendi projesini\nkurar ve *oynar*',
+               'Scratch atölyesi: kod senin, oyun senin'),
+        'en': ('Builds and *plays*\nits own project',
+               'Scratch workshop: your code, your game'),
+        'de': ('Baut eigene Projekte\nund *spielt* sie',
+               'Scratch-Werkstatt: dein Code, dein Spiel'),
+        'es': ('Crea su proyecto\ny lo *juega*',
+               'Taller de Scratch: tu código, tu juego'),
     }),
-    ('08_path', 0.0, 'alt', False, {
-        'tr': ('[Bloklardan]\ngerçek koda',
-               '9 kurs, adım adım — her kurs bir öncekinin üstüne biner'),
-        'en': ('From [blocks]\nto real code',
-               '9 courses, step by step — each one builds on the last'),
-        'de': ('Von [Blöcken]\nzu echtem Code',
-               '9 Kurse, Schritt für Schritt — jeder baut auf dem letzten auf'),
-        'es': ('De los [bloques]\nal código',
-               '9 cursos, paso a paso — cada uno se apoya en el anterior'),
+    # ARDUINO ATOLYESI: "LED Yak" projesi kurulu, kod calisiyor, LED
+    # gercekten yanik (simulasyonun kendi ciktisi).
+    ('31_arduino_led', 0.0, 'alt', False, {
+        'tr': ('[Arduino] ile\nLED yakar',
+               'Uno ve breadboard’da devreyi kur, kodu çalıştır, LED yansın'),
+        'en': ('Lights an LED\nwith [Arduino]',
+               'Build the circuit on an Uno and breadboard, run the code, see it glow'),
+        'de': ('Lässt mit [Arduino]\neine LED leuchten',
+               'Schaltung auf Uno und Steckbrett bauen, Code starten, LED leuchtet'),
+        'es': ('Enciende un LED\ncon [Arduino]',
+               'Monta el circuito en un Uno y una placa, ejecuta el código y se enciende'),
     }),
-    ('02_lesson', 0.0, 'alt', False, {
-        'tr': ('Scratch’i *adım adım*\nöğrenir',
-               'Blok nedir, ne işe yarar — kısa adımlarla, maskotuyla'),
-        'en': ('Learns Scratch\n*step by step*',
-               'What a block is and what it does — in short steps'),
-        'de': ('Lernt Scratch\n*Schritt für Schritt*',
-               'Was ein Block ist und was er tut — in kurzen Schritten'),
-        'es': ('Aprende Scratch\n*paso a paso*',
-               'Qué es un bloque y para qué sirve — en pasos cortos'),
+    # mBLOCK KOD EKRANI: "Ilk LED Devren" dersinin kod adimi. Blok
+    # editoru gercek sayfadan (tool/mblock_tezgah_slayt.py), sahnede
+    # Uno + breadboard ve yanan LED Flutter'dan.
+    ('32_arduino_kod', 0.0, 'alt', False, {
+        'tr': ('*mBlock* bloklarıyla\nkartı kodlar',
+               'Gerçek blok editörü — blokları diz, Uno sahnede çalıştırsın'),
+        'en': ('Codes the board\nwith *mBlock* blocks',
+               'A real block editor — snap blocks, watch the Uno run them'),
+        'de': ('Programmiert das Board\nmit *mBlock*-Blöcken',
+               'Ein echter Block-Editor — Blöcke stecken, der Uno führt sie aus'),
+        'es': ('Programa la placa\ncon bloques *mBlock*',
+               'Un editor de bloques real — encaja bloques y el Uno los ejecuta'),
     }),
-    # GERCEK BLOK EDITORU (mBlock tezgahi, scratch-blocks).
-    #
-    # Onceki 5. slayt Scratch dersinin kart dizme ekraniydi
-    # (04_blocks). Ayni hikayeyi — "bloklari surukleyip kodu kurar" —
-    # artik gercek blok editoru anlatiyor. Ekran WebView oldugu icin
-    # iki motorla ciziliyor: ders Flutter'dan, tezgah kendi sayfasindan
-    # (bkz. tool/mblock_tezgah_slayt.py). Elle cizilmis bir sey yok.
-    #
-    # "mBlock'taki bloklar" iddiasi dogru: etiketler mBlock/Scratch'in
-    # kendi dil dosyasindan, renkler mblock_palette.dart ile ayni
-    # (test/mblock_tezgahi_test.dart ikisini de denetliyor).
-    ('27_mblock_tezgah', 0.0, 'alt', False, {
-        'tr': ('Blokları *sürükleyip*\nkodu kurar',
-               'Gerçek blok editörü — mBlock’taki bloklar, aynı yazı ve renkle'),
-        'en': ('*Drags* blocks\ninto working code',
-               'A real block editor — the same blocks, words and colours as mBlock'),
-        'de': ('*Zieht* Blöcke zu\nfertigem Code',
-               'Ein echter Block-Editor — dieselben Blöcke, Wörter und Farben wie mBlock'),
-        'es': ('*Arrastra* bloques\ny arma el código',
-               'Un editor de bloques real — los mismos bloques, textos y colores que mBlock'),
-    }),
-    # Bloklarin yaninda gercek kod: uygulama blokta kalmiyor.
     ('14_html_code', 0.0, 'alt', False, {
         'tr': ('Sonra *gerçek kodu*\nkendi yazar',
                'HTML, CSS, Python, C# — harf harf, ipuçlarıyla'),
@@ -285,6 +281,28 @@ SLIDES = [
                'HTML, CSS, Python, C# — Zeile für Zeile, mit Tipps'),
         'es': ('Después escribe\n*código real*',
                'HTML, CSS, Python, C# — línea a línea, con pistas'),
+    }),
+    # KOD BLOKLARI (Cizim Ustasi): seviye haritasi, hedef sekiller
+    # ornek cozumlerin gercek cizimi.
+    ('33_kod_bloklari', 0.0, 'alt', False, {
+        'tr': ('Çizerek *döngüleri*\nkeşfeder',
+               'Kod Blokları: çizgiden çiçeğe 10 çizim seviyesi'),
+        'en': ('Discovers *loops*\nby drawing',
+               'Code Blocks: 10 drawing levels, from a line to a flower'),
+        'de': ('Entdeckt *Schleifen*\nbeim Zeichnen',
+               'Code-Blöcke: 10 Zeichenlevel, von der Linie bis zur Blume'),
+        'es': ('Descubre los *bucles*\ndibujando',
+               'Bloques de código: 10 niveles de dibujo, de una línea a una flor'),
+    }),
+    ('12_chess', 0.20, 'alt', False, {
+        'tr': ('[Oyunlarla]\nmantığını geliştirir',
+               'Satranç, sayı bulmacaları, hafıza oyunları — düşünerek oynar'),
+        'en': ('Sharpens logic\nwith [games]',
+               'Chess, number puzzles, memory games — playing by thinking'),
+        'de': ('Logisch denken\nmit [Spielen]',
+               'Schach, Zahlenrätsel, Gedächtnisspiele — spielen mit Köpfchen'),
+        'es': ('Piensa con lógica\ncon [juegos]',
+               'Ajedrez, acertijos numéricos, juegos de memoria — jugar pensando'),
     }),
     ('07_matching', 0.0, 'ust', False, {
         'tr': ('[Oyunla] pekiştirir',
@@ -300,26 +318,6 @@ SLIDES = [
                '16 minijuegos · empareja términos, ordena instrucciones, '
                'cruza el laberinto'),
     }),
-    # Satranc: kodlama disindaki tek "dusunme" oyunu. Uc zorluk
-    # seviyesi gercek (Baslangic / Orta / Ileri); ELO sayisi slayta
-    # YAZILMIYOR, iddia gibi durur.
-    #
-    # Yaninda iki oyun daha (YELPAZE): Kod Dedektifi (sayi dizisini
-    # tamamla) ve Renkli Kodlar (renk sirasini hatirla). Alt satirdaki
-    # "sayi bulmacalari, hafiza oyunlari" bu ikisi.
-    ('12_chess', 0.20, 'alt', False, {
-        'tr': ('[Oyunlarla]\nmantığını geliştirir',
-               'Satranç, sayı bulmacaları, hafıza oyunları — düşünerek oynar'),
-        'en': ('Sharpens logic\nwith [games]',
-               'Chess, number puzzles, memory games — playing by thinking'),
-        'de': ('Logisch denken\nmit [Spielen]',
-               'Schach, Zahlenrätsel, Gedächtnisspiele — spielen mit Köpfchen'),
-        'es': ('Piensa con lógica\ncon [juegos]',
-               'Ajedrez, acertijos numéricos, juegos de memoria — jugar pensando'),
-    }),
-    # QUIZ SORUSU. Onceki 8. slayt quiz giris ekraniydi ("Basla" icin
-    # kaydir): basligi soz veriyor, ekrani hic soru gostermiyordu. Artik
-    # gercek quiz ekrani — soru, secilmis cevap ve aciklama.
     ('06_hint', 0.0, 'ust', False, {
         'tr': ('Öğrendiğini [sınar]',
                'Derslerden gelen sorular · doğru cevapla, jeton ve XP kazan'),
