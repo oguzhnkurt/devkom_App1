@@ -155,7 +155,8 @@ void main() {
       test('eski karakter adlari gecmiyor', () {
         for (final ad in eskiKarakterler) {
           expect(
-            RegExp('\\b$ad\\b').hasMatch(metin),
+            // "Bug fixes" (surum notu) karakter adi degil.
+            RegExp('\\b$ad\\b(?! fix)').hasMatch(metin),
             isFalse,
             reason: '"$ad" geçiyor. Uygulamada tek maskot var: Devi.',
           );
