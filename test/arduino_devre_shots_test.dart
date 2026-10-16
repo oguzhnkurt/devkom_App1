@@ -31,6 +31,7 @@ import 'package:devkom_app/courses/yurutme/mblock_cozum.dart';
 import 'package:devkom_app/courses/devre/arduino_projeleri.dart';
 import 'package:devkom_app/courses/devre/devre_duzenleyici.dart';
 import 'package:devkom_app/courses/screens/arduino_atolye_ekrani.dart';
+import 'package:devkom_app/courses/tanitim/arduino_tanitimi.dart';
 import 'package:devkom_app/courses/devre/devre_modeli.dart';
 import 'package:devkom_app/courses/devre/devre_paneli.dart';
 import 'package:devkom_app/courses/devre/devre_simulasyonu.dart';
@@ -322,4 +323,21 @@ void main() {
     await _cek(tester, '20_kurs_sayfasi');
     await _kapat(tester);
   });
+
+  for (final boy in const [Size(430, 932), Size(375, 667)]) {
+    testWidgets('arduino tanitimi ${boy.width.round()}', (tester) async {
+      final anahtar = GlobalKey<ArduinoTanitimEkraniState>();
+      await _kur(tester, ArduinoTanitimEkrani(key: anahtar, course: CoursesData.byId('arduino')!),
+          boy: boy, iphone: boy.height > 900);
+      for (var i = 0; i < ArduinoTanitimEkrani.slaytSayisi; i++) {
+        await _bekle(tester, 2600);
+        await _cek(tester, 'tanitim_${boy.width.round()}_${i + 1}');
+        if (i < ArduinoTanitimEkrani.slaytSayisi - 1) {
+          anahtar.currentState!.ileri();
+          await _bekle(tester, 600);
+        }
+      }
+      await _kapat(tester);
+    });
+  }
 }

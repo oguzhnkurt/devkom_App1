@@ -625,3 +625,92 @@ void _servoKolu(Canvas c, Rect r, int? aci) {
   c.drawCircle(m, 0.5, Paint()..color = const Color(0xFFE6E8EB));
   c.drawCircle(m, 0.2, Paint()..color = const Color(0xFF9EA2A8));
 }
+
+/// Devrenin bir bolumunun RESMI (etkilesimsiz): tanitimlar ve kucuk
+/// onizlemeler icin. [kirp] dunya biriminde gosterilecek dikdortgen;
+/// kutuya oranini bozmadan sigdiriliyor. [ust] verilirse dunya
+/// biriminde (delik araligi = 1) parcalarin ustune cizer.
+class DevreResmi extends StatelessWidget {
+  const DevreResmi({
+    super.key,
+    required this.sim,
+    required this.kirp,
+    this.ust,
+  });
+
+  final DevreSimulasyonu sim;
+  final Rect kirp;
+  final CustomPainter Function(DevreDunyasi dunya)? ust;
+
+  static const double _k = 24;
+
+  @override
+  Widget build(BuildContext context) {
+    final devre = sim.devre;
+    final dunya = DevreDunyasi.icin(devre);
+    final w = dunya.genislik * _k, h = dunya.yukseklik * _k;
+    return FittedBox(
+      fit: BoxFit.contain,
+      child: SizedBox(
+        width: kirp.width * _k,
+        height: kirp.height * _k,
+        child: ClipRect(
+          child: OverflowBox(
+            alignment: Alignment.topLeft,
+            minWidth: w,
+            maxWidth: w,
+            minHeight: h,
+            maxHeight: h,
+            child: Transform.translate(
+              offset: -kirp.topLeft * _k,
+              child: SizedBox(
+                width: w,
+                height: h,
+                child: Stack(children: [
+                  Positioned.fill(
+                    child: RepaintBoundary(
+                      child: CustomPaint(painter: DevreZeminBoyaci(devre: devre, dunya: dunya)),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: CustomPaint(painter: DevreParcaBoyaci(devre: devre, dunya: dunya, sim: sim)),
+                  ),
+                  if (ust != null) Positioned.fill(child: CustomPaint(painter: ust!(dunya))),
+                ]),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Dunya biriminde etiket hapi (tanitim ustune).
+void devreEtiketi(Canvas c, String s, Offset m, {double boy = 0.9, Color renk = const Color(0xFF263238)}) {
+  const taban = 20.0;
+  final tp = TextPainter(
+    text: TextSpan(
+      text: s,
+      style: TextStyle(
+        fontFamily: AppTheme.fontFamily,
+        fontSize: taban,
+        fontWeight: FontWeight.w900,
+        color: renk,
+        height: 1.0,
+      ),
+    ),
+    textDirection: TextDirection.ltr,
+  )..layout();
+  final o = boy / taban;
+  final r = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: m, width: tp.width * o + boy * 1.1, height: boy * 1.7),
+      Radius.circular(boy * 0.85));
+  c.drawRRect(r.shift(Offset(0, boy * 0.12)), Paint()..color = Colors.black.withValues(alpha: 0.18));
+  c.drawRRect(r, Paint()..color = Colors.white);
+  c.save();
+  c.translate(m.dx, m.dy);
+  c.scale(o);
+  tp.paint(c, Offset(-tp.width / 2, -tp.height / 2));
+  c.restore();
+}

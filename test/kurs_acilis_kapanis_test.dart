@@ -303,11 +303,14 @@ void main() {
       expect(find.byType(InteractiveLessonScreen), findsOneWidget);
     });
 
-    test('Scratch ve mBlock acik; baska kurs ayarsiz', () {
+    test('Scratch, mBlock ve Arduino acik; baska kurs ayarsiz', () {
       expect(KursTanitimi.acik('scratch'), isTrue);
       expect(KursTanitimi.acik('mblock'), isTrue);
+      // Arduino'nun acilisi ayri ekran: Devi malzemeleri tanitiyor.
+      expect(KursTanitimi.acik('arduino'), isTrue);
+      const acik = {'scratch', 'mblock', 'arduino'};
       for (final c in CoursesData.allCourses
-          .where((c) => c.id != 'scratch' && c.id != 'mblock')) {
+          .where((c) => !acik.contains(c.id))) {
         expect(KursTanitimi.acik(c.id), isFalse, reason: c.id);
       }
     });

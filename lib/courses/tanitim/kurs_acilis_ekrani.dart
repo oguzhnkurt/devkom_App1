@@ -17,6 +17,7 @@ import '../sahne/uno_karti.dart';
 import '../yurutme/mblock_uno.dart';
 import '../models/course_model.dart';
 import '../screens/widgets/step_widgets.dart' show lessonLang;
+import 'arduino_tanitimi.dart';
 import 'kurs_tanitimi.dart';
 import 'tanitim_parcalari.dart';
 
@@ -62,6 +63,18 @@ class KursAcilisEkrani extends StatefulWidget {
       {bool tekrar = false}) async {
     final t = KursTanitimi.forCourse(course.id);
     if (t == null) return true;
+    if (course.id == 'arduino') {
+      // Arduino'nun acilisi tek blokluk etkinlik degil: Devi once
+      // malzemeleri (Uno, breadboard, LED, sensorler) tanitiyor.
+      final s = await Navigator.of(context).push<bool>(PageRouteBuilder(
+        settings: const RouteSettings(name: 'kurs_acilis'),
+        transitionDuration: Motion.medium4,
+        reverseTransitionDuration: Motion.medium2,
+        pageBuilder: (_, __, ___) => ArduinoTanitimEkrani(course: course, tekrar: tekrar),
+        transitionsBuilder: (context, a, _, child) => FadeTransition(opacity: a, child: child),
+      ));
+      return s ?? false;
+    }
     final sonuc = await Navigator.of(context).push<bool>(PageRouteBuilder(
       settings: const RouteSettings(name: 'kurs_acilis'),
       transitionDuration: Motion.medium4,

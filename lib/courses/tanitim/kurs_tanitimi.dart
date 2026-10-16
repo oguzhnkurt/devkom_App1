@@ -74,6 +74,15 @@ class KursTanitimi {
       sahne: TanitimSahnesi.kart,
       ledPini: 13,
     ),
+    // Arduino'nun acilisi ayri bir ekran (ArduinoTanitimEkrani: Devi
+    // malzemeleri tanitiyor); bu satir acilis/kapanisi acik yapiyor.
+    'arduino': KursTanitimi(
+      courseId: 'arduino',
+      sapkaBlokId: 'dev_kart_acilis',
+      yerlesecekBlokId: 'dev_dijital_yaz',
+      sahne: TanitimSahnesi.kart,
+      ledPini: 13,
+    ),
   };
 
   /// Kursun tanitimi; acik degilse null.
