@@ -236,7 +236,43 @@ buy anything.
 `çocuklar için kodlama` ve `coding for kids` çıkarıldı — yukarıdaki
 kurala giriyor.
 
-## "What's New in This Version" — 1.0.14 (güncel, 16 Ekim 2026)
+## "What's New in This Version" — 1.0.15 (güncel, 17 Ekim 2026)
+
+Play ve App Store için aynı metin (Google girişi bu sürümde yeni değil). Hepsi 500 karakterin altında.
+
+#### tr (404 karakter)
+
+• Yeni: Arduino kursu baştan! 18 derste Uno ve breadboard'da devre kur, mBlock bloklarıyla kodla; LED, buton, sensörler, buzzer ve servo.
+• Yeni: Arduino Atölyesi. Parçaları koy, kabloları tak, kodunu çalıştır; ya da 8 rehberli projeden birini seç.
+• mBlock atölyesi Scratch gibi: sahnede kuklayı sürükle, bayrak ve dur düğmeleri.
+• Günlük ödül sandığı: her gün jeton ve günün oyunu.
+• Hata düzeltmeleri.
+
+#### en (437 karakter)
+
+• New: a brand-new Arduino course! In 18 lessons, build circuits on an Uno and breadboard and code them with mBlock blocks: LEDs, buttons, sensors, a buzzer and a servo.
+• New: Arduino Workshop. Place parts, plug in wires and run your code, or pick one of 8 guided projects.
+• The mBlock workshop now works like Scratch: drag the sprite on the stage, flag and stop buttons.
+• Daily reward chest: coins and a game of the day.
+• Bug fixes.
+
+#### de (439 karakter)
+
+• Neu: ein ganz neuer Arduino-Kurs! In 18 Lektionen baust du Schaltungen mit Uno und Steckbrett und programmierst sie mit mBlock-Blöcken: LEDs, Taster, Sensoren, Summer und Servo.
+• Neu: Arduino-Werkstatt. Bauteile setzen, Kabel stecken, Code starten, oder eines von 8 geführten Projekten wählen.
+• Die mBlock-Werkstatt funktioniert wie Scratch: Figur auf der Bühne ziehen, Flagge und Stopp.
+• Tägliche Belohnungstruhe.
+• Fehlerbehebungen.
+
+#### es (436 karakter)
+
+• Nuevo: ¡un curso de Arduino totalmente nuevo! En 18 lecciones montas circuitos con un Uno y una placa de pruebas y los programas con bloques de mBlock: LED, botones, sensores, zumbador y servo.
+• Nuevo: Taller de Arduino. Coloca piezas, conecta cables y ejecuta tu código, o elige uno de 8 proyectos guiados.
+• El taller de mBlock funciona como Scratch: arrastra el personaje, bandera y stop.
+• Cofre de premio diario.
+• Correcciones.
+
+## "What's New in This Version" — 1.0.14 (16 Ekim 2026)
 
 Play metni Google girişini içerir; App Store metninde o cümle yok. Play metinleri 500 karakterin altında.
 
