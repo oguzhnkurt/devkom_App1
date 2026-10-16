@@ -22,6 +22,7 @@ import 'package:devkom_app/courses/data/course_modules.dart';
 import 'package:devkom_app/courses/data/courses_data.dart';
 import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
 import 'package:devkom_app/courses/sahne/mblock_sahnesi.dart';
+import 'package:devkom_app/courses/screens/interactive_course_screen.dart';
 import 'package:devkom_app/courses/screens/interactive_lesson_screen.dart';
 import 'package:devkom_app/courses/screens/widgets/devre_kurma_adimi.dart';
 import 'package:devkom_app/courses/screens/widgets/mblock_blok_adimi.dart';
@@ -313,4 +314,12 @@ void main() {
       });
     }
   }
+
+  testWidgets('kurs sayfasi', (tester) async {
+    await _kur(tester, InteractiveCourseScreen(course: CoursesData.byId('arduino')!),
+        boy: const Size(390, 844));
+    await _bekle(tester, 800);
+    await _cek(tester, '20_kurs_sayfasi');
+    await _kapat(tester);
+  });
 }
