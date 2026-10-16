@@ -3,6 +3,8 @@
 // Kullanici: "Devi'nin adi degistirilebilir olmasin (kurulumda);
 // yalnizca Ayarlar'a ad degistirme secenegi koy" ve "ilk girildiginde
 // Devi kendini tanitmali, gozlerini kirparak".
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -47,8 +49,31 @@ void main() {
         expect(m.trim(), isNotEmpty);
       }
     }
-    expect(DeviTanisma.sayfalar('en').first, 'Hi there! My name is Devi 👋');
+    expect(DeviTanisma.sayfalar('en').first, 'Hi there! My name is Devi');
+    expect(DeviTanisma.sayfalar('tr').first, 'Merhaba! Benim adım Devi');
     expect(DeviTanisma.sayfalar('tr')[1], contains('yapay zekâ'));
+  });
+
+  test('el sallayan el emojisi hicbir dilde yok', () {
+    for (final lang in ['tr', 'en', 'de', 'es']) {
+      for (final m in DeviTanisma.sayfalar(lang)) {
+        expect(m.contains('\u{1F44B}'), isFalse, reason: '$lang: $m');
+      }
+    }
+    expect(
+        File('lib/screens/auth/devi_tanisma.dart')
+            .readAsStringSync()
+            .contains('\u{1F44B}'),
+        isFalse);
+  });
+
+  testWidgets('tanisma ekraninda el emojisi cizilmiyor', (tester) async {
+    await tester.pumpWidget(_tanisma(() {}));
+    await _kareler(tester, 120);
+    expect(find.textContaining('\u{1F44B}'), findsNothing);
+    expect(find.byWidgetPredicate((w) =>
+            w is RichText && w.text.toPlainText().contains('\u{1F44B}')),
+        findsNothing);
   });
 
   testWidgets('daktilo yaziyor, dokununca tamamlaniyor ve ilerliyor',

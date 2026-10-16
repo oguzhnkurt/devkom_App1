@@ -23,7 +23,8 @@ import '../../widgets/mascot.dart';
 /// NASIL
 /// -----
 /// * Devi asagidan ziplayarak geliyor, sonra hafifce saga sola
-///   sallanarak "merhaba" diyor; yaninda el sallayan bir 👋.
+///   sallanarak "merhaba" diyor. (Yanindaki el sallayan el emojisi Ekim
+///   2026'da kullanici istegiyle kaldirildi; balon metninde de yok.)
 /// * Gozlerini ~3 saniyede bir kirpiyor ([Mascot.blink]).
 /// * Konusma balonunda uc kisa sayfa, daktilo gibi yaziliyor. Balonun
 ///   olcusu yazi bitmeden de sabit (gorunmez kalan metin yer tutuyor):
@@ -59,8 +60,8 @@ class DeviTanisma extends StatefulWidget {
     String t(String tr, String en, String de, String es) =>
         AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
     return [
-      t('Merhaba! Benim adım $ad 👋', 'Hi there! My name is $ad 👋',
-          'Hallo! Ich heiße $ad 👋', '¡Hola! Me llamo $ad 👋'),
+      t('Merhaba! Benim adım $ad', 'Hi there! My name is $ad',
+          'Hallo! Ich heiße $ad', '¡Hola! Me llamo $ad'),
       t(
         'Kodlamayı ve yapay zekâyı öğrenirken hep yanında olacağım.',
         "I'll be right by your side while you learn coding and AI.",
@@ -90,9 +91,6 @@ class DeviTanismaState extends State<DeviTanisma>
   /// Daktilo.
   late final AnimationController _yazi;
 
-  /// El sallayan 👋.
-  late final AnimationController _el;
-
   bool _hazir = false;
 
   /// Balonun yazmaya baslamasi icin bekleme (dispose'ta iptal).
@@ -106,8 +104,6 @@ class DeviTanismaState extends State<DeviTanisma>
     _giris = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1500));
     _yazi = AnimationController(vsync: this);
-    _el = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1400));
   }
 
   @override
@@ -121,7 +117,6 @@ class DeviTanismaState extends State<DeviTanisma>
       return;
     }
     _giris.forward();
-    _el.repeat();
     // Balon, Devi yerine oturunca yazmaya basliyor.
     _baslat = Timer(const Duration(milliseconds: 520), () {
       if (mounted && _yazi.value == 0) _yaz();
@@ -133,7 +128,6 @@ class DeviTanismaState extends State<DeviTanisma>
     _baslat?.cancel();
     _giris.dispose();
     _yazi.dispose();
-    _el.dispose();
     super.dispose();
   }
 
@@ -295,7 +289,7 @@ class DeviTanismaState extends State<DeviTanisma>
 
   Widget _devi(double boy) {
     return AnimatedBuilder(
-      animation: Listenable.merge([_giris, _el]),
+      animation: _giris,
       builder: (context, child) {
         final g = _giris.value;
         // 0..0.4: asagidan ziplayarak gelis; 0.4..1: sonen bir sallanma.
@@ -303,7 +297,6 @@ class DeviTanismaState extends State<DeviTanisma>
         final sallan = g < 0.4
             ? 0.0
             : math.sin((g - 0.4) / 0.6 * math.pi * 3) * (1 - (g - 0.4) / 0.6);
-        final el = math.sin(_el.value * math.pi * 2);
         return SizedBox(
           width: boy * 1.25,
           height: boy,
@@ -336,20 +329,6 @@ class DeviTanismaState extends State<DeviTanisma>
                   ),
                 ),
               ),
-              if (_sayfa == 0)
-                Positioned(
-                  left: boy * 0.02,
-                  top: boy * 0.02,
-                  child: Opacity(
-                    opacity: ((g - 0.3) / 0.2).clamp(0.0, 1.0),
-                    child: Transform.rotate(
-                      angle: el * 0.35,
-                      alignment: Alignment.bottomRight,
-                      child: Text('👋',
-                          style: TextStyle(fontSize: boy * 0.16)),
-                    ),
-                  ),
-                ),
             ],
           ),
         );
