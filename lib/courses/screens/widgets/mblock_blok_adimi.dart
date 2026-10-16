@@ -223,6 +223,12 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
     final lang = lessonLang(context);
     if (_yedek) return _yedekDuzeni(lang);
     final yaziRengi = widget.isDark ? Colors.white : const Color(0xFF1A1A1A);
+    // Telefonda sahne + tezgah yaklasik bir ekrana sigsin: yonerge ve
+    // hedef sikisik, kukla sahnesi kisa, tezgah ekran boyuna gore
+    // sinirli (gercek iPhone'da adim asagi dogru uzuyordu).
+    final ekranH = MediaQuery.sizeOf(context).height;
+    final kisa = ekranH < 700;
+    final tezgahH = (ekranH * 0.34).clamp(250.0, 400.0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -235,15 +241,15 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
           widget.step.instructionFor(lang),
           style: TextStyle(
             fontFamily: AppTheme.fontFamily,
-            fontSize: 18,
-            height: 1.4,
+            fontSize: kisa ? 15.5 : 16.5,
+            height: 1.3,
             fontWeight: FontWeight.w800,
             color: yaziRengi,
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         _hedef(lang),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
 
         // SAHNE (ustte).
         KeyedSubtree(
@@ -256,9 +262,10 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
             renk: widget.course.primaryColor,
             dogru: _bitti && !_cozumGosterildi,
             zamanOlcegi: widget.zamanOlcegi,
+            kuklaYuksekligi: kisa ? 160 : 180,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
 
         // BLOKLAR (altta).
         MBlockTezgahi(
@@ -267,9 +274,10 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
           onDurum: _durum,
           onHata: _yedegeGec,
           onizleme: _yiginlar,
+          yukseklik: tezgahH,
         ),
 
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Text(
           lessonText(
             lang,
@@ -278,9 +286,11 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
             'Zieh Blöcke aus der Liste links und stecke sie zusammen.',
             'Arrastra bloques de la lista de la izquierda y encájalos.',
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontFamily: AppTheme.fontFamily,
-            fontSize: 12.5,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
             color: Colors.grey.shade600,
           ),
@@ -347,7 +357,7 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
                     ),
                   ),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),
               ),
@@ -373,7 +383,7 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: widget.course.primaryColor,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),
               ),
@@ -451,7 +461,7 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
       );
 
   Widget _hedef(String lang) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: widget.course.primaryColor.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(12),
@@ -466,8 +476,8 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
                 widget.step.goalFor(lang),
                 style: TextStyle(
                   fontFamily: AppTheme.fontFamily,
-                  fontSize: 14.5,
-                  height: 1.35,
+                  fontSize: 13.5,
+                  height: 1.3,
                   fontWeight: FontWeight.w700,
                   color: widget.course.primaryColor,
                 ),

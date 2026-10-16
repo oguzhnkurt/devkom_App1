@@ -131,6 +131,10 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
     final accent = widget.course.primaryColor;
     final second = widget.course.secondaryColor;
     final reduced = Motion.reduced(context);
+    // Telefonda daha siki: sahne ve balon tek ekrana sigsin (gercek
+    // iPhone'da metin buyuk geliyor, asagi kaydirmak gerekiyordu).
+    final kisa = EkranOlcusu.kisa(context);
+    final daire = kisa ? 92.0 : 108.0;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -139,7 +143,7 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
         //     donuyor, arkada yumusak bir isik var.
         AppearIn(
           child: SizedBox(
-            height: 230,
+            height: kisa ? 150 : 184,
             child: Stack(
               alignment: Alignment.center,
               children: [
@@ -160,8 +164,8 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
                     child: child,
                   ),
                   child: Container(
-                    width: 128,
-                    height: 128,
+                    width: daire,
+                    height: daire,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
@@ -191,14 +195,14 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
                     // gibi acilislar) oldugu gibi kaliyor.
                     child: Center(
                       child: _deviMi(widget.step.mascotEmoji)
-                          ? const Mascot(
-                              size: 112,
+                          ? Mascot(
+                              size: daire * 0.875,
                               mood: MascotMood.happy,
                               showShadow: false,
                             )
                           : Text(
                               widget.step.mascotEmoji!,
-                              style: const TextStyle(fontSize: 64),
+                              style: TextStyle(fontSize: daire * 0.5),
                             ),
                     ),
                   ),
@@ -227,7 +231,7 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
           delay: const Duration(milliseconds: 90),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 4),
-            padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
             decoration: BoxDecoration(
               color: widget.isDark ? const Color(0xFF1E1E2E) : Colors.white,
               borderRadius: BorderRadius.circular(22),
@@ -250,8 +254,8 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
                     // uygulamanin geri kalanindan baska bir yazi tipiyle
                     // aciliyordu.
                     fontFamily: AppTheme.fontFamily,
-                    fontSize: 17.5,
-                    height: 1.55,
+                    fontSize: 16,
+                    height: 1.45,
                     fontWeight: FontWeight.w600,
                     color: widget.isDark
                         ? Colors.white
@@ -259,12 +263,12 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
                   ),
                 ),
                 if (highlights.isNotEmpty) ...[
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 14),
                   Divider(
                     height: 1,
                     color: accent.withValues(alpha: 0.14),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Align(
                     alignment: AlignmentDirectional.centerStart,
                     child: Text(
@@ -279,7 +283,7 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   // Maddeler sirayla beliriyor: hepsi birden gelince bir
                   // liste, sirayla gelince bir anlatim oluyor.
                   ...List.generate(highlights.length, (i) {
@@ -287,7 +291,7 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
                       delay: Duration(milliseconds: 180 + i * 110),
                       offset: 10,
                       child: Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.only(bottom: 7),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -312,7 +316,7 @@ class _IntroStepWidgetState extends State<IntroStepWidget>
                                   highlights[i],
                                   style: TextStyle(
                                     fontFamily: AppTheme.fontFamily,
-                                    fontSize: 15,
+                                    fontSize: 14.5,
                                     height: 1.35,
                                     fontWeight: FontWeight.w600,
                                     color: widget.isDark
@@ -747,6 +751,7 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
     final renk = widget.course.primaryColor;
     final koyu = widget.isDark;
     final (emoji, etiket, onekiAt) = _etiket(lang);
+    final dar = MediaQuery.sizeOf(context).width < 500;
 
     // Ekran okuyucu acikken ya da arac modunda hepsi birden.
     final hepsi = widget.tumunuGoster ||
@@ -786,7 +791,9 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
       child: Container(
         key: const ValueKey('anlatim_karti'),
         width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
+        // Telefonda daha siki kart (gercek iPhone'da 17/1.55 govde ve
+        // genis dolgu metni ekrandan tasiriyordu).
+        padding: EdgeInsets.fromLTRB(dar ? 16 : 20, 16, dar ? 16 : 20, 18),
         decoration: BoxDecoration(
           color: koyu ? const Color(0xFF1A1B26) : Colors.white,
           borderRadius: BorderRadius.circular(26),
@@ -829,13 +836,13 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
               style: TextStyle(
                 fontFamily: 'Baloo2',
                 fontFamilyFallback: const [AppTheme.fontFamily],
-                fontSize: EkranOlcusu.kisa(context) ? 24 : 27,
-                height: 1.18,
+                fontSize: EkranOlcusu.kisa(context) ? 22 : (dar ? 24 : 27),
+                height: 1.15,
                 fontWeight: FontWeight.w800,
                 color: koyu ? Colors.white : const Color(0xFF1B2140),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Container(
               width: 38,
               height: 4,
@@ -845,7 +852,7 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             for (var i = 0; i < gorunen; i++)
               AppearIn(
@@ -858,7 +865,7 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
                 // okunurken notr renge donduğu icin goz yormuyor.
                 renk: renk,
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: i == gorunen - 1 ? 0 : 14),
+                  padding: EdgeInsets.only(bottom: i == gorunen - 1 ? 0 : 10),
                   child: _paragraf(paragraflar[i]),
                 ),
               ),
@@ -873,7 +880,7 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
 
             if (bitti) ...[
               if (blokGorselleri.isNotEmpty) ...[
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
                 _blokAlani([
                   for (final v in blokGorselleri)
                     _buildVisual(v, lang,
@@ -885,7 +892,7 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
                 _buildVisual(v, lang),
               ],
               if (tipText != null) ...[
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
                 _buildTipBox(tipText),
               ],
             ],
@@ -908,9 +915,11 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
       // ONCEDEN: 16 punto, w400, grey.shade700. Ders metni aciklama
       // kutusu gibi soluk duruyordu; cocuk icin ANA metin bu. Simdi
       // biraz daha buyuk ve yumusak koyu bir renkte (saf siyah degil).
+      // 17/1.55 telefonda fazla buyuktu (gercek iPhone'da ilk mBlock
+      // dersi asagi kaydiriliyordu); 16/1.45 hala ana metin boyu.
       fontFamily: AppTheme.fontFamily,
-      fontSize: 17,
-      height: 1.55,
+      fontSize: 16,
+      height: 1.45,
       fontWeight: FontWeight.w600,
       color: widget.isDark ? Colors.grey.shade200 : const Color(0xFF39405A),
     );
@@ -956,7 +965,7 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
           painter: _NoktaliZemin(
               widget.isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFDCE0EC)),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: cocuklar,
@@ -1166,7 +1175,8 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
     final bool isGreenFlag = visual.content == 'tıklandığında';
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      // Siki: anlatim kartinda alt alta uc blok ekrandan tasiyordu.
+      margin: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -1180,15 +1190,15 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
           // (test/appstore_shots_test.dart) bunu yakaladı.
           Flexible(
             child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
             decoration: BoxDecoration(
               color: visual.color ?? widget.course.primaryColor,
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
                   color: (visual.color ?? widget.course.primaryColor).withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
@@ -1212,7 +1222,7 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 15,
+                            fontSize: 14,
                           ),
                         ),
                       ),
@@ -1223,7 +1233,7 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontSize: 14,
                     ),
                   ),
           ),
@@ -1271,13 +1281,13 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
             Container(width: 5, color: const Color(0xFFF5A524)),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 12, 14, 14),
+                padding: const EdgeInsets.fromLTRB(10, 10, 12, 11),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 40,
-                      height: 40,
+                      width: 34,
+                      height: 34,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: koyu ? const Color(0xFF3A3520) : Colors.white,
@@ -1288,7 +1298,7 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
                             width: 1.5),
                       ),
                       child: Text(widget.step.tipEmoji ?? '💡',
-                          style: const TextStyle(fontSize: 20)),
+                          style: const TextStyle(fontSize: 17)),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1312,8 +1322,8 @@ class _ExplanationStepWidgetState extends State<ExplanationStepWidget> {
                             tipText,
                             style: TextStyle(
                               fontFamily: AppTheme.fontFamily,
-                              fontSize: 15.5,
-                              height: 1.45,
+                              fontSize: 14.5,
+                              height: 1.4,
                               fontWeight: FontWeight.w700,
                               color: koyu
                                   ? Colors.amber.shade100
