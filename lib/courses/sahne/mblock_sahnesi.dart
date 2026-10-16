@@ -34,7 +34,11 @@ class MBlockSahnesi extends StatefulWidget {
     required this.renk,
     this.dogru = false,
     this.zamanOlcegi = 1.0,
+    this.onCalisma,
   });
+
+  /// Calisma basladi / bitti (sahibinin "Calistir | Durdur" dugmesi).
+  final ValueChanged<bool>? onCalisma;
 
   /// true: Arduino Uno; false: kukla sahnesi.
   final bool kart;
@@ -75,6 +79,18 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
   bool _calisiyor = false;
   bool get calisiyor => _calisiyor;
 
+  /// Baslik bayragi: tezgahta blok yoksa pasif; calisirken "basili".
+  VoidCallback? get _bayrak =>
+      _calisiyor || !widget.program.any((y) => y.isNotEmpty)
+          ? null
+          : () => calistir();
+
+  void _durumDegisti(bool c) {
+    if (_calisiyor == c) return;
+    _calisiyor = c;
+    widget.onCalisma?.call(c);
+  }
+
   String _t(String tr, String en, String de, String es) =>
       AppLang.pick(widget.lang, tr: tr, en: en, de: de, es: es);
 
@@ -101,7 +117,7 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
       _uno?.durdur();
     } else {
       _oynatici.currentState?.durdur();
-      setState(() => _calisiyor = false);
+      setState(() => _durumDegisti(false));
     }
   }
 
@@ -117,7 +133,7 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
     _uno = y;
     setState(() {
       _calisan = p;
-      _calisiyor = true;
+      _durumDegisti(true);
       _unoBitis = null;
     });
     // Calisan blogun yazisi saniyede birkac kez tazeleniyor (her blokta
@@ -130,7 +146,7 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
     if (!mounted || !identical(_uno, y)) return;
     _blokYazisi?.cancel();
     setState(() {
-      _calisiyor = false;
+      _durumDegisti(false);
       _unoBitis = bitis;
       _calisanBlok = null;
     });
@@ -144,7 +160,7 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
       _oynatici = GlobalKey();
       _yurutme =
           k.bos ? null : BlokYorumlayici(dil: widget.lang).yurut(k.bloklar);
-      _calisiyor = !k.bos;
+      _durumDegisti(!k.bos);
     });
   }
 
@@ -208,15 +224,15 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
     return SizedBox(
       height: ScratchSahneKarti.baslikYuksekligi,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.only(left: 4, right: 12),
         child: Row(
           children: [
             SahneBayrakDugmesi(
               key: const ValueKey('mblock_sahne_bayragi'),
               lang: widget.lang,
-              onTap: _calisiyor ? null : () => calistir(),
+              onTap: _bayrak,
+              calisiyor: _calisiyor,
             ),
-            const SizedBox(width: 8),
             SahneDurDugmesi(
               key: const ValueKey('mblock_sahne_dur'),
               lang: widget.lang,
@@ -329,8 +345,9 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
         lang: widget.lang,
         bayrakAnahtari: const ValueKey('mblock_sahne_bayragi'),
         durAnahtari: const ValueKey('mblock_sahne_dur'),
-        onBayrak: _calisiyor ? null : () => calistir(),
+        onBayrak: _bayrak,
         onDur: _calisiyor ? durdur : null,
+        calisiyor: _calisiyor,
         child: k == null || y == null
             ? _bosKukla()
             : BlockAnimationPlayer(
@@ -345,7 +362,7 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
                 baslamaGecikmesi: const Duration(milliseconds: 300),
                 onComplete: () {
                   if (mounted && _calisiyor) {
-                    setState(() => _calisiyor = false);
+                    setState(() => _durumDegisti(false));
                   }
                 },
               ),

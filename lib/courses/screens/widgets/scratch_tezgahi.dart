@@ -374,6 +374,7 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
                     durAnahtari: const ValueKey('sahne_dur'),
                     onBayrak: _kod.isNotEmpty && !_calisiyor ? calistir : null,
                     onDur: _calisiyor ? durdur : null,
+                    calisiyor: _calisiyor,
                     child: oynuyor
                         ? BlockAnimationPlayer(
                             key: _oynatici,
@@ -465,6 +466,7 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
           durAnahtari: const ValueKey('sahne_dur'),
           onBayrak: _kod.isNotEmpty && !_calisiyor ? calistir : null,
           onDur: _calisiyor ? durdur : null,
+                    calisiyor: _calisiyor,
           child: ProjeSahnesi(
             key: _projeSahnesi,
             motor: motor,

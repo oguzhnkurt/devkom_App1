@@ -474,6 +474,7 @@ class KursAcilisEkraniState extends State<KursAcilisEkrani>
       lang: lang,
       bayrakAnahtari: const ValueKey('acilis_sahne_bayragi'),
       onBayrak: aktif ? calistir : null,
+      calisiyor: _evre == AcilisEvresi.kutlama && _kosu.isAnimating,
       nabiz: _nabiz,
       child: ScratchSahneZemini(builder: (context, boyut, zemin) {
         final w = boyut.width;
@@ -573,6 +574,7 @@ class KursAcilisEkraniState extends State<KursAcilisEkrani>
       baslik: 'Arduino Uno',
       bayrakAnahtari: const ValueKey('acilis_sahne_bayragi'),
       onBayrak: aktif ? calistir : null,
+      calisiyor: _evre == AcilisEvresi.kutlama && _kosu.isAnimating,
       nabiz: _nabiz,
       child: ColoredBox(
         color: const Color(0xFFF1F8F8),

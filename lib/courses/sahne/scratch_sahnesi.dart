@@ -26,6 +26,7 @@ class ScratchSahneKarti extends StatelessWidget {
     this.bayrakAnahtari,
     this.durAnahtari,
     this.baslik,
+    this.calisiyor = false,
   });
 
   final String lang;
@@ -49,7 +50,11 @@ class ScratchSahneKarti extends StatelessWidget {
   final Key? bayrakAnahtari;
   final Key? durAnahtari;
 
-  static const double baslikYuksekligi = 38;
+  /// Kod calisiyor: bayrak "basili" (Scratch'teki gibi vurgulu) gorunuyor.
+  final bool calisiyor;
+
+  /// Baslik 44 pt: bayrak ve dur dugmelerinin dokunma alani tam 44x44.
+  static const double baslikYuksekligi = 44;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +76,7 @@ class ScratchSahneKarti extends StatelessWidget {
           SizedBox(
             height: baslikYuksekligi,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.only(left: 4, right: 12),
               child: Row(
                 children: [
                   SahneBayrakDugmesi(
@@ -79,8 +84,8 @@ class ScratchSahneKarti extends StatelessWidget {
                     lang: lang,
                     onTap: onBayrak,
                     nabiz: nabiz,
+                    calisiyor: calisiyor,
                   ),
-                  const SizedBox(width: 8),
                   SahneDurDugmesi(key: durAnahtari, lang: lang, onTap: onDur),
                   const Spacer(),
                   Text(
@@ -193,45 +198,73 @@ class SahneDekoru extends CustomPainter {
 }
 
 /// Yesil bayrak dugmesi (sahne basliginda).
+///
+/// Uc hal: PASIF (calisacak kod yok: gri, soluk), HAZIR (acik yesil
+/// zemin, yesil kenar; [nabiz] verilirse "buraya bas" diye nabiz atar)
+/// ve CALISIYOR (Scratch'teki gibi "basili": dolu zemin, koyu kenar,
+/// hafif iceri gocmus). Dokunma alani 44x44; gorunen kutu 32.
 class SahneBayrakDugmesi extends StatelessWidget {
   const SahneBayrakDugmesi({
     super.key,
     required this.lang,
     this.onTap,
     this.nabiz,
-    this.boy = 30,
+    this.calisiyor = false,
+    this.boy = 32,
   });
 
   final String lang;
   final VoidCallback? onTap;
   final Animation<double>? nabiz;
+  final bool calisiyor;
   final double boy;
+
+  static const Color _yesil = Color(0xFF45993D);
 
   @override
   Widget build(BuildContext context) {
     final aktif = onTap != null;
-    Widget kutu(double p) => Container(
+    final azHareket = Motion.reduced(context);
+    Widget kutu(double p) => AnimatedContainer(
+          duration: azHareket ? Duration.zero : Motion.short3,
           width: boy,
           height: boy,
           decoration: BoxDecoration(
-            color: aktif ? const Color(0xFFE6F4E4) : const Color(0xFFF2F4F7),
-            borderRadius: BorderRadius.circular(8),
+            color: calisiyor
+                ? const Color(0xFFC9EBC4)
+                : aktif
+                    ? const Color(0xFFE6F4E4)
+                    : const Color(0xFFF0F2F5),
+            borderRadius: BorderRadius.circular(9),
             border: Border.all(
-              color: aktif
-                  ? const Color(0xFF45993D).withValues(alpha: 0.4 + 0.6 * p)
-                  : Colors.transparent,
+              color: calisiyor
+                  ? _yesil
+                  : aktif
+                      ? _yesil.withValues(alpha: 0.4 + 0.6 * p)
+                      : const Color(0xFFDDE1E7),
               width: 2,
             ),
           ),
           alignment: Alignment.center,
           child: Opacity(
-            opacity: aktif ? 1 : 0.45,
-            child: YesilBayrak(boyut: boy * 0.62),
+            opacity: aktif || calisiyor ? 1 : 0.35,
+            child: YesilBayrak(boyut: boy * 0.6),
           ),
         );
+    final gorunum = AnimatedScale(
+      scale: calisiyor ? 0.9 : 1,
+      duration: azHareket ? Duration.zero : Motion.short3,
+      child: nabiz == null || !aktif || calisiyor
+          ? kutu(1)
+          : AnimatedBuilder(
+              animation: nabiz!,
+              builder: (context, _) => kutu(nabiz!.value),
+            ),
+    );
     return Semantics(
       button: true,
       enabled: aktif,
+      selected: calisiyor,
       label: AppLang.pick(lang,
           tr: 'Yeşil bayrak',
           en: 'Green flag',
@@ -240,22 +273,19 @@ class SahneBayrakDugmesi extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        // Dokunma alani 44 pt; kutu gorunurde 30.
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: nabiz == null || !aktif
-              ? kutu(1)
-              : AnimatedBuilder(
-                  animation: nabiz!,
-                  builder: (context, _) => kutu(nabiz!.value),
-                ),
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Center(child: gorunum),
         ),
       ),
     );
   }
 }
 
-/// Kirmizi "dur" sekizgeni; [onTap] verilince dugme.
+/// Kirmizi "dur" sekizgeni; [onTap] verilince dugme (kod calisirken).
+/// Pasifken gri ve soluk: cocuk "basinca bir sey olmadi" diye
+/// sasirmasin. Dokunma alani 44x44.
 class SahneDurDugmesi extends StatelessWidget {
   const SahneDurDugmesi({super.key, required this.lang, this.onTap});
   final String lang;
@@ -264,6 +294,7 @@ class SahneDurDugmesi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final aktif = onTap != null;
+    final sure = Motion.reduced(context) ? Duration.zero : Motion.short3;
     return Semantics(
       button: true,
       enabled: aktif,
@@ -272,12 +303,25 @@ class SahneDurDugmesi extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(5),
-          child: AnimatedOpacity(
-            opacity: aktif ? 1 : 0.75,
-            duration: Motion.reduced(context) ? Duration.zero : Motion.short3,
-            child: const DurIsareti(),
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Center(
+            child: AnimatedContainer(
+              duration: sure,
+              width: 32,
+              height: 32,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: aktif ? const Color(0xFFFDE8E8) : Colors.transparent,
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: AnimatedOpacity(
+                opacity: aktif ? 1 : 0.4,
+                duration: sure,
+                child: DurIsareti(boyut: 20, pasif: !aktif),
+              ),
+            ),
           ),
         ),
       ),
@@ -287,17 +331,23 @@ class SahneDurDugmesi extends StatelessWidget {
 
 /// Scratch'in kirmizi "dur" sekizgeni.
 class DurIsareti extends StatelessWidget {
-  const DurIsareti({super.key, this.boyut = 20});
+  const DurIsareti({super.key, this.boyut = 20, this.pasif = false});
   final double boyut;
+
+  /// Gri sekizgen (durdurulacak bir sey yok).
+  final bool pasif;
 
   @override
   Widget build(BuildContext context) => CustomPaint(
         size: Size.square(boyut),
-        painter: _SekizgenBoyaci(),
+        painter: _SekizgenBoyaci(pasif),
       );
 }
 
 class _SekizgenBoyaci extends CustomPainter {
+  _SekizgenBoyaci(this.pasif);
+  final bool pasif;
+
   @override
   void paint(Canvas canvas, Size size) {
     final r = size.width / 2;
@@ -309,17 +359,18 @@ class _SekizgenBoyaci extends CustomPainter {
       i == 0 ? p.moveTo(o.dx, o.dy) : p.lineTo(o.dx, o.dy);
     }
     p.close();
-    canvas.drawPath(p, Paint()..color = const Color(0xFFEC5959));
+    canvas.drawPath(p,
+        Paint()..color = pasif ? const Color(0xFFB4BAC4) : const Color(0xFFEC5959));
     canvas.drawPath(
         p,
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.2
-          ..color = const Color(0xFFB84848));
+          ..color = pasif ? const Color(0xFF8F96A3) : const Color(0xFFB84848));
   }
 
   @override
-  bool shouldRepaint(covariant _SekizgenBoyaci old) => false;
+  bool shouldRepaint(covariant _SekizgenBoyaci old) => old.pasif != pasif;
 }
 
 /// Sahnede kuklanin ustunde konusma balonu (Scratch'teki gibi kuyruklu).

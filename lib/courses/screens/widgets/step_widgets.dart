@@ -3013,6 +3013,7 @@ class _BlockBuilderStepWidgetState extends State<BlockBuilderStepWidget> {
               durAnahtari: const ValueKey('sahne_dur'),
               onBayrak: bloklarVar && !_calisiyor ? _calistir : null,
               onDur: _calisiyor ? _durdur : null,
+              calisiyor: _calisiyor,
               child: oynuyor
                   ? BlockAnimationPlayer(
                       key: _oynatici,
