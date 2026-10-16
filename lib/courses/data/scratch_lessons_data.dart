@@ -1917,7 +1917,7 @@ class ScratchLessonsData {
           titleEn: 'Make the Game Harder',
           titleDe: 'Mach das Spiel schwerer',
           titleEs: 'Haz el juego más difícil',
-          content: 'Puan arttıkça fareyi hızlandırabilirsin:\n\nFare hızını "puan / 2 + 5" yap\n\nBöylece 10 puana ulaşınca fare hizi 10 olur. Oyun gittikce zorlasir ve daha eğlenceli olur!',
+          content: 'Puan arttıkça fareyi hızlandırabilirsin:\n\nFare hızını "puan / 2 + 5" yap\n\nBöylece 10 puana ulaşınca fare hızı 10 olur. Oyun gittikçe zorlaşır ve daha eğlenceli olur!',
           contentEn: 'You can speed the mouse up as the score rises:\n\nSet the mouse speed to "score / 2 + 5"\n\nSo at 10 points the mouse speed becomes 10. The game gets harder as you go, and more fun.',
           contentDe: 'Du kannst die Maus schneller machen, wenn die Punkte steigen:\n\nSetz die Geschwindigkeit der Maus auf "Punkte / 2 + 5"\n\nBei 10 Punkten wird die Maus also 10 schnell. Das Spiel wird mit der Zeit schwerer — und spannender.',
           contentEs: 'Puedes hacer que el ratón sea más rápido según suben los puntos:\n\nFija la velocidad del ratón a "puntos / 2 + 5"\n\nCon 10 puntos la velocidad del ratón pasa a 10. El juego se pone más difícil y más divertido.',

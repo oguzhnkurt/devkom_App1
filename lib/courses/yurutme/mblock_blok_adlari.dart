@@ -233,6 +233,72 @@ const Map<String, MBlockBlokTanimi> mblockBlokTanimlari = {
       'es': '%1 < %2',
     },
   ),
+  'dev_ton': MBlockBlokTanimi(
+    kategori: 'pin',
+    sekil: 'duz',
+    yuvalar: ['PIN', 'FREKANS', 'SANIYE'],
+    etiket: {
+      'tr': 'pin %1 ton çal frekans %2 süre %3 saniye',
+      'en': 'play tone on pin %1 frequency %2 for %3 secs',
+      'de': 'spiele Ton an Pin %1 Frequenz %2 für %3 Sek.',
+      'es': 'tocar tono en pin %1 frecuencia %2 durante %3 s',
+    },
+  ),
+  'dev_sicaklik': MBlockBlokTanimi(
+    kategori: 'sensor',
+    sekil: 'oval',
+    yuvalar: ['PIN'],
+    etiket: {
+      'tr': 'sıcaklık sensörü pin (A) %1 °C',
+      'en': 'temperature sensor pin (A) %1 °C',
+      'de': 'Temperatursensor Pin (A) %1 °C',
+      'es': 'sensor de temperatura pin (A) %1 °C',
+    },
+  ),
+  'dev_buyuktur': MBlockBlokTanimi(
+    kategori: 'islemler',
+    sekil: 'altigen',
+    yuvalar: ['A', 'B'],
+    etiket: {
+      'tr': '%1 > %2',
+      'en': '%1 > %2',
+      'de': '%1 > %2',
+      'es': '%1 > %2',
+    },
+  ),
+  'dev_bekle_kadar': MBlockBlokTanimi(
+    kategori: 'kontrol',
+    sekil: 'duz',
+    yuvalar: ['KOSUL'],
+    etiket: {
+      'tr': '%1 olana kadar bekle',
+      'en': 'wait until %1',
+      'de': 'warte bis %1',
+      'es': 'esperar hasta que %1',
+    },
+  ),
+  'dev_sayac_oku': MBlockBlokTanimi(
+    kategori: 'degisken',
+    sekil: 'oval',
+    yuvalar: [],
+    etiket: {
+      'tr': 'sayaç',
+      'en': 'counter',
+      'de': 'zähler',
+      'es': 'contador',
+    },
+  ),
+  'dev_aci_oku': MBlockBlokTanimi(
+    kategori: 'degisken',
+    sekil: 'oval',
+    yuvalar: [],
+    etiket: {
+      'tr': 'açı',
+      'en': 'angle',
+      'de': 'winkel',
+      'es': 'ángulo',
+    },
+  ),
   'dev_degisken_yap': MBlockBlokTanimi(
     kategori: 'degisken',
     sekil: 'duz',
@@ -478,6 +544,8 @@ const Map<String, Map<String, String>> _degerAdlari = {
     'de': 'helligkeit',
     'es': 'brillo'
   },
+  'sayac': {'tr': 'sayaç', 'en': 'counter', 'de': 'zähler', 'es': 'contador'},
+  'aci': {'tr': 'açı', 'en': 'angle', 'de': 'winkel', 'es': 'ángulo'},
   'toplananelma': {
     'tr': 'toplananelma',
     'en': 'score',

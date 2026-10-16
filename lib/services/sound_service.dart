@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -123,6 +125,58 @@ class SoundService {
       // Ses cikmamasi oyunu durdurmamali: simulatorde ve sessiz moddaki
       // cihazlarda burasi normal olarak hata veriyor.
       debugPrint('SoundService play error ($file): $e');
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Sanal devrenin buzzer'i
+  // ------------------------------------------------------------------
+
+  /// Devredeki buzzer'in calan notalari (`assets/sounds/ton/`). Yumusak
+  /// kare dalga, tam periyotlu: dongude tik sesi yok. Istenen frekans en
+  /// yakin notaya yuvarlaniyor (logaritmik).
+  static const List<int> buzzerNotalari = [
+    262, 294, 330, 349, 392, 440, 494, 523, 587, 659, 698, 784, 880, 988, 1047,
+  ];
+
+  /// [hz]e en yakin nota.
+  static int buzzerNotasi(int hz) {
+    var en = buzzerNotalari.first;
+    var enD = double.infinity;
+    for (final n in buzzerNotalari) {
+      final d = (math.log(n) - math.log(hz.clamp(100, 5000))).abs();
+      if (d < enD) {
+        enD = d;
+        en = n;
+      }
+    }
+    return en;
+  }
+
+  static AudioPlayer? _buzzer;
+  static int _buzzerHz = 0;
+
+  @visibleForTesting
+  static void Function(int hz)? debugOnBuzzer;
+
+  /// Buzzer'i [hz] frekansinda (dongude) calar; 0 susturur.
+  static Future<void> buzzer(int hz) async {
+    final nota = hz <= 0 ? 0 : buzzerNotasi(hz);
+    if (nota == _buzzerHz) return;
+    _buzzerHz = nota;
+    debugOnBuzzer?.call(nota);
+    if (!_soundEnabled && _buzzer == null) return;
+    try {
+      final p = _buzzer ??= AudioPlayer();
+      if (nota == 0 || !_soundEnabled) {
+        await p.stop();
+        return;
+      }
+      await p.setReleaseMode(ReleaseMode.loop);
+      await p.play(AssetSource('sounds/ton/ton_$nota.wav'),
+          volume: (_volume * 0.7).clamp(0.0, 1.0));
+    } catch (e) {
+      debugPrint('SoundService buzzer error: $e');
     }
   }
 

@@ -56,6 +56,19 @@
    * degisebilir — Almanca "digitalen Pin von Ausgang %1 als %2 setzen"
    * gibi. Bu yuzden her dil ayri bir dize, cevrilmis bir sablon degil.
    */
+  // Degisken listesi (iki degisken blogunda ayni). Deger dilden
+  // bagimsiz; ekranda cocugun dilindeki adi.
+  var DEGISKENLER = {
+    tr: [['parlaklik', 'parlaklik'], ['sayaç', 'sayac'], ['açı', 'aci'],
+      ['toplananelma', 'toplananelma']],
+    en: [['brightness', 'parlaklik'], ['counter', 'sayac'], ['angle', 'aci'],
+      ['score', 'toplananelma']],
+    de: [['helligkeit', 'parlaklik'], ['zähler', 'sayac'], ['winkel', 'aci'],
+      ['punkte', 'toplananelma']],
+    es: [['brillo', 'parlaklik'], ['contador', 'sayac'], ['ángulo', 'aci'],
+      ['puntos', 'toplananelma']]
+  };
+
   var BLOKLAR = [
     // ---------------------------------------------------------- Olaylar
     {
@@ -185,6 +198,32 @@
       es: 'mapea %1 de [%2 , %3] a [%4 , %5]'
     },
 
+    {
+      // mBlock'un Arduino Uno paketindeki "play tone on pin ... frequency
+      // ... for ... secs" blogu. Buzzer'la melodi.
+      id: 'dev_ton', kategori: 'pin', sekil: 'duz',
+      yuvalar: [
+        yuva('PIN', 'secim', '8', [['2','2'],['3','3'],['4','4'],['5','5'],
+          ['6','6'],['7','7'],['8','8'],['9','9'],['10','10'],['11','11'],
+          ['12','12'],['13','13']]),
+        yuva('FREKANS', 'tamsayi', 262), yuva('SANIYE', 'pozitif', 0.5)
+      ],
+      tr: 'pin %1 ton çal frekans %2 süre %3 saniye',
+      en: 'play tone on pin %1 frequency %2 for %3 secs',
+      de: 'spiele Ton an Pin %1 Frequenz %2 für %3 Sek.',
+      es: 'tocar tono en pin %1 frecuencia %2 durante %3 s'
+    },
+    {
+      // Sensor kategorisi: sicaklik sensoru (TMP36), santigrat derece.
+      id: 'dev_sicaklik', kategori: 'sensor', sekil: 'oval',
+      yuvalar: [yuva('PIN', 'secim', '0', [['0','0'],['1','1'],['2','2'],
+        ['3','3'],['4','4'],['5','5']])],
+      tr: 'sıcaklık sensörü pin (A) %1 °C',
+      en: 'temperature sensor pin (A) %1 °C',
+      de: 'Temperatursensor Pin (A) %1 °C',
+      es: 'sensor de temperatura pin (A) %1 °C'
+    },
+
     // --------------------------------------------------------- Islemler
     {
       // mBlock'ta ve Scratch'te bu blok bir ALTIGEN ve icine baska bir
@@ -201,11 +240,24 @@
       tr: '%1 < %2', en: '%1 < %2', de: '%1 < %2', es: '%1 < %2'
     },
 
+    {
+      id: 'dev_buyuktur', kategori: 'islemler', sekil: 'altigen',
+      yuvalar: [yuva('A', 'sayi', 0), yuva('B', 'sayi', 50)],
+      tr: '%1 > %2', en: '%1 > %2', de: '%1 > %2', es: '%1 > %2'
+    },
+    {
+      // Kontrol'deki "... olana kadar bekle": butona basilana kadar dur.
+      id: 'dev_bekle_kadar', kategori: 'kontrol', sekil: 'duz',
+      yuvalar: [yuva('KOSUL', 'kosul')],
+      tr: '%1 olana kadar bekle', en: 'wait until %1',
+      de: 'warte bis %1', es: 'esperar hasta que %1'
+    },
+
     // ------------------------------------------------------ Degiskenler
     {
       id: 'dev_degisken_yap', kategori: 'degisken', sekil: 'duz',
       yuvalar: [
-        yuva('AD', 'secim', 'parlaklik', [['parlaklik', 'parlaklik']]),
+        yuva('AD', 'secim', 'parlaklik', DEGISKENLER),
         yuva('DEGER', 'sayi', 0)
       ],
       tr: '%1 değişkenini %2 yap', en: 'set %1 to %2',
@@ -216,6 +268,17 @@
       id: 'dev_degisken_oku', kategori: 'degisken', sekil: 'oval',
       yuvalar: [],
       tr: 'parlaklik', en: 'brightness', de: 'helligkeit', es: 'brillo'
+    },
+    {
+      // Scratch'teki gibi her degiskenin kendi ovali var.
+      id: 'dev_sayac_oku', kategori: 'degisken', sekil: 'oval',
+      yuvalar: [],
+      tr: 'sayaç', en: 'counter', de: 'zähler', es: 'contador'
+    },
+    {
+      id: 'dev_aci_oku', kategori: 'degisken', sekil: 'oval',
+      yuvalar: [],
+      tr: 'açı', en: 'angle', de: 'winkel', es: 'ángulo'
     },
 
     // ------------------------------------------- Kukla tarafi (modül 0)
@@ -346,12 +409,7 @@
       // kullaniyoruz.
       id: 'dev_degisken_degistir', kategori: 'degisken', sekil: 'duz',
       yuvalar: [
-        yuva('AD', 'secim', 'toplananelma', {
-          tr: [['toplananelma', 'toplananelma']],
-          en: [['score', 'toplananelma']],
-          de: [['punkte', 'toplananelma']],
-          es: [['puntos', 'toplananelma']]
-        }),
+        yuva('AD', 'secim', 'toplananelma', DEGISKENLER),
         yuva('DEGER', 'sayi', 1)
       ],
       tr: '%1 i %2 kadar değiştir', en: 'change %1 by %2',

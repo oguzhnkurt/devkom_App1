@@ -15,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
 import 'package:devkom_app/courses/data/arduino_lessons_data.dart';
+import 'package:devkom_app/courses/data/arduino_robotik_lessons_data.dart';
 import 'package:devkom_app/courses/data/csharp_lessons_data.dart';
 import 'package:devkom_app/courses/data/css_lessons_data.dart';
 import 'package:devkom_app/courses/data/html_lessons_data.dart';
@@ -24,12 +25,8 @@ import 'package:devkom_app/courses/data/scratch_lessons_data.dart';
 import 'package:devkom_app/courses/data/mblock_lessons_data.dart';
 
 List<InteractiveLesson> get _allLessons => [
-      ...ArduinoLessonsData.module1,
-      ...ArduinoLessonsData.module2,
-      ...ArduinoLessonsData.module3,
-      ...ArduinoLessonsData.module4,
-      ...ArduinoLessonsData.module5,
-      ...ArduinoLessonsData.module6,
+      ...ArduinoRobotikDersleri.allLessons,
+  ...ArduinoLessonsData.module6,
       ...CSharpLessonsData.module1,
       ...CSharpLessonsData.module2,
       ...CSharpLessonsData.module3,

@@ -193,6 +193,10 @@ const _izinli = <String>{
   'turu',
   // Ünsüz yumuşaması: sonuç→sonucu, direnç→direnci. Doğru yazım bunlar.
   'sonucu', 'sonucunu', 'sonuca', 'sonucuyla', 'direnci',
+  // mBlock değişkeninin ADI (değer kimliği): dersteki projede değişken
+  // "parlaklik" diye açılıyor; "parlaklık" kelimesi ders metninde ayrıca
+  // doğru yazılıyor.
+  'parlaklik',
   // Ders metnine gömülü kod örneklerinin tanıtıcı adları. Türkçe harf
   // konursa dersteki kod derlenmez / eşleşmez:
   //   C#: `class Esya { public int deger; }`

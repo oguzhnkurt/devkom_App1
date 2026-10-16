@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../devre/devre_modeli.dart';
+
 import '../yurutme/atolye_hedefleri.dart';
 import '../yurutme/blok_yorumlayici.dart';
 import '../yurutme/mblock_cozum.dart';
@@ -160,6 +162,9 @@ enum StepType {
   /// Proje Atolyesi: acik palet, birden fazla betik, sonuca bakan
   /// hedefler ([ProjeAtolyesiStep]).
   atolye,
+
+  /// Arduino: breadboard'da devre kurma ([DevreKurmaStep]).
+  devre,
 }
 
 // ==========================================
@@ -1213,4 +1218,54 @@ enum BadgeCategory {
   skill,       // Skill mastery
   social,      // Community
   special,     // Events/seasonal
+}
+
+// ==========================================
+// DEVRE KURMA (Arduino)
+// ==========================================
+
+/// Arduino kursunda REHBERLI DEVRE KURMA adimi.
+///
+/// Parcalar breadboard'da hazir; cocuk [hedefler]deki kablolari dokun-
+/// dokun takiyor (sirasi serbest, ayni seritteki herhangi bir delik
+/// olur). Hedefe uymayan kablo kabul edilmiyor ve nedeni yaziliyor.
+/// Uc yanlistan sonra "Benim yerime tak" yardimi cikiyor; yardim
+/// kullanilirsa adim XP'siz tamamlaniyor.
+class DevreKurmaStep extends LessonStep {
+  final String talimat;
+  final String? talimatEn;
+  final String? talimatDe;
+  final String? talimatEs;
+
+  /// Breadboard'da hazir duran parcalar.
+  final List<Parca> parcalar;
+
+  /// Bastan takili kablolar (onceki derslerden kalan).
+  final List<Kablo> hazirKablolar;
+
+  /// Takilacak baglantilar.
+  final List<HedefBaglanti> hedefler;
+
+  const DevreKurmaStep({
+    required super.id,
+    required this.talimat,
+    this.talimatEn,
+    this.talimatDe,
+    this.talimatEs,
+    required this.parcalar,
+    this.hazirKablolar = const [],
+    required this.hedefler,
+    super.xpReward = 20,
+  }) : super(type: StepType.devre);
+
+  String talimatFor(String lang) =>
+      pickLang(talimat, talimatEn, lang, talimatDe, talimatEs);
+
+  Devre get baslangic => Devre(parcalar: parcalar, kablolar: hazirKablolar);
+
+  /// Hedeflerin hepsi takili devre.
+  Devre get tamami => Devre(parcalar: parcalar, kablolar: [
+        ...hazirKablolar,
+        for (final h in hedefler) Kablo(h.a, h.b),
+      ]);
 }

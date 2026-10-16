@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../models/course_model.dart';
 import '../models/interactive_lesson_model.dart';
 import '../../providers/auth_provider.dart';
+import 'widgets/devre_kurma_adimi.dart';
 import 'widgets/ders_arkadasi.dart';
 import 'widgets/ders_ilerleme_cubugu.dart';
 import 'widgets/devi_tepkisi.dart';
@@ -876,6 +877,17 @@ class _InteractiveLessonScreenState extends State<InteractiveLessonScreen>
           onComplete: (tamam) =>
               _onStepCompleted(step.id, xpEarned: tamam ? step.xpReward : 0),
           onDevam: _nextStep,
+        );
+
+      case StepType.devre:
+        return DevreKurmaAdimi(
+          step: step as DevreKurmaStep,
+          course: widget.course,
+          isDark: isDark,
+          // Yardimsiz kurulursa XP; "Benim yerime tak" kullanildiysa
+          // ilerler ama XP yok.
+          onComplete: (kendisi) =>
+              _onStepCompleted(step.id, xpEarned: kendisi ? step.xpReward : 0),
         );
 
       case StepType.animation:

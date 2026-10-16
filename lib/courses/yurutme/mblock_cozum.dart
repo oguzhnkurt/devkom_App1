@@ -10,6 +10,8 @@ library;
 
 import 'dart:convert';
 
+import '../devre/devre_modeli.dart' show Devre;
+
 /// Cocugun tezgahta kurdugu tek bir blok.
 class MBlockBlok {
   const MBlockBlok({
@@ -86,6 +88,26 @@ class MBlockBlok {
     }
   }
 
+  Map<String, dynamic> toJson() => {
+        'tip': tip,
+        if (alanlar.isNotEmpty) 'alanlar': alanlar,
+        if (icerik.isNotEmpty) 'icerik': [for (final b in icerik) b.toJson()],
+        if (girdiler.isNotEmpty)
+          'girdiler': {for (final e in girdiler.entries) e.key: e.value.toJson()},
+      };
+
+  /// Yiginlari saklamak icin metne cevirir ([yiginlarCoz] geri okur).
+  static String yiginlarKodla(List<List<MBlockBlok>> y) => jsonEncode({
+        'tur': 'durum',
+        'veri': {
+          'yiginlar': [
+            for (final yigin in y) [for (final b in yigin) b.toJson()]
+          ],
+        },
+      });
+
+  static List<List<MBlockBlok>> yiginlarCoz(String s) => mesajdanYiginlar(s);
+
   @override
   String toString() =>
       '$tip${alanlar.isEmpty ? '' : alanlar}${icerik.isEmpty ? '' : icerik}';
@@ -135,7 +157,13 @@ class MBlockTezgahAyari {
     this.baslangicXml,
     this.baslangic,
     this.hataAvcisi = false,
+    this.devre,
   });
+
+  /// ARDUINO KURSU: kartin bagli oldugu devre. Verilirse sahnede bu
+  /// devre (Uno + breadboard) cizilir ve girisler oradan okunur;
+  /// verilmezse mBlock kursundaki gibi parcalar programdan cikarilir.
+  final Devre? devre;
 
   /// Arac kutusunda gosterilecek katalog kimlikleri.
   ///
@@ -180,6 +208,9 @@ const Map<String, Set<String>> _secimYuvalari = {
   'dev_servo': {'PIN'},
   'dev_degisken_yap': {'AD'},
   'dev_dokunuyor': {'NESNE'},
+  'dev_ton': {'PIN'},
+  'dev_sicaklik': {'PIN'},
+  'dev_degisken_degistir': {'AD'},
 };
 
 /// Metin golgesi olan yuvalar (digerleri sayi).
@@ -490,6 +521,9 @@ const Map<String, Map<String, String>> mblockVarsayilanAlanlar = {
   'dev_dokunuyor': {'NESNE': 'Kase'},
   'dev_renge_dokunuyor': {'RENK': '#663b00'},
   'dev_degisken_degistir': {'AD': 'toplananelma', 'DEGER': '1'},
+  'dev_ton': {'PIN': '8', 'FREKANS': '262', 'SANIYE': '0.5'},
+  'dev_sicaklik': {'PIN': '0'},
+  'dev_buyuktur': {'A': '0', 'B': '50'},
 };
 
 /// Cozumun kendisi, calistirilabilir bir program olarak (cozumu goster,

@@ -7,6 +7,10 @@ import '../../theme.dart';
 import '../../utils/lang.dart';
 import '../../widgets/block_animation_player.dart';
 import '../../widgets/mascot.dart';
+import '../devre/devre_duzenleyici.dart';
+import '../devre/devre_modeli.dart' show Devre;
+import '../devre/devre_paneli.dart';
+import '../devre/devre_simulasyonu.dart';
 import '../models/interactive_lesson_model.dart' show ScratchBlock;
 import '../yurutme/blok_yorumlayici.dart';
 import '../yurutme/mblock_blok_adlari.dart';
@@ -40,7 +44,13 @@ class MBlockSahnesi extends StatefulWidget {
     this.onCalisma,
     this.kuklaYuksekligi = 230,
     this.serbest = false,
+    this.devre,
   });
+
+  /// ARDUINO KURSU: kartin bagli oldugu devre (Uno + breadboard). Verilirse
+  /// kart sahnesinde bu devre cizilir, buton/potansiyometre/sensorler
+  /// breadboard'dan okunur.
+  final Devre? devre;
 
   /// Serbest atolye: kukla programi Scratch olcusundeki canli sahnede
   /// ([ProjeSahnesi] + [ProjeMotoru]) calisiyor; calismiyorken Devi
@@ -76,6 +86,19 @@ class MBlockSahnesi extends StatefulWidget {
 class MBlockSahnesiState extends State<MBlockSahnesi> {
   /// Sanal kart (kart turunde). Testler okuyabilsin diye acik.
   final UnoKarti unoKarti = UnoKarti();
+
+  /// Devreli sahnenin simulasyonu ([MBlockSahnesi.devre] verilince).
+  DevreSimulasyonu? _sim;
+
+  @visibleForTesting
+  DevreSimulasyonu? get simulasyon => _sim;
+
+  @override
+  void initState() {
+    super.initState();
+    final d = widget.devre;
+    if (d != null) _sim = DevreSimulasyonu(kart: unoKarti, devre: d);
+  }
 
   UnoYorumlayici? _uno;
   UnoBitis? _unoBitis;
@@ -127,6 +150,7 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
   void dispose() {
     _uno?.durdur();
     _blokYazisi?.cancel();
+    _sim?.dispose();
     unoKarti.dispose();
     super.dispose();
   }
@@ -188,6 +212,7 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
     final bitis = await y.calistir(p);
     if (!mounted || !identical(_uno, y)) return;
     _blokYazisi?.cancel();
+    _sim?.sustur();
     setState(() {
       _durumDegisti(false);
       _unoBitis = bitis;
@@ -251,7 +276,50 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
   // Kart
   // ------------------------------------------------------------------
 
+  /// Devreli kart sahnesi: Uno + breadboard (yakinlastirilabilir),
+  /// giris kontrolleri ve seri port.
+  Widget _devreSahnesi(DevreSimulasyonu sim) {
+    final program = _calisan.isNotEmpty ? _calisan : widget.program;
+    bool seri(MBlockBlok b) =>
+        b.tip == 'dev_seri_yaz' || b.icerik.any(seri) || b.girdiler.values.any(seri);
+    final kisa = MediaQuery.sizeOf(context).height < 700;
+    return Container(
+      key: const ValueKey('mblock_kart_sahnesi'),
+      decoration: _kartSusu(),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _baslik(_t('Arduino Uno', 'Arduino Uno', 'Arduino Uno', 'Arduino Uno')),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+            child: DevreDuzenleyici(
+              sim: sim,
+              lang: widget.lang,
+              kip: DevreKipi.izle,
+              kilitli: _calisiyor,
+              yukseklik: kisa ? 210 : 250,
+              renk: widget.renk,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
+            child: DevreGirdiPaneli(
+              sim: sim,
+              lang: widget.lang,
+              seriGoster: program.any((y) => y.any(seri)),
+            ),
+          ),
+          _durumSeridi(),
+        ],
+      ),
+    );
+  }
+
   Widget _kartSahnesi() {
+    final sim = _sim;
+    if (sim != null) return _devreSahnesi(sim);
     final parcalar = UnoYorumlayici.parcalar(
         _calisan.isNotEmpty ? _calisan : widget.program);
     final gorunen = parcalar.parcaSayisi == 0 && !parcalar.pot &&

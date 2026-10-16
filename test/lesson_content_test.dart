@@ -19,6 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
 import 'package:devkom_app/courses/data/arduino_lessons_data.dart';
+import 'package:devkom_app/courses/data/arduino_robotik_lessons_data.dart';
 import 'package:devkom_app/courses/data/csharp_lessons_data.dart';
 import 'package:devkom_app/courses/data/css_lessons_data.dart';
 import 'package:devkom_app/courses/data/html_lessons_data.dart';
@@ -29,14 +30,8 @@ import 'package:devkom_app/courses/data/mblock_lessons_data.dart';
 
 /// Kurs -> dersler (modul sirasiyla).
 final Map<String, List<InteractiveLesson>> courses = {
-  'arduino': [
-    ...ArduinoLessonsData.module1,
-    ...ArduinoLessonsData.module2,
-    ...ArduinoLessonsData.module3,
-    ...ArduinoLessonsData.module4,
-    ...ArduinoLessonsData.module5,
-    ...ArduinoLessonsData.module6,
-  ],
+  'arduino': ArduinoRobotikDersleri.allLessons,
+  'arduino_ide': ArduinoLessonsData.module6,
   'csharp': [
     ...CSharpLessonsData.module1,
     ...CSharpLessonsData.module2,
@@ -99,6 +94,7 @@ const Set<StepType> supportedStepTypes = {
   StepType.typeTheCode,
   StepType.spotTheError,
   StepType.atolye,
+  StepType.devre,
 };
 
 /// Cevap anahtarini ele veren emojiler.

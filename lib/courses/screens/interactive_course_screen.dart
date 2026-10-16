@@ -14,6 +14,7 @@ import 'interactive_lesson_screen.dart';
 import '../tanitim/kurs_acilis_ekrani.dart';
 import '../tanitim/kurs_kapanis_ekrani.dart';
 import '../tanitim/kurs_tanitimi.dart';
+import 'arduino_atolye_ekrani.dart';
 import 'mblock_atolye_ekrani.dart';
 import 'module_quiz_screen.dart';
 import 'projelerim_ekrani.dart';
@@ -650,7 +651,8 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
   }
 
   /// Scratch: "Projelerim" (kayitli atolye projeleri). mBlock: serbest
-  /// atolye (butun bloklar, sanal Uno ve sahne).
+  /// atolye (butun bloklar, sanal Uno ve sahne). Arduino: devre + kod
+  /// atolyesi (serbest ya da rehberli proje).
   Widget? _atolyeKarti() {
     final lang = lessonLang(context);
     switch (widget.course.id) {
@@ -689,6 +691,25 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
             context,
             MaterialPageRoute(
                 builder: (_) => MBlockAtolyeEkrani(course: widget.course)),
+          ),
+        );
+      case 'arduino':
+        return KursAtolyeKarti(
+          key: const ValueKey('arduino_atolye_karti'),
+          course: widget.course,
+          ikon: Icons.developer_board_rounded,
+          baslik: lessonText(lang, 'Arduino Atölyesi', 'Arduino Workshop',
+              'Arduino-Werkstatt', 'Taller de Arduino'),
+          altBaslik: lessonText(
+              lang,
+              'Uno ve breadboard: parçaları koy, kabloları tak, kodla',
+              'Uno and breadboard: place parts, plug in wires, code it',
+              'Uno und Steckbrett: Bauteile setzen, Kabel stecken, programmieren',
+              'Uno y placa de pruebas: coloca piezas, conecta cables, programa'),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => ArduinoAtolyeEkrani(course: widget.course)),
           ),
         );
     }

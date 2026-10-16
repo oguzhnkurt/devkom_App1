@@ -257,6 +257,7 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
           child: MBlockSahnesi(
             key: _sahne,
             kart: _kart,
+            devre: widget.ayar.devre,
             program: _yiginlar,
             lang: lang,
             renk: widget.course.primaryColor,
@@ -723,6 +724,7 @@ class MBlockBlokAdimiState extends State<MBlockBlokAdimi> {
             child: MBlockSahnesi(
               key: _sahne,
               kart: _kart,
+              devre: widget.ayar.devre,
               program: [mblockCozumProgrami(widget.ayar.cozum, lang)],
               lang: lang,
               renk: widget.course.primaryColor,

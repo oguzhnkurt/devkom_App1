@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../devre/devre_modeli.dart' show analogdanSicaklik;
 import 'mblock_cozum.dart';
 
 /// SANAL ARDUINO UNO — kartin o anki hali.
@@ -35,8 +36,26 @@ class UnoKarti extends ChangeNotifier {
   final List<String> seri = [];
   static const int seriSinir = 30;
 
+  /// Ton calan pinler (Hz); bitince pin listeden cikiyor.
+  final Map<int, int> ton = {};
+
   /// Programin degiskenleri (`parlaklik`).
   final Map<String, num> degiskenler = {};
+
+  /// DEVRE GIRISLERI. Arduino kursunda kart gercek bir devreye bagli
+  /// (`devre_modeli.dart`): buton, potansiyometre, LDR, sensorler
+  /// kartin kendisinde degil, breadboard'da. Verilirse okumalar buradan
+  /// geliyor; verilmezse eski davranis (pin 2 buton, A0 surgu).
+  bool Function(int pin)? dijitalGiris;
+  int Function(int pin)? analogGiris;
+  int Function(int trig, int echo)? mesafeGiris;
+
+  /// Program bu pine yazdi mi (cikis pini).
+  bool cikisPini(int pin) =>
+      dijital.containsKey(pin) ||
+      pwm.containsKey(pin) ||
+      servo.containsKey(pin) ||
+      ton.containsKey(pin);
 
   bool _buton = false;
   int _pot = 512;
@@ -98,6 +117,17 @@ class UnoKarti extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Pine [hz] frekansinda ton; 0 susturur.
+  void tonYaz(int pin, int hz) {
+    if (hz <= 0) {
+      if (ton.remove(pin) != null) notifyListeners();
+      return;
+    }
+    if (ton[pin] == hz) return;
+    ton[pin] = hz;
+    notifyListeners();
+  }
+
   void seriYaz(String satir) {
     seri.add(satir);
     while (seri.length > seriSinir) {
@@ -107,11 +137,26 @@ class UnoKarti extends ChangeNotifier {
   }
 
   /// Bir pin okunuyor: buton pini butondan, digerleri cikisin kendisinden.
-  bool dijitalOku(int pin) =>
-      pin == butonPini ? _buton : (dijital[pin] ?? false);
+  bool dijitalOku(int pin) {
+    if (cikisPini(pin)) return dijital[pin] ?? (pwm[pin] ?? 0) > 127;
+    final g = dijitalGiris;
+    if (g != null) return g(pin);
+    return pin == butonPini ? _buton : false;
+  }
 
   /// Analog okuma: A0 potansiyometre; bos pinler 0.
-  int analogOku(int pin) => pin == 0 ? _pot : 0;
+  int analogOku(int pin) {
+    final g = analogGiris;
+    if (g != null) return g(pin);
+    return pin == 0 ? _pot : 0;
+  }
+
+  /// Mesafe sensoru okumasi (cm). Devrede dogru bagli sensor yoksa 0.
+  int mesafeOku(int trig, int echo) {
+    final g = mesafeGiris;
+    if (g != null) return g(trig, echo);
+    return _mesafe;
+  }
 
   /// Program yeniden baslarken cikislar sifirlaniyor; girisler (cocugun
   /// ayarladigi pot, mesafe) yerinde kaliyor.
@@ -119,6 +164,7 @@ class UnoKarti extends ChangeNotifier {
     dijital.clear();
     pwm.clear();
     servo.clear();
+    ton.clear();
     seri.clear();
     degiskenler.clear();
     notifyListeners();
@@ -268,6 +314,23 @@ class UnoYorumlayici {
     switch (b.tip) {
       case 'dev_dijital_yaz':
         kart.dijitalYaz(_tam(b, 'PIN', 13), b.alanlar['SEVIYE'] != 'LOW');
+      case 'dev_ton':
+        final pin = _tam(b, 'PIN', 8);
+        kart.tonYaz(pin, _sayi(b, 'FREKANS').round());
+        final sn = _sayi(b, 'SANIYE').toDouble();
+        final d = Duration(microseconds: (sn * 1e6).round());
+        try {
+          await _uyu(_olcekli(d > enUzunBekleme ? enUzunBekleme : d));
+        } finally {
+          kart.tonYaz(pin, 0);
+        }
+        if (_durdu) throw const _Dur(false);
+      case 'dev_bekle_kadar':
+        // Beklerken butce harcanmiyor: cocuk butona ne zaman basarsa.
+        while (!_kosul(b.girdiler['KOSUL'])) {
+          await _uyu(_olcekli(enAzTur));
+          if (_durdu) throw const _Dur(false);
+        }
       case 'dev_pwm_yaz':
         kart.pwmYaz(_tam(b, 'PIN', 5), _sayi(b, 'GUC').round());
       case 'dev_servo':
@@ -329,9 +392,15 @@ class UnoYorumlayici {
       case 'dev_analog_oku':
         return kart.analogOku(_tam(b, 'PIN', 0));
       case 'dev_mesafe':
-        return kart.mesafe;
+        return kart.mesafeOku(_tam(b, 'TRIG', 13), _tam(b, 'ECHO', 12));
+      case 'dev_sicaklik':
+        return analogdanSicaklik(kart.analogOku(_tam(b, 'PIN', 0))).round();
       case 'dev_degisken_oku':
         return kart.degiskenler['parlaklik'] ?? 0;
+      case 'dev_sayac_oku':
+        return kart.degiskenler['sayac'] ?? 0;
+      case 'dev_aci_oku':
+        return kart.degiskenler['aci'] ?? 0;
       case 'dev_dijital_oku':
         return kart.dijitalOku(_tam(b, 'PIN', 2)) ? 1 : 0;
       case 'dev_harita':
@@ -352,6 +421,8 @@ class UnoYorumlayici {
         return !_kosul(b.girdiler['KOSUL']);
       case 'dev_kucuktur':
         return _sayi(b, 'A') < _sayi(b, 'B');
+      case 'dev_buyuktur':
+        return _sayi(b, 'A') > _sayi(b, 'B');
       default:
         return false;
     }
@@ -380,6 +451,7 @@ class UnoYorumlayici {
         case 'dev_dijital_oku':
           if (b.alanlar['PIN'] == '${UnoKarti.butonPini}') buton = true;
         case 'dev_analog_oku':
+        case 'dev_sicaklik':
           pot = true;
         case 'dev_mesafe':
           mesafe = true;
@@ -405,7 +477,9 @@ class UnoYorumlayici {
   }
 
   static bool _pinVar(MBlockBlok b, int pin) =>
-      (b.tip == 'dev_dijital_yaz' && b.alanlar['PIN'] == '$pin') ||
+      ((b.tip == 'dev_dijital_yaz' || b.tip == 'dev_ton') &&
+          (b.alanlar['PIN'] ?? mblockVarsayilanAlanlar[b.tip]?['PIN']) ==
+              '$pin') ||
       b.icerik.any((x) => _pinVar(x, pin));
 }
 

@@ -24,7 +24,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:devkom_app/courses/data/mblock_palette.dart';
 import 'package:devkom_app/courses/data/mblock_lessons_data.dart';
-import 'package:devkom_app/courses/data/arduino_lessons_data.dart';
+import 'package:devkom_app/courses/data/arduino_robotik_lessons_data.dart';
 import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
 
 /// mBlock'un Arduino Uno paletindeki gerçek kategori renkleri.
@@ -82,11 +82,7 @@ void main() {
   group('Blok yazıları', () {
     final all = [
       ...blocksOf(MBlockLessonsData.allLessons),
-      ...blocksOf(ArduinoLessonsData.module1),
-      ...blocksOf(ArduinoLessonsData.module2),
-      ...blocksOf(ArduinoLessonsData.module3),
-      ...blocksOf(ArduinoLessonsData.module4),
-      ...blocksOf(ArduinoLessonsData.module5),
+      ...blocksOf(ArduinoRobotikDersleri.allLessons),
     ];
 
     test('uydurulmuş blok yazısı kalmadı', () {
@@ -161,15 +157,7 @@ void main() {
       }
 
       dersleriTara(MBlockLessonsData.allLessons);
-      for (final m in [
-        ArduinoLessonsData.module1,
-        ArduinoLessonsData.module2,
-        ArduinoLessonsData.module3,
-        ArduinoLessonsData.module4,
-        ArduinoLessonsData.module5,
-      ]) {
-        dersleriTara(m);
-      }
+      dersleriTara(ArduinoRobotikDersleri.allLessons);
 
       expect(hatali, isEmpty,
           reason: 'Kartla çalışan derste yeşil bayrak var:\n'
@@ -247,6 +235,7 @@ void main() {
     final sources = [
       'lib/courses/data/arduino_lessons_data.dart',
       'lib/courses/data/mblock_lessons_data.dart',
+      for (var n = 1; n <= 6; n++) 'lib/courses/data/arduino/modul$n.dart',
     ];
 
     test('anlatım metinlerinde uydurma blok adı yok', () {

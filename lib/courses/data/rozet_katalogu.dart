@@ -116,6 +116,8 @@ class RozetKatalogu {
         tr: 'Ultrasonik Ustası', en: 'Ultrasonic Master', de: 'Ultraschall-Meister', es: 'Maestro de los Ultrasonidos'),
     'servo_master': Rozet('⚙️',
         tr: 'Servo Ustası', en: 'Servo Master', de: 'Servo-Meister', es: 'Maestro del Servo'),
+    'robotics_engineer': Rozet('🦾',
+        tr: 'Robotik Mühendisi', en: 'Robotics Engineer', de: 'Robotik-Ingenieur', es: 'Ingeniero de Robótica'),
     'arduino_coder': Rozet('⌨️',
         tr: 'Kod Yazarı', en: 'Code Writer', de: 'Code-Schreiber', es: 'Escritor de Código'),
     'debug_master': Rozet('🐞',

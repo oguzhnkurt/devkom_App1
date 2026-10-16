@@ -22,6 +22,13 @@ const bitmisDosyalar = [
   'lib/courses/data/java_lessons_data.dart',
   'lib/courses/data/csharp_lessons_data.dart',
   'lib/courses/data/arduino_lessons_data.dart',
+  'lib/courses/data/arduino/modul1.dart',
+  'lib/courses/data/arduino/modul2.dart',
+  'lib/courses/data/arduino/modul3.dart',
+  'lib/courses/data/arduino/modul4.dart',
+  'lib/courses/data/arduino/modul5.dart',
+  'lib/courses/data/arduino/modul6.dart',
+  'lib/courses/devre/arduino_projeleri.dart',
   'lib/courses/data/course_modules.dart',
 ];
 

@@ -70,6 +70,34 @@ final Map<String, List<(String, String)>> _analogPinler = {
   '*': _pinler(List.generate(6, (i) => i)),
 };
 
+/// Iki degisken blogunun (yap / degistir) ortak listesi.
+const Map<String, List<(String, String)>> _degiskenler = {
+  'tr': [
+    ('parlaklik', 'parlaklik'),
+    ('sayaç', 'sayac'),
+    ('açı', 'aci'),
+    ('toplananelma', 'toplananelma'),
+  ],
+  'en': [
+    ('brightness', 'parlaklik'),
+    ('counter', 'sayac'),
+    ('angle', 'aci'),
+    ('score', 'toplananelma'),
+  ],
+  'de': [
+    ('helligkeit', 'parlaklik'),
+    ('zähler', 'sayac'),
+    ('winkel', 'aci'),
+    ('punkte', 'toplananelma'),
+  ],
+  'es': [
+    ('brillo', 'parlaklik'),
+    ('contador', 'sayac'),
+    ('ángulo', 'aci'),
+    ('puntos', 'toplananelma'),
+  ],
+};
+
 /// Katalog kimligi -> yuvalar (`%1`, `%2` sirasiyla; bkz.
 /// `mblockBlokTanimlari[tip].yuvalar`).
 final Map<String, List<MBlockYuva>> mblockYuvalari = {
@@ -120,11 +148,24 @@ final Map<String, List<MBlockYuva>> mblockYuvalari = {
     MBlockYuva('B', MBlockYuvaTuru.sayi),
   ],
   'dev_degisken_yap': const [
-    MBlockYuva('AD', MBlockYuvaTuru.secim, secenekler: {
-      '*': [('parlaklik', 'parlaklik')],
-    }),
+    MBlockYuva('AD', MBlockYuvaTuru.secim, secenekler: _degiskenler),
     MBlockYuva('DEGER', MBlockYuvaTuru.sayi),
   ],
+  'dev_ton': [
+    MBlockYuva('PIN', MBlockYuvaTuru.secim, secenekler: _okumaPinleri),
+    const MBlockYuva('FREKANS', MBlockYuvaTuru.tamsayi),
+    const MBlockYuva('SANIYE', MBlockYuvaTuru.pozitif),
+  ],
+  'dev_sicaklik': [
+    MBlockYuva('PIN', MBlockYuvaTuru.secim, secenekler: _analogPinler),
+  ],
+  'dev_buyuktur': const [
+    MBlockYuva('A', MBlockYuvaTuru.sayi),
+    MBlockYuva('B', MBlockYuvaTuru.sayi),
+  ],
+  'dev_bekle_kadar': const [MBlockYuva('KOSUL', MBlockYuvaTuru.kosul)],
+  'dev_sayac_oku': const [],
+  'dev_aci_oku': const [],
   'dev_degisken_oku': const [],
   'dev_git': const [MBlockYuva('ADIM', MBlockYuvaTuru.sayi)],
   'dev_don': const [MBlockYuva('ACI', MBlockYuvaTuru.sayi)],
@@ -152,12 +193,7 @@ final Map<String, List<MBlockYuva>> mblockYuvalari = {
   'dev_goster': const [],
   'dev_gizle': const [],
   'dev_degisken_degistir': const [
-    MBlockYuva('AD', MBlockYuvaTuru.secim, secenekler: {
-      'tr': [('toplananelma', 'toplananelma')],
-      'en': [('score', 'toplananelma')],
-      'de': [('punkte', 'toplananelma')],
-      'es': [('puntos', 'toplananelma')],
-    }),
+    MBlockYuva('AD', MBlockYuvaTuru.secim, secenekler: _degiskenler),
     MBlockYuva('DEGER', MBlockYuvaTuru.sayi),
   ],
 };

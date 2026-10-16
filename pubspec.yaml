@@ -141,6 +141,7 @@ flutter:
     - assets/images/ui/
     - assets/videos/
     - assets/sounds/
+    - assets/sounds/ton/
     - assets/html/
     # MASKOT — buradan silinmesin.
     # 1.0.8 (build 13) bu satir olmadan derlendi ve YUKLENDI: Devi'nin
