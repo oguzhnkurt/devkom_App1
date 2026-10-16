@@ -24,15 +24,12 @@ void main() {
   test('etkinlik alani ana sayfada ve YENI KULLANICIYA da gorunuyor', () {
     final src = _read(home);
 
-    // Donen kullanici: dersin altinda etkinlik karti.
-    expect(src.contains('child: _buildActivityCard(isDark)'), isTrue,
-        reason: 'ana sayfada etkinlik kartı yok');
-
-    // Ilk acilis (Ekim 2026): etkinlik alani "Kesfet" kartlarindan biri.
-    final dal = src.indexOf('if (isNewUser && next != null) ...[');
-    expect(dal, greaterThan(-1), reason: 'ilk açılış dalı yok');
-    expect(src.indexOf('_buildKesfet(next, isDark)', dal), greaterThan(dal),
-        reason: 'ilk açılışta "Keşfet" kartları yok');
+    // Tek ana sayfa (Ekim 2026): etkinlik alani herkes icin "Kesfet"
+    // kartlarindan biri; sandik + Kesfet + bilmece her zaman gorunuyor.
+    expect(src.contains('_buildKesfet(next, isDark)'), isTrue,
+        reason: 'ana sayfada "Keşfet" kartları yok');
+    expect(src.contains('if (isNewUser && next != null) ...['), isFalse,
+        reason: 'ilk açılıştan sonra ana sayfa yine değişiyor');
     final govde = src.substring(src.indexOf('Widget _buildKesfet('),
         src.indexOf('Widget _kesfetKarti('));
     expect(govde.contains('ActivityHubScreen()'), isTrue,

@@ -174,7 +174,6 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
     // kart yolun ilk kursuna degil Scratch'in siradaki dersine goturuyor.
     final next = NextLessonService.resolve(profile, completedIds,
         oncelikliKurs: authProvider.sonKurs);
-    final nodes = NextLessonService.strip(profile, completedIds);
 
     // "Yeni kullanici" = hic ders bitirmemis. Giris yapmis olmasi onemli
     // degil; sifirlarla dolu bir pano her iki durumda da moral bozuyor.
@@ -221,60 +220,39 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                 // daha anlatan bir liste. Hepsi ayni agirlikta oldugu icin
                 // cocuk neye basacagini bilmiyordu (Ekim 2026 geri
                 // bildirimi). Simdi her seyin bir sirasi var.
-                if (isNewUser && next != null) ...[
-                  _FadeInUp(child: _buildIlkGorev(next, isDark)),
-                  const SizedBox(height: 24),
-                  // Surpriz sandik: "bugun ne oynasam?" (Ekim 2026,
-                  // "Ogrenecegin kurslar" seridinin yerine).
-                  _FadeInUp(
-                    delay: 60,
-                    // Sandik reklamli Pro oyunlari da cikarabiliyor;
-                    // `oyunuAc` onlari Oyunlar ekranindaki ayni Pro/reklam
-                    // kapisindan geciriyor.
-                    child: SurprizSandik(
-                      lang: _lang,
-                      pro: ProGate.watchIsPro(context),
-                      onOyna: (g) => oyunuAc(context, g, lang: _lang),
-                    ),
+                // TEK ANA SAYFA (Ekim 2026, kullanici karari): ilk acilista
+                // da, ders bitirdikten sonra da ayni ekran -- ders karti,
+                // surpriz oyun sandigi, Kesfet kartlari ve Devi'nin
+                // bilmecesi. Eskiden ilk dersten sonra "Genel bakis"
+                // panosuna (XP/jeton/seri izgarasi, gunun gorevi, yol
+                // seridi...) geciliyordu; o pano istenmedi.
+                if (next == null)
+                  _FadeInUp(child: _buildPathFinished(isDark))
+                else if (isNewUser)
+                  _FadeInUp(child: _buildIlkGorev(next, isDark))
+                else
+                  _FadeInUp(child: _buildContinueCard(next, isDark)),
+                const SizedBox(height: 24),
+                // Surpriz sandik: "bugun ne oynasam?"
+                _FadeInUp(
+                  delay: 60,
+                  // Sandik reklamli Pro oyunlari da cikarabiliyor;
+                  // `oyunuAc` onlari Oyunlar ekranindaki ayni Pro/reklam
+                  // kapisindan geciriyor.
+                  child: SurprizSandik(
+                    lang: _lang,
+                    pro: ProGate.watchIsPro(context),
+                    onOyna: (g) => oyunuAc(context, g, lang: _lang),
                   ),
+                ),
+                if (next != null) ...[
                   const SizedBox(height: 24),
                   _FadeInUp(delay: 120, child: _buildKesfet(next, isDark)),
-                  const SizedBox(height: 24),
-                  // Devi'nin bilmecesi: her gun 3 soru (Scratch, mBlock,
-                  // Arduino/Tinkercad/donanim), ana sayfada cozulur.
-                  _FadeInUp(delay: 160, child: DeviBilmeceKarti(lang: _lang)),
-                ] else ...[
-                  if (!isNewUser) ...[
-                    _buildGenelBakis(userProgress, isDark),
-                    const SizedBox(height: 18),
-                    _buildGununGorevi(userProgress, isDark),
-                    const SizedBox(height: 18),
-                  ],
-                  if (next == null)
-                    _buildPathFinished(isDark)
-                  else
-                    _buildContinueCard(next, isDark),
-                  if (nodes.isNotEmpty) ...[
-                    const SizedBox(height: 18),
-                    _buildPathStrip(nodes, isDark),
-                  ],
-                  // ETKINLIK KARTI — ilk acilista "Baslarken" listesinin
-                  // ucuncu adimi; sonrasinda dersin hemen altinda.
-                  const SizedBox(height: 20),
-                  _FadeInUp(delay: 40, child: _buildActivityCard(isDark)),
-                  const SizedBox(height: 20),
-                  _buildSecondaryRow(isDark),
-                  if (next != null) ...[
-                    const SizedBox(height: 22),
-                    _FadeInUp(
-                        delay: 60, child: _buildLessonPreview(next, isDark)),
-                  ],
-                  // Ikincil bolum yalnizca ilk ders bitince aciliyor.
-                  if (!isNewUser) ...[
-                    const SizedBox(height: 28),
-                    _buildMoreSection(isDark, userProgress),
-                  ],
                 ],
+                const SizedBox(height: 24),
+                // Devi'nin bilmecesi: her gun 3 soru (Scratch, mBlock,
+                // Arduino/Tinkercad/donanim), ana sayfada cozulur.
+                _FadeInUp(delay: 160, child: DeviBilmeceKarti(lang: _lang)),
                 // SIRALAMA — ana sayfanin en altinda (Ekim 2026): genel XP
                 // ve satrancta cocugun kendi yeri; dokununca tablo aciliyor.
                 const SizedBox(height: 26),

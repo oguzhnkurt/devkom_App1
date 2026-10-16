@@ -62,15 +62,12 @@ void main() {
     expect(govde.contains('Colors.red'), isFalse);
   });
 
-  test('yeni çocuğa sıfırlarla dolu tablo gösterilmiyor', () {
+  test('ana sayfada sıfırlarla dolu özet tablosu yok (tek ana sayfa)', () {
     final bas = src.indexOf('Widget build(BuildContext context)');
     final govde = src.substring(bas, src.indexOf('// ------------------------------------------------------------------ baslik', bas));
-    final i = govde.indexOf('_buildGenelBakis(');
-    expect(i, greaterThan(0));
-    // Ozet ve gunun gorevi `!isNewUser` kosulunun icinde olmali.
-    final onceki = govde.substring(0, i);
-    expect(onceki.lastIndexOf('if (!isNewUser)'),
-        greaterThan(onceki.lastIndexOf('else')),
-        reason: 'Özet yeni çocuğa da çiziliyor');
+    expect(govde.contains('_buildGenelBakis('), isFalse,
+        reason: 'Genel bakış panosu ana sayfaya geri döndü');
+    expect(govde.contains('SurprizSandik('), isTrue);
+    expect(govde.contains('DeviBilmeceKarti('), isTrue);
   });
 }
