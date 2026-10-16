@@ -233,16 +233,23 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                 else
                   _FadeInUp(child: _buildContinueCard(next, isDark)),
                 const SizedBox(height: 24),
-                // Surpriz sandik: "bugun ne oynasam?"
+                // Gunluk sandik: her gun bir kez jeton odulu + gunun
+                // surpriz oyunu (bkz. GunlukSandikDeposu).
                 _FadeInUp(
                   delay: 60,
                   // Sandik reklamli Pro oyunlari da cikarabiliyor;
                   // `oyunuAc` onlari Oyunlar ekranindaki ayni Pro/reklam
-                  // kapisindan geciriyor.
+                  // kapisindan geciriyor. Sandigi acmak ucretsiz.
                   child: SurprizSandik(
                     lang: _lang,
                     pro: ProGate.watchIsPro(context),
                     onOyna: (g) => oyunuAc(context, g, lang: _lang),
+                    // Ekranda yazan miktar verilir (Pro bonusu yok):
+                    // odul gune bagli ve belli.
+                    onOdul: (n) => Provider.of<AuthProvider>(context,
+                            listen: false)
+                        .addJeton(n,
+                            source: 'gunluk_sandik', proBonusu: false),
                   ),
                 ),
                 if (next != null) ...[

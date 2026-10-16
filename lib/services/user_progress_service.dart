@@ -159,14 +159,21 @@ class UserProgressService extends ChangeNotifier {
   /// Pro üyeler her kazanımda %50 daha fazla jeton kazanır (users.is_pro),
   /// böylece Market'te karakter/kolye/şapka alışverişi için daha hızlı
   /// biriktirebilirler.
-  Future<void> addJeton(String userId, int amount, {String? source}) async {
-    if (amount <= 0) return;
+  ///
+  /// Donen deger: jeton sunucuya yazildi mi (gunluk sandik, yazilamazsa
+  /// odulu cihazda bekletip sonra yeniden deniyor).
+  ///
+  /// [proBonusu] `false`: tutar oldugu gibi yaziliyor (gunluk sandik
+  /// ekranda yazan miktari veriyor; "+5" yazip 8 vermiyor).
+  Future<bool> addJeton(String userId, int amount,
+      {String? source, bool proBonusu = true}) async {
+    if (amount <= 0) return false;
     try {
       if (_currentProgress == null) {
         await loadUserProgress(userId);
       }
 
-      final isPro = await _isUserPro(userId);
+      final isPro = proBonusu && await _isUserPro(userId);
       final finalAmount = isPro ? (amount * 1.5).round() : amount;
 
       final newBalance = (_currentProgress?.jetonBalance ?? 0) + finalAmount;
@@ -180,8 +187,10 @@ class UserProgressService extends ChangeNotifier {
       notifyListeners();
       debugPrint(
           '🪙 Jeton eklendi: +$finalAmount (${source ?? 'bilinmiyor'}${isPro ? ', Pro bonus' : ''}) -> $newBalance');
+      return true;
     } catch (e) {
       debugPrint('Error adding jeton: $e');
+      return false;
     }
   }
 

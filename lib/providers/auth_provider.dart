@@ -689,15 +689,23 @@ class AuthProvider extends ChangeNotifier {
   /// Market'teki ödüllü video buradan geçiyor. Ekran kendi
   /// `UserProgressService` örneğini kurmasın diye burada: iki örnek
   /// olursa biri jetonu ekliyor, diğeri eski bakiyeyi gösteriyor.
-  Future<void> addJeton(int amount, {String? source}) async {
+  ///
+  /// Donen deger: jeton sunucuya yazildi mi. Oturum yoksa ya da yazma
+  /// basarisizsa `false` (gunluk sandik odulu cihazda bekletiyor).
+  Future<bool> addJeton(int amount,
+      {String? source, bool proBonusu = true}) async {
     final user = _currentUser;
-    if (user == null || amount <= 0) return;
+    if (user == null || amount <= 0) return false;
     try {
-      await _progressService.addJeton(user.uid, amount, source: source);
-      _userProgress = _progressService.currentProgress;
+      final tamam =
+          await _progressService.addJeton(user.uid, amount,
+              source: source, proBonusu: proBonusu);
+      _userProgress = _progressService.currentProgress ?? _userProgress;
       notifyListeners();
+      return tamam;
     } catch (e) {
       debugPrint('Failed to add jeton: $e');
+      return false;
     }
   }
 
