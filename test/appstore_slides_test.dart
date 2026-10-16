@@ -71,7 +71,6 @@ void main() {
     // 2. ve 3. slayt Scratch (kurs sayfasi, calistirilmis program).
     final sira = [
       "('09_home'",
-      "('28_scratch_kurs'",
       // EKIM 2026 (1.0.15): calisan Scratch projesi, Arduino'da yanan
       // LED ve mBlock bloklariyla Arduino kodu one geldi; Kod Bloklari
       // cizim seviyeleri oyun slaytlarindan once.
@@ -81,7 +80,6 @@ void main() {
       "('14_html_code'",
       "('33_kod_bloklari'",
       "('12_chess'",
-      "('07_matching'",
       // Son slayt gercek quiz sorusu (eskiden bos quiz giris ekrani).
       "('06_hint'",
     ];

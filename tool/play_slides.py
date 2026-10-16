@@ -49,7 +49,7 @@ import sys
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from store_slides import (SLIDES, PILLS, CROP_ASPECT, BALON,  # noqa: E402
+from store_slides import (SLIDES, EKRAN, PILLS, CROP_ASPECT, BALON,  # noqa: E402
                           parse, slayt_ciz, yan_ekranlar)
 
 W, H = 1080, 1920
@@ -265,7 +265,7 @@ def ekran_goruntuleri(dil):
     for i, (dosya, kirp, _yer, _hap, metinler) in enumerate(secim, 1):
         bas, alt = metinler[dil]
         shot = Image.open(
-            os.path.join(SRC, DILLER[dil], dosya + '.png')).convert('RGB')
+            os.path.join(SRC, DILLER[dil], EKRAN.get(dosya, dosya) + '.png')).convert('RGB')
         slayt = slayt_ciz(W, H, shot, kirp, dosya, bas, alt,
                           BALON[dosya][dil], tohum=i * 7 + 1,
                           yanlar=yan_ekranlar(os.path.join(SRC, DILLER[dil]),

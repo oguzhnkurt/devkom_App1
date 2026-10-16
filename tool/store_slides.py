@@ -163,11 +163,19 @@ CROP_ASPECT = {
 # "bir oyun" diyordu; yaninda iki oyun daha "oyunlarla dusunur"
 # diyor. Yan telefonlar dekor degil — onlar da gercek ekran.
 #   {slayt: [(sol ekran, kirpma basi), (sag ekran, kirpma basi)]}
+# EKRAN: slaytin telefonlarinda baska bir slaytin ekrani. Quiz slayti
+# ("ogrendigini sinar") eski oyun slaytinin uc telefonunu gosteriyor:
+# ortada eslestirme, yanlarda Bilgi Yarismasi ve Kelime Eslestirme.
+EKRAN = {
+    '06_hint': '07_matching',
+}
+
 YELPAZE = {
     '12_chess': [('17_pattern', 0.10), ('19_color_coding', 0.02)],
     # Oyunlar slayti: eslestirmenin yaninda guncellenen iki oyun —
     # Bilgi Yarismasi ve Kelime Eslestirme.
     '07_matching': [('21_millionaire', 0.06), ('11_word_match', 0.04)],
+    '06_hint': [('21_millionaire', 0.06), ('11_word_match', 0.04)],
 }
 
 # Maskotun balonu. Kisa bir cagri — iddia degil.
@@ -225,26 +233,16 @@ SLIDES = [
         'es': ('Aprende a [programar]\ny robótica',
                'Empieza de cero · 9 cursos · Scratch, mBlock, Arduino, Python'),
     }),
-    ('28_scratch_kurs', 0.0, 'alt', False, {
-        'tr': ('[Scratch] ile ilk\noyununu yapar',
-               'Hareket, puan, klonlar, listeler — modül modül kendi oyununa'),
-        'en': ('Makes a first\ngame with [Scratch]',
-               'Motion, score, clones, lists — module by module to your own game'),
-        'de': ('Das erste Spiel\nmit [Scratch]',
-               'Bewegung, Punkte, Klone, Listen — Modul für Modul zum eigenen Spiel'),
-        'es': ('Su primer juego\ncon [Scratch]',
-               'Movimiento, puntos, clones, listas — módulo a módulo, su propio juego'),
-    }),
     # SCRATCH ATOLYESI (Ekim 2026): Elma Yagmuru projesi ornek koduyla
     # CALISIYOR — elmalar ikiz olarak dusuyor, kod alani dolu.
     ('30_scratch_atolye', 0.0, 'alt', False, {
-        'tr': ('Kendi projesini\nkurar ve *oynar*',
+        'tr': ('[Scratch] ile ilk\noyununu yapar',
                'Scratch atölyesi: kod senin, oyun senin'),
-        'en': ('Builds and *plays*\nits own project',
+        'en': ('Makes a first\ngame with [Scratch]',
                'Scratch workshop: your code, your game'),
-        'de': ('Baut eigene Projekte\nund *spielt* sie',
+        'de': ('Das erste Spiel\nmit [Scratch]',
                'Scratch-Werkstatt: dein Code, dein Spiel'),
-        'es': ('Crea su proyecto\ny lo *juega*',
+        'es': ('Su primer juego\ncon [Scratch]',
                'Taller de Scratch: tu código, tu juego'),
     }),
     # ARDUINO ATOLYESI: "LED Yak" projesi kurulu, kod calisiyor, LED
@@ -303,20 +301,6 @@ SLIDES = [
                'Schach, Zahlenrätsel, Gedächtnisspiele — spielen mit Köpfchen'),
         'es': ('Piensa con lógica\ncon [juegos]',
                'Ajedrez, acertijos numéricos, juegos de memoria — jugar pensando'),
-    }),
-    ('07_matching', 0.0, 'ust', False, {
-        'tr': ('[Oyunla] pekiştirir',
-               '16 mini oyun · terimleri eşleştir, komutları sırala, '
-               'labirenti geç'),
-        'en': ('Practises by [playing]',
-               '16 mini games · match terms, order commands, '
-               'get through the maze'),
-        'de': ('Übt beim [Spielen]',
-               '16 Minispiele · Begriffe zuordnen, Befehle ordnen, '
-               'durchs Labyrinth'),
-        'es': ('Practica [jugando]',
-               '16 minijuegos · empareja términos, ordena instrucciones, '
-               'cruza el laberinto'),
     }),
     ('06_hint', 0.0, 'ust', False, {
         'tr': ('Öğrendiğini [sınar]',
@@ -678,7 +662,7 @@ def build(lang):
 
     made = []
     for i, (name, crop_top, _yer, _pills, texts) in enumerate(SLIDES, 1):
-        path = os.path.join(src_dir, f'{name}.png')
+        path = os.path.join(src_dir, f'{EKRAN.get(name, name)}.png')
         if not os.path.exists(path):
             raise SystemExit(
                 f'{path} yok. Once ekranlari uret:\n'
