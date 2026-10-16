@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../screens/robotics_games_screen.dart' show ProGames;
 import '../screens/subscription_screen.dart';
+import '../config/ad_config.dart';
 import '../services/ads_service.dart';
 import 'lang.dart';
 
@@ -155,11 +156,31 @@ class ProGate {
     if (secim == ProSecim.reklam) {
       final sonuc = await AdsService.instance.showRewarded();
       if (!context.mounted) return ProUnlock.kapali;
-      if (sonuc.earned) return ProUnlock.reklam;
-      _reklamMesaji(context, sonuc.reason);
-      return ProUnlock.kapali;
+      final karar = reklamSonucu(sonuc);
+      if (karar == ProUnlock.kapali) _reklamMesaji(context, sonuc.reason);
+      return karar;
     }
 
+    return ProUnlock.kapali;
+  }
+
+  /// Odullu video sonucundan kilit karari.
+  ///
+  /// * Sonuna kadar izlendi -> [ProUnlock.reklam].
+  /// * Video YUKLENEMEDI (`notAvailable`) ve [AdConfig.reklamYoksaKilitAc]
+  ///   acik -> yine [ProUnlock.reklam]; mesaj gosterilmez. Cocuk elinde
+  ///   olmayan bir sebeple (reklam doldurulmuyor, AdMob askisi) icerikten
+  ///   mahrum kalmasin.
+  /// * Yarida kapatildi, gunluk sinir, Pro uye -> [ProUnlock.kapali].
+  static ProUnlock reklamSonucu(
+    RewardedAdResult sonuc, {
+    bool reklamYoksaKilitAc = AdConfig.reklamYoksaKilitAc,
+  }) {
+    if (sonuc.earned) return ProUnlock.reklam;
+    if (reklamYoksaKilitAc &&
+        sonuc.reason == RewardedAdFailure.notAvailable) {
+      return ProUnlock.reklam;
+    }
     return ProUnlock.kapali;
   }
 

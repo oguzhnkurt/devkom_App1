@@ -127,6 +127,23 @@ class AdConfig {
   /// Zorla araya giren geçiş reklamlarının sınırı aşağıda, aynen.
   static const int rewardedDailyCap = 15;
 
+  /// Ödüllü video YÜKLENEMEDİĞİNDE (`RewardedAdFailure.notAvailable`)
+  /// kilit yine açılsın mı?
+  ///
+  /// NEDEN (17 Ekim 2026): AdMob yayıncı hesabı "kendi reklamını tıklama"
+  /// gerekçesiyle 29 gün askıya alındı (~15 Kasım 2026'ya kadar). Bu sürede
+  /// reklam birimleri hiç dolmuyor; çocuk "video izle"ye basıyor, "Şu an
+  /// gösterilecek video yok" çıkıyordu ve Bilgi Yarışması'nın sıradaki
+  /// sorusu, Pro oyun turu ya da videoyla açılan ders AÇILMIYORDU.
+  ///
+  /// Yalnızca KİLİT AÇAN videolar (`ProGate.ensureOrAd`). Jeton veren
+  /// videolar (Market, sürpriz sandık, gönüllü videolar) bu bayraktan
+  /// etkilenmiyor: reklam yoksa jeton verilmez, para birimi bedava basılmaz.
+  /// Video yarıda kapatılırsa (`dismissedEarly`) kilit yine KAPALI kalır.
+  ///
+  /// Askı bitip reklamlar düzenli dolmaya başlayınca `false` yapılabilir.
+  static const bool reklamYoksaKilitAc = true;
+
   /// Geçiş reklamları arasındaki en az süre.
   static const Duration interstitialMinGap = Duration(minutes: 4);
 
