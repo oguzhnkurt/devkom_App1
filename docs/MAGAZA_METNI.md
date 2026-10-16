@@ -240,35 +240,39 @@ kurala giriyor.
 
 Play ve App Store için aynı metin (Google girişi bu sürümde yeni değil). Hepsi 500 karakterin altında.
 
-#### tr (404 karakter)
+#### tr (475 karakter)
 
 • Yeni: Arduino kursu baştan! 18 derste Uno ve breadboard'da devre kur, mBlock bloklarıyla kodla; LED, buton, sensörler, buzzer ve servo.
 • Yeni: Arduino Atölyesi. Parçaları koy, kabloları tak, kodunu çalıştır; ya da 8 rehberli projeden birini seç.
 • mBlock atölyesi Scratch gibi: sahnede kuklayı sürükle, bayrak ve dur düğmeleri.
+• Kod Blokları oyunu yenilendi: Scratch bloklarıyla 10 çizim seviyesi.
 • Günlük ödül sandığı: her gün jeton ve günün oyunu.
 • Hata düzeltmeleri.
 
-#### en (437 karakter)
+#### en (469 karakter)
 
 • New: a brand-new Arduino course! In 18 lessons, build circuits on an Uno and breadboard and code them with mBlock blocks: LEDs, buttons, sensors, a buzzer and a servo.
 • New: Arduino Workshop. Place parts, plug in wires and run your code, or pick one of 8 guided projects.
 • The mBlock workshop now works like Scratch: drag the sprite on the stage, flag and stop buttons.
-• Daily reward chest: coins and a game of the day.
+• Code Blocks is new: 10 drawing levels with Scratch blocks.
+• Daily reward chest.
 • Bug fixes.
 
-#### de (439 karakter)
+#### de (495 karakter)
 
 • Neu: ein ganz neuer Arduino-Kurs! In 18 Lektionen baust du Schaltungen mit Uno und Steckbrett und programmierst sie mit mBlock-Blöcken: LEDs, Taster, Sensoren, Summer und Servo.
 • Neu: Arduino-Werkstatt. Bauteile setzen, Kabel stecken, Code starten, oder eines von 8 geführten Projekten wählen.
 • Die mBlock-Werkstatt funktioniert wie Scratch: Figur auf der Bühne ziehen, Flagge und Stopp.
+• Code-Blöcke neu: 10 Zeichenlevel mit Scratch-Blöcken.
 • Tägliche Belohnungstruhe.
 • Fehlerbehebungen.
 
-#### es (436 karakter)
+#### es (490 karakter)
 
 • Nuevo: ¡un curso de Arduino totalmente nuevo! En 18 lecciones montas circuitos con un Uno y una placa de pruebas y los programas con bloques de mBlock: LED, botones, sensores, zumbador y servo.
 • Nuevo: Taller de Arduino. Coloca piezas, conecta cables y ejecuta tu código, o elige uno de 8 proyectos guiados.
 • El taller de mBlock funciona como Scratch: arrastra el personaje, bandera y stop.
+• Bloques de código: 10 niveles de dibujo con Scratch.
 • Cofre de premio diario.
 • Correcciones.
 
