@@ -106,6 +106,7 @@ class MBlockAtolyeEkraniState extends State<MBlockAtolyeEkrani> {
               renk: renk,
               onCalisma: _calisma,
               kuklaYuksekligi: kisa ? 190 : 230,
+              serbest: true,
             ),
             const SizedBox(height: 12),
             MBlockAtolyeTezgahi(

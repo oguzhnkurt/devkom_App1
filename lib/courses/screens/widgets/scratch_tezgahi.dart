@@ -51,6 +51,8 @@ class ScratchTezgahi extends StatefulWidget {
     this.oyuncu = const OtomatikOyuncu(),
     this.sureSiniri = ProjeMotoru.varsayilanSure,
     this.hedefTamam,
+    this.baslangicKonumlari = const {},
+    this.onKonumDegisti,
   });
 
   final List<ScratchBlock> palet;
@@ -83,6 +85,13 @@ class ScratchTezgahi extends StatefulWidget {
   /// sure sinirini beklemeden bitiyor.
   final bool Function(Yurutme yurutme, List<KodOgesi> kod)? hedefTamam;
 
+  /// Proje Atolyesi: kuklalarin cocugun surukledigi BASLANGIC yerleri
+  /// (kukla adi -> Scratch koordinati; kayitli projeden).
+  final Map<String, Offset> baslangicKonumlari;
+
+  /// Cocuk bir kuklayi sahnede surukleyip birakti (butun yerler).
+  final ValueChanged<Map<String, Offset>>? onKonumDegisti;
+
   @override
   State<ScratchTezgahi> createState() => ScratchTezgahiState();
 }
@@ -107,6 +116,9 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
   final GlobalKey<ProjeSahnesiState> _projeSahnesi = GlobalKey();
   final Random _tohumlar = Random();
 
+  /// Kuklalarin surukleyerek verilen baslangic yerleri.
+  late final Map<String, Offset> _konumlar = {...widget.baslangicKonumlari};
+
   /// Kod her degistiginde artiyor: tezgah imleci gorunur tutuyor.
   int _surum = 0;
 
@@ -127,6 +139,13 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
 
   List<KodOgesi> get kod => List.unmodifiable(_kod);
   bool get calisiyor => _calisiyor;
+
+  /// Kuklalarin surukleyerek verilen baslangic yerleri (kaydedilen).
+  Map<String, Offset> get konumlar => Map.unmodifiable(_konumlar);
+
+  /// Calisan (ya da son calisan) motor; yoksa onizleme.
+  @visibleForTesting
+  ProjeMotoru get motor => _motor ?? _onizlemeMotoru;
 
   @override
   void didUpdateWidget(ScratchTezgahi oldWidget) {
@@ -172,8 +191,10 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
   ProjeMotoru _yeniMotor(List<ScratchBlock> bloklar, int tohum) => ProjeMotoru(
         yorumlayici: BlokYorumlayici(dil: widget.lang, rastgele: Random(tohum)),
         bloklar: bloklar,
-        ana: widget.ana,
-        kuklalar: widget.kuklalar,
+        // Cocugun sahnede biraktigi yer baslangic; "konumuna git"
+        // bloklari yine ustune yaziyor.
+        ana: widget.ana.konumlarla(_konumlar),
+        kuklalar: [for (final k in widget.kuklalar) k.konumlarla(_konumlar)],
         oyuncu: widget.oyuncu,
         sureSiniri: widget.sureSiniri,
         // Canli sahnede cocuga once kendisi basma firsati.
@@ -201,6 +222,31 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
       _calisiyor = true;
       _calisanSira.value = null;
     });
+  }
+
+  /// Kukla kipirdadi: biten yurutmenin son hali yerine onizleme
+  /// (Scratch'teki gibi kukla durdugu yerden tutuluyor; digerleri
+  /// baslangic yerlerine donuyor).
+  void _surukleBasladi(String ad) {
+    final m = _motor;
+    if (m == null || _calisiyor) return;
+    for (final k in m.kuklalar) {
+      if (k.tanim.ad == ad && !k.klon) {
+        _konumlar[ad] = Offset(k.sahne.x, k.sahne.y);
+      }
+    }
+    setState(() {
+      _motor = null;
+      _onizleme = null;
+    });
+  }
+
+  void _konumVer(String ad, Offset p) {
+    if (_calisiyor) return;
+    _konumlar[ad] = p;
+    // Onizleme motoru yeni yerle yeniden kuruluyor (kukla zaten orada).
+    setState(() => _onizleme = null);
+    widget.onKonumDegisti?.call(konumlar);
   }
 
   void _projeBitti() {
@@ -476,6 +522,9 @@ class ScratchTezgahiState extends State<ScratchTezgahi> {
             mesgulKare: _mesgulKare,
             baslamaGecikmesi: const Duration(milliseconds: 350),
             dogru: widget.dogru,
+            surukle: true,
+            onSurukleBasla: _surukleBasladi,
+            onKonum: _konumVer,
             ipucu: _calisiyor || _motor != null
                 ? null
                 : _kod.isEmpty

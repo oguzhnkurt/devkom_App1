@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
@@ -6,11 +7,13 @@ import '../../theme.dart';
 import '../../utils/lang.dart';
 import '../../widgets/block_animation_player.dart';
 import '../../widgets/mascot.dart';
+import '../models/interactive_lesson_model.dart' show ScratchBlock;
 import '../yurutme/blok_yorumlayici.dart';
 import '../yurutme/mblock_blok_adlari.dart';
 import '../yurutme/mblock_cozum.dart';
 import '../yurutme/mblock_kukla.dart';
 import '../yurutme/mblock_uno.dart';
+import 'proje_sahnesi.dart';
 import 'scratch_sahnesi.dart';
 import 'uno_karti.dart';
 
@@ -36,7 +39,15 @@ class MBlockSahnesi extends StatefulWidget {
     this.zamanOlcegi = 1.0,
     this.onCalisma,
     this.kuklaYuksekligi = 230,
+    this.serbest = false,
   });
+
+  /// Serbest atolye: kukla programi Scratch olcusundeki canli sahnede
+  /// ([ProjeSahnesi] + [ProjeMotoru]) calisiyor; calismiyorken Devi
+  /// surukleniyor ve sol altta x/y yazili. Ders adimlarinda (false)
+  /// eski oynatici: hedefler belirlenimci kalsin, Devi hep ayni yerden
+  /// baslasin.
+  final bool serbest;
 
   /// Kukla sahnesinin yuksekligi (kucuk ekranda daha kisa).
   final double kuklaYuksekligi;
@@ -83,6 +94,20 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
   bool _calisiyor = false;
   bool get calisiyor => _calisiyor;
 
+  // Serbest atolyenin canli sahnesi.
+  ProjeMotoru? _motor;
+  ProjeMotoru? _onizleme;
+  Duration _mesgulKare = ProjeSahnesi.kareSuresi;
+  final GlobalKey<ProjeSahnesiState> _projeSahnesi = GlobalKey();
+  final Map<String, Offset> _konumlar = {};
+
+  /// Devi'nin surukleyerek verilen baslangic yeri (Scratch koordinati).
+  Offset? get deviKonumu => _konumlar[KuklaTanimi.devi.ad];
+
+  /// Serbest sahnenin calisan (ya da son calisan) motoru; yoksa onizleme.
+  @visibleForTesting
+  ProjeMotoru get motor => _motor ?? _onizlemeMotoru;
+
   /// Baslik bayragi: tezgahta blok yoksa pasif; calisirken "basili".
   VoidCallback? get _bayrak =>
       _calisiyor || !widget.program.any((y) => y.isNotEmpty)
@@ -116,9 +141,23 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
     }
   }
 
+  @override
+  void didUpdateWidget(covariant MBlockSahnesi oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.program, widget.program)) _onizleme = null;
+  }
+
   void durdur() {
     if (widget.kart) {
       _uno?.durdur();
+    } else if (widget.serbest) {
+      final s = _projeSahnesi.currentState;
+      if (s != null) {
+        s.durdur();
+      } else {
+        _motor?.durdur();
+        setState(() => _durumDegisti(false));
+      }
     } else {
       _oynatici.currentState?.durdur();
       setState(() => _durumDegisti(false));
@@ -156,7 +195,42 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
     });
   }
 
+  ProjeMotoru _yeniMotor(List<ScratchBlock> bloklar, int tohum) =>
+      ProjeMotoru(
+        yorumlayici:
+            BlokYorumlayici(dil: widget.lang, rastgele: math.Random(tohum)),
+        bloklar: bloklar,
+        ana: KuklaTanimi.devi.konumlarla(_konumlar),
+        otomatikGecikme: 45,
+      );
+
+  ProjeMotoru get _onizlemeMotoru => _onizleme ??= _yeniMotor(
+      MBlockKuklaProgrami.cevir(widget.program, widget.lang).bloklar, 0);
+
+  void _serbestCalistir(List<List<MBlockBlok>> p) {
+    final k = MBlockKuklaProgrami.cevir(p, widget.lang);
+    if (k.bos) return;
+    final tohum = math.Random().nextInt(1 << 30);
+    // Scratch tezgahindaki gibi: kisa kod yavas cekimde izleniyor.
+    final prova = _yeniMotor(k.bloklar, tohum)..baslat();
+    while (!prova.bitti) {
+      prova.kare();
+    }
+    final ms = (3000 / math.max(1, prova.mesgulKare)).clamp(33, 350).round();
+    setState(() {
+      _calisan = p;
+      _kukla = k;
+      _mesgulKare = Duration(milliseconds: ms);
+      _motor = _yeniMotor(k.bloklar, tohum)..baslat();
+      _durumDegisti(true);
+    });
+  }
+
   void _kuklayiCalistir(List<List<MBlockBlok>> p) {
+    if (widget.serbest) {
+      _serbestCalistir(p);
+      return;
+    }
     final k = MBlockKuklaProgrami.cevir(p, widget.lang);
     setState(() {
       _calisan = p;
@@ -339,7 +413,62 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
   // Kukla
   // ------------------------------------------------------------------
 
+  Widget _serbestSahne() {
+    return SizedBox(
+      key: const ValueKey('mblock_kukla_sahnesi'),
+      height: widget.kuklaYuksekligi,
+      child: ScratchSahneKarti(
+        lang: widget.lang,
+        bayrakAnahtari: const ValueKey('mblock_sahne_bayragi'),
+        durAnahtari: const ValueKey('mblock_sahne_dur'),
+        onBayrak: _bayrak,
+        onDur: _calisiyor ? durdur : null,
+        calisiyor: _calisiyor,
+        child: ProjeSahnesi(
+          key: _projeSahnesi,
+          motor: _motor ?? _onizlemeMotoru,
+          lang: widget.lang,
+          calisiyor: _calisiyor && _motor != null,
+          renk: widget.renk,
+          mesgulKare: _mesgulKare,
+          baslamaGecikmesi: const Duration(milliseconds: 300),
+          dogru: widget.dogru,
+          surukle: true,
+          ipucu: _calisiyor || _motor != null
+              ? null
+              : _t(
+                  'Yeşil bayrağa bas: kodun burada çalışsın.',
+                  'Press the green flag to run your code here.',
+                  'Drück die grüne Flagge: dein Code läuft hier.',
+                  'Pulsa la bandera verde: tu código se ejecuta aquí.'),
+          onSurukleBasla: (ad) {
+            final m = _motor;
+            if (m == null || _calisiyor) return;
+            for (final s in m.kuklalar) {
+              if (s.tanim.ad == ad && !s.klon) {
+                _konumlar[ad] = Offset(s.sahne.x, s.sahne.y);
+              }
+            }
+            setState(() {
+              _motor = null;
+              _onizleme = null;
+            });
+          },
+          onKonum: (ad, p) {
+            if (_calisiyor) return;
+            _konumlar[ad] = p;
+            setState(() => _onizleme = null);
+          },
+          onBitti: () {
+            if (mounted && _calisiyor) setState(() => _durumDegisti(false));
+          },
+        ),
+      ),
+    );
+  }
+
   Widget _kuklaSahnesi() {
+    if (widget.serbest) return _serbestSahne();
     final k = _kukla;
     final y = _yurutme;
     return SizedBox(

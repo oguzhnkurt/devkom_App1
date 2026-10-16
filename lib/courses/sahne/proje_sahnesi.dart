@@ -1,7 +1,9 @@
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 
 import '../../theme.dart';
 import '../../ui/motion.dart';
@@ -33,6 +35,19 @@ import 'scratch_sahnesi.dart' show SahneBalonu;
 ///
 /// BASLAMAMIS motor (bayrak oncesi) onizleme olarak ciziliyor: kuklalar
 /// baslangic yerlerinde, tuslar pasif.
+///
+/// SURUKLEME ([surukle]): program calismiyorken cocuk bir kuklayi
+/// parmagiyla tasiyabiliyor (Scratch'teki gibi). Kuklaya degen dokunus
+/// HEMEN kuklanin (sayfa kaymiyor); kuklanin disindaki dokunus sayfayi
+/// kaydirmaya devam ediyor. Yer sahne sinirlarinda tutuluyor (480 x 360);
+/// birakinca [onKonum] — sahibi bunu bir sonraki calistirmanin
+/// baslangic yeri yapiyor. Ilk hareket [onSurukleBasla]'yi cagiriyor
+/// (biten bir yurutmenin son hali yerine onizlemeye donmek icin).
+/// Birden cok kukla varsa dokunulan kukla SECILIYOR (ince halka).
+///
+/// KONUM GOSTERGESI: sol altta kucuk "x: 120  y: -40" (secili kuklanin;
+/// suruklerken ve calisirken canli, tam sayi). Birden cok kukla varsa
+/// basinda kuklanin adi.
 class ProjeSahnesi extends StatefulWidget {
   const ProjeSahnesi({
     super.key,
@@ -47,6 +62,9 @@ class ProjeSahnesi extends StatefulWidget {
     this.hedefTamam,
     this.dogru = false,
     this.ipucu,
+    this.surukle = false,
+    this.onSurukleBasla,
+    this.onKonum,
   });
 
   final ProjeMotoru motor;
@@ -74,6 +92,15 @@ class ProjeSahnesi extends StatefulWidget {
   /// Onizlemede ustte gosterilen yazi.
   final String? ipucu;
 
+  /// Calismiyorken kuklalar surukleniyor.
+  final bool surukle;
+
+  /// Bir kukla ilk kez kipirdadi (kuklanin adi).
+  final ValueChanged<String>? onSurukleBasla;
+
+  /// Kukla birakildi: adi ve yeni yeri (Scratch koordinati, tam sayi).
+  final void Function(String ad, Offset konum)? onKonum;
+
   /// Gercek hizda bir kare.
   static const Duration kareSuresi = Duration(milliseconds: 33);
 
@@ -96,6 +123,17 @@ class ProjeSahnesiState extends State<ProjeSahnesi>
   bool _bildirildi = false;
   bool _hedefleBitti = false;
   int? _hedefKaresi;
+
+  /// Secili kuklanin adi (null: cocugun kuklasi).
+  String? _secili;
+  _Tutus? _tutus;
+
+  /// Son cizimin olcegi (surukleme parmagi Scratch koordinatina
+  /// bununla ceviriyor).
+  _Harita? _harita;
+
+  @visibleForTesting
+  String? get seciliKukla => _seciliKukla()?.tanim.ad;
 
   ProjeMotoru get _m => widget.motor;
 
@@ -237,6 +275,7 @@ class ProjeSahnesiState extends State<ProjeSahnesi>
       final w = kutu.maxWidth, h = kutu.maxHeight;
       final o = math.min(w / 480, h / 360);
       final harita = _Harita(o, (w - 480 * o) / 2, (h - 360 * o) / 2);
+      _harita = harita;
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapDown: widget.calisiyor
@@ -245,7 +284,112 @@ class ProjeSahnesiState extends State<ProjeSahnesi>
                 _m.tikla(p.dx, p.dy);
               }
             : null,
-        child: ClipRect(
+        child: RawGestureDetector(
+          behavior: HitTestBehavior.translucent,
+          gestures: {
+            _KuklaTutucu: GestureRecognizerFactoryWithHandlers<_KuklaTutucu>(
+              () => _KuklaTutucu(debugOwner: this),
+              (r) => r
+                ..tutabilir = ((p) => _tutus == null && _kuklaBul(p) != null)
+                ..onBasla = _tutBasla
+                ..onSurukle = _tutSurukle
+                ..onBirak = _tutBirak,
+            ),
+          },
+          child: _tuvalIcerigi(harita, w, h),
+        ),
+      );
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // Surukleme ve secim
+  // ---------------------------------------------------------------
+
+  bool get _suruklenir => widget.surukle && !widget.calisiyor;
+
+  /// Asil (ikiz olmayan) kuklalar.
+  Iterable<SahneKuklasi> get _asillar =>
+      _m.kuklalar.where((k) => !k.klon && !k.silindi);
+
+  SahneKuklasi? _kuklaAdla(String? ad) {
+    if (ad == null) return null;
+    for (final k in _asillar) {
+      if (k.tanim.ad == ad) return k;
+    }
+    return null;
+  }
+
+  SahneKuklasi? _seciliKukla() {
+    final s = _kuklaAdla(_secili);
+    if (s != null) return s;
+    for (final k in _asillar) {
+      if (k.ana) return k;
+    }
+    return _asillar.isEmpty ? null : _asillar.first;
+  }
+
+  /// Dokunulan yerdeki en ustteki kukla (dokunma alani en az 48 pt).
+  SahneKuklasi? _kuklaBul(Offset yerel) {
+    final harita = _harita;
+    if (!_suruklenir || harita == null) return null;
+    for (final k in _asillar.toList().reversed) {
+      if (!k.sahne.gorunur) continue;
+      final p = harita.ekrana(k.sahne.x, k.sahne.y);
+      final r = math.max(k.yaricap * 1.3 * harita.olcek, 24.0);
+      if ((p - yerel).distanceSquared <= r * r) return k;
+    }
+    return null;
+  }
+
+  void _tutBasla(Offset yerel) {
+    final k = _kuklaBul(yerel);
+    if (k == null) return;
+    _tutus = _Tutus(k.tanim.ad, Offset(k.sahne.x, k.sahne.y), yerel);
+    HapticFeedback.selectionClick();
+    setState(() => _secili = k.tanim.ad);
+  }
+
+  void _tutSurukle(Offset yerel) {
+    final t = _tutus;
+    final harita = _harita;
+    if (t == null || harita == null || !_suruklenir) return;
+    final d = yerel - t.parmak;
+    if (!t.kipirdadi) {
+      if (d.distance < 2) return;
+      t.kipirdadi = true;
+      widget.onSurukleBasla?.call(t.ad);
+    }
+    final x = (t.bas.dx + d.dx / harita.olcek).clamp(-240.0, 240.0);
+    final y = (t.bas.dy - d.dy / harita.olcek).clamp(-180.0, 180.0);
+    t.son = Offset(x.roundToDouble(), y.roundToDouble());
+    _yereKoy(t);
+    _surum.value++;
+  }
+
+  void _yereKoy(_Tutus t) {
+    final k = _kuklaAdla(t.ad);
+    if (k == null) return;
+    k.sahne
+      ..x = t.son.dx
+      ..y = t.son.dy;
+  }
+
+  void _tutBirak() {
+    final t = _tutus;
+    _tutus = null;
+    if (t == null) return;
+    if (t.kipirdadi) {
+      // Yeni motor gelmis olabilir (bitmis yurutmeden onizlemeye):
+      // kukla onda da birakilan yerde.
+      _yereKoy(t);
+      widget.onKonum?.call(t.ad, t.son);
+    }
+    if (mounted) setState(() {});
+  }
+
+  Widget _tuvalIcerigi(_Harita harita, double w, double h) {
+    return ClipRect(
           child: Stack(
             clipBehavior: Clip.hardEdge,
             children: [
@@ -267,14 +411,40 @@ class ProjeSahnesiState extends State<ProjeSahnesi>
               ),
             ],
           ),
-        ),
-      );
-    });
+    );
   }
 
   Widget _ustKatman(_Harita harita, double w, double h) {
     final zaman = _m.zaman;
     final cocuklar = <Widget>[];
+    final secili = _seciliKukla();
+    final cokKukla = _asillar.length > 1;
+    final vurgu = widget.renk ?? const Color(0xFF4C97FF);
+    // Secim halkasi (kuklanin altinda): birden cok kukla varken.
+    if (secili != null &&
+        cokKukla &&
+        !widget.calisiyor &&
+        secili.sahne.gorunur) {
+      final p = harita.ekrana(secili.sahne.x, secili.sahne.y);
+      final r = secili.yaricap * 1.25 * harita.olcek;
+      cocuklar.add(Positioned(
+        key: const ValueKey('kukla_secim_halkasi'),
+        left: p.dx - r,
+        top: p.dy - r,
+        width: r * 2,
+        height: r * 2,
+        child: IgnorePointer(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: vurgu.withValues(alpha: 0.10),
+              border:
+                  Border.all(color: vurgu.withValues(alpha: 0.85), width: 2),
+            ),
+          ),
+        ),
+      ));
+    }
     // Devi kuklalari (maskot gorseli).
     for (final k in _m.kuklalar) {
       final s = k.sahne;
@@ -360,22 +530,41 @@ class ProjeSahnesiState extends State<ProjeSahnesi>
     }
     // Ust serit: onizlemede ipucu, otomatik oyuncu, sonuc.
     final serit = _serit();
-    if (serit != null) {
-      // Oyun surerken etiket altta (zeminde): ustten gelen kuklalari
-      // (dusen elmalar) kapatmasin.
-      final altta = widget.calisiyor && !_m.bitti;
+    // Oyun surerken etiket altta (zeminde): ustten gelen kuklalari
+    // (dusen elmalar) kapatmasin. Konum gostergesi hep sol altta.
+    final altta = widget.calisiyor && !_m.bitti;
+    if (serit != null && !altta) {
       cocuklar.add(Positioned(
         right: 6,
-        left: altta ? 6 : (_m.degiskenler.isNotEmpty ? 96 : 6),
-        top: altta ? null : 6,
-        bottom: altta ? 4 : null,
+        left: _m.degiskenler.isNotEmpty ? 96 : 6,
+        top: 6,
         child: IgnorePointer(
-          child: Align(
-              alignment: altta ? Alignment.bottomLeft : Alignment.topRight,
-              child: serit),
+          child: Align(alignment: Alignment.topRight, child: serit),
         ),
       ));
     }
+    cocuklar.add(Positioned(
+      left: 6,
+      right: 6,
+      bottom: 4,
+      child: IgnorePointer(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (serit != null && altta) ...[serit, const SizedBox(height: 4)],
+            if (secili != null)
+              _KonumGostergesi(
+                ad: cokKukla ? secili.tanim.adFor(widget.lang) : null,
+                x: secili.sahne.x,
+                y: secili.sahne.y,
+                lang: widget.lang,
+                vurgu: _tutus != null,
+              ),
+          ],
+        ),
+      ),
+    ));
     return Stack(clipBehavior: Clip.none, children: cocuklar);
   }
 
@@ -464,6 +653,117 @@ class ProjeSahnesiState extends State<ProjeSahnesi>
         metin: metin,
         ikon: ikon,
         renk: renk);
+  }
+}
+
+/// Suruklenen kukla: adi, tutuldugu andaki yeri ve parmagin yeri.
+class _Tutus {
+  _Tutus(this.ad, this.bas, this.parmak) : son = bas;
+  final String ad;
+  final Offset bas;
+  final Offset parmak;
+  Offset son;
+  bool kipirdadi = false;
+}
+
+/// Kuklaya degen dokunusu HEMEN kazanan tanimayici: sayfanin kaydirmasi
+/// (dikey surukleme) kuklayi tutan parmagi elinden almasin. Kuklaya
+/// degmeyen dokunusa ([tutabilir] yanlis) hic katilmiyor.
+class _KuklaTutucu extends OneSequenceGestureRecognizer {
+  _KuklaTutucu({super.debugOwner});
+
+  bool Function(Offset yerel)? tutabilir;
+  ValueChanged<Offset>? onBasla;
+  ValueChanged<Offset>? onSurukle;
+  VoidCallback? onBirak;
+
+  @override
+  bool isPointerAllowed(PointerDownEvent event) =>
+      super.isPointerAllowed(event) &&
+      (tutabilir?.call(event.localPosition) ?? false);
+
+  @override
+  void addAllowedPointer(PointerDownEvent event) {
+    super.addAllowedPointer(event);
+    resolve(GestureDisposition.accepted);
+    onBasla?.call(event.localPosition);
+  }
+
+  @override
+  void handleEvent(PointerEvent event) {
+    if (event is PointerMoveEvent) {
+      onSurukle?.call(event.localPosition);
+    } else if (event is PointerUpEvent || event is PointerCancelEvent) {
+      onBirak?.call();
+      stopTrackingPointer(event.pointer);
+    }
+  }
+
+  @override
+  void acceptGesture(int pointer) {}
+
+  @override
+  void rejectGesture(int pointer) {
+    onBirak?.call();
+    stopTrackingPointer(pointer);
+  }
+
+  @override
+  void didStopTrackingLastPointer(int pointer) {}
+
+  @override
+  String get debugDescription => 'kukla tutucu';
+}
+
+/// Sol alttaki kucuk konum gostergesi: "Devi  x: 120  y: -40".
+class _KonumGostergesi extends StatelessWidget {
+  const _KonumGostergesi({
+    required this.x,
+    required this.y,
+    required this.lang,
+    this.ad,
+    this.vurgu = false,
+  });
+
+  final String? ad;
+  final double x, y;
+  final String lang;
+  final bool vurgu;
+
+  @override
+  Widget build(BuildContext context) {
+    final xs = x.round(), ys = y.round();
+    final konum = AppLang.pick(lang,
+        tr: 'konumu', en: 'position', de: 'Position', es: 'posición');
+    final yazi = 'x: $xs  y: $ys';
+    return Semantics(
+      label: ad == null ? '$konum x $xs, y $ys' : '$ad $konum x $xs, y $ys',
+      excludeSemantics: true,
+      child: Container(
+        key: const ValueKey('kukla_konumu'),
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: vurgu ? 0.95 : 0.8),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+              color:
+                  vurgu ? const Color(0xFF4C97FF) : const Color(0x1F000000)),
+        ),
+        child: Text(
+          ad == null ? yazi : '$ad  $yazi',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontFamily: AppTheme.fontFamily,
+            fontSize: 11,
+            height: 1.2,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF575E75),
+            fontFeatures: [FontFeature.tabularFigures()],
+          ),
+        ),
+      ),
+    );
   }
 }
 

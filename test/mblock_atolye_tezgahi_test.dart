@@ -286,9 +286,11 @@ void main() {
     await tester.tap(bayrak);
     await _bekle(tester, 900);
     final once = tester.getCenter(devi.first).dx;
-    await _bekle(tester, 2500);
+    // Serbest atolyenin sahnesi Scratch olcusunde (480 x 360): kisa kod
+    // yavas cekimde, 10 tur ~3 saniye.
+    await _bekle(tester, 1500);
     expect(_sahne(tester).calisiyor, isTrue);
-    expect(tester.getCenter(devi.first).dx, greaterThan(once + 20),
+    expect(tester.getCenter(devi.first).dx, greaterThan(once + 10),
         reason: 'Devi yurumedi');
     await tester.tap(find.byKey(const ValueKey('mblock_sahne_dur')));
     await tester.pump(const Duration(milliseconds: 100));

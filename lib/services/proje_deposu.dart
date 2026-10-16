@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui' show Offset;
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,6 +14,7 @@ class KayitliProje {
     required this.kod,
     required this.tarih,
     this.adimId,
+    this.konumlar = const {},
   });
 
   final String id;
@@ -28,7 +30,16 @@ class KayitliProje {
   /// Son kaydedilme zamani.
   final DateTime tarih;
 
-  KayitliProje copyWith({String? ad, List<KodOgesi>? kod, DateTime? tarih}) =>
+  /// Cocugun sahnede surukleyip biraktigi kuklalarin BASLANGIC yerleri
+  /// (kukla adi -> Scratch koordinati). Bos: atolyenin kendi yerleri.
+  /// Eski kayitlarda yok; onlar varsayilan yerlerle aciliyor.
+  final Map<String, Offset> konumlar;
+
+  KayitliProje copyWith(
+          {String? ad,
+          List<KodOgesi>? kod,
+          DateTime? tarih,
+          Map<String, Offset>? konumlar}) =>
       KayitliProje(
         id: id,
         ad: ad ?? this.ad,
@@ -36,6 +47,7 @@ class KayitliProje {
         adimId: adimId,
         kod: kod ?? this.kod,
         tarih: tarih ?? this.tarih,
+        konumlar: konumlar ?? this.konumlar,
       );
 
   Map<String, Object?> toJson() => {
@@ -45,7 +57,30 @@ class KayitliProje {
         if (adimId != null) 'adim': adimId,
         'kod': [for (final o in kod) o.toJson()],
         't': tarih.millisecondsSinceEpoch,
+        if (konumlar.isNotEmpty)
+          'konum': {
+            for (final e in konumlar.entries)
+              e.key: [e.value.dx.round(), e.value.dy.round()],
+          },
       };
+
+  /// `{"Devi": [120, -40]}`; bozuk girdi atlaniyor (proje yine aciliyor).
+  static Map<String, Offset> _konumlar(Object? j) {
+    if (j is! Map) return const {};
+    final out = <String, Offset>{};
+    for (final e in j.entries) {
+      final v = e.value;
+      if (e.key is String &&
+          v is List &&
+          v.length == 2 &&
+          v[0] is num &&
+          v[1] is num) {
+        out[e.key as String] =
+            Offset((v[0] as num).toDouble(), (v[1] as num).toDouble());
+      }
+    }
+    return out;
+  }
 
   static KayitliProje? fromJson(Object? j) {
     if (j is! Map) return null;
@@ -60,6 +95,7 @@ class KayitliProje {
             KodOgesi.fromJson(Map<String, Object?>.from(o as Map)),
         ],
         tarih: DateTime.fromMillisecondsSinceEpoch(j['t'] as int),
+        konumlar: _konumlar(j['konum']),
       );
     } catch (_) {
       // Bozuk kayit butun listeyi kaybettirmesin.

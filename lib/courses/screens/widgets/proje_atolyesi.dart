@@ -233,6 +233,9 @@ class _ProjeAtolyesiWidgetState extends State<ProjeAtolyesiWidget> {
   late List<KodOgesi> _kod =
       widget.kayitli?.kod ?? KodYapisi.coz(widget.step.baslangic);
 
+  /// Kuklalarin sahnede surukleyerek verilen baslangic yerleri.
+  late Map<String, Offset> _konumlar = widget.kayitli?.konumlar ?? const {};
+
   /// Son calistirmanin hedef durumlari (oynatma bitince gosteriliyor).
   List<bool>? _sonDurum;
   List<bool>? _gosterilen;
@@ -316,9 +319,11 @@ class _ProjeAtolyesiWidgetState extends State<ProjeAtolyesiWidget> {
     );
     if (ad == null || !mounted) return;
     final kod = _tezgah.currentState?.kod ?? _kod;
+    final konumlar = _tezgah.currentState?.konumlar ?? _konumlar;
     final proje = await ProjeDeposu.kaydet(_kayit?.copyWith(
             ad: ad.isEmpty ? _kayit!.ad : ad,
             kod: kod,
+            konumlar: konumlar,
             tarih: DateTime.now()) ??
         KayitliProje(
           id: ProjeDeposu.yeniKimlik(),
@@ -326,6 +331,7 @@ class _ProjeAtolyesiWidgetState extends State<ProjeAtolyesiWidget> {
           kursId: widget.course.id,
           adimId: _s.id == ScratchSerbestAtolye.kimlik ? null : _s.id,
           kod: kod,
+          konumlar: konumlar,
           tarih: DateTime.now(),
         ));
     if (!mounted) return;
@@ -431,6 +437,8 @@ class _ProjeAtolyesiWidgetState extends State<ProjeAtolyesiWidget> {
                   .every((d) => d),
           dogru: _tamam,
           onKodDegisti: (k) => _kod = k,
+          baslangicKonumlari: _konumlar,
+          onKonumDegisti: (k) => _konumlar = k,
           onCalisti: _calisti,
           onOynatmaBitti: _oynatmaBitti,
         ),

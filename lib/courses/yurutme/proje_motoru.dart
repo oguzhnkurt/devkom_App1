@@ -878,6 +878,32 @@ class KuklaTanimi {
   List<ScratchBlock> get bloklar =>
       KodYapisi.blokla(KodYapisi.coz(kod), palet);
 
+  /// Ayni kukla, baska bir BASLANGIC yerinde: cocuk kuklayi sahnede
+  /// surukleyip biraktiginda yurutme oradan basliyor (Scratch gibi;
+  /// "x: y: konumuna git" bloklari yine de ustune yaziyor).
+  KuklaTanimi konumda(double x, double y) => KuklaTanimi(
+        ad: ad,
+        gorunum: gorunum,
+        x: x,
+        y: y,
+        yon: yon,
+        yaricap: yaricap,
+        gizli: gizli,
+        renk: renk,
+        donusStili: donusStili,
+        kod: kod,
+        palet: palet,
+        adEn: adEn,
+        adDe: adDe,
+        adEs: adEs,
+      );
+
+  /// [konumlar]da bu kuklanin adi varsa o yerde, yoksa kendisi.
+  KuklaTanimi konumlarla(Map<String, Offset> konumlar) {
+    final k = konumlar[ad];
+    return k == null ? this : konumda(k.dx, k.dy);
+  }
+
   /// Cocugun varsayilan kuklasi: Devi, sahnenin ortasinda.
   static const devi = KuklaTanimi(ad: 'Devi');
 }
