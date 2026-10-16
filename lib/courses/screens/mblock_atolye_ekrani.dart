@@ -30,12 +30,6 @@ class MBlockAtolyeEkrani extends StatefulWidget {
   /// Arac kutusu: katalogdaki her blok (JS ile ayni sira).
   static final List<String> bloklar = mblockBlokTanimlari.keys.toList();
 
-  /// Eski WebView tezgahinin ayari (ekran goruntusu araclari icin).
-  static final MBlockTezgahAyari ayar = MBlockTezgahAyari(
-    bloklar: bloklar,
-    cozum: const [],
-  );
-
   @override
   State<MBlockAtolyeEkrani> createState() => MBlockAtolyeEkraniState();
 }
