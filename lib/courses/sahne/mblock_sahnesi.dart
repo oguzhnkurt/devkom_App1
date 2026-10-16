@@ -35,7 +35,11 @@ class MBlockSahnesi extends StatefulWidget {
     this.dogru = false,
     this.zamanOlcegi = 1.0,
     this.onCalisma,
+    this.kuklaYuksekligi = 230,
   });
+
+  /// Kukla sahnesinin yuksekligi (kucuk ekranda daha kisa).
+  final double kuklaYuksekligi;
 
   /// Calisma basladi / bitti (sahibinin "Calistir | Durdur" dugmesi).
   final ValueChanged<bool>? onCalisma;
@@ -340,7 +344,7 @@ class MBlockSahnesiState extends State<MBlockSahnesi> {
     final y = _yurutme;
     return SizedBox(
       key: const ValueKey('mblock_kukla_sahnesi'),
-      height: 230,
+      height: widget.kuklaYuksekligi,
       child: ScratchSahneKarti(
         lang: widget.lang,
         bayrakAnahtari: const ValueKey('mblock_sahne_bayragi'),
