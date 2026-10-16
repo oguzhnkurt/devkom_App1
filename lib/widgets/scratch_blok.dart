@@ -81,7 +81,16 @@ enum ScratchKategori {
   /// mBlock'un Arduino "Pin" kategorisi (dijital ayarla, PWM, oku).
   /// Scratch'te boyle bir kategori yok; renk ve ad mBlock'un kendi
   /// cihaz paketinden (assets/mblock/mblock_bloklari.js ile ayni).
-  mblockPin(Color(0xFF4A90E2), Color(0xFF3F7CC4), Color(0xFF33639E), 'Pin');
+  mblockPin(Color(0xFF4A90E2), Color(0xFF3F7CC4), Color(0xFF33639E), 'Pin'),
+
+  /// mBlock'un cihaz kategorileri: seri port (yesil), Sensör (acik
+  /// mavi), Veri (mor). Renkler mblock_bloklari.js RENKLER ile ayni.
+  mblockSeriPort(Color(0xFF7ED321), Color(0xFF6BB41C), Color(0xFF569117),
+      'mblock.serialPort'),
+  mblockSensor(Color(0xFF4CBFE6), Color(0xFF40A2C4), Color(0xFF33829D),
+      'mblock.sensor'),
+  mblockVeri(Color(0xFFBD10E0), Color(0xFFA00EBE), Color(0xFF800B98),
+      'mblock.data');
 
   const ScratchKategori(this.renk, this.renk2, this.renk3, this.adAnahtari);
 
@@ -94,9 +103,34 @@ enum ScratchKategori {
 
   /// Kategori adi, Scratch'in kendi dil dosyasindan.
   String ad(String lang) =>
+      _mblockAdlari[adAnahtari]?[lang] ??
+      _mblockAdlari[adAnahtari]?['en'] ??
       (scratchResmiEtiketler[lang] ?? scratchResmiEtiketler['en']!)[
           adAnahtari] ??
       adAnahtari;
+
+  /// mBlock cihaz kategorilerinin adlari (mBlock'un kendi dil
+  /// dosyalarindaki gibi; Scratch sozlugunde yoklar).
+  static const Map<String, Map<String, String>> _mblockAdlari = {
+    'mblock.serialPort': {
+      'tr': 'seri port',
+      'en': 'serial port',
+      'de': 'serieller Port',
+      'es': 'puerto serie',
+    },
+    'mblock.sensor': {
+      'tr': 'Sensör',
+      'en': 'Sensor',
+      'de': 'Sensor',
+      'es': 'Sensor',
+    },
+    'mblock.data': {
+      'tr': 'Veri',
+      'en': 'Data',
+      'de': 'Daten',
+      'es': 'Datos',
+    },
+  };
 
   /// Paletin solundaki kategori dairesi hangi kategoriyi temsil ediyor
   /// (liste bloklari Degiskenler dairesinde).
@@ -178,6 +212,14 @@ final class SbRenk extends SbParca {
   const SbRenk(this.renk, this.ad);
   final Color renk;
   final String ad;
+}
+
+/// Satirdaki dokunulabilir bir parcanin kutusu ([ScratchBlokOlcer.parcaKutulari]).
+class SbParcaKutusu {
+  const SbParcaKutusu(this.yol, this.kutu, this.parca);
+  final List<int> yol;
+  final Rect kutu;
+  final SbParca parca;
 }
 
 /// Bir Scratch blogunun tam tarifi: kategori, sekil, satirdaki parcalar.
@@ -995,6 +1037,43 @@ class ScratchBlokOlcer {
       x += g.w + 2 * _gu * olcek;
     }
     return null;
+  }
+
+  /// Satirdaki DOKUNULABILIR parcalarin (beyaz oval, acilir liste,
+  /// takili blok, bos altigen, renk) blogun sol ustune gore kutulari.
+  /// [SbParcaKutusu.yol] parcanin [ScratchBlokTanimi.satir] icindeki
+  /// sirasi; takili blogun kendi parcalari icin yol uzuyor ([2, 0]:
+  /// ucuncu parcadaki takili blogun ilk parcasi). Takili blogun
+  /// kendisi de (kendi yoluyla) listede, parcalarindan ONCE.
+  static List<SbParcaKutusu> parcaKutulari(ScratchBlokTanimi t, double olcek,
+      {bool silme = false}) {
+    final out = <SbParcaKutusu>[];
+    void gez(_BlokDuzeni d, Offset o, List<int> yol) {
+      final atla = d._uzantiIkonu == null ? 0 : 2;
+      var x = o.dx + d.satir.solPay;
+      for (var i = 0; i < d.satir.ogeler.length; i++) {
+        final g = d.satir.ogeler[i];
+        final y = o.dy + d.ustPay + (d.satirH - g.h) / 2;
+        final pi = i - atla;
+        if (pi >= 0 && pi < d.t.satir.length) {
+          final p = d.t.satir[pi];
+          final kutu = Rect.fromLTWH(x, y, g.w, g.h);
+          switch (p) {
+            case SbGirdi() || SbAcilir() || SbBosKosul() || SbRenk():
+              out.add(SbParcaKutusu([...yol, pi], kutu, p));
+            case SbIcBlok():
+              out.add(SbParcaKutusu([...yol, pi], kutu, p));
+              if (g is _IcBlokOge) gez(g.d, Offset(x, y), [...yol, pi]);
+            case SbYazi() || SbIkon():
+              break;
+          }
+        }
+        x += g.w + 2 * _gu * olcek;
+      }
+    }
+
+    gez(_BlokDuzeni(t, olcek, silme: silme), Offset.zero, const []);
+    return out;
   }
 
   /// "Degilse" satirinin yuksekligi.

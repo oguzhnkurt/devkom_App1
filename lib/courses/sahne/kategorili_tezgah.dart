@@ -67,9 +67,21 @@ class KategoriliTezgah extends StatefulWidget {
     this.kodSayisi = 0,
     this.kodSurumu = 0,
     this.calisiyor = false,
+    this.kategoriSirasi,
+    this.paletEnKucukOrani,
   });
 
   final String lang;
+
+  /// Verilirse paletteki uzun bloklar olcegin bu oranindan fazla
+  /// kuculmuyor; sigmayan kismi palet kenarinda kirpiliyor (Scratch'in
+  /// kendi blok listesindeki gibi). mBlock'un uzun donanim bloklari
+  /// ("mesafe algılayıcı … trig pin … echo pin") okunur kalsin diye.
+  final double? paletEnKucukOrani;
+
+  /// Kategorilerin sirasi (verilmezse Scratch'teki sira). mBlock
+  /// atolyesi: once Olaylar, Kontrol ve cihaz kategorileri.
+  final List<ScratchKategori>? kategoriSirasi;
 
   /// Paletin bloklari. Sahibi AYNI listeyi gecirdikce palet yeniden
   /// kurulmuyor (kod degisince palet yerinde kaliyor).
@@ -132,7 +144,7 @@ class KategoriliTezgahState extends State<KategoriliTezgah> {
   @override
   void initState() {
     super.initState();
-    _kategoriler = _kategorileriBul(widget.ogeler);
+    _kategoriler = _kategorileriBul(widget.ogeler, widget.kategoriSirasi);
     _paletK.addListener(_kaydirildi);
     _etkin.addListener(_seritteGoster);
   }
@@ -159,7 +171,7 @@ class KategoriliTezgahState extends State<KategoriliTezgah> {
     final old = oldWidget;
     super.didUpdateWidget(oldWidget);
     if (!identical(old.ogeler, widget.ogeler)) {
-      _kategoriler = _kategorileriBul(widget.ogeler);
+      _kategoriler = _kategorileriBul(widget.ogeler, widget.kategoriSirasi);
       if (_etkin.value >= _kategoriler.length) _etkin.value = 0;
     }
     if (widget.calisiyor && !old.calisiyor && !_kodSekmesi) {
@@ -183,8 +195,17 @@ class KategoriliTezgahState extends State<KategoriliTezgah> {
     super.dispose();
   }
 
-  static List<ScratchKategori> _kategorileriBul(List<PaletOgesi> o) =>
-      ScratchKategoriSeridi.sirala(o.map((e) => e.kategori));
+  static List<ScratchKategori> _kategorileriBul(
+      List<PaletOgesi> o, List<ScratchKategori>? sira) {
+    final k = ScratchKategoriSeridi.sirala(o.map((e) => e.kategori));
+    if (sira == null) return k;
+    int yer(ScratchKategori x) {
+      final i = sira.indexOf(x);
+      return i < 0 ? sira.length + k.indexOf(x) : i;
+    }
+
+    return k..sort((a, b) => yer(a).compareTo(yer(b)));
+  }
 
   void _kaydirildi() {
     if (_atlaniyor || !_paletK.hasClients) return;
@@ -368,6 +389,7 @@ class KategoriliTezgahState extends State<KategoriliTezgah> {
         kaydirma: _paletK,
         olcum: _olcum,
         basliklar: _kategoriler.length >= 2,
+        enKucukOran: widget.paletEnKucukOrani,
       );
     }
     return _liste!;
@@ -652,7 +674,10 @@ class _PaletListesi extends StatelessWidget {
     required this.kaydirma,
     required this.olcum,
     required this.basliklar,
+    this.enKucukOran,
   });
+
+  final double? enKucukOran;
 
   final List<PaletOgesi> ogeler;
   final List<ScratchKategori> kategoriler;
@@ -690,7 +715,9 @@ class _PaletListesi extends StatelessWidget {
         for (final o in bloklar) {
           var s = olcek;
           final w = ScratchBlokOlcer.genislik(o.tanim, s);
-          if (w > sigma) s = s * sigma / w * 0.995;
+          if (w > sigma) {
+            s = math.max(s * sigma / w * 0.995, olcek * (enKucukOran ?? 0));
+          }
           final h = ScratchBlokOlcer.yukseklik(o.tanim, s) +
               ScratchBlokOlcer.tirnakPayi(s) +
               _ara;
@@ -704,10 +731,18 @@ class _PaletListesi extends StatelessWidget {
       Widget satir(BuildContext context, int i) {
         final s = satirlar[i];
         if (s.oge == null) return _baslik(s.kategori!);
-        return Align(
+        final blok = Align(
           alignment: Alignment.topLeft,
           child: s.oge!.builder(context, s.olcek),
         );
+        // Kirpilan uzun blok: tasma uyarisi yok, kenarda kesiliyor.
+        return enKucukOran == null
+            ? blok
+            : ClipRect(
+                child: OverflowBox(
+                    alignment: Alignment.topLeft,
+                    maxWidth: double.infinity,
+                    child: blok));
       }
 
       const dolgu = EdgeInsets.fromLTRB(_yan, _ust, _yan, 24);

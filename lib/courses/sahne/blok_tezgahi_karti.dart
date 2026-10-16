@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme.dart';
 import '../../utils/lang.dart';
+import '../../widgets/scratch_blok.dart' show ScratchKategori;
 import 'kategorili_tezgah.dart';
 
 export 'kategorili_tezgah.dart'
@@ -36,7 +37,9 @@ class BlokTezgahiKarti extends StatelessWidget {
         kodSayisi = 0,
         kodSurumu = 0,
         calisiyor = false,
-        tezgahAnahtari = null;
+        tezgahAnahtari = null,
+        kategoriSirasi = null,
+        paletEnKucukOrani = null;
 
   /// SINIRLI YUKSEKLIKLI, KATEGORILI tezgah (ders adimlari ve Proje
   /// Atolyesi): kategori sekmeleri, kod alaniyla ayni olcekte palet,
@@ -54,6 +57,8 @@ class BlokTezgahiKarti extends StatelessWidget {
     this.kodSurumu = 0,
     this.calisiyor = false,
     this.tezgahAnahtari,
+    this.kategoriSirasi,
+    this.paletEnKucukOrani,
   })  : palet = const SizedBox.shrink(),
         kod = const SizedBox.shrink(),
         sigdir = false,
@@ -76,6 +81,8 @@ class BlokTezgahiKarti extends StatelessWidget {
   final int kodSurumu;
   final bool calisiyor;
   final GlobalKey<KategoriliTezgahState>? tezgahAnahtari;
+  final List<ScratchKategori>? kategoriSirasi;
+  final double? paletEnKucukOrani;
 
   /// Tezgahtaki blok olcegi (palet ve kod alani ayni). Scratch editoru
   /// 0.675 ile ciziyor; dar telefonda biraz daha kucuk.
@@ -135,6 +142,8 @@ class BlokTezgahiKarti extends StatelessWidget {
         kodSayisi: kodSayisi,
         kodSurumu: kodSurumu,
         calisiyor: calisiyor,
+        kategoriSirasi: kategoriSirasi,
+        paletEnKucukOrani: paletEnKucukOrani,
       );
     }
     Widget bolum(String baslik, Widget icerik) {
