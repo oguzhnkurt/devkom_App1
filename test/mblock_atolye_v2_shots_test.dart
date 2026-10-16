@@ -25,11 +25,13 @@ import 'package:devkom_app/courses/data/courses_data.dart';
 import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
 import 'package:devkom_app/courses/sahne/kategorili_tezgah.dart';
 import 'package:devkom_app/courses/sahne/mblock_sahnesi.dart';
+import 'package:devkom_app/courses/sahne/uno_karti.dart';
 import 'package:devkom_app/courses/screens/interactive_lesson_screen.dart';
 import 'package:devkom_app/courses/screens/mblock_atolye_ekrani.dart';
 import 'package:devkom_app/courses/screens/widgets/mblock_tezgahi.dart';
 import 'package:devkom_app/courses/screens/widgets/step_widgets.dart';
 import 'package:devkom_app/courses/yurutme/mblock_cozum.dart';
+import 'package:devkom_app/courses/yurutme/mblock_uno.dart';
 import 'package:devkom_app/providers/auth_provider.dart';
 import 'package:devkom_app/providers/settings_provider.dart';
 import 'package:devkom_app/services/sound_service.dart';
@@ -38,6 +40,8 @@ import 'package:devkom_app/widgets/scratch_blok.dart';
 
 final _dizin = Platform.environment['MBLOCK_ATOLYE_V2_DIR'] ??
     '/mnt/user-data/outputs/mblock_atolye_v2';
+final _unoDizin = Platform.environment['UNO_YENI_DIR'] ??
+    '/mnt/user-data/outputs/uno_yeni';
 final _key = GlobalKey();
 final _mblock = CoursesData.byId('mblock')!;
 final _scratch = CoursesData.byId('scratch')!;
@@ -122,13 +126,14 @@ Future<void> _bekle(WidgetTester tester, int ms) async {
   }
 }
 
-Future<void> _cek(WidgetTester tester, String ad) async {
+Future<void> _cek(WidgetTester tester, String ad, {String? dizin}) async {
+  final hedef = dizin ?? _dizin;
   await tester.runAsync(() async {
     final b = _key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
     final img = await b.toImage(pixelRatio: 2);
     final bytes = await img.toByteData(format: ui.ImageByteFormat.png);
-    Directory(_dizin).createSync(recursive: true);
-    File('$_dizin/$ad.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+    Directory(hedef).createSync(recursive: true);
+    File('$hedef/$ad.png').writeAsBytesSync(bytes!.buffer.asUint8List());
   });
 }
 
@@ -167,8 +172,23 @@ final _ledProgrami = [
   ]),
 ];
 
+List<MBlockBlok> _ledlerProgrami(List<int> pinler) => [
+      const MBlockBlok(tip: 'dev_kart_acilis'),
+      MBlockBlok(tip: 'dev_surekli', icerik: [
+        for (final p in pinler)
+          MBlockBlok(
+              tip: 'dev_dijital_yaz', alanlar: {'PIN': '$p', 'SEVIYE': 'HIGH'}),
+        const MBlockBlok(tip: 'dev_bekle', alanlar: {'SANIYE': '1'}),
+        for (final p in pinler)
+          MBlockBlok(
+              tip: 'dev_dijital_yaz', alanlar: {'PIN': '$p', 'SEVIYE': 'LOW'}),
+        const MBlockBlok(tip: 'dev_bekle', alanlar: {'SANIYE': '1'}),
+      ]),
+    ];
+
 void main() {
   _seciciKaresi();
+  _unoKareleri();
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
     await _fontlar();
@@ -337,6 +357,152 @@ void _seciciKaresi() {
     await tester.tapAt(tester.getTopLeft(blok) + kutular[0].kutu.center);
     await _bekle(tester, 600);
     await _cek(tester, '8_pin_secici');
+    await _kapat(tester);
+  });
+}
+
+/// Sanal Uno kareleri: yalniz kart, breadboard'da LED'ler, PWM, atolye.
+/// Cikti: /mnt/user-data/outputs/uno_yeni (UNO_YENI_DIR).
+void _unoKareleri() {
+  Future<UnoKarti> tekKart(WidgetTester tester, String ad, UnoParcalari p,
+      void Function(UnoKarti k) durum,
+      {double genislik = 398}) async {
+    final kart = UnoKarti();
+    await _kur(
+        tester,
+        Scaffold(
+          backgroundColor: const Color(0xFFF6F7FB),
+          body: Center(
+            child: Container(
+              width: genislik,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F8F8),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: SizedBox(
+                height: UnoKartiGorunumu.yukseklik(p, genislik),
+                child: UnoKartiGorunumu(kart: kart, parcalar: p, lang: 'tr'),
+              ),
+            ),
+          ),
+        ));
+    durum(kart);
+    await _bekle(tester, 200);
+    await _cek(tester, ad, dizin: _unoDizin);
+    return kart;
+  }
+
+  testWidgets('uno 1 yalniz kart, L yanik', (tester) async {
+    await tekKart(tester, '1_kart_L_yanik', const UnoParcalari(ledler: [13]),
+        (k) => k.dijitalYaz(13, true));
+    await _kapat(tester);
+  });
+
+  testWidgets('uno 2 pin 9 LED yanik', (tester) async {
+    await tekKart(tester, '2_breadboard_pin9_yanik',
+        const UnoParcalari(ledler: [9]), (k) => k.dijitalYaz(9, true));
+    await _kapat(tester);
+  });
+
+  testWidgets('uno 3 PWM yari parlak', (tester) async {
+    await tekKart(tester, '3_pwm_yari_parlak',
+        const UnoParcalari(ledler: [9], pot: true),
+        (k) => k..pwmYaz(9, 128)..pot = 512);
+    await _kapat(tester);
+  });
+
+  testWidgets('uno 4 alti LED pin 2-7', (tester) async {
+    await tekKart(tester, '4_alti_led_pin2_7',
+        const UnoParcalari(ledler: [2, 3, 4, 5, 6, 7]), (k) {
+      for (final p in [2, 4, 5, 7]) {
+        k.dijitalYaz(p, true);
+      }
+    });
+    await _kapat(tester);
+  });
+
+  testWidgets('uno 5 360 genislik buton + servo + buzzer', (tester) async {
+    await tekKart(
+        tester,
+        '5_360_buton_servo_buzzer',
+        const UnoParcalari(
+            ledler: [9, 13], buton: true, servolar: [10], buzzer: true),
+        (k) => k
+          ..dijitalYaz(9, true)
+          ..dijitalYaz(13, true)
+          ..servoYaz(10, 45),
+        genislik: 340);
+    await _kapat(tester);
+  });
+
+  testWidgets('uno 5b park alarmi: buzzer kartin yaninda', (tester) async {
+    await tekKart(tester, '5b_park_alarmi_buzzer_mesafe',
+        const UnoParcalari(buzzer: true, mesafe: true),
+        (k) => k
+          ..mesafe = 18
+          ..dijitalYaz(UnoKarti.buzzerPini, true));
+    await _kapat(tester);
+  });
+
+  testWidgets('uno 6 atolye 430 alti LED', (tester) async {
+    await _kur(tester, MBlockAtolyeEkrani(course: _mblock));
+    final s = tester
+        .state<MBlockAtolyeEkraniState>(find.byType(MBlockAtolyeEkrani));
+    s.durumVer([_ledlerProgrami([2, 3, 4, 5, 6, 7])]);
+    await tester.pump();
+    final sahne = tester.state<MBlockSahnesiState>(find.byType(MBlockSahnesi));
+    await _dokun(tester, find.byKey(const ValueKey('mblock_sahne_bayragi')));
+    for (var i = 0; i < 40 && sahne.unoKarti.dijital[7] != true; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await _bekle(tester, 300);
+    await tester.drag(find.byKey(const ValueKey('mblock_atolye_sayfasi')),
+        const Offset(0, 400));
+    await _bekle(tester, 200);
+    await _cek(tester, '6_atolye_430_alti_led', dizin: _unoDizin);
+    sahne.durdur();
+    await _kapat(tester);
+  });
+
+  testWidgets('uno 7 atolye 430 pin 13', (tester) async {
+    await _kur(tester, MBlockAtolyeEkrani(course: _mblock));
+    final s = tester
+        .state<MBlockAtolyeEkraniState>(find.byType(MBlockAtolyeEkrani));
+    s.durumVer([_ledProgrami]);
+    await tester.pump();
+    final sahne = tester.state<MBlockSahnesiState>(find.byType(MBlockSahnesi));
+    await _dokun(tester, find.byKey(const ValueKey('mblock_sahne_bayragi')));
+    for (var i = 0; i < 40 && sahne.unoKarti.dijital[13] != true; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await _bekle(tester, 300);
+    await tester.drag(find.byKey(const ValueKey('mblock_atolye_sayfasi')),
+        const Offset(0, 400));
+    await _bekle(tester, 200);
+    await _cek(tester, '7_atolye_430_pin13', dizin: _unoDizin);
+    sahne.durdur();
+    await _kapat(tester);
+  });
+
+  testWidgets('uno 8 atolye 375x667 pin 9', (tester) async {
+    await _kur(tester, MBlockAtolyeEkrani(course: _mblock),
+        boy: const Size(375, 667));
+    final s = tester
+        .state<MBlockAtolyeEkraniState>(find.byType(MBlockAtolyeEkrani));
+    s.durumVer([_ledlerProgrami([9])]);
+    await tester.pump();
+    final sahne = tester.state<MBlockSahnesiState>(find.byType(MBlockSahnesi));
+    await _dokun(tester, find.byKey(const ValueKey('mblock_sahne_bayragi')));
+    for (var i = 0; i < 40 && sahne.unoKarti.dijital[9] != true; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await _bekle(tester, 300);
+    await tester.drag(find.byKey(const ValueKey('mblock_atolye_sayfasi')),
+        const Offset(0, 400));
+    await _bekle(tester, 200);
+    await _cek(tester, '8_atolye_375_pin9', dizin: _unoDizin);
+    sahne.durdur();
     await _kapat(tester);
   });
 }
