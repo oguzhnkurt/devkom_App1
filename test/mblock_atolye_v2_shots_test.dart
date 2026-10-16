@@ -18,15 +18,19 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:devkom_app/courses/data/course_modules.dart';
 import 'package:devkom_app/courses/data/courses_data.dart';
 import 'package:devkom_app/courses/models/interactive_lesson_model.dart';
 import 'package:devkom_app/courses/sahne/kategorili_tezgah.dart';
 import 'package:devkom_app/courses/sahne/mblock_sahnesi.dart';
+import 'package:devkom_app/courses/screens/interactive_lesson_screen.dart';
 import 'package:devkom_app/courses/screens/mblock_atolye_ekrani.dart';
+import 'package:devkom_app/courses/screens/widgets/mblock_tezgahi.dart';
 import 'package:devkom_app/courses/screens/widgets/step_widgets.dart';
 import 'package:devkom_app/courses/yurutme/mblock_cozum.dart';
+import 'package:devkom_app/providers/auth_provider.dart';
 import 'package:devkom_app/providers/settings_provider.dart';
 import 'package:devkom_app/services/sound_service.dart';
 import 'package:devkom_app/widgets/mascot.dart';
@@ -45,6 +49,12 @@ Future<void> _fontlar() async {
         File('assets/fonts/Nunito-$w.ttf').readAsBytesSync().buffer.asByteData()));
   }
   await n.load();
+  await (FontLoader('Baloo2')
+        ..addFont(Future.value(File('assets/fonts/Baloo2-ExtraBold.ttf')
+            .readAsBytesSync()
+            .buffer
+            .asByteData())))
+      .load();
   final root = Platform.environment['FLUTTER_ROOT'] ??
       File(Platform.resolvedExecutable).parent.parent.parent.path;
   final ikon =
@@ -57,16 +67,25 @@ Future<void> _fontlar() async {
 }
 
 Future<void> _kur(WidgetTester tester, Widget home,
-    {Size boy = const Size(430, 932), double yazi = 1.0}) async {
+    {Size boy = const Size(430, 932),
+    double yazi = 1.0,
+    bool iphone = false}) async {
   tester.view.physicalSize = Size(boy.width * 3, boy.height * 3);
   tester.view.devicePixelRatio = 3;
+  // iPhone 15/16 Pro Max: durum cubugu ve ev cizgisi.
+  if (iphone) {
+    tester.view.padding = const FakeViewPadding(top: 59 * 3, bottom: 34 * 3);
+  }
   tester.platformDispatcher.textScaleFactorTestValue = yazi;
   addTearDown(tester.view.reset);
   addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
   final ayar = SettingsProvider();
   await ayar.setLocale(const Locale('tr'));
-  await tester.pumpWidget(ChangeNotifierProvider<SettingsProvider>.value(
-    value: ayar,
+  await tester.pumpWidget(MultiProvider(
+    providers: [
+      ChangeNotifierProvider<SettingsProvider>.value(value: ayar),
+      ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+    ],
     child: MaterialApp(
       debugShowCheckedModeBanner: false,
       locale: const Locale('tr'),
@@ -154,8 +173,62 @@ void main() {
   setUpAll(() async {
     await _fontlar();
     SoundService.configure(sound: false);
-    SharedPreferences.setMockInitialValues({});
+    for (final kanal in const [
+      'com.llfbandit.app_links/events',
+      'com.llfbandit.app_links/messages',
+    ]) {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(MethodChannel(kanal), (_) async => null);
+    }
+    SharedPreferences.setMockInitialValues({'language_code': 'tr'});
+    await Supabase.initialize(
+        url: 'http://127.0.0.1:1', publishableKey: 'test', debug: false);
   });
+
+  // mBlock 1. ders (ve ilk blok adimi) 430x932: her adim ders ekraninda.
+  // MBLOCK_DERS_ETIKET=oncesi / sonrasi.
+  final etiket = Platform.environment['MBLOCK_DERS_ETIKET'] ?? 'sonrasi';
+  final ders = CourseModules.allLessons('mblock').first;
+  final adimlar = [
+    ...ders.steps,
+    CourseModules.allLessons('mblock')
+        .expand((l) => l.steps)
+        .firstWhere((s) => s.id == 'm0_2_build1'),
+  ];
+  for (var i = 0; i < adimlar.length; i++) {
+    testWidgets('mblock ders 1 adim ${adimlar[i].id}', (tester) async {
+      MBlockTezgahi.webviewsiz = true;
+      addTearDown(() => MBlockTezgahi.webviewsiz = false);
+      await _kur(
+          tester,
+          InteractiveLessonScreen(
+              course: _mblock,
+              lesson: InteractiveLesson(
+                  id: ders.id,
+                  courseId: 'mblock',
+                  title: ders.title,
+                  subtitle: ders.subtitle,
+                  order: 1,
+                  xpReward: ders.xpReward,
+                  steps: [adimlar[i]])),
+          iphone: true);
+      // Anlatim paragraflari sirayla geliyor: hepsi gelsin.
+      await _bekle(tester, 9000);
+      final kaydir = find.byType(Scrollable);
+      var uzunluk = 0.0;
+      for (final e in kaydir.evaluate()) {
+        final st = (e as StatefulElement).state as ScrollableState;
+        if (st.position.axis == Axis.vertical &&
+            st.position.maxScrollExtent > uzunluk) {
+          uzunluk = st.position.maxScrollExtent;
+        }
+      }
+      debugPrint('KAYDIRMA $etiket ${adimlar[i].id} ${uzunluk.round()}');
+      await _cek(tester,
+          'ders1_${etiket}_${(i + 1).toString().padLeft(2, '0')}_${adimlar[i].id}');
+      await _kapat(tester);
+    });
+  }
 
   testWidgets('atolye 430x932', (tester) async {
     await _kur(tester, MBlockAtolyeEkrani(course: _mblock));
