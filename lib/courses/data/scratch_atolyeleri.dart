@@ -1,6 +1,7 @@
 import '../models/interactive_lesson_model.dart';
 import '../yurutme/atolye_hedefleri.dart';
 import '../yurutme/blok_yorumlayici.dart';
+import 'kod_bloklari_seviyeleri.dart';
 import 'scratch_atolye_bloklari.dart';
 
 /// Scratch kursunun PROJE ATOLYELERI.
@@ -981,7 +982,8 @@ class ScratchAtolyeleri {
     for (final a in hepsi) {
       if (a.id == id) return a;
     }
-    return null;
+    // Kod Bloklari oyununda kaydedilen cizimler de Projelerim'de.
+    return KodBloklariSeviyeleri.bul(id);
   }
 
   /// "Projelerim"deki bos atolye: butun atolyelerin bloklari, hedefsiz.

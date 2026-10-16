@@ -4,7 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Karakterin izgarada isinlanmasina karsi koruma.
 ///
-/// Sag-Sol, Labirent Kasifi, Robot Simulatoru ve Blok Kodlama'da karakter
+/// Sag-Sol, Labirent Kasifi ve Robot Simulatoru'nde (Kod Bloklari artik
+/// izgara oyunu degil, Scratch kalemiyle cizim) karakter
 /// uzun sure hucrenin *icine* ciziliyordu: her komutta bir kareden
 /// kayboluyor, digerinde aniden beliriyordu. Cocuk hangi yone gittigini
 /// goremiyordu. Karakter artik izgaranin ustunde, `AnimatedPositioned`
@@ -19,7 +20,6 @@ void main() {
     const izgaraOyunlari = {
       'lib/screens/games/maze_explorer_game_screen.dart': '_playerX',
       'lib/screens/games/robot_simulator_game_screen.dart': '_robotX',
-      'lib/screens/games/block_coding_game_screen.dart': '_playerX',
     };
 
     izgaraOyunlari.forEach((yol, alan) {

@@ -10,19 +10,19 @@ import '../../providers/auth_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../services/sound_service.dart';
 import '../../services/user_progress_service.dart';
-import '../../widgets/pro_paywall.dart';
 import '../../utils/lang.dart';
 import '../../models/game_model.dart';
 import '../../theme.dart';
 import '../../ui/answer_feedback.dart';
 import '../../ui/motion.dart';
+import '../../utils/pro_gate.dart';
 import '../../ui/press_button.dart';
 import '../../widgets/oyun_cipleri.dart';
 import '../../widgets/oyun_kimligi.dart';
 
 /// Ücretsiz kullanıcıların Pro'ya geçmeden oynayabileceği soru sayısı.
-/// Bu sayıya ulaşınca (doğru cevapladıktan sonra) oyunu devam ettirmek
-/// için Pro paywall gösterilir.
+/// Bundan sonraki her soru ödüllü videoyla (bir video = bir soru) ya da
+/// Pro ile açılıyor; çocuk vazgeçerse oyun orada bitiyor.
 const int kMillionaireFreeQuestionLimit = 3;
 
 class MillionaireGameScreen extends StatefulWidget {
@@ -1109,40 +1109,61 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
       }
 
       if (ucretsizSinir) {
-        setState(() => _gameOver = true);
-        _awardProgress();
-        _showFreeLimitPaywall();
+        // Ilk 3 sorudan sonra her yeni soru ya Pro ile ya da ODULLU
+        // VIDEO ile aciliyor (her video tek soru). Cocuk vazgecerse oyun
+        // burada biter ve kazandigi kadar odul alir.
+        _siradakiSoruyuAc();
         return;
       }
 
-      setState(() {
-        _currentQuestionIndex++;
-        _selectedAnswer = null;
-        _showingResult = false;
-        _hiddenOptions.clear();
-        _audienceVotes = null;
-        _phoneAnswer = null;
-      });
+      _sonrakiSoru();
+    });
+  }
 
-      // Para agacini otomatik olarak kaydir.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _scrollToPrize();
-      });
+  /// Ucretsiz sinirdan sonra: "Video izle, sıradaki soruyu aç" / Pro.
+  Future<void> _siradakiSoruyuAc() async {
+    final sonuc = await ProGate.ensureOrAd(
+      context,
+      featureName: _tl('Bilgi Yarışması', 'Knowledge Quiz', 'Wissensquiz', 'Concurso de preguntas'),
+      explanation: _tl(
+          'İlk $kMillionaireFreeQuestionLimit soru ücretsiz. Devam etmek için kısa bir video izle ya da Pro\'ya geç.',
+          'The first $kMillionaireFreeQuestionLimit questions are free. Watch a short video or go Pro to keep playing.',
+          'Die ersten $kMillionaireFreeQuestionLimit Fragen sind gratis. Schau ein kurzes Video oder hol dir Pro, um weiterzuspielen.',
+          'Las primeras $kMillionaireFreeQuestionLimit preguntas son gratis. Mira un vídeo corto o hazte Pro para seguir.'),
+      reklamEtiketi: (dil) => AppLang.pick(dil,
+          tr: 'Video izle, sıradaki soruyu aç',
+          en: 'Watch a video, unlock the next question',
+          de: 'Video ansehen, nächste Frage freischalten',
+          es: 'Ver un vídeo y desbloquear la siguiente pregunta'),
+    );
+    if (!mounted) return;
+    if (sonuc == ProUnlock.kapali) {
+      setState(() => _gameOver = true);
+      _awardProgress();
+      return;
+    }
+    _sonrakiSoru();
+  }
+
+  void _sonrakiSoru() {
+    setState(() {
+      _currentQuestionIndex++;
+      _selectedAnswer = null;
+      _showingResult = false;
+      _hiddenOptions.clear();
+      _audienceVotes = null;
+      _phoneAnswer = null;
+    });
+
+    // Para agacini otomatik olarak kaydir.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToPrize();
     });
   }
 
   bool get _isPro =>
       Provider.of<AuthProvider>(context, listen: false).currentUser?.isPro ??
       false;
-
-  void _showFreeLimitPaywall() {
-    ProPaywall.show(
-      context: context,
-      title: _tl('🎉 İlk $kMillionaireFreeQuestionLimit Soruyu Tamamladın!', '🎉 You completed the first $kMillionaireFreeQuestionLimit questions!', '🎉 Du hast die ersten $kMillionaireFreeQuestionLimit Fragen geschafft!', '🎉 ¡Completaste las primeras $kMillionaireFreeQuestionLimit preguntas!'),
-      message: _tl('Bilgi Yarışması\'na devam etmek ve daha büyük ödülleri kazanmak için Pro\'ya geç.', 'Go Pro to continue the Knowledge Quiz and win bigger prizes.', 'Hol dir Pro, um im Wissensquiz weiterzuspielen und größere Preise zu gewinnen.', 'Hazte Pro para seguir en el concurso y ganar premios más grandes.'),
-      featureDescription: _tl('Pro ile Bilgi Yarışması\'nda sınırsız soru, tüm oyunlarda tam erişim ve daha fazlası seni bekliyor!', 'With Pro you get unlimited questions in the Knowledge Quiz, full access to all games, and more!', 'Mit Pro warten unbegrenzte Fragen im Wissensquiz, voller Zugriff auf alle Spiele und mehr auf dich!', 'Con Pro te esperan preguntas ilimitadas en el concurso, acceso completo a todos los juegos y mucho más.'),
-    );
-  }
 
   /// Oyun bitince (kazanma/kaybetme/ücretsiz limit) ulaşılan seviyeye göre
   /// kalıcı XP ve jeton kazandırır (Market'te harcanabilir). Bilgi Yarışması

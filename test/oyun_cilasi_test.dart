@@ -1,4 +1,5 @@
 // Komut Dizilimi ve Kod Bloklari cilasi (Ekim 2026).
+import 'package:devkom_app/courses/screens/widgets/proje_atolyesi.dart';
 import 'package:devkom_app/providers/auth_provider.dart';
 import 'package:devkom_app/providers/settings_provider.dart';
 import 'package:devkom_app/screens/games/block_coding_game_screen.dart';
@@ -39,14 +40,23 @@ Future<void> _kapat(WidgetTester t) async {
 }
 
 void main() {
-  testWidgets('Kod Bloklari: bloga DOKUNMAK kodu ekliyor', (tester) async {
+  testWidgets('Kod Bloklari: seviye haritasi, ilk seviye acik, digerleri kilitli',
+      (tester) async {
     await _ac(tester, const BlockCodingGameScreen());
-    expect(find.byKey(const ValueKey('blok_robot')), findsOneWidget);
-    expect(find.text('1 Adım Git'), findsOneWidget); // yalnizca palette
-    await tester.tap(find.byKey(const ValueKey('blok_paleti_moveForward')));
-    await tester.pump(const Duration(milliseconds: 200));
-    expect(find.text('1 Adım Git'), findsNWidgets(2)); // palette + kod
-    expect(find.byKey(const ValueKey('blok_yildiz_sayaci')), findsOneWidget);
+    expect(find.text('Çizim Ustası'), findsOneWidget);
+    expect(find.text('0/10'), findsOneWidget);
+    // Kilitli seviyeye dokunmak acmiyor.
+    await tester.tap(find.byKey(const ValueKey('kod_bloklari_seviye_1')));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(ProjeAtolyesiWidget), findsNothing);
+    // Ilk seviye Scratch tezgahiyla aciliyor.
+    await tester.tap(find.byKey(const ValueKey('kod_bloklari_seviye_0')));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(ProjeAtolyesiWidget), findsOneWidget);
+    expect(find.text('Seviye 1/10'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('kod_bloklari_harita')));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(ProjeAtolyesiWidget), findsNothing);
     await _kapat(tester);
   });
 

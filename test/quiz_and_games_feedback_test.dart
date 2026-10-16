@@ -48,6 +48,16 @@ void main() {
       expect(s.contains('final ucretsizSinir ='), isTrue);
     });
 
+    test('sinirdan sonra her soru videoyla tek tek aciliyor', () {
+      // 3. sorudan sonra oyun Pro duvarinda bitiyordu. Artik siradaki
+      // soru odullu videoyla (ya da Pro ile) aciliyor; her video tek soru.
+      expect(s.contains('ProGate.ensureOrAd('), isTrue);
+      expect(s.contains('sıradaki soruyu aç'), isTrue);
+      expect(s.contains('_showFreeLimitPaywall'), isFalse);
+      expect(s.contains('ProUnlock.kapali'), isTrue,
+          reason: 'Vazgecen cocugun oyunu bitmeli ve odulu verilmeli.');
+    });
+
     test('dogru sik cevap acilinca gosteriliyor', () {
       expect(s.contains('final isCorrectOption ='), isTrue);
       expect(s.contains('if (_showingResult && isCorrectOption)'), isTrue);
