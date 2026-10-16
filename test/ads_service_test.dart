@@ -129,7 +129,7 @@ void main() {
   });
 
   group('Gunluk sinir', () {
-    test('odullu video gunluk tavana takiliyor', () async {
+    test('jeton videosu gunluk tavana takiliyor', () async {
       SharedPreferences.setMockInitialValues({});
       final now = DateTime.now();
       final today = '${now.year}-${now.month}-${now.day}';
@@ -138,10 +138,30 @@ void main() {
         'ads_rewarded_count': AdConfig.rewardedDailyCap,
       });
 
-      final result = await AdsService.instance.showRewarded();
+      final result = await AdsService.instance.showRewarded(gonullu: true);
 
       expect(result.reason, RewardedAdFailure.dailyCapReached);
       expect(fake.rewardedShowCalls, 0);
+      expect(await AdsService.instance.canWatchRewarded(gonullu: true), isFalse);
+    });
+
+    test('kilit acan video sinirsiz ve jeton hakkini tuketmiyor', () async {
+      final now = DateTime.now();
+      final today = '${now.year}-${now.month}-${now.day}';
+      SharedPreferences.setMockInitialValues({
+        'ads_rewarded_day': today,
+        'ads_rewarded_count': AdConfig.rewardedDailyCap,
+      });
+      fake.rewardedResult = true;
+      for (var i = 0; i < 50; i++) {
+        expect(await AdsService.instance.canWatchRewarded(), isTrue, reason: 'tur $i');
+        final r = await AdsService.instance.showRewarded();
+        expect(r.earned, isTrue, reason: 'tur $i');
+      }
+      expect(fake.rewardedShowCalls, 50);
+      expect(await AdsService.instance.debugKilitVideoCountToday(), 50);
+      expect(await AdsService.instance.debugRewardedCountToday(), AdConfig.rewardedDailyCap,
+          reason: 'kilit videolari jeton sayacina yazilmiyor');
     });
 
     test('yarida kapatilan videoda odul verilmiyor', () async {
@@ -176,7 +196,7 @@ void main() {
     });
   });
 
-  test('gunluk odullu video siniri 15 (satranc gibi tekrar oyunlari icin)', () {
+  test('gunluk jeton videosu siniri 15', () {
     expect(AdConfig.rewardedDailyCap, 15);
   });
 }

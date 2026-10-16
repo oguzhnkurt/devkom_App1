@@ -70,6 +70,12 @@ class AdsService {
 
   static const String _kRewardedDayKey = 'ads_rewarded_day';
   static const String _kRewardedCountKey = 'ads_rewarded_count';
+
+  /// Kilit acan (oyun turu, ders) videolarin sayaci: sinir YOK, yalnizca
+  /// tani ekrani icin sayiliyor. Jeton videolariyla ayri tutuluyor ki
+  /// oyun icin izlenen videolar jeton hakkini tuketmesin.
+  static const String _kRewardedKilitDayKey = 'ads_rewarded_kilit_day';
+  static const String _kRewardedKilitCountKey = 'ads_rewarded_kilit_count';
   static const String _kInterstitialDayKey = 'ads_interstitial_day';
   static const String _kInterstitialCountKey = 'ads_interstitial_count';
 
@@ -189,6 +195,9 @@ class AdsService {
       return false;
     }
     if (_platform.rewardedUnitId == null) return false;
+    // Gunluk tavan yalnizca JETON videolarinda: kilit acan video (oyun
+    // turu, ders) sinirsiz. Bkz. AdConfig.rewardedDailyCap.
+    if (!gonullu) return true;
     return await _rewardedCountToday() < AdConfig.rewardedDailyCap;
   }
 
@@ -219,7 +228,9 @@ class AdsService {
     }
     final bugun = await _rewardedCountToday();
     if (bugun >= AdConfig.rewardedDailyCap) {
-      return 'Gunluk hak doldu ($bugun/${AdConfig.rewardedDailyCap}).';
+      return 'Jeton videosu icin gunluk hak doldu '
+          '($bugun/${AdConfig.rewardedDailyCap}); kilit acan videolar '
+          'sinirsiz.';
     }
     return null;
   }
@@ -255,7 +266,7 @@ class AdsService {
       return const RewardedAdResult(
           earned: false, reason: RewardedAdFailure.notAvailable);
     }
-    if (await _rewardedCountToday() >= AdConfig.rewardedDailyCap) {
+    if (gonullu && await _rewardedCountToday() >= AdConfig.rewardedDailyCap) {
       return const RewardedAdResult(
           earned: false, reason: RewardedAdFailure.dailyCapReached);
     }
@@ -269,7 +280,11 @@ class AdsService {
       return const RewardedAdResult(
           earned: false, reason: RewardedAdFailure.dismissedEarly);
     }
-    await _bumpRewardedCount();
+    if (gonullu) {
+      await _bumpRewardedCount();
+    } else {
+      await _bumpCounter(_kRewardedKilitDayKey, _kRewardedKilitCountKey);
+    }
     // Gunluk tavana ulasildiysa serit hemen kaybolsun.
     _durumDegisti();
     return RewardedAdResult.success;
@@ -409,6 +424,10 @@ class AdsService {
   DateTime? get debugLastInterstitialShownAt => _lastInterstitialShownAt;
 
   Future<int> debugRewardedCountToday() => _rewardedCountToday();
+
+  /// Bugun kilit acmak icin izlenen video sayisi (sinirsiz; tani icin).
+  Future<int> debugKilitVideoCountToday() =>
+      _counterToday(_kRewardedKilitDayKey, _kRewardedKilitCountKey);
   Future<int> debugInterstitialCountToday() => _interstitialCountToday();
 
   /// Geçiş reklamını sıra/ara/tavan gözetmeden gösterir.

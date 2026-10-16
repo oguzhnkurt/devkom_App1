@@ -112,13 +112,19 @@ class AdConfig {
   /// daha kârlı olursa uygulamanın amacı tersine dönüyor.
   static const int rewardedJeton = 5;
 
-  /// Bir günde izlenebilecek ödüllü video sayısı.
+  /// Bir günde izlenebilecek JETON videosu sayısı.
   ///
-  /// Ekim 2026: 5'ten 15'e çıkarıldı. Pro oyunda bir video TEK TUR
-  /// açıyor; 5 sınırıyla satranç gibi tekrar oynanan bir oyunda çocuk
-  /// günde 5 turda (jeton videolarıyla ortak sayaç) kilitleniyordu.
-  /// Jeton tarafı yine ders yapmaktan kârlı değil: 15 × 5 = 75 jeton,
-  /// yaklaşık 9 ders.
+  /// Yalnızca jeton veren videolarda (Market'teki "video izle, jeton
+  /// kazan"). Jeton tarafı ders yapmaktan kârlı olmamalı: 15 × 5 = 75
+  /// jeton, yaklaşık 9 ders.
+  ///
+  /// KİLİT AÇAN videolar (Pro oyunda bir tur, Pro kursun ilk iki dersi)
+  /// Ekim 2026'dan beri SINIRSIZ: çocuk satrancı her turdan önce video
+  /// izleyerek istediği kadar oynayabilir. Bunlar para birimi vermiyor,
+  /// bu yüzden sınırın koruduğu bir şey yok. Ödüllü reklam her zaman
+  /// kullanıcının kendi seçimi (AdMob ve Play Aileler politikası da
+  /// zorla gösterilmeyen ödüllü videoya sayı sınırı istemiyor).
+  /// Zorla araya giren geçiş reklamlarının sınırı aşağıda, aynen.
   static const int rewardedDailyCap = 15;
 
   /// Geçiş reklamları arasındaki en az süre.
