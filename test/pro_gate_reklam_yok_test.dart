@@ -57,6 +57,10 @@ const _sonuclar = {
 };
 
 void main() {
+  // Bu dosya reklamli/kilitli NORMAL davranisi siniyor; AdMob askisindaki
+  // gecici "reklamlar kapali" anahtari test/reklam_askisi_test.dart'ta.
+  setUpAll(() => AdConfig.reklamlarKapali = false);
+  tearDownAll(() => AdConfig.reklamlarKapali = true);
   group('reklamSonucu', () {
     test('bayrak varsayilan olarak acik (AdMob askisi)', () {
       expect(AdConfig.reklamYoksaKilitAc, isTrue);

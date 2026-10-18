@@ -12,6 +12,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:devkom_app/config/ad_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -65,6 +66,10 @@ Future<List<String>> _renderAndScan(WidgetTester tester, String lang) async {
 }
 
 void main() {
+  // Bu dosya reklamli/kilitli NORMAL davranisi siniyor; AdMob askisindaki
+  // gecici "reklamlar kapali" anahtari test/reklam_askisi_test.dart'ta.
+  setUpAll(() => AdConfig.reklamlarKapali = false);
+  tearDownAll(() => AdConfig.reklamlarKapali = true);
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('Pro ekranindaki her metin dort dilde yazilmis', () {

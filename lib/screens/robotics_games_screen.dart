@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../config/ad_config.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -1178,7 +1180,10 @@ class ProGames {
     GameType.wordMatch,
   };
 
-  static bool isProGame(GameType type) => !free.contains(type);
+  /// [AdConfig.reklamlarKapali] acikken (AdMob askisi) hicbir oyun
+  /// kilitli degil: kart etiketleri, sandik ve oyun kapisi buna bakiyor.
+  static bool isProGame(GameType type) =>
+      !AdConfig.reklamlarKapali && !free.contains(type);
 
   /// Reklamla bile acilmayan, YALNIZCA Pro oyunlar. Bugun bos: kilitli her
   /// oyun bilgi sayfasinda "reklam izle, bir tur oyna" secenegi sunuyor.

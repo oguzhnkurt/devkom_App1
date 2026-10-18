@@ -92,6 +92,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   /// incelemecisinin en dikkatli baktigi ekran — Ingilizce, Almanca ve
   /// Ispanyolca kullaniciya Turkce goruntyordu.
   List<(IconData, String, String)> get _highlights => [
+        // Oyunlar gecici olarak herkese acikken (AdMob askisi) Pro'nun
+        // "ek oyun" sozu tutulmayan bir soz olur; madde cikmiyor.
+        if (ProGames.lockedGameCount > 0)
         (
           Icons.sports_esports_rounded,
           // SAYI GERÇEK OLMALI. Katalogda 15 oyun var, 6'sı ücretsiz →

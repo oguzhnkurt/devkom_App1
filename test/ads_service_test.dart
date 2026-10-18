@@ -50,6 +50,10 @@ class _FakeAdsPlatform extends AdsPlatform {
 }
 
 void main() {
+  // Bu dosya reklamli/kilitli NORMAL davranisi siniyor; AdMob askisindaki
+  // gecici "reklamlar kapali" anahtari test/reklam_askisi_test.dart'ta.
+  setUpAll(() => AdConfig.reklamlarKapali = false);
+  tearDownAll(() => AdConfig.reklamlarKapali = true);
   late _FakeAdsPlatform fake;
 
   setUp(() {

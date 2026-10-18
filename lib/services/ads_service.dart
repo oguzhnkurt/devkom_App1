@@ -156,6 +156,8 @@ class AdsService {
   bool get isSupported => _platform.supported;
 
   Future<void> initialize() async {
+    // AdMob askisi: SDK hic baslatilmiyor, hicbir reklam istegi gitmiyor.
+    if (AdConfig.reklamlarKapali) return;
     if (_initialized || !isSupported) return;
     try {
       // Once son bilinen Pro durumu: ag cevabi gelene kadar gecerli.
@@ -191,6 +193,7 @@ class AdsService {
   /// ödül videosunu ondan esirgemek bu sözün parçası değil. Kilit açan
   /// ya da araya giren reklamlar Pro'ya hâlâ hiç gösterilmiyor.
   Future<bool> canWatchRewarded({bool gonullu = false}) async {
+    if (AdConfig.reklamlarKapali) return false;
     if ((_isProMember && !gonullu) || !isSupported || !_initialized) {
       return false;
     }
@@ -309,6 +312,7 @@ class AdsService {
 
   /// Kullanıcı ders/oyun ekranından çıkarken çağrılıyor.
   Future<bool> showInterstitialIfDue() async {
+    if (AdConfig.reklamlarKapali) return false;
     if (!_interstitialDue || _isProMember || !isSupported) return false;
     if (!await _interstitialAllowedNow()) return false;
 

@@ -7,11 +7,16 @@ import 'package:devkom_app/screens/robotics_games_screen.dart' show ProGames;
 import 'package:devkom_app/services/embedded_games_service.dart';
 import 'package:devkom_app/widgets/oyun_sahnesi.dart';
 import 'package:devkom_app/widgets/surpriz_sandik.dart';
+import 'package:devkom_app/config/ad_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 String _oku(String yol) => File(yol).readAsStringSync();
 
 void main() {
+  // Bu dosya reklamli/kilitli NORMAL davranisi siniyor; AdMob askisindaki
+  // gecici "reklamlar kapali" anahtari test/reklam_askisi_test.dart'ta.
+  setUpAll(() => AdConfig.reklamlarKapali = false);
+  tearDownAll(() => AdConfig.reklamlarKapali = true);
   group('Kesfet kartlari', () {
     test('sira: gunun bilgisi, etkinlikler, Devi\'ye sor, oyun onerisi', () {
       final src = _oku('lib/screens/unified_home_screen.dart');

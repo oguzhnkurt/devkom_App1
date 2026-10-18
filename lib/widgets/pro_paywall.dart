@@ -67,6 +67,8 @@ class ProPaywall extends StatelessWidget {
         AppLang.pick(lang, tr: tr, en: en, de: de, es: es);
     final n = ProGames.lockedGameCount;
     return [
+      // Oyunlar gecici olarak herkese acikken madde cikmiyor.
+      if (n > 0)
       (
         Icons.sports_esports_rounded,
         t('$n ek oyun', '$n more games', '$n weitere Spiele', '$n juegos más'),

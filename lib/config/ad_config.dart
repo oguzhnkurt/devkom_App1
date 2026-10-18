@@ -144,6 +144,23 @@ class AdConfig {
   /// Askı bitip reklamlar düzenli dolmaya başlayınca `false` yapılabilir.
   static const bool reklamYoksaKilitAc = true;
 
+  /// GEÇİCİ: TÜM REKLAM SEÇENEKLERİ KAPALI (18 Ekim 2026, kullanıcı kararı).
+  ///
+  /// AdMob askısı sürerken uygulamada "reklam izle" diye hiçbir seçenek
+  /// görünmüyor:
+  /// * Bütün oyunlar ücretsiz açık; oyun kartlarında ve sürpriz sandıkta
+  ///   "Reklamla" etiketi yok, Bilgi Yarışması'nda soru sınırı yok.
+  /// * Pro kurslar (Arduino IDE, Java, C#) YALNIZCA Pro ile açılıyor;
+  ///   "reklam izle, bu dersi aç" yok. Daha önce videoyla açılmış dersler
+  ///   açık kalıyor.
+  /// * Jeton videoları (Market, Etkinlikler) ve geçiş reklamları yok;
+  ///   reklam SDK'sı hiç istek göndermiyor.
+  /// * Pro sayfalarında "N ek oyun" maddesi çıkmıyor (oyunlar zaten açık).
+  ///
+  /// Askı bitince `false` yapılır; her şey eski haline döner.
+  /// `const` değil ki testler eski davranışı da sınayabilsin.
+  static bool reklamlarKapali = true;
+
   /// Geçiş reklamları arasındaki en az süre.
   static const Duration interstitialMinGap = Duration(minutes: 4);
 

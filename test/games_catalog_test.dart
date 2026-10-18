@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:devkom_app/config/ad_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:devkom_app/models/game_model.dart';
@@ -13,6 +14,10 @@ import 'package:devkom_app/screens/robotics_games_screen.dart' show ProGames;
 /// durumdaydi (Kod Dedektifi, Degisken Ustasi, Hata Avcisi, Arduino
 /// Simulatoru).
 void main() {
+  // Bu dosya reklamli/kilitli NORMAL davranisi siniyor; AdMob askisindaki
+  // gecici "reklamlar kapali" anahtari test/reklam_askisi_test.dart'ta.
+  setUpAll(() => AdConfig.reklamlarKapali = false);
+  tearDownAll(() => AdConfig.reklamlarKapali = true);
   final games = EmbeddedGamesService.getAllEmbeddedGames();
 
   /// game_play_screen'in yonlendirebildigi oyun turleri. Buraya bir tur

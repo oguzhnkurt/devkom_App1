@@ -277,6 +277,8 @@ class _ProSheet extends StatelessWidget {
             'Cursos avanzados'),
         'Arduino IDE, Java, C#',
       ),
+      // Oyunlar gecici olarak herkese acikken madde cikmiyor.
+      if (_lockedGames > 0)
       (
         Icons.sports_esports_rounded,
         // Sayi ELLE yazilmisti ve 13 diyordu; katalogda Pro'nun actigi

@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../../config/ad_config.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/ad_unlock_service.dart';
 import '../../services/next_lesson_service.dart';
@@ -135,7 +136,11 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
       !_acilanDersler.contains(lesson.id);
 
   /// Kilitliyse reklamla acilabilir mi, yoksa yalnizca Pro mu?
+  ///
+  /// AdMob askisinda ([AdConfig.reklamlarKapali]) hicbiri: Pro kurslar
+  /// yalnizca Pro ile aciliyor.
   bool _reklamlaAcilir(InteractiveLesson lesson) =>
+      !AdConfig.reklamlarKapali &&
       AdUnlockService.instance
           .reklamlaAcilabilir(_dersSirasi[lesson.id] ?? 1 << 30);
 
@@ -1224,16 +1229,24 @@ class _InteractiveCourseScreenState extends State<InteractiveCourseScreen> {
         final ok = await ProGate.ensure(
           context,
           featureName: baslik,
-          explanation: lessonText(
-            lessonLangRead(context),
-            'Bu kursun ilk iki dersi herkese açık. Gerisi Pro üyelikte.',
-            'The first two lessons of this course are open to everyone. '
-                'The rest is part of Pro.',
-            'Die ersten zwei Lektionen dieses Kurses sind für alle offen. '
-                'Der Rest gehört zu Pro.',
-            'Las dos primeras lecciones de este curso son para todos. '
-                'El resto forma parte de Pro.',
-          ),
+          explanation: AdConfig.reklamlarKapali
+              ? lessonText(
+                  lessonLangRead(context),
+                  'Bu ileri seviye kurs Pro üyelikte.',
+                  'This advanced course is part of Pro.',
+                  'Dieser Fortgeschrittenenkurs gehört zu Pro.',
+                  'Este curso avanzado forma parte de Pro.',
+                )
+              : lessonText(
+                  lessonLangRead(context),
+                  'Bu kursun ilk iki dersi herkese açık. Gerisi Pro üyelikte.',
+                  'The first two lessons of this course are open to everyone. '
+                      'The rest is part of Pro.',
+                  'Die ersten zwei Lektionen dieses Kurses sind für alle offen. '
+                      'Der Rest gehört zu Pro.',
+                  'Las dos primeras lecciones de este curso son para todos. '
+                      'El resto forma parte de Pro.',
+                ),
         );
         if (!ok || !mounted) return;
       } else {

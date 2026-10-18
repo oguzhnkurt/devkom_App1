@@ -228,10 +228,14 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                 // seridi...) geciliyordu; o pano istenmedi.
                 if (next == null)
                   _FadeInUp(child: _buildPathFinished(isDark))
-                else if (isNewUser)
-                  _FadeInUp(child: _buildIlkGorev(next, isDark))
                 else
-                  _FadeInUp(child: _buildContinueCard(next, isDark)),
+                  // TEK KART (Ekim 2026, kullanici karari): magaza
+                  // gorselindeki renkli gorev karti ilk dersten sonra da
+                  // kaliyor. Eskiden ilk dersten sonra beyaz, ince bir
+                  // "Kaldigin yerden devam et" kartina geciliyordu; kullanici
+                  // ana sayfanin gorseldeki gibi kalmasini istedi.
+                  _FadeInUp(
+                      child: _buildIlkGorev(next, isDark, yeni: isNewUser)),
                 const SizedBox(height: 24),
                 // Gunluk sandik: her gun bir kez jeton odulu + gunun
                 // surpriz oyunu (bkz. GunlukSandikDeposu).
@@ -681,98 +685,6 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
   /// Tek bir sey var: baslama tusu. Istatistik yok, tanitim yok, kart
   /// izgarasi yok. Bos durum "eksiklerin listesi" degil, bir davet.
   /// Devam eden cocugun birincil karti.
-  Widget _buildContinueCard(NextStep next, bool isDark) {
-    final color = next.course.primaryColor;
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: color.withValues(alpha: 0.35), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.10),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      // Beyaz kartta simgeler dersin kendi renginde ve daha da soluk:
-      // beyaz uzerine beyaz gorunmez, ve acik zeminde ayni opaklik
-      // koyu zemindekinden daha baskin durur.
-      child: KodAkintisi(
-        kose: 22,
-        renk: color,
-        opaklik: 0.055,
-        child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(next.course.icon,
-                    style: const TextStyle(fontSize: 26)),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${next.course.nameFor(_lang)} · ${_t('Ders', 'Lesson', 'Lektion', 'Lección')} ${next.indexInCourse}/${next.courseLessonCount}',
-                      style: TextStyle(
-                        fontFamily: AppTheme.fontFamily,
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
-                        color: color,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      next.lesson.titleFor(_lang),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: AppTheme.fontFamily,
-                        fontSize: 17,
-                        height: 1.25,
-                        fontWeight: FontWeight.w800,
-                        color: isDark ? Colors.white : const Color(0xFF14161A),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          ProgressTrack(value: next.courseProgress, color: color),
-          const SizedBox(height: 14),
-          PressButton(
-            label: _t('Kaldığın yerden devam et', 'Continue where you left off',
-                'Weiter, wo du aufgehört hast', 'Continúa donde lo dejaste'),
-            icon: Icons.play_arrow_rounded,
-            color: color,
-            height: 52,
-            onPressed: () => _openLesson(next),
-          ),
-        ],
-        ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildPathFinished(bool isDark) {
     return Container(
       width: double.infinity,
@@ -1153,7 +1065,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
   ///
   /// Sure, XP ve maddeler dersin kendi verisinden (`IntroStep`), uydurma
   /// degil.
-  Widget _buildIlkGorev(NextStep next, bool isDark) {
+  Widget _buildIlkGorev(NextStep next, bool isDark, {bool yeni = true}) {
     final renk = next.course.primaryColor;
     final intro = next.lesson.steps.whereType<IntroStep>().firstOrNull;
     final maddeler = (intro?.highlightsFor(_lang) ?? const <String>[])
@@ -1225,8 +1137,12 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _t('İLK GÖREVİN', 'YOUR FIRST MISSION',
-                              'DEINE ERSTE MISSION', 'TU PRIMERA MISIÓN'),
+                          yeni
+                              ? _t('İLK GÖREVİN', 'YOUR FIRST MISSION',
+                                  'DEINE ERSTE MISSION', 'TU PRIMERA MISIÓN')
+                              : _t('SIRADAKİ GÖREVİN', 'YOUR NEXT MISSION',
+                                  'DEINE NÄCHSTE MISSION',
+                                  'TU PRÓXIMA MISIÓN'),
                           style: TextStyle(
                             fontFamily: AppTheme.fontFamily,
                             fontSize: 11.5,
@@ -1268,12 +1184,21 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                   cip(Icons.schedule_rounded, _sayi(next.lesson.estimatedMinutes)),
                   cip(Icons.bolt_rounded, '+${next.lesson.xpReward} XP'),
                   cip(Icons.format_list_numbered_rounded,
-                      _t('1 / ${next.courseLessonCount} ders',
-                          'Lesson 1 of ${next.courseLessonCount}',
-                          'Lektion 1 von ${next.courseLessonCount}',
-                          'Lección 1 de ${next.courseLessonCount}')),
+                      _t('${next.indexInCourse} / ${next.courseLessonCount} ders',
+                          'Lesson ${next.indexInCourse} of ${next.courseLessonCount}',
+                          'Lektion ${next.indexInCourse} von ${next.courseLessonCount}',
+                          'Lección ${next.indexInCourse} de ${next.courseLessonCount}')),
                 ],
               ),
+              if (!yeni) ...[
+                const SizedBox(height: 14),
+                ProgressTrack(
+                  value: next.courseProgress,
+                  color: Colors.white,
+                  background: Colors.white.withValues(alpha: 0.25),
+                  height: 10,
+                ),
+              ],
               if (maddeler.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 Container(
@@ -1324,11 +1249,11 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
                 // Ders hic bitmemis ama acilmis olabilir (cocuk ilk derse
                 // girip cikti): o zaman "basla" degil "devam et".
                 // (build zaten AuthProvider'i dinliyor; burada listen: false.)
-                label: Provider.of<AuthProvider>(context, listen: false)
-                        .baslananKurslar
-                        .contains(next.course.id)
-                    ? _t('Kaldığın yerden devam et',
-                        'Continue where you left off',
+                label: !yeni ||
+                        Provider.of<AuthProvider>(context, listen: false)
+                            .baslananKurslar
+                            .contains(next.course.id)
+                    ? _t('Kaldığın yerden devam et', 'Continue where you left off',
                         'Weiter, wo du aufgehört hast',
                         'Continúa donde lo dejaste')
                     : _t('İlk Dersine Başla', 'Start Your First Lesson',

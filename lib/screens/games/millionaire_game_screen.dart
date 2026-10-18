@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../config/ad_config.dart';
 import '../../widgets/oyun_basligi.dart';
 import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -1122,6 +1123,11 @@ class _MillionaireGameScreenState extends State<MillionaireGameScreen> {
 
   /// Ucretsiz sinirdan sonra: "Video izle, sıradaki soruyu aç" / Pro.
   Future<void> _siradakiSoruyuAc() async {
+    // AdMob askisi: oyunlar serbest, soru siniri yok.
+    if (AdConfig.reklamlarKapali) {
+      _sonrakiSoru();
+      return;
+    }
     final sonuc = await ProGate.ensureOrAd(
       context,
       featureName: _tl('Bilgi Yarışması', 'Knowledge Quiz', 'Wissensquiz', 'Concurso de preguntas'),
