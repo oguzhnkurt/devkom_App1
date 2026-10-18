@@ -27,6 +27,7 @@ import '../courses/screens/interactive_lesson_screen.dart';
 import '../models/learner_profile.dart';
 import '../providers/settings_provider.dart';
 import '../services/next_lesson_service.dart';
+import '../services/guncelleme_servisi.dart';
 import '../ui/count_up.dart';
 import '../ui/motion.dart';
 import '../ui/press_button.dart';
@@ -111,6 +112,11 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
     _orbAnimation = Tween<double>(begin: 0.92, end: 1.08).animate(
       CurvedAnimation(parent: _orbController, curve: Curves.easeInOut),
     );
+
+    // Magazada yeni surum varsa "Yeni surum mevcut" uyarisi (oturumda bir kez).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) GuncellemeServisi.kontrolEt(context, lang: _lang);
+    });
   }
 
   @override
