@@ -75,6 +75,13 @@ void main() {
     expect(s.contains('onTapUp: (d) => _kareyeDokunuldu('), isTrue);
   });
 
+  test('tahta kisa ekranda da sigiyor (iPhone Duo dis ekrani)', () {
+    // Kenar yalnizca genislikten hesaplaninca genis/kisa ekranda tahta
+    // asagi tasip kayboluyordu; artik kullanilabilir yukseklik de sinir.
+    final s = File(ekran).readAsStringSync();
+    expect(s.contains('alan.maxHeight - 28'), isTrue);
+  });
+
   test('dort tahta temasi, tahta resim degil boyama', () {
     // Paket tahtayi dort hazir resimden ciziyordu; yeni renk eklenemiyordu.
     final s = File(ekran).readAsStringSync();

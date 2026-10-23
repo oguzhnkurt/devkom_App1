@@ -118,7 +118,17 @@ const _telefon = _Cihaz('telefon', 430, 932, 3, 'ekranlar',
 /// 13 inc iPad: 1032x1376 mantiksal, 2x => 2064x2752.
 const _ipad = _Cihaz('ipad', 1032, 1376, 2, 'ipad', ['en', 'tr']);
 
-const _cihazlar = [_telefon, _ipad];
+/// iPhone Duo (Ekim 2026). App Store Connect olculeri:
+/// ic ekran 2007x2853, dis ekran 1398x2034 (3x).
+/// Bu ekranlar gonderilince urun sayfasinda "Made for iPhone Duo"
+/// rozeti cikiyor; Nisan 2027'den itibaren iOS 27.1 SDK ile derlenen
+/// her uygulama icin zorunlu.
+const _duoIc = _Cihaz('duo_ic', 669, 951, 3, 'duo_ic',
+    ['en', 'tr', 'de', 'es']);
+const _duoDis = _Cihaz('duo_dis', 466, 678, 3, 'duo_dis',
+    ['en', 'tr', 'de', 'es']);
+
+const _cihazlar = [_telefon, _ipad, _duoIc, _duoDis];
 final _key = GlobalKey();
 
 /// Magaza slaytindaki karakter: uygulamanin TEK karakteri.
@@ -609,6 +619,10 @@ void main() {
               tr: 'Başlat', en: 'Start', de: 'Starten', es: 'Empezar'),
         );
         if (basla.evaluate().isNotEmpty) {
+          // Kisa ekranda (Duo dis ekrani) tus kaydirilabilir alanin
+          // altinda kaliyor: once gorunur yap.
+          await tester.ensureVisible(basla.first);
+          await tester.pump(const Duration(milliseconds: 300));
           await tester.tap(basla.first);
           // Yesil "Oyun basladi!" seridi slaytin altini kapatiyordu;
           // 2 saniyelik omru bitene kadar pompaliyoruz.
@@ -816,7 +830,7 @@ void main() {
   // Bir oyun ekrani widget testinde acilmazsa (Flame, zamanlayici,
   // zorluk secme penceresi) yalnizca O test dusuyor, digerleri yazmaya
   // devam ediyor. Duseni buradan cikarin.
-  if (cihaz.ad == 'telefon') {
+  if (cihaz.ad != 'ipad') {
     testWidgets('15 hata avcisi ($lang, ${cihaz.ad})', (tester) async {
       await _shoot(
         tester,

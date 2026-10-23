@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../widgets/oyun_basligi.dart';
@@ -1103,16 +1104,24 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
           ),
 
         // Chess board with last move highlight
+        //
+        // TAHTA HEM ENE HEM BOYA SIGIYOR (Ekim 2026, iPhone Duo).
+        // Eskiden kenar yalnizca genislikten hesaplaniyordu; genis ve
+        // kisa ekranlarda (Duo dis ekrani, yatay telefon, iPad bolunmus
+        // ekran) tahta asagi tasiyor ve ekrandan kayboluyordu.
         Expanded(
-          child: Center(
+          child: LayoutBuilder(builder: (context, alan) => Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Chess board with coordinates
                 LayoutBuilder(
                   builder: (context, constraints) {
-                    final maxWidth =
-                        constraints.maxWidth - 24; // Space for rank numbers
+                    // Sagda sira numaralari (24), altta harfler (20+).
+                    final maxWidth = math.max(
+                        80.0,
+                        math.min(constraints.maxWidth - 24,
+                            alan.maxHeight - 28));
                     final squareSize = maxWidth / 8;
                     return Column(
                       mainAxisSize: MainAxisSize.min,
@@ -1226,7 +1235,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
                 ),
               ],
             ),
-          ),
+          )),
         ),
 
         // Oyun bittiyse sonuc paneli, surerken bilgi seridi.
