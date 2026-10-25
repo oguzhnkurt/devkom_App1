@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:adapty_flutter/adapty_flutter.dart';
 import '../services/degerlendirme_servisi.dart';
+import '../services/veli_teklifi_servisi.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -668,7 +669,10 @@ class AuthProvider extends ChangeNotifier {
     final yerelYeni = !tamamlananDersler.contains(lessonId);
     _yerelTamamlanan = {..._yerelTamamlanan, lessonId};
     notifyListeners();
-    if (yerelYeni) DegerlendirmeServisi.instance.basariKaydet();
+    if (yerelYeni) {
+      DegerlendirmeServisi.instance.basariKaydet();
+      VeliTeklifiServisi.instance.basariKaydet();
+    }
     await DersIlerlemeDeposu.dersTamamlandi(lessonId);
 
     final user = _currentUser;

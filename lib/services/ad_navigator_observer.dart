@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'ads_service.dart';
 import 'degerlendirme_servisi.dart';
+import 'veli_teklifi_servisi.dart';
 
 /// Geçiş reklamını **ekran değişiminde** gösteren gözlemci.
 ///
@@ -21,6 +22,15 @@ class AdNavigatorObserver extends NavigatorObserver {
     if (DegerlendirmeServisi.instance.bekliyor) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         DegerlendirmeServisi.instance.bekliyorsaGoster();
+      });
+      return;
+    }
+    // Ilk dersten sonra veliye tek seferlik Pro sayfasi (bkz.
+    // VeliTeklifiServisi). Sayfa yeni ekranin ustunde aciliyor.
+    final ctx = navigator?.context;
+    if (VeliTeklifiServisi.instance.bekliyor && ctx != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (ctx.mounted) VeliTeklifiServisi.instance.bekliyorsaGoster(ctx);
       });
       return;
     }

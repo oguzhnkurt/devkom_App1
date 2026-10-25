@@ -109,6 +109,22 @@ class SubscriptionService {
     }
   }
 
+  /// Paywall kullaniciya GOSTERILDI (Adapty paywall metrikleri).
+  ///
+  /// Adapty paywall'un ne zaman ekranda oldugunu kendisi bilemiyor; bu
+  /// cagri olmadan panelde "goruntulenme 0" ve donusum orani hesaplanamiyor
+  /// (20 Ekim 2026 incelemesi). Abonelik ekrani urunleri gosterince bir kez
+  /// cagiriyor. Hata sessizce yutuluyor: olcum, ekrani bozmamali.
+  Future<void> logShowPaywall() async {
+    final paywall = _cachedPaywall;
+    if (paywall == null) return;
+    try {
+      await Adapty().logShowPaywall(paywall: paywall);
+    } catch (e) {
+      debugPrint('⚠️ Adapty logShowPaywall error: $e');
+    }
+  }
+
   /// Urun listesi bos donerse nedenini ayirt edebilmek icin kullanilir.
   /// Ekran bu bilgiyi kullaniciya anlamli bir mesaj gostermek icin okur.
   SubscriptionLoadFailure? lastFailure;

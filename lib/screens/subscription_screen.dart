@@ -237,6 +237,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       _selected = yearly ?? products.firstOrNull;
       _loading = false;
     });
+    // Paywall gercekten planlarla ekranda: Adapty'ye bildir.
+    if (products.isNotEmpty) _service.logShowPaywall();
   }
 
   // ---------------------------------------------------------------- satin alma
