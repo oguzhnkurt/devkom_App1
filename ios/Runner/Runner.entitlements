@@ -10,5 +10,8 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<!-- Push bildirimleri (Firebase Cloud Messaging, 1.0.18). -->
+	<key>aps-environment</key>
+	<string>production</string>
 </dict>
 </plist>

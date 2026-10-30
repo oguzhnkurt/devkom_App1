@@ -12,6 +12,7 @@ import 'core/service_locator.dart';
 import 'providers/auth_provider.dart';
 import 'providers/settings_provider.dart';
 import 'screens/auth/modern_splash_screen.dart';
+import 'services/firebase_servisi.dart';
 import 'services/local_notification_service.dart';
 import 'services/connectivity_service.dart';
 import 'services/score_cache_service.dart';
@@ -124,6 +125,10 @@ void main() async {
     debugPrint('⚠️ Some services failed to initialize: $e');
     debugPrint('App will continue with limited functionality');
   }
+
+  // FIREBASE (Analytics + Cloud Messaging). Adapty'den SONRA: Firebase
+  // kimligi Adapty profiline yaziliyor. Kendi icinde hata yutuyor.
+  await FirebaseServisi.instance.baslat();
 
   // REKLAM SERVISI KENDI TRY'INDA.
   //
@@ -254,7 +259,10 @@ class DevkomApp extends StatelessWidget {
             ],
             // Gecis reklami ekran degisiminde gosteriliyor; nedeni
             // AdNavigatorObserver aciklamasinda.
-            navigatorObservers: [AdNavigatorObserver()],
+            navigatorObservers: [
+              AdNavigatorObserver(),
+              FirebaseServisi.instance.gozlemci,
+            ],
             home: const ModernSplashScreen(),
           );
         },

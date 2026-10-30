@@ -183,7 +183,11 @@ void main() {
   test('gecis reklami ekran degisiminde gosteriliyor', () {
     // Kutlama ekraninin ustune binmemeli.
     final s = File('lib/main.dart').readAsStringSync();
-    expect(s.contains('navigatorObservers: [AdNavigatorObserver()]'), isTrue);
+    // Firebase ekran gozlemcisi de listede (1.0.18); reklam gozlemcisi ilk.
+    expect(
+        RegExp(r'navigatorObservers: \[\s*AdNavigatorObserver\(\),')
+            .hasMatch(s),
+        isTrue);
     final obs =
         File('lib/services/ad_navigator_observer.dart').readAsStringSync();
     expect(obs.contains('didPop'), isTrue);

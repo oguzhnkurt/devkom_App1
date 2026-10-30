@@ -72,6 +72,15 @@ void main() {
     expect(govde, isNot(contains('isPro: aktif')));
   });
 
+  test('zorunlu modda satin alma ebeveyn kapisinin arkasinda', () {
+    final s =
+        File('lib/screens/subscription_screen.dart').readAsStringSync();
+    final i = s.indexOf('Future<void> _purchase() async {');
+    final govde = s.substring(i, s.indexOf('purchaseProduct', i));
+    expect(govde, contains('if (widget.zorunlu)'));
+    expect(govde, contains('ParentGate.verify'));
+  });
+
   testWidgets('zorunlu modda geri ile kapanmiyor, Hesap baglantisi var',
       (tester) async {
     SharedPreferences.setMockInitialValues({'language_code': 'en'});

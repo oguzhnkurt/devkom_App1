@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "939322594123",
-    "project_id": "devkom-dfdca",
-    "storage_bucket": "devkom-dfdca.firebasestorage.app"
+    "project_number": "1035073444712",
+    "project_id": "deveducation-c550b",
+    "storage_bucket": "deveducation-c550b.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:939322594123:android:c98290e31dd82025250ece",
+        "mobilesdk_app_id": "1:1035073444712:android:80ade43023f6610da2d4dd",
         "android_client_info": {
-          "package_name": "com.example.devkom_app"
+          "package_name": "com.devkom.app"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDDK99DURN7CnHOAj45tMMt0ntcCQYvjlw"
+          "current_key": "AIzaSyAFYK3FUrClmZw58mDxti3DcN_PxMZ0tUU"
         }
       ],
       "services": {

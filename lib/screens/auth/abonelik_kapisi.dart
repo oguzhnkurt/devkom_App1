@@ -9,6 +9,14 @@ import '../../utils/pro_gate.dart';
 import '../splash_screen.dart';
 import '../subscription_screen.dart';
 
+/// Supabase'te sureli (hediye) Pro: `is_pro` + gelecekte bir bitis tarihi.
+/// Hediye vermek icin `users.pro_expiry_date` elle doldurulmali.
+bool sureliHediyeVar(UserModel? u, DateTime simdi) =>
+    u != null &&
+    u.isPro &&
+    u.proExpiryDate != null &&
+    u.proExpiryDate!.isAfter(simdi);
+
 /// ZORUNLU ABONELIK KAPISI (hard paywall).
 ///
 /// KARAR (30 Ekim 2026, kullanici): ucretsiz kullanim yok. Tanitim biter
@@ -30,14 +38,6 @@ import '../subscription_screen.dart';
 ///    eski senkron bayragi, iptal edilen denemede de true kaliyor.
 ///  * Adapty'ye ulasilamiyorsa (cevrimdisi) -> Supabase `hasActivePro`'ya
 ///    guveniliyor; yoksa satin alma ekrani.
-/// Supabase'te sureli (hediye) Pro: `is_pro` + gelecekte bir bitis tarihi.
-/// Hediye vermek icin `users.pro_expiry_date` elle doldurulmali.
-bool sureliHediyeVar(UserModel? u, DateTime simdi) =>
-    u != null &&
-    u.isPro &&
-    u.proExpiryDate != null &&
-    u.proExpiryDate!.isAfter(simdi);
-
 class AbonelikKapisi extends StatefulWidget {
   const AbonelikKapisi({super.key, required this.child, this.servis});
 

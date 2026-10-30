@@ -68,6 +68,18 @@
 	<string>Devkom, konuma dayalı özellikler için konum erişimi gerektirir.</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-4519840641603310~9762876692</string>
+	<!-- FIREBASE ANALYTICS (1.0.18). Reklam kisisellestirme kapali (cocuk
+	     kitlesi); SKAdNetwork kaydi acik: Google Ads uygulama kampanyalarinin
+	     iOS donusumleri IDFA olmadan SKAdNetwork ile olculuyor. -->
+	<key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS</key>
+	<false/>
+	<key>GOOGLE_ANALYTICS_REGISTRATION_WITH_AD_NETWORK_ENABLED</key>
+	<true/>
+	<!-- Firebase Cloud Messaging: uzak bildirim icin arka plan modu. -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

@@ -1,7 +1,7 @@
-# Global platform. Must stay >= 13.0: adapty_flutter, sign_in_with_apple and
+# Global platform. 15.0: Firebase (firebase_core 5) iOS 15 istiyor. Must stay >= 13.0: adapty_flutter, sign_in_with_apple and
 # flutter_sound all require iOS 13+. Leaving this commented makes CocoaPods
 # fall back to an older default and the pod install fails.
-platform :ios, '13.0'
+platform :ios, '15.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'

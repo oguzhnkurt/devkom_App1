@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
 import 'package:adapty_flutter/adapty_flutter.dart';
 import '../services/degerlendirme_servisi.dart';
 import '../services/veli_teklifi_servisi.dart';
@@ -18,6 +19,7 @@ import '../services/ders_ilerleme_deposu.dart';
 import '../services/local_notification_service.dart';
 import '../main.dart';
 import '../services/ads_service.dart';
+import '../services/firebase_servisi.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthServiceSupabase _authService = AuthServiceSupabase();
@@ -362,6 +364,10 @@ class AuthProvider extends ChangeNotifier {
   void _identifyAdapty(String userId) {
     Adapty().identify(userId).catchError((e) {
       debugPrint('⚠️ Adapty identify error: $e');
+    }).whenComplete(() {
+      // Firebase kullanici kimligi + Adapty'ye Firebase kimligi.
+      // identify bittikten sonra: yeni profile yazilsin.
+      unawaited(FirebaseServisi.instance.kullaniciAyarla(userId));
     });
   }
 
@@ -416,6 +422,11 @@ class AuthProvider extends ChangeNotifier {
       await _notificationService.requestPermissions();
       await _notificationService.scheduleDailyGoalReminders();
       debugPrint('Daily goal notifications scheduled');
+      // Firebase bildirimleri: izin + konu aboneligi (dil konusu dahil).
+      final prefs = await SharedPreferences.getInstance();
+      final dil = prefs.getString('language_code') ??
+          PlatformDispatcher.instance.locale.languageCode;
+      unawaited(FirebaseServisi.instance.bildirimleriAc(dil));
     } catch (e) {
       debugPrint('Failed to setup notifications: $e');
     }

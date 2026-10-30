@@ -57,6 +57,19 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="${admobAppId}"/>
 
+        <!-- FIREBASE ANALYTICS (1.0.18): reklam kimligi toplanmaz, reklam
+             kisisellestirme kapali. Cocuk kitlesi / Play Aile politikasi. -->
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="google_analytics_default_allow_ad_personalization_signals"
+            android:value="false" />
+        <!-- Firebase Cloud Messaging varsayilan kanali (arka planda gelen duyurular). -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="duyurular_channel" />
+
         <!-- Meta (Facebook) SDK Android'de KULLANILMIYOR (yalniz iOS,
              bkz. lib/services/meta_install_service.dart). Kutuphane yine de
              pakete giriyor; kendiliginden baslamasin, olay ve reklam

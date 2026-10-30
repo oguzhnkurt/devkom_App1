@@ -21,6 +21,8 @@ import '../utils/lang.dart';
 import 'robotics_games_screen.dart' show ProGames;
 import 'teklif_acilisi.dart';
 import 'auth/hesap_ekrani.dart';
+import '../widgets/parent_gate.dart';
+import '../services/firebase_servisi.dart';
 
 /// Pro abonelik ekrani (paywall).
 ///
@@ -261,12 +263,27 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     });
     // Paywall gercekten planlarla ekranda: Adapty'ye bildir.
     if (products.isNotEmpty) _service.logShowPaywall();
+    FirebaseServisi.instance.olay(Olay.paywallGoruntulendi, {
+      'zorunlu': widget.zorunlu ? 1 : 0,
+      'plan_sayisi': products.length,
+    });
   }
 
   // ---------------------------------------------------------------- satin alma
 
   Future<void> _purchase() async {
     if (_selected == null || _purchasing) return;
+    // Zorunlu modda ekran tanitimin hemen ardindan, cocugun elindeyken
+    // geliyor. Satin alma (deneme dahil) ebeveyn kapisinin arkasinda:
+    // magaza aciklamasi "kapidan gecmeden satin almaya ulasilmaz" diyor,
+    // cocugun yanlislikla abonelik baslatmasini da onluyor.
+    FirebaseServisi.instance.olay(Olay.satinAlmaDenendi, {
+      'urun': _selected!.vendorProductId,
+    });
+    if (widget.zorunlu) {
+      final gecti = await ParentGate.verify(context, lang: _lang);
+      if (!gecti || !mounted) return;
+    }
     HapticFeedback.mediumImpact();
     setState(() => _purchasing = true);
     try {
@@ -384,6 +401,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   /// Satin alma / geri yukleme basarili.
   void _basarili() {
+    FirebaseServisi.instance.olay(Olay.abonelikBasladi, {
+      'urun': _selected?.vendorProductId ?? '',
+    });
     if (widget.zorunlu) {
       widget.onAcildi?.call();
     } else {

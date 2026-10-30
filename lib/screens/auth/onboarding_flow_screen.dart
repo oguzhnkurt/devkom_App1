@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ import '../../services/placement_service.dart';
 import '../../widgets/first_task.dart';
 import '../../widgets/mascot.dart';
 import '../robotics_games_screen.dart' show ProGames;
+import '../../services/firebase_servisi.dart';
 
 /// Uygulamanın ilk açılışındaki kurulum akışı.
 ///
@@ -182,6 +184,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
       }
       await authProvider.saveLearnerProfile(_profile);
       await settings.markOnboardingAsSeen();
+      unawaited(FirebaseServisi.instance.tanitimBitti());
     } catch (e) {
       // Kayıt başarısız olsa bile kullanıcıyı kapıda tutmuyoruz.
       debugPrint('Onboarding kaydı tamamlanamadı: $e');
