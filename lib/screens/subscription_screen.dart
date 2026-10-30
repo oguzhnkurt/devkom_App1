@@ -20,6 +20,7 @@ import '../ui/press_button.dart';
 import '../utils/lang.dart';
 import 'robotics_games_screen.dart' show ProGames;
 import 'teklif_acilisi.dart';
+import 'auth/hesap_ekrani.dart';
 
 /// Pro abonelik ekrani (paywall).
 ///
@@ -42,7 +43,28 @@ import 'teklif_acilisi.dart';
 /// kapat + geri yukle > fayda basligi > ne aldigin > (varsa) deneme takvimi
 /// > plan secimi > her zaman gorunen alt buton > yasal satir.
 class SubscriptionScreen extends StatefulWidget {
-  const SubscriptionScreen({super.key});
+  const SubscriptionScreen(
+      {super.key, this.zorunlu = false, this.onAcildi, this.yenidenKontrol});
+
+  /// ZORUNLU (hard paywall) mod: [AbonelikKapisi] uygulamanin onune koyuyor.
+  ///
+  /// Ucretsiz kullanim yok (karar 30 Eki 2026). Bu modda ekran bir route
+  /// degil, uygulamanin kendisinin yerinde duruyor; o yuzden:
+  ///  * kapat tusu bir kez cikis teklifini aciyor, sonra gizleniyor;
+  ///  * geri hareketi ekrani kapatmiyor;
+  ///  * satin alma / geri yukleme basarili olunca `Navigator.pop` yerine
+  ///    [onAcildi] cagriliyor.
+  /// Geri yukleme, deneme takvimi ve yasal baglantilar aynen duruyor
+  /// (App Store 3.1.2).
+  final bool zorunlu;
+
+  /// Zorunlu modda abonelik acilinca cagrilir.
+  final VoidCallback? onAcildi;
+
+  /// Zorunlu modda Hesap ekranindan (giris yap / hesabi sil) donulunce
+  /// abonelik yeniden kontrol edilir: baska cihazda abone olmus biri giris
+  /// yapinca iceri girebilmeli.
+  final Future<void> Function()? yenidenKontrol;
 
   @override
   State<SubscriptionScreen> createState() => _SubscriptionScreenState();
@@ -275,7 +297,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             ),
           );
         }
-        Navigator.pop(context, true);
+        _basarili();
       }
     } catch (e) {
       // Ham StoreKit/Adapty metnini kullaniciya gostermiyoruz; teknik ayrinti
@@ -317,7 +339,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             ),
           );
         }
-        Navigator.pop(context, true);
+        _basarili();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -351,10 +373,38 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
   }
 
+  Future<void> _hesabiAc() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const HesapEkrani()),
+    );
+    if (!mounted) return;
+    await widget.yenidenKontrol?.call();
+  }
+
+  /// Satin alma / geri yukleme basarili.
+  void _basarili() {
+    if (widget.zorunlu) {
+      widget.onAcildi?.call();
+    } else {
+      Navigator.pop(context, true);
+    }
+  }
+
+  /// Ekrani kapatir. Zorunlu modda kapatacak bir sey yok: kullanici
+  /// planlarin oldugu ekranda kaliyor (kapat tusu da artik gizli).
+  void _kapat() {
+    if (widget.zorunlu) {
+      if (mounted) setState(() {});
+      return;
+    }
+    Navigator.pop(context);
+  }
+
   /// Kapat / geri hareketinde bir kez calisir.
   void _closeRequested() {
     if (_exitOfferShown) {
-      Navigator.pop(context);
+      _kapat();
       return;
     }
     _showExitOffer();
@@ -386,7 +436,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
     // Gosterilecek bir plan yoksa dogrudan cikiyoruz.
     if (offer == null) {
-      if (mounted) Navigator.pop(context);
+      if (mounted) _kapat();
       return;
     }
 
@@ -415,7 +465,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     final soyleyecekSeyVar = discounted != null ||
         (anchorProduct != null && saving != null && saving > 0);
     if (!soyleyecekSeyVar) {
-      if (mounted) Navigator.pop(context);
+      if (mounted) _kapat();
       return;
     }
 
@@ -474,7 +524,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       await _purchase();
       return;
     }
-    if (mounted) Navigator.pop(context);
+    if (mounted) _kapat();
   }
 
   /// Pro jetonu kazanildiginda gosterilen kutlama penceresi.
@@ -724,9 +774,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       // Kullanici vazgecip geri donerken bir kez daha yillik plani
       // gosteriyoruz. Ikinci kez geri basarsa ekran kapaniyor — kapanisi
       // engelleyen bir tuzak degil.
-      canPop: _exitOfferShown,
+      // Zorunlu modda geri hareketi hicbir zaman ekrani kapatmiyor.
+      canPop: !widget.zorunlu && _exitOfferShown,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _showExitOffer();
+        if (!didPop && !_exitOfferShown) _showExitOffer();
       },
       child: Scaffold(
         backgroundColor: _surface,
@@ -761,6 +812,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       padding: const EdgeInsets.fromLTRB(4, 4, 12, 0),
       child: Row(
         children: [
+          // Zorunlu modda cikis teklifi bir kez gosterildikten sonra kapat
+          // tusu gizleniyor; ayni yer korunuyor ki "Geri yukle" kaymasin.
+          if (widget.zorunlu && _exitOfferShown)
+            const SizedBox(width: 48, height: 48)
+          else
           IconButton(
             tooltip: _t('Kapat', 'Close', 'Schließen', 'Cerrar'),
             // 44x44 dokunma alani: kapat tusu her zaman gorunur ve rahat
@@ -1532,6 +1588,17 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       'Datenschutzerklärung', 'Política de privacidad'),
                   style: style),
             ),
+            // Zorunlu modda uygulamanin geri kalanina ulasilamiyor; giris
+            // yapma ve hesabi silme (App Store 5.1.1(v)) buradan aciliyor.
+            if (widget.zorunlu) ...[
+              Text('·', style: style),
+              TextButton(
+                style: _legalLinkStyle,
+                onPressed: _hesabiAc,
+                child: Text(_t('Hesap', 'Account', 'Konto', 'Cuenta'),
+                    style: style),
+              ),
+            ],
           ],
         ),
       ],

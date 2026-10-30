@@ -104,6 +104,28 @@ class SubscriptionService {
     }
   }
 
+  /// Zorunlu abonelik kapisi icin abonelik durumu: Adapty'ye gore aktif mi?
+  ///
+  /// `null` = Adapty'ye ulasilamadi (karar cagirana kalir).
+  ///
+  /// Kaynak Adapty, Supabase `is_pro` DEGIL: o bayrak yalnizca satin
+  /// alma/geri yuklemede yaziliyor, suresi biten ya da iptal edilen deneme
+  /// `true` kaliyor. Kapi ona guvenseydi denemeyi iptal eden herkes
+  /// sonsuza kadar iceri girerdi. Aktifse Supabase'e `true` yaziyoruz;
+  /// `false` YAZMIYORUZ (elle verilmis hediye Pro'yu silmemek icin).
+  Future<bool?> aboneMi({String? userId}) async {
+    try {
+      if (userId != null) await Adapty().identify(userId);
+      final profile = await Adapty().getProfile();
+      final aktif = profile.accessLevels[_accessLevelId]?.isActive ?? false;
+      if (aktif) await _syncProStatusToSupabase(isPro: true);
+      return aktif;
+    } catch (e) {
+      debugPrint('⚠️ Adapty aboneMi error: $e');
+      return null;
+    }
+  }
+
   Future<AdaptyPaywall?> getPaywall() async {
     try {
       _cachedPaywall ??= await Adapty().getPaywall(placementId: _placementId);
