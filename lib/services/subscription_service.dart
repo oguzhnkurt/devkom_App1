@@ -68,8 +68,13 @@ class SubscriptionService {
     try {
       final configuration = AdaptyConfiguration(
         apiKey: dotenv.env['ADAPTY_PUBLIC_KEY'] ?? '',
-      )..withLogLevel(
-          kDebugMode ? AdaptyLogLevel.verbose : AdaptyLogLevel.warn);
+      )
+        ..withLogLevel(
+            kDebugMode ? AdaptyLogLevel.verbose : AdaptyLogLevel.warn)
+        // Aile politikasi: kitlede cocuk var, reklam kimligi toplanmaz.
+        // Google Play 30 Ekim 2026'da AAID gonderimi yuzunden reddetti.
+        ..withGoogleAdvertisingIdCollectionDisabled(true)
+        ..withAppleIdfaCollectionDisabled(true);
 
       await Adapty().activate(configuration: configuration);
       debugPrint('✅ Adapty initialized');
