@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:devkom_app/utils/lang.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// `Info.plist` icindeki dil listesi ile uygulamanin gercekten
@@ -29,23 +30,20 @@ void main() {
         reason: 'Info.plist icinde CFBundleLocalizations yok. Olmadan '
             'App Store urun sayfasi uygulamayi tek dilli gosteriyor.');
 
-    final plistDilleri = RegExp(r'<string>([a-z]{2})</string>')
+    final plistDilleri = RegExp(r'<string>([A-Za-z-]+)</string>')
         .allMatches(blok!.group(1)!)
         .map((m) => m.group(1)!)
         .toSet();
 
-    final main = File('lib/main.dart').readAsStringSync();
-    final uygulamaDilleri = RegExp(r"Locale\('([a-z]{2})'")
-        .allMatches(main)
-        .map((m) => m.group(1)!)
+    // 51 dil (2 Kasim 2026): kaynak AppLang.supported. iOS Cince'yi
+    // betik koduyla istiyor (zh-Hans).
+    final uygulamaDilleri = AppLang.supported
+        .map((d) => d == 'zh' ? 'zh-Hans' : d)
         .toSet();
 
-    expect(uygulamaDilleri, isNotEmpty,
-        reason: 'main.dart icinde supportedLocales bulunamadi');
-
     expect(plistDilleri, equals(uygulamaDilleri),
-        reason: 'Info.plist: $plistDilleri, main.dart: $uygulamaDilleri. '
-            'Ikisi ayni olmali - yoksa ya magaza sayfasi eksik dil '
-            'gosterir ya da desteklenmeyen bir dil vaat edilir.');
+        reason: 'Info.plist ile AppLang.supported ayni olmali - yoksa ya '
+            'magaza sayfasi eksik dil gosterir ya da desteklenmeyen bir '
+            'dil vaat edilir.');
   });
 }

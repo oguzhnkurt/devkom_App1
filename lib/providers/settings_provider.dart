@@ -7,6 +7,7 @@ import '../utils/lang.dart';
 
 import '../services/sound_service.dart';
 import '../widgets/mascot.dart';
+import '../utils/ceviri.dart';
 
 class SettingsProvider extends ChangeNotifier {
   // Language/Locale
@@ -25,6 +26,10 @@ class SettingsProvider extends ChangeNotifier {
   // ONCE okunup buraya veriliyor; ikisi birlikte parlamayi tamamen
   // kapatiyor.
   Locale _locale;
+
+  /// setLocale() en az bir kez cagrildi mi? Baslangictaki asenkron
+  /// _loadSettings() bu secimi diskteki eski degerle ezmesin.
+  bool _dilSecildi = false;
 
   // Theme Mode
   ThemeMode _themeMode = ThemeMode.light;
@@ -96,8 +101,9 @@ class SettingsProvider extends ChangeNotifier {
   /// gore degil" demek olur. Ingilizce en genis anlasilan yedek.
   static Locale _deviceLocaleOrDefault() {
     final device = PlatformDispatcher.instance.locale;
-    if (supportedLanguages.contains(device.languageCode)) {
-      return Locale(device.languageCode, device.countryCode ?? '');
+    if (AppLang.isSupported(device.languageCode)) {
+      return Locale(AppLang.resolve(device.languageCode),
+          device.countryCode ?? '');
     }
     return const Locale(AppLang.en);
   }
@@ -114,10 +120,23 @@ class SettingsProvider extends ChangeNotifier {
     // cihazin diline bakiyoruz; destekledigimiz bir dil degilse Turkce'ye
     // dusuyoruz. Kullanici bir kez sectiginde tercihi her zaman kazaniyor.
     final savedLanguage = prefs.getString('language_code');
-    if (savedLanguage != null) {
+    if (_dilSecildi) {
+      // Yukleme surerken setLocale() cagrildi: o secim kazanir.
+    } else if (savedLanguage != null) {
       _locale = Locale(savedLanguage, prefs.getString('country_code') ?? '');
     } else {
       _locale = _deviceLocaleOrDefault();
+    }
+    // 51 dil: elle yazilan dort dil disindaysa ceviri tablosu. BEKLENMIYOR:
+    // burada beklemek, arada cagrilan setLocale()'in sectigi dili
+    // asagidaki atamadan sonra eskisiyle ezebiliyordu. Ilk acilista tablo
+    // zaten main() icinde runApp'ten once yukleniyor; burasi yalnizca
+    // yedek, yuklenince bir kez yeniden ciziliyor.
+    final yuklenecek = _locale.languageCode;
+    if (Ceviri.dil != yuklenecek) {
+      Ceviri.yukle(yuklenecek).then((_) {
+        if (_locale.languageCode == yuklenecek) notifyListeners();
+      });
     }
 
     // Load theme
@@ -151,7 +170,12 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setLocale(Locale locale) async {
     if (_locale == locale) return;
 
+    // _locale HEMEN (beklemeden) ataniyor: baslangictaki _loadSettings()
+    // ile yarisip ezilmesin. Tablo notifyListeners'tan once yukleniyor:
+    // dil degisince ilk cizilen kare dogru dilde olsun.
     _locale = locale;
+    _dilSecildi = true;
+    await Ceviri.yukle(locale.languageCode);
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('language_code', locale.languageCode);

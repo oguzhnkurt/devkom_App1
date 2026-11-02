@@ -194,7 +194,7 @@ class GameModel {
 
   /// Dile göre kategori adı (İngilizce'de yaş etiketleri de çevrilir).
   String getCategoryDisplayNameFor(String languageCode) {
-    if (languageCode != 'en') return getCategoryDisplayName();
+    if (languageCode == 'tr') return getCategoryDisplayName();
     switch (category) {
       case GameCategory.arduino:
         return 'Arduino';

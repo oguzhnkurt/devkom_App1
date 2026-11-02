@@ -148,6 +148,8 @@ flutter:
     - assets/sounds/
     - assets/sounds/ton/
     - assets/html/
+    # 51 dil: arayuz ceviri tablolari (bkz. lib/utils/ceviri.dart).
+    - assets/l10n/
     # MASKOT — buradan silinmesin.
     # 1.0.8 (build 13) bu satir olmadan derlendi ve YUKLENDI: Devi'nin
     # gorselleri pakete girmedi, uygulamada maskotun yerinde

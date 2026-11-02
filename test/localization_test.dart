@@ -13,11 +13,15 @@ import 'package:devkom_app/utils/lang.dart';
 /// unutulursa kimse fark etmez — kullanici disinda.
 void main() {
   group('AppLang', () {
-    test('dort dil destekleniyor', () {
-      expect(AppLang.supported, ['tr', 'en', 'de', 'es']);
+    test('51 dil destekleniyor; ilk dordu elle yazilan', () {
+      expect(AppLang.supported.take(4), ['tr', 'en', 'de', 'es']);
+      expect(AppLang.elleYazilan, ['tr', 'en', 'de', 'es']);
+      expect(AppLang.supported.length, 51);
       for (final code in AppLang.supported) {
         expect(AppLang.isSupported(code), isTrue);
         expect(AppLang.nativeName[code], isNotNull);
+      }
+      for (final code in AppLang.elleYazilan) {
         expect(AppLang.flag[code], isNotNull);
       }
     });
@@ -33,7 +37,8 @@ void main() {
     test('desteklenmeyen cihaz dili INGILIZCE ye duser, Turkce ye degil', () {
       // Fransizca bir cihazda uygulamanin Turkce acilmasi, kullaniciya
       // "bu uygulama sana gore degil" demek olur.
-      expect(AppLang.resolve('fr'), 'en');
+      expect(AppLang.resolve('xx'), 'en');
+      expect(AppLang.resolve('fr'), 'fr'); // 51 dilden biri
       expect(AppLang.resolve(null), 'en');
       expect(AppLang.resolve('de'), 'de');
       expect(AppLang.resolve('tr'), 'tr');

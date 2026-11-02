@@ -258,7 +258,7 @@ extension GameTypeLeaderboard on GameType {
   }
 
   String leaderboardTitleFor(String languageCode) {
-    if (languageCode != 'en') return leaderboardTitle;
+    if (languageCode == 'tr') return leaderboardTitle;
     switch (this) {
       case GameType.quiz:
         return 'Quiz Champions';
@@ -300,7 +300,7 @@ extension GameTypeLeaderboard on GameType {
   }
 
   String scoreLabelFor(String languageCode) {
-    if (languageCode != 'en') return scoreLabel;
+    if (languageCode == 'tr') return scoreLabel;
     if (this == GameType.quiz) {
       return 'Correct/Time';
     }

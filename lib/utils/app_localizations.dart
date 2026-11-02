@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'ceviri.dart';
 import 'lang.dart';
 
 /// Simple localization helper for the app
@@ -18,11 +19,11 @@ class AppLocalizations {
 
   // Common translations
   String get appName =>
-      _localizedValues[locale.languageCode]?['app_name'] ?? 'DevEducation';
+      _v('app_name') ?? 'DevEducation';
   String get welcome =>
-      _localizedValues[locale.languageCode]?['welcome'] ?? 'Hoşgeldiniz';
+      _v('welcome') ?? 'Hoşgeldiniz';
   String get settings =>
-      _localizedValues[locale.languageCode]?['settings'] ?? 'Ayarlar';
+      _v('settings') ?? 'Ayarlar';
 
   /// Yan menüdeki "Video Dersler" başlığı.
   ///
@@ -30,117 +31,117 @@ class AppLocalizations {
   /// Türkçeydi, yani İngilizce/Almanca/İspanyolca seçen kullanıcı
   /// menüyü açtığında "Video Dersler" ve "Seviye 1" görüyordu.
   String get videoLessons =>
-      _localizedValues[locale.languageCode]?['videoLessons'] ??
+      _v('videoLessons') ??
       'Video Dersler';
 
   String get level =>
-      _localizedValues[locale.languageCode]?['level'] ?? 'Seviye';
+      _v('level') ?? 'Seviye';
   String get profile =>
-      _localizedValues[locale.languageCode]?['profile'] ?? 'Profil';
+      _v('profile') ?? 'Profil';
   String get home =>
-      _localizedValues[locale.languageCode]?['home'] ?? 'Ana Sayfa';
+      _v('home') ?? 'Ana Sayfa';
   String get messages =>
-      _localizedValues[locale.languageCode]?['messages'] ?? 'Mesajlar';
+      _v('messages') ?? 'Mesajlar';
   String get socialFeed =>
-      _localizedValues[locale.languageCode]?['social_feed'] ?? 'DevSocial';
+      _v('social_feed') ?? 'DevSocial';
   String get writeYourMessage =>
-      _localizedValues[locale.languageCode]?['write_your_message'] ??
+      _v('write_your_message') ??
       'Mesajınızı yazın...';
 
   // Settings screen
   String get languageAndRegion =>
-      _localizedValues[locale.languageCode]?['language_region'] ??
+      _v('language_region') ??
       'Dil ve Bölge';
   String get language =>
-      _localizedValues[locale.languageCode]?['language'] ?? 'Dil';
+      _v('language') ?? 'Dil';
   String get notifications =>
-      _localizedValues[locale.languageCode]?['notifications'] ?? 'Bildirimler';
+      _v('notifications') ?? 'Bildirimler';
   String get enableNotifications =>
-      _localizedValues[locale.languageCode]?['enable_notifications'] ??
+      _v('enable_notifications') ??
       'Bildirimleri Aç';
   String get appNotifications =>
-      _localizedValues[locale.languageCode]?['app_notifications'] ??
+      _v('app_notifications') ??
       'Uygulama bildirimlerini al';
-  String get sound => _localizedValues[locale.languageCode]?['sound'] ?? 'Ses';
+  String get sound => _v('sound') ?? 'Ses';
   String get notificationSounds =>
-      _localizedValues[locale.languageCode]?['notification_sounds'] ??
+      _v('notification_sounds') ??
       'Bildirim sesleri';
   String get vibration =>
-      _localizedValues[locale.languageCode]?['vibration'] ?? 'Titreşim';
+      _v('vibration') ?? 'Titreşim';
   String get notificationVibration =>
-      _localizedValues[locale.languageCode]?['notification_vibration'] ??
+      _v('notification_vibration') ??
       'Bildirimde titreşim';
   String get accessibility =>
-      _localizedValues[locale.languageCode]?['accessibility'] ??
+      _v('accessibility') ??
       'Erişilebilirlik';
   String get textSize =>
-      _localizedValues[locale.languageCode]?['text_size'] ?? 'Yazı Boyutu';
+      _v('text_size') ?? 'Yazı Boyutu';
   String get highContrast =>
-      _localizedValues[locale.languageCode]?['high_contrast'] ??
+      _v('high_contrast') ??
       'Yüksek Kontrast';
   String get makeColorsBolder =>
-      _localizedValues[locale.languageCode]?['make_colors_bolder'] ??
+      _v('make_colors_bolder') ??
       'Renkleri daha belirgin yap';
   String get privacy =>
-      _localizedValues[locale.languageCode]?['privacy'] ?? 'Gizlilik';
+      _v('privacy') ?? 'Gizlilik';
   String get dataSharing =>
-      _localizedValues[locale.languageCode]?['data_sharing'] ??
+      _v('data_sharing') ??
       'Veri Paylaşımı';
   String get shareAnonymousData =>
-      _localizedValues[locale.languageCode]?['share_anonymous_data'] ??
+      _v('share_anonymous_data') ??
       'Uygulamayı geliştirmek için anonim veri paylaş';
   String get about =>
-      _localizedValues[locale.languageCode]?['about'] ?? 'Hakkında';
+      _v('about') ?? 'Hakkında';
   String get aboutApp =>
-      _localizedValues[locale.languageCode]?['about_app'] ??
+      _v('about_app') ??
       'Uygulama Hakkında';
   String get version =>
-      _localizedValues[locale.languageCode]?['version'] ?? 'Versiyon';
+      _v('version') ?? 'Versiyon';
   String get resetSettings =>
-      _localizedValues[locale.languageCode]?['reset_settings'] ??
+      _v('reset_settings') ??
       'Ayarları Sıfırla';
   String get selectLanguage =>
-      _localizedValues[locale.languageCode]?['select_language'] ?? 'Dil Seçin';
+      _v('select_language') ?? 'Dil Seçin';
   String get turkish =>
-      _localizedValues[locale.languageCode]?['turkish'] ?? 'Türkçe';
+      _v('turkish') ?? 'Türkçe';
   String get english =>
-      _localizedValues[locale.languageCode]?['english'] ?? 'English';
+      _v('english') ?? 'English';
   String get cancel =>
-      _localizedValues[locale.languageCode]?['cancel'] ?? 'İptal';
+      _v('cancel') ?? 'İptal';
   String get resetConfirmation =>
-      _localizedValues[locale.languageCode]?['reset_confirmation'] ??
+      _v('reset_confirmation') ??
       'Tüm ayarlar varsayılan değerlere sıfırlanacak. Emin misiniz?';
   String get reset =>
-      _localizedValues[locale.languageCode]?['reset'] ?? 'Sıfırla';
+      _v('reset') ?? 'Sıfırla';
   String get settingsResetSuccess =>
-      _localizedValues[locale.languageCode]?['settings_reset_success'] ??
+      _v('settings_reset_success') ??
       'Ayarlar varsayılan değerlere sıfırlandı';
   String get appDescription =>
-      _localizedValues[locale.languageCode]?['app_description'] ??
+      _v('app_description') ??
       'Robotik ve kodlama eğitimi için geliştirilmiş bir platformdur.';
-  String get ok => _localizedValues[locale.languageCode]?['ok'] ?? 'Tamam';
+  String get ok => _v('ok') ?? 'Tamam';
   String get appExperience =>
-      _localizedValues[locale.languageCode]?['app_experience'] ??
+      _v('app_experience') ??
       'Uygulama Deneyimi';
   String get showOnboardingAgain =>
-      _localizedValues[locale.languageCode]?['show_onboarding_again'] ??
+      _v('show_onboarding_again') ??
       'Tanıtımı Tekrar Göster';
   String get onboardingWillShow =>
-      _localizedValues[locale.languageCode]?['onboarding_will_show'] ??
+      _v('onboarding_will_show') ??
       'Uygulama yeniden başlatıldığında tanıtım ekranı gösterilecek';
   String get onboardingReset =>
-      _localizedValues[locale.languageCode]?['onboarding_reset'] ??
+      _v('onboarding_reset') ??
       'Tanıtım sıfırlandı';
   String get onboardingResetMessage =>
-      _localizedValues[locale.languageCode]?['onboarding_reset_message'] ??
+      _v('onboarding_reset_message') ??
       'Uygulama bir sonraki açılışta tanıtım ekranını gösterecektir.';
 
   // Language change loading
   String get languageChanging =>
-      _localizedValues[locale.languageCode]?['language_changing'] ??
+      _v('language_changing') ??
       'Dil Değiştiriliyor...';
   String get languageChangedTo =>
-      _localizedValues[locale.languageCode]?['language_changed_to'] ??
+      _v('language_changed_to') ??
       'Dil değiştirildi';
   String get languageChangedToTurkish => 'Dil Türkçe olarak değiştirildi';
   String get languageChangedToEnglish =>
@@ -148,567 +149,564 @@ class AppLocalizations {
 
   // Student Home
   String get todaysGoals =>
-      _localizedValues[locale.languageCode]?['todays_goals'] ??
+      _v('todays_goals') ??
       'Bugünkü Hedefler';
   String get activities =>
-      _localizedValues[locale.languageCode]?['activities'] ?? 'Aktivite';
+      _v('activities') ?? 'Aktivite';
   String get games =>
-      _localizedValues[locale.languageCode]?['games'] ?? 'Oyunlar';
+      _v('games') ?? 'Oyunlar';
   String get homework =>
-      _localizedValues[locale.languageCode]?['homework'] ?? 'Ödevler';
+      _v('homework') ?? 'Ödevler';
   String get points =>
-      _localizedValues[locale.languageCode]?['points'] ?? 'Puan';
+      _v('points') ?? 'Puan';
   String get achievements =>
-      _localizedValues[locale.languageCode]?['achievements'] ?? 'Başarı';
+      _v('achievements') ?? 'Başarı';
   String get popularActivities =>
-      _localizedValues[locale.languageCode]?['popular_activities'] ??
+      _v('popular_activities') ??
       'Popüler Aktiviteler';
   String get robotMovementGame =>
-      _localizedValues[locale.languageCode]?['robot_movement_game'] ??
+      _v('robot_movement_game') ??
       'Robot Hareket Oyunu';
   String get educationalGame =>
-      _localizedValues[locale.languageCode]?['educational_game'] ??
+      _v('educational_game') ??
       'Eğitici oyun';
   String get arduinoSimulator =>
-      _localizedValues[locale.languageCode]?['arduino_simulator'] ??
+      _v('arduino_simulator') ??
       'Arduino Simülatör';
   String get circuitDesign =>
-      _localizedValues[locale.languageCode]?['circuit_design'] ??
+      _v('circuit_design') ??
       'Devre tasarımı';
   String get myHomework =>
-      _localizedValues[locale.languageCode]?['my_homework'] ?? 'Ödevlerim';
+      _v('my_homework') ?? 'Ödevlerim';
   String get currentHomework =>
-      _localizedValues[locale.languageCode]?['current_homework'] ??
+      _v('current_homework') ??
       'Güncel ödevler';
   String get devAiChat =>
-      _localizedValues[locale.languageCode]?['dev_ai_chat'] ?? 'DevAI';
+      _v('dev_ai_chat') ?? 'DevAI';
 
   /// Alt gezinme cubugundaki kurslar sekmesi.
   String get courses =>
-      _localizedValues[locale.languageCode]?['courses'] ?? 'Kurslar';
+      _v('courses') ?? 'Kurslar';
   String get aiAssistant =>
-      _localizedValues[locale.languageCode]?['ai_assistant'] ??
+      _v('ai_assistant') ??
       'Yapay zeka asistan';
   String get millionaireGame =>
-      _localizedValues[locale.languageCode]?['millionaire_game'] ??
+      _v('millionaire_game') ??
       'Kim Milyoner Olmak İster?';
   String get quizGame =>
-      _localizedValues[locale.languageCode]?['quiz_game'] ?? 'Bilgi yarışması';
+      _v('quiz_game') ?? 'Bilgi yarışması';
   String get worksheets =>
-      _localizedValues[locale.languageCode]?['worksheets'] ??
+      _v('worksheets') ??
       'Çalışma Kağıtları';
   String get aiRoboticsCoding =>
-      _localizedValues[locale.languageCode]?['ai_robotics_coding'] ??
+      _v('ai_robotics_coding') ??
       'AI, Robotik, Kodlama';
   String get learningScore =>
-      _localizedValues[locale.languageCode]?['learning_score'] ??
+      _v('learning_score') ??
       'Öğrenme Skoru';
   String get greatProgress =>
-      _localizedValues[locale.languageCode]?['great_progress'] ??
+      _v('great_progress') ??
       'Harika gidiyorsun! Hedefine ulaşmak için devam et.';
 
   // Profile Screen
   String get inactive =>
-      _localizedValues[locale.languageCode]?['inactive'] ?? 'Pasif';
+      _v('inactive') ?? 'Pasif';
   String get active =>
-      _localizedValues[locale.languageCode]?['active'] ?? 'Aktif';
+      _v('active') ?? 'Aktif';
   String get visitor =>
-      _localizedValues[locale.languageCode]?['visitor'] ?? 'Ziyaretçi';
+      _v('visitor') ?? 'Ziyaretçi';
   String get student =>
-      _localizedValues[locale.languageCode]?['student'] ?? 'Öğrenci';
+      _v('student') ?? 'Öğrenci';
   String get teacher =>
-      _localizedValues[locale.languageCode]?['teacher'] ?? 'Öğretmen';
+      _v('teacher') ?? 'Öğretmen';
   String get parent =>
-      _localizedValues[locale.languageCode]?['parent'] ?? 'Veli';
+      _v('parent') ?? 'Veli';
   String get admin =>
-      _localizedValues[locale.languageCode]?['admin'] ?? 'Admin';
+      _v('admin') ?? 'Admin';
   String get login =>
-      _localizedValues[locale.languageCode]?['login'] ?? 'Giriş Yap';
+      _v('login') ?? 'Giriş Yap';
   String get logout =>
-      _localizedValues[locale.languageCode]?['logout'] ?? 'Çıkış Yap';
+      _v('logout') ?? 'Çıkış Yap';
   String get register =>
-      _localizedValues[locale.languageCode]?['register'] ?? 'Kayıt Ol';
+      _v('register') ?? 'Kayıt Ol';
   String get loggingOut =>
-      _localizedValues[locale.languageCode]?['logging_out'] ??
+      _v('logging_out') ??
       'Çıkış yapılıyor...';
   String get logoutConfirmation =>
-      _localizedValues[locale.languageCode]?['logout_confirmation'] ??
+      _v('logout_confirmation') ??
       'Çıkış yapmak istediğinizden emin misiniz?';
   String get loginToAccessFeatures =>
-      _localizedValues[locale.languageCode]?['login_to_access_features'] ??
+      _v('login_to_access_features') ??
       'Tüm özelliklere erişmek için giriş yapın';
   String get howWouldYouLikeToUseDevkom =>
-      _localizedValues[locale.languageCode]
-          ?['how_would_you_like_to_use_devkom'] ??
+      _v('how_would_you_like_to_use_devkom') ??
       'DevEducation\'ı nasıl kullanmak istiyorsun?';
   String get selectYourPurpose =>
-      _localizedValues[locale.languageCode]?['select_your_purpose'] ??
+      _v('select_your_purpose') ??
       'Amacınızı seçin';
   String get toLearn =>
-      _localizedValues[locale.languageCode]?['to_learn'] ?? 'Öğrenmek için';
+      _v('to_learn') ?? 'Öğrenmek için';
   String get toLearnDescription =>
-      _localizedValues[locale.languageCode]?['to_learn_description'] ??
+      _v('to_learn_description') ??
       'Kodlama, robotik ve yapay zeka öğrenmek istiyorum';
   String get trackMyChild =>
-      _localizedValues[locale.languageCode]?['track_my_child'] ??
+      _v('track_my_child') ??
       'Çocuğumun gelişimini takip etmek için';
   String get trackMyChildDescription =>
-      _localizedValues[locale.languageCode]?['track_my_child_description'] ??
+      _v('track_my_child_description') ??
       'Çocuğumun eğitim sürecini takip etmek istiyorum';
   String get fullAccessContinues =>
-      _localizedValues[locale.languageCode]?['full_access_continues'] ??
+      _v('full_access_continues') ??
       'Tüm içeriklere erişim devam eder';
   String get canChangeInSettings =>
-      _localizedValues[locale.languageCode]?['can_change_in_settings'] ??
+      _v('can_change_in_settings') ??
       'Daha sonra profil ayarlarından değiştirebilirsiniz';
 
   // Drawer menu items
   String get schedule =>
-      _localizedValues[locale.languageCode]?['schedule'] ?? 'Ders Programı';
+      _v('schedule') ?? 'Ders Programı';
   String get attendance =>
-      _localizedValues[locale.languageCode]?['attendance'] ?? 'Devamsızlık';
+      _v('attendance') ?? 'Devamsızlık';
   String get curriculum =>
-      _localizedValues[locale.languageCode]?['curriculum'] ?? 'Müfredat';
+      _v('curriculum') ?? 'Müfredat';
   String get agenda =>
-      _localizedValues[locale.languageCode]?['agenda'] ?? 'Ajanda';
+      _v('agenda') ?? 'Ajanda';
   String get achievementAnalysis =>
-      _localizedValues[locale.languageCode]?['achievement_analysis'] ??
+      _v('achievement_analysis') ??
       'Kazanım Analizleri';
   String get surveys =>
-      _localizedValues[locale.languageCode]?['surveys'] ?? 'Anketler';
+      _v('surveys') ?? 'Anketler';
   String get logoutError =>
-      _localizedValues[locale.languageCode]?['logout_error'] ??
+      _v('logout_error') ??
       'Çıkış yapılırken hata oluştu';
 
   // Onboarding
   String get alreadyHaveAccount =>
-      _localizedValues[locale.languageCode]?['already_have_account'] ??
+      _v('already_have_account') ??
       'Zaten hesabım var';
-  String get skip => _localizedValues[locale.languageCode]?['skip'] ?? 'Atla';
+  String get skip => _v('skip') ?? 'Atla';
   String get createFreeAccount =>
-      _localizedValues[locale.languageCode]?['create_free_account'] ??
+      _v('create_free_account') ??
       'Ücretsiz Hesap Oluştur';
   String get freeSignUp =>
-      _localizedValues[locale.languageCode]?['free_sign_up'] ??
+      _v('free_sign_up') ??
       'Ücretsiz Kayıt Ol';
   String get saveProgressMessage =>
-      _localizedValues[locale.languageCode]?['save_progress_message'] ??
+      _v('save_progress_message') ??
       'İlerlemenizi kaydedin ve tüm özelliklere erişin';
   String get letsGetStarted =>
-      _localizedValues[locale.languageCode]?['lets_get_started'] ??
+      _v('lets_get_started') ??
       'Başlayalım';
 
   // Profile Screen - Additional
   String get email =>
-      _localizedValues[locale.languageCode]?['email'] ?? 'E-posta';
-  String get role => _localizedValues[locale.languageCode]?['role'] ?? 'Rol';
+      _v('email') ?? 'E-posta';
+  String get role => _v('role') ?? 'Rol';
   String get liveCameraAccess =>
-      _localizedValues[locale.languageCode]?['live_camera_access'] ??
+      _v('live_camera_access') ??
       'Canlı Kamera Erişimi';
   String get accountInfo =>
-      _localizedValues[locale.languageCode]?['account_info'] ??
+      _v('account_info') ??
       'Hesap Bilgileri';
   String get accessInfo =>
-      _localizedValues[locale.languageCode]?['access_info'] ??
+      _v('access_info') ??
       'Erişim Bilgileri';
   String get fullName =>
-      _localizedValues[locale.languageCode]?['full_name'] ?? 'Ad Soyad';
+      _v('full_name') ?? 'Ad Soyad';
   String get status =>
-      _localizedValues[locale.languageCode]?['status'] ?? 'Durum';
+      _v('status') ?? 'Durum';
   String get memberSince =>
-      _localizedValues[locale.languageCode]?['member_since'] ?? 'Üyelik Tarihi';
+      _v('member_since') ?? 'Üyelik Tarihi';
 
   // Schedule Screen
   String get weeklySchedule =>
-      _localizedValues[locale.languageCode]?['weekly_schedule'] ??
+      _v('weekly_schedule') ??
       'Haftalık ders programınız burada görüntülenecek';
 
   // Attendance Screen
   String get attendanceTracking =>
-      _localizedValues[locale.languageCode]?['attendance_tracking'] ??
+      _v('attendance_tracking') ??
       'Devamsızlık Takibi';
   String get attendanceInfo =>
-      _localizedValues[locale.languageCode]?['attendance_info'] ??
+      _v('attendance_info') ??
       'Devamsızlık bilgileriniz burada görüntülenecek';
 
   // Curriculum Screen
   String get curriculumInfo =>
-      _localizedValues[locale.languageCode]?['curriculum_info'] ??
+      _v('curriculum_info') ??
       'Ders müfredatı ve konular burada görüntülenecek';
 
   // Agenda Screen
   String get pleaseLogin =>
-      _localizedValues[locale.languageCode]?['please_login'] ??
+      _v('please_login') ??
       'Lütfen giriş yapın';
-  String get error => _localizedValues[locale.languageCode]?['error'] ?? 'Hata';
+  String get error => _v('error') ?? 'Hata';
   String get noEventsOnThisDate =>
-      _localizedValues[locale.languageCode]?['no_events_on_this_date'] ??
+      _v('no_events_on_this_date') ??
       'Bu tarihte etkinlik yok';
   String get deleteEvent =>
-      _localizedValues[locale.languageCode]?['delete_event'] ?? 'Etkinliği Sil';
+      _v('delete_event') ?? 'Etkinliği Sil';
   String get deleteEventConfirmation =>
-      _localizedValues[locale.languageCode]?['delete_event_confirmation'] ??
+      _v('delete_event_confirmation') ??
       'etkinliğini silmek istediğinizden emin misiniz?';
   String get delete =>
-      _localizedValues[locale.languageCode]?['delete'] ?? 'Sil';
+      _v('delete') ?? 'Sil';
   String get deleted =>
-      _localizedValues[locale.languageCode]?['deleted'] ?? 'silindi';
+      _v('deleted') ?? 'silindi';
   String get addEvent =>
-      _localizedValues[locale.languageCode]?['add_event'] ?? 'Etkinlik Ekle';
+      _v('add_event') ?? 'Etkinlik Ekle';
   String get title =>
-      _localizedValues[locale.languageCode]?['title'] ?? 'Başlık';
+      _v('title') ?? 'Başlık';
   String get description =>
-      _localizedValues[locale.languageCode]?['description'] ?? 'Açıklama';
+      _v('description') ?? 'Açıklama';
   String get descriptionOptional =>
-      _localizedValues[locale.languageCode]?['description_optional'] ??
+      _v('description_optional') ??
       'Açıklama (Opsiyonel)';
-  String get type => _localizedValues[locale.languageCode]?['type'] ?? 'Tür';
-  String get note => _localizedValues[locale.languageCode]?['note'] ?? 'Not';
+  String get type => _v('type') ?? 'Tür';
+  String get note => _v('note') ?? 'Not';
   String get reminder =>
-      _localizedValues[locale.languageCode]?['reminder'] ?? 'Hatırlatıcı';
-  String get task => _localizedValues[locale.languageCode]?['task'] ?? 'Görev';
-  String get add => _localizedValues[locale.languageCode]?['add'] ?? 'Ekle';
+      _v('reminder') ?? 'Hatırlatıcı';
+  String get task => _v('task') ?? 'Görev';
+  String get add => _v('add') ?? 'Ekle';
   String get pleasEnterTitle =>
-      _localizedValues[locale.languageCode]?['please_enter_title'] ??
+      _v('please_enter_title') ??
       'Lütfen bir başlık girin';
   String get eventAdded =>
-      _localizedValues[locale.languageCode]?['event_added'] ??
+      _v('event_added') ??
       'Etkinlik eklendi!';
 
   // Day names (short)
   String get monday =>
-      _localizedValues[locale.languageCode]?['monday'] ?? 'Pzt';
+      _v('monday') ?? 'Pzt';
   String get tuesday =>
-      _localizedValues[locale.languageCode]?['tuesday'] ?? 'Sal';
+      _v('tuesday') ?? 'Sal';
   String get wednesday =>
-      _localizedValues[locale.languageCode]?['wednesday'] ?? 'Çar';
+      _v('wednesday') ?? 'Çar';
   String get thursday =>
-      _localizedValues[locale.languageCode]?['thursday'] ?? 'Per';
+      _v('thursday') ?? 'Per';
   String get friday =>
-      _localizedValues[locale.languageCode]?['friday'] ?? 'Cum';
+      _v('friday') ?? 'Cum';
   String get saturday =>
-      _localizedValues[locale.languageCode]?['saturday'] ?? 'Cmt';
+      _v('saturday') ?? 'Cmt';
   String get sunday =>
-      _localizedValues[locale.languageCode]?['sunday'] ?? 'Paz';
+      _v('sunday') ?? 'Paz';
 
   // Achievement Analysis Screen
   String get noGamesPlayed =>
-      _localizedValues[locale.languageCode]?['no_games_played'] ??
+      _v('no_games_played') ??
       'Henüz Oyun Oynamamışsınız';
   String get playGamesMessage =>
-      _localizedValues[locale.languageCode]?['play_games_message'] ??
+      _v('play_games_message') ??
       'Oyunlar bölümünden oyun oynayarak\nistatistiklerinizi görüntüleyebilirsiniz';
   String get overallSuccess =>
-      _localizedValues[locale.languageCode]?['overall_success'] ??
+      _v('overall_success') ??
       'Genel Başarı Durumu';
   String get totalGames =>
-      _localizedValues[locale.languageCode]?['total_games'] ?? 'Toplam Oyun';
+      _v('total_games') ?? 'Toplam Oyun';
   String get correct =>
-      _localizedValues[locale.languageCode]?['correct'] ?? 'Doğru';
+      _v('correct') ?? 'Doğru';
   String get wrong =>
-      _localizedValues[locale.languageCode]?['wrong'] ?? 'Yanlış';
+      _v('wrong') ?? 'Yanlış';
   String get gameBasedPerformance =>
-      _localizedValues[locale.languageCode]?['game_based_performance'] ??
+      _v('game_based_performance') ??
       'Oyun Bazlı Performans';
   String get timesPlayed =>
-      _localizedValues[locale.languageCode]?['times_played'] ?? 'kez oynandı';
+      _v('times_played') ?? 'kez oynandı';
   String get loadingDataError =>
-      _localizedValues[locale.languageCode]?['loading_data_error'] ??
+      _v('loading_data_error') ??
       'Veri yüklenirken hata oluştu';
 
   // Surveys Screen
   String get surveysInfo =>
-      _localizedValues[locale.languageCode]?['surveys_info'] ??
+      _v('surveys_info') ??
       'Katılabileceğiniz anketler burada görüntülenecek';
 
   // SwipeWelcomeScreen
   String get swipeToStart =>
-      _localizedValues[locale.languageCode]?['swipe_to_start'] ??
+      _v('swipe_to_start') ??
       'Başlamak için kaydır';
   String get smartEducationPlatform =>
-      _localizedValues[locale.languageCode]?['smart_education_platform'] ??
+      _v('smart_education_platform') ??
       'AI • Robotik • Kodlama • Yazılım';
 
   // WelcomeScreen
   String get softwareRoboticsEducation =>
-      _localizedValues[locale.languageCode]?['software_robotics_education'] ??
+      _v('software_robotics_education') ??
       'Yazılım ve Robotik\nEğitim Platformu';
   String get explore =>
-      _localizedValues[locale.languageCode]?['explore'] ?? 'Keşfet';
+      _v('explore') ?? 'Keşfet';
   String get continueWithLogin =>
-      _localizedValues[locale.languageCode]?['continue_with_login'] ??
+      _v('continue_with_login') ??
       'Giriş Yaparak Devam Et';
   String get robotics =>
-      _localizedValues[locale.languageCode]?['robotics'] ?? 'Robotik';
+      _v('robotics') ?? 'Robotik';
   String get coding =>
-      _localizedValues[locale.languageCode]?['coding'] ?? 'Kodlama';
+      _v('coding') ?? 'Kodlama';
   String get chess =>
-      _localizedValues[locale.languageCode]?['chess'] ?? 'Satranç';
+      _v('chess') ?? 'Satranç';
 
   // LoginScreen
   String get password =>
-      _localizedValues[locale.languageCode]?['password'] ?? 'Şifre';
+      _v('password') ?? 'Şifre';
   String get emailHint =>
-      _localizedValues[locale.languageCode]?['email_hint'] ?? 'ornek@email.com';
+      _v('email_hint') ?? 'ornek@email.com';
   String get pleaseEnterEmail =>
-      _localizedValues[locale.languageCode]?['please_enter_email'] ??
+      _v('please_enter_email') ??
       'Lütfen e-posta adresinizi girin';
   String get enterValidEmail =>
-      _localizedValues[locale.languageCode]?['enter_valid_email'] ??
+      _v('enter_valid_email') ??
       'Geçerli bir e-posta adresi girin';
   String get pleaseEnterPassword =>
-      _localizedValues[locale.languageCode]?['please_enter_password'] ??
+      _v('please_enter_password') ??
       'Lütfen şifrenizi girin';
   String get passwordMinLength =>
-      _localizedValues[locale.languageCode]?['password_min_length'] ??
+      _v('password_min_length') ??
       'Şifre en az 6 karakter olmalıdır';
   String get noAccount =>
-      _localizedValues[locale.languageCode]?['no_account'] ??
+      _v('no_account') ??
       'Hesabınız yok mu?';
 
   // RegisterScreen
   String get createNewAccount =>
-      _localizedValues[locale.languageCode]?['create_new_account'] ??
+      _v('create_new_account') ??
       'Yeni Hesap Oluştur';
   String get nameHint =>
-      _localizedValues[locale.languageCode]?['name_hint'] ??
+      _v('name_hint') ??
       'Adınız ve Soyadınız';
   String get pleaseEnterName =>
-      _localizedValues[locale.languageCode]?['please_enter_name'] ??
+      _v('please_enter_name') ??
       'Lütfen adınızı ve soyadınızı girin';
   String get nameMinLength =>
-      _localizedValues[locale.languageCode]?['name_min_length'] ??
+      _v('name_min_length') ??
       'Ad en az 3 karakter olmalıdır';
   String get passwordConfirm =>
-      _localizedValues[locale.languageCode]?['password_confirm'] ??
+      _v('password_confirm') ??
       'Şifre Tekrar';
   String get pleaseConfirmPassword =>
-      _localizedValues[locale.languageCode]?['please_confirm_password'] ??
+      _v('please_confirm_password') ??
       'Lütfen şifrenizi tekrar girin';
   String get passwordsDoNotMatch =>
-      _localizedValues[locale.languageCode]?['passwords_do_not_match'] ??
+      _v('passwords_do_not_match') ??
       'Şifreler eşleşmiyor';
   String get accountType =>
-      _localizedValues[locale.languageCode]?['account_type'] ?? 'Hesap Tipi';
+      _v('account_type') ?? 'Hesap Tipi';
   String get parentWithCamera =>
-      _localizedValues[locale.languageCode]?['parent_with_camera'] ??
+      _v('parent_with_camera') ??
       'Canlı kamera erişimi dahil';
   String get studentAccess =>
-      _localizedValues[locale.languageCode]?['student_access'] ??
+      _v('student_access') ??
       'Oyunlar ve ödevlere erişim';
   String get teacherAccess =>
-      _localizedValues[locale.languageCode]?['teacher_access'] ??
+      _v('teacher_access') ??
       'Müfredat ve ödev yönetimi';
   String get visitorAccess =>
-      _localizedValues[locale.languageCode]?['visitor_access'] ??
+      _v('visitor_access') ??
       'Genel içerik erişimi';
   String get registrationSuccess =>
-      _localizedValues[locale.languageCode]?['registration_success'] ??
+      _v('registration_success') ??
       'Kayıt başarılı! Hoş geldiniz.';
   String get alreadyHaveAccountQuestion =>
-      _localizedValues[locale.languageCode]?['already_have_account_question'] ??
+      _v('already_have_account_question') ??
       'Zaten hesabınız var mı?';
 
   // OnboardingScreen
   String get onboarding1Title =>
-      _localizedValues[locale.languageCode]?['onboarding1_title'] ??
+      _v('onboarding1_title') ??
       'Güvenilir Eğitim Platformu';
   String get onboarding1Description =>
-      _localizedValues[locale.languageCode]?['onboarding1_description'] ??
+      _v('onboarding1_description') ??
       'DevEducation ile öğrenciler güvenli bir ortamda, uzman eğitmenler eşliğinde robotik ve yazılım öğrenir. Her adımı takip edin, gelişimi izleyin.';
   String get onboarding2Title =>
-      _localizedValues[locale.languageCode]?['onboarding2_title'] ??
+      _v('onboarding2_title') ??
       'Kapsamlı Müfredat';
   String get onboarding2Description =>
-      _localizedValues[locale.languageCode]?['onboarding2_description'] ??
+      _v('onboarding2_description') ??
       'MEB onaylı müfredat ile uyumlu, yaş gruplarına özel tasarlanmış eğitim programları. Arduino, Python, Scratch ve daha fazlası profesyonel eğitmenlerle.';
   String get onboarding3Title =>
-      _localizedValues[locale.languageCode]?['onboarding3_title'] ??
+      _v('onboarding3_title') ??
       'Gelişimi Anlık Takip';
   String get onboarding3Description =>
-      _localizedValues[locale.languageCode]?['onboarding3_description'] ??
+      _v('onboarding3_description') ??
       'Öğrenci ilerleme raporları, başarı rozetleri ve detaylı analizlerle çocuğunuzun gelişimini her an izleyin. Veli paneli ile tam kontrol.';
 
   // ProfileScreen
   String get userInfoLoadError =>
-      _localizedValues[locale.languageCode]?['user_info_load_error'] ??
+      _v('user_info_load_error') ??
       'Kullanıcı bilgileri yüklenemedi';
   String get lastLogin =>
-      _localizedValues[locale.languageCode]?['last_login'] ?? 'Son Giriş';
+      _v('last_login') ?? 'Son Giriş';
   String get alreadyHaveAccountLogin =>
-      _localizedValues[locale.languageCode]?['already_have_account_login'] ??
+      _v('already_have_account_login') ??
       'Zaten Hesabım Var';
   String get logoutErrorMessage =>
-      _localizedValues[locale.languageCode]?['logout_error_message'] ??
+      _v('logout_error_message') ??
       'Çıkış yapılırken hata oluştu';
 
   // Social Feed Strings
   String get createPost =>
-      _localizedValues[locale.languageCode]?['create_post'] ??
+      _v('create_post') ??
       'Gönderi Oluştur';
   String get addImages =>
-      _localizedValues[locale.languageCode]?['add_images'] ?? 'Resim Ekle';
+      _v('add_images') ?? 'Resim Ekle';
   String get addPDF =>
-      _localizedValues[locale.languageCode]?['add_pdf'] ?? 'PDF Ekle';
+      _v('add_pdf') ?? 'PDF Ekle';
   String get addLink =>
-      _localizedValues[locale.languageCode]?['add_link'] ?? 'Link Ekle';
+      _v('add_link') ?? 'Link Ekle';
   String get whatOnYourMind =>
-      _localizedValues[locale.languageCode]?['what_on_your_mind'] ??
+      _v('what_on_your_mind') ??
       'Aklında ne var?';
   String get postsRemaining =>
-      _localizedValues[locale.languageCode]?['posts_remaining'] ??
+      _v('posts_remaining') ??
       'gönderi hakkı kaldı';
   String get unlimitedPosts =>
-      _localizedValues[locale.languageCode]?['unlimited_posts'] ??
+      _v('unlimited_posts') ??
       'Sınırsız gönderi';
   String get dailyLimitReached =>
-      _localizedValues[locale.languageCode]?['daily_limit_reached'] ??
+      _v('daily_limit_reached') ??
       'Günlük gönderi limitine ulaşıldı';
-  String get like => _localizedValues[locale.languageCode]?['like'] ?? 'Beğen';
+  String get like => _v('like') ?? 'Beğen';
   String get comment =>
-      _localizedValues[locale.languageCode]?['comment'] ?? 'Yorum';
+      _v('comment') ?? 'Yorum';
   String get share =>
-      _localizedValues[locale.languageCode]?['share'] ?? 'Paylaş';
+      _v('share') ?? 'Paylaş';
   String get report =>
-      _localizedValues[locale.languageCode]?['report'] ?? 'Bildir';
+      _v('report') ?? 'Bildir';
   String get viewingAsGuest =>
-      _localizedValues[locale.languageCode]?['viewing_as_guest'] ??
+      _v('viewing_as_guest') ??
       'Misafir olarak görüntüleniyor';
   String get loginToComment =>
-      _localizedValues[locale.languageCode]?['login_to_comment'] ??
+      _v('login_to_comment') ??
       'Yorum yapmak için giriş yapın';
   String get postCreatedSuccessfully =>
-      _localizedValues[locale.languageCode]?['post_created_successfully'] ??
+      _v('post_created_successfully') ??
       'Gönderi başarıyla oluşturuldu';
   String get postDeleted =>
-      _localizedValues[locale.languageCode]?['post_deleted'] ??
+      _v('post_deleted') ??
       'Gönderi silindi';
   String get confirmDelete =>
-      _localizedValues[locale.languageCode]?['confirm_delete'] ??
+      _v('confirm_delete') ??
       'Silmek istediğinizden emin misiniz?';
   String get noPostsYet =>
-      _localizedValues[locale.languageCode]?['no_posts_yet'] ??
+      _v('no_posts_yet') ??
       'Henüz gönderi yok';
   String get beFirstToPost =>
-      _localizedValues[locale.languageCode]?['be_first_to_post'] ??
+      _v('be_first_to_post') ??
       'İlk gönderiyi siz paylaşın!';
   String get trending =>
-      _localizedValues[locale.languageCode]?['trending'] ?? 'Trendler';
+      _v('trending') ?? 'Trendler';
   String get aiAndRobotics =>
-      _localizedValues[locale.languageCode]?['ai_and_robotics'] ??
+      _v('ai_and_robotics') ??
       'AI & Robotik';
   String get funny =>
-      _localizedValues[locale.languageCode]?['funny'] ?? 'Eğlenceli';
-  String get all => _localizedValues[locale.languageCode]?['all'] ?? 'Tümü';
+      _v('funny') ?? 'Eğlenceli';
+  String get all => _v('all') ?? 'Tümü';
   String get comments =>
-      _localizedValues[locale.languageCode]?['comments'] ?? 'Yorumlar';
+      _v('comments') ?? 'Yorumlar';
   String get noCommentsYet =>
-      _localizedValues[locale.languageCode]?['no_comments_yet'] ??
+      _v('no_comments_yet') ??
       'Henüz yorum yok';
   String get addComment =>
-      _localizedValues[locale.languageCode]?['add_comment'] ?? 'Yorum ekle...';
+      _v('add_comment') ?? 'Yorum ekle...';
   String get postDetails =>
-      _localizedValues[locale.languageCode]?['post_details'] ??
+      _v('post_details') ??
       'Gönderi Detayları';
   String get postNotFound =>
-      _localizedValues[locale.languageCode]?['post_not_found'] ??
+      _v('post_not_found') ??
       'Gönderi bulunamadı';
 
   // Enhanced Feed Screen
   String get filterTrending =>
-      _localizedValues[locale.languageCode]?['filter_trending'] ?? 'Trendler';
+      _v('filter_trending') ?? 'Trendler';
   String get filterAiRobotics =>
-      _localizedValues[locale.languageCode]?['filter_ai_robotics'] ??
+      _v('filter_ai_robotics') ??
       'AI & Robotik';
   String get filterCoding =>
-      _localizedValues[locale.languageCode]?['filter_coding'] ?? 'Kodlama';
+      _v('filter_coding') ?? 'Kodlama';
   String get filterFunny =>
-      _localizedValues[locale.languageCode]?['filter_funny'] ?? 'Eğlenceli';
+      _v('filter_funny') ?? 'Eğlenceli';
   String get filterAll =>
-      _localizedValues[locale.languageCode]?['filter_all'] ?? 'Tümü';
+      _v('filter_all') ?? 'Tümü';
   String get viewingAsGuestLogin =>
-      _localizedValues[locale.languageCode]?['viewing_as_guest_login'] ??
+      _v('viewing_as_guest_login') ??
       'Misafir olarak görüntüleniyor - Etkileşim için giriş yapın';
   String get errorLoadingPosts =>
-      _localizedValues[locale.languageCode]?['error_loading_posts'] ??
+      _v('error_loading_posts') ??
       'Gönderiler yüklenirken hata oluştu';
   String get beFirstToShareAmazing =>
-      _localizedValues[locale.languageCode]?['be_first_to_share_amazing'] ??
+      _v('be_first_to_share_amazing') ??
       'İlk harika paylaşımı siz yapın!';
   String get loginToCommentLock =>
-      _localizedValues[locale.languageCode]?['login_to_comment_lock'] ??
+      _v('login_to_comment_lock') ??
       '🔒 Yorum yapmak için giriş yapın';
   String get shareFunctionalityComingSoon =>
-      _localizedValues[locale.languageCode]
-          ?['share_functionality_coming_soon'] ??
+      _v('share_functionality_coming_soon') ??
       'Paylaşım özelliği yakında geliyor!';
   String get deletePost =>
-      _localizedValues[locale.languageCode]?['delete_post'] ?? 'Gönderiyi Sil';
+      _v('delete_post') ?? 'Gönderiyi Sil';
   String get deletePostConfirmation =>
-      _localizedValues[locale.languageCode]?['delete_post_confirmation'] ??
+      _v('delete_post_confirmation') ??
       'Bu gönderiyi silmek istediğinizden emin misiniz?';
   String get postDeletedSuccessfully =>
-      _localizedValues[locale.languageCode]?['post_deleted_successfully'] ??
+      _v('post_deleted_successfully') ??
       'Gönderi başarıyla silindi';
   String get errorDeletingPost =>
-      _localizedValues[locale.languageCode]?['error_deleting_post'] ??
+      _v('error_deleting_post') ??
       'Gönderi silinirken hata oluştu';
   String get pdfDocument =>
-      _localizedValues[locale.languageCode]?['pdf_document'] ?? 'PDF Belgesi';
+      _v('pdf_document') ?? 'PDF Belgesi';
   String get tapToView =>
-      _localizedValues[locale.languageCode]?['tap_to_view'] ??
+      _v('tap_to_view') ??
       'Görüntülemek için dokun';
   String get likes =>
-      _localizedValues[locale.languageCode]?['likes'] ?? 'beğeni';
+      _v('likes') ?? 'beğeni';
 
   // Create Post Screen
   String get dailyLimitReachedUpgrade =>
-      _localizedValues[locale.languageCode]?['daily_limit_reached_upgrade'] ??
+      _v('daily_limit_reached_upgrade') ??
       'Günlük gönderi limitine ulaşıldı. Sınırsız gönderi için Pro sürüme geçin!';
   String get failedToCreatePost =>
-      _localizedValues[locale.languageCode]?['failed_to_create_post'] ??
+      _v('failed_to_create_post') ??
       'Gönderi oluşturulamadı';
   String get postsRemainingToday =>
-      _localizedValues[locale.languageCode]?['posts_remaining_today'] ??
+      _v('posts_remaining_today') ??
       'bugün gönderi hakkı kaldı';
   String get dailyLimitReachedUpgradePro =>
-      _localizedValues[locale.languageCode]
-          ?['daily_limit_reached_upgrade_pro'] ??
+      _v('daily_limit_reached_upgrade_pro') ??
       'Günlük limit doldu! Sınırsız gönderi için Pro\'ya geçin';
   String get proUnlimitedPosts =>
-      _localizedValues[locale.languageCode]?['pro_unlimited_posts'] ??
+      _v('pro_unlimited_posts') ??
       'PRO: Sınırsız gönderi';
   String get whatOnYourMindRocket =>
-      _localizedValues[locale.languageCode]?['what_on_your_mind_rocket'] ??
+      _v('what_on_your_mind_rocket') ??
       'Aklında ne var? 🚀';
   String get addLinkOptional =>
-      _localizedValues[locale.languageCode]?['add_link_optional'] ??
+      _v('add_link_optional') ??
       '🔗 Link ekle (opsiyonel)';
   String get selectedImages =>
-      _localizedValues[locale.languageCode]?['selected_images'] ??
+      _v('selected_images') ??
       '📸 Seçilen Resimler';
   String get pdfAttached =>
-      _localizedValues[locale.languageCode]?['pdf_attached'] ?? 'PDF Eklendi';
+      _v('pdf_attached') ?? 'PDF Eklendi';
   String get images =>
-      _localizedValues[locale.languageCode]?['images'] ?? 'Resimler';
-  String get pdf => _localizedValues[locale.languageCode]?['pdf'] ?? 'PDF';
-  String get post => _localizedValues[locale.languageCode]?['post'] ?? 'Paylaş';
+      _v('images') ?? 'Resimler';
+  String get pdf => _v('pdf') ?? 'PDF';
+  String get post => _v('post') ?? 'Paylaş';
 
   // Post Detail Screen
   String get pleaseLoginToComment =>
-      _localizedValues[locale.languageCode]?['please_login_to_comment'] ??
+      _v('please_login_to_comment') ??
       'Yorum yapmak için lütfen giriş yapın';
   String get errorPostingComment =>
-      _localizedValues[locale.languageCode]?['error_posting_comment'] ??
+      _v('error_posting_comment') ??
       'Yorum gönderilirken hata oluştu';
   String get beFirstToComment =>
-      _localizedValues[locale.languageCode]?['be_first_to_comment'] ??
+      _v('be_first_to_comment') ??
       'İlk yorumu siz yapın!';
   String get addCommentEllipsis =>
-      _localizedValues[locale.languageCode]?['add_comment_ellipsis'] ??
+      _v('add_comment_ellipsis') ??
       'Yorum ekle...';
   String get loginToCommentLockDetail =>
-      _localizedValues[locale.languageCode]?['login_to_comment_lock_detail'] ??
+      _v('login_to_comment_lock_detail') ??
       '🔒 Yorum yapmak için giriş yapın';
 
   /// Testlerin ceviri tablosuna erisebilmesi icin.
@@ -716,6 +714,21 @@ class AppLocalizations {
   /// Bir dilde eksik kalan anahtar, uygulamada Turkce varsayilana
   /// duserek Alman kullaniciya Turkce bir cumle gosterir — hicbir sey
   /// kirilmadan. Bunu ancak tabloya disaridan bakan bir test yakalar.
+  /// Anahtarin bu dildeki karsiligi.
+  ///
+  /// Elle yazilan dort dilde dogrudan tablo. Diger 47 dilde Ingilizce
+  /// deger ceviri tablosundan cevriliyor (bkz. `ceviri.dart`); yoksa
+  /// Ingilizce. ONCEDEN bilinmeyen bir dilde her getter'in sonundaki
+  /// Turkce varsayilan gorunuyordu.
+  String? _v(String anahtar) {
+    final dil = locale.languageCode;
+    final dogrudan = _localizedValues[dil]?[anahtar];
+    if (dogrudan != null) return dogrudan;
+    final en = _localizedValues['en']?[anahtar];
+    if (en == null) return null;
+    return Ceviri.bul(dil, en) ?? en;
+  }
+
   static Map<String, Map<String, String>> get debugValues => _localizedValues;
 
   static const Map<String, Map<String, String>> _localizedValues = {

@@ -234,11 +234,14 @@ class CocukRaporu {
   List<String> guzelHaberler(String lang) {
     final out = <String>[];
     final s = son7, o = onceki7;
+    // Ingilizce cumleler cogul ekine ("lesson{s}") dayanmiyor: 51 dilde
+    // ceviri tablosu bu cumleleri sablon olarak eslestiriyor ve "s" eki
+    // diger dillerde anlamsiz kaliyordu.
 
     if (s.yeniDers > 0) {
       out.add(AppLang.pick(lang,
           tr: 'Son 7 günde ${s.yeniDers} yeni ders bitirdi.',
-          en: 'Finished ${s.yeniDers} new lesson${s.yeniDers == 1 ? '' : 's'} in the last 7 days.',
+          en: 'New lessons finished in the last 7 days: ${s.yeniDers}.',
           de: 'Hat in den letzten 7 Tagen ${s.yeniDers} neue Lektion${s.yeniDers == 1 ? '' : 'en'} abgeschlossen.',
           es: 'Terminó ${s.yeniDers} lección${s.yeniDers == 1 ? '' : 'es'} nueva${s.yeniDers == 1 ? '' : 's'} en los últimos 7 días.'));
     }
@@ -246,7 +249,7 @@ class CocukRaporu {
       final fark = s.aktifGun - o.aktifGun;
       out.add(AppLang.pick(lang,
           tr: 'Önceki 7 güne göre $fark gün daha fazla çalıştı.',
-          en: 'Studied $fark more day${fark == 1 ? '' : 's'} than the 7 days before.',
+          en: 'More study days than the 7 days before: +$fark.',
           de: 'Hat an $fark Tag${fark == 1 ? '' : 'en'} mehr gelernt als in den 7 Tagen davor.',
           es: 'Estudió $fark día${fark == 1 ? '' : 's'} más que los 7 días anteriores.'));
     } else if (s.aktifGun > 0 && s.aktifGun == o.aktifGun) {
@@ -268,14 +271,14 @@ class CocukRaporu {
     if (s.quiz > 0) {
       out.add(AppLang.pick(lang,
           tr: 'Son 7 günde ${s.quiz} quiz çözdü.',
-          en: 'Solved ${s.quiz} quiz${s.quiz == 1 ? '' : 'zes'} in the last 7 days.',
+          en: 'Quizzes solved in the last 7 days: ${s.quiz}.',
           de: 'Hat in den letzten 7 Tagen ${s.quiz} Quiz gelöst.',
           es: 'Resolvió ${s.quiz} cuestionario${s.quiz == 1 ? '' : 's'} en los últimos 7 días.'));
     }
     if (s.video > 0) {
       out.add(AppLang.pick(lang,
           tr: 'Son 7 günde ${s.video} ders videosu izledi.',
-          en: 'Watched ${s.video} lesson video${s.video == 1 ? '' : 's'} in the last 7 days.',
+          en: 'Lesson videos watched in the last 7 days: ${s.video}.',
           de: 'Hat in den letzten 7 Tagen ${s.video} Lernvideo${s.video == 1 ? '' : 's'} angesehen.',
           es: 'Vio ${s.video} vídeo${s.video == 1 ? '' : 's'} de lecciones en los últimos 7 días.'));
     }

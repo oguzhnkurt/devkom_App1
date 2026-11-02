@@ -128,7 +128,7 @@ class _UnifiedDashboardState extends State<UnifiedDashboard>
 
   String get _lang =>
       Provider.of<SettingsProvider>(context, listen: false).locale.languageCode;
-  bool get _isEn => _lang == 'en';
+  bool get _isEn => _lang != 'tr'; // tr disindaki her dilde Ingilizce bicim
 
   /// Metin secici.
   ///

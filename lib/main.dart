@@ -1,3 +1,4 @@
+import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/foundation.dart' show LicenseRegistry, LicenseEntryWithLineBreaks;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,6 +25,8 @@ import 'services/degerlendirme_servisi.dart';
 import 'theme.dart';
 import 'utils/app_localizations.dart';
 import 'widgets/hata_ekrani.dart';
+import 'utils/ceviri.dart';
+import 'utils/lang.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -177,6 +180,10 @@ void main() async {
     debugPrint('⚠️ Kayitli dil okunamadi: $e');
   }
 
+  // 51 dil: ilk kare dogru dilde cizilsin diye tablo runApp'ten once.
+  await Ceviri.yukle(kayitliDil?.languageCode ??
+      AppLang.resolve(PlatformDispatcher.instance.locale.languageCode));
+
   runApp(DevkomApp(baslangicDili: kayitliDil));
 }
 
@@ -241,16 +248,24 @@ class DevkomApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme(),
             locale: settingsProvider.locale,
-            supportedLocales: const [
-              Locale('tr', 'TR'),
-              Locale('en', 'US'),
-              // Almanca ve Ispanyolca. Bolge kodu VERILMIYOR: 'de_DE'
-              // yazsaydik Avusturya ya da Isvicre'deki bir cihaz
-              // eslesemez ve Ingilizce'ye duserdi. Ayni sekilde 'es',
-              // Ispanya ile Latin Amerika'nin tamamini kapsiyor.
-              Locale('de'),
-              Locale('es'),
+            // 51 dil (bkz. AppLang.supported). Turkce ve Ingilizce eski
+            // bolge kodlariyla; digerlerinde bolge kodu VERILMIYOR:
+            // 'de_DE' yazsaydik Avusturya'daki bir cihaz eslesemezdi.
+            supportedLocales: [
+              const Locale('tr', 'TR'),
+              const Locale('en', 'US'),
+              for (final d in AppLang.supported)
+                if (d != AppLang.tr && d != AppLang.en) Locale(d),
             ],
+            // SAGDAN SOLA DILLER (ar, he, fa, ur) SIMDILIK SOLDAN SAGA
+            // DUZENLE: ders sahneleri, kod bloklari ve devre tezgahi
+            // soldan saga tasarlandi ve aynalaninca bozuluyor. Metinler
+            // yine dogru sekilde (sagdan sola) ciziliyor; yalniz ekran
+            // duzeni aynalanmiyor.
+            builder: (context, child) => Directionality(
+              textDirection: TextDirection.ltr,
+              child: child ?? const SizedBox.shrink(),
+            ),
             localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
