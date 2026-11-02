@@ -39,12 +39,21 @@ class Ceviri {
   /// bulunamayanlar dahil, onbellekte tutuluyor.
   static final Map<String, String?> _onbellek = {};
 
-  /// Yuklu dil (yoksa null).
+  /// Yuklu dil (yoksa null). Geleneksel Cince'de 'zh'.
   static String? get dil => _dil;
 
+  /// Yuklu tablonun dil secimindeki kodu ('zh-Hant' dahil).
+  static String? get dosya => _dosya;
+
   /// Bir dilin tablosunu yukler. Dort elle yazilan dilde tablo yok.
+  /// [dil] dil secimindeki kod ('zh-Hant' dahil). `pick` dil kodunu
+  /// Locale'den aldigi icin Geleneksel Cince tablosu 'zh' anahtariyla
+  /// cevap veriyor.
+  static String? _dosya;
+
   static Future<void> yukle(String dil) async {
-    if (_dil == dil) return;
+    if (_dosya == dil) return;
+    _dosya = dil;
     if (const {'tr', 'en', 'de', 'es'}.contains(dil)) {
       _dil = dil;
       _tablo = const {};
@@ -53,7 +62,8 @@ class Ceviri {
     }
     try {
       final ham = await rootBundle.loadString('assets/l10n/$dil.json');
-      tabloyuAyarla(dil, (jsonDecode(ham) as Map).cast<String, String>());
+      tabloyuAyarla(dil == 'zh-Hant' ? 'zh' : dil,
+          (jsonDecode(ham) as Map).cast<String, String>());
     } catch (e) {
       debugPrint('⚠️ Ceviri tablosu yuklenemedi ($dil): $e');
       _dil = dil;
@@ -64,6 +74,7 @@ class Ceviri {
 
   /// Testler ve [yukle] icin: tabloyu dogrudan ayarlar.
   static void tabloyuAyarla(String dil, Map<String, String> tablo) {
+    _dosya ??= dil;
     _dil = dil;
     _tablo = tablo;
     _onbellek.clear();

@@ -79,7 +79,7 @@ class SettingsProvider extends ChangeNotifier {
   /// Bir dili secerken kullanicinin o dili zaten okuyor olmasini
   /// bekleyemeyiz; bu yuzden "Almanca" degil "Deutsch" yaziyoruz.
   String get currentLanguageName =>
-      AppLang.nativeName[_locale.languageCode] ?? 'English';
+      AppLang.nativeName[AppLang.codeOf(_locale)] ?? 'English';
 
   /// [baslangicDili] verilirse ilk kare o dille ciziliyor.
   ///
@@ -102,8 +102,9 @@ class SettingsProvider extends ChangeNotifier {
   static Locale _deviceLocaleOrDefault() {
     final device = PlatformDispatcher.instance.locale;
     if (AppLang.isSupported(device.languageCode)) {
-      return Locale(AppLang.resolve(device.languageCode),
-          device.countryCode ?? '');
+      final kod = AppLang.codeOf(device);
+      if (kod == 'zh-Hant') return AppLang.localeOf(kod);
+      return Locale(kod, device.countryCode ?? '');
     }
     return const Locale(AppLang.en);
   }
@@ -123,7 +124,10 @@ class SettingsProvider extends ChangeNotifier {
     if (_dilSecildi) {
       // Yukleme surerken setLocale() cagrildi: o secim kazanir.
     } else if (savedLanguage != null) {
-      _locale = Locale(savedLanguage, prefs.getString('country_code') ?? '');
+      final yazi = prefs.getString('script_code');
+      _locale = (yazi != null && yazi.isNotEmpty)
+          ? Locale.fromSubtags(languageCode: savedLanguage, scriptCode: yazi)
+          : Locale(savedLanguage, prefs.getString('country_code') ?? '');
     } else {
       _locale = _deviceLocaleOrDefault();
     }
@@ -132,10 +136,10 @@ class SettingsProvider extends ChangeNotifier {
     // asagidaki atamadan sonra eskisiyle ezebiliyordu. Ilk acilista tablo
     // zaten main() icinde runApp'ten once yukleniyor; burasi yalnizca
     // yedek, yuklenince bir kez yeniden ciziliyor.
-    final yuklenecek = _locale.languageCode;
-    if (Ceviri.dil != yuklenecek) {
+    final yuklenecek = AppLang.codeOf(_locale);
+    if (Ceviri.dosya != yuklenecek) {
       Ceviri.yukle(yuklenecek).then((_) {
-        if (_locale.languageCode == yuklenecek) notifyListeners();
+        if (AppLang.codeOf(_locale) == yuklenecek) notifyListeners();
       });
     }
 
@@ -175,11 +179,12 @@ class SettingsProvider extends ChangeNotifier {
     // dil degisince ilk cizilen kare dogru dilde olsun.
     _locale = locale;
     _dilSecildi = true;
-    await Ceviri.yukle(locale.languageCode);
+    await Ceviri.yukle(AppLang.codeOf(locale));
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('language_code', locale.languageCode);
     await prefs.setString('country_code', locale.countryCode ?? '');
+    await prefs.setString('script_code', locale.scriptCode ?? '');
 
     notifyListeners();
   }

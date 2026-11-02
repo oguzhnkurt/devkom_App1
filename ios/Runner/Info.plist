@@ -40,7 +40,13 @@
 		<string>ur</string>
 		<string>hi</string>
 		<string>bn</string>
+		<string>gu</string>
+		<string>kn</string>
+		<string>ml</string>
+		<string>mr</string>
+		<string>pa</string>
 		<string>ta</string>
+		<string>te</string>
 		<string>id</string>
 		<string>ms</string>
 		<string>vi</string>
@@ -49,13 +55,7 @@
 		<string>ja</string>
 		<string>ko</string>
 		<string>zh-Hans</string>
-		<string>sw</string>
-		<string>az</string>
-		<string>kk</string>
-		<string>uz</string>
-		<string>ka</string>
-		<string>mk</string>
-		<string>af</string>
+		<string>zh-Hant</string>
 		<string>is</string>
 	</array>
 	<key>CFBundleDisplayName</key>

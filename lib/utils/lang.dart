@@ -1,3 +1,5 @@
+import 'dart:ui' show Locale;
+
 import 'ceviri.dart';
 
 /// Uygulamanin destekledigi diller.
@@ -19,17 +21,19 @@ class AppLang {
 
   /// Ayarlar ekraninda ve dil seciminde kullanilan sira.
   ///
-  /// 51 DIL (2 Kasim 2026). Ilk dordu elle yazilmis tam diller; digerleri
-  /// arayuz cevirisiyle geliyor (bkz. `ceviri.dart`), ders icerigi o
-  /// dillerde Ingilizce.
+  /// 51 DIL (2 Kasim 2026): Google Ads'in destekledigi 51 dil (kullanicinin
+  /// listesi). Ilk dordu elle yazilmis tam diller; digerleri arayuz
+  /// cevirisiyle geliyor (bkz. `ceviri.dart`), ders icerigi o dillerde
+  /// Ingilizce. Geleneksel Cince'nin kodu 'zh-Hant': Locale'de dil kodu
+  /// yine 'zh', yazi sistemi 'Hant' (bkz. [localeOf], [codeOf]).
   static const List<String> elleYazilan = [tr, en, de, es];
 
   static const List<String> supported = [
     tr, en, de, es,
     'fr', 'it', 'pt', 'nl', 'pl', 'ru', 'uk', 'cs', 'sk', 'sl', 'hr', 'sr',
     'bg', 'ro', 'hu', 'el', 'sv', 'da', 'nb', 'fi', 'et', 'lv', 'lt', 'ca',
-    'ar', 'he', 'fa', 'ur', 'hi', 'bn', 'ta', 'id', 'ms', 'vi', 'th', 'fil',
-    'ja', 'ko', 'zh', 'sw', 'az', 'kk', 'uz', 'ka', 'mk', 'af', 'is',
+    'ar', 'he', 'fa', 'ur', 'hi', 'bn', 'gu', 'kn', 'ml', 'mr', 'pa', 'ta',
+    'te', 'id', 'ms', 'vi', 'th', 'fil', 'ja', 'ko', 'zh', 'zh-Hant', 'is',
   ];
 
   /// Dilin kendi adiyla gorunen etiketi.
@@ -79,14 +83,14 @@ class AppLang {
     'fil': 'Filipino',
     'ja': '日本語',
     'ko': '한국어',
-    'zh': '中文',
-    'sw': 'Kiswahili',
-    'az': 'Azərbaycanca',
-    'kk': 'Қазақ тілі',
-    'uz': 'Oʻzbekcha',
-    'ka': 'ქართული',
-    'mk': 'Македонски',
-    'af': 'Afrikaans',
+    'zh': '简体中文',
+    'zh-Hant': '繁體中文',
+    'gu': 'ગુજરાતી',
+    'kn': 'ಕನ್ನಡ',
+    'ml': 'മലയാളം',
+    'mr': 'मराठी',
+    'pa': 'ਪੰਜਾਬੀ',
+    'te': 'తెలుగు',
     'is': 'Íslenska',
   };
 
@@ -119,6 +123,23 @@ class AppLang {
   /// kullaniciya "bu uygulama sana gore degil" demek olur.
   static String resolve(String? deviceCode) =>
       isSupported(deviceCode) ? _normal(deviceCode!) : en;
+
+  /// Dil secimindeki kodun Locale karsiligi.
+  static Locale localeOf(String code) => code == 'zh-Hant'
+      ? const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant')
+      : Locale(code);
+
+  /// Bir Locale'in dil secimindeki kodu (Geleneksel Cince'yi ayirir).
+  static String codeOf(Locale l) {
+    if (l.languageCode == 'zh') {
+      final c = (l.countryCode ?? '').toUpperCase();
+      if (l.scriptCode == 'Hant' || c == 'TW' || c == 'HK' || c == 'MO') {
+        return 'zh-Hant';
+      }
+      return 'zh';
+    }
+    return resolve(l.languageCode);
+  }
 
   /// Sagdan sola yazilan diller.
   static const Set<String> sagdanSola = {'ar', 'he', 'fa', 'ur'};

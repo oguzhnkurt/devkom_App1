@@ -39,7 +39,7 @@ void main() {
     // betik koduyla istiyor (zh-Hans).
     final uygulamaDilleri = AppLang.supported
         .map((d) => d == 'zh' ? 'zh-Hans' : d)
-        .toSet();
+        .toSet(); // 'zh-Hant' iOS'ta da ayni
 
     expect(plistDilleri, equals(uygulamaDilleri),
         reason: 'Info.plist ile AppLang.supported ayni olmali - yoksa ya '

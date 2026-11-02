@@ -174,15 +174,18 @@ void main() async {
     final prefs = await SharedPreferences.getInstance();
     final kod = prefs.getString('language_code');
     if (kod != null && kod.isNotEmpty) {
-      kayitliDil = Locale(kod, prefs.getString('country_code') ?? '');
+      final yazi = prefs.getString('script_code');
+      kayitliDil = (yazi != null && yazi.isNotEmpty)
+          ? Locale.fromSubtags(languageCode: kod, scriptCode: yazi)
+          : Locale(kod, prefs.getString('country_code') ?? '');
     }
   } catch (e) {
     debugPrint('⚠️ Kayitli dil okunamadi: $e');
   }
 
   // 51 dil: ilk kare dogru dilde cizilsin diye tablo runApp'ten once.
-  await Ceviri.yukle(kayitliDil?.languageCode ??
-      AppLang.resolve(PlatformDispatcher.instance.locale.languageCode));
+  await Ceviri.yukle(
+      AppLang.codeOf(kayitliDil ?? PlatformDispatcher.instance.locale));
 
   runApp(DevkomApp(baslangicDili: kayitliDil));
 }
@@ -255,7 +258,7 @@ class DevkomApp extends StatelessWidget {
               const Locale('tr', 'TR'),
               const Locale('en', 'US'),
               for (final d in AppLang.supported)
-                if (d != AppLang.tr && d != AppLang.en) Locale(d),
+                if (d != AppLang.tr && d != AppLang.en) AppLang.localeOf(d),
             ],
             // SAGDAN SOLA DILLER (ar, he, fa, ur) SIMDILIK SOLDAN SAGA
             // DUZENLE: ders sahneleri, kod bloklari ve devre tezgahi

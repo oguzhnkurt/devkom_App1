@@ -654,15 +654,18 @@ class SettingsScreen extends StatelessWidget {
   /// ama kendi dilinin adini tanir.
   void _showLanguageDialog(BuildContext context, SettingsProvider settings) {
     final loc = AppLocalizations.of(context);
-    final current = settings.locale.languageCode;
+    final current = AppLang.codeOf(settings.locale);
 
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(loc.selectLanguage),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+        // 51 dil: liste kaydirilabilir (Column ekrandan tasiyordu).
+        content: SizedBox(
+          width: double.maxFinite,
+          height: MediaQuery.of(context).size.height * 0.6,
+          child: ListView(
           children: [
             for (final code in AppLang.supported)
               ListTile(
@@ -689,12 +692,13 @@ class SettingsScreen extends StatelessWidget {
                   if (code == current) return;
                   _showLanguageChangingOverlay(context, code);
                   await Future.delayed(const Duration(milliseconds: 100));
-                  await settings.setLocale(Locale(code));
+                  await settings.setLocale(AppLang.localeOf(code));
                   await Future.delayed(const Duration(milliseconds: 1200));
                   if (context.mounted) Navigator.of(context).pop();
                 },
               ),
           ],
+          ),
         ),
         actions: [
           TextButton(

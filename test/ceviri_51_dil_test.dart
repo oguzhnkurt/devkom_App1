@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:devkom_app/utils/ceviri.dart';
 import 'package:devkom_app/utils/lang.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -28,6 +29,23 @@ void main() {
       final eksik = kaynak.where((k) => !t.containsKey(k)).toList();
       expect(eksik, isEmpty, reason: '$d eksik: ${eksik.take(3)}');
     }
+  });
+
+  test('Google Ads 51 dil listesi ve Geleneksel Cince', () {
+    for (final d in ['gu', 'kn', 'ml', 'mr', 'pa', 'te', 'zh-Hant', 'is']) {
+      expect(AppLang.supported, contains(d));
+    }
+    for (final d in ['sw', 'az', 'kk', 'uz', 'ka', 'mk', 'af']) {
+      expect(AppLang.supported, isNot(contains(d)));
+    }
+    expect(AppLang.codeOf(const Locale('zh', 'TW')), 'zh-Hant');
+    expect(AppLang.codeOf(const Locale('zh', 'CN')), 'zh');
+    expect(
+        AppLang.codeOf(const Locale.fromSubtags(
+            languageCode: 'zh', scriptCode: 'Hant')),
+        'zh-Hant');
+    expect(AppLang.localeOf('zh-Hant').scriptCode, 'Hant');
+    expect(AppLang.codeOf(const Locale('no')), 'nb');
   });
 
   test('cihaz dili esanlamlilari', () {
