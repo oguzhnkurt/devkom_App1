@@ -180,9 +180,9 @@ class _ProGokyuzuState extends State<ProGokyuzu> with TickerProviderStateMixin {
                       ),
                       // Devi'nin uzerinde durdugu kabarik bulut.
                       const Positioned(
-                        bottom: 0,
-                        width: 210,
-                        height: 46,
+                        bottom: -4,
+                        width: 190,
+                        height: 56,
                         child: CustomPaint(painter: _BulutMinder()),
                       ),
                       Positioned(
@@ -306,26 +306,37 @@ class _KurdeleUclari extends CustomPainter {
 
 class _BulutKenari extends CustomPainter {
   const _BulutKenari();
+
+  // (x orani, yaricap orani) — farkli boyda yuvarlak tepeler.
+  static const _tepeler = [
+    (-0.02, 0.9),
+    (0.10, 0.75),
+    (0.22, 1.0),
+    (0.35, 0.7),
+    (0.47, 0.95),
+    (0.60, 0.8),
+    (0.72, 1.05),
+    (0.85, 0.75),
+    (0.98, 0.95),
+  ];
+
   @override
   void paint(Canvas canvas, Size size) {
-    final p = Paint()..color = Colors.white;
     final w = size.width;
     final h = size.height;
-    final path = Path()..moveTo(0, h);
-    // Yumuk bulut tepeleri.
-    const tepeler = [0.0, 0.12, 0.26, 0.4, 0.54, 0.68, 0.82, 1.0];
-    const yukseklik = [0.5, 0.15, 0.42, 0.1, 0.38, 0.08, 0.4, 0.45];
-    path.lineTo(0, h * yukseklik[0]);
-    for (var i = 1; i < tepeler.length; i++) {
-      final x0 = w * tepeler[i - 1];
-      final x1 = w * tepeler[i];
-      path.quadraticBezierTo(
-          (x0 + x1) / 2, h * yukseklik[i] - h * 0.55, x1, h * yukseklik[i]);
+    final r0 = h * 0.62;
+    // Tek yol: tepeler ve govde birlesik; ic cizgi yok.
+    final yol = Path()..addRect(Rect.fromLTRB(-10, h * 0.62, w + 10, h + 2));
+    for (final t in _tepeler) {
+      yol.addOval(Rect.fromCircle(
+          center: Offset(w * t.$1, h * 0.95), radius: r0 * t.$2));
     }
-    path
-      ..lineTo(w, h)
-      ..close();
-    canvas.drawPath(path, p);
+    canvas.drawPath(
+        yol.shift(const Offset(0, -2)),
+        Paint()
+          ..color = const Color(0x332F80ED)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5));
+    canvas.drawPath(yol, Paint()..color = Colors.white);
   }
 
   @override
@@ -445,26 +456,41 @@ class _IsinHale extends CustomPainter {
 /// Devi'nin ayaklarinin altindaki kabarik bulut minderi.
 class _BulutMinder extends CustomPainter {
   const _BulutMinder();
+
+  /// Klasik cizgi film bulutu: genis yumusak taban + uc buyuk tepe. Tek bir
+  /// yol olarak ciziliyor, ic cizgi/kesik olusmuyor.
+  static Path yol(Size s) {
+    final w = s.width;
+    final h = s.height;
+    Rect d(double x, double y, double r) =>
+        Rect.fromCircle(center: Offset(w * x, h * y), radius: h * r);
+    return Path()
+      ..addRRect(RRect.fromRectAndRadius(
+          Rect.fromLTRB(w * 0.06, h * 0.52, w * 0.94, h * 0.96),
+          Radius.circular(h * 0.22)))
+      ..addOval(d(0.16, 0.70, 0.26))
+      ..addOval(d(0.32, 0.50, 0.34))
+      ..addOval(d(0.52, 0.40, 0.40))
+      ..addOval(d(0.71, 0.52, 0.32))
+      ..addOval(d(0.85, 0.70, 0.25));
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-    final golge = Paint()..color = const Color(0xFFD6ECFB);
-    final beyaz = Paint()..color = Colors.white;
-    void kabarcik(Paint p, double dy) {
-      canvas.drawRRect(
-          RRect.fromRectAndRadius(
-              Rect.fromLTWH(w * 0.04, h * 0.42 + dy, w * 0.92, h * 0.5),
-              Radius.circular(h * 0.25)),
-          p);
-      canvas.drawCircle(Offset(w * 0.24, h * 0.48 + dy), h * 0.3, p);
-      canvas.drawCircle(Offset(w * 0.45, h * 0.36 + dy), h * 0.36, p);
-      canvas.drawCircle(Offset(w * 0.66, h * 0.42 + dy), h * 0.32, p);
-      canvas.drawCircle(Offset(w * 0.82, h * 0.55 + dy), h * 0.24, p);
-    }
-
-    kabarcik(golge, 3);
-    kabarcik(beyaz, 0);
+    final y = yol(size);
+    canvas.drawPath(
+        y.shift(const Offset(0, 5)),
+        Paint()
+          ..color = const Color(0x402F80ED)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7));
+    canvas.drawPath(
+        y,
+        Paint()
+          ..shader = const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white, Color(0xFFE3F1FC)],
+          ).createShader(Offset.zero & size));
   }
 
   @override
@@ -557,37 +583,45 @@ class _ProKarsilastirmaState extends State<ProKarsilastirma>
             ),
             Column(
               children: [
-                SizedBox(
-                  height: 34,
-                  child: Row(
-                    children: [
-                      const Spacer(),
-                      SizedBox(
-                        width: _sutun,
-                        child: Center(
-                          child: Text(
-                            widget.ucretsizEtiket,
-                            maxLines: 1,
-                            overflow: TextOverflow.fade,
-                            softWrap: false,
-                            style: t.labelSmall?.copyWith(
-                                color: Colors.grey.shade500,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.5),
+                // Baslik da tabloyla birlikte geliyor: once bos bekleyen
+                // "UCRETSIZ / PRO" yazisi garip duruyordu.
+                Opacity(
+                  opacity: sutunGor,
+                  child: Transform.translate(
+                    offset: Offset(0, 8 * (1 - sutunGor)),
+                    child: SizedBox(
+                      height: 34,
+                      child: Row(
+                        children: [
+                          const Spacer(),
+                          SizedBox(
+                            width: _sutun,
+                            child: Center(
+                              child: Text(
+                                widget.ucretsizEtiket,
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                softWrap: false,
+                                style: t.labelSmall?.copyWith(
+                                    color: Colors.grey.shade500,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.5),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: _sutun,
-                        child: Center(
-                          child: Transform.scale(
-                            scale: 0.6 +
-                                0.4 * _aralik(0.05, 0.3, Curves.elasticOut),
-                            child: const ProRozet(),
+                          SizedBox(
+                            width: _sutun,
+                            child: Center(
+                              child: Transform.scale(
+                                scale: 0.6 +
+                                    0.4 * _aralik(0.05, 0.3, Curves.elasticOut),
+                                child: const ProRozet(),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
                 for (var i = 0; i < n; i++)
@@ -834,9 +868,6 @@ class _ProDugmeState extends State<ProDugme> with TickerProviderStateMixin {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.rocket_launch_rounded,
-                            color: ProRenk.lacivert, size: 22),
-                        const SizedBox(width: 10),
                         Flexible(
                           child: Text(
                             widget.etiket,
@@ -844,7 +875,7 @@ class _ProDugmeState extends State<ProDugme> with TickerProviderStateMixin {
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontFamily: AppTheme.fontFamily,
-                              fontSize: 18,
+                              fontSize: 19,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 0.8,
                               color: ProRenk.lacivert,
@@ -855,17 +886,6 @@ class _ProDugmeState extends State<ProDugme> with TickerProviderStateMixin {
                               ],
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Container(
-                          width: 28,
-                          height: 28,
-                          decoration: const BoxDecoration(
-                            color: ProRenk.lacivert,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.arrow_forward_rounded,
-                              color: Colors.white, size: 18),
                         ),
                       ],
                     ),
