@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "その接続は回路にないよ。{0}",
 "The board starts with \"{0}\".": "ボードは「{0}」から始まるよ。",
 "Write some code first: start with \"{0}\".": "まずコードを書こう：「{0}」から始めてね。",
-"{0} picked · tap the other end": "{0}を選んだよ · もう一方の端をタップしてね"
+"{0} picked · tap the other end": "{0}を選んだよ · もう一方の端をタップしてね",
+"Every course, game and certificate in one membership.": "すべてのコース、ゲーム、修了証がひとつのメンバーシップで。",
+"Have an account?": "アカウントをお持ちですか？",
+"Learn to code by playing": "遊びながらプログラミングを学ぼう",
+"Renews monthly": "毎月自動更新",
+"Renews yearly": "毎年自動更新",
+"Sign in": "ログイン",
+"Your free preview is over. Go Pro to pick up where you left off.": "無料のお試しが終わりました。Proにすると続きから再開できます。"
 }

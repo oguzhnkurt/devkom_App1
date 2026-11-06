@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Такого з’єднання немає в схемі. {0}",
 "The board starts with \"{0}\".": "Плата починає з «{0}».",
 "Write some code first: start with \"{0}\".": "Спершу напиши код: почни з «{0}».",
-"{0} picked · tap the other end": "Вибрано {0} · торкнися іншого кінця"
+"{0} picked · tap the other end": "Вибрано {0} · торкнися іншого кінця",
+"Every course, game and certificate in one membership.": "Усі курси, ігри та сертифікати в одній підписці.",
+"Have an account?": "Маєте обліковий запис?",
+"Learn to code by playing": "Вчися програмувати граючи",
+"Renews monthly": "Поновлюється щомісяця",
+"Renews yearly": "Поновлюється щороку",
+"Sign in": "Увійти",
+"Your free preview is over. Go Pro to pick up where you left off.": "Безкоштовне знайомство завершилося. Оформи Pro, щоб продовжити з того ж місця."
 }

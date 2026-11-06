@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "এই সংযোগটি সার্কিটে নেই। {0}",
 "The board starts with \"{0}\".": "বোর্ড “{0}” দিয়ে শুরু হয়।",
 "Write some code first: start with \"{0}\".": "আগে একটু কোড লেখো: “{0}” দিয়ে শুরু করো।",
-"{0} picked · tap the other end": "{0} বাছা হয়েছে · অন্য মাথায় ট্যাপ করো"
+"{0} picked · tap the other end": "{0} বাছা হয়েছে · অন্য মাথায় ট্যাপ করো",
+"Every course, game and certificate in one membership.": "সব কোর্স, গেম আর সার্টিফিকেট এক সদস্যপদে।",
+"Have an account?": "আপনার কি অ্যাকাউন্ট আছে?",
+"Learn to code by playing": "খেলতে খেলতে কোডিং শেখো",
+"Renews monthly": "প্রতি মাসে নবায়ন হয়",
+"Renews yearly": "প্রতি বছর নবায়ন হয়",
+"Sign in": "সাইন ইন",
+"Your free preview is over. Go Pro to pick up where you left off.": "তোমার ফ্রি পরিচিতি শেষ। যেখানে থেমেছিলে সেখান থেকে চালিয়ে যেতে Pro নাও।"
 }

@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Wala sa circuit ang koneksyong iyan. {0}",
 "The board starts with \"{0}\".": "Nagsisimula ang board sa “{0}”.",
 "Write some code first: start with \"{0}\".": "Magsulat ka muna ng code: magsimula sa “{0}”.",
-"{0} picked · tap the other end": "Napili ang {0} · i-tap ang kabilang dulo"
+"{0} picked · tap the other end": "Napili ang {0} · i-tap ang kabilang dulo",
+"Every course, game and certificate in one membership.": "Lahat ng kurso, laro at sertipiko sa iisang membership.",
+"Have an account?": "May account ka na?",
+"Learn to code by playing": "Matutong mag-code habang naglalaro",
+"Renews monthly": "Nire-renew buwan-buwan",
+"Renews yearly": "Nire-renew taon-taon",
+"Sign in": "Mag-sign in",
+"Your free preview is over. Go Pro to pick up where you left off.": "Tapos na ang libreng silip mo. Mag-Pro para ituloy kung saan ka huminto."
 }

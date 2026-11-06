@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Te povezave ni v vezju. {0}",
 "The board starts with \"{0}\".": "Plošča se začne z „{0}“.",
 "Write some code first: start with \"{0}\".": "Najprej napiši nekaj kode: začni z „{0}“.",
-"{0} picked · tap the other end": "Izbrano: {0} · tapni drugi konec"
+"{0} picked · tap the other end": "Izbrano: {0} · tapni drugi konec",
+"Every course, game and certificate in one membership.": "Vsi tečaji, igre in potrdila v eni naročnini.",
+"Have an account?": "Imate račun?",
+"Learn to code by playing": "Nauči se programirati z igro",
+"Renews monthly": "Podaljša se mesečno",
+"Renews yearly": "Podaljša se letno",
+"Sign in": "Prijava",
+"Your free preview is over. Go Pro to pick up where you left off.": "Tvoj brezplačni predogled je končan. Preklopi na Pro in nadaljuj, kjer si ostal."
 }

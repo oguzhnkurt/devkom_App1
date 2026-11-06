@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "电路中没有这个连接。{0}",
 "The board starts with \"{0}\".": "电路板从“{0}”开始。",
 "Write some code first: start with \"{0}\".": "先写点代码吧：从“{0}”开始。",
-"{0} picked · tap the other end": "已选 {0} · 点另一端"
+"{0} picked · tap the other end": "已选 {0} · 点另一端",
+"Every course, game and certificate in one membership.": "所有课程、游戏和证书，一个会员全部拥有。",
+"Have an account?": "已有账户？",
+"Learn to code by playing": "边玩边学编程",
+"Renews monthly": "每月续订",
+"Renews yearly": "每年续订",
+"Sign in": "登录",
+"Your free preview is over. Go Pro to pick up where you left off.": "免费体验已结束。升级 Pro，从上次停下的地方继续。"
 }

@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "그 연결은 회로에 없어요. {0}",
 "The board starts with \"{0}\".": "보드는 \"{0}\"(으)로 시작해요.",
 "Write some code first: start with \"{0}\".": "먼저 코드를 써 봐요: \"{0}\"(으)로 시작해요.",
-"{0} picked · tap the other end": "{0} 선택됨 · 다른 쪽 끝을 탭해요"
+"{0} picked · tap the other end": "{0} 선택됨 · 다른 쪽 끝을 탭해요",
+"Every course, game and certificate in one membership.": "모든 강좌, 게임, 수료증을 하나의 멤버십으로.",
+"Have an account?": "계정이 있으신가요?",
+"Learn to code by playing": "놀면서 코딩을 배워요",
+"Renews monthly": "매월 갱신",
+"Renews yearly": "매년 갱신",
+"Sign in": "로그인",
+"Your free preview is over. Go Pro to pick up where you left off.": "무료 체험이 끝났어요. Pro로 전환하면 멈춘 곳에서 이어서 할 수 있어요."
 }

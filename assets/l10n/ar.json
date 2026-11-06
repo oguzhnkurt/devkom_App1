@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "هذا التوصيل ليس جزءًا من الدارة. {0}",
 "The board starts with \"{0}\".": "تبدأ اللوحة بـ «{0}».",
 "Write some code first: start with \"{0}\".": "اكتب بعض الكود أولًا: ابدأ بـ «{0}».",
-"{0} picked · tap the other end": "تم اختيار {0} · انقر الطرف الآخر"
+"{0} picked · tap the other end": "تم اختيار {0} · انقر الطرف الآخر",
+"Every course, game and certificate in one membership.": "جميع الدورات والألعاب والشهادات في اشتراك واحد.",
+"Have an account?": "هل لديك حساب؟",
+"Learn to code by playing": "تعلّم البرمجة باللعب",
+"Renews monthly": "يتجدد شهريًا",
+"Renews yearly": "يتجدد سنويًا",
+"Sign in": "تسجيل الدخول",
+"Your free preview is over. Go Pro to pick up where you left off.": "انتهت تجربتك المجانية. اشترك في Pro لتكمل من حيث توقفت."
 }

@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Tuota kytkentää ei ole piirissä. {0}",
 "The board starts with \"{0}\".": "Levy alkaa rivillä ”{0}”.",
 "Write some code first: start with \"{0}\".": "Kirjoita ensin vähän koodia: aloita rivillä ”{0}”.",
-"{0} picked · tap the other end": "{0} valittu · napauta toista päätä"
+"{0} picked · tap the other end": "{0} valittu · napauta toista päätä",
+"Every course, game and certificate in one membership.": "Kaikki kurssit, pelit ja todistukset yhdellä jäsenyydellä.",
+"Have an account?": "Onko sinulla tili?",
+"Learn to code by playing": "Opi koodaamaan leikkien",
+"Renews monthly": "Uusiutuu kuukausittain",
+"Renews yearly": "Uusiutuu vuosittain",
+"Sign in": "Kirjaudu sisään",
+"Your free preview is over. Go Pro to pick up where you left off.": "Ilmainen tutustumisesi päättyi. Siirry Prohon ja jatka siitä, mihin jäit."
 }

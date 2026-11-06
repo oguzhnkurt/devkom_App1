@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "அந்த இணைப்பு சர்க்யூட்டில் இல்லை. {0}",
 "The board starts with \"{0}\".": "போர்டு “{0}” என்பதில் தொடங்குகிறது.",
 "Write some code first: start with \"{0}\".": "முதலில் கொஞ்சம் கோட் எழுது: “{0}” என்பதில் தொடங்கு.",
-"{0} picked · tap the other end": "{0} தேர்ந்தெடுக்கப்பட்டது · மற்ற முனையைத் தட்டு"
+"{0} picked · tap the other end": "{0} தேர்ந்தெடுக்கப்பட்டது · மற்ற முனையைத் தட்டு",
+"Every course, game and certificate in one membership.": "அனைத்து பாடநெறிகள், விளையாட்டுகள், சான்றிதழ்கள் ஒரே உறுப்பினர் திட்டத்தில்.",
+"Have an account?": "உங்களுக்கு கணக்கு உள்ளதா?",
+"Learn to code by playing": "விளையாடிக்கொண்டே நிரலாக்கம் கற்றுக்கொள்",
+"Renews monthly": "மாதந்தோறும் புதுப்பிக்கப்படும்",
+"Renews yearly": "ஆண்டுதோறும் புதுப்பிக்கப்படும்",
+"Sign in": "உள்நுழை",
+"Your free preview is over. Go Pro to pick up where you left off.": "உங்கள் இலவச அறிமுகம் முடிந்தது. நிறுத்திய இடத்திலிருந்து தொடர Pro பெறுங்கள்."
 }

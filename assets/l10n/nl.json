@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Die verbinding hoort niet bij het circuit. {0}",
 "The board starts with \"{0}\".": "Het bord begint met ‘{0}’.",
 "Write some code first: start with \"{0}\".": "Schrijf eerst wat code: begin met ‘{0}’.",
-"{0} picked · tap the other end": "{0} gekozen · tik op het andere uiteinde"
+"{0} picked · tap the other end": "{0} gekozen · tik op het andere uiteinde",
+"Every course, game and certificate in one membership.": "Alle cursussen, games en certificaten in één lidmaatschap.",
+"Have an account?": "Heb je een account?",
+"Learn to code by playing": "Leer programmeren door te spelen",
+"Renews monthly": "Wordt maandelijks verlengd",
+"Renews yearly": "Wordt jaarlijks verlengd",
+"Sign in": "Inloggen",
+"Your free preview is over. Go Pro to pick up where you left off.": "Je gratis kennismaking is voorbij. Ga voor Pro om verder te gaan waar je gebleven was."
 }

@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Toto spojenie v obvode nie je. {0}",
 "The board starts with \"{0}\".": "Doska začína riadkom „{0}“.",
 "Write some code first: start with \"{0}\".": "Najprv napíš nejaký kód: začni riadkom „{0}“.",
-"{0} picked · tap the other end": "Vybrané {0} · ťukni na druhý koniec"
+"{0} picked · tap the other end": "Vybrané {0} · ťukni na druhý koniec",
+"Every course, game and certificate in one membership.": "Všetky kurzy, hry a certifikáty v jednom predplatnom.",
+"Have an account?": "Máte účet?",
+"Learn to code by playing": "Uč sa programovať hrou",
+"Renews monthly": "Obnovuje sa mesačne",
+"Renews yearly": "Obnovuje sa ročne",
+"Sign in": "Prihlásiť sa",
+"Your free preview is over. Go Pro to pick up where you left off.": "Tvoja bezplatná ukážka sa skončila. Prejdi na Pro a pokračuj tam, kde si skončil."
 }

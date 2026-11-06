@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Ez a kapcsolat nincs benne az áramkörben. {0}",
 "The board starts with \"{0}\".": "A panel ezzel kezdődik: „{0}”.",
 "Write some code first: start with \"{0}\".": "Előbb írj egy kis kódot: kezdd így: „{0}”.",
-"{0} picked · tap the other end": "{0} kiválasztva · koppints a másik végpontra"
+"{0} picked · tap the other end": "{0} kiválasztva · koppints a másik végpontra",
+"Every course, game and certificate in one membership.": "Minden kurzus, játék és tanúsítvány egy előfizetésben.",
+"Have an account?": "Van fiókod?",
+"Learn to code by playing": "Tanulj programozni játszva",
+"Renews monthly": "Havonta megújul",
+"Renews yearly": "Évente megújul",
+"Sign in": "Bejelentkezés",
+"Your free preview is over. Go Pro to pick up where you left off.": "Az ingyenes betekintés véget ért. Válts Pro-ra, és folytasd ott, ahol abbahagytad."
 }

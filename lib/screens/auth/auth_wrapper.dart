@@ -15,9 +15,9 @@ import 'abonelik_kapisi.dart';
 /// adimi vardi. Uygulama tek kullanici tipine gectigi icin bu soru kaldirildi;
 /// ilk acilista tanitim akisi bitince kullanici dogrudan ana ekrana giriyor.
 ///
-/// 1.0.18'den itibaren ana ekran [AbonelikKapisi]'nin arkasinda: ucretsiz
-/// kullanim yok, tanitimdan sonra (ve her acilista abone degilse) satin
-/// alma ekrani geliyor.
+/// Ana ekran [AbonelikKapisi]'nin arkasinda: abone olmayan kullanici
+/// uygulamada 4 dakika serbest dolasiyor, sonra kapatilamayan satin alma
+/// ekrani geliyor (1.0.19; 1.0.18'de tanitimdan hemen sonra geliyordu).
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 

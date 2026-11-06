@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Aquesta connexió no forma part del circuit. {0}",
 "The board starts with \"{0}\".": "La placa comença amb «{0}».",
 "Write some code first: start with \"{0}\".": "Primer escriu una mica de codi: comença amb «{0}».",
-"{0} picked · tap the other end": "{0} triat · toca l'altre extrem"
+"{0} picked · tap the other end": "{0} triat · toca l'altre extrem",
+"Every course, game and certificate in one membership.": "Tots els cursos, jocs i certificats en una sola subscripció.",
+"Have an account?": "Tens un compte?",
+"Learn to code by playing": "Aprèn a programar jugant",
+"Renews monthly": "Es renova cada mes",
+"Renews yearly": "Es renova cada any",
+"Sign in": "Inicia la sessió",
+"Your free preview is over. Go Pro to pick up where you left off.": "La teva prova gratuïta ha acabat. Passa a Pro per continuar on ho havies deixat."
 }

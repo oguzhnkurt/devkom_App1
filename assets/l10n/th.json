@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "การเชื่อมต่อนั้นไม่ได้อยู่ในวงจร {0}",
 "The board starts with \"{0}\".": "บอร์ดเริ่มต้นด้วย “{0}”",
 "Write some code first: start with \"{0}\".": "เขียนโค้ดก่อนนะ: เริ่มด้วย “{0}”",
-"{0} picked · tap the other end": "เลือก {0} แล้ว · แตะปลายอีกด้าน"
+"{0} picked · tap the other end": "เลือก {0} แล้ว · แตะปลายอีกด้าน",
+"Every course, game and certificate in one membership.": "ทุกคอร์ส เกม และใบประกาศในสมาชิกเดียว",
+"Have an account?": "มีบัญชีแล้วใช่ไหม",
+"Learn to code by playing": "เรียนเขียนโค้ดผ่านการเล่น",
+"Renews monthly": "ต่ออายุทุกเดือน",
+"Renews yearly": "ต่ออายุทุกปี",
+"Sign in": "ลงชื่อเข้าใช้",
+"Your free preview is over. Go Pro to pick up where you left off.": "ช่วงทดลองฟรีของคุณหมดแล้ว อัปเกรดเป็น Pro เพื่อเรียนต่อจากที่ค้างไว้"
 }

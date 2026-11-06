@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Sú tenging er ekki í rásinni. {0}",
 "The board starts with \"{0}\".": "Borðið byrjar á „{0}“.",
 "Write some code first: start with \"{0}\".": "Skrifaðu fyrst smá kóða: byrjaðu á „{0}“.",
-"{0} picked · tap the other end": "{0} valið · ýttu á hinn endann"
+"{0} picked · tap the other end": "{0} valið · ýttu á hinn endann",
+"Every course, game and certificate in one membership.": "Öll námskeið, leikir og vottorð í einni áskrift.",
+"Have an account?": "Ertu með aðgang?",
+"Learn to code by playing": "Lærðu að forrita í gegnum leik",
+"Renews monthly": "Endurnýjast mánaðarlega",
+"Renews yearly": "Endurnýjast árlega",
+"Sign in": "Skrá inn",
+"Your free preview is over. Go Pro to pick up where you left off.": "Ókeypis kynningunni þinni er lokið. Fáðu Pro til að halda áfram þar sem þú hættir."
 }

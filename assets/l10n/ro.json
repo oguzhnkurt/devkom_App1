@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Această conexiune nu face parte din circuit. {0}",
 "The board starts with \"{0}\".": "Placa începe cu „{0}”.",
 "Write some code first: start with \"{0}\".": "Mai întâi scrie puțin cod: începe cu „{0}”.",
-"{0} picked · tap the other end": "Ales: {0} · atinge celălalt capăt"
+"{0} picked · tap the other end": "Ales: {0} · atinge celălalt capăt",
+"Every course, game and certificate in one membership.": "Toate cursurile, jocurile și certificatele într-un singur abonament.",
+"Have an account?": "Ai un cont?",
+"Learn to code by playing": "Învață să programezi jucându-te",
+"Renews monthly": "Se reînnoiește lunar",
+"Renews yearly": "Se reînnoiește anual",
+"Sign in": "Conectează-te",
+"Your free preview is over. Go Pro to pick up where you left off.": "Previzualizarea gratuită s-a încheiat. Treci la Pro ca să continui de unde ai rămas."
 }

@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Тази връзка не е част от веригата. {0}",
 "The board starts with \"{0}\".": "Платката започва с „{0}“.",
 "Write some code first: start with \"{0}\".": "Първо напиши малко код: започни с „{0}“.",
-"{0} picked · tap the other end": "Избран: {0} · докосни другия край"
+"{0} picked · tap the other end": "Избран: {0} · докосни другия край",
+"Every course, game and certificate in one membership.": "Всички курсове, игри и сертификати в един абонамент.",
+"Have an account?": "Имате акаунт?",
+"Learn to code by playing": "Научи се да програмираш с игра",
+"Renews monthly": "Подновява се ежемесечно",
+"Renews yearly": "Подновява се ежегодно",
+"Sign in": "Вход",
+"Your free preview is over. Go Pro to pick up where you left off.": "Безплатният ти преглед приключи. Премини към Pro, за да продължиш оттам, докъдето стигна."
 }

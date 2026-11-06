@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Šī savienojuma ķēdē nav. {0}",
 "The board starts with \"{0}\".": "Plate sākas ar „{0}”.",
 "Write some code first: start with \"{0}\".": "Vispirms uzraksti mazliet koda: sāc ar „{0}”.",
-"{0} picked · tap the other end": "Izvēlēts: {0} · pieskaries otram galam"
+"{0} picked · tap the other end": "Izvēlēts: {0} · pieskaries otram galam",
+"Every course, game and certificate in one membership.": "Visi kursi, spēles un sertifikāti vienā abonementā.",
+"Have an account?": "Vai jums ir konts?",
+"Learn to code by playing": "Mācies programmēt spēlējoties",
+"Renews monthly": "Atjaunojas katru mēnesi",
+"Renews yearly": "Atjaunojas katru gadu",
+"Sign in": "Pierakstīties",
+"Your free preview is over. Go Pro to pick up where you left off.": "Tava bezmaksas iepazīšanās ir beigusies. Pārej uz Pro, lai turpinātu no vietas, kur apstājies."
 }

@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Den forbindelse er ikke en del af kredsløbet. {0}",
 "The board starts with \"{0}\".": "Kortet starter med »{0}«.",
 "Write some code first: start with \"{0}\".": "Skriv noget kode først: start med »{0}«.",
-"{0} picked · tap the other end": "{0} valgt · tryk på den anden ende"
+"{0} picked · tap the other end": "{0} valgt · tryk på den anden ende",
+"Every course, game and certificate in one membership.": "Alle kurser, spil og certifikater i ét medlemskab.",
+"Have an account?": "Har du en konto?",
+"Learn to code by playing": "Lær at kode gennem leg",
+"Renews monthly": "Fornyes månedligt",
+"Renews yearly": "Fornyes årligt",
+"Sign in": "Log ind",
+"Your free preview is over. Go Pro to pick up where you left off.": "Din gratis smagsprøve er slut. Skift til Pro for at fortsætte, hvor du slap."
 }

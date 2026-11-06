@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Seda ühendust skeemis ei ole. {0}",
 "The board starts with \"{0}\".": "Plaat algab reaga „{0}”.",
 "Write some code first: start with \"{0}\".": "Kirjuta kõigepealt veidi koodi: alusta reaga „{0}”.",
-"{0} picked · tap the other end": "{0} valitud · puuduta teist otsa"
+"{0} picked · tap the other end": "{0} valitud · puuduta teist otsa",
+"Every course, game and certificate in one membership.": "Kõik kursused, mängud ja tunnistused ühe liikmesusega.",
+"Have an account?": "Kas sul on konto?",
+"Learn to code by playing": "Õpi programmeerima mängides",
+"Renews monthly": "Uueneb igakuiselt",
+"Renews yearly": "Uueneb igal aastal",
+"Sign in": "Logi sisse",
+"Your free preview is over. Go Pro to pick up where you left off.": "Sinu tasuta tutvumine on läbi. Mine üle Pro-le, et jätkata sealt, kus pooleli jäid."
 }

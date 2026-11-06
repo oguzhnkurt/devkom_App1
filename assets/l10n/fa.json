@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "این اتصال در مدار نیست. {0}",
 "The board starts with \"{0}\".": "برد با «{0}» شروع می‌شود.",
 "Write some code first: start with \"{0}\".": "اول کمی کد بنویس: با «{0}» شروع کن.",
-"{0} picked · tap the other end": "{0} انتخاب شد · سر دیگر را بزن"
+"{0} picked · tap the other end": "{0} انتخاب شد · سر دیگر را بزن",
+"Every course, game and certificate in one membership.": "همه دوره‌ها، بازی‌ها و گواهی‌ها در یک اشتراک.",
+"Have an account?": "حساب کاربری دارید؟",
+"Learn to code by playing": "برنامه‌نویسی را با بازی یاد بگیر",
+"Renews monthly": "ماهانه تمدید می‌شود",
+"Renews yearly": "سالانه تمدید می‌شود",
+"Sign in": "ورود",
+"Your free preview is over. Go Pro to pick up where you left off.": "پیش‌نمایش رایگان تو تمام شد. برای ادامه از همان‌جا که ماندی، Pro بگیر."
 }

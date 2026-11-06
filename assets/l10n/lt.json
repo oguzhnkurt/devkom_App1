@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Šios jungties grandinėje nėra. {0}",
 "The board starts with \"{0}\".": "Plokštė pradeda nuo „{0}“.",
 "Write some code first: start with \"{0}\".": "Pirmiausia parašyk šiek tiek kodo: pradėk nuo „{0}“.",
-"{0} picked · tap the other end": "Pasirinkta: {0} · bakstelėk kitą galą"
+"{0} picked · tap the other end": "Pasirinkta: {0} · bakstelėk kitą galą",
+"Every course, game and certificate in one membership.": "Visi kursai, žaidimai ir sertifikatai vienoje prenumeratoje.",
+"Have an account?": "Turite paskyrą?",
+"Learn to code by playing": "Mokykis programuoti žaisdamas",
+"Renews monthly": "Atnaujinama kas mėnesį",
+"Renews yearly": "Atnaujinama kas metus",
+"Sign in": "Prisijungti",
+"Your free preview is over. Go Pro to pick up where you left off.": "Tavo nemokama peržiūra baigėsi. Pereik prie Pro ir tęsk ten, kur sustojai."
 }

@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Αυτή η σύνδεση δεν υπάρχει στο κύκλωμα. {0}",
 "The board starts with \"{0}\".": "Η πλακέτα ξεκινά με «{0}».",
 "Write some code first: start with \"{0}\".": "Γράψε πρώτα λίγο κώδικα: ξεκίνα με «{0}».",
-"{0} picked · tap the other end": "Επιλέχθηκε: {0} · πάτα το άλλο άκρο"
+"{0} picked · tap the other end": "Επιλέχθηκε: {0} · πάτα το άλλο άκρο",
+"Every course, game and certificate in one membership.": "Όλα τα μαθήματα, τα παιχνίδια και τα πιστοποιητικά σε μία συνδρομή.",
+"Have an account?": "Έχετε λογαριασμό;",
+"Learn to code by playing": "Μάθε προγραμματισμό παίζοντας",
+"Renews monthly": "Ανανεώνεται μηνιαία",
+"Renews yearly": "Ανανεώνεται ετήσια",
+"Sign in": "Σύνδεση",
+"Your free preview is over. Go Pro to pick up where you left off.": "Η δωρεάν γνωριμία σου τελείωσε. Πέρασε στο Pro για να συνεχίσεις από εκεί που σταμάτησες."
 }

@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Den kopplingen finns inte i kretsen. {0}",
 "The board starts with \"{0}\".": "Kortet börjar med ”{0}”.",
 "Write some code first: start with \"{0}\".": "Skriv lite kod först: börja med ”{0}”.",
-"{0} picked · tap the other end": "{0} vald · tryck på den andra änden"
+"{0} picked · tap the other end": "{0} vald · tryck på den andra änden",
+"Every course, game and certificate in one membership.": "Alla kurser, spel och certifikat i ett medlemskap.",
+"Have an account?": "Har du ett konto?",
+"Learn to code by playing": "Lär dig koda genom att leka",
+"Renews monthly": "Förnyas varje månad",
+"Renews yearly": "Förnyas varje år",
+"Sign in": "Logga in",
+"Your free preview is over. Go Pro to pick up where you left off.": "Din gratis provtur är slut. Uppgradera till Pro för att fortsätta där du slutade."
 }

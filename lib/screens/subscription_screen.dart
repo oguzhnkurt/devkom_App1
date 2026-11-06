@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:intl/intl.dart';
 import 'package:adapty_flutter/adapty_flutter.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
@@ -46,11 +45,19 @@ import '../services/firebase_servisi.dart';
 /// > plan secimi > her zaman gorunen alt buton > yasal satir.
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen(
-      {super.key, this.zorunlu = false, this.onAcildi, this.yenidenKontrol});
+      {super.key,
+      this.zorunlu = false,
+      this.onAcildi,
+      this.yenidenKontrol,
+      this.servis});
+
+  /// Testler ve ekran goruntusu araci icin (sahte urunler).
+  final SubscriptionService? servis;
 
   /// ZORUNLU (hard paywall) mod: [AbonelikKapisi] uygulamanin onune koyuyor.
   ///
-  /// Ucretsiz kullanim yok (karar 30 Eki 2026). Bu modda ekran bir route
+  /// Ucretsiz tanisma suresi (4 dk) bitince geliyor; ucretsiz deneme yok
+  /// (karar 6 Kas 2026, bkz. AbonelikKapisi). Bu modda ekran bir route
   /// degil, uygulamanin kendisinin yerinde duruyor; o yuzden:
   ///  * kapat tusu bir kez cikis teklifini aciyor, sonra gizleniyor;
   ///  * geri hareketi ekrani kapatmiyor;
@@ -73,7 +80,8 @@ class SubscriptionScreen extends StatefulWidget {
 }
 
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
-  final _service = SubscriptionService();
+  late final SubscriptionService _service =
+      widget.servis ?? SubscriptionService();
 
   List<AdaptyPaywallProduct> _products = [];
   AdaptyPaywallProduct? _selected;
@@ -175,33 +183,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           ),
         ),
       ];
-
-  List<String> get _extras => [
-        _t(
-          'İlerleme raporu: neyi bildiğini, nerede takıldığını gösterir',
-          'Progress report: what they know and where they get stuck',
-          'Fortschrittsbericht: was dein Kind kann und wo es hängt',
-          'Informe de progreso: lo que sabe y dónde se atasca',
-        ),
-        _t(
-          '1000 jeton hediye, her ay 300 jeton, her kazançta 1.5× jeton',
-          '1000 bonus tokens, 300 a month, 1.5× on every reward',
-          '1000 Bonus-Münzen, 300 im Monat, 1,5× auf jede Belohnung',
-          '1000 fichas de regalo, 300 al mes y 1,5× en cada recompensa',
-        ),
-        _t(
-            'Pro görevleri ve büyük ödüller',
-            'Pro quests and bigger rewards',
-            'Pro-Aufgaben und größere Belohnungen',
-            'Misiones Pro y recompensas mayores'),
-        _t('Pro karakterler ve ekipmanlar', 'Pro characters and gear',
-            'Pro-Figuren und Ausrüstung', 'Personajes y equipo Pro'),
-        _t('Reklamsız kullanım', 'No ads', 'Keine Werbung', 'Sin anuncios'),
-      ];
-
-  /// Ekranda acik duran madde sayisi. Planlarin kaydirmadan gorunmesi
-  /// icin liste kisa tutuluyor; gerisi "Neler dahil?" altinda.
-  static const int _visibleHighlights = 3;
 
   @override
   void initState() {
@@ -653,25 +634,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     return null;
   }
 
-  /// "12 Eylül" / "12 September" / "12. September" / "12 de septiembre"
-  ///
-  /// Deneme takviminde gercek tarih gosteriyoruz; "5. gün" gibi soyut
-  /// ifadelerin kullanicinin kafasinda karsiligi yok.
-  ///
-  /// Ay adlari ONCEDEN elle yazilmis Turkce bir listeden geliyordu; dort
-  /// dilde de "12 Eylül" yaziyordu. Artik `intl` bicimliyor: hem dogru
-  /// dil, hem her dilin kendi tarih sirasi (Almanca'da gun sonrasi
-  /// nokta, Ispanyolca'da "de" gibi).
-  String _dateLabel(int daysFromNow) {
-    final d = DateTime.now().add(Duration(days: daysFromNow));
-    try {
-      return DateFormat.MMMMd(_lang).format(d);
-    } catch (_) {
-      // Dil verisi yuklenmemisse tarihi kaybetmeyelim.
-      return DateFormat.MMMMd().format(d);
-    }
-  }
-
   bool _isYearly(AdaptyPaywallProduct p) =>
       p.vendorProductId.contains('yearly');
   bool _isWeekly(AdaptyPaywallProduct p) =>
@@ -721,11 +683,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           'Verlängert sich wöchentlich', 'Se renueva cada semana');
     }
     if (_isYearly(p)) {
-      return _isEn
-          ? '${_monthlyEquivalent(p)} / month'
-          : 'Ayda ${_monthlyEquivalent(p)} yapar';
+      return _t('Her yıl yenilenir', 'Renews yearly',
+          'Verlängert sich jährlich', 'Se renueva cada año');
     }
-    return _isEn ? 'Renews monthly' : 'Her ay yenilenir';
+    return _t('Her ay yenilenir', 'Renews monthly',
+        'Verlängert sich monatlich', 'Se renueva cada mes');
   }
 
   AdaptyPaywallProduct? get _monthlyProduct =>
@@ -880,78 +842,52 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Widget _buildContent() {
-    final trial = _trialDays(_selected);
-    // SIRA BILINCLI: planlar KAYDIRMADAN gorunmeli.
-    //
-    // Onceden ustte kahraman + uc satirlik fayda karti + "Neler dahil?"
-    // acilir bolumu vardi ve "Planini sec" ekranin altinda kaliyordu;
-    // fiyati gormek icin kaydirmak gerekiyordu. Fiyati saklamak hem
-    // satisi dusuruyor hem de App Store'un "teklif acikca gorunsun"
-    // beklentisiyle ters. Detay (Neler dahil) planlarin ALTINA indi:
-    // isteyen kaydirip okuyor, istemeyen fiyati hemen goruyor.
+    // TEK EKRAN (6 Kasim 2026): maskot + baslik, uc fayda satiri, iki plan.
+    // Deneme takvimi ve "Neler dahil?" bolumu kalkti (deneme kaldirildi,
+    // ekran uzun ve kalabalikti). Kucuk ekranda kayabilsin diye ListView.
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       children: [
-        _buildHero(trial),
-        const SizedBox(height: 16),
+        _buildHero(),
+        const SizedBox(height: 18),
         _buildHighlights(),
-        const SizedBox(height: 14),
+        const SizedBox(height: 20),
         _buildPlans(),
-        if (trial != null) ...[
-          const SizedBox(height: 18),
-          _buildTrialTimeline(trial),
-        ],
-        const SizedBox(height: 14),
-        _buildExtras(),
       ],
     );
   }
 
-  Widget _buildHero(int? trial) {
+  Widget _buildHero() {
     return Column(
       children: [
-        // Soguk bir rozet ikonu yerine COCUGUN ARKADASI duruyor.
-        //
-        // Paranin istendigi ekran, cocugun ebeveynine gosterdigi ekran.
-        // Tanidik bir yuz, kurumsal bir madalyadan cok daha iyi
-        // karsilaniyor. Tur elle verilmiyor: cocuk hangi karakteri
-        // sectiyse o geliyor (varsayilan Puf).
-        const _FloatingMascot(size: 74),
-        const SizedBox(height: 6),
+        // Cocugun arkadasi: odeme istenen ekranda tanidik bir yuz.
+        const _FloatingMascot(size: 84),
+        const SizedBox(height: 8),
         Text(
-          // Fayda basligi, ozellik basligi degil: "Sinirsiz ders" degil
-          // "daha hizli ogren".
-          _t(
-              'DevEducation Pro ile\ndaha hızlı öğren',
-              'Learn faster with\nDevEducation Pro',
-              'Lerne schneller mit\nDevEducation Pro',
-              'Aprende más rápido con\nDevEducation Pro'),
+          _t('Kodlamayı oynayarak öğren', 'Learn to code by playing',
+              'Spielend programmieren lernen', 'Aprende a programar jugando'),
           textAlign: TextAlign.center,
-          // headlineLarge -> headlineMedium -> headlineSmall. Iki
-          // satirlik baslik headlineMedium'da 128 piksel tutuyordu;
-          // olculdu (test/paywall_fold_test.dart) ve planlari ekranin
-          // disina iten en buyuk kalem oydu.
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 color: _ink,
                 height: 1.15,
                 fontWeight: FontWeight.w900,
               ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Text(
-          trial != null
+          widget.zorunlu
+              // Ucretsiz tanisma suresi bitince geliyor: neden burada
+              // oldugunu tek cumleyle soyluyoruz.
               ? _t(
-                  '$trial gün ücretsiz dene, sonra istediğin zaman iptal et.',
-                  'Try $trial days free, cancel any time.',
-                  '$trial Tage gratis testen, jederzeit kündbar.',
-                  'Prueba $trial días gratis y cancela cuando quieras.')
-              // Kisaltildi: iki satira saran bir cumle, ucuncu plan
-              // kartini ekranin disina itiyordu.
+                  'Tanışma süren doldu. Kaldığın yerden devam etmek için Pro\'ya geç.',
+                  'Your free preview is over. Go Pro to pick up where you left off.',
+                  'Deine kostenlose Vorschau ist vorbei. Mit Pro machst du genau dort weiter.',
+                  'Tu vista previa gratis ha terminado. Hazte Pro para seguir donde lo dejaste.')
               : _t(
-                  'Kilitli kurslar, oyunlar ve sertifika açılır.',
-                  'Locked courses, games and the certificate open up.',
-                  'Gesperrte Kurse, Spiele und Zertifikat werden frei.',
-                  'Se desbloquean cursos, juegos y certificado.'),
+                  'Tüm kurslar, oyunlar ve sertifika tek üyelikte.',
+                  'Every course, game and certificate in one membership.',
+                  'Alle Kurse, Spiele und Zertifikate in einer Mitgliedschaft.',
+                  'Todos los cursos, juegos y certificados en una suscripción.'),
           textAlign: TextAlign.center,
           style:
               Theme.of(context).textTheme.bodyLarge?.copyWith(color: _inkSoft),
@@ -972,244 +908,69 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
   }
 
-  /// Uc fayda, YAN YANA.
-  ///
-  /// Onceden alt alta uc satirdi ve tek basina ~150 piksel yer
-  /// kapliyordu; planlari ekranin disina iten sey buydu. Aciklama
-  /// cumleleri "Neler dahil?" bolumune indi, burada baslik kaldi.
+  /// Uc fayda, alt alta tek satir: ikon + baslik + kisa aciklama.
   Widget _buildHighlights() {
-    final count = math.min(_highlights.length, _visibleHighlights);
-    // Her fayda icin ayri renk: tek renkli bir sira soguk duruyor,
-    // ekranin geri kalani renkliyken ozellikle.
+    final count = math.min(_highlights.length, 3);
     const tones = [
-      Color(0xFFFF8A65),
-      Color(0xFF4DB6AC),
       Color(0xFF7E6BF0),
+      Color(0xFF4DB6AC),
+      Color(0xFFFF8A65),
     ];
-    // IntrinsicHeight: "Ileri seviye kurslar" iki satira sardigi icin
-    // ortadaki kart digerlerinden uzun kaliyor ve sira egri
-    // gorunuyordu. Ucu de en uzunun boyuna uzuyor.
-    return IntrinsicHeight(
-      child: Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (int i = 0; i < count; i++) ...[
-          if (i > 0) const SizedBox(width: 10),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.92),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: Colors.white),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: tones[i % tones.length].withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                    child: Icon(_highlights[i].$1,
-                        size: 18, color: tones[i % tones.length]),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    _highlights[i].$2,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: _ink,
-                        fontWeight: FontWeight.w800,
-                        height: 1.25),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ],
-      ),
-    );
-  }
-
-  Widget _buildExtras() {
     return _card(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
-      // ExpansionTile bir ListTile: murekkep dalgasini EN YAKIN Material
-      // uzerine ciziyor. Kart bir DecoratedBox oldugu icin o dalga
-      // gorunmez kaliyordu (Flutter bunu calisma aninda uyari olarak
-      // basiyor). Saydam bir Material, dokunma geri bildirimini geri
-      // veriyor.
-      child: Material(
-        color: Colors.transparent,
-        child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          tilePadding: EdgeInsets.zero,
-          childrenPadding: const EdgeInsets.only(bottom: 12),
-          title: Text(
-            _t('Neler dahil?', "What's included?", 'Was ist enthalten?',
-              '¿Qué incluye?'),
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(color: _ink, fontWeight: FontWeight.w700),
-          ),
-          children: [
-            for (final e in _extras)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.check_rounded,
-                        size: 18, color: AppTheme.successGreen),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        e,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      child: Column(
+      children: [
+        for (int i = 0; i < count; i++)
+          Padding(
+            padding: EdgeInsets.only(top: i == 0 ? 0 : 12),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: tones[i % tones.length].withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: Icon(_highlights[i].$1,
+                      size: 19, color: tones[i % tones.length]),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _highlights[i].$2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: _ink, fontWeight: FontWeight.w800),
+                      ),
+                      Text(
+                        _highlights[i].$3,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: Theme.of(context)
                             .textTheme
-                            .bodyMedium
+                            .bodySmall
                             ?.copyWith(color: _inkSoft),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-        ),
-      ),
-    );
-  }
-
-  /// Deneme takvimi: kullanici parasinin ne zaman cikacagini bilsin.
-  /// Bu bolum uzun ozellik listesinden daha iyi calisiyor cunku tek soruyu
-  /// cevapliyor: "ne zaman ucretlendirileceğim?"
-  Widget _buildTrialTimeline(int trialDays) {
-    final reminderDay = trialDays >= 3 ? trialDays - 2 : trialDays;
-    final steps = [
-      (
-        Icons.lock_open_rounded,
-        AppTheme.primaryBlue,
-        _t('Bugün', 'Today', 'Heute', 'Hoy'),
-        _t(
-            'Tüm Pro içerik anında açılır.',
-            'All Pro content unlocks right away.',
-            'Alle Pro-Inhalte sind sofort frei.',
-            'Todo el contenido Pro se abre al instante.'),
-      ),
-      (
-        Icons.notifications_active_rounded,
-        AppTheme.warningOrange,
-        _dateLabel(reminderDay),
-        _t(
-            'Deneme bitmeden hatırlatma göndeririz.',
-            'We send a reminder before the trial ends.',
-            'Wir erinnern dich, bevor die Testphase endet.',
-            'Te avisamos antes de que acabe la prueba.'),
-      ),
-      (
-        Icons.star_rounded,
-        AppTheme.successGreen,
-        _dateLabel(trialDays),
-        _t(
-            'Deneme biter, abonelik başlar. İstersen önce iptal et.',
-            'The trial ends and the subscription starts. Cancel before '
-                'then if you want.',
-            'Die Testphase endet und das Abo beginnt. Du kannst vorher '
-                'jederzeit kündigen.',
-            'La prueba termina y empieza la suscripción. Puedes cancelar '
-                'antes.'),
-      ),
-    ];
-
-    return _card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            _t('Ücretsiz denemen nasıl işliyor?', 'How your free trial works',
-              'So funktioniert deine Gratis-Testphase',
-              'Cómo funciona tu prueba gratuita'),
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(color: _ink, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 16),
-          for (int i = 0; i < steps.length; i++)
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    children: [
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: steps[i].$2.withValues(alpha: 0.12),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(steps[i].$1, size: 17, color: steps[i].$2),
-                      ),
-                      if (i < steps.length - 1)
-                        Expanded(
-                          child: Container(
-                            width: 2,
-                            margin: const EdgeInsets.symmetric(vertical: 4),
-                            color: _hairline,
-                          ),
-                        ),
                     ],
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                          bottom: i < steps.length - 1 ? 18 : 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            steps[i].$3,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(
-                                    color: _ink, fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            steps[i].$4,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: _inkSoft),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-        ],
-      ),
+          ),
+      ],
+    ),
     );
   }
 
-  /// Plan bolumu.
+  /// Plan bolumu: iki kart yan yana, yillik onceden secili.
   ///
-  /// Bastaki anahtar bir SUS DEGIL: test bu noktanin sabit alt cubuktan
-  /// ne kadar uzakta oldugunu olcup uc plan kartinin kaydirmadan sigip
-  /// sigmadigina bakiyor (bkz. test/paywall_fold_test.dart).
+  /// Anahtar bir SUS DEGIL: test bu noktanin sabit alt cubuktan ne kadar
+  /// uzakta oldugunu olcuyor (bkz. test/paywall_fold_test.dart).
   Widget _buildPlans() {
     if (_products.isEmpty) {
       return KeyedSubtree(
@@ -1218,57 +979,36 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       );
     }
 
-    // Haftalik -> aylik -> yillik. Kisa taahhutten uzuna; en degerli plan
-    // en altta ve onceden secili.
+    // Yillik solda (en degerli, secili), sonra aylik. Indirimli yillik
+    // yalnizca cikis teklifinde.
     final sorted = [..._products]
-      ..removeWhere(
-          _isDiscountOffer) // indirimli urun yalnizca cikis teklifinde
-      ..sort((a, b) => _planRank(a).compareTo(_planRank(b)));
+      ..removeWhere(_isDiscountOffer)
+      ..sort((a, b) => _planRank(b).compareTo(_planRank(a)));
     final saving = _savingPercent();
 
-    return Column(
+    return IntrinsicHeight(
       key: const ValueKey('paywall-plans'),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          _t('Planını seç', 'Choose your plan', 'Wähle deinen Plan',
-              'Elige tu plan'),
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(color: _ink, fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 12),
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (int i = 0; i < sorted.length; i++) ...[
-                if (i > 0) const SizedBox(width: 10),
-                _buildPlanChip(sorted[i], saving),
-              ],
-            ],
-          ),
-        ),
-      ],
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (int i = 0; i < sorted.length; i++) ...[
+            if (i > 0) const SizedBox(width: 10),
+            _buildPlanChip(sorted[i], saving),
+          ],
+        ],
+      ),
     );
   }
 
-  /// Tek bir plan — YAN YANA dizilen kompakt kart.
-  ///
-  /// Onceden alt alta uc genis satirdi ve tek basina ~270 piksel
-  /// tutuyordu; ucuncu plan ekranin altinda kaliyor, fiyati gormek icin
-  /// kaydirmak gerekiyordu. Yan yana dizilince ayni bilgi ~120 pikselde
-  /// duruyor ve UC PLAN DA ayni anda gorunuyor.
-  ///
-  /// Karsilastirma fiyati (ustu cizili) ve tasarruf rozeti YALNIZCA
-  /// gercek bir capa urun varken ciziliyor; uydurma indirim yok.
+  /// Tek plan karti. Tasarruf rozeti YALNIZCA gercek bir capa (aylik plan)
+  /// varken ciziliyor; uydurma indirim yok.
   Widget _buildPlanChip(AdaptyPaywallProduct product, int? saving) {
     final isYearly = _isYearly(product);
     final isSelected = _selected?.vendorProductId == product.vendorProductId;
     final price = product.price.localizedString ??
         _formatPrice(product.price.amount, product.price.currencyCode);
     final showBadge = isYearly && saving != null;
+    final ayda = _monthlyEquivalent(product);
 
     return Expanded(
       child: GestureDetector(
@@ -1279,60 +1019,108 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
-          padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
+          padding: const EdgeInsets.fromLTRB(14, 12, 12, 14),
           decoration: BoxDecoration(
+            // Opak: yari saydam kart arka plandaki bulutu gosteriyordu.
             color: isSelected
-                ? AppTheme.primaryBlue.withValues(alpha: 0.06)
-                : Colors.white.withValues(alpha: 0.94),
+                ? Color.alphaBlend(
+                    AppTheme.primaryBlue.withValues(alpha: 0.07), Colors.white)
+                : Colors.white,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: isSelected ? AppTheme.primaryBlue : _hairline,
               width: isSelected ? 2 : 1,
             ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.14),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ]
+                : null,
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Rozet kartin ICINDE: disari tasan bir rozet yan yana
-              // dizilimde komsu karta giriyordu.
-              SizedBox(
-                height: 18,
-                child: showBadge
-                    ? Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 7, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppTheme.successGreen,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          _isEn ? '-$saving%' : '%$saving',
-                          style: const TextStyle(
-                            fontFamily: AppTheme.fontFamily,
-                            color: Colors.white,
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      )
-                    : null,
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 20,
+                      child: showBadge
+                          ? Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.successGreen,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  _isEn ? '-$saving%' : '%$saving',
+                                  style: const TextStyle(
+                                    fontFamily: AppTheme.fontFamily,
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : null,
+                    ),
+                  ),
+                  // Secim gostergesi.
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected
+                            ? AppTheme.primaryBlue
+                            : const Color(0xFFC9CCD4),
+                        width: isSelected ? 6 : 2,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 6),
               Text(
                 _periodLabel(product),
-                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: _inkSoft, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 2),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(price,
+                    style: AppTheme.number(fontSize: 21, color: _ink)),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                isYearly
+                    ? _t('Ayda $ayda', '$ayda / month', '$ayda / Monat',
+                        '$ayda / mes')
+                    : _t('Her ay yenilenir', 'Renews monthly',
+                        'Verlängert sich monatlich', 'Se renueva cada mes'),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context)
                     .textTheme
                     .bodySmall
-                    ?.copyWith(color: _inkSoft, fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 4),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(price,
-                    style: AppTheme.number(fontSize: 18, color: _ink)),
+                    ?.copyWith(color: _inkSoft),
               ),
             ],
           ),

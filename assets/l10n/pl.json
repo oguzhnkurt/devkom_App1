@@ -1201,5 +1201,12 @@
 "That connection is not in the circuit. {0}": "Tego połączenia nie ma w obwodzie. {0}",
 "The board starts with \"{0}\".": "Płytka zaczyna od „{0}”.",
 "Write some code first: start with \"{0}\".": "Najpierw napisz trochę kodu: zacznij od „{0}”.",
-"{0} picked · tap the other end": "Wybrano {0} · stuknij drugi koniec"
+"{0} picked · tap the other end": "Wybrano {0} · stuknij drugi koniec",
+"Every course, game and certificate in one membership.": "Wszystkie kursy, gry i certyfikaty w jednej subskrypcji.",
+"Have an account?": "Masz konto?",
+"Learn to code by playing": "Ucz się programować przez zabawę",
+"Renews monthly": "Odnawia się co miesiąc",
+"Renews yearly": "Odnawia się co rok",
+"Sign in": "Zaloguj się",
+"Your free preview is over. Go Pro to pick up where you left off.": "Twój darmowy podgląd się skończył. Przejdź na Pro, aby kontynuować tam, gdzie skończyłeś."
 }
