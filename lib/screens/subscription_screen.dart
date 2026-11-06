@@ -1147,7 +1147,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                 onPressed: enabled ? _purchase : null,
               ),
               if (sub != null) ...[
-                const SizedBox(height: 6),
+                // Dugmenin 3B kenari ve golgesi icin yer.
+                const SizedBox(height: 11),
                 Text(
                   sub,
                   textAlign: TextAlign.center,

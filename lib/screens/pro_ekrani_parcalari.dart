@@ -66,6 +66,10 @@ class _ProGokyuzuState extends State<ProGokyuzu> with TickerProviderStateMixin {
       vsync: this, duration: const Duration(milliseconds: 1100));
   late final AnimationController _suzulme = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 2600));
+
+  /// Ortam: suzulen bulutlar, donen isinlar, parlayan yildizlar.
+  late final AnimationController _ortam =
+      AnimationController(vsync: this, duration: const Duration(seconds: 24));
   bool _ikinciBaslik = false;
 
   @override
@@ -76,6 +80,7 @@ class _ProGokyuzuState extends State<ProGokyuzu> with TickerProviderStateMixin {
       _ikinciBaslik = true;
       return;
     }
+    _ortam.repeat();
     _giris.forward().whenComplete(() {
       if (mounted) _suzulme.repeat(reverse: true);
     });
@@ -88,6 +93,7 @@ class _ProGokyuzuState extends State<ProGokyuzu> with TickerProviderStateMixin {
   void dispose() {
     _giris.dispose();
     _suzulme.dispose();
+    _ortam.dispose();
     super.dispose();
   }
 
@@ -103,9 +109,15 @@ class _ProGokyuzuState extends State<ProGokyuzu> with TickerProviderStateMixin {
         ),
       ),
       child: Stack(
-        clipBehavior: Clip.none,
+        clipBehavior: Clip.hardEdge,
         alignment: Alignment.topCenter,
         children: [
+          // Arka plan: suzulen bulutlar ve parlayan yildizlar.
+          Positioned.fill(
+            child: RepaintBoundary(
+              child: CustomPaint(painter: _GokSahnesi(_ortam)),
+            ),
+          ),
           Padding(
             padding: EdgeInsets.fromLTRB(20, widget.ustBosluk, 20, 0),
             child: Column(
@@ -148,32 +160,64 @@ class _ProGokyuzuState extends State<ProGokyuzu> with TickerProviderStateMixin {
                 ),
                 const SizedBox(height: 4),
                 SizedBox(
-                  height: 126,
-                  child: AnimatedBuilder(
-                    animation: Listenable.merge([_giris, _suzulme]),
-                    child: widget.maskot,
-                    builder: (context, child) {
-                      // Ucarak gelis: buyuk ve egik baslayip yerine oturuyor.
-                      final g = Curves.easeOutBack.transform(_giris.value);
-                      final olcek = 1.7 - 0.7 * g;
-                      final dx = 70 * (1 - g);
-                      final dy = -60 * (1 - g) +
-                          math.sin(_suzulme.value * math.pi) * -6;
-                      final aci = -0.35 * (1 - g);
-                      return Opacity(
-                        opacity: _giris.value.clamp(0.0, 1.0),
-                        child: Transform.translate(
-                          offset: Offset(dx, dy),
-                          child: Transform.rotate(
-                            angle: aci,
-                            child: Transform.scale(scale: olcek, child: child),
+                  height: 138,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
+                    children: [
+                      // Devi'nin arkasinda yavasca donen gunes isinlari ve
+                      // yumusak bir hale.
+                      Positioned(
+                        top: -6,
+                        bottom: 0,
+                        left: 20,
+                        right: 20,
+                        child: RepaintBoundary(
+                          child: CustomPaint(
+                            painter: _IsinHale(_ortam, _giris),
                           ),
                         ),
-                      );
-                    },
+                      ),
+                      // Devi'nin uzerinde durdugu kabarik bulut.
+                      const Positioned(
+                        bottom: 0,
+                        width: 210,
+                        height: 46,
+                        child: CustomPaint(painter: _BulutMinder()),
+                      ),
+                      Positioned(
+                        bottom: 18,
+                        child: AnimatedBuilder(
+                          animation: Listenable.merge([_giris, _suzulme]),
+                          child: widget.maskot,
+                          builder: (context, child) {
+                            // Ucarak gelis: buyuk ve egik baslayip bulutun
+                            // ustune oturuyor, sonra hafifce suzuluyor.
+                            final g =
+                                Curves.easeOutBack.transform(_giris.value);
+                            final olcek = 1.7 - 0.7 * g;
+                            final dx = 70 * (1 - g);
+                            final dy = -60 * (1 - g) +
+                                math.sin(_suzulme.value * math.pi) * -6;
+                            final aci = -0.35 * (1 - g);
+                            return Opacity(
+                              opacity: _giris.value.clamp(0.0, 1.0),
+                              child: Transform.translate(
+                                offset: Offset(dx, dy),
+                                child: Transform.rotate(
+                                  angle: aci,
+                                  child: Transform.scale(
+                                      scale: olcek, child: child),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 12),
               ],
             ),
           ),
@@ -182,7 +226,7 @@ class _ProGokyuzuState extends State<ProGokyuzu> with TickerProviderStateMixin {
             left: 0,
             right: 0,
             bottom: -1,
-            height: 34,
+            height: 40,
             child: CustomPaint(painter: _BulutKenari()),
           ),
         ],
@@ -269,8 +313,8 @@ class _BulutKenari extends CustomPainter {
     final h = size.height;
     final path = Path()..moveTo(0, h);
     // Yumuk bulut tepeleri.
-    const tepeler = [0.0, 0.16, 0.34, 0.52, 0.7, 0.86, 1.0];
-    const yukseklik = [0.45, 0.1, 0.4, 0.05, 0.35, 0.15, 0.5];
+    const tepeler = [0.0, 0.12, 0.26, 0.4, 0.54, 0.68, 0.82, 1.0];
+    const yukseklik = [0.5, 0.15, 0.42, 0.1, 0.38, 0.08, 0.4, 0.45];
     path.lineTo(0, h * yukseklik[0]);
     for (var i = 1; i < tepeler.length; i++) {
       final x0 = w * tepeler[i - 1];
@@ -282,6 +326,145 @@ class _BulutKenari extends CustomPainter {
       ..lineTo(w, h)
       ..close();
     canvas.drawPath(path, p);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Gokyuzu sahnesi: yavasca kayan yumuk bulutlar ve goz kirpan yildizlar.
+class _GokSahnesi extends CustomPainter {
+  _GokSahnesi(this.t) : super(repaint: t);
+  final Animation<double> t;
+
+  static const _bulutlar = [
+    // (y orani, olcek, hiz, baslangic, saydamlik)
+    (0.20, 0.9, 1.0, 0.10, 0.55),
+    (0.46, 0.65, 1.6, 0.55, 0.45),
+    (0.66, 1.1, 0.7, 0.80, 0.5),
+  ];
+
+  static const _yildizlar = [
+    (0.12, 0.30, 5.0, 0.0),
+    (0.86, 0.24, 4.0, 0.3),
+    (0.08, 0.62, 3.5, 0.6),
+    (0.92, 0.56, 5.5, 0.15),
+    (0.24, 0.80, 3.0, 0.45),
+    (0.78, 0.82, 4.0, 0.8),
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final v = t.value;
+    final w = size.width;
+    final h = size.height;
+    for (final b in _bulutlar) {
+      final x = ((b.$4 + v * b.$3) % 1.0) * (w + 160) - 80;
+      _bulut(canvas, Offset(x, h * b.$1), b.$2,
+          Colors.white.withValues(alpha: b.$5));
+    }
+    for (final y in _yildizlar) {
+      final parla =
+          0.25 + 0.75 * (0.5 + 0.5 * math.sin((v * 12 + y.$4) * 2 * math.pi));
+      _yildiz(canvas, Offset(w * y.$1, h * y.$2), y.$3,
+          Colors.white.withValues(alpha: parla));
+    }
+  }
+
+  void _bulut(Canvas c, Offset o, double k, Color renk) {
+    final p = Paint()..color = renk;
+    c.drawRRect(
+        RRect.fromRectAndRadius(
+            Rect.fromCenter(center: o, width: 74 * k, height: 20 * k),
+            Radius.circular(10 * k)),
+        p);
+    c.drawCircle(o.translate(-14 * k, -8 * k), 13 * k, p);
+    c.drawCircle(o.translate(8 * k, -12 * k), 17 * k, p);
+  }
+
+  @override
+  bool shouldRepaint(covariant _GokSahnesi old) => false;
+}
+
+void _yildiz(Canvas c, Offset o, double r, Color renk) {
+  final p = Paint()..color = renk;
+  final path = Path()
+    ..moveTo(o.dx, o.dy - r)
+    ..quadraticBezierTo(o.dx, o.dy, o.dx + r, o.dy)
+    ..quadraticBezierTo(o.dx, o.dy, o.dx, o.dy + r)
+    ..quadraticBezierTo(o.dx, o.dy, o.dx - r, o.dy)
+    ..quadraticBezierTo(o.dx, o.dy, o.dx, o.dy - r)
+    ..close();
+  c.drawPath(path, p);
+}
+
+/// Devi'nin arkasindaki donen gunes isinlari + sicak hale.
+class _IsinHale extends CustomPainter {
+  _IsinHale(this.t, this.giris) : super(repaint: Listenable.merge([t, giris]));
+  final Animation<double> t;
+  final Animation<double> giris;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final g = giris.value.clamp(0.0, 1.0);
+    if (g <= 0) return;
+    final m = Offset(size.width / 2, size.height * 0.58);
+    final r = size.height * 0.5;
+    // Hale.
+    canvas.drawCircle(
+      m,
+      r,
+      Paint()
+        ..shader = RadialGradient(colors: [
+          const Color(0xFFFFF4C2).withValues(alpha: 0.75 * g),
+          const Color(0xFFFFF4C2).withValues(alpha: 0),
+        ]).createShader(Rect.fromCircle(center: m, radius: r)),
+    );
+    // Isinlar.
+    canvas.save();
+    canvas.translate(m.dx, m.dy);
+    canvas.rotate(t.value * 2 * math.pi);
+    final p = Paint()..color = Colors.white.withValues(alpha: 0.16 * g);
+    const n = 14;
+    for (var i = 0; i < n; i++) {
+      final a = i * 2 * math.pi / n;
+      final yol = Path()
+        ..moveTo(0, 0)
+        ..lineTo(math.cos(a - 0.1) * r * 1.35, math.sin(a - 0.1) * r * 1.35)
+        ..lineTo(math.cos(a + 0.1) * r * 1.35, math.sin(a + 0.1) * r * 1.35)
+        ..close();
+      canvas.drawPath(yol, p);
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _IsinHale old) => false;
+}
+
+/// Devi'nin ayaklarinin altindaki kabarik bulut minderi.
+class _BulutMinder extends CustomPainter {
+  const _BulutMinder();
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final golge = Paint()..color = const Color(0xFFD6ECFB);
+    final beyaz = Paint()..color = Colors.white;
+    void kabarcik(Paint p, double dy) {
+      canvas.drawRRect(
+          RRect.fromRectAndRadius(
+              Rect.fromLTWH(w * 0.04, h * 0.42 + dy, w * 0.92, h * 0.5),
+              Radius.circular(h * 0.25)),
+          p);
+      canvas.drawCircle(Offset(w * 0.24, h * 0.48 + dy), h * 0.3, p);
+      canvas.drawCircle(Offset(w * 0.45, h * 0.36 + dy), h * 0.36, p);
+      canvas.drawCircle(Offset(w * 0.66, h * 0.42 + dy), h * 0.32, p);
+      canvas.drawCircle(Offset(w * 0.82, h * 0.55 + dy), h * 0.24, p);
+    }
+
+    kabarcik(golge, 3);
+    kabarcik(beyaz, 0);
   }
 
   @override
@@ -429,7 +612,7 @@ class _ProKarsilastirmaState extends State<ProKarsilastirma>
       child: Transform.translate(
         offset: Offset(0, 10 * (1 - gir)),
         child: Container(
-          height: 38,
+          height: 36,
           decoration: BoxDecoration(
             border: i == n - 1
                 ? null
@@ -523,7 +706,9 @@ class ProRozet extends StatelessWidget {
   }
 }
 
-/// Sari ana dugme: basilinca coker, uzerinde ara ara isik gezer.
+/// Ana dugme: kabarik, parlayan "hap" seklinde sari-turuncu dugme.
+/// Hafifce nefes aliyor (buyuyup kuculuyor), ustunden isik geciyor,
+/// kenarlarinda yildizlar goz kirpiyor; basilinca 3B kenarina cokuyor.
 class ProDugme extends StatefulWidget {
   const ProDugme({
     super.key,
@@ -542,27 +727,154 @@ class ProDugme extends StatefulWidget {
   State<ProDugme> createState() => _ProDugmeState();
 }
 
-class _ProDugmeState extends State<ProDugme>
-    with SingleTickerProviderStateMixin {
+class _ProDugmeState extends State<ProDugme> with TickerProviderStateMixin {
   late final AnimationController _isik = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 2800));
+  late final AnimationController _nefes = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 1300));
   bool _basili = false;
+
+  static const _ust = Color(0xFFFFE66D);
+  static const _alt = Color(0xFFFFA62B);
+  static const _kenar = Color(0xFFE07A00);
 
   @override
   void initState() {
     super.initState();
-    if (!widget.hareketsiz) _isik.repeat();
+    if (!widget.hareketsiz) {
+      _isik.repeat();
+      _nefes.repeat(reverse: true);
+    }
   }
 
   @override
   void dispose() {
     _isik.dispose();
+    _nefes.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final aktif = widget.onPressed != null && !widget.yukleniyor;
+    const yukseklik = 60.0;
+    final cokme = _basili ? 4.0 : 0.0;
+
+    final govde = AnimatedContainer(
+      duration: const Duration(milliseconds: 90),
+      height: yukseklik,
+      width: double.infinity,
+      transform: Matrix4.translationValues(0, cokme, 0),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: aktif
+              ? const [_ust, _alt]
+              : [_ust.withValues(alpha: 0.5), _alt.withValues(alpha: 0.5)],
+        ),
+        borderRadius: BorderRadius.circular(yukseklik / 2),
+        border: Border.all(color: Colors.white, width: 2.5),
+        boxShadow: [
+          BoxShadow(color: _kenar, offset: Offset(0, 5 - cokme)),
+          BoxShadow(
+            color: _alt.withValues(alpha: 0.45),
+            blurRadius: 18,
+            offset: Offset(0, 9 - cokme),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(yukseklik / 2),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Ust yarida parlak cizgi: "sekerli" gorunum.
+            Positioned(
+              top: 4,
+              left: 18,
+              right: 18,
+              height: 16,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.38),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            if (aktif && !widget.hareketsiz)
+              Positioned.fill(
+                child: AnimatedBuilder(
+                  animation: _isik,
+                  builder: (context, _) {
+                    final v = (_isik.value / 0.4).clamp(0.0, 1.0);
+                    return Align(
+                      alignment: Alignment(-1.6 + 3.2 * v, 0),
+                      child: Transform.rotate(
+                        angle: 0.35,
+                        child: Container(
+                          width: 30,
+                          height: 120,
+                          color: Colors.white.withValues(alpha: 0.4),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            widget.yukleniyor
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2.8, color: ProRenk.lacivert),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.rocket_launch_rounded,
+                            color: ProRenk.lacivert, size: 22),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: Text(
+                            widget.etiket,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontFamily: AppTheme.fontFamily,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.8,
+                              color: ProRenk.lacivert,
+                              shadows: [
+                                Shadow(
+                                    color: Color(0x66FFFFFF),
+                                    offset: Offset(0, 1)),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: const BoxDecoration(
+                            color: ProRenk.lacivert,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.arrow_forward_rounded,
+                              color: Colors.white, size: 18),
+                        ),
+                      ],
+                    ),
+                  ),
+          ],
+        ),
+      ),
+    );
+
     return Semantics(
       button: true,
       enabled: aktif,
@@ -576,71 +888,68 @@ class _ProDugmeState extends State<ProDugme>
                 widget.onPressed!();
               }
             : null,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 90),
-          height: 54,
-          width: double.infinity,
-          transform: Matrix4.translationValues(0, _basili ? 3 : 0, 0),
-          decoration: BoxDecoration(
-            color: aktif ? ProRenk.sari : ProRenk.sari.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: ProRenk.sariKoyu,
-                offset: Offset(0, _basili ? 1 : 4),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Stack(
-              alignment: Alignment.center,
+        child: AnimatedBuilder(
+          animation: Listenable.merge([_nefes, _isik]),
+          child: govde,
+          builder: (context, child) {
+            final nefes = aktif && !_basili
+                ? 1 + 0.03 * Curves.easeInOut.transform(_nefes.value)
+                : 1.0;
+            return Stack(
+              clipBehavior: Clip.none,
               children: [
-                if (aktif && !widget.hareketsiz)
-                  Positioned.fill(
-                    child: AnimatedBuilder(
-                      animation: _isik,
-                      builder: (context, _) {
-                        // Isik yalniz dongunun ilk %40'inda geciyor.
-                        final v = (_isik.value / 0.4).clamp(0.0, 1.0);
-                        return Align(
-                          alignment: Alignment(-1.6 + 3.2 * v, 0),
-                          child: Transform.rotate(
-                            angle: 0.35,
-                            child: Container(
-                              width: 34,
-                              height: 120,
-                              color: Colors.white.withValues(alpha: 0.35),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                widget.yukleniyor
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2.6, color: ProRenk.lacivert),
-                      )
-                    : Text(
-                        widget.etiket,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontFamily: AppTheme.fontFamily,
-                          fontSize: 16.5,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.6,
-                          color: ProRenk.lacivert,
-                        ),
-                      ),
+                Transform.scale(scale: nefes, child: child),
+                if (aktif && !widget.hareketsiz) ...[
+                  _kivilcim(left: -4, top: -8, faz: 0.0, r: 7),
+                  _kivilcim(right: 6, top: -12, faz: 0.35, r: 9),
+                  _kivilcim(right: -6, bottom: 2, faz: 0.7, r: 6),
+                ],
               ],
-            ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _kivilcim({
+    double? left,
+    double? right,
+    double? top,
+    double? bottom,
+    required double faz,
+    required double r,
+  }) {
+    final v = 0.5 + 0.5 * math.sin((_isik.value * 2 + faz) * 2 * math.pi);
+    return Positioned(
+      left: left,
+      right: right,
+      top: top,
+      bottom: bottom,
+      child: IgnorePointer(
+        child: Transform.scale(
+          scale: 0.5 + 0.5 * v,
+          child: CustomPaint(
+            size: Size(r * 2, r * 2),
+            painter: _KivilcimBoya(
+                r,
+                Color.lerp(const Color(0xFFFFD84D), Colors.white, 0.3)!
+                    .withValues(alpha: v)),
           ),
         ),
       ),
     );
   }
+}
+
+class _KivilcimBoya extends CustomPainter {
+  _KivilcimBoya(this.r, this.renk);
+  final double r;
+  final Color renk;
+  @override
+  void paint(Canvas canvas, Size size) =>
+      _yildiz(canvas, Offset(r, r), r, renk);
+  @override
+  bool shouldRepaint(covariant _KivilcimBoya old) =>
+      old.renk != renk || old.r != r;
 }
