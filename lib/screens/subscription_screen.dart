@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:adapty_flutter/adapty_flutter.dart';
 import 'package:flutter/foundation.dart'
@@ -10,14 +9,12 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/mascot.dart';
-import 'paywall_sky.dart';
+import 'pro_ekrani_parcalari.dart';
 import '../services/subscription_service.dart';
 import '../theme.dart';
 import '../providers/settings_provider.dart';
 import '../ui/motion.dart';
-import '../ui/press_button.dart';
 import '../utils/lang.dart';
-import 'robotics_games_screen.dart' show ProGames;
 import 'teklif_acilisi.dart';
 import 'auth/hesap_ekrani.dart';
 import '../widgets/parent_gate.dart';
@@ -109,80 +106,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   static const Color _ink = Color(0xFF14161A);
   static const Color _inkSoft = Color(0xFF5B616E);
-  static const Color _surface = Color(0xFFF6F7F9);
   static const Color _hairline = Color(0xFFE3E6EB);
-
-  // NOT: Bu liste bilerek yalnizca gercekten sunulan ozellikleri iceriyor.
-  // Uygulamada karsiligi olmayan vaatler (sinirsiz AI sohbet, aile paylasimi,
-  // 7/24 destek) App Store Kural 3.1.2 riski. Uzun listeyi de kistik:
-  // paywall'da okunan madde sayisi 5'i gecmiyor, gerisi "Neler dahil?"
-  // basligi altinda aciliyor.
-  /// Odeme ekranindaki maddeler.
-  ///
-  /// ONCEDEN `static const` ve TAMAMEN TURKCE idi. Ekranin geri kalani
-  /// dort dile cevriliyken paranin istendigi yer — yani App Store
-  /// incelemecisinin en dikkatli baktigi ekran — Ingilizce, Almanca ve
-  /// Ispanyolca kullaniciya Turkce goruntyordu.
-  List<(IconData, String, String)> get _highlights => [
-        // Oyunlar gecici olarak herkese acikken (AdMob askisi) Pro'nun
-        // "ek oyun" sozu tutulmayan bir soz olur; madde cikmiyor.
-        if (ProGames.lockedGameCount > 0)
-        (
-          Icons.sports_esports_rounded,
-          // SAYI GERÇEK OLMALI. Katalogda 15 oyun var, 6'sı ücretsiz →
-          // Pro'nun açtığı oyun sayısı 9. Burada "13" yazıyordu; hem
-          // tutulmayan bir söz, hem de App Store incelemesinin
-          // yanıltıcı bulacağı türden bir rakam.
-          // Kilidi: test/pro_claims_test.dart
-          _t('${ProGames.lockedGameCount} ek oyun',
-              '${ProGames.lockedGameCount} more games',
-              '${ProGames.lockedGameCount} weitere Spiele',
-              '${ProGames.lockedGameCount} juegos más'),
-          _t(
-            'Satranç, labirentler, devre ve robot simülatörleri',
-            'Chess, mazes, circuit and robot simulators',
-            'Schach, Labyrinthe, Schaltungs- und Robotersimulatoren',
-            'Ajedrez, laberintos y simuladores de circuitos y robots',
-          ),
-        ),
-        (
-          Icons.school_rounded,
-          // Almancasi "Fortgeschrittene Kurse" idi ve dar kartta
-          // kelimenin ORTASINDAN boluniyordu ("Fortgeschritten / e
-          // Kurse"). Kisa karsiligi ayni seyi soyluyor.
-          _t('İleri kurslar', 'Advanced courses', 'Profi-Kurse',
-              'Cursos avanzados'),
-          'Arduino IDE, Java, C#',
-        ),
-        (
-          Icons.workspace_premium_rounded,
-          _t('Sertifika', 'Certificate', 'Zertifikat', 'Certificado'),
-          _t('Kurs bitirme sertifikası', 'A certificate for each course',
-              'Ein Zertifikat für jeden Kurs', 'Un certificado por cada curso'),
-        ),
-        (
-          Icons.insights_rounded,
-          _t('İlerleme raporu', 'Progress report', 'Fortschrittsbericht',
-              'Informe de progreso'),
-          _t(
-            'Neyi bildiğini, nerede takıldığını gösterir',
-            'Shows what they know and where they get stuck',
-            'Zeigt, was dein Kind kann und wo es hängt',
-            'Muestra lo que sabe y dónde se atasca',
-          ),
-        ),
-        (
-          Icons.monetization_on_rounded,
-          _t('1000 jeton hediye', '1000 bonus tokens', '1000 Bonus-Münzen',
-              '1000 fichas de regalo'),
-          _t(
-            'Her ay 300 jeton, her kazançta 1.5× jeton',
-            '300 tokens a month, 1.5× on every reward',
-            '300 Münzen im Monat, 1,5× auf jede Belohnung',
-            '300 fichas al mes y 1,5× en cada recompensa',
-          ),
-        ),
-      ];
 
   @override
   void initState() {
@@ -508,7 +432,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             : (discounted != null
                 ? _t('Normal fiyat', 'Regular price', 'Normalpreis',
                     'Precio normal')
-                : _t('${_periodLabel(anchorProduct)} plan',
+                : _t(
+                    '${_periodLabel(anchorProduct)} plan',
                     '${_periodLabel(anchorProduct)} plan',
                     '${_periodLabel(anchorProduct)}er Plan',
                     'Plan ${_periodLabel(anchorProduct).toLowerCase()}')),
@@ -686,8 +611,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       return _t('Her yıl yenilenir', 'Renews yearly',
           'Verlängert sich jährlich', 'Se renueva cada año');
     }
-    return _t('Her ay yenilenir', 'Renews monthly',
-        'Verlängert sich monatlich', 'Se renueva cada mes');
+    return _t('Her ay yenilenir', 'Renews monthly', 'Verlängert sich monatlich',
+        'Se renueva cada mes');
   }
 
   AdaptyPaywallProduct? get _monthlyProduct =>
@@ -750,8 +675,28 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   // ---------------------------------------------------------------------- UI
 
+  bool get _hareketsiz => Motion.reduced(context);
+
+  /// PRO'nun ne actigi: UYGULAMANIN TAMAMI (kullanici karari, 6 Kas 2026).
+  /// Tek tek ozellik (sertifika, rapor) satmiyoruz; satirlar "her sey"in
+  /// parcalari. Her satir uygulamada gercekten var.
+  List<ProSatir> get _satirlar => [
+        ProSatir(_t('Tüm kurslar ve dersler', 'Every course and lesson',
+            'Alle Kurse und Lektionen', 'Todos los cursos y lecciones')),
+        ProSatir(_t('Tüm oyunlar ve atölyeler', 'Every game and workshop',
+            'Alle Spiele und Werkstätten', 'Todos los juegos y talleres')),
+        ProSatir(
+          _t('Kullanım süresi', 'Time to play', 'Spielzeit', 'Tiempo de uso'),
+          ucretsiz: _t('4 dk', '4 min', '4 Min.', '4 min'),
+          pro: _t('Sınırsız', 'Unlimited', 'Unbegrenzt', 'Ilimitado'),
+        ),
+        ProSatir(_t('1000 jeton hediye', '1000 bonus coins',
+            '1000 Bonus-Münzen', '1000 monedas de regalo')),
+      ];
+
   @override
   Widget build(BuildContext context) {
+    final ust = MediaQuery.paddingOf(context).top;
     return PopScope(
       // Kullanici vazgecip geri donerken bir kez daha yillik plani
       // gosteriyoruz. Ikinci kez geri basarsa ekran kapaniyor — kapanisi
@@ -762,27 +707,84 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         if (!didPop && !_exitOfferShown) _showExitOffer();
       },
       child: Scaffold(
-        backgroundColor: _surface,
-        body: Stack(
+        backgroundColor: Colors.white,
+        body: Column(
           children: [
-            const Positioned.fill(child: PaywallSky()),
-            SafeArea(
-              bottom: false,
-              child: Column(
+            Expanded(
+              child: Stack(
                 children: [
-                  _buildTopBar(),
-                  Expanded(
-                    child: _loading
-                        ? const Center(
-                            child: CircularProgressIndicator(
-                                color: AppTheme.primaryBlue),
-                          )
-                        : _buildContent(),
+                  ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      ProGokyuzu(
+                        ustBosluk: ust + 44,
+                        hareketsiz: _hareketsiz,
+                        kurdele: proBuyukHarf(
+                            _t('Sonraki seviyen', 'Your next level',
+                                'Dein nächstes Level', 'Tu siguiente nivel'),
+                            _lang),
+                        ilkBaslik: _t(
+                            'Asıl eğlence şimdi başlıyor.',
+                            'The real fun starts now.',
+                            'Jetzt geht der Spaß erst los.',
+                            'La diversión empieza ahora.'),
+                        baslik: _t(
+                            'Her şey açık.\nPRO ile.',
+                            'Everything unlocked.\nWith PRO.',
+                            'Alles freigeschaltet.\nMit PRO.',
+                            'Todo desbloqueado.\nCon PRO.'),
+                        altBaslik: widget.zorunlu
+                            ? _t(
+                                'Tanışma süren doldu. Kaldığın yerden devam et.',
+                                'Your free preview is over. Pick up where you left off.',
+                                'Deine Vorschau ist vorbei. Mach weiter, wo du warst.',
+                                'Tu vista previa terminó. Sigue donde lo dejaste.')
+                            : _t(
+                                'Tüm uygulama, tek üyelik.',
+                                'The whole app, one membership.',
+                                'Die ganze App, eine Mitgliedschaft.',
+                                'Toda la app, una suscripción.'),
+                        maskot: const Mascot(
+                          size: 104,
+                          mood: MascotMood.cheering,
+                          showShadow: false,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 2, 20, 0),
+                        child: ProKarsilastirma(
+                          satirlar: _satirlar,
+                          hareketsiz: _hareketsiz,
+                          ucretsizEtiket: proBuyukHarf(
+                              _t('Ücretsiz', 'Free', 'Gratis', 'Gratis'),
+                              _lang),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+                        child: _loading
+                            ? const SizedBox(
+                                key: ValueKey('paywall-plans'),
+                                height: 76,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                      color: ProRenk.proMavi),
+                                ),
+                              )
+                            : _buildPlans(),
+                      ),
+                    ],
                   ),
-                  _buildStickyCta(),
+                  Positioned(
+                    top: ust,
+                    left: 0,
+                    right: 0,
+                    child: _buildTopBar(),
+                  ),
                 ],
               ),
             ),
+            _buildStickyCta(),
           ],
         ),
       ),
@@ -791,48 +793,36 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   Widget _buildTopBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 4, 12, 0),
+      padding: const EdgeInsets.fromLTRB(4, 0, 8, 0),
       child: Row(
         children: [
           // Zorunlu modda cikis teklifi bir kez gosterildikten sonra kapat
           // tusu gizleniyor; ayni yer korunuyor ki "Geri yukle" kaymasin.
           if (widget.zorunlu && _exitOfferShown)
-            const SizedBox(width: 48, height: 48)
+            const SizedBox(width: 48, height: 44)
           else
-          IconButton(
-            tooltip: _t('Kapat', 'Close', 'Schließen', 'Cerrar'),
-            // 44x44 dokunma alani: kapat tusu her zaman gorunur ve rahat
-            // basilabilir olmali, yoksa App Store bunu karanlik desen sayiyor.
-            onPressed: _closeRequested,
-            icon: const Icon(Icons.close_rounded, color: _ink),
-          ),
-          // SPACER + FLEXIBLE IKISI BIRDEN YANLISTI.
-          //
-          // Spacer bir Expanded(flex: 1); Flexible da flex: 1. Ikisi
-          // bos alani ESIT bolusuyordu ve dugme kendi yarisinin BASINA
-          // hizalaniyordu — yani ekranin ortasina. Sag ust kosede
-          // olmasi gerekiyordu.
-          //
-          // Expanded + sağa hizalama: dugme sag kenara yapisiyor,
-          // uzun ceviriler icin de yer birakiyor.
+            IconButton(
+              tooltip: _t('Kapat', 'Close', 'Schließen', 'Cerrar'),
+              // 44x44 dokunma alani: kapat tusu her zaman gorunur ve rahat
+              // basilabilir olmali, yoksa App Store bunu karanlik desen sayiyor.
+              onPressed: _closeRequested,
+              icon: Icon(Icons.close_rounded,
+                  color: Colors.white.withValues(alpha: 0.9)),
+            ),
           Expanded(
             child: Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-              onPressed: _purchasing ? null : _restore,
-              child: Text(
-                // Üst çubukta yer dar; uzun cümle her dilde ya taşıyor
-                // ya kırpılıyordu. Apple'ın istediği şey "geri yükleme
-                // yolu olsun"; kısa etiket bunu bozmuyor.
-                _t('Geri yükle', 'Restore', 'Wiederherstellen',
-                    'Restaurar'),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: _inkSoft,
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
+                onPressed: _purchasing ? null : _restore,
+                child: Text(
+                  _t('Geri yükle', 'Restore', 'Wiederherstellen', 'Restaurar'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
               ),
             ),
           ),
@@ -841,129 +831,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
   }
 
-  Widget _buildContent() {
-    // TEK EKRAN (6 Kasim 2026): maskot + baslik, uc fayda satiri, iki plan.
-    // Deneme takvimi ve "Neler dahil?" bolumu kalkti (deneme kaldirildi,
-    // ekran uzun ve kalabalikti). Kucuk ekranda kayabilsin diye ListView.
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-      children: [
-        _buildHero(),
-        const SizedBox(height: 18),
-        _buildHighlights(),
-        const SizedBox(height: 20),
-        _buildPlans(),
-      ],
-    );
-  }
-
-  Widget _buildHero() {
-    return Column(
-      children: [
-        // Cocugun arkadasi: odeme istenen ekranda tanidik bir yuz.
-        const _FloatingMascot(size: 84),
-        const SizedBox(height: 8),
-        Text(
-          _t('Kodlamayı oynayarak öğren', 'Learn to code by playing',
-              'Spielend programmieren lernen', 'Aprende a programar jugando'),
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: _ink,
-                height: 1.15,
-                fontWeight: FontWeight.w900,
-              ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          widget.zorunlu
-              // Ucretsiz tanisma suresi bitince geliyor: neden burada
-              // oldugunu tek cumleyle soyluyoruz.
-              ? _t(
-                  'Tanışma süren doldu. Kaldığın yerden devam etmek için Pro\'ya geç.',
-                  'Your free preview is over. Go Pro to pick up where you left off.',
-                  'Deine kostenlose Vorschau ist vorbei. Mit Pro machst du genau dort weiter.',
-                  'Tu vista previa gratis ha terminado. Hazte Pro para seguir donde lo dejaste.')
-              : _t(
-                  'Tüm kurslar, oyunlar ve sertifika tek üyelikte.',
-                  'Every course, game and certificate in one membership.',
-                  'Alle Kurse, Spiele und Zertifikate in einer Mitgliedschaft.',
-                  'Todos los cursos, juegos y certificados en una suscripción.'),
-          textAlign: TextAlign.center,
-          style:
-              Theme.of(context).textTheme.bodyLarge?.copyWith(color: _inkSoft),
-        ),
-      ],
-    );
-  }
-
   Widget _card({required Widget child, EdgeInsets? padding}) {
     return Container(
       padding: padding ?? const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.94),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: _hairline),
       ),
       child: child,
-    );
-  }
-
-  /// Uc fayda, alt alta tek satir: ikon + baslik + kisa aciklama.
-  Widget _buildHighlights() {
-    final count = math.min(_highlights.length, 3);
-    const tones = [
-      Color(0xFF7E6BF0),
-      Color(0xFF4DB6AC),
-      Color(0xFFFF8A65),
-    ];
-    return _card(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      child: Column(
-      children: [
-        for (int i = 0; i < count; i++)
-          Padding(
-            padding: EdgeInsets.only(top: i == 0 ? 0 : 12),
-            child: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: tones[i % tones.length].withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(11),
-                  ),
-                  child: Icon(_highlights[i].$1,
-                      size: 19, color: tones[i % tones.length]),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _highlights[i].$2,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: _ink, fontWeight: FontWeight.w800),
-                      ),
-                      Text(
-                        _highlights[i].$3,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: _inkSoft),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-      ],
-    ),
     );
   }
 
@@ -1009,6 +885,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         _formatPrice(product.price.amount, product.price.currencyCode);
     final showBadge = isYearly && saving != null;
     final ayda = _monthlyEquivalent(product);
+    final t = Theme.of(context).textTheme;
 
     return Expanded(
       child: GestureDetector(
@@ -1016,114 +893,98 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           HapticFeedback.selectionClick();
           setState(() => _selected = product);
         },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-          padding: const EdgeInsets.fromLTRB(14, 12, 12, 14),
-          decoration: BoxDecoration(
-            // Opak: yari saydam kart arka plandaki bulutu gosteriyordu.
-            color: isSelected
-                ? Color.alphaBlend(
-                    AppTheme.primaryBlue.withValues(alpha: 0.07), Colors.white)
-                : Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: isSelected ? AppTheme.primaryBlue : _hairline,
-              width: isSelected ? 2 : 1,
-            ),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: AppTheme.primaryBlue.withValues(alpha: 0.14),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
+              padding: const EdgeInsets.fromLTRB(12, 12, 10, 10),
+              decoration: BoxDecoration(
+                color: isSelected ? ProRenk.proAcik : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isSelected ? ProRenk.proMavi : _hairline,
+                  width: isSelected ? 2 : 1.2,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 20,
-                      child: showBadge
-                          ? Align(
-                              alignment: AlignmentDirectional.centerStart,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.successGreen,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  _isEn ? '-$saving%' : '%$saving',
-                                  style: const TextStyle(
-                                    fontFamily: AppTheme.fontFamily,
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : null,
-                    ),
-                  ),
-                  // Secim gostergesi.
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isSelected
-                            ? AppTheme.primaryBlue
-                            : const Color(0xFFC9CCD4),
-                        width: isSelected ? 6 : 2,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _periodLabel(product),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: t.labelLarge?.copyWith(
+                              color: ProRenk.lacivertYumusak,
+                              fontWeight: FontWeight.w800),
+                        ),
                       ),
-                    ),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        width: 18,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isSelected
+                                ? ProRenk.proMavi
+                                : const Color(0xFFC9CCD4),
+                            width: isSelected ? 5.5 : 2,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(price,
+                        style: AppTheme.number(
+                            fontSize: 19, color: ProRenk.lacivert)),
+                  ),
+                  Text(
+                    isYearly
+                        ? _t('Ayda $ayda', '$ayda / month', '$ayda / Monat',
+                            '$ayda / mes')
+                        : _t(
+                            'Her ay', 'Every month', 'Jeden Monat', 'Cada mes'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: t.bodySmall?.copyWith(color: _inkSoft),
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
-              Text(
-                _periodLabel(product),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: _inkSoft, fontWeight: FontWeight.w700),
+            ),
+            // Tasarruf rozeti kartin ust kenarinda.
+            if (showBadge)
+              PositionedDirectional(
+                top: -10,
+                start: 10,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppTheme.successGreen,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    _isEn ? '-$saving%' : '%$saving',
+                    style: const TextStyle(
+                      fontFamily: AppTheme.fontFamily,
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
               ),
-              const SizedBox(height: 2),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: AlignmentDirectional.centerStart,
-                child: Text(price,
-                    style: AppTheme.number(fontSize: 21, color: _ink)),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                isYearly
-                    ? _t('Ayda $ayda', '$ayda / month', '$ayda / Monat',
-                        '$ayda / mes')
-                    : _t('Her ay yenilenir', 'Renews monthly',
-                        'Verlängert sich monatlich', 'Se renueva cada mes'),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: _inkSoft),
-              ),
-            ],
-          ),
+          ],
         ),
       ),
     );
@@ -1199,8 +1060,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           // Ispanyol kullanici tek eylem dugmesini Turkce goruyordu.
           TextButton(
             onPressed: _load,
-            child: Text(_t('Tekrar dene', 'Try again', 'Erneut versuchen',
-                'Reintentar')),
+            child: Text(_t(
+                'Tekrar dene', 'Try again', 'Erneut versuchen', 'Reintentar')),
           ),
         ],
       ),
@@ -1217,10 +1078,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     if (_selected == null) {
       label = _t('Plan seç', 'Choose a plan', 'Plan wählen', 'Elige un plan');
     } else if (trial != null) {
-      label = _t('Ücretsiz Denemeyi Başlat', 'Start Free Trial', 'Gratis testen',
-          'Empezar prueba gratis');
+      label = _t('Ücretsiz Denemeyi Başlat', 'Start Free Trial',
+          'Gratis testen', 'Empezar prueba gratis');
     } else {
-      label = _t("Pro'yu Aç", 'Unlock Pro', 'Pro freischalten', 'Desbloquear Pro');
+      label =
+          _t("Pro'ya geç", 'Upgrade to Pro', 'Zu Pro wechseln', 'Pásate a Pro');
     }
 
     final String? sub;
@@ -1277,11 +1139,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               // Ana buton uygulamanin geri kalaniyla ayni: basildiginda
               // gercekten cokuyor, yukleniyor durumunu kendi icinde
               // gosteriyor.
-              PressButton(
-                label: label,
-                loading: _purchasing,
+              ProDugme(
+                key: const ValueKey('pro-cta'),
+                etiket: proBuyukHarf(label, _lang),
+                yukleniyor: _purchasing,
+                hareketsiz: _hareketsiz,
                 onPressed: enabled ? _purchase : null,
-                height: 52,
               ),
               if (sub != null) ...[
                 const SizedBox(height: 6),
@@ -1469,72 +1332,5 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         );
       }
     }
-  }
-}
-
-/// Plan kartindaki secim gostergesi.
-
-/// Paywall arka plani.
-///
-/// Ekran duz beyazdi ve "kurumsal" degil bos duruyordu. Yavasca yer degistiren
-/// iki renk kumesi koyduk: dikkat dagitmayacak kadar yavas (12 sn'lik dongu),
-/// metnin okunurlugunu bozmayacak kadar soluk. Hareketi azaltma ayari acikken
-/// animasyon durur, gradyan sabit kalir.
-/// Pro ekranındaki maskot: yavaşça süzülüyor.
-///
-/// [Mascot] zaten nefes alıp göz kırpıyor; buradaki ek hareket yukarı
-/// aşağı küçük bir süzülme. Bulutların arasında duran bir karakter
-/// hissi veriyor. Hareket azaltılmışsa sabit duruyor.
-class _FloatingMascot extends StatefulWidget {
-  const _FloatingMascot({required this.size});
-
-  final double size;
-
-  @override
-  State<_FloatingMascot> createState() => _FloatingMascotState();
-}
-
-class _FloatingMascotState extends State<_FloatingMascot>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 3200),
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !Motion.reduced(context)) _c.repeat(reverse: true);
-    });
-  }
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: AnimatedBuilder(
-        animation: _c,
-        builder: (context, child) {
-          final t = Curves.easeInOut.transform(_c.value);
-          return Transform.translate(
-            offset: Offset(0, -t * widget.size * 0.06),
-            child: child,
-          );
-        },
-        // Maskot AnimatedBuilder'in disinda kuruluyor: her karede
-        // yeniden yaratilmasi gerekmiyor, yalnizca taşınıyor.
-        child: Mascot(
-          size: widget.size,
-          mood: MascotMood.cheering,
-          showShadow: false,
-        ),
-      ),
-    );
   }
 }

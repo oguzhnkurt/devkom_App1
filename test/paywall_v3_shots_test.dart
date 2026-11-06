@@ -61,8 +61,13 @@ void main() {
           ),
         ),
       ));
-      for (var i = 0; i < 10; i++) {
+      for (var i = 0; i < 20; i++) {
         await tester.pump(const Duration(milliseconds: 200));
+        if (i == 2) {
+          // Maskot gorselinin cozulmesi gercek zaman istiyor.
+          await tester.runAsync(
+              () => Future<void>.delayed(const Duration(milliseconds: 400)));
+        }
       }
       await tester.runAsync(() async {
         final b = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;

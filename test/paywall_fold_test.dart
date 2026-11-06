@@ -22,7 +22,6 @@ import 'sahte_magaza.dart';
 import 'package:devkom_app/providers/settings_provider.dart';
 import 'package:devkom_app/screens/subscription_screen.dart';
 import 'package:devkom_app/theme.dart';
-import 'package:devkom_app/ui/press_button.dart';
 
 Future<void> _fontlar() async {
   final l = FontLoader('Nunito');
@@ -70,7 +69,7 @@ void main() {
           reason: 'plan bölümünün başlangıcı işaretlenmemiş');
 
       final plansBottom = tester.getBottomLeft(plansAnchor).dy;
-      final ctaTop = tester.getTopLeft(find.byType(PressButton)).dy;
+      final ctaTop = tester.getTopLeft(find.byKey(const ValueKey('pro-cta'))).dy;
       // Alt cubugun ust kenari dugmenin ~10 px ustunde.
       expect(plansBottom, lessThanOrEqualTo(ctaTop - 10),
           reason: '$lang: plan kartlari alt cubugun altinda kaliyor '
