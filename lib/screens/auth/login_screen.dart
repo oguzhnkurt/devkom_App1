@@ -9,7 +9,6 @@ import '../../services/permission_manager.dart';
 import '../../theme.dart';
 import '../../widgets/code_hero_background.dart';
 import '../../widgets/permission_sheet.dart';
-import '../role_based_home_screen.dart';
 import 'auth_wrapper.dart';
 import 'register_screen.dart';
 import '../../utils/lang.dart';
@@ -92,7 +91,9 @@ class _LoginScreenState extends State<LoginScreen> {
       await _showPermissionSheetIfNeeded();
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const RoleBasedHomeScreen()),
+        // Ana ekran degil AuthWrapper: abonelik kapisi giristen sonra yeniden
+        // karar versin (hediye Pro / Adapty). Dogrudan ana ekran kapiyi atliyordu.
+        MaterialPageRoute(builder: (_) => const AuthWrapper()),
         (route) => false,
       );
     } else if (authProvider.errorMessage != null) {
@@ -129,7 +130,9 @@ class _LoginScreenState extends State<LoginScreen> {
       await _showPermissionSheetIfNeeded();
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const RoleBasedHomeScreen()),
+        // Ana ekran degil AuthWrapper: abonelik kapisi giristen sonra yeniden
+        // karar versin (hediye Pro / Adapty). Dogrudan ana ekran kapiyi atliyordu.
+        MaterialPageRoute(builder: (_) => const AuthWrapper()),
         (route) => false,
       );
     } else if (authProvider.errorMessage != null) {

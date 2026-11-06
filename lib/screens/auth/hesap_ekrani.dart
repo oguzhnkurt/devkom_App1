@@ -103,6 +103,24 @@ class _HesapEkraniState extends State<HesapEkrani> {
                             'Auf diesem Handy', 'En este teléfono')
                         : (user.email.isEmpty ? '—' : user.email),
                   ),
+                  // Anonim kullanici (or. odeme ekranindan gelen) mevcut
+                  // hesabiyla giris yapabilsin: baska cihazda abone olan veli
+                  // ve Google Play inceleme hesabi bu yoldan giriyor.
+                  if (auth.isAnonymous) ...[
+                    _ayirac(),
+                    _satir(
+                      ikon: Icons.login_rounded,
+                      renk: AppTheme.primaryBlue,
+                      baslik: _t('Hesabın var mı?', 'Have an account?',
+                          'Schon ein Konto?', '¿Tienes una cuenta?'),
+                      deger: _t('Giriş yap', 'Sign in', 'Anmelden',
+                          'Iniciar sesión'),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      ),
+                    ),
+                  ],
                 ],
               ),
               const SizedBox(height: 18),

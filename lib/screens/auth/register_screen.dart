@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/user_model.dart';
 import '../../utils/app_localizations.dart';
-import '../role_based_home_screen.dart';
+import 'auth_wrapper.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -106,11 +106,10 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       // gecikmeye de gerek kalmiyor.
       final messenger = ScaffoldMessenger.of(context);
 
-      // Amac secimi adimi kaldirildi (tek kullanici tipi): dogrudan ana ekran.
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const RoleBasedHomeScreen(),
-        ),
+      // Kayittan sonra AuthWrapper: abonelik kapisi yeniden karar veriyor.
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const AuthWrapper()),
+        (route) => false,
       );
 
       messenger.showSnackBar(
